@@ -1,0 +1,46 @@
+---
+import '../styles/global/main.scss' // Global Styles (Import on all Pages)
+
+export interface Props {
+    title: string;
+    description: string;
+    url: string;
+}
+const {title, description, url} = Astro.props;
+---
+<!-- Meta Tags Gerais -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="author" content="Henrique Nocera"/>
+<meta property="og:type" content="website"/>
+<meta property="og:locale" content="pt_BR"/>
+<link rel="shortcut icon" href="/favicon.ico"/>
+
+
+<!-- Meta Image (Facebook)  -->
+<meta property="og:image" content="https://www.carmellagelateria.com.br/assets/facebook-meta-img.jpg"/>
+<meta property="og:image:type" content="image/jpg"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="1200"/>
+
+<!-- Meta Image (Whatsapp) -->
+<meta property="og:image" content="https://www.carmellagelateria.com.br/assets/whatsapp-meta-img.jpg"/>
+<meta property="og:image:type" content="image/jpg"/>
+<meta property="og:image:width" content="400"/>
+<meta property="og:image:height" content="400"/>
+
+<!--  Meta Tags Específicas da Página -->
+<meta property="og:url" content={url} />
+<meta name="title" property="og:title" content={title} />
+<meta name="description" property="og:description" content={description}/>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mulish:wght@400;700&display=swap" rel="stylesheet">
+
+<title>{title}</title>
+
+
+</head>
