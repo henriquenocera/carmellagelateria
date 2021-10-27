@@ -1,9 +1,7 @@
 @use "../global/variables" as *;
 
 .hero {
-  background-image: url("/images/background.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
+  background: #f3f1dd;
   height: 100vh;
   .logo {
     margin: 0 auto;
