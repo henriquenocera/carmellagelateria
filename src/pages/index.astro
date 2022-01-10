@@ -4,194 +4,72 @@ import BaseBody from '../layout/BaseBody.astro'
 
 import '../styles/pages/index.scss' // Page Style
 
-const title = "Axios Corp | Desenvolvimento de Sites e Lojas Virtuais"
-const description = "Criação de Sites Profissionais, evolua sua presença na Web | Parcelamos em até 3x sem Juros |
-Entre em contato e solicite um Orçamento!"
-const url = "https://www.axioscorp.com.br/"
+const title = "Carmella Gelateria Artigianale"
+const description = `Lorem ipsum dolor sit amet consectetur, adipisicing elit. A incidunt reiciendis vitae nam quis.
+facilis velit fugiat ipsa nemo recusandae, ducimus, repellendus amet laboriosam reprehenderit. Omnis, ab.`
+const url = "https://www.carmellagelateria.com.br/"
 ---
+
 
 <html lang="pt-BR">
 <BaseHead title={title} description={description} url={url} />
 <BaseBody>
 
-	<!-- Hero Section -->
 	<section class="hero">
 		<div class="container">
-			<p class="smallText">Somos a agência que você pode confiar!</p>
-			<div class="heroText">
-				<h1 class="title">Desenvolvimento de Sites <br /> & Lojas Virtuais</h1>
-				<p class="subTitle">Evolua sua presença na internet.</p>
-			</div>
+			<h1>O Melhor Gelato </br>da Cidade.</h1>
+			<h3>Produtos 100% naturais para garantir a melhor qualidade possível</h3>
+			<a class="button" href="">Saiba Mais</a>
 		</div>
-		<img class="axios" src="/images/axios.svg" alt="Axios" />
-		<img class="corp" src="/images/corp.svg" alt="Corp" />
 	</section>
 
-	<!-- Services Section -->
-	<section class="services">
+	<section class="cards">
 		<div class="container">
-			<h4 class="title">Serviços</h4>
-			<h3 class="subTitle">Criação de Sites, Lojas Virtuais, Logos, Google Ads e SEO</h3>
+			<img class="card-1" src="/assets/home-card-1.jpg" alt="">
+			<img class="card-2" src="/assets/home-card-2.jpg" alt="">
+			<img class="card-3" src="/assets/home-card-3.jpg" alt="">
+			<img class="card-4" src="/assets/home-card-4.jpg" alt="">
 		</div>
-		<div class="container">
-			<main class="gridContainer">
-				<a href="/servicos/criacao-de-sites">
-					<article class="gridItem">
-						<img src="/images/sites-profissionais.svg" alt="Sites profissionais" />
-						<h2>Criação de Sites Profissionais</h2>
-						<p>Desenvolvemos seu site do zero com um layout exclusivo, sem templates prontos. Você ganha acesso total ao
-							seu site, e pode editar como quiser.</p>
-					</article>
-				</a>
-
-				<a href="/servicos/criacao-de-lojas-virtuais">
-					<article class="gridItem">
-						<img src="/images/lojas-virtuais.svg" alt="Lojas Virtuais" />
-						<h2>Criação de Lojas Virtuais</h2>
-						<p>Sua própria loja virtual integrada com os principais gateways de pagamento. Venda sem sair de casa para
-							todo o Brasil.</p>
-					</article>
-				</a>
-
-				<a href="/servicos/manutencao-de-sites">
-					<article class="gridItem">
-						<img src="/images/manutenção.svg" alt="Manutenção de Sites" />
-						<h2>Manutenção Especializada</h2>
-						<p>Seu site está lento? Nós fazemos a manutenção do seu site, varredura de malwares, atualizações de
-							segurança, revisões de conteúdo, e otimização de velocidade.</p>
-					</article>
-				</a>
-
-				<a href="/servicos/consultoria-seo">
-					<article class="gridItem">
-						<img src="/images/consultoria-seo.svg" alt="Consultoria em SEO" />
-						<h2>Consultoria em SEO</h2>
-						<p>Um bom site precisa ser encontrado. Não adianta nada criar seu site perfeito e ninguém acessar ele, e
-							para você chegar ao topo do Google precisa de muito esforço.</p>
-					</article>
-				</a>
-
-				<a href="/servicos/design-de-interfaces">
-					<article class="gridItem">
-						<img src="/images/design.svg" alt="Design de Interfaces" />
-						<h2>Design de Interfaces</h2>
-						<p>O seu site é a identidade visual do seu negócio na internet. E seu negócio merece um layout moderno e
-							exclusivo</p>
-					</article>
-				</a>
-
-				<a href="/servicos/marketing-digital">
-					<article class="gridItem">
-						<img src="/images/marketing-digital.svg" alt="Marketing Digital" />
-						<h2>Marketing Digital</h2>
-						<p>Campanhas pagas no Google, Facebook e Instagram. Impulsione seu negócio com mídias pagas e saia na frente
-							da concorrência.</p>
-					</article>
-				</a>
-
-			</main>
-		</div>
-
 	</section>
 
-	<!-- Google Section -->
-	<section class="google">
+	<section class="qualidade">
 		<div class="container">
 			<div class="left">
-				<img src="/images/google.svg" alt="" />
+				<img src="/assets/sorvete-coberto-em-calda.png" alt="">
 			</div>
 			<div class="right">
-				<h3 class="title">Seu Site <br /> No Google</h3>
-				<p class="description">Garanta já seu site na primeira página do Google. Nós criamos seu site visando o topo,
-					seguimos todas as boas práticas de SEO para que seu site tenha uma boa posição orgânica ao longo do tempo.
-				</p>
-				<div class="iconBox">
-					<img src="/images/ok.svg" alt="" />
-					<p>Sites que Geram Leads</p>
-				</div>
-				<div class="iconBox">
-					<img src="/images/ok.svg" alt="" />
-					<p>Técnicas de SEO avançadas</p>
-				</div>
-				<div class="iconBox">
-					<img src="/images/ok.svg" alt="" />
-					<p>Site Otimizado para o Google</p>
-				</div>
-				<div class="iconBox">
-					<img src="/images/ok.svg" alt="" />
-					<p>Seja Encontrado com Facilidade</p>
-				</div>
-			</div>
-		</div>
-	</section>
-
-	<!-- Responsive Section -->
-	<section class="responsive">
-		<div class="container">
-			<div class="left">
-				<h3 class="title">Design <br />Responsivo</h3>
-				<p class="description">Sites Responsivos se adaptam a qualquer tipo de dispositivo e tela. Eles garantem uma boa
-					experiência, para que seu usuário não enfrente dificuldades ao navegar em seu site pelo celular, tablets ou
-					notebooks.</p>
-				<div class="iconBox">
-					<img src="/images/ok-color.svg" alt="" />
-					<p>Layout 100% responsivo</p>
-				</div>
-				<div class="iconBox">
-					<img src="/images/ok-color.svg" alt="" />
-					<p>Celulares, Tablets e Notebooks</p>
-				</div>
-				<div class="iconBox">
-					<img src="/images/ok-color.svg" alt="" />
-					<p>Mesma Experiência em todos os dispositivos</p>
-				</div>
-				<div class="iconBox">
-					<img src="/images/ok-color.svg" alt="" />
-					<p>Design único e exlusivo</p>
+				<span>Qualidade Indiscutível</span>
+				<h2>Gelato de Verdade</h2>
+				<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum
+					sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet,
+					consectetuer dipiscing</p>
+				<div class="topicos">
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
 				</div>
 			</div>
-			<div class="right">
-				<img src="/images/design-responsive.png" alt="" />
-			</div>
-		</div>
-	</section>
-
-	<!-- Digital Section -->
-	<section class="digitalizar">
-		<div class="container">
-			<h3 class="title">Venha se digitalizar</h3>
-			<h4 class="subTitle">Se você não está na internet, você está aonde?</h4>
-			<p class="description">Seus clientes antes de finalizarem uma compra com você, irão te procurar em diversas redes
-				sociais para mais informações. Apresentar um site profissional para eles vai trazer mais confiança e segurança
-				na hora da compra.</p>
-		</div>
-		<div class="gridContainer">
-			<div class="gridItem text1">
-				<h2 class="gridTitle">Um site que cabe<br /> no seu Bolso</h2>
-				<div class="line"></div>
-				<div class="gridDescription">Parcelamos em até 3x no boleto ou no cartão de crédito. Já está na hora de você se
-					digitalizar, pare de perder tempo e solicite um orçamento sem compromisso.</div>
-			</div>
-
-			<div class="gridItem text2">
-				<h2 class="gridTitle">Otimização <br /> & Performance</h2>
-				<div class="line"></div>
-				<div class="gridDescription">Um site que demora mais de 3 segundos para carregar é penalizado pelo
-					Google, isso é um fato! Saia na frente da sua concorrência e garanta o seu site otimizado com uma performance
-					de
-					alta qualidade.</div>
-			</div>
-
-			<div class="gridItem text3">
-				<h2 class="gridTitle">Sem Taxas extras. <br /> O site é seu!</h2>
-				<div class="line"></div>
-				<div class="gridDescription">Após a finalização do seu site, não cobramos nenhum tipo de taxa ou
-					manutenção obrigatória, o site é 100% seu e você pode realizar as alterações que desejar.</div>
-			</div>
-
-			<div class="gridItem img1"></div>
-			<div class="gridItem img2"></div>
-			<div class="gridItem img3"></div>
 		</div>
 	</section>
 
