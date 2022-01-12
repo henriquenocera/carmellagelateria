@@ -1,7 +1,6 @@
 @use "../global/variables" as *;
 
 .hero {
-  width: 100vw;
   height: 900px;
   background-image: url("/assets/gelato-background.jpg");
   background-repeat: no-repeat;
@@ -16,17 +15,17 @@
   }
 
   h1 {
-    font-size: 6.2rem;
-    font-weight: 700;
     text-align: center;
     margin-bottom: 40px;
+    color: $textColor;
   }
   h3 {
-    font-size: 2rem;
+    font-size: clamp(1.6rem, 2vw, 2.4rem);
     max-width: 360px;
     text-align: center;
     font-weight: 400;
     margin-bottom: 50px;
+    color: $textColor;
   }
   .button {
     background: $mainColor;
@@ -38,9 +37,10 @@
 }
 
 .cards {
-  margin-top: -400px;
+  margin-top: -450px;
   .container {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
     justify-content: center;
     align-items: center;
 
@@ -55,6 +55,57 @@
     }
     .card-4 {
       margin-bottom: 160px;
+    }
+  }
+  @media (max-width: 1300px) {
+    .container {
+      grid-template-columns: 1fr 1fr;
+
+      img,
+      .card-1,
+      .card-2,
+      .card-3,
+      .card-4 {
+        margin: 0;
+        justify-self: center;
+      }
+      .card-1 {
+        justify-self: flex-end;
+        align-self: flex-end;
+        margin-right: 20px;
+        margin-bottom: -80px;
+      }
+      .card-2 {
+        justify-self: flex-start;
+        align-self: flex-end;
+        margin-bottom: 20px;
+      }
+      .card-3 {
+        justify-self: flex-end;
+        align-self: flex-start;
+        margin-right: 20px;
+        margin-top: 100px;
+      }
+      .card-4 {
+        justify-self: flex-start;
+        margin-bottom: 60px;
+        align-self: flex-start;
+      }
+    }
+  }
+  @media (max-width: 676px) {
+    .container {
+      grid-template-columns: 1fr;
+
+      img,
+      .card-1,
+      .card-2,
+      .card-3,
+      .card-4 {
+        margin: 0;
+        margin-bottom: 20px;
+        justify-self: center;
+      }
     }
   }
 }
@@ -101,6 +152,64 @@
           font-weight: 400;
         }
       }
+    }
+  }
+}
+
+.produtos {
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .left {
+    width: 35%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .innerTop {
+      margin-bottom: 80px;
+      span {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: $mainColor;
+      }
+      h2 {
+        font-size: 4rem;
+        font-weight: 400;
+        color: $textColor;
+
+        margin-bottom: 15px;
+      }
+      p {
+        font-size: 1.6rem;
+        font-weight: 400;
+        color: $textColor;
+        max-width: 355px;
+      }
+    }
+    .innerBottom {
+      .img-dog {
+        &::after {
+        }
+      }
+    }
+  }
+  .right {
+    width: 65%;
+    .innerTop {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-bottom: 30px;
+      .img-frutas {
+        margin-right: 30px;
+      }
+    }
+    .innerBottom {
+      display: flex;
+      justify-content: flex-end;
     }
   }
 }
