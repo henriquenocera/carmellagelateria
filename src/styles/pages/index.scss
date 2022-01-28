@@ -505,14 +505,153 @@
     }
     .right {
       width: 100%;
-      .innerTop {
-      }
     }
   }
   @media (max-width: 868px) {
     .left {
       .innerTop {
         margin-left: 30px;
+      }
+      .innerBottom {
+        .overlay {
+          .img-title {
+            font-size: 2.4rem;
+          }
+          .img-text {
+            font-size: 1.6rem;
+          }
+        }
+      }
+    }
+    .right {
+      .innerTop {
+        .overlay {
+          .img-title {
+            font-size: 2.4rem;
+          }
+          .img-text {
+            font-size: 1.6rem;
+          }
+        }
+      }
+      .innerBottom {
+        .overlay {
+          .img-title {
+            font-size: 2.4rem;
+          }
+          .img-text {
+            font-size: 1.6rem;
+          }
+        }
+      }
+    }
+  }
+  @media (max-width: 676px) {
+    .left {
+      flex-direction: column;
+
+      .innerBottom,
+      .innerTop {
+        width: 100%;
+      }
+      .innerTop {
+        margin-left: 0px;
+        height: auto;
+        div {
+          justify-content: center;
+          align-items: center;
+          text-align: center;
+          margin-bottom: 30px;
+
+          & ~ div {
+            align-self: center;
+          }
+        }
+        p {
+          max-width: 100%;
+        }
+      }
+      .innerBottom {
+        display: flex;
+        justify-content: center;
+        .dog {
+          img {
+            width: 300px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 10px;
+          }
+        }
+      }
+    }
+    .right {
+      .innerTop {
+        flex-direction: column;
+
+        .frutas {
+          margin-right: 0px;
+          margin-bottom: 30px;
+          img {
+            width: 300px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 10px;
+          }
+        }
+        .especiais {
+          img {
+            width: 300px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 10px;
+          }
+        }
+      }
+      .innerBottom {
+        justify-content: center;
+        .experiencia {
+          img {
+            width: 300px;
+            height: 500px;
+            object-fit: cover;
+            border-radius: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+
+.comentarios {
+  .intro {
+    span {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: $mainColor;
+      text-align: center;
+      display: block;
+    }
+    h2 {
+      font-size: 4rem;
+      font-weight: 400;
+      color: $textColor;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .box {
+      .text {
+      }
+      .autor {
+      }
+      img {
+      }
+    }
+  }
+
+  @media (max-width: 1300px) {
+    .intro {
+      h2 {
+        font-size: 3rem;
       }
     }
   }
