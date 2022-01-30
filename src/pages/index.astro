@@ -86,7 +86,7 @@ const url = "https://www.carmellagelateria.com.br/"
 							natoque penatibus et magnis</p>
 					</div>
 					<div>
-						<a class="button" href="#">Conheça nossas Lojas</a>
+						<a class="button" href="#">Seja um Licenciado</a>
 					</div>
 				</div>
 				<div class="innerBottom">
@@ -123,24 +123,80 @@ const url = "https://www.carmellagelateria.com.br/"
 	</section>
 
 	<section class="comentarios">
-		<div class="intro container">
+		<div class="intro">
 			<span>Comentários</span>
 			<h2>O Que Falam Sobre Nós</h2>
 		</div>
 		<div class="container">
-			<div class="box">
-				<p class="text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-					Aenean commodo ligula eget
-					dolor.</p>
-				<div>
-					<span class="autor">John Doe</span>
-					<img src="/assets/quotes.svg" alt="">
+
+			<div class="glide">
+				<div data-glide-el="track" class="glide__track">
+					<ul class="glide__slides">
+						<li class="glide__slide box">
+							<p class="text">Melhores Gelatos da cidade sem nenhuma dúvida.</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+						<li class="glide__slide box">
+							<p class="text">Vou toda a semana coma a minha família, eles possuem uma variedade de sabores incríveis.
+								Toda a família ama!</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+						<li class="glide__slide box">
+							<p class="text">Simplesmente sencacional, qualidade sem igual, a Carmella Gelateria já virou a nossa
+								preferida.</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+
+						<li class="glide__slide box">
+							<p class="text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus, suscipit!</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+
+					</ul>
 				</div>
+
 			</div>
 		</div>
+
 	</section>
 
 
+	<script src="node_modules/@glidejs/glide/dist/glide.min.js"></script>
+
+	<script>
+
+		new Glide('.glide', {
+			type: 'carousel',
+			startAt: 0,
+			perView: 3,
+			autoplay: 4000,
+			hoverpause: true,
+			animationDuration: 750,
+			gap: 30,
+			breakpoints: {
+				1092: {
+					perView: 2,
+				},
+				676: {
+					perView: 1,
+				}
+			}
+
+
+		}).mount()
+	</script>
 </BaseBody>
 
 </html>

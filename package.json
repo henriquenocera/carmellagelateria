@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "astro": "^0.22.7"
+  },
+  "dependencies": {
+    "@glidejs/glide": "^3.5.2"
   }
 }

@@ -483,6 +483,8 @@
         justify-content: space-between;
         .button {
           display: flex;
+          justify-content: center;
+          align-items: center;
           font-size: 2.2rem;
           font-weight: 400;
           border-radius: 5px;
@@ -638,13 +640,34 @@
       margin-bottom: 15px;
       text-align: center;
     }
-    .box {
-      .text {
-      }
-      .autor {
-      }
-      img {
-      }
+  }
+
+  .box {
+    width: 360px;
+    height: 250px;
+    background: #f9f2e4;
+    padding: 28px;
+    border-radius: 10px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    & div {
+      display: flex;
+      justify-content: space-between;
+    }
+    .text {
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: $textColor;
+    }
+    .autor {
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: $textColor;
+    }
+    img {
     }
   }
 
@@ -654,5 +677,10 @@
         font-size: 3rem;
       }
     }
+  }
+}
+
+.glide {
+  .glide__slides {
   }
 }
