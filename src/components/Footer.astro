@@ -1,32 +1,35 @@
 <footer class="footer">
-  <div class="left">
-    <img src="/assets/logo-carmella.svg" alt="">
-    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</p>
-    <div class="icons">
-      <img src="/assets/instagram.svg" alt="">
-      <img src="/assets/facebook.svg" alt="">
-      <img src="/assets/ifood.svg" alt="">
+  <section class="container">
+    <div class="left">
+      <img class="logo" src="/assets/logo-carmella.svg" alt="">
+      <p class="footerText">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+      </p>
+      <div class="icons">
+        <a href="#"><img src="/assets/instagram.svg" alt=""></a>
+        <a class="facebook" href="#"><img src="/assets/facebook.svg" alt=""></a>
+        <a href="#"><img src="/assets/ifood.svg" alt=""></a>
+      </div>
+      <span class="dev">Desenvolvido por Henrique Nocera</span>
     </div>
-    <span class="dev">Desenvolvido por Henrique Nocera</span>
-  </div>
-  <div class="middle">
-    <p class="title">Menu Fácil</p>
-    <span class="line"></span>
-    <div class="menu">
-      <a href="#">Home</a>
-      <a href="#">Sobre Nós</a>
-      <a href="#">Seja um Licenciado</a>
-      <a href="#">Nossas Lojas</a>
-      <a href="#">Contato</a>
-      <a href="#">Área do Licenciado</a>
+    <div class="middle">
+      <p class="title">Menu Fácil</p>
+      <span class="line"></span>
+      <div class="menu">
+        <a href="#">Home</a>
+        <a href="#">Sobre Nós</a>
+        <a href="#">Seja um Licenciado</a>
+        <a href="#">Nossas Lojas</a>
+        <a href="#">Contato</a>
+        <a href="#">Área do Licenciado</a>
+      </div>
     </div>
-  </div>
-  <div class="right">
-    <p class="title">Carmella Gelateria Artigianale</p>
-    <span class="line"></span>
-    <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</p>
-    <span class="copyright">Copyright © 2021. All rights reserved.</span>
-  </div>
+    <div class="right">
+      <p class="title">Carmella Gelateria Artigianale</p>
+      <span class="line"></span>
+      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</p>
+      <span class="copyright">Copyright © 2021. All rights reserved.</span>
+    </div>
+  </section>
 </footer>
 
 
@@ -34,17 +37,115 @@
   @use "../styles/global/variables"as *;
 
   .footer {
+
+    * {
+
+      border: 1px solid lightpink;
+    }
     width: 100%;
-    height: 400px;
 
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    border: 1px solid black;
+    background: #FCF9EF;
 
-    .left {}
+    .container {
 
-    .middle {}
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
 
-    .right {}
+    .left {
+      .logo {
+        margin-bottom: 40px;
+      }
+
+      .footerText {
+        font-size: 1.6rem;
+        font-weight: 400;
+        max-width: 260px;
+      }
+
+      .icons {
+        display: flex;
+        margin-top: 30px;
+        margin-bottom: 30px;
+
+        .facebook {
+          margin-left: 15px;
+          margin-right: 15px;
+        }
+      }
+
+      .dev {
+        font-size: 1.4rem;
+        font-weight: 400;
+      }
+    }
+
+    .middle {
+       display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+      .title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+      .line {
+        width: 100px;
+        height: 4px;
+        background: $mainColor;
+        border-radius: 10px;
+        margin-bottom: 30px;
+
+      }
+      .menu {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+
+        a {
+          text-decoration: none;
+          color: $textColor;
+          font-size: 1.6rem;
+          font-weight: 400;
+          margin-bottom: 15px;
+        }
+      }
+    }
+
+    .right {
+
+
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      .title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+      }
+      .line {
+        width: 100px;
+        height: 4px;
+        background: $mainColor;
+        border-radius: 10px;
+        margin-bottom: 30px;
+
+      }
+      p {
+        font-size: 1.6rem;
+        font-weight: 400;
+        max-width: 260px;
+        margin-bottom: 25px;
+      }
+      .copyright {
+        font-size: 1.6rem;
+        font-weight: 400;
+      }
+    }
   }
 </style>
