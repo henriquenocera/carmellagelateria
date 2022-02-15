@@ -24,6 +24,7 @@ body {
   line-height: 1.35;
   font-weight: 400;
   font-family: "Raleway", sans-serif;
+  // font-family: 'Redressed', cursive;
 }
 
 img {
@@ -71,6 +72,8 @@ textarea {
   padding: 50px 20px;
   margin-right: auto;
   margin-left: auto;
+
+  border: 1px solid black;
 }
 
 @media (min-width: 676px) {
