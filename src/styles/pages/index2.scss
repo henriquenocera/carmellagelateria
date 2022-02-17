@@ -36,27 +36,25 @@
     position: absolute;
     bottom: 0;
     right: -7rem;
+    bottom: -6rem;
   }
   .container {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    * {
-    }
   }
 
   .left,
   .right {
     display: flex;
     flex-direction: column;
+    z-index: 1;
   }
 
   .left {
     width: 40%;
     align-items: flex-start;
 
-    .img1 {
-    }
     .img2 {
       margin-left: 170px;
       margin-top: -140px;
@@ -83,7 +81,7 @@
       width: 50%;
     }
   }
-  @media (max-width: 868px) {
+  @media (max-width: 867px) {
     .container {
       flex-direction: column-reverse;
     }
@@ -108,6 +106,91 @@
     .left {
       .img1 {
         width: 80%;
+      }
+    }
+  }
+}
+
+.quality {
+  * {
+  }
+  position: relative;
+
+  .bigText {
+    position: absolute;
+    bottom: -6rem;
+    left: 0;
+  }
+  .container {
+    display: flex;
+  }
+
+  .left,
+  .right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    z-index: 1;
+  }
+
+  .left {
+    width: 45%;
+
+    .title-2 {
+      margin-bottom: 50px;
+    }
+  }
+
+  .right {
+    position: relative;
+    width: 55%;
+    .playButton {
+      position: absolute;
+      bottom: 60%;
+      left: -4rem;
+    }
+    .video {
+      margin-bottom: 50px;
+    }
+  }
+
+  @media (max-width: 1092px) {
+    .left {
+      padding: 2rem;
+      margin-right: 2rem;
+    }
+    .right {
+      padding: 2rem;
+
+      .playButton {
+        bottom: 70%;
+        left: -1.8rem;
+      }
+    }
+  }
+  @media (max-width: 897px) {
+    .container {
+      flex-direction: column;
+    }
+
+    .left,
+    .right {
+      width: 100%;
+      padding: 0px;
+    }
+    .left {
+      margin-bottom: 5rem;
+    }
+    .right {
+      flex-direction: column-reverse;
+
+      .playButton {
+        bottom: 30%;
+        left: -4rem;
+      }
+
+      .text {
+        margin-bottom: 3rem;
       }
     }
   }
