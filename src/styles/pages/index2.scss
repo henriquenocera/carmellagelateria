@@ -1,3 +1,5 @@
+@use "../global/variables" as *;
+
 .hero {
   .container {
     display: flex;
@@ -112,86 +114,186 @@
 }
 
 .quality {
+  position: relative;
+  .bigText {
+    position: absolute;
+    bottom: -5rem;
+    left: -5rem;
+  }
   * {
   }
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    grid-template-rows: 1fr 0.7fr;
+    grid-template-areas:
+      "grid-1 grid-2"
+      "grid-1 grid-3";
+  }
+
+  .grid-1,
+  .grid-2,
+  .grid-3 {
+    z-index: 1;
+  }
+
+  .grid-1 {
+    grid-area: grid-1;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    .title-2 {
+      margin-bottom: 4rem;
+    }
+  }
+
+  .grid-2 {
+    grid-area: grid-2;
+
+    position: relative;
+    margin-bottom: 5rem;
+
+    .playButton {
+      position: absolute;
+      bottom: 40%;
+      left: -7%;
+    }
+  }
+
+  .grid-3 {
+    grid-area: grid-3;
+
+    display: flex;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 1300px) {
+    .container {
+      grid-template-columns: 1fr 1.1fr;
+    }
+  }
+  @media (max-width: 1091px) {
+    .container {
+      grid-template-columns: 1fr 1.2fr;
+    }
+
+    .grid-1 {
+      margin-right: 5rem;
+    }
+  }
+
+  @media (max-width: 867px) {
+    .container {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      grid-template-areas:
+        "grid-1 grid-3"
+        "grid-2 grid-2";
+    }
+
+    .grid-1 {
+      margin-right: 3rem;
+      margin-bottom: 3rem;
+    }
+    .grid-2 {
+      margin-bottom: 0;
+    }
+  }
+
+  @media (max-width: 675px) {
+    .container {
+      grid-template-columns: 1fr;
+      grid-template-rows: repeat(3, 0.2fr);
+      grid-template-areas:
+        "grid-1"
+        "grid-3"
+        "grid-2";
+    }
+
+    .grid-1 {
+      margin-right: 0;
+      margin-bottom: 0;
+      .img {
+        display: none;
+      }
+    }
+    .grid-2 {
+      padding: 2rem;
+
+      .playButton {
+        position: absolute;
+        bottom: 40%;
+        left: -3%;
+      }
+    }
+    .grid-3 {
+    }
+  }
+}
+
+.franchisee {
   position: relative;
 
   .bigText {
     position: absolute;
-    bottom: -6rem;
-    left: 0;
+    bottom: -5rem;
+    right: -3rem;
   }
   .container {
     display: flex;
-  }
+    justify-content: center;
+    align-items: center;
 
-  .left,
-  .right {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    z-index: 1;
+    * {
+    }
   }
 
   .left {
+    z-index: 1;
     width: 45%;
+    margin-right: 10rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    .box {
+      border: 1px solid $mainColor;
+      border-radius: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      height: 12rem;
+      margin-bottom: 8rem;
+      &:last-child {
+        margin-bottom: 0;
+      }
+      img {
+        position: absolute;
+        top: -3.5rem;
+      }
+      h3 {
+        font-size: 2rem;
+        font-weight: 400;
+      }
+    }
+  }
+  .right {
+    z-index: 1;
+    width: 55%;
 
     .title-2 {
-      margin-bottom: 50px;
+      margin-bottom: 2rem;
     }
-  }
-
-  .right {
-    position: relative;
-    width: 55%;
-    .playButton {
-      position: absolute;
-      bottom: 60%;
-      left: -4rem;
+    .title-3 {
+      margin-bottom: 1rem;
     }
-    .video {
-      margin-bottom: 50px;
+    .mg {
+      margin-bottom: 3.5rem;
     }
-  }
-
-  @media (max-width: 1092px) {
-    .left {
-      padding: 2rem;
-      margin-right: 2rem;
-    }
-    .right {
-      padding: 2rem;
-
-      .playButton {
-        bottom: 70%;
-        left: -1.8rem;
-      }
-    }
-  }
-  @media (max-width: 897px) {
-    .container {
-      flex-direction: column;
-    }
-
-    .left,
-    .right {
-      width: 100%;
-      padding: 0px;
-    }
-    .left {
-      margin-bottom: 5rem;
-    }
-    .right {
-      flex-direction: column-reverse;
-
-      .playButton {
-        bottom: 30%;
-        left: -4rem;
-      }
-
-      .text {
-        margin-bottom: 3rem;
-      }
+    .md {
+      margin-bottom: 8rem;
     }
   }
 }
