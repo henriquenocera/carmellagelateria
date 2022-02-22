@@ -1,5 +1,10 @@
 # build output
-dist
+public
+src
+.gitattributes
+.npmrc
+.stackblitzrc
+
 
 # dependencies
 node_modules/
