@@ -1,5 +1,11 @@
 @use "../global/variables" as *;
 
+//===============================================
+// Page Vendors 
+//===============================================
+@import "../vendors/glide/glide.core.scss";
+@import "../vendors/glide/glide.theme.scss";
+
 .hero {
   .container {
     display: flex;

@@ -5,13 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build": "rm -rf dist && astro build",
     "preview": "astro preview"
   },
   "devDependencies": {
     "astro": "^0.22.7"
   },
-  "dependencies": {
-    "@glidejs/glide": "^3.5.2"
-  }
+  "dependencies": {}
 }
