@@ -9,6 +9,9 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.20.12"
+    "astro": "^0.23.2"
+  },
+  "dependencies": {
+    "sass": "^1.49.9"
   }
 }
