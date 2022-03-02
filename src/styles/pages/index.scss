@@ -1,7 +1,7 @@
 @use "../global/variables" as *;
 
 //===============================================
-// Page Vendors 
+// Page Vendors
 //===============================================
 @import "../vendors/glide/glide.core.scss";
 @import "../vendors/glide/glide.theme.scss";
@@ -35,6 +35,75 @@
   .right {
     width: 60%;
     align-items: flex-end;
+    padding: 1.5rem;
+
+    .imgContainer {
+      position: relative;
+
+      .top {
+        background: $secondColor;
+        width: 75%;
+        height: 15px;
+
+        position: absolute;
+        top: -1.5em;
+        right: -1.5rem;
+      }
+      .right-p {
+        background: $secondColor;
+        width: 15px;
+        height: 70%;
+
+        position: absolute;
+        top: -1.5rem;
+        right: -1.5rem;
+      }
+      .left-p {
+        background: $secondColor;
+        width: 15px;
+        height: 70%;
+
+        position: absolute;
+        bottom: 0rem;
+        left: -1.5rem;
+      }
+      .bottom {
+        background: $secondColor;
+        width: 75%;
+        height: 15px;
+
+        position: absolute;
+        bottom: -1.5rem;
+        left: -1.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 1091px) {
+    .left {
+      width: 50%;
+      margin-right: 3rem;
+    }
+    .right {
+      width: 50%;
+    }
+  }
+  @media (max-width: 867px) {
+    .container {
+      flex-direction: column;
+    }
+    .left,
+    .right {
+      width: 100%;
+    }
+    .left {
+      margin-right: 0;
+      margin-bottom: 3rem;
+    }
+    .right {
+      justify-content: center;
+      align-items: center;
+    }
   }
 }
 
