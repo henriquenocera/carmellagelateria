@@ -1,37 +1,38 @@
 ---
-    import BaseHead from '../layout/BaseHead.astro'
-    import BaseBody from '../layout/BaseBody.astro'
+import BaseHead from '../layout/BaseHead.astro'
+import BaseBody from '../layout/BaseBody.astro'
 
-    import '../styles/pages/index.scss' // Page Style
+import '../styles/pages/index.scss' // Page Style
 
-    const title = "Carmella Gelateria"
-    const description = "Melhor gelateria de Curitiba. Venha experimentar!"
-    const url = "https://www.carmellagelateria.com.br/"
+const title = "Carmella Gelateria"
+const description = "Melhor gelateria de Curitiba. Venha experimentar!"
+const url = "https://www.carmellagelateria.com.br/"
 ---
 
 <html lang="pt-BR">
-<BaseHead title={title} description={description}  url={url} />
+<BaseHead title={title} description={description} url={url} />
 <BaseBody>
-<section class="hero">
+  <section class="hero">
     <div class="container">
       <img class="logo" src="/images/logo-carmella.svg" alt="Logo Carmella">
-      <h1>Site em Construção</h1>
+      <h1>Site em Desenvolvimento</h1>
       <p class="novidades">Em breve novidades</p>
 
       <img class="construction" src="/images/construction.png" alt="">
 
       <p class="addres">Rua Colombo 183, Ahú - Curitiba/PR</p>
-      <span class="time">Seg à Sex - 13:00 às 19:00</span>
-      <span class="time">Sáb e Dom - 13:00 às 20:00</span>
+      <span class="time">Seg à Dom - 12:00 às 19:00</span>
 
       <div class="flex">
-        <a href="https://www.instagram.com/carmellagelateria/"><img class="instagram" src="/images/instagram.svg" alt=""></a>
+        <a href="https://www.instagram.com/carmellagelateria/"><img class="instagram" src="/images/instagram.svg"
+            alt=""></a>
         <a href="https://www.facebook.com/carmellagelateria"><img src="/images/facebook-svg.svg" alt=""></a>
-        
+
       </div>
     </div>
-</section>
+  </section>
 
 
 </BaseBody>
+
 </html>
