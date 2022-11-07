@@ -240,7 +240,12 @@
     grid-area: grid-3;
 
     display: flex;
+    flex-direction: column;
     align-items: flex-start;
+
+    .text {
+      margin-bottom: 2rem;
+    }
   }
 
   @media (max-width: 1300px) {
@@ -274,6 +279,9 @@
     .grid-2 {
       margin-bottom: 0;
     }
+    .grid-3 {
+      justify-content: center;
+    }
   }
 
   @media (max-width: 675px) {
@@ -305,7 +313,7 @@
   }
 }
 
-.franchisee {
+.gelato {
   position: relative;
 
   .bigText {
@@ -390,14 +398,12 @@
     }
     .left {
       margin-right: 0;
+      display: none;
 
       .box {
         height: auto;
         padding: 5rem 4rem;
       }
-    }
-    .right {
-      margin-bottom: 10rem;
     }
   }
 }

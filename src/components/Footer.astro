@@ -2,14 +2,16 @@
   <section class="container">
     <div class="left">
       <img class="logo" src="/assets/logo-carmella.svg" alt="">
-      <p class="footerText">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
+      <p class="footerText">Carmella Gelateria, gelato de verdade e uma qualidade indiscutível.
       </p>
       <div class="icons">
-        <a href="#"><img src="/assets/instagram.svg" alt=""></a>
-        <a class="facebook" href="#"><img src="/assets/facebook.svg" alt=""></a>
-        <a href="#"><img src="/assets/ifood.svg" alt=""></a>
+        <a href="https://www.instagram.com/carmellagelateria/"><img src="/assets/instagram.svg" alt=""></a>
+        <a class="facebook" href="https://www.facebook.com/carmellagelateria"><img src="/assets/facebook.svg"
+            alt=""></a>
+        <a href="https://www.ifood.com.br/delivery/curitiba-pr/olga-waffle-ahu/b8f4806a-7fd6-4df5-a739-65fc17356556"><img
+            src="/assets/ifood.svg" alt=""></a>
       </div>
-      <span class="dev">Desenvolvido por Henrique Nocera</span>
+      <!-- <span class="dev">Desenvolvido por Henrique Nocera</span> -->
     </div>
     <div class="middle">
       <p class="title">Menu Fácil</p>
@@ -17,24 +19,22 @@
       <div class="menu">
         <a href="#">Home</a>
         <a href="#">Sobre Nós</a>
-        <a href="#">Seja um Licenciado</a>
         <a href="#">Nossas Lojas</a>
         <a href="#">Contato</a>
-        <a href="#">Área do Licenciado</a>
       </div>
     </div>
     <div class="right">
       <p class="title">Carmella Gelateria Artigianale</p>
       <span class="line"></span>
-      <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.</p>
-      <span class="copyright">Copyright © 2021. All rights reserved.</span>
+      <p>Venha Experimentar! Confira as nossas Lojas</p>
+      <span class="copyright">Copyright © 2022.</span>
     </div>
   </section>
 </footer>
 
 
 <style lang="scss">
-  @use "../styles/global/variables"as *;
+  @use "../styles/global/variables" as *;
 
   .footer {
 
@@ -52,6 +52,7 @@
 
     .left {
       width: 35%;
+
       .logo {
         margin-bottom: 40px;
       }
@@ -81,15 +82,17 @@
 
     .middle {
       width: 25%;
-       display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+
       .title {
         font-size: 2.2rem;
         font-weight: 600;
         margin-bottom: 20px;
       }
+
       .line {
         width: 100px;
         height: 4px;
@@ -98,6 +101,7 @@
         margin-bottom: 30px;
 
       }
+
       .menu {
         display: flex;
         flex-direction: column;
@@ -122,12 +126,14 @@
       flex-direction: column;
       justify-content: flex-start;
       align-items: flex-start;
+
       .title {
         font-size: 2.2rem;
         font-weight: 600;
         margin-bottom: 20px;
         max-width: 100%;
       }
+
       .line {
         width: 100px;
         height: 4px;
@@ -136,12 +142,14 @@
         margin-bottom: 30px;
 
       }
+
       p {
         font-size: 1.6rem;
         font-weight: 400;
         max-width: 260px;
         margin-bottom: 25px;
       }
+
       .copyright {
         font-size: 1.6rem;
         font-weight: 400;
@@ -152,36 +160,49 @@
       .left {
         width: 30%;
       }
+
       .middle {
         width: 20%;
       }
+
       .right {
         width: 40%;
       }
     }
+
     @media (max-width: 868px) {
       .container {
         flex-direction: column;
         align-items: center;
       }
-      .left, .middle, .right {
+
+      .left,
+      .middle,
+      .right {
         width: 55%;
       }
-      .left, .middle {
+
+      .left,
+      .middle {
         margin-bottom: 45px;
       }
     }
-    
+
     @media (max-width: 500px) {
 
-      .left, .middle, .right {
+      .left,
+      .middle,
+      .right {
         width: 60%;
       }
 
     }
+
     @media (max-width: 400px) {
 
-      .left, .middle, .right {
+      .left,
+      .middle,
+      .right {
         width: 70%;
       }
 
