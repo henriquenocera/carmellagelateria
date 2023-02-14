@@ -12,17 +12,15 @@ const apiKey = "68c821de116f8b65737668adc66e62f1";
 const token =
 "ATTA4607b0c667bc6b061ba9deb7eb850fb1e000aa77fe479de728a7945216e62c6aF34C6FD7";
 const ahuListId = "63bf0dba82f78500d81e8843";
-const FetchUrl = `https://api.trello.com/1/lists/${ahuListId}/cards?key=${apiKey}&token=${token}`;
-
-
-
-const data = await fetch(FetchUrl).then((response) =>
-  response.json()
-);
-
 
 ---
 
+<script>
+  const FetchUrl = `https://api.trello.com/1/lists/${ahuListId}/cards?key=${apiKey}&token=${token}`;
+  const data = await fetch(FetchUrl).then((response) =>
+    response.json()
+  );
+</script>
 
 
 
