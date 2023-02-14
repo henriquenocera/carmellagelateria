@@ -1,66 +1,219 @@
-@use "../global/variables" as *;
+:root {
+  font-size: 62.5%; // 1rem = 10px
+}
 
+* {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+html,
 body {
   background: #f9f2e4;
+
+  overflow-x: hidden;
+
+  text-rendering: optimizeSpeed;
+  line-height: 1.35;
+  font-weight: 400;
+  font-family: "Raleway", sans-serif;
 }
-.hero {
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* body {
+  min-height: 100vh;
+  background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+  background-size: 400% 400%;
+  -webkit-animation: Gradient 15s ease infinite;
+  -moz-animation: Gradient 15s ease infinite;
+  animation: Gradient 15s ease infinite;
+} */
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-style: none;
+}
+svg {
+  vertical-align: middle;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+a {
+  text-decoration: none;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+input,
+button,
+select,
+optgroup,
+textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+textarea {
+  resize: vertical;
+  overflow: auto;
+}
+
+/* Main Container class */
+.container {
+  width: 100%;
+  max-width: 1060px;
+  padding: 2rem 2rem;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  .sub-title {
+    font-size: 1.8rem;
+    font-weight: 400;
+    color: #000000;
+    text-align: center;
+  }
+  .disclaimer {
+    text-align: center;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #000000;
+    border: 1px solid #000000;
+    padding: 1.5rem;
+    border-radius: 0.6rem;
+  }
+  .data-container {
+    padding: 2rem;
+
+    .data-item {
+      text-align: center;
+      background: #a17550;
+      padding: 2rem 4rem;
+      font-size: 1.6rem;
+      color: #f9f2e4;
+      margin-bottom: 1rem;
+      border-radius: 0.6rem;
+    }
+  }
+}
+
+@media (min-width: 676px) {
   .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    max-width: 640px;
   }
+}
+
+@media (min-width: 868px) {
+  .container {
+    max-width: 820px;
+  }
+}
+
+@-webkit-keyframes Gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@-moz-keyframes Gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes Gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+.header {
   .logo {
-    width: 300px;
-    margin-bottom: 5rem;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 20px;
   }
-  h1 {
-    font-size: 6.2rem;
-    font-weight: 400;
-    text-align: center;
-  }
-  .novidades {
-    font-size: 4.2rem;
-    font-weight: 400;
-    text-align: center;
-  }
-  .construction {
-    width: 350px;
-    margin-bottom: 5rem;
-  }
-  .addres {
+  .title {
     font-size: 2.8rem;
-    margin-bottom: 2rem;
+    color: #000000;
     text-align: center;
   }
-  .time {
-    font-size: 2.2rem;
-    text-align: center;
-  }
+}
 
-  .flex {
+.link {
+  width: 100%;
+  border-radius: 8px;
+  font-size: 2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 14px;
+  margin-top: 20px;
+  font-weight: 600;
+  transition: 0.3s ease;
+  min-height: 56px;
+  background: #a17550;
+  color: #fff;
+  text-align: center;
+
+  &:hover {
+    transition: 0.3s ease;
+  }
+}
+
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+  .icon {
+    width: 40px;
+    height: 40px;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 3rem;
 
-    .instagram {
-      margin-right: 2rem;
-    }
-  }
-  @media (max-width: 800px) {
-    h1 {
-      font-size: 4.2rem;
-    }
+    color: black;
 
-    .novidades {
-      font-size: 2.6rem;
-    }
-    .addres {
-      font-size: 2.2rem;
-    }
-    .time {
-      font-size: 2rem;
-    }
+    margin-right: 15px;
+    margin-left: 15px;
   }
 }
