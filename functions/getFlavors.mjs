@@ -1,5 +1,4 @@
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+const fetch = require("node-fetch");
 
 exports.handler = async function () {
   const API_KEY = "68c821de116f8b65737668adc66e62f1";
