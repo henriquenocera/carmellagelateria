@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+const fetch = require("node-fetch");
 exports.handler = async () => {
   const API_KEY = "68c821de116f8b65737668adc66e62f1";
   const TOKEN =
