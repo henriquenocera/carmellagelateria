@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "dev": "netlify dev",
     "build": "netlify build"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/henriquenocera/carmellagelateria.git"
