@@ -1,4 +1,4 @@
-fetch("https://sabores.carmellagelateria.com.br/.netlify/functions/getFlavors")
+fetch("https://sabores.carmellagelateria.com.br/.netlify/functions/getFlavors")       
   .then((response) => response.json())
   .then((data) => {
     console.log(data);
