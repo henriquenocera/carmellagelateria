@@ -1,0 +1,200 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Item from "../../components/Item.astro";
+---
+
+<script src="../../scripts/ahuFechamento.js"></script>
+
+<Layout>
+  <div class="container">
+    <h1>Checklist de Fechamento - Loja Ahú</h1>
+    <p id="timestamp"></p>
+  </div>
+  <form id="ahuOpen" onsubmit="">
+    <div class=" container">
+      <div class="checklist-container">
+        <div class="checklist-title">
+          <span>1</span>
+          <h2>Pré Fechamento (18:00 ~~ 19:00)</h2>
+        </div>
+        <div class="checklist-body body-1">
+          <Item title="Espátulas e cubas" id="1" />
+          <Item title="Limpeza" id="2" />
+          <Item title="Parte Externa" subtitle1="Começar a recolher mesas, cadeiras, cavalete, etc..." id="3" />
+        </div>
+      </div>
+      <div class="checklist-container">
+        <div class="checklist-title">
+          <span>2</span>
+          <h2>Fechamento</h2>
+        </div>
+        <div class="checklist-body body-2">
+          <Item title="Fechamento das Portas (19:00)" id="4" />
+          <Item title="Guardar cubas" id="5" />
+          <Item title="Desligar Máquina do Waffle (tirar da tomada)" id="6" />
+          <Item title="Limpar máquina de café" id="7" />
+          <Item title="Retirar lixos internos e externos" id="8" />
+          <Item title="Fechar caixa e lacrar malote" id="9" />
+          <Item title="Descongelar massas de waffle para o dia seguinte" id="10" />
+
+          <Item title="Informar quantas massas tem:" id="11" />
+          <label for="">Quantidade de massas na geladeira no final do dia:</label>
+          <input type="number" name="massas" id="">
+
+
+          <Item title="Verificar freezers e geladeiras" subtitle1="Garantir que estão fechados" id="12" />
+          <Item title="Bater Ponto" id="13" />
+          <Item title="Ligar alarme e trancar porta" id="14" />
+        </div>
+      </div>
+
+      <button class="submit" type="submit">Confirmar Checklist</button>
+    </div>
+  </form>
+
+  <style lang="scss">
+    :root {
+      font-size: 62.5%;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      box-sizing: border-box;
+    }
+
+    *::before,
+    *::after {
+      box-sizing: inherit;
+    }
+
+    html,
+    body {
+      background: #f9f2e4;
+
+      overflow-x: hidden;
+
+      text-rendering: optimizeSpeed;
+      line-height: 1.35;
+      font-weight: 400;
+      font-family: "Raleway", sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-style: none;
+    }
+
+    svg {
+      vertical-align: middle;
+    }
+
+    ol,
+    ul {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    b,
+    strong {
+      font-weight: bolder;
+    }
+
+    input,
+    button,
+    select,
+    optgroup,
+    textarea {
+      margin: 0;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      overflow: auto;
+    }
+
+    /* Main Container class */
+    .container {
+      width: 100%;
+      max-width: 1060px;
+      padding: 2rem 2rem;
+      margin-right: auto;
+      margin-left: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    @media (min-width: 676px) {
+      .container {
+        max-width: 640px;
+      }
+    }
+
+    @media (min-width: 868px) {
+      .container {
+        max-width: 820px;
+      }
+    }
+
+    #timestamp {
+      font-size: 2rem;
+    }
+
+    .submit {
+      font-size: 2rem;
+      border: 1px solid #a17550;
+      padding: 1rem 2rem;
+      background: white;
+      cursor: pointer;
+    }
+
+    .checklist-container {
+      min-width: 600px;
+      margin-bottom: 2rem;
+
+      .checklist-title {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 2rem;
+
+        span {
+          font-size: 3rem;
+          background: #a17550;
+          border-radius: 100%;
+          color: #fff;
+          padding: 1rem 2rem;
+          margin-right: 2rem;
+        }
+
+        h2 {
+          font-size: 2.4rem;
+        }
+      }
+
+      .checklist-body {
+        margin-left: 1.5rem;
+      }
+
+      .body-1 {
+        margin-bottom: 2rem;
+      }
+    }
+  </style>
+</Layout>
