@@ -9,7 +9,7 @@ form.addEventListener("submit", (e) => {
   ahuOpenSubmit();
 });
 function sendOpenMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja Ahú -  ${openDateFormat}`;
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja Ahú %0D%0A  ${openDateFormat}`;
   fetch(checkOpenComplete, {
     method: "POST",
     headers: {
@@ -24,7 +24,7 @@ function sendOpenMessage(openDateFormat) {
 
 function getLocalStorage() {
   let today = new Date();
-  let open = JSON.parse(localStorage.getItem("open"));
+  let open = JSON.parse(localStorage.getItem("ahuOpen"));
   open.timestamp = open.timestamp;
   console.log(open.timestamp);
   let openDateFormat = new Date(open.timestamp);
@@ -77,7 +77,7 @@ function ahuOpenSubmit() {
   console.log(currentDate);
 
   var object = { value: "complete", timestamp: new Date().getTime() };
-  localStorage.setItem("open", JSON.stringify(object));
+  localStorage.setItem("ahuOpen", JSON.stringify(object));
 
   let openDateFormat = new Date(object.timestamp);
   openDateFormat =
@@ -94,7 +94,13 @@ function ahuOpenSubmit() {
     openDateFormat.getSeconds();
   sendOpenMessage(openDateFormat);
 
+  let loader = document.querySelector(".lds-roller");
+  loader.classList.add("active");
+
+  let container = document.querySelector("#ahuOpen");
+  container.innerHTML = "";
+
   setTimeout(() => {
     location.reload();
-  }, 1500);
+  }, 3500);
 }

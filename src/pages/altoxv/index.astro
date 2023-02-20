@@ -1,0 +1,140 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout>
+  <!-- Silence is golden -->
+  <header class="header container">
+    <h1 class="title">Loja Alto XV</h1>
+  </header>
+  <main class="container">
+    <a class="link" href="/altoxv/abertura">Checklist - Abertura</a>
+    <a class="link" href="/altoxv/fechamento">Checklist - Fechamento</a>
+  </main>
+</Layout>
+
+<style lang="scss">
+  :root {
+    font-size: 62.5%;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+  }
+
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  html,
+  body {
+    background: #f9f2e4;
+
+    overflow-x: hidden;
+
+    text-rendering: optimizeSpeed;
+    line-height: 1.35;
+    font-weight: 400;
+    font-family: "Raleway", sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-style: none;
+  }
+
+  svg {
+    vertical-align: middle;
+  }
+
+  ol,
+  ul {
+    list-style: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  b,
+  strong {
+    font-weight: bolder;
+  }
+
+  input,
+  button,
+  select,
+  optgroup,
+  textarea {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  textarea {
+    resize: vertical;
+    overflow: auto;
+  }
+
+  /* Main Container class */
+  .container {
+    width: 100%;
+    max-width: 1060px;
+    padding: 2rem 2rem;
+    margin-right: auto;
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+
+
+
+  }
+
+  @media (min-width: 676px) {
+    .container {
+      max-width: 640px;
+    }
+  }
+
+  @media (min-width: 868px) {
+    .container {
+      max-width: 820px;
+    }
+  }
+
+
+
+  .link {
+    width: 100%;
+    border-radius: 8px;
+    font-size: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 14px;
+    margin-top: 20px;
+    font-weight: 600;
+    transition: 0.3s ease;
+    min-height: 56px;
+    background: #a17550;
+    color: #fff;
+    text-align: center;
+
+
+  }
+</style>

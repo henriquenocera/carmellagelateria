@@ -3,69 +3,97 @@ import Layout from "../../layouts/Layout.astro";
 import Item from "../../components/Item.astro";
 ---
 
-<script src="../../scripts/ahuAbertura.js"></script>
+<script src="../../scripts/altoxvFechamento.js"></script>
 
 <Layout>
   <div class="container">
-    <h1>Checklist de Abertura - Loja Ahú</h1>
+    <h1>Checklist de Fechamento - Loja Alto XV</h1>
     <p id="timestamp"></p>
-
     <div class="voltarContainer">
-      <a class="voltar" href="/ahu/">Voltar</a>
+      <a class="voltar" href="/altoxv/">Voltar</a>
     </div>
-  </div>
-  <div class="container">
-    <div class="lds-roller">
-      <div></div><div></div><div></div><div></div><div></div><div></div><div>
-      </div><div></div>
-    </div>
-  </div>
-
-  <form id="ahuOpen" onsubmit="">
     <div class="container">
+      <div class="lds-roller">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+  <form id="altoxvClose" onsubmit="">
+    <div class=" container">
       <div class="checklist-container">
         <div class="checklist-title">
           <span>1</span>
-          <h2>Primeira Prioridade</h2>
+          <h2>Pré Fechamento (18:00 ~~ 19:00)</h2>
         </div>
         <div class="checklist-body body-1">
-          <Item title="Bater ponto" id="1" />
-          <Item
-            title="Limpar e ligar a vitrine"
-            subtitle1="Interior e exterior com pano úmido e vidros com álcool"
-            id="2"
-          />
-          <Item
-            title="Gelato & Freezer"
-            subtitle1="identificar os sabores da vitrine e se algum gelato precisa ir para geladeira"
-            id="3"
-          />
+          <Item title="Espátulas e cubas" id="1" />
+          <Item title="Limpeza" id="2" />
+          <Item title="Parte Externa" subtitle1="Começar a recolher mesas, cadeiras, cavalete, etc..." id="3" />
         </div>
       </div>
       <div class="checklist-container">
         <div class="checklist-title">
           <span>2</span>
-          <h2>Outros</h2>
+          <h2>Fechamento</h2>
         </div>
         <div class="checklist-body body-2">
-          <Item
-            title="Verificar sistema"
-            subtitle1="Tablet e maquininha estão carregadas ?"
-            subtitle2="Conta do Ifood está logada ?"
-            id="4"
-          />
-          <Item title="Limpeza" subtitle1="Limpeza interna da loja" id="5" />
-          <Item
-            title="Reposição de Insumos"
-            subtitle1="copinhos, pázinhas, guardanapos, etc..."
-            subtitle2="bisnagas de molhos, guardanapos dos clientes, embalagens waffle, etc"
-            id="6"
-          />
-          <Item title="Ligar máquina waffle (200º graus)" id="7" />
-          <Item title="Abertura do caixa" id="8" />
-          <Item title="Parte externa" id="9" />
-          <Item title="Reposição da vitrine (-10º graus)" id="10" />
-          <Item title="Abertura das portas ( 12:00 )" id="11" />
+          <Item title="Fechamento das Portas (19:00)" id="4" />
+          <Item title="Guardar cubas" id="5" />
+          <Item title="Desligar Máquina do Waffle (tirar da tomada)" id="6" />
+          <Item title="Limpar máquina de café" subtitle1="Caso tenha vendido cappuccino, realizar a limpeza da máquina"
+            id="7" />
+          <Item title="Retirar lixos internos e externos" id="8" />
+          <Item title="Fechar caixa e lacrar malote" id="9" />
+          <Item title="Descongelar massas de waffle para o dia seguinte" id="10" />
+
+          <Item title="Massas de Waffle - Informar e Descongelar para o dia seguinte:"
+            subtitle1="Descongelar massas na geladeira para totalizar 10~~12 massas para o dia seguinte"
+            subtitle2="Após descongelar realizar a contagem do nº de massas restantes no freezer" id="11" />
+          <div class="inputContainer">
+            <label for="">Quantidade de massas congeladas no Freezer:</label>
+            <input required type="number" name="massas" min="0" id="">
+          </div>
+
+          <Item title="Informar quantidade de frutas:" id="12" />
+          <div class="inputContainer">
+            <label for="">Quantidade de morango:</label>
+            <input type="range" min="0" max="100" step="25" default="0" name="morango" id="">
+            <datalist>
+              <option value="0" label="0%"></option>
+              <option value="25" label="25%"></option>
+              <option value="50" label="50%"></option>
+              <option value="75" label="75%"></option>
+              <option value="100" label="100%"></option>
+            </datalist>
+            <label for="">Quantidade de banana:</label>
+            <input type="range" min="0" max="100" step="25" name="banana" id="">
+            <datalist>
+              <option value="0" label="0%"></option>
+              <option value="25" label="25%"></option>
+              <option value="50" label="50%"></option>
+              <option value="75" label="75%"></option>
+              <option value="100" label="100%"></option>
+            </datalist>
+          </div>
+
+
+
+
+
+
+
+
+          <Item title="Verificar freezers e geladeiras" subtitle1="Garantir que estão fechados" id="13" />
+          <Item title="Bater Ponto" id="14" />
+          <Item title="Ligar alarme e trancar porta" id="15" />
         </div>
       </div>
 
@@ -171,9 +199,11 @@ import Item from "../../components/Item.astro";
         max-width: 820px;
       }
     }
+
     .voltarContainer {
       margin-top: 4rem;
     }
+
     .voltar {
       font-size: 2rem;
       color: #000;
@@ -181,9 +211,47 @@ import Item from "../../components/Item.astro";
       padding: 2rem 4rem;
     }
 
+    datalist {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      writing-mode: vertical-lr;
+      width: 200px;
+    }
+
+    option {
+      padding: 0;
+    }
+
+    input[type="range"] {
+      width: 200px;
+      margin: 0;
+    }
+
+    .inputContainer {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      margin-left: 4rem;
+
+      label {
+        font-size: 1.6rem;
+      }
+
+      input {
+        font-size: 1.6rem;
+        margin-bottom: 2rem;
+        border-radius: 4px;
+        max-width: 200px;
+        text-align: center;
+      }
+    }
+
     #timestamp {
       font-size: 2rem;
     }
+
     .submit {
       font-size: 2rem;
       border: 1px solid #a17550;
@@ -216,6 +284,7 @@ import Item from "../../components/Item.astro";
           font-size: 2.4rem;
         }
       }
+
       .checklist-body {
         margin-left: 1.5rem;
       }
@@ -224,19 +293,23 @@ import Item from "../../components/Item.astro";
         margin-bottom: 2rem;
       }
     }
+
     .lds-roller {
       position: relative;
       width: 80px;
       height: 80px;
       display: none;
     }
+
     .lds-roller.active {
       display: inline-block !important;
     }
+
     .lds-roller div {
       animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
       transform-origin: 40px 40px;
     }
+
     .lds-roller div:after {
       content: " ";
       display: block;
@@ -247,66 +320,84 @@ import Item from "../../components/Item.astro";
       background: #a17550;
       margin: -4px 0 0 -4px;
     }
+
     .lds-roller div:nth-child(1) {
       animation-delay: -0.036s;
     }
+
     .lds-roller div:nth-child(1):after {
       top: 63px;
       left: 63px;
     }
+
     .lds-roller div:nth-child(2) {
       animation-delay: -0.072s;
     }
+
     .lds-roller div:nth-child(2):after {
       top: 68px;
       left: 56px;
     }
+
     .lds-roller div:nth-child(3) {
       animation-delay: -0.108s;
     }
+
     .lds-roller div:nth-child(3):after {
       top: 71px;
       left: 48px;
     }
+
     .lds-roller div:nth-child(4) {
       animation-delay: -0.144s;
     }
+
     .lds-roller div:nth-child(4):after {
       top: 72px;
       left: 40px;
     }
+
     .lds-roller div:nth-child(5) {
       animation-delay: -0.18s;
     }
+
     .lds-roller div:nth-child(5):after {
       top: 71px;
       left: 32px;
     }
+
     .lds-roller div:nth-child(6) {
       animation-delay: -0.216s;
     }
+
     .lds-roller div:nth-child(6):after {
       top: 68px;
       left: 24px;
     }
+
     .lds-roller div:nth-child(7) {
       animation-delay: -0.252s;
     }
+
     .lds-roller div:nth-child(7):after {
       top: 63px;
       left: 17px;
     }
+
     .lds-roller div:nth-child(8) {
       animation-delay: -0.288s;
     }
+
     .lds-roller div:nth-child(8):after {
       top: 56px;
       left: 12px;
     }
+
     @keyframes lds-roller {
       0% {
         transform: rotate(0deg);
       }
+
       100% {
         transform: rotate(360deg);
       }

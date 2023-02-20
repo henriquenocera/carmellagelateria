@@ -3,13 +3,7 @@ let { title, id, subtitle1, subtitle2 } = Astro.props;
 ---
 
 <div class="checkbox-wrapper">
-  <input
-    required
-    class="inp-cbx"
-    id=`cbx-${id}`
-    type="checkbox"
-    style="display: none;"
-  />
+  <input required class="inp-cbx" id=`cbx-${id}` type="checkbox" style="display: none;" />
   <label class="cbx" for=`cbx-${id}`>
     <span>
       <svg width="12px" height="9px" viewbox="0 0 12 9">
@@ -26,12 +20,14 @@ let { title, id, subtitle1, subtitle2 } = Astro.props;
   .label {
     font-size: 1.8rem;
   }
+
   .subtitle {
     margin-left: 4rem;
     font-size: 1.6rem;
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
   }
+
   .checkbox-wrapper {
     max-width: 600px;
     display: flex;
@@ -114,28 +110,28 @@ let { title, id, subtitle1, subtitle2 } = Astro.props;
     border-color: #a17550;
   }
 
-  .checkbox-wrapper .inp-cbx:checked + .cbx span:first-child {
+  .checkbox-wrapper .inp-cbx:checked+.cbx span:first-child {
     border-color: #a17550;
     background: #a17550;
     animation: check-15 0.6s ease;
   }
 
-  .checkbox-wrapper .inp-cbx:checked + .cbx span:first-child svg {
+  .checkbox-wrapper .inp-cbx:checked+.cbx span:first-child svg {
     stroke-dashoffset: 0;
   }
 
-  .checkbox-wrapper .inp-cbx:checked + .cbx span:first-child:before {
+  .checkbox-wrapper .inp-cbx:checked+.cbx span:first-child:before {
     transform: scale(2.2);
     opacity: 0;
     transition: all 0.6s ease;
   }
 
-  .checkbox-wrapper .inp-cbx:checked + .cbx span:last-child {
+  .checkbox-wrapper .inp-cbx:checked+.cbx span:last-child {
     color: #a3a3a3;
     transition: all 0.3s ease;
   }
 
-  .checkbox-wrapper .inp-cbx:checked + .cbx span:last-child:after {
+  .checkbox-wrapper .inp-cbx:checked+.cbx span:last-child:after {
     transform: scaleX(1);
     transition: all 0.3s ease;
   }
