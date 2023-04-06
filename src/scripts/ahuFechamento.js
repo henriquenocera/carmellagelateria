@@ -10,7 +10,7 @@ let banana = document.querySelector('input[name="banana"]');
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
-  ahuOpenSubmit();
+  ahuCloseSubmit();
 });
 
 function getLocalStorage() {
@@ -63,7 +63,7 @@ function getLocalStorage() {
 }
 getLocalStorage();
 
-function ahuOpenSubmit() {
+function ahuCloseSubmit() {
   const currentDate = new Date();
   console.log(currentDate);
 
@@ -90,6 +90,8 @@ function ahuOpenSubmit() {
 
   let container = document.querySelector("#ahuOpen");
   container.innerHTML = "";
+  let aviso = document.querySelector(".info-diaria");
+  aviso.innerHTML = "";
 
   setTimeout(() => {
     location.reload();
@@ -97,7 +99,7 @@ function ahuOpenSubmit() {
 }
 
 function sendCloseMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Ahú %0D%0A  ${openDateFormat} %0D%0A nº de massas congeladas: ${massas.value} %0D%0A Status de Morango: ${morango.value}% %0D%0A Status de Banana: ${banana.value}%`;
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Ahú %0D%0A  ${openDateFormat} %0D%0A nº de massas congeladas: ${massas.value} %0D%0A Potes Fechados de Morango: ${morango.value} %0D%0A Potes Fechados de Banana: ${banana.value}`;
   fetch(checkOpenComplete, {
     method: "POST",
     headers: {
@@ -108,4 +110,40 @@ function sendCloseMessage(openDateFormat) {
   })
     .then((response) => response.json())
     .then((response) => console.log(response));
+}
+
+let aviso = document.querySelector("info-diaria");
+let avisotext = document.querySelector(".aviso-diario");
+let diaSemana = document.querySelector("#dia-da-semana");
+
+var date = new Date();
+date.setDate(date.getDate() + 1);
+
+let weekDay = new Date().toLocaleDateString("Pt-BR", { weekday: "long" });
+console.log(weekDay);
+
+diaSemana.innerHTML += weekDay;
+let domingo =
+  "Não colocar os lixos para fora. O caminhão do lixo não passa hoje";
+let segunda = "";
+let terca = "";
+let quarta = "";
+let quinta = "";
+let sexta = "";
+let sabado = "";
+
+if (weekDay == "domingo") {
+  avisotext.innerHTML = domingo;
+} else if (weekDay == "segunda-feira") {
+  avisotext.innerHTML = segunda;
+} else if (weekDay == "terca-feira") {
+  avisotext.innerHTML = terca;
+} else if (weekDay == "quarta-feira") {
+  avisotext.innerHTML = quarta;
+} else if (weekDay == "quinta-feira") {
+  avisotext.innerHTML = quinta;
+} else if (weekDay == "sexta-feira") {
+  avisotext.innerHTML = sexta;
+} else if (weekDay == "sabado") {
+  avisotext.innerHTML = sabado;
 }

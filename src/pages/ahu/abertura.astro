@@ -1,13 +1,14 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Item from "../../components/Item.astro";
+import ItemChecked from "../../components/ItemChecked.astro";
 ---
 
 <script src="../../scripts/ahuAbertura.js"></script>
 
 <Layout>
   <div class="container">
-    <h1>Checklist de Abertura - Loja Ahú</h1>
+    <h1 class="title">Checklist de Abertura - Loja Ahú</h1>
     <p id="timestamp"></p>
 
     <div class="voltarContainer">
@@ -16,8 +17,22 @@ import Item from "../../components/Item.astro";
   </div>
   <div class="container">
     <div class="lds-roller">
-      <div></div><div></div><div></div><div></div><div></div><div></div><div>
-      </div><div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div></div>
+      <div>
+      </div>
+      <div></div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="info-diaria">
+      <h2>Aviso Diário - <span id="dia-da-semana"></span></h2>
+      </br>
+      <p class="aviso-diario"></p>
     </div>
   </div>
 
@@ -30,16 +45,10 @@ import Item from "../../components/Item.astro";
         </div>
         <div class="checklist-body body-1">
           <Item title="Bater ponto" id="1" />
-          <Item
-            title="Limpar e ligar a vitrine"
-            subtitle1="Interior e exterior com pano úmido e vidros com álcool"
-            id="2"
-          />
-          <Item
-            title="Gelato & Freezer"
-            subtitle1="identificar os sabores da vitrine e se algum gelato precisa ir para geladeira"
-            id="3"
-          />
+          <Item title="Limpar e ligar a vitrine" subtitle1="Interior e exterior com pano úmido e vidros com álcool"
+            id="2" />
+          <Item title="Gelato & Freezer"
+            subtitle1="identificar os sabores da vitrine e se algum gelato precisa ir para geladeira" id="3" />
         </div>
       </div>
       <div class="checklist-container">
@@ -48,24 +57,17 @@ import Item from "../../components/Item.astro";
           <h2>Outros</h2>
         </div>
         <div class="checklist-body body-2">
-          <Item
-            title="Verificar sistema"
-            subtitle1="Tablet e maquininha estão carregadas ?"
-            subtitle2="Conta do Ifood está logada ?"
-            id="4"
-          />
-          <Item title="Limpeza" subtitle1="Limpeza interna da loja" id="5" />
-          <Item
-            title="Reposição de Insumos"
-            subtitle1="copinhos, pázinhas, guardanapos, etc..."
-            subtitle2="bisnagas de molhos, guardanapos dos clientes, embalagens waffle, etc"
-            id="6"
-          />
-          <Item title="Ligar máquina waffle (200º graus)" id="7" />
-          <Item title="Abertura do caixa" id="8" />
-          <Item title="Parte externa" id="9" />
-          <Item title="Reposição da vitrine (-10º graus)" id="10" />
-          <Item title="Abertura das portas ( 12:00 )" id="11" />
+          <Item title="Verificar sistema" subtitle1="Ligar computador, monitor, verificar máquina de cartão e tablet"
+            id="4" />
+          <Item title="Ifood" subtitle2="Conta do Ifood está logada ? Loja aberta ?" id="5" />
+          <Item title="Limpeza" subtitle1="Limpeza interna da loja, bancadas, pia, saguão, etc" id="6" />
+          <Item title="Reposição de Insumos" subtitle1="copinhos, pázinhas, guardanapos, etc..."
+            subtitle2="bisnagas de molhos, guardanapos dos clientes, embalagens waffle, etc" id="7" />
+          <Item title="Ligar máquina waffle (200º graus)" id="8" />
+          <Item title="Abertura do caixa" id="9" />
+          <Item title="Parte externa" subtitle1="Lixos externos, cavalete, mesas e cadeiras" id="10" />
+          <Item title="Reposição da vitrine (-10º graus)" id="11" />
+          <Item title="Abertura das portas ( 12:00 )" id="12" />
         </div>
       </div>
 
@@ -171,9 +173,27 @@ import Item from "../../components/Item.astro";
         max-width: 820px;
       }
     }
+
+    .title {
+      font-size: 2.6rem;
+    }
+
+
+    .info-diaria {
+      border: 1px solid #d6b9a2;
+      padding: 2rem 4rem;
+      font-size: 1.6rem;
+      text-align: center;
+
+      .aviso-diario {
+        font-size: 1.8rem;
+      }
+    }
+
     .voltarContainer {
       margin-top: 4rem;
     }
+
     .voltar {
       font-size: 2rem;
       color: #000;
@@ -184,6 +204,7 @@ import Item from "../../components/Item.astro";
     #timestamp {
       font-size: 2rem;
     }
+
     .submit {
       font-size: 2rem;
       border: 1px solid #a17550;
@@ -216,6 +237,7 @@ import Item from "../../components/Item.astro";
           font-size: 2.4rem;
         }
       }
+
       .checklist-body {
         margin-left: 1.5rem;
       }
@@ -224,19 +246,23 @@ import Item from "../../components/Item.astro";
         margin-bottom: 2rem;
       }
     }
+
     .lds-roller {
       position: relative;
       width: 80px;
       height: 80px;
       display: none;
     }
+
     .lds-roller.active {
       display: inline-block !important;
     }
+
     .lds-roller div {
       animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
       transform-origin: 40px 40px;
     }
+
     .lds-roller div:after {
       content: " ";
       display: block;
@@ -247,66 +273,84 @@ import Item from "../../components/Item.astro";
       background: #a17550;
       margin: -4px 0 0 -4px;
     }
+
     .lds-roller div:nth-child(1) {
       animation-delay: -0.036s;
     }
+
     .lds-roller div:nth-child(1):after {
       top: 63px;
       left: 63px;
     }
+
     .lds-roller div:nth-child(2) {
       animation-delay: -0.072s;
     }
+
     .lds-roller div:nth-child(2):after {
       top: 68px;
       left: 56px;
     }
+
     .lds-roller div:nth-child(3) {
       animation-delay: -0.108s;
     }
+
     .lds-roller div:nth-child(3):after {
       top: 71px;
       left: 48px;
     }
+
     .lds-roller div:nth-child(4) {
       animation-delay: -0.144s;
     }
+
     .lds-roller div:nth-child(4):after {
       top: 72px;
       left: 40px;
     }
+
     .lds-roller div:nth-child(5) {
       animation-delay: -0.18s;
     }
+
     .lds-roller div:nth-child(5):after {
       top: 71px;
       left: 32px;
     }
+
     .lds-roller div:nth-child(6) {
       animation-delay: -0.216s;
     }
+
     .lds-roller div:nth-child(6):after {
       top: 68px;
       left: 24px;
     }
+
     .lds-roller div:nth-child(7) {
       animation-delay: -0.252s;
     }
+
     .lds-roller div:nth-child(7):after {
       top: 63px;
       left: 17px;
     }
+
     .lds-roller div:nth-child(8) {
       animation-delay: -0.288s;
     }
+
     .lds-roller div:nth-child(8):after {
       top: 56px;
       left: 12px;
     }
+
     @keyframes lds-roller {
       0% {
         transform: rotate(0deg);
       }
+
       100% {
         transform: rotate(360deg);
       }

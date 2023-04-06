@@ -1,13 +1,14 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Item from "../../components/Item.astro";
+import ItemChecked from "../../components/ItemChecked.astro";
 ---
 
 <script src="../../scripts/ahuFechamento.js"></script>
 
 <Layout>
   <div class="container">
-    <h1>Checklist de Fechamento - Loja Ahú</h1>
+    <h1 class="title">Checklist de Fechamento - Loja Ahú</h1>
     <p id="timestamp"></p>
     <div class="voltarContainer">
       <a class="voltar" href="/ahu/">Voltar</a>
@@ -25,6 +26,13 @@ import Item from "../../components/Item.astro";
         <div></div>
       </div>
     </div>
+    <div class="container">
+      <div class="info-diaria">
+        <h2>Aviso Diário - <span id="dia-da-semana"></span></h2>
+        </br>
+        <p class="aviso-diario"></p>
+      </div>
+    </div>
   </div>
   <form id="ahuOpen" onsubmit="">
     <div class=" container">
@@ -34,9 +42,8 @@ import Item from "../../components/Item.astro";
           <h2>Pré Fechamento (18:00 ~~ 19:00)</h2>
         </div>
         <div class="checklist-body body-1">
-          <Item title="Espátulas e cubas" id="1" />
-          <Item title="Limpeza" id="2" />
-          <Item title="Parte Externa" subtitle1="Começar a recolher mesas, cadeiras, cavalete, etc..." id="3" />
+          <ItemChecked title="Espátulas e cubas" id="1" />
+          <ItemChecked title="Limpeza e organização interna" id="2" />
         </div>
       </div>
       <div class="checklist-container">
@@ -45,55 +52,45 @@ import Item from "../../components/Item.astro";
           <h2>Fechamento</h2>
         </div>
         <div class="checklist-body body-2">
-          <Item title="Fechamento das Portas (19:00)" id="4" />
-          <Item title="Guardar cubas" id="5" />
+          <Item title="Fechamento das Portas (19:00)" id="3" />
+          <Item title="Recolher parte externa" subtitle1="mesas, cadeiras, cavalete, etc" id="4" />
+          <Item title="Guardar cubas limpas no Freezer" id="5" />
           <Item title="Desligar Máquina do Waffle (tirar da tomada)" id="6" />
-          <Item title="Limpar máquina de café" subtitle1="Caso tenha vendido cappuccino, realizar a limpeza da máquina"
-            id="7" />
+          <Item title="Limpar e desligar máquina de café"
+            subtitle1="Caso tenha vendido cappuccino, realizar a limpeza da máquina" id="7" />
           <Item title="Retirar lixos internos e externos" id="8" />
           <Item title="Fechar caixa e lacrar malote" id="9" />
-          <Item title="Descongelar massas de waffle para o dia seguinte" id="10" />
 
           <Item title="Massas de Waffle - Informar e Descongelar para o dia seguinte:"
-            subtitle1="Descongelar massas na geladeira para totalizar 10~~12 massas para o dia seguinte"
+            subtitle1="Descongelar massas na geladeira para totalizar 8~~12 massas para o dia seguinte"
             subtitle2="Após descongelar realizar a contagem do nº de massas restantes no freezer" id="11" />
           <div class="inputContainer">
             <label for="">Quantidade de massas congeladas no Freezer:</label>
-            <input required type="number" name="massas" min="0" id="">
+            <input class="inputNumber" required type="number" name="massas" min="0" id="12">
           </div>
 
           <Item title="Informar quantidade de frutas:" id="12" />
           <div class="inputContainer">
-            <label for="">Quantidade de morango:</label>
-            <input type="range" min="0" max="100" step="25" default="0" name="morango" id="">
-            <datalist>
+            <label for="">Quantos Potes de Morango fechados tem na geladeira dos fundos ?</label>
+            <input class="inputNumber" required type="number" min="0" name="morango" id="13">
+            <!--             <datalist>
               <option value="0" label="0%"></option>
               <option value="25" label="25%"></option>
               <option value="50" label="50%"></option>
               <option value="75" label="75%"></option>
               <option value="100" label="100%"></option>
-            </datalist>
-            <label for="">Quantidade de banana:</label>
-            <input type="range" min="0" max="100" step="25" name="banana" id="">
-            <datalist>
-              <option value="0" label="0%"></option>
-              <option value="25" label="25%"></option>
-              <option value="50" label="50%"></option>
-              <option value="75" label="75%"></option>
-              <option value="100" label="100%"></option>
-            </datalist>
+            </datalist> -->
+            <label for="">Quantos Potes de Banana fechados tem na geladeira dos fundos ?</label>
+            <input class="inputNumber" required type="number" min="0" name="banana" id="14">
+
+
           </div>
 
 
-
-
-
-
-
-
-          <Item title="Verificar freezers e geladeiras" subtitle1="Garantir que estão fechados" id="13" />
-          <Item title="Bater Ponto" id="14" />
-          <Item title="Ligar alarme e trancar porta" id="15" />
+          <Item title="Verificar freezers e geladeiras" subtitle1="Freezer estoque e uso, Geladeira da coca, frigobar"
+            subtitle2="Garantir que estão fechados" id="15" />
+          <Item title="Confirmar Checklist e desligar computador"
+            subtitle1="Não esquecer de bater ponto, trancar a porta e ligar o alarme ao sair!" id="14" />
         </div>
       </div>
 
@@ -200,6 +197,21 @@ import Item from "../../components/Item.astro";
       }
     }
 
+    .title {
+      font-size: 2.6rem;
+    }
+
+    .info-diaria {
+      border: 1px solid #d6b9a2;
+      padding: 2rem 4rem;
+      font-size: 1.6rem;
+      text-align: center;
+
+      .aviso-diario {
+        font-size: 1.8rem;
+      }
+    }
+
     .voltarContainer {
       margin-top: 4rem;
     }
@@ -246,6 +258,12 @@ import Item from "../../components/Item.astro";
         max-width: 200px;
         text-align: center;
       }
+    }
+
+    .inputNumber {
+      width: 60px;
+      height: 40px;
+      border: 1px solid black;
     }
 
     #timestamp {

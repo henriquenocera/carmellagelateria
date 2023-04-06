@@ -99,8 +99,45 @@ function ahuOpenSubmit() {
 
   let container = document.querySelector("#ahuOpen");
   container.innerHTML = "";
+  let aviso = document.querySelector(".info-diaria");
+  aviso.innerHTML = "";
 
   setTimeout(() => {
     location.reload();
   }, 3500);
+}
+
+let aviso = document.querySelector("info-diaria");
+let avisotext = document.querySelector(".aviso-diario");
+let diaSemana = document.querySelector("#dia-da-semana");
+
+var date = new Date();
+date.setDate(date.getDate() + 1);
+
+let weekDay = new Date().toLocaleDateString("Pt-BR", { weekday: "long" });
+console.log(weekDay);
+
+diaSemana.innerHTML += weekDay;
+let domingo = "";
+let segunda = "";
+let terca = "";
+let quarta = "";
+let quinta = "";
+let sexta = "";
+let sabado = "";
+
+if (weekDay == "domingo") {
+  avisotext.innerHTML = domingo;
+} else if (weekDay == "segunda-feira") {
+  avisotext.innerHTML = segunda;
+} else if (weekDay == "terca-feira") {
+  avisotext.innerHTML = terca;
+} else if (weekDay == "quarta-feira") {
+  avisotext.innerHTML = quarta;
+} else if (weekDay == "quinta-feira") {
+  avisotext.innerHTML = quinta;
+} else if (weekDay == "sexta-feira") {
+  avisotext.innerHTML = sexta;
+} else if (weekDay == "sabado") {
+  avisotext.innerHTML = sabado;
 }
