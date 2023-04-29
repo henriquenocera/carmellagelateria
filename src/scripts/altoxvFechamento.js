@@ -16,8 +16,13 @@ form.addEventListener("submit", (e) => {
 function getLocalStorage() {
   let today = new Date();
   let open = JSON.parse(localStorage.getItem("altoxvClose"));
-  open.timestamp = open.timestamp;
-  console.log(open.timestamp);
+  if (open) {
+    open.timestamp = open.timestamp;
+    console.log(open.timestamp);
+  } else {
+    open = "Ainda nao completo";
+  }
+
   let openDateFormat = new Date(open.timestamp);
   openDateFormat =
     "Checklist Completo em: " +
@@ -108,4 +113,39 @@ function sendCloseMessage(openDateFormat) {
   })
     .then((response) => response.json())
     .then((response) => console.log(response));
+}
+
+let aviso = document.querySelector("info-diaria");
+let avisotext = document.querySelector(".aviso-diario");
+let diaSemana = document.querySelector("#dia-da-semana");
+
+var date = new Date();
+date.setDate(date.getDate() + 1);
+
+let weekDay = new Date().toLocaleDateString("Pt-BR", { weekday: "long" });
+console.log(weekDay);
+
+diaSemana.innerHTML += weekDay;
+let domingo = "Não retirar os lixos, caminhão do lixo não passa hoje";
+let segunda = "Retirar os lixos de ontem";
+let terca = "";
+let quarta = "";
+let quinta = "Limpeza da Máquina de Café com detergente";
+let sexta = "";
+let sabado = "";
+
+if (weekDay == "domingo") {
+  avisotext.innerHTML = domingo;
+} else if (weekDay == "segunda-feira") {
+  avisotext.innerHTML = segunda;
+} else if (weekDay == "terca-feira") {
+  avisotext.innerHTML = terca;
+} else if (weekDay == "quarta-feira") {
+  avisotext.innerHTML = quarta;
+} else if (weekDay == "quinta-feira") {
+  avisotext.innerHTML = quinta;
+} else if (weekDay == "sexta-feira") {
+  avisotext.innerHTML = sexta;
+} else if (weekDay == "sábado") {
+  avisotext.innerHTML = sabado;
 }
