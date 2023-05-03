@@ -102,7 +102,7 @@ function altoxvCloseSubmit() {
 }
 
 function sendCloseMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A  ${openDateFormat} %0D%0A nº de massas congeladas: ${massas.value} %0D%0A Status de Morango: ${morango.value}% %0D%0A Status de Banana: ${banana.value}%`;
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A  ${openDateFormat} %0D%0A nº de massas congeladas: ${massas.value} %0D%0A Potes Fechados de Morango: ${morango.value} %0D%0A Potes Fechados de Banana: ${banana.value}`;
   fetch(checkOpenComplete, {
     method: "POST",
     headers: {
