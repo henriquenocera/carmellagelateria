@@ -3,7 +3,8 @@ const telegramChatId = "-1001602173856";
 
 let form = document.querySelector("#altoxvClose");
 let inputs = document.querySelectorAll(".inp-cbx");
-let massas = document.querySelector('input[name="massas"]');
+let freezer = document.querySelector('input[name="freezer"]');
+let geladeira = document.querySelector('input[name="geladeira"]');
 let morango = document.querySelector('input[name="morango"]');
 let banana = document.querySelector('input[name="banana"]');
 
@@ -102,7 +103,7 @@ function altoxvCloseSubmit() {
 }
 
 function sendCloseMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A  ${openDateFormat} %0D%0A nº de massas congeladas: ${massas.value} %0D%0A Potes Fechados de Morango: ${morango.value} %0D%0A Potes Fechados de Banana: ${banana.value}`;
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A  ${openDateFormat} %0D%0A nº de massas no Freezer: ${freezer.value}  %0D%0A nº de massas na Geladeira: ${geladeira.value} %0D%0A Potes Fechados de Morango: ${morango.value} %0D%0A Potes Fechados de Banana: ${banana.value}`;
   fetch(checkOpenComplete, {
     method: "POST",
     headers: {

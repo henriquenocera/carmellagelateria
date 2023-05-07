@@ -57,36 +57,39 @@ import ItemChecked from "../../components/ItemChecked.astro";
           <Item title="Desligar Vitrine" id="5" />
           <Item title="Desligar Máquina do Waffle (tirar da tomada)" id="6" />
           <Item title="Desligar Máquina de Café e Moedor (tirar da tomada)"
-            subtitle1="Realizar a limpeza do filtro com o pincel petro" id="7" />
-          <Item title="Retirar lixos internos" subtitle1="Verificar se precisa retirar lixo do saguão dos clientes"
-            id="8" />
+            subtitle1="Realizar a limpeza do filtro com o pincel petro"
+            subtitle2="Limpar porta filtros com água e sabão" id="7" />
+          <Item title="Retirar lixos internos"
+            subtitle1="Verificar se precisa retirar lixo do saguão dos clientes, ou só dar um nó" id="8" />
           <Item title="Verificar se precisa retirar lixo do banheiro dos clientes (caso cheio)" id="9" />
           <Item title="Fechar Caixa e Lacrar Malote" id="10" />
 
           <Item title="Massas de Waffle - Informar e Descongelar para o dia seguinte:"
             subtitle1="Descongelar massas na geladeira para totalizar 8~~14 massas para o dia seguinte"
-            subtitle2="Após descongelar realizar a contagem do nº de massas restantes no freezer" id="11" />
+            subtitle2="Após descongelar realizar a contagem do nº de massas restantes no freezer e geladeira" id="11" />
           <div class="inputContainer">
-            <label for="">Quantidade de massas congeladas no Freezer:</label>
-            <input class="inputNumber" required type="number" name="massas" min="0" id="12">
+            <label for="">Quantidade de massas congeladas no <b>Freezer:</b></label>
+            <input class="inputNumber" required type="number" name="freezer" min="0" id="12">
+            <label for="">Quantidade de massas na <b>Geladeira:</b></label>
+            <input class="inputNumber" required type="number" name="geladeira" min="0" id="13">
           </div>
 
-          <Item title="Informar quantidade de frutas:" id="12" />
+          <Item title="Informar Quantidade de Frutas:" id="14" />
           <div class="inputContainer">
             <label for="">Quantos Potes de Morango fechados tem na geladeira dos fundos ?</label>
-            <input class="inputNumber" required type="number" min="0" name="morango" id="13">
+            <input class="inputNumber" required type="number" min="0" name="morango" id="15">
 
             <label for="">Quantos Potes de Banana fechados tem na geladeira dos fundos ?</label>
-            <input class="inputNumber" required type="number" min="0" name="banana" id="14">
+            <input class="inputNumber" required type="number" min="0" name="banana" id="16">
 
 
           </div>
 
 
-          <Item title="Verificar freezers e geladeiras" subtitle1="Freezer Uso, Geladeira da cozinha, e frigobar"
-            subtitle2="Garantir que estão fechados" id="15" />
-          <Item title="Confirmar Checklist e desligar computador"
-            subtitle1="Não esquecer de bater ponto, trancar a porta e ligar o alarme ao sair!" id="14" />
+          <Item title="Verificar Freezers e Geladeiras" subtitle1="Freezer Uso, Geladeira da cozinha, e frigobar"
+            subtitle2="Garantir que estão fechados" id="17" />
+          <Item title="Confirmar Checklist e Desligar Computador"
+            subtitle1="Não esquecer de bater ponto, trancar a porta e ligar o alarme ao sair!" id="18" />
         </div>
       </div>
 
