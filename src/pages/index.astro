@@ -5,32 +5,20 @@ import BaseBody from '../layout/BaseBody.astro'
 import '../styles/pages/index.scss' // Page Style
 
 const title = "Carmella Gelateria"
-const description = "Melhor gelateria de Curitiba. Venha experimentar!"
+const description = "Dashboard"
 const url = "https://www.carmellagelateria.com.br/"
 ---
 
 <html lang="pt-BR">
 <BaseHead title={title} description={description} url={url} />
 <BaseBody>
-  <section class="hero">
-    <div class="container">
-      <img class="logo" src="/images/logo-carmella.svg" alt="Logo Carmella">
-      <h1>Site em Desenvolvimento</h1>
-      <p class="novidades">Em breve novidades</p>
 
-      <img class="construction" src="/images/construction.png" alt="">
-
-      <p class="addres">Rua Colombo 183, Ahú - Curitiba/PR</p>
-      <span class="time">Seg à Dom - 12:00 às 19:00</span>
-
-      <div class="flex">
-        <a href="https://www.instagram.com/carmellagelateria/"><img class="instagram" src="/images/instagram.svg"
-            alt=""></a>
-        <a href="https://www.facebook.com/carmellagelateria"><img src="/images/facebook-svg.svg" alt=""></a>
-
-      </div>
-    </div>
-  </section>
+  <form method="POST"
+    action="https://script.google.com/macros/s/AKfycbw0soRl6knbHyNX_dPdoXWtQ3kTNJNEmcctgVFdFfqJabDeT9pPdslCri9nkdTu6ol4/exec">
+    <input name="Email" type="email" placeholder="Email" required>
+    <input name="Nome" type="text" placeholder="Nome" required>
+    <button type="submit">Send</button>
+  </form>
 
 
 </BaseBody>
