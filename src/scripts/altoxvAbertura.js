@@ -3,23 +3,32 @@ const telegramChatId = "-1001602173856";
 
 let form = document.querySelector("#altoxvOpen");
 let inputs = document.querySelectorAll(".inp-cbx");
+
 form.addEventListener("submit", (e) => {
   e.preventDefault();
 
   altoxvOpenSubmit();
 });
-function sendOpenMessage(openDateFormat) {
+async function sendOpenMessage(openDateFormat) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja Alto XV %0D%0A  ${openDateFormat}`;
-  fetch(checkOpenComplete, {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({}),
-  })
-    .then((response) => response.json())
-    .then((response) => console.log(JSON.stringify(response)));
+  try {
+    const response = await fetch(checkOpenComplete, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
+    const data = await response.json();
+    console.log(JSON.stringify(data));
+    location.reload();
+  } catch (error) {
+    console.error(error);
+    window.alert(
+      "Erro na confirmação do Checklist, por gentileza tente novamente"
+    );
+  }
 }
 
 function getLocalStorage() {
@@ -103,10 +112,6 @@ function altoxvOpenSubmit() {
 
   let container = document.querySelector("#altoxvOpen");
   container.innerHTML = "";
-
-  setTimeout(() => {
-    location.reload();
-  }, 3500);
 }
 
 let aviso = document.querySelector("info-diaria");

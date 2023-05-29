@@ -91,7 +91,7 @@ let { title, id, subtitle1, subtitle2 } = Astro.props;
   }
 
   .checkbox-wrapper .cbx span:last-child {
-    margin-left: 8px;
+    margin-left: 4px;
   }
 
   .checkbox-wrapper .cbx span:last-child:after {
@@ -116,6 +116,8 @@ let { title, id, subtitle1, subtitle2 } = Astro.props;
     animation: check-15 0.6s ease;
   }
 
+
+
   .checkbox-wrapper .inp-cbx:checked+.cbx span:first-child svg {
     stroke-dashoffset: 0;
   }
@@ -129,6 +131,12 @@ let { title, id, subtitle1, subtitle2 } = Astro.props;
   .checkbox-wrapper .inp-cbx:checked+.cbx span:last-child {
     color: #a3a3a3;
     transition: all 0.3s ease;
+  }
+
+  .checkbox-wrapper .inp-cbx:checked~.subtitle {
+    color: #a3a3a3;
+    transition: all 0.3s ease;
+
   }
 
   .checkbox-wrapper .inp-cbx:checked+.cbx span:last-child:after {

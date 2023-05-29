@@ -8,12 +8,11 @@ import ItemChecked from "../../components/ItemChecked.astro";
 
 <Layout>
   <div class="container">
-    <h1 class="title">Checklist de Abertura - Loja Alto da XV</h1>
-    <p id="timestamp"></p>
-
     <div class="voltarContainer">
       <a class="voltar" href="/altoxv/">Voltar</a>
     </div>
+    <h1 class="title">Checklist de Abertura - Loja Alto da XV</h1>
+    <p id="timestamp"></p>
   </div>
   <div class="container">
     <div class="lds-roller">
@@ -23,339 +22,329 @@ import ItemChecked from "../../components/ItemChecked.astro";
       <div></div>
       <div></div>
       <div></div>
-      <div>
-      </div>
+      <div></div>
       <div></div>
     </div>
   </div>
   <div class="container">
     <div class="info-diaria">
       <h2>Aviso Diário - <span id="dia-da-semana"></span></h2>
-      </br>
       <p class="aviso-diario"></p>
     </div>
   </div>
+</Layout>
 
-
-
-  <form id="altoxvOpen" onsubmit="">
-    <div class="container">
-      <div class="checklist-container">
-        <div class="checklist-title">
-          <span>1</span>
-          <h2>Primeira Prioridade</h2>
-        </div>
-        <div class="checklist-body body-1">
-          <Item title="Bater ponto" id="1" />
-          <Item title="Limpar e ligar a vitrine" subtitle1="Interior e exterior com pano úmido e vidros com álcool"
-            id="2" />
-          <Item title="Gelato & Freezer"
-            subtitle1="identificar os sabores da vitrine e se algum gelato precisa ir para geladeira" id="3" />
-          <Item title="Sistema"
-            subtitle1="Verificar se o sistema está funcionando, computador, impressoras, internet, máquinas de cartão"
-            id="4" />
-          <Item title="Produtos em Falta"
-            subtitle1="Verificar se temos algum produto / insumo em falta antes de iniciar a loja e avisar no grupo do Whatsapp da loja"
-            id="5" />
-        </div>
+<form id="altoxvOpen" onsubmit="">
+  <div class="container">
+    <div class="checklist-container">
+      <div class="checklist-title">
+        <span>1</span>
+        <h2>Primeira Prioridade</h2>
       </div>
-      <div class="checklist-container">
-        <div class="checklist-title">
-          <span>2</span>
-          <h2>Outros</h2>
-        </div>
-        <div class="checklist-body body-2">
-
-          <Item title="Limpeza" subtitle1="Limpeza interna da loja, bancadas, pia, saguão, etc" id="6" />
-          <Item title="Reposição de Insumos" subtitle1="copinhos, pázinhas, guardanapos, etc..."
-            subtitle2="guardanapos dos clientes, embalagens waffle, etc" id="7" />
-          <Item title="Ligar máquina waffle (200º graus)" id="8" />
-          <Item title="Ligar máquina de café e moedor" id="9" />
-          <Item title="Acender luzes da loja" id="10" />
-          <Item title="Reposição dos lixos internos e lixo do saguão dos clientes" id="11" />
-          <Item title="Verificar banheiro dos clientes" subtitle1="Lixo, papel toalha, limpeza" id="12" />
-          <Item title="Abertura do caixa" id="13" />
-          <Item title="Limpeza do pátio externo" id="14" />
-          <Item title="Reposição da vitrine (-9º graus)" id="15" />
-          <Item title="Abertura das portas ( 12:00 )" id="16" />
-        </div>
+      <div class="checklist-body body-1">
+        <Item title="Bater ponto" id="1" />
+        <Item title="Limpar e ligar a vitrine" subtitle1="Interior e exterior com pano úmido e vidros com álcool"
+          id="2" />
+        <Item title="Gelato & Freezer"
+          subtitle1="identificar os sabores da vitrine e se algum gelato precisa ir para geladeira" id="3" />
+        <Item title="Sistema"
+          subtitle1="Verificar se o sistema está funcionando, computador, impressoras, internet, máquinas de cartão"
+          id="4" />
+        <Item title="Produtos em Falta"
+          subtitle1="Verificar se temos algum produto / insumo em falta antes de iniciar a loja e avisar no grupo do Whatsapp da loja"
+          id="5" />
       </div>
-
-      <button class="submit" type="submit">Confirmar Checklist</button>
     </div>
-  </form>
+    <div class="checklist-container">
+      <div class="checklist-title">
+        <span>2</span>
+        <h2>Outros</h2>
+      </div>
+      <div class="checklist-body body-2">
+        <Item title="Limpeza" subtitle1="Limpeza interna da loja, bancadas, pia, saguão, etc" id="6" />
+        <Item title="Reposição de Insumos" subtitle1="copinhos, pázinhas, guardanapos, etc..."
+          subtitle2="guardanapos dos clientes, embalagens waffle, etc" id="7" />
+        <Item title="Ligar máquina waffle (200º graus)" id="8" />
+        <Item title="Ligar máquina de café e moedor" id="9" />
+        <Item title="Acender luzes da loja" id="10" />
+        <Item title="Reposição dos lixos internos e lixo do saguão dos clientes" id="11" />
+        <Item title="Verificar banheiro dos clientes" subtitle1="Lixo, papel toalha, limpeza" id="12" />
+        <Item title="Abertura do caixa" id="13" />
+        <Item title="Limpeza do pátio externo" id="14" />
+        <Item title="Reposição da vitrine (-9º graus)" id="15" />
+        <Item title="Abertura das portas ( 12:00 )" id="16" />
+      </div>
+    </div>
 
-  <style lang="scss">
-    :root {
-      font-size: 62.5%;
+    <button class="submit" type="submit">Confirmar Checklist</button>
+  </div>
+</form>
+
+<style lang="scss">
+  :root {
+    font-size: 62.5%;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
+  }
+
+  *::before,
+  *::after {
+    box-sizing: inherit;
+  }
+
+  html,
+  body {
+    background: #f9f2e4;
+
+    overflow-x: hidden;
+
+    text-rendering: optimizeSpeed;
+    line-height: 1.35;
+    font-weight: 400;
+    font-family: "Montserrat", sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-style: none;
+  }
+
+  svg {
+    vertical-align: middle;
+  }
+
+  ol,
+  ul {
+    list-style: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  b,
+  strong {
+    font-weight: bolder;
+  }
+
+  input,
+  button,
+  select,
+  optgroup,
+  textarea {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  textarea {
+    resize: vertical;
+    overflow: auto;
+  }
+
+  /* Main Container class */
+  .container {
+    width: 100%;
+    max-width: 1060px;
+    padding: 2rem 2rem;
+    margin-right: auto;
+    margin-left: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 2.6rem;
+  }
+
+  .info-diaria {
+    border: 1px solid #d6b9a2;
+    padding: 2rem 4rem;
+    font-size: 1.6rem;
+    text-align: center;
+
+    .aviso-diario {
+      font-size: 1.8rem;
     }
+  }
 
-    * {
-      margin: 0;
-      padding: 0;
-      border: 0;
-      box-sizing: border-box;
-    }
+  .voltarContainer {
+    margin: 4rem 0;
+  }
 
-    *::before,
-    *::after {
-      box-sizing: inherit;
-    }
+  .voltar {
+    font-size: 2rem;
+    color: #000;
+    border: 1px dashed #a17550;
+    padding: 2rem 4rem;
+  }
 
-    html,
-    body {
-      background: #f9f2e4;
+  #timestamp {
+    font-size: 2rem;
+  }
 
-      overflow-x: hidden;
+  .submit {
+    font-size: 2rem;
+    border: 1px solid #a17550;
+    padding: 1rem 2rem;
+    background: white;
+    cursor: pointer;
+  }
 
-      text-rendering: optimizeSpeed;
-      line-height: 1.35;
-      font-weight: 400;
-      font-family: "Raleway", sans-serif;
-    }
+  .checklist-container {
+    min-width: 600px;
+    margin-bottom: 2rem;
 
-    html {
-      scroll-behavior: smooth;
-    }
-
-    img {
-      display: block;
-      max-width: 100%;
-      height: auto;
-      border-style: none;
-    }
-
-    svg {
-      vertical-align: middle;
-    }
-
-    ol,
-    ul {
-      list-style: none;
-    }
-
-    a {
-      text-decoration: none;
-    }
-
-    b,
-    strong {
-      font-weight: bolder;
-    }
-
-    input,
-    button,
-    select,
-    optgroup,
-    textarea {
-      margin: 0;
-      font-family: inherit;
-      font-size: inherit;
-      line-height: inherit;
-    }
-
-    textarea {
-      resize: vertical;
-      overflow: auto;
-    }
-
-    /* Main Container class */
-    .container {
-      width: 100%;
-      max-width: 1060px;
-      padding: 2rem 2rem;
-      margin-right: auto;
-      margin-left: auto;
+    .checklist-title {
       display: flex;
-      justify-content: center;
+      flex-direction: row;
+      justify-content: flex-start;
       align-items: center;
-      flex-direction: column;
-    }
-
-
-
-
-
-    .title {
-      font-size: 2.6rem;
-    }
-
-
-    .info-diaria {
-      border: 1px solid #d6b9a2;
-      padding: 2rem 4rem;
-      font-size: 1.6rem;
-      text-align: center;
-
-      .aviso-diario {
-        font-size: 1.8rem;
-      }
-    }
-
-    .voltarContainer {
-      margin-top: 4rem;
-    }
-
-    .voltar {
-      font-size: 2rem;
-      color: #000;
-      border: 1px solid #a17550;
-      padding: 2rem 4rem;
-    }
-
-    #timestamp {
-      font-size: 2rem;
-    }
-
-    .submit {
-      font-size: 2rem;
-      border: 1px solid #a17550;
-      padding: 1rem 2rem;
-      background: white;
-      cursor: pointer;
-    }
-
-    .checklist-container {
-      min-width: 600px;
       margin-bottom: 2rem;
 
-      .checklist-title {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        margin-bottom: 2rem;
-
-        span {
-          font-size: 3rem;
-          background: #a17550;
-          border-radius: 100%;
-          color: #fff;
-          padding: 1rem 2rem;
-          margin-right: 2rem;
-        }
-
-        h2 {
-          font-size: 2.4rem;
-        }
+      span {
+        font-size: 3rem;
+        background: #a17550;
+        border-radius: 100%;
+        color: #fff;
+        padding: 1rem 2rem;
+        margin-right: 2rem;
       }
 
-      .checklist-body {
-        margin-left: 1.5rem;
-      }
-
-      .body-1 {
-        margin-bottom: 2rem;
+      h2 {
+        font-size: 2.4rem;
       }
     }
 
-    .lds-roller {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      display: none;
+    .checklist-body {
+      margin-left: 1.5rem;
     }
 
-    .lds-roller.active {
-      display: inline-block !important;
+    .body-1 {
+      margin-bottom: 2rem;
+    }
+  }
+
+  .lds-roller {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    display: none;
+  }
+
+  .lds-roller.active {
+    display: inline-block !important;
+  }
+
+  .lds-roller div {
+    animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    transform-origin: 40px 40px;
+  }
+
+  .lds-roller div:after {
+    content: " ";
+    display: block;
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #a17550;
+    margin: -4px 0 0 -4px;
+  }
+
+  .lds-roller div:nth-child(1) {
+    animation-delay: -0.036s;
+  }
+
+  .lds-roller div:nth-child(1):after {
+    top: 63px;
+    left: 63px;
+  }
+
+  .lds-roller div:nth-child(2) {
+    animation-delay: -0.072s;
+  }
+
+  .lds-roller div:nth-child(2):after {
+    top: 68px;
+    left: 56px;
+  }
+
+  .lds-roller div:nth-child(3) {
+    animation-delay: -0.108s;
+  }
+
+  .lds-roller div:nth-child(3):after {
+    top: 71px;
+    left: 48px;
+  }
+
+  .lds-roller div:nth-child(4) {
+    animation-delay: -0.144s;
+  }
+
+  .lds-roller div:nth-child(4):after {
+    top: 72px;
+    left: 40px;
+  }
+
+  .lds-roller div:nth-child(5) {
+    animation-delay: -0.18s;
+  }
+
+  .lds-roller div:nth-child(5):after {
+    top: 71px;
+    left: 32px;
+  }
+
+  .lds-roller div:nth-child(6) {
+    animation-delay: -0.216s;
+  }
+
+  .lds-roller div:nth-child(6):after {
+    top: 68px;
+    left: 24px;
+  }
+
+  .lds-roller div:nth-child(7) {
+    animation-delay: -0.252s;
+  }
+
+  .lds-roller div:nth-child(7):after {
+    top: 63px;
+    left: 17px;
+  }
+
+  .lds-roller div:nth-child(8) {
+    animation-delay: -0.288s;
+  }
+
+  .lds-roller div:nth-child(8):after {
+    top: 56px;
+    left: 12px;
+  }
+
+  @keyframes lds-roller {
+    0% {
+      transform: rotate(0deg);
     }
 
-    .lds-roller div {
-      animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-      transform-origin: 40px 40px;
+    100% {
+      transform: rotate(360deg);
     }
-
-    .lds-roller div:after {
-      content: " ";
-      display: block;
-      position: absolute;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #a17550;
-      margin: -4px 0 0 -4px;
-    }
-
-    .lds-roller div:nth-child(1) {
-      animation-delay: -0.036s;
-    }
-
-    .lds-roller div:nth-child(1):after {
-      top: 63px;
-      left: 63px;
-    }
-
-    .lds-roller div:nth-child(2) {
-      animation-delay: -0.072s;
-    }
-
-    .lds-roller div:nth-child(2):after {
-      top: 68px;
-      left: 56px;
-    }
-
-    .lds-roller div:nth-child(3) {
-      animation-delay: -0.108s;
-    }
-
-    .lds-roller div:nth-child(3):after {
-      top: 71px;
-      left: 48px;
-    }
-
-    .lds-roller div:nth-child(4) {
-      animation-delay: -0.144s;
-    }
-
-    .lds-roller div:nth-child(4):after {
-      top: 72px;
-      left: 40px;
-    }
-
-    .lds-roller div:nth-child(5) {
-      animation-delay: -0.18s;
-    }
-
-    .lds-roller div:nth-child(5):after {
-      top: 71px;
-      left: 32px;
-    }
-
-    .lds-roller div:nth-child(6) {
-      animation-delay: -0.216s;
-    }
-
-    .lds-roller div:nth-child(6):after {
-      top: 68px;
-      left: 24px;
-    }
-
-    .lds-roller div:nth-child(7) {
-      animation-delay: -0.252s;
-    }
-
-    .lds-roller div:nth-child(7):after {
-      top: 63px;
-      left: 17px;
-    }
-
-    .lds-roller div:nth-child(8) {
-      animation-delay: -0.288s;
-    }
-
-    .lds-roller div:nth-child(8):after {
-      top: 56px;
-      left: 12px;
-    }
-
-    @keyframes lds-roller {
-      0% {
-        transform: rotate(0deg);
-      }
-
-      100% {
-        transform: rotate(360deg);
-      }
-    }
-  </style>
-</Layout>
+  }
+</style>
