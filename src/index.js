@@ -1,11 +1,34 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
+import * as React from "react";
+import { createRoot } from "react-dom/client";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  Link,
+  Outlet,
+  createRoutesFromElements,
+} from "react-router-dom";
+import Home from "./routes/Home";
+import ChecklistAbertura from "./routes/ChecklistAbertura";
+import ChecklistFechamento from "./routes/ChecklistFechamento";
+import NavBar from "./components/Navbar";
+import "./App.css";
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+
+const AppLayout = () => (
+  <>
+    <NavBar />
+    <Outlet />
+  </>
+)
+const router = createBrowserRouter(createRoutesFromElements(
+  <Route element={<AppLayout/>}>
+    <Route path="/" element={<Home/>}/>
+    <Route path="/checklist-abertura" element={<ChecklistAbertura/>}/>
+    <Route path="/checklist-fechamento" element={<ChecklistFechamento/>}/>
+  </Route>
+))
+
+createRoot(document.getElementById("root")).render(
+  <RouterProvider router={router} />
 );
