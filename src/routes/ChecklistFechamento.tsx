@@ -1,6 +1,18 @@
 import React from "react";
 import * as Icons from "react-icons/bs";
 
+const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
+const telegramChatId = "-1001602173856";
+
+const onSubmit = (e) => {
+  console.log("enviou");
+  e.preventDefault();
+
+  fetch(
+    `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A`
+  );
+};
+
 function ChecklistFechamento() {
   return (
     <div className="checklistContainer">
@@ -25,7 +37,7 @@ function ChecklistFechamento() {
       <div className="firstCheck">
         <p className="firstCheckTitle">1ª Prioridade ( Fator Tempo )</p>
 
-        <form action="" className="firstCheckForm">
+        <form onSubmit={onSubmit} action="" className="firstCheckForm">
           <input type="text" name="name" />
 
           <button type="submit">Enviar</button>
