@@ -9,10 +9,9 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./routes/Home";
-import ChecklistAbertura from "./routes/ChecklistAbertura";
-import ChecklistFechamento from "./routes/ChecklistFechamento";
+import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
+import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
-import "./App.css";
 
 
 const AppLayout = () => (

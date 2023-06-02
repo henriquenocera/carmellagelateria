@@ -1,8 +1,9 @@
 import React from "react";
+import "../css/Checklist.css";
 
 function ChecklistAbertura() {
   return (
-    <div className="checklistabertura">
+    <div className="checklistContainer">
       <h1>Checklist de Abertura</h1>
     </div>
   );

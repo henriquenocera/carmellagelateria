@@ -1,0 +1,87 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap");
+h1 {
+  font-size: 2.4rem;
+}
+h2 {
+  font-weight: 400;
+}
+.checklistContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-left: 255px;
+}
+.unitContainer {
+  width: 100%;
+  padding: 30px 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 868px) {
+  .unitContainer {
+    flex-direction: column-reverse;
+  }
+  .unitLogo {
+    margin-bottom: 30px;
+  }
+  h1,
+  h2 {
+    text-align: center;
+  }
+}
+
+.warningContainer {
+  width: 100%;
+  padding: 0px 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.warningText {
+  font-size: 1.6rem;
+  border: 1px dashed #a17550;
+  padding: 8px 12px;
+  margin-top: 10px;
+  position: relative;
+}
+.warningIcon {
+  font-size: 2rem;
+  color: #a17550;
+  position: absolute;
+  top: -15px;
+  left: -10px;
+}
+
+.firstCheck {
+  width: 100%;
+  padding: 0px 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-top: 30px;
+}
+
+.firstCheckTitle {
+  font-size: 2.4rem;
+}
+
+.firstCheckForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  border: 1px solid black;
+}
+.firstCheckForm input {
+  border: 1px solid brown;
+}
+.firstCheckForm button {
+  border: 1px solid brown;
+  padding: 4px;
+}
