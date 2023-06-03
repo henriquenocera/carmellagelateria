@@ -31,7 +31,6 @@ function getLocalStorage() {
   let today = new Date();
   let open = JSON.parse(localStorage.getItem("altoxvOpen"));
   if (open) {
-    open.timestamp = open.timestamp;
     console.log(open.timestamp);
   } else {
     open = "Ainda nao completo";
@@ -51,9 +50,6 @@ function getLocalStorage() {
     ":" +
     openDateFormat.getSeconds();
   console.log(openDateFormat);
-
-  let dayToday = today.getDate();
-  let lastDayComplete = new Date(open.timestamp).getDate();
 }
 getLocalStorage();
 function altoxvOpenSubmit() {
@@ -92,7 +88,6 @@ function ChecklistAbertura() {
   useEffect(() => {
     let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
     if (openC) {
-      openC.timestamp = openC.timestamp;
       console.log(openC.timestamp);
     } else {
       openC = "Ainda nao completo";
@@ -126,7 +121,7 @@ function ChecklistAbertura() {
           <img src="/logo.svg" alt="" />
         </div>
       </div>
-      {openC && openC.value == "complete" ? (
+      {openC && openC.value === "complete" ? (
         <span className="timeComplete">{timeComplete}</span>
       ) : (
         <>
