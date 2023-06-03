@@ -1,0 +1,423 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Item from "../../components/Item.astro";
+import ItemChecked from "../../components/ItemChecked.astro";
+---
+
+<script src="../../scripts/altoxvFechamento.js"></script>
+
+<Layout>
+  <div class="container">
+    <h1 class="title">Checklist de Fechamento - Loja Alto da XV</h1>
+    <p id="timestamp"></p>
+    <div class="voltarContainer">
+      <a class="voltar" href="/altoxv/">Voltar</a>
+    </div>
+    <div class="container">
+      <div class="lds-roller">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div>
+        </div>
+        <div></div>
+      </div>
+    </div>
+    <div class="container">
+      <div class="info-diaria">
+        <h2>Aviso Diário - <span id="dia-da-semana"></span></h2>
+        </br>
+        <p class="aviso-diario"></p>
+      </div>
+    </div>
+  </div>
+  <form id="altoxvClose" onsubmit="">
+    <div class=" container">
+      <div class="checklist-container">
+        <div class="checklist-title">
+          <span>1</span>
+          <h2>Pré Fechamento (18:00 ~~ 19:00)</h2>
+        </div>
+        <div class="checklist-body body-1">
+          <ItemChecked title="Espátulas e cubas" id="1" />
+          <ItemChecked title="Limpeza e organização interna" id="2" />
+        </div>
+      </div>
+      <div class="checklist-container">
+        <div class="checklist-title">
+          <span>2</span>
+          <h2>Fechamento</h2>
+        </div>
+        <div class="checklist-body body-2">
+          <Item title="Fechamento das Portas (19:00)" id="3" />
+          <Item title="Guardar cubas limpas no Freezer" id="4" />
+          <Item title="Desligar Vitrine" id="5" />
+          <Item title="Desligar Máquina do Waffle (tirar da tomada)" id="6" />
+          <Item title="Desligar Máquina de Café e Moedor (tirar da tomada)"
+            subtitle1="Realizar a limpeza do filtro com o pincel petro"
+            subtitle2="Limpar porta filtros com água e sabão" id="7" />
+          <Item title="Retirar lixos internos"
+            subtitle1="Verificar se precisa retirar lixo do saguão dos clientes, ou só dar um nó" id="8" />
+          <Item title="Verificar se precisa retirar lixo do banheiro dos clientes (caso cheio)" id="9" />
+          <Item title="Fechar Caixa e Lacrar Malote" id="10" />
+
+          <Item title="Massas de Waffle - Informar e Descongelar para o dia seguinte:"
+            subtitle1="Descongelar massas na geladeira para totalizar 8~~14 massas para o dia seguinte"
+            subtitle2="Após descongelar realizar a contagem do nº de massas restantes no freezer e geladeira" id="11" />
+          <div class="inputContainer">
+            <label for="">Quantidade de massas congeladas no <b>Freezer:</b></label>
+            <input class="inputNumber" required type="number" name="freezer" min="0" id="12">
+            <label for="">Quantidade de massas na <b>Geladeira:</b></label>
+            <input class="inputNumber" required type="number" name="geladeira" min="0" id="13">
+          </div>
+
+          <Item title="Informar Quantidade de Frutas:" id="14" />
+          <div class="inputContainer">
+            <label for="">Quantos Potes de Morango fechados tem na geladeira dos fundos ?</label>
+            <input class="inputNumber" required type="number" min="0" name="morango" id="15">
+
+            <label for="">Quantos Potes de Banana fechados tem na geladeira dos fundos ?</label>
+            <input class="inputNumber" required type="number" min="0" name="banana" id="16">
+
+
+          </div>
+
+
+          <Item title="Verificar Freezers e Geladeiras" subtitle1="Freezer Uso, Geladeira da cozinha, e frigobar"
+            subtitle2="Garantir que estão fechados" id="17" />
+          <Item title="Confirmar Checklist e Desligar Computador"
+            subtitle1="Não esquecer de bater ponto, trancar a porta e ligar o alarme ao sair!" id="18" />
+        </div>
+      </div>
+
+      <button class="submit" type="submit">Confirmar Checklist</button>
+    </div>
+  </form>
+
+  <style lang="scss">
+    :root {
+      font-size: 62.5%;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      border: 0;
+      box-sizing: border-box;
+    }
+
+    *::before,
+    *::after {
+      box-sizing: inherit;
+    }
+
+    html,
+    body {
+      background: #f9f2e4;
+
+      overflow-x: hidden;
+
+      text-rendering: optimizeSpeed;
+      line-height: 1.35;
+      font-weight: 400;
+      font-family: "Raleway", sans-serif;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      border-style: none;
+    }
+
+    svg {
+      vertical-align: middle;
+    }
+
+    ol,
+    ul {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    b,
+    strong {
+      font-weight: bolder;
+    }
+
+    input,
+    button,
+    select,
+    optgroup,
+    textarea {
+      margin: 0;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    textarea {
+      resize: vertical;
+      overflow: auto;
+    }
+
+    /* Main Container class */
+    .container {
+      width: 100%;
+      max-width: 1060px;
+      padding: 2rem 2rem;
+      margin-right: auto;
+      margin-left: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    @media (min-width: 676px) {
+      .container {
+        max-width: 640px;
+      }
+    }
+
+    @media (min-width: 868px) {
+      .container {
+        max-width: 820px;
+      }
+    }
+
+    .title {
+      font-size: 2.6rem;
+    }
+
+    .info-diaria {
+      border: 1px solid #d6b9a2;
+      padding: 2rem 4rem;
+      font-size: 1.6rem;
+      text-align: center;
+
+      .aviso-diario {
+        font-size: 1.8rem;
+      }
+    }
+
+    .voltarContainer {
+      margin-top: 4rem;
+    }
+
+    .voltar {
+      font-size: 2rem;
+      color: #000;
+      border: 1px solid #a17550;
+      padding: 2rem 4rem;
+    }
+
+    datalist {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      writing-mode: vertical-lr;
+      width: 200px;
+    }
+
+    option {
+      padding: 0;
+    }
+
+    input[type="range"] {
+      width: 200px;
+      margin: 0;
+    }
+
+    .inputContainer {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+      margin-left: 4rem;
+
+      label {
+        font-size: 1.6rem;
+      }
+
+      input {
+        font-size: 1.6rem;
+        margin-bottom: 2rem;
+        border-radius: 4px;
+        max-width: 200px;
+        text-align: center;
+      }
+    }
+
+    .inputNumber {
+      width: 60px;
+      height: 40px;
+      border: 1px solid black;
+    }
+
+    #timestamp {
+      font-size: 2rem;
+    }
+
+    .submit {
+      font-size: 2rem;
+      border: 1px solid #a17550;
+      padding: 1rem 2rem;
+      background: white;
+      cursor: pointer;
+    }
+
+    .checklist-container {
+      min-width: 600px;
+      margin-bottom: 2rem;
+
+      .checklist-title {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        margin-bottom: 2rem;
+
+        span {
+          font-size: 3rem;
+          background: #a17550;
+          border-radius: 100%;
+          color: #fff;
+          padding: 1rem 2rem;
+          margin-right: 2rem;
+        }
+
+        h2 {
+          font-size: 2.4rem;
+        }
+      }
+
+      .checklist-body {
+        margin-left: 1.5rem;
+      }
+
+      .body-1 {
+        margin-bottom: 2rem;
+      }
+    }
+
+    .lds-roller {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      display: none;
+    }
+
+    .lds-roller.active {
+      display: inline-block !important;
+    }
+
+    .lds-roller div {
+      animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      transform-origin: 40px 40px;
+    }
+
+    .lds-roller div:after {
+      content: " ";
+      display: block;
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #a17550;
+      margin: -4px 0 0 -4px;
+    }
+
+    .lds-roller div:nth-child(1) {
+      animation-delay: -0.036s;
+    }
+
+    .lds-roller div:nth-child(1):after {
+      top: 63px;
+      left: 63px;
+    }
+
+    .lds-roller div:nth-child(2) {
+      animation-delay: -0.072s;
+    }
+
+    .lds-roller div:nth-child(2):after {
+      top: 68px;
+      left: 56px;
+    }
+
+    .lds-roller div:nth-child(3) {
+      animation-delay: -0.108s;
+    }
+
+    .lds-roller div:nth-child(3):after {
+      top: 71px;
+      left: 48px;
+    }
+
+    .lds-roller div:nth-child(4) {
+      animation-delay: -0.144s;
+    }
+
+    .lds-roller div:nth-child(4):after {
+      top: 72px;
+      left: 40px;
+    }
+
+    .lds-roller div:nth-child(5) {
+      animation-delay: -0.18s;
+    }
+
+    .lds-roller div:nth-child(5):after {
+      top: 71px;
+      left: 32px;
+    }
+
+    .lds-roller div:nth-child(6) {
+      animation-delay: -0.216s;
+    }
+
+    .lds-roller div:nth-child(6):after {
+      top: 68px;
+      left: 24px;
+    }
+
+    .lds-roller div:nth-child(7) {
+      animation-delay: -0.252s;
+    }
+
+    .lds-roller div:nth-child(7):after {
+      top: 63px;
+      left: 17px;
+    }
+
+    .lds-roller div:nth-child(8) {
+      animation-delay: -0.288s;
+    }
+
+    .lds-roller div:nth-child(8):after {
+      top: 56px;
+      left: 12px;
+    }
+
+    @keyframes lds-roller {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</Layout>

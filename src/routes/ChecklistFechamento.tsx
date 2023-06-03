@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import * as Icons from "react-icons/bs";
+import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 
 const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
-const telegramChatId = "a-1001602173856";
+const telegramChatId = "-1001602173856";
 
 async function sendOpenMessage(openDateFormat) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja Alto XV %0D%0A ${openDateFormat}`;
@@ -158,14 +159,8 @@ function ChecklistFechamento() {
             </p>
             <p className="warningText">Bater Ponto</p>
           </div>
-          <div className="firstCheck">
-            <p className="firstCheckTitle">1ª Prioridade ( Fator Tempo )</p>
-
-            <form onSubmit={onSubmit} action="" className="firstCheckForm">
-              <input type="text" name="name" />
-
-              <button type="submit">Enviar</button>
-            </form>
+          <div className="checklistFormContainer">
+            <ChecklistFechamentoForm handleSubmit={onSubmit} />
           </div>
         </>
       )}
