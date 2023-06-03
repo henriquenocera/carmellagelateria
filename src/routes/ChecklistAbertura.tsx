@@ -7,7 +7,7 @@ const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
 const telegramChatId = "-1001602173856";
 
 async function sendOpenMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja Alto XV %0D%0A ${openDateFormat} %0D%0A Loja Aberta e tudo Funcionando!`;
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja Alto XV %0D%0A ${openDateFormat} %0D%0A Loja Aberta e tudo Funcionando`;
   try {
     const response = await fetch(checkOpenComplete, {
       method: "POST",
