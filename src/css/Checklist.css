@@ -35,7 +35,7 @@ h2 {
 
 .warningContainer {
   width: 100%;
-  padding: 0px 70px;
+  padding: 20px 70px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

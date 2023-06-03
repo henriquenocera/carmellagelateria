@@ -1,12 +1,27 @@
 import React, { useEffect, useState } from "react";
 import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
+import "../css/Checklist.css";
 
 const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
 const telegramChatId = "-1001602173856";
 
-async function sendOpenMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja Alto XV %0D%0A ${openDateFormat}`;
+async function sendOpenMessage(
+  openDateFormat,
+  freezer,
+  geladeira,
+  morango,
+  banana,
+  amora,
+  maca
+) {
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A ${openDateFormat}
+  %0D%0A Qntd Massas no Freezer: ${freezer} 
+  %0D%0A Qntd Massas na Geladeira: ${geladeira};
+  %0D%0A Potes Fechados de Morango: ${morango};
+  %0D%0A Potes Fechados de Banana: ${banana};
+  %0D%0A Potes Fechados Gel de Amora: ${amora};
+  %0D%0A Potes Fechados Torta de Maça: ${maca}`;
   try {
     const response = await fetch(checkOpenComplete, {
       method: "POST",
@@ -28,7 +43,7 @@ async function sendOpenMessage(openDateFormat) {
 }
 function getLocalStorage() {
   let today = new Date();
-  let open = JSON.parse(localStorage.getItem("altoxvOpen"));
+  let open = JSON.parse(localStorage.getItem("altoxvClose"));
   if (open) {
     open.timestamp = open.timestamp;
     console.log(open.timestamp);
@@ -76,12 +91,12 @@ function getLocalStorage() {
   } */
 }
 getLocalStorage();
-function altoxvOpenSubmit() {
+function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
   const currentDate = new Date();
   console.log(currentDate);
 
   var object = { value: "complete", timestamp: new Date().getTime() };
-  localStorage.setItem("altoxvOpen", JSON.stringify(object));
+  localStorage.setItem("altoxvClose", JSON.stringify(object));
 
   let openDateFormat = new Date(object.timestamp);
   openDateFormat =
@@ -96,21 +111,31 @@ function altoxvOpenSubmit() {
     openDateFormat.getMinutes() +
     ":" +
     openDateFormat.getSeconds();
-  sendOpenMessage(openDateFormat);
+  sendOpenMessage(
+    openDateFormat,
+    freezer,
+    geladeira,
+    morango,
+    banana,
+    amora,
+    maca
+  );
 }
 
-const onSubmit = (e) => {
+const onSubmit = (event, freezer, geladeira, morango, banana, amora, maca) => {
   console.log("enviou");
-  e.preventDefault();
-  altoxvOpenSubmit();
+  console.log(freezer);
+  console.log(geladeira);
+  event.preventDefault();
+  altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca);
 };
 
 function ChecklistFechamento() {
   const [timeComplete, setTimeComplete] = useState(false);
-  let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
+  let openC = JSON.parse(localStorage.getItem("altoxvClose"));
 
   useEffect(() => {
-    let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
+    let openC = JSON.parse(localStorage.getItem("altoxvClose"));
     if (openC) {
       openC.timestamp = openC.timestamp;
       console.log(openC.timestamp);
@@ -150,17 +175,18 @@ function ChecklistFechamento() {
         <span className="timeComplete">{timeComplete}</span>
       ) : (
         <>
+          <div className="checklistFormContainer">
+            <ChecklistFechamentoForm handleSubmit={onSubmit} />
+          </div>
           <div className="warningContainer">
+            <p className="warningText">Bater Ponto</p>
+
             <p className="warningText">
               <span className="warningIcon">
                 <Icons.BsExclamationDiamondFill />
               </span>
-              Avental | Máscara | Faixa de Cabelo / Boné
+              Ligar Alarme e Trancar a Porta
             </p>
-            <p className="warningText">Bater Ponto</p>
-          </div>
-          <div className="checklistFormContainer">
-            <ChecklistFechamentoForm handleSubmit={onSubmit} />
           </div>
         </>
       )}

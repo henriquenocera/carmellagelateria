@@ -1,3 +1,9 @@
+.fechamentoAltoxv {
+  margin-bottom: 20px;
+}
+.aberturaAltoxv {
+  margin-bottom: 20px;
+}
 .sectionTitle p {
   font-size: 2.4rem;
   margin-bottom: 20px;
@@ -17,7 +23,6 @@
 }
 
 .checkbox-wrapper {
-  max-width: 600px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -138,12 +143,19 @@
 }
 .inputNumber {
   font-size: 1.6rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   border-radius: 4px;
   max-width: 200px;
   text-align: center;
   width: 60px;
   height: 40px;
   border: 1px solid #a17550;
-  margin-top: 15px;
+  margin-top: 10px;
+}
+
+.submit {
+  padding: 12px 16px;
+  font-size: 2rem;
+  background: #a17550;
+  color: #fff;
 }

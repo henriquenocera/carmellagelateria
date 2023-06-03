@@ -1,19 +1,14 @@
 import React, { useState } from "react";
 import "./ChecklistForm.css";
 
-function ChecklistFechamentoForm({ handleSubmit }) {
-  const [freezer, setFreezer] = useState("");
-  const [geladeira, setGeladeira] = useState("");
-  const [morango, setMorango] = useState("");
-  const [banana, setBanana] = useState("");
-  const [amora, setAmora] = useState("");
-  const [maca, setMaca] = useState("");
+function ChecklistAberturaForm({ handleSubmit }) {
+
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca)} className="fechamentoAltoxv" id="altoxvClose">
+      <form onSubmit={event => handleSubmit(event)} className="aberturaAltoxv" id="altoxvOpen">
         <div className="sectionTitle">
-          <p>1ª Pré Fechamento (18:00 ~ 18:50)</p>
+          <p>1ª Prioridade</p>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -29,8 +24,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Limpar Espátulas e Cubas</span>
+            <span className="label">Limpar e Ligar a Vitrine</span>
           </label>
+          <span className="subtitle">Interior e exterior com pano úmido e vidros com álcool líquido</span>
+
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -46,13 +43,11 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Atualizar Trello</span>
+            <span className="label">Gelato & Freezer</span>
           </label>
-          <span className="subtitle">Freezer Uso e Vitrine</span>
+          <span className="subtitle">Identificar os sabores da vitrine do dia e verificar se algum Gelato precisa ir para a geladeira</span>
         </div>
-        <div className="sectionTitle">
-          <p>2ª Fechamento (19:00)</p>
-        </div>
+
         <div className="checkbox-wrapper">
           <input
             required
@@ -67,8 +62,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Fechamento das Portas ( 19:00 ) </span>
+            <span className="label">Sistema</span>
           </label>
+          <span className="subtitle">Verificar se o sistema está funcionando, computador, impressoras, internet e máquina de cartão TEF</span>
+          <span className="subtitle">Verificar se a máquina de cartão POS e o tablet estão funcionando e com bateria</span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -84,8 +81,13 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Fechar Porta dos Fundos ( 3 chaves )</span>
+            <span className="label">Produtos / Insumos em Falta</span>
           </label>
+          <span className="subtitle">Verificar antes da abertura se tem algum produto / insumo em falta</span>
+          <span className="subtitle">Caso tenha algo faltando, avisar no grupo do Whats</span>
+        </div>
+        <div className="sectionTitle">
+          <p>2ª Outras Tarefas</p>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -101,8 +103,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Desligar Luz do Banheiro dos Clientes</span>
+            <span className="label">Limpeza</span>
           </label>
+          <span className="subtitle">Limpeza interna da loja, bancadas, pia, saguão, mesas dos clientes e utensílios</span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -118,8 +121,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Guardar Cubas Limpas no Freezer</span>
+            <span className="label">Reposição de Insumos</span>
           </label>
+          <span className="subtitle">Realizar a retirada de estoque dos insumos necessários (copinhos, pázinhas, etc)</span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -135,25 +139,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Desligar Vitrine</span>
+            <span className="label">Ligar Máquina de Waffle ( 200º C ) “Tomada Vermelha 220V”</span>
           </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="27"
-            type="checkbox"
-            name="27"
-          />
-          <label className="cbx" htmlFor="27">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Colocar Tablet e Máquina POS para Carregar</span>
-          </label>
+          <span className="subtitle">Verificar o controlador manual se está configurado em 200º C</span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -169,7 +157,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Desligar Máquina Waffle ( Tirar da Tomada )</span>
+            <span className="label">Ligar Máquina de Café e Moedor “Tomada Vermelha 220V”</span>
           </label>
         </div>
         <div className="checkbox-wrapper">
@@ -186,7 +174,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Desligar Máquina de Café e Moedor ( Tirar da Tomada )</span>
+            <span className="label">Acender Todas as Luzes da Loja</span>
           </label>
         </div>
         <div className="checkbox-wrapper">
@@ -203,11 +191,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Limpeza da Máquina de Café</span>
+            <span className="label">Reposição de Lixos</span>
           </label>
-          <span className="subtitle">Realizar limpeza da máquina com pincel preto e água</span>
-          <span className="subtitle">Lavar porta filtros e pitchers com água e sabão</span>
-          <span className="subtitle">Esvaziar gaveta de borra no lixo e lavar com água e sabão</span>
         </div>
 
         <div className="checkbox-wrapper">
@@ -224,8 +209,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Retirar Lixo do Banheiro dos Clientes</span>
+            <span className="label">Verificar Banheiro dos Clientes</span>
           </label>
+          <span className="subtitle">Reposição do lixo, reposição do papel toalha e limpeza geral</span>
         </div>
 
         <div className="checkbox-wrapper">
@@ -242,7 +228,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Retirar Lixo do Banheiro dos Funcionários ( Caso haja necessidade )</span>
+            <span className="label">Abertura do Caixa</span>
           </label>
         </div>
 
@@ -260,8 +246,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Fechar Caixa e Lacrar Malote</span>
+            <span className="label">Limpeza do Pátio Externo</span>
           </label>
+          <span className="subtitle">Varrer todas as folhas na frente da loja para elas não entrarem com o vento após abertura das portas</span>
         </div>
 
         <div className="checkbox-wrapper">
@@ -278,53 +265,11 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Massas de Waffle - Descongelar para o Dia Seguinte</span>
+            <span className="label">Reposição da Vitrine ( -9º C )</span>
           </label>
-          <span className="subtitle">Transferir massas do Freezer para o Frigobar Preto para totalizar <b>8~14</b> massas para o dia seguinte</span>
-          <span className="subtitle">Após transferência de massas realizar contagem do nº de massas no Freezer e Geladeira</span>
         </div>
-        <div className="sectionTitle">
-          <p>3ª Contagem de Estoque</p>
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade de massas totais congeladas no <b>Freezer:</b></label>
-          <input onChange={(event) =>
-            setFreezer(event.target.value)
-          } className="inputNumber" required type="number" name="freezer" min="0" id="90" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade de massas totais na <b>Geladeira:</b></label>
-          <input onChange={(event) =>
-            setGeladeira(event.target.value)
-          } className="inputNumber" required type="number" name="geladeira" min="0" id="91" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Morango:</b></label>
-          <input onChange={(event) =>
-            setMorango(event.target.value)
-          } className="inputNumber" required type="number" name="morango" min="0" id="92" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Banana:</b></label>
-          <input onChange={(event) =>
-            setBanana(event.target.value)
-          } className="inputNumber" required type="number" name="banana" min="0" id="92" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Geleia de Amora:</b></label>
-          <input onChange={(event) =>
-            setAmora(event.target.value)
-          } className="inputNumber" required type="number" name="amora" min="0" id="92" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Torta de Maça:</b></label>
-          <input onChange={(event) =>
-            setMaca(event.target.value)
-          } className="inputNumber" required type="number" name="maca" min="0" id="92" />
-        </div>
-        <div className="sectionTitle">
-          <p>4ª Saída</p>
-        </div>
+
+
         <div className="checkbox-wrapper">
           <input
             required
@@ -339,46 +284,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Verificar Freezer e Geladeiras</span>
+            <span className="label">Abertura das Portas ( 12:00 )</span>
           </label>
-          <span className="subtitle">Garantir que estão bem fechados → Frezer Uso, Geladeira da Cozinha, Frigobar Preto e Frigobar Branco</span>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="16"
-            type="checkbox"
-            name="16"
-          />
-          <label className="cbx" htmlFor="16">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Verificar Dentro da Geladeira da Cozinha</span>
-          </label>
-          <span className="subtitle">Garantir que não sobrou nenhuma cuba lá dentro antes de ir embora</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="17"
-            type="checkbox"
-            name="17"
-          />
-          <label className="cbx" htmlFor="17">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Confirmar Checklist e Desligar Computador</span>
-          </label>
 
-        </div>
 
         <button className="submit" type="submit">Enviar</button>
       </form>
@@ -386,4 +295,4 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   );
 }
 
-export default ChecklistFechamentoForm;
+export default ChecklistAberturaForm;
