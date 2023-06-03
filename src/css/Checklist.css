@@ -10,7 +10,7 @@ h2 {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  margin-left: 255px;
+  margin-left: 75px;
 }
 .unitContainer {
   width: 100%;
@@ -84,4 +84,8 @@ h2 {
 .firstCheckForm button {
   border: 1px solid brown;
   padding: 4px;
+}
+.timeComplete {
+  font-size: 2rem;
+  text-align: center;
 }
