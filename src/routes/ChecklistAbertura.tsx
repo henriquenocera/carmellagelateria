@@ -19,7 +19,7 @@ async function sendOpenMessage(openDateFormat) {
     });
     const data = await response.json();
     console.log(JSON.stringify(data));
-    window.location.reload();
+    window.location.replace("https://altoxv.carmellagelateria.com.br/");
   } catch (error) {
     console.error(error);
     window.alert(
