@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
+import { useNavigate } from "react-router-dom";
 
 const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
 const telegramChatId = "-1001602173856";
@@ -33,7 +34,7 @@ async function sendOpenMessage(
     });
     const data = await response.json();
     console.log(JSON.stringify(data));
-    window.location.reload();
+    window.location.replace("https://altoxv.carmellagelateria.com.br/");
   } catch (error) {
     console.error(error);
     window.alert(

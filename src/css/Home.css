@@ -1,6 +1,31 @@
 .home {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
+}
+.mainChecklistContainer {
+  width: 700px;
+  height: 200px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.mainChecklistAbertura,
+.mainChecklistFechamento {
+  opacity: 0.6;
+  border: 1px dashed #a17550;
+  display: flex;
+  padding: 16px 32px;
+  font-size: 2rem;
+}
+
+.checked {
+  background: #a17550;
+  color: #fff;
+  opacity: 1;
 }
