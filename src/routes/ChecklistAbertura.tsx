@@ -28,34 +28,27 @@ async function sendOpenMessage(openDateFormat) {
   }
 }
 function getLocalStorage() {
+  let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
   let today = new Date();
-  let open = JSON.parse(localStorage.getItem("altoxvOpen"));
-  if (open) {
-    console.log(open.timestamp);
-  } else {
-    open = "Ainda nao completo";
+  let dayToday = today.getDate();
+  console.log(`dayToday = ${dayToday}`);
+
+  if (openC) {
+    let lastDayComplete = new Date(openC.timestamp).getDate();
+    console.log(`lastDayComplete = ${lastDayComplete}`);
+
+    if (dayToday == lastDayComplete) {
+      console.log("Stop Form");
+      // Checklist already complete today
+      // Block Form
+    } else {
+      console.log("Continue Form");
+      localStorage.setItem("altoxvOpen", 0);
+    }
   }
-  let openDateFormat = new Date(open.timestamp);
-  openDateFormat =
-    "Checklist Completo em: " +
-    openDateFormat.getDate() +
-    "/" +
-    openDateFormat.getMonth() +
-    "/" +
-    openDateFormat.getFullYear() +
-    " -- " +
-    openDateFormat.getHours() +
-    ":" +
-    openDateFormat.getMinutes() +
-    ":" +
-    openDateFormat.getSeconds();
-  console.log(openDateFormat);
 }
 getLocalStorage();
 function altoxvOpenSubmit() {
-  const currentDate = new Date();
-  console.log(currentDate);
-
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvOpen", JSON.stringify(object));
 
@@ -86,9 +79,8 @@ function ChecklistAbertura() {
   let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
 
   useEffect(() => {
-    let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
     if (openC) {
-      console.log(openC.timestamp);
+      console.log(`openC timestamp = ${openC.timestamp}`);
     } else {
       openC = "Ainda nao completo";
     }

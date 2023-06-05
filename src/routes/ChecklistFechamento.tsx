@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
-import { useNavigate } from "react-router-dom";
 
 const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
 const telegramChatId = "-1001602173856";
@@ -43,34 +42,27 @@ async function sendOpenMessage(
   }
 }
 function getLocalStorage() {
+  let openC = JSON.parse(localStorage.getItem("altoxvClose"));
   let today = new Date();
-  let open = JSON.parse(localStorage.getItem("altoxvClose"));
-  if (open) {
-    console.log(open.timestamp);
-  } else {
-    open = "Ainda nao completo";
+  let dayToday = today.getDate();
+  console.log(`dayToday = ${dayToday}`);
+
+  if (openC) {
+    let lastDayComplete = new Date(openC.timestamp).getDate();
+    console.log(`lastDayComplete = ${lastDayComplete}`);
+
+    if (dayToday == lastDayComplete) {
+      console.log("Stop Form");
+      // Checklist already complete today
+      // Block Form
+    } else {
+      console.log("Continue Form");
+      localStorage.setItem("altoxvClose", 0);
+    }
   }
-  let openDateFormat = new Date(open.timestamp);
-  openDateFormat =
-    "Checklist Completo em: " +
-    openDateFormat.getDate() +
-    "/" +
-    openDateFormat.getMonth() +
-    "/" +
-    openDateFormat.getFullYear() +
-    " -- " +
-    openDateFormat.getHours() +
-    ":" +
-    openDateFormat.getMinutes() +
-    ":" +
-    openDateFormat.getSeconds();
-  console.log(openDateFormat);
 }
 getLocalStorage();
 function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
-  const currentDate = new Date();
-  console.log(currentDate);
-
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvClose", JSON.stringify(object));
 
@@ -100,8 +92,6 @@ function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
 
 const onSubmit = (event, freezer, geladeira, morango, banana, amora, maca) => {
   console.log("enviou");
-  console.log(freezer);
-  console.log(geladeira);
   event.preventDefault();
   altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca);
 };
@@ -111,9 +101,8 @@ function ChecklistFechamento() {
   let openC = JSON.parse(localStorage.getItem("altoxvClose"));
 
   useEffect(() => {
-    let openC = JSON.parse(localStorage.getItem("altoxvClose"));
     if (openC) {
-      console.log(openC.timestamp);
+      console.log(`openC timestamp = ${openC.timestamp}`);
     } else {
       openC = "Ainda nao completo";
     }
