@@ -68,14 +68,16 @@ function altoxvOpenSubmit() {
   sendOpenMessage(openDateFormat);
 }
 
-const onSubmit = (event) => {
-  console.log("enviou");
-  event.preventDefault();
-  altoxvOpenSubmit();
-};
-
 function ChecklistAbertura() {
-  const [timeComplete, setTimeComplete] = useState(false);
+  const onSubmit = (event) => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    setTimeComplete("Enviando...");
+
+    console.log("enviou");
+    event.preventDefault();
+    altoxvOpenSubmit();
+  };
+  const [timeComplete, setTimeComplete] = useState("");
   let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
 
   useEffect(() => {

@@ -90,14 +90,25 @@ function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
   );
 }
 
-const onSubmit = (event, freezer, geladeira, morango, banana, amora, maca) => {
-  console.log("enviou");
-  event.preventDefault();
-  altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca);
-};
-
 function ChecklistFechamento() {
-  const [timeComplete, setTimeComplete] = useState(false);
+  const onSubmit = (
+    event,
+    freezer,
+    geladeira,
+    morango,
+    banana,
+    amora,
+    maca
+  ) => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    setTimeComplete("Enviando...");
+
+    console.log("enviou");
+    event.preventDefault();
+    altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca);
+  };
+
+  const [timeComplete, setTimeComplete] = useState("");
   let openC = JSON.parse(localStorage.getItem("altoxvClose"));
 
   useEffect(() => {
