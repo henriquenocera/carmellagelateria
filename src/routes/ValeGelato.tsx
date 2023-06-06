@@ -1,46 +1,54 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "../css/Valegelato.css";
 
 function ValeGelato() {
-  const formRef = useRef(null);
-  const scriptUrl =
-    "https://script.google.com/macros/s/AKfycbx4dWb5hrwyYD_FnMlh57Xovl4wM8VAFVh3gS6h1vzUFCnaeAFPyYw0fhUaPN9dQVuAeg/exec";
-  const api =
-    "AKfycbx4dWb5hrwyYD_FnMlh57Xovl4wM8VAFVh3gS6h1vzUFCnaeAFPyYw0fhUaPN9dQVuAeg";
+  const [user, setUser] = useState("");
+  const idInputRef = useRef(null);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  function handleClick() {
+    let idInput = idInputRef.current.value;
 
-    fetch(scriptUrl, { method: "POST", body: new FormData(formRef.current) })
-      .then((res) => {
-        console.log("SUCCESSFULLY SUBMITTED");
-      })
-      .catch((err) => console.log(err));
-  };
+    if (idInput == 1) {
+      setUser("Henrique");
+    } else if (idInput == 2) {
+      setUser("Marina");
+    } else {
+      setUser("");
+    }
+  }
   return (
     <>
       <div className="valegelatoContainer">
+        <img className="logo" src="/logo.svg" alt="" />
         <h1>Vale Gelato</h1>
 
-        <form
-          onSubmit={handleSubmit}
-          method="post"
-          ref={formRef}
-          name="google-sheet"
-        >
-          <div className="form-style">
-            <input type="" name="name" placeholder="Your Name *" />
-          </div>
-          <div className="form-style">
-            <input type="email" name="email" placeholder="Your Email *" />
-          </div>
-          <div className="form-style">
-            <input type="number" name="phone" placeholder="Your Phone *" />
-          </div>
-          <div className="form-style">
-            <input type="submit" name="submit" value="Login" />
-          </div>
+        <form className="idForm" action="#">
+          <label className="idLabel" htmlFor="id">
+            ID Único
+          </label>
+          <input
+            className="idInput"
+            type="number"
+            pattern="[0-9]*"
+            inputMode="numeric"
+            min="0"
+            max="9999"
+            autoFocus
+            required
+            ref={idInputRef}
+          />
+          <button onClick={handleClick} className="idSubmit" type="submit">
+            Enviar
+          </button>
         </form>
+
+        {user == "" ? (
+          <></>
+        ) : (
+          <form action="#" className="valeGelato">
+            <input className="userInput" type="text" value={user} />
+          </form>
+        )}
       </div>
     </>
   );

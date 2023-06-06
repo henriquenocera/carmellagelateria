@@ -6,3 +6,41 @@
   height: 100vh;
   margin-left: 75px;
 }
+.logo {
+  margin-bottom: 20px;
+}
+.idForm {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.idLabel {
+  font-size: 2.4rem;
+}
+.idInput {
+  border: 1px solid #a17550;
+  padding: 6px 12px;
+  margin-top: 10px;
+  -webkit-text-security: disc;
+  -moz-webkit-text-security: disc;
+  -moz-text-security: disc;
+  text-align: center;
+}
+.idSubmit {
+  padding: 8px 16px;
+  font-size: 2.4rem;
+  background: #a17550;
+  color: #fff;
+  margin-top: 20px;
+}
+.userInput {
+  font-size: 2rem;
+  text-align: center;
+  padding: 4px 8px;
+  margin-top: 20px;
+  background: #f9f2e4;
+  color: #a17550;
+  cursor: not-allowed;
+}
