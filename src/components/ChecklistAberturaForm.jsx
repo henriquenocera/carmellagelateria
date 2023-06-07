@@ -143,23 +143,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           </label>
           <span className="subtitle">Verificar o controlador manual se está configurado em 200º C</span>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="8"
-            type="checkbox"
-            name="8"
-          />
-          <label className="cbx" htmlFor="8">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Ligar Máquina de Café e Moedor “Tomada Vermelha 220V”</span>
-          </label>
-        </div>
+
         <div className="checkbox-wrapper">
           <input
             required
