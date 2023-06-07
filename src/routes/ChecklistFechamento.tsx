@@ -15,7 +15,7 @@ async function sendOpenMessage(
   amora,
   maca
 ) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A ${openDateFormat}
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Ahu %0D%0A ${openDateFormat}
   %0D%0A Qntd Massas no Freezer: ${freezer} 
   %0D%0A Qntd Massas na Geladeira: ${geladeira};
   %0D%0A Potes Fechados de Morango: ${morango};
