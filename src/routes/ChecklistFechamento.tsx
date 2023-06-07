@@ -70,7 +70,7 @@ function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
   openDateFormat =
     openDateFormat.getDate() +
     "/" +
-    openDateFormat.getMonth() +
+    (openDateFormat.getMonth() + 1) +
     "/" +
     openDateFormat.getFullYear() +
     " -- " +
@@ -122,7 +122,7 @@ function ChecklistFechamento() {
       "Checklist Completo em: " +
       openDateFormat.getDate() +
       "/" +
-      openDateFormat.getMonth() +
+      (openDateFormat.getMonth() + 1) +
       "/" +
       openDateFormat.getFullYear() +
       " -- " +

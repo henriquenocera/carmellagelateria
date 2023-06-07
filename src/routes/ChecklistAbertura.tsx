@@ -56,7 +56,7 @@ function altoxvOpenSubmit() {
   openDateFormat =
     openDateFormat.getDate() +
     "/" +
-    openDateFormat.getMonth() +
+    (openDateFormat.getMonth() + 1) +
     "/" +
     openDateFormat.getFullYear() +
     " -- " +
@@ -91,7 +91,7 @@ function ChecklistAbertura() {
       "Checklist Completo em: " +
       openDateFormat.getDate() +
       "/" +
-      openDateFormat.getMonth() +
+      (openDateFormat.getMonth() + 1) +
       "/" +
       openDateFormat.getFullYear() +
       " -- " +
