@@ -15,6 +15,17 @@ function NavBar() {
         <div className="menuToggle" onClick={showSidebar}></div>
         <ul>
           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/vale-gelato">
+              <span className="icon">
+                <Icons.BsEmojiSmile />
+              </span>
+
+              <span className="text">
+                Vale <br></br> Gelato
+              </span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">
                 <Icons.BsArrowBarRight />
