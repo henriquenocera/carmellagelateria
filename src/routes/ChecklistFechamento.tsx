@@ -15,7 +15,7 @@ async function sendOpenMessage(
   amora,
   maca
 ) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Ahú %0D%0A ${openDateFormat}
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A ${openDateFormat}
   %0D%0A Qntd Massas no Freezer: ${freezer} 
   %0D%0A Qntd Massas na Geladeira: ${geladeira};
   %0D%0A Potes Fechados de Morango: ${morango};
@@ -140,7 +140,7 @@ function ChecklistFechamento() {
       <div className="unitContainer">
         <div className="unitInfo">
           <h1>Checklist de Fechamento</h1>
-          <h2>Unidade Ahú - Rua Colombo, 183</h2>
+          <h2>Unidade Alto da XV - Rua Sete de Abril, 934</h2>
         </div>
         <div className="unitLogo">
           <img src="/logo.svg" alt="" />
