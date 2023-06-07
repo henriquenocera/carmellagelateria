@@ -15,7 +15,7 @@ async function sendOpenMessage(
   amora,
   maca
 ) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Ahú %0D%0A ${openDateFormat}
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja Alto XV %0D%0A ${openDateFormat}
   %0D%0A Qntd Massas no Freezer: ${freezer} 
   %0D%0A Qntd Massas na Geladeira: ${geladeira};
   %0D%0A Potes Fechados de Morango: ${morango};
@@ -33,7 +33,7 @@ async function sendOpenMessage(
     });
     const data = await response.json();
     console.log(JSON.stringify(data));
-    window.location.reload();
+    window.location.replace("https://altoxv.carmellagelateria.com.br/");
   } catch (error) {
     console.error(error);
     window.alert(
@@ -42,34 +42,27 @@ async function sendOpenMessage(
   }
 }
 function getLocalStorage() {
+  let openC = JSON.parse(localStorage.getItem("altoxvClose"));
   let today = new Date();
-  let open = JSON.parse(localStorage.getItem("altoxvClose"));
-  if (open) {
-    console.log(open.timestamp);
-  } else {
-    open = "Ainda nao completo";
+  let dayToday = today.getDate();
+  console.log(`dayToday = ${dayToday}`);
+
+  if (openC) {
+    let lastDayComplete = new Date(openC.timestamp).getDate();
+    console.log(`lastDayComplete = ${lastDayComplete}`);
+
+    if (dayToday == lastDayComplete) {
+      console.log("Stop Form");
+      // Checklist already complete today
+      // Block Form
+    } else {
+      console.log("Continue Form");
+      localStorage.setItem("altoxvClose", 0);
+    }
   }
-  let openDateFormat = new Date(open.timestamp);
-  openDateFormat =
-    "Checklist Completo em: " +
-    openDateFormat.getDate() +
-    "/" +
-    openDateFormat.getMonth() +
-    "/" +
-    openDateFormat.getFullYear() +
-    " -- " +
-    openDateFormat.getHours() +
-    ":" +
-    openDateFormat.getMinutes() +
-    ":" +
-    openDateFormat.getSeconds();
-  console.log(openDateFormat);
 }
 getLocalStorage();
 function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
-  const currentDate = new Date();
-  console.log(currentDate);
-
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvClose", JSON.stringify(object));
 
@@ -77,7 +70,7 @@ function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
   openDateFormat =
     openDateFormat.getDate() +
     "/" +
-    openDateFormat.getMonth() +
+    (openDateFormat.getMonth() + 1) +
     "/" +
     openDateFormat.getFullYear() +
     " -- " +
@@ -97,22 +90,30 @@ function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
   );
 }
 
-const onSubmit = (event, freezer, geladeira, morango, banana, amora, maca) => {
-  console.log("enviou");
-  console.log(freezer);
-  console.log(geladeira);
-  event.preventDefault();
-  altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca);
-};
-
 function ChecklistFechamento() {
-  const [timeComplete, setTimeComplete] = useState(false);
+  const onSubmit = (
+    event,
+    freezer,
+    geladeira,
+    morango,
+    banana,
+    amora,
+    maca
+  ) => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    setTimeComplete("Enviando...");
+
+    console.log("enviou");
+    event.preventDefault();
+    altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca);
+  };
+
+  const [timeComplete, setTimeComplete] = useState("");
   let openC = JSON.parse(localStorage.getItem("altoxvClose"));
 
   useEffect(() => {
-    let openC = JSON.parse(localStorage.getItem("altoxvClose"));
     if (openC) {
-      console.log(openC.timestamp);
+      console.log(`openC timestamp = ${openC.timestamp}`);
     } else {
       openC = "Ainda nao completo";
     }
@@ -121,7 +122,7 @@ function ChecklistFechamento() {
       "Checklist Completo em: " +
       openDateFormat.getDate() +
       "/" +
-      openDateFormat.getMonth() +
+      (openDateFormat.getMonth() + 1) +
       "/" +
       openDateFormat.getFullYear() +
       " -- " +
@@ -139,7 +140,7 @@ function ChecklistFechamento() {
       <div className="unitContainer">
         <div className="unitInfo">
           <h1>Checklist de Fechamento</h1>
-          <h2>Unidade Ahú - Rua Colombo, 183</h2>
+          <h2>Unidade Alto da XV - Rua Sete de Abril, 934</h2>
         </div>
         <div className="unitLogo">
           <img src="/logo.svg" alt="" />
