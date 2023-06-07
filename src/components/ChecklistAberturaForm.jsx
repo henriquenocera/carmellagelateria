@@ -143,23 +143,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           </label>
           <span className="subtitle">Verificar o controlador manual se está configurado em 200º C</span>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="8"
-            type="checkbox"
-            name="8"
-          />
-          <label className="cbx" htmlFor="8">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Ligar Máquina de Café e Moedor “Tomada Vermelha 220V”</span>
-          </label>
-        </div>
+
         <div className="checkbox-wrapper">
           <input
             required
@@ -195,24 +179,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           </label>
         </div>
 
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="11"
-            type="checkbox"
-            name="11"
-          />
-          <label className="cbx" htmlFor="11">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Verificar Banheiro dos Clientes</span>
-          </label>
-          <span className="subtitle">Reposição do lixo, reposição do papel toalha e limpeza geral</span>
-        </div>
+
 
         <div className="checkbox-wrapper">
           <input
@@ -232,24 +199,6 @@ function ChecklistAberturaForm({ handleSubmit }) {
           </label>
         </div>
 
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="13"
-            type="checkbox"
-            name="13"
-          />
-          <label className="cbx" htmlFor="13">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Limpeza do Pátio Externo</span>
-          </label>
-          <span className="subtitle">Varrer todas as folhas na frente da loja para elas não entrarem com o vento após abertura das portas</span>
-        </div>
 
         <div className="checkbox-wrapper">
           <input
@@ -265,7 +214,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Reposição da Vitrine ( -9º C )</span>
+            <span className="label">Reposição da Vitrine ( -12º C )</span>
           </label>
         </div>
 

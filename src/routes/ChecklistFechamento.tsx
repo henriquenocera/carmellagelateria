@@ -140,7 +140,7 @@ function ChecklistFechamento() {
       <div className="unitContainer">
         <div className="unitInfo">
           <h1>Checklist de Fechamento</h1>
-          <h2>Unidade Alto da XV - Rua Sete de Abril, 934</h2>
+          <h2>Unidade Ahú - Rua Colombo, 183</h2>
         </div>
         <div className="unitLogo">
           <img src="/logo.svg" alt="" />
