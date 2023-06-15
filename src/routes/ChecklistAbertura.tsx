@@ -5,13 +5,11 @@ import "../css/Checklist.css";
 
 const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = "Ahu";
+const unidade = "ahu";
 
 async function sendOpenMessage(openDateFormat) {
-
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando`;
-
 
   try {
     const response = await fetch(checkOpenComplete, {
@@ -116,8 +114,6 @@ function ChecklistAbertura() {
           <h1>Checklist de Abertura</h1>
 
           <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
-
-
         </div>
         <div className="unitLogo">
           <img src="/logo.svg" alt="" />

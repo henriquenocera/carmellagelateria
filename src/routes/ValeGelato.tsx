@@ -4,8 +4,8 @@ import "../css/Valegelato.css";
 const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
 const telegramChatId = "-1001602173856";
 
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = "Ahu";
+const unidade = "ahu";
 
 function ValeGelato() {
   const [user, setUser] = useState("");

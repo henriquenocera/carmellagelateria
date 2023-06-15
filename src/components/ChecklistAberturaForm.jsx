@@ -175,8 +175,26 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
+            <span className="label">Posicionar o Cavalete e Saco do Dog na parte externa</span>
+          </label>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="11"
+            type="checkbox"
+            name="11"
+          />
+          <label className="cbx" htmlFor="11">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
             <span className="label">Reposição de Lixos</span>
           </label>
+          <span className="subtitle">Internos e externos</span>
         </div>
 
 

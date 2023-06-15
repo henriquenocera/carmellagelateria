@@ -212,6 +212,40 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             <span className="label">Fechar Caixa e Lacrar Malote</span>
           </label>
         </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="33"
+            type="checkbox"
+            name="33"
+          />
+          <label className="cbx" htmlFor="33">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Recolher Cavalete e Saco do Dog </span>
+          </label>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="34"
+            type="checkbox"
+            name="34"
+          />
+          <label className="cbx" htmlFor="34">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Recolher Lixos Externos </span>
+          </label>
+        </div>
 
         <div className="checkbox-wrapper">
           <input
