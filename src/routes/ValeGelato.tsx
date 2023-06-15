@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../css/Valegelato.css";
 
+const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
+const telegramChatId = "-1001602173856";
+
+const unidadeText = "Alto da XV";
+const unidade = "altoxv";
+
 function ValeGelato() {
   const [user, setUser] = useState("");
   const idInputRef = useRef(null);
@@ -10,6 +16,25 @@ function ValeGelato() {
   const [casquinha, setCasquinha] = useState(false);
   const [isFormSending, setIsFormSending] = useState(false);
 
+  async function sendValeMessage(openDateFormat) {
+    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Vale Gelato - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A ${user}`;
+    try {
+      const response = await fetch(checkOpenComplete, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+      const data = await response.json();
+      console.log(JSON.stringify(data));
+    } catch (error) {
+      console.error(error);
+      window.alert("Erro no Envio, por gentileza tente novamente");
+    }
+  }
+
   function handleClick(e) {
     e.preventDefault();
     setPequeno(false);
@@ -18,10 +43,14 @@ function ValeGelato() {
     setCasquinha(false);
     let idInput = idInputRef.current.value;
 
-    if (idInput == 1) {
+    if (idInput == 270312) {
       setUser("Henrique");
-    } else if (idInput == 2) {
+    } else if (idInput == 1727) {
       setUser("Marina");
+    } else if (idInput == 2839) {
+      setUser("Grasielli");
+    } else if (idInput == 2467) {
+      setUser("Sthefani");
     } else {
       setUser("");
     }
@@ -57,6 +86,20 @@ function ValeGelato() {
     } else {
       console.log("enviou");
       setIsFormSending(true);
+      let openDateFormat = new Date();
+      openDateFormat =
+        openDateFormat.getDate() +
+        "/" +
+        (openDateFormat.getMonth() + 1) +
+        "/" +
+        openDateFormat.getFullYear() +
+        " -- " +
+        openDateFormat.getHours() +
+        ":" +
+        openDateFormat.getMinutes() +
+        ":" +
+        openDateFormat.getSeconds();
+      sendValeMessage(openDateFormat);
       e.preventDefault();
 
       const action = e.target.action;
@@ -67,7 +110,7 @@ function ValeGelato() {
         body: data,
       }).then(() => {
         setIsFormSending("Sucesso!");
-        window.location.replace("https://altoxv.carmellagelateria.com.br/");
+        window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
       });
     }
   }
@@ -117,7 +160,7 @@ function ValeGelato() {
               name="Unidade"
               className="userInput"
               type="text"
-              value="Alto da XV"
+              value={unidadeText}
             />
             <div className="flex">
               <div className="selectContainer">
