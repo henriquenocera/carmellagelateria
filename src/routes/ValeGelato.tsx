@@ -125,6 +125,7 @@ function ValeGelato() {
                   name="Pequeno"
                   value={pequeno}
                   onClick={handlePequeno}
+                  readonly
                   className={pequeno ? "selectItem active" : "selectItem"}
                 ></input>
                 <label className="SelectLabel" htmlFor="Pequeno">
@@ -136,6 +137,7 @@ function ValeGelato() {
                 <input
                   name="Médio"
                   value={medio}
+                  readonly
                   onClick={handleMedio}
                   className={medio ? "selectItem active" : "selectItem"}
                 ></input>
@@ -149,6 +151,7 @@ function ValeGelato() {
                 <input
                   name="Copinho"
                   value={copinho}
+                  readonly
                   onClick={handleCopinho}
                   className={copinho ? "selectItem active" : "selectItem"}
                 ></input>
@@ -161,6 +164,7 @@ function ValeGelato() {
                 <input
                   name="Casquinha"
                   value={casquinha}
+                  readonly
                   onClick={handleCasquinha}
                   className={casquinha ? "selectItem active" : "selectItem"}
                 ></input>
