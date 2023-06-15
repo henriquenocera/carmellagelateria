@@ -9,7 +9,10 @@ const unidadeText = "Alto da XV";
 const unidade = "altoxv";
 
 async function sendOpenMessage(openDateFormat) {
+
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando`;
+
+
   try {
     const response = await fetch(checkOpenComplete, {
       method: "POST",
@@ -111,7 +114,10 @@ function ChecklistAbertura() {
       <div className="unitContainer">
         <div className="unitInfo">
           <h1>Checklist de Abertura</h1>
+
           <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
+
+
         </div>
         <div className="unitLogo">
           <img src="/logo.svg" alt="" />

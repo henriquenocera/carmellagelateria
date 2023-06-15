@@ -70,40 +70,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             <span className="label">Fechamento das Portas ( 19:00 ) </span>
           </label>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="4"
-            type="checkbox"
-            name="4"
-          />
-          <label className="cbx" htmlFor="4">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Fechar Porta dos Fundos ( 3 chaves )</span>
-          </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="5"
-            type="checkbox"
-            name="5"
-          />
-          <label className="cbx" htmlFor="5">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Desligar Luz do Banheiro dos Clientes</span>
-          </label>
-        </div>
+
+
         <div className="checkbox-wrapper">
           <input
             required
@@ -186,7 +154,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Desligar Máquina de Café e Moedor ( Tirar da Tomada )</span>
+            <span className="label">Desligar Máquina de Café</span>
           </label>
         </div>
         <div className="checkbox-wrapper">
@@ -205,27 +173,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             </span>
             <span className="label">Limpeza da Máquina de Café</span>
           </label>
-          <span className="subtitle">Realizar limpeza da máquina com pincel preto e água</span>
-          <span className="subtitle">Lavar porta filtros e pitchers com água e sabão</span>
-          <span className="subtitle">Esvaziar gaveta de borra no lixo e lavar com água e sabão</span>
-        </div>
+          <span className="subtitle">Caso tenha vendido 1 cappuccino, realizar a limpeza da máquina de café</span>
 
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="11"
-            type="checkbox"
-            name="11"
-          />
-          <label className="cbx" htmlFor="11">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Retirar Lixo do Banheiro dos Clientes</span>
-          </label>
         </div>
 
         <div className="checkbox-wrapper">
@@ -299,25 +248,25 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           } className="inputNumber" required type="number" name="geladeira" min="0" id="91" />
         </div>
         <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Morango</b> na Geladeira da Cozinha</label>
+          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Morango</b> na Geladeira da Sala Cinza</label>
           <input onChange={(event) =>
             setMorango(event.target.value)
           } className="inputNumber" required type="number" name="morango" min="0" id="92" />
         </div>
         <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Banana</b> na Geladeira da Cozinha</label>
+          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Banana</b> na Geladeira da Sala Cinza</label>
           <input onChange={(event) =>
             setBanana(event.target.value)
           } className="inputNumber" required type="number" name="banana" min="0" id="92" />
         </div>
         <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Geleia de Amora</b> na Geladeira da Cozinha</label>
+          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Geleia de Amora</b> na Geladeira da Sala Cinza</label>
           <input onChange={(event) =>
             setAmora(event.target.value)
           } className="inputNumber" required type="number" name="amora" min="0" id="92" />
         </div>
         <div className="checkbox-wrapper">
-          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Torta de Maça</b> na Geladeira da Cozinha</label>
+          <label className="label" htmlFor="">Quantidade Potes Fechados de <b>Torta de Maça</b> na Geladeira da Sala Cinza</label>
           <input onChange={(event) =>
             setMaca(event.target.value)
           } className="inputNumber" required type="number" name="maca" min="0" id="92" />
@@ -341,7 +290,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             </span>
             <span className="label">Verificar Freezer e Geladeiras</span>
           </label>
-          <span className="subtitle">Garantir que estão bem fechados → Frezer Uso, Geladeira da Cozinha, Frigobar Preto e Frigobar Branco</span>
+          <span className="subtitle">Garantir que estão bem fechados → Frezer Uso, Freezer Estoque, Geladeira da Sala Cinza, Frigobar Preto, Frigobar Branco e Geladeira da Coca</span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -357,7 +306,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Verificar Dentro da Geladeira da Cozinha</span>
+            <span className="label">Verificar Dentro da Geladeira da Sala Cinza</span>
           </label>
           <span className="subtitle">Garantir que não sobrou nenhuma cuba lá dentro antes de ir embora</span>
         </div>
