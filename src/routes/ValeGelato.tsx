@@ -47,10 +47,10 @@ function ValeGelato() {
       setUser("Henrique");
     } else if (idInput == 1727) {
       setUser("Marina");
-    } else if (idInput == 2839) {
-      setUser("Grasielli");
-    } else if (idInput == 2467) {
-      setUser("Sthefani");
+    } else if (idInput == 6532) {
+      setUser("Nicolas");
+    } else if (idInput == 8734) {
+      setUser("Monica");
     } else {
       setUser("");
     }
