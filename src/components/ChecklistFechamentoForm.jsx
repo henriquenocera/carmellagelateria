@@ -8,10 +8,11 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const [banana, setBanana] = useState("");
   const [amora, setAmora] = useState("");
   const [maca, setMaca] = useState("");
+  const [brownie, setBrownie] = useState("");
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca)} className="fechamentoAltoxv" id="altoxvClose">
+      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca, brownie)} className="fechamentoAltoxv" id="altoxvClose">
         <div className="sectionTitle">
           <p>1ª Pré Fechamento (18:00 ~ 18:50)</p>
         </div>
@@ -310,6 +311,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <input onChange={(event) =>
             setMaca(event.target.value)
           } className="inputNumber" required type="number" name="maca" min="0" id="92" />
+        </div>
+        <div className="checkbox-wrapper">
+          <label className="label" htmlFor="">Quantidade de <b>Brownies</b> na Geladeira da Cozinha</label>
+          <input onChange={(event) =>
+            setBrownie(event.target.value)
+          } className="inputNumber" required type="number" name="brownie" min="0" id="92" />
         </div>
         <div className="sectionTitle">
           <p>4ª Saída</p>
