@@ -15,7 +15,8 @@ async function sendOpenMessage(
   morango,
   banana,
   amora,
-  maca
+  maca,
+  brownie
 ) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja ${unidadeText} %0D%0A ${openDateFormat}
 
@@ -24,7 +25,8 @@ async function sendOpenMessage(
   %0D%0A Potes Fechados de Morango: ${morango};
   %0D%0A Potes Fechados de Banana: ${banana};
   %0D%0A Potes Fechados Gel de Amora: ${amora};
-  %0D%0A Potes Fechados Torta de Maça: ${maca}`;
+  %0D%0A Potes Fechados Torta de Maça: ${maca}
+  %0D%0A Qntd de Brownies na Geladeira: ${brownie}`;
   try {
     const response = await fetch(checkOpenComplete, {
       method: "POST",
@@ -65,7 +67,15 @@ function getLocalStorage() {
   }
 }
 getLocalStorage();
-function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
+function altoxvCloseSubmit(
+  freezer,
+  geladeira,
+  morango,
+  banana,
+  amora,
+  maca,
+  brownie
+) {
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvClose", JSON.stringify(object));
 
@@ -89,7 +99,8 @@ function altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca) {
     morango,
     banana,
     amora,
-    maca
+    maca,
+    brownie
   );
 }
 
@@ -101,14 +112,23 @@ function ChecklistFechamento() {
     morango,
     banana,
     amora,
-    maca
+    maca,
+    brownie
   ) => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
 
     console.log("enviou");
     event.preventDefault();
-    altoxvCloseSubmit(freezer, geladeira, morango, banana, amora, maca);
+    altoxvCloseSubmit(
+      freezer,
+      geladeira,
+      morango,
+      banana,
+      amora,
+      maca,
+      brownie
+    );
   };
 
   const [timeComplete, setTimeComplete] = useState("");
