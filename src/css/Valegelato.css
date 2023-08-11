@@ -53,6 +53,10 @@
   padding: 4px 8px;
   border: 1px solid #a17550;
 }
+.basic-single {
+  font-size: 1.6rem;
+  width: 420px;
+}
 .valeGelatoForm {
   display: flex;
   flex-direction: column;

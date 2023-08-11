@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
+import Select from "react-select";
 import "../css/Valegelato.css";
+import { Options } from "../Options.ts";
 
 const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
 const telegramChatId = "-1001602173856";
@@ -13,8 +15,14 @@ function Vales() {
   const [item, setItem] = useState("");
   const [isFormSending, setIsFormSending] = useState(false);
 
+  const [isClearable, setIsClearable] = useState(true);
+  const [isSearchable, setIsSearchable] = useState(true);
+  const [isDisabled, setIsDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRtl, setIsRtl] = useState(false);
+
   async function sendValeMessage(openDateFormat) {
-    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Vale Gelato - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A ${user}`;
+    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Vale - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A ${user} %0D%0A ${item}`;
     try {
       const response = await fetch(checkOpenComplete, {
         method: "POST",
@@ -32,6 +40,9 @@ function Vales() {
     }
   }
 
+  function handleSelect(e) {
+    setItem(e.value);
+  }
   function handleClick(e) {
     e.preventDefault();
     let idInput = idInputRef.current.value;
@@ -47,11 +58,6 @@ function Vales() {
     } else {
       setUser("");
     }
-  }
-
-  function handleItem(e) {
-    console.log(e.target);
-    setItem(true);
   }
 
   function sendGoogleSheetData(e) {
@@ -70,7 +76,7 @@ function Vales() {
       openDateFormat.getMinutes() +
       ":" +
       openDateFormat.getSeconds();
-    // sendValeMessage(openDateFormat);
+    sendValeMessage(openDateFormat);
     e.preventDefault();
 
     const action = e.target.action;
@@ -121,7 +127,7 @@ function Vales() {
             id="valeGelatoForm"
             className="valeGelatoForm"
           >
-            <label class="label" htmlFor="">
+            <label className="label" htmlFor="">
               Nome
             </label>
             <input name="Nome" className="userInput" type="text" value={user} />
@@ -132,13 +138,21 @@ function Vales() {
               type="text"
               value={unidadeText}
             />
+
             <div className="selectContainer">
               <span className="selectTitle">Selecione o Produto</span>
-              <select className="userSelect" name="Item">
-                <option value="Gelato Pequeno">Gelato Pequeno</option>
-                <option value="Gelato Medio">Gelato Médio</option>
-                <option value="Gelato Grande">Gelato Grande</option>
-              </select>
+              <Select
+                className="basic-single"
+                classNamePrefix="select"
+                isDisabled={isDisabled}
+                isLoading={isLoading}
+                isClearable={isClearable}
+                isRtl={isRtl}
+                isSearchable={isSearchable}
+                name="Item"
+                options={Options}
+                onChange={(e) => handleSelect(e)}
+              />
             </div>
 
             {isFormSending ? (
