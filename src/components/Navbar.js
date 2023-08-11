@@ -44,6 +44,14 @@ function NavBar() {
               <span className="text">Checklist Fechamento</span>
             </NavLink>
           </li>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/perdas">
+              <span className="icon">
+                <Icons.BsFillTrash3Fill />
+              </span>
+              <span className="text">Lançamentos de Perdas</span>
+            </NavLink>
+          </li> */}
         </ul>
       </div>
     </>
