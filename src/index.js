@@ -24,8 +24,8 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
-      <Route path="/vales" element={<Vales />} />
       <Route path="/vale-gelato" element={<ValeGelato />} />
+      <Route path="/vales" element={<Vales />} />
       <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
       <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
     </Route>
