@@ -60,7 +60,7 @@ function Vales() {
     }
   }
 
-  function sendGoogleSheetData(e) {
+  async function sendGoogleSheetData(e) {
     console.log("enviou");
     setIsFormSending(true);
     let openDateFormat = new Date();
@@ -82,7 +82,7 @@ function Vales() {
     const action = e.target.action;
     const form = document.getElementById("valeGelatoForm");
     const data = new FormData(form);
-    fetch(action, {
+    await fetch(action, {
       method: "POST",
       body: data,
     }).then(() => {
