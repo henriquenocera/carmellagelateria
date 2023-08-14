@@ -12,7 +12,7 @@ import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
 import ValeGelato from "./routes/ValeGelato.tsx";
-import Vales from "./routes/Vales";
+import Vales from "./routes/Vales.tsx";
 
 const AppLayout = () => (
   <>
