@@ -15,7 +15,9 @@ function NavBar() {
         <div className="menuToggle" onClick={showSidebar}></div>
         <ul>
           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/vales"></NavLink>
+            <NavLink to="/vales">
+              <br></br>
+            </NavLink>
           </li>
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vale-gelato">
