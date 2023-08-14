@@ -46,6 +46,17 @@
   cursor: not-allowed;
   border: 1px solid #a17550;
 }
+.userSelect {
+  font-size: 2rem;
+  background: #f9f2e4;
+  color: #a17550;
+  padding: 4px 8px;
+  border: 1px solid #a17550;
+}
+.basic-single {
+  font-size: 1.6rem;
+  width: 420px;
+}
 .valeGelatoForm {
   display: flex;
   flex-direction: column;
@@ -62,10 +73,13 @@
 }
 .selectContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 20px;
   margin-top: 40px;
   position: relative;
+}
+.selectTitle {
+  font-size: 2.4rem;
 }
 
 .SelectLabel {
