@@ -93,6 +93,24 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <input
             required
             className="inp-cbx"
+            id="205"
+            type="checkbox"
+            name="205"
+          />
+          <label className="cbx" htmlFor="205">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label new">Loja Ifood</span>
+          </label>
+          <span className="subtitle new">Abrir loja no Ifood (Basta entrar no app)</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
             id="5"
             type="checkbox"
             name="5"

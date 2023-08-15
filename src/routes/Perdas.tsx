@@ -12,28 +12,7 @@ function Perdas() {
       </div>
 
       <div className="container">
-        <form action="">
-          <label htmlFor="item">Nome:</label>
-          <select id="item" name="item">
-            <option value="Pote Pequeno">Pote Pequeno</option>
-            <option value="Pote Grande">Pote Grande</option>
-            <option value="Casquinha">Casquinha</option>
-            <option value="Cascao">Cascão</option>
-            <option value="Massa">Massa de Waffle</option>
-          </select>
-          <label htmlFor="quantidade">Quantidade:</label>
-          <input
-            type="number"
-            name="quantidade"
-            id="quantidade"
-            min="0"
-            max="99"
-          />
-          <label htmlFor="motivo">Motivo:</label>
-          <input type="text" name="motivo" id="motivo" />
-
-          <button type="submit">Enviar</button>
-        </form>
+        <h1>Em breve</h1>
       </div>
     </>
   );
