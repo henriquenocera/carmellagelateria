@@ -93,6 +93,24 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <input
             required
             className="inp-cbx"
+            id="205"
+            type="checkbox"
+            name="205"
+          />
+          <label className="cbx" htmlFor="205">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label new">Loja Ifood</span>
+          </label>
+          <span className="subtitle new">Abrir loja no Ifood (Basta entrar no app)</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
             id="5"
             type="checkbox"
             name="5"
@@ -268,7 +286,42 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Reposição da Vitrine ( -12º C )</span>
+            <span className="label new">Reposição da Vitrine ( -7º C )</span>
+          </label>
+        </div>
+
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="16"
+            type="checkbox"
+            name="16"
+          />
+          <label className="cbx" htmlFor="16">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label new">Manter a Porta dos Fundos Sempre Fechada e Trancada</span>
+          </label>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="17"
+            type="checkbox"
+            name="17"
+          />
+          <label className="cbx" htmlFor="17">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label new">Abrir Portão do Estacionamento</span>
           </label>
         </div>
 
@@ -290,6 +343,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
             <span className="label">Abertura das Portas ( 12:00 )</span>
           </label>
         </div>
+
 
 
         <button className="submit" type="submit">Enviar</button>

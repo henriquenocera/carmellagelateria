@@ -15,6 +15,10 @@
 .label {
   font-size: 1.8rem;
 }
+.new {
+  color: #f12323;
+  font-weight: 600;
+}
 .subtitle {
   margin-left: 4rem;
   font-size: 1.6rem;
