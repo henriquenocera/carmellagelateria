@@ -16,7 +16,10 @@ function NavBar() {
         <ul>
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
-              <br></br>
+              <span className="icon">
+                <Icons.BsEmojiSmile />
+              </span>
+              <span className="text">Vales</span>
             </NavLink>
           </li>
           <li className={activeMenu ? "list active" : "list"}>
@@ -28,17 +31,7 @@ function NavBar() {
               <span className="text">Perdas</span>
             </NavLink>
           </li>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/vale-gelato">
-              <span className="icon">
-                <Icons.BsEmojiSmile />
-              </span>
 
-              <span className="text">
-                Vale <br></br> Gelato
-              </span>
-            </NavLink>
-          </li>
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">

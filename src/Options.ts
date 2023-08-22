@@ -32,12 +32,8 @@ export const Options: readonly Options[] = [
     label: "Bebidas",
   },
   {
-    value: "Café Expresso Capsula",
-    label: "Café Expresso Capsula",
-  },
-  {
-    value: "Cappuccino Brasileiro",
-    label: "Cappuccino Brasileiro",
+    value: "Soda Italiana",
+    label: "Soda Italiana",
   },
   {
     value: "COMBO SEGUNDA - Nutella e Morango",
@@ -64,6 +60,14 @@ export const Options: readonly Options[] = [
     label: "Waffle de Liege",
   },
   {
+    value: "Waffle Bites - 6un",
+    label: "Waffle Bites - 6un",
+  },
+  {
+    value: "Waffle Bites - 12un",
+    label: "Waffle Bites - 12un",
+  },
+  {
     value: "Nutella - 40gr",
     label: "Nutella - 40gr",
   },
@@ -76,8 +80,8 @@ export const Options: readonly Options[] = [
     label: "Mapple Syrup - 10gr",
   },
   {
-    value: "Torta de Maça - 70gr",
-    label: "Torta de Maça - 70gr",
+    value: "Geleia de Maça - 70gr",
+    label: "Geleia de Maça - 70gr",
   },
   {
     value: "Geleia de Amora - 70gr",
@@ -106,6 +110,10 @@ export const Options: readonly Options[] = [
   {
     value: "Mini Óreo - 30gr / 9 bolachas",
     label: "Mini Óreo - 30gr / 9 bolachas",
+  },
+  {
+    value: "Leite Condensado - 20gr",
+    label: "Leite Condensado - 20gr",
   },
   {
     value: "Pão de Batata - Catupiry",
@@ -140,8 +148,20 @@ export const Options: readonly Options[] = [
     label: "Milkshake 500ml",
   },
   {
+    value: "Calda p/ Milkshake",
+    label: "Calda p/ Milkshake",
+  },
+  {
+    value: "Chantily p/ Milkshake",
+    label: "Chantily p/ Milkshake",
+  },
+  {
     value: "Torta de Maça",
     label: "Torta de Maça",
+  },
+  {
+    value: "Torta de Maça + Gelato",
+    label: "Torta de Maça + Gelato",
   },
   {
     value: "Quiche Loraine",
@@ -174,5 +194,57 @@ export const Options: readonly Options[] = [
   {
     value: "Sanduíche de Mortadela",
     label: "Sanduíche de Mortadela",
+  },
+  {
+    value: "Porção de Chips",
+    label: "Porção de Chips",
+  },
+  {
+    value: "Espresso Simples",
+    label: "Espresso Simples",
+  },
+  {
+    value: "Espresso Duplo",
+    label: "Espresso Duplo",
+  },
+  {
+    value: "Americano",
+    label: "Americano",
+  },
+  {
+    value: "Macchiato",
+    label: "Macchiato",
+  },
+  {
+    value: "Affogato",
+    label: "Affogato",
+  },
+  {
+    value: "Latte",
+    label: "Latte",
+  },
+  {
+    value: "Capuccino Italiano",
+    label: "Capuccino Italiano",
+  },
+  {
+    value: "Capuccino Brasileiro",
+    label: "Capuccino Brasileiro",
+  },
+  {
+    value: "Café Passado",
+    label: "Café Passado",
+  },
+  {
+    value: "Café Passado com Leite",
+    label: "Café Passado com Leite",
+  },
+  {
+    value: "Chocolate Quente",
+    label: "Chocolate Quente",
+  },
+  {
+    value: "Chá Quente",
+    label: "Chá Quente",
   },
 ];
