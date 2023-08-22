@@ -103,9 +103,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label new">Loja Ifood</span>
+            <span className="label ">Loja Ifood</span>
           </label>
-          <span className="subtitle new">Abrir loja no Ifood (Basta entrar no app)</span>
+          <span className="subtitle ">Abrir loja no Ifood (Basta entrar no app)</span>
         </div>
         <div className="checkbox-wrapper">
           <input
