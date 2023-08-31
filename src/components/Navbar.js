@@ -14,9 +14,21 @@ function NavBar() {
       <div className={sidebar ? "navigation open" : "navigation"}>
         <div className="menuToggle" onClick={showSidebar}></div>
         <ul>
-          <li className={activeMenu ? "list active" : "list"}>
+        <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
-              <br></br>
+              <span className="icon">
+                <Icons.BsEmojiSmile />
+              </span>
+              <span className="text">Vales</span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/perdas">
+              <span className="icon">
+                <Icons.BsTrash />
+              </span>
+
+              <span className="text">Perdas</span>
             </NavLink>
           </li>
           <li className={activeMenu ? "list active" : "list"}>
