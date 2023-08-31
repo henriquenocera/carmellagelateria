@@ -31,17 +31,7 @@ function NavBar() {
               <span className="text">Perdas</span>
             </NavLink>
           </li>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/vale-gelato">
-              <span className="icon">
-                <Icons.BsEmojiSmile />
-              </span>
 
-              <span className="text">
-                Vale <br></br> Gelato
-              </span>
-            </NavLink>
-          </li>
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">
