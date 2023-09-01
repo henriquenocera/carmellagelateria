@@ -1,8 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import "../css/Perdas.css";
-
-const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
-const telegramChatId = "-1001602173856";
 
 function Perdas() {
   return (
