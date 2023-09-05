@@ -3,7 +3,7 @@ import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
 
-const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
+const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
 const unidadeText = "Alto da XV";
 const unidade = "altoxv";
