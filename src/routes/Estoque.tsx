@@ -96,7 +96,7 @@ function Estoque() {
           />
 
           <div className="selectContainer">
-            <span className="selectTitle">Selecione o Produto</span>
+            <span className="selectTitle">Selecione o Insumo</span>
             <h2>
               <a
                 target="_blank"
