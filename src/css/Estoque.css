@@ -1,0 +1,13 @@
+.none {
+  display: none;
+}
+
+.EstoqueContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin-left: 75px;
+  text-align: center;
+}
