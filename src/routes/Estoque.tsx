@@ -4,6 +4,9 @@ import "../css/Estoque.css";
 
 import { Insumos } from "../Insumos.ts";
 
+const telegramBotId = "6365911641:AAHZVRdhJ-g_zFCKbqmtls9afnV0eGppU9g";
+const telegramChatId = "-972583737";
+
 const unidadeText = "Ahu";
 const unidade = "ahu";
 
@@ -16,6 +19,25 @@ function Estoque() {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRtl, setIsRtl] = useState(false);
+
+  async function sendValeMessage(openDateFormat) {
+    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A ${item}`;
+    try {
+      const response = await fetch(checkOpenComplete, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      });
+      const data = await response.json();
+      console.log(JSON.stringify(data));
+    } catch (error) {
+      console.error(error);
+      window.alert("Erro no Envio, por gentileza tente novamente");
+    }
+  }
 
   async function sendGoogleSheetData(e) {
     console.log("enviou");
@@ -33,7 +55,7 @@ function Estoque() {
       openDateFormat.getMinutes() +
       ":" +
       openDateFormat.getSeconds();
-    // sendValeMessage(openDateFormat);
+    sendValeMessage(openDateFormat);
     e.preventDefault();
 
     const action = e.target.action;
@@ -45,7 +67,7 @@ function Estoque() {
     }).then(() => {
       console.log("sucesso");
       setIsFormSending(false);
-      window.alert("Sucesso!");
+      window.alert("Lançamento Realizado com Sucesso!");
       // window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
     });
   }

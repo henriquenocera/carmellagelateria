@@ -3,8 +3,8 @@ import Select from "react-select";
 import "../css/Valegelato.css";
 import { Options } from "../Options.ts";
 
-const telegramBotId = "5635956016:AAFzevSjVPEhTVsOEfLpbUsT0jni93pG6-c";
-const telegramChatId = "-1001602173856";
+const telegramBotId = "5902485837:AAFN9PL6ES3Otgwvzg6qqhvqCgw5WvL7DsY";
+const telegramChatId = "-946708416";
 
 const unidadeText = "Ahu";
 const unidade = "ahu";
