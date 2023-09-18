@@ -91,62 +91,77 @@ function Vales() {
       console.log("sucesso");
       setIsFormSending(false);
       window.alert("Lançamento Realizado com Sucesso!");
+      setUser("");
+
       // window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
     });
   }
   return (
     <>
-      <div className="valegelatoContainer">
-        <div className="top">
-          <img className="logo" src="/logo.svg" alt="" />
-          <h1>Vales</h1>
-          <form className="idForm" action="#">
-            <label className="idLabel" htmlFor="id">
-              ID Único
-            </label>
-            <input
-              className="idInput"
-              type="text"
-              pattern="[0-9]*"
-              inputMode="numeric"
-              min="0"
-              max="9999"
-              autoFocus
-              required
-              ref={idInputRef}
-            />
-            <button onClick={handleClick} className="idSubmit" type="submit">
-              Verificar ID
-            </button>
-          </form>
-        </div>
+      {isFormSending ? (
+        <>
+          <div className="valegelatoContainer">
+            <h1>Enviando...</h1>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="valegelatoContainer">
+            <div className="top">
+              <img className="logo" src="/logo.svg" alt="" />
+              <h1>Vales</h1>
+              <form className="idForm" action="#">
+                <label className="idLabel" htmlFor="id">
+                  ID Único
+                </label>
+                <input
+                  className="idInput"
+                  type="text"
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  min="0"
+                  max="9999"
+                  autoFocus
+                  required
+                  ref={idInputRef}
+                />
+                <button
+                  onClick={handleClick}
+                  className="idSubmit"
+                  type="submit"
+                >
+                  Verificar ID
+                </button>
+              </form>
+            </div>
 
-        {user == "" ? (
-          <></>
-        ) : (
-          <form
-            onSubmit={sendGoogleSheetData}
-            method="POST"
-            action="https://script.google.com/macros/s/AKfycbwo5DREVbk_S-YQrregCSnCeFsJr4mYVKOce0d9nq9obXFg-5hQv-iqx-5j7-3Mm7r5Tw/exec"
-            id="valeGelatoForm"
-            className="valeGelatoForm"
-          >
-            <label className="label" htmlFor="">
-              Nome
-            </label>
-            <input name="Nome" className="userInput" type="text" value={user} />
-
-            <input
-              name="Unidade"
-              className="userInput"
-              type="text"
-              value={unidadeText}
-            />
-
-            {isFormSending ? (
-              <h3>Enviando...</h3>
+            {user == "" ? (
+              <></>
             ) : (
-              <>
+              <form
+                onSubmit={sendGoogleSheetData}
+                method="POST"
+                action="https://script.google.com/macros/s/AKfycbwo5DREVbk_S-YQrregCSnCeFsJr4mYVKOce0d9nq9obXFg-5hQv-iqx-5j7-3Mm7r5Tw/exec"
+                id="valeGelatoForm"
+                className="valeGelatoForm"
+              >
+                <label className="label" htmlFor="">
+                  Nome
+                </label>
+                <input
+                  name="Nome"
+                  className="userInput"
+                  type="text"
+                  value={user}
+                />
+
+                <input
+                  name="Unidade"
+                  className="userInput"
+                  type="text"
+                  value={unidadeText}
+                />
+
                 <div className="selectContainer">
                   <span className="selectTitle">Selecione o Produto</span>
                   <Select
@@ -165,11 +180,11 @@ function Vales() {
                 <button className="sendForm" type="submit">
                   Enviar
                 </button>
-              </>
+              </form>
             )}
-          </form>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
