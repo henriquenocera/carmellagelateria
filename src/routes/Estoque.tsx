@@ -60,6 +60,7 @@ function Estoque() {
 
     const action = e.target.action;
     const form = document.getElementById("EstoqueForm");
+    const insumos = document.getElementById("Insumos");
     const data = new FormData(form);
     await fetch(action, {
       method: "POST",
@@ -95,37 +96,39 @@ function Estoque() {
             value={unidadeText}
           />
 
-          <div className="selectContainer">
-            <span className="selectTitle">Selecione o Insumo</span>
-            <h2>
-              <a
-                target="_blank"
-                href="https://docs.google.com/spreadsheets/d/1-j-inv2cKDb_nfKBpJiUgAXEmjLmcFnBR3xAtsRFl2Q/edit?usp=sharing"
-              >
-                Lista de Insumos da Loja
-              </a>
-            </h2>
-
-            <Select
-              className="basic-single"
-              classNamePrefix="select"
-              isDisabled={isDisabled}
-              isLoading={isLoading}
-              isClearable={isClearable}
-              isRtl={isRtl}
-              isSearchable={isSearchable}
-              name="Item"
-              options={Insumos}
-              onChange={(e) => handleSelect(e)}
-            />
-          </div>
-
           {isFormSending ? (
             <h3>Enviando...</h3>
           ) : (
-            <button className="sendForm" type="submit">
-              Enviar
-            </button>
+            <>
+              <div className="selectContainer">
+                <span className="selectTitle">Selecione o Insumo</span>
+                <h2>
+                  <a
+                    target="_blank"
+                    href="https://docs.google.com/spreadsheets/d/1-j-inv2cKDb_nfKBpJiUgAXEmjLmcFnBR3xAtsRFl2Q/edit?usp=sharing"
+                  >
+                    Lista de Insumos da Loja
+                  </a>
+                </h2>
+
+                <Select
+                  className="basic-single"
+                  classNamePrefix="select"
+                  isDisabled={isDisabled}
+                  isLoading={isLoading}
+                  isClearable={isClearable}
+                  isRtl={isRtl}
+                  isSearchable={isSearchable}
+                  name="Item"
+                  id="Insumos"
+                  options={Insumos}
+                  onChange={(e) => handleSelect(e)}
+                />
+              </div>
+              <button className="sendForm" type="submit">
+                Enviar
+              </button>
+            </>
           )}
         </form>
       </div>
