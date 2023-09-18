@@ -86,8 +86,10 @@ function Vales() {
       method: "POST",
       body: data,
     }).then(() => {
-      setIsFormSending("Sucesso!");
-      window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
+      console.log("sucesso");
+      setIsFormSending(false);
+      window.alert("Lançamento Realizado com Sucesso!");
+      // window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
     });
   }
   return (
@@ -139,28 +141,29 @@ function Vales() {
               value={unidadeText}
             />
 
-            <div className="selectContainer">
-              <span className="selectTitle">Selecione o Produto</span>
-              <Select
-                className="basic-single"
-                classNamePrefix="select"
-                isDisabled={isDisabled}
-                isLoading={isLoading}
-                isClearable={isClearable}
-                isRtl={isRtl}
-                isSearchable={isSearchable}
-                name="Item"
-                options={Options}
-                onChange={(e) => handleSelect(e)}
-              />
-            </div>
-
             {isFormSending ? (
               <h3>Enviando...</h3>
             ) : (
-              <button className="sendForm" type="submit">
-                Enviar
-              </button>
+              <>
+                <div className="selectContainer">
+                  <span className="selectTitle">Selecione o Produto</span>
+                  <Select
+                    className="basic-single"
+                    classNamePrefix="select"
+                    isDisabled={isDisabled}
+                    isLoading={isLoading}
+                    isClearable={isClearable}
+                    isRtl={isRtl}
+                    isSearchable={isSearchable}
+                    name="Item"
+                    options={Options}
+                    onChange={(e) => handleSelect(e)}
+                  />
+                </div>
+                <button className="sendForm" type="submit">
+                  Enviar
+                </button>
+              </>
             )}
           </form>
         )}
