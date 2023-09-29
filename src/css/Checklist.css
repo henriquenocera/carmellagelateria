@@ -69,3 +69,24 @@ h2 {
   justify-content: flex-start;
   align-items: flex-start;
 }
+.flexbox {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.checkbox-wrapper {
+}
+.label-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 240px;
+  border: 1px dashed black;
+  padding: 9px;
+}
+.label {
+}
+.inputNumber {
+  width: 75px;
+  margin-left: 10px;
+}
