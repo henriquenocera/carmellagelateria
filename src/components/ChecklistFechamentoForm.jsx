@@ -86,7 +86,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Fechar Porta dos Fundos ( 3 chaves )</span>
+            <span className="label new">Fechar Porta dos Fundos ( 3 chaves )</span>
           </label>
         </div>
 
@@ -193,7 +193,6 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             </span>
             <span className="label">Desligar Máquina de Café e Moedor ( Tirar da Tomada )</span>
           </label>
-          <span className="subtitle">Realizar limpeza da máquina com pincel preto e água</span>
           <span className="subtitle">Lavar porta filtros e pitchers com água e sabão</span>
           <span className="subtitle">Esvaziar gaveta de borra no lixo e lavar com água e sabão</span>
 
