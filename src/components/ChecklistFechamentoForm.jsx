@@ -155,28 +155,13 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Desligar Máquina de Café</span>
+            <span className="label">Desligar Máquina de Café e Moedor ( Tirar da Tomada )</span>
           </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="10"
-            type="checkbox"
-            name="10"
-          />
-          <label className="cbx" htmlFor="10">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Limpeza da Máquina de Café</span>
-          </label>
-          <span className="subtitle">Caso tenha vendido 1 cappuccino, realizar a limpeza da máquina de café</span>
+          <span className="subtitle">Lavar porta filtros e pitchers com água e sabão</span>
+          <span className="subtitle">Esvaziar gaveta de borra no lixo e lavar com água e sabão</span>
 
         </div>
+
 
         <div className="checkbox-wrapper">
           <input

@@ -29,24 +29,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <span className="subtitle">Interior e exterior com pano úmido e vidros com álcool líquido</span>
 
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="2"
-            type="checkbox"
-            name="2"
-          />
-          <label className="cbx" htmlFor="2">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Gelato & Freezer</span>
-          </label>
-          <span className="subtitle">Identificar os sabores da vitrine do dia e verificar se algum Gelato precisa ir para a geladeira</span>
-        </div>
+
 
         <div className="checkbox-wrapper">
           <input
@@ -64,7 +47,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
             </span>
             <span className="label">Sistema</span>
           </label>
-          <span className="subtitle">Verificar se o sistema está funcionando, computador, impressoras, internet e máquina de cartão TEF</span>
+          <span className="subtitle">Verificar se o sistema está funcionando, impressora e máquina de cartão TEF</span>
           <span className="subtitle">Verificar se a máquina de cartão POS e o tablet estão funcionando e com bateria</span>
         </div>
         <div className="checkbox-wrapper">
@@ -103,9 +86,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label ">Loja Ifood</span>
+            <span className="label new ">Loja Ifood</span>
           </label>
-          <span className="subtitle ">Abrir loja no Ifood (Basta entrar no app)</span>
+          <span className="subtitle new ">Abrir loja no Ifood (Basta entrar no app)</span>
         </div>
         <div className="checkbox-wrapper">
           <input
