@@ -255,47 +255,49 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         <div className="sectionTitle">
           <p>3ª Contagem de Estoque</p>
         </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="87">Quantidade de massas totais congeladas no <b>Freezer:</b></label>
-          <input onChange={(event) =>
-            setFreezer(event.target.value)
-          } className="inputNumber" required type="number" name="freezer" min="0" id="87" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="88">Quantidade de massas totais no <b>Frigobar Preto:</b></label>
-          <input onChange={(event) =>
-            setGeladeira(event.target.value)
-          } className="inputNumber" required type="number" name="geladeira" min="0" id="88" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="89">Quantidade Potes Fechados de <b>Morango</b> na Geladeira da Sala Cinza</label>
-          <input onChange={(event) =>
-            setMorango(event.target.value)
-          } className="inputNumber" required type="number" name="morango" min="0" id="89" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="90">Quantidade Potes Fechados de <b>Banana</b> na Geladeira da Sala Cinza</label>
-          <input onChange={(event) =>
-            setBanana(event.target.value)
-          } className="inputNumber" required type="number" name="banana" min="0" id="90" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="91">Quantidade Potes Fechados de <b>Geleia de Amora</b> na Geladeira da Sala Cinza</label>
-          <input onChange={(event) =>
-            setAmora(event.target.value)
-          } className="inputNumber" required type="number" name="amora" min="0" id="91" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="92">Quantidade Potes Fechados de <b>Torta de Maça</b> na Geladeira da Sala Cinza</label>
-          <input onChange={(event) =>
-            setMaca(event.target.value)
-          } className="inputNumber" required type="number" name="maca" min="0" id="92" />
-        </div>
-        <div className="checkbox-wrapper">
-          <label className="label" htmlFor="93">Quantidade de <b>Brownies</b> na Geladeira da Sala Cinza</label>
-          <input onChange={(event) =>
-            setBrownie(event.target.value)
-          } className="inputNumber" required type="number" name="brownie" min="0" id="93" />
+        <div className="flexbox">
+          <div className="checkbox-wrapper label-wrapper">
+            <label className="label " htmlFor="">Massas <br></br> <b>Freezer:</b></label>
+            <input onChange={(event) =>
+              setFreezer(event.target.value)
+            } className="inputNumber" required type="number" name="freezer" min="0" id="90" />
+          </div>
+          <div className="checkbox-wrapper label-wrapper">
+            <label className="label" htmlFor="">Massas <br></br> <b>Frigobar Preto:</b></label>
+            <input onChange={(event) =>
+              setGeladeira(event.target.value)
+            } className="inputNumber" required type="number" name="geladeira" min="0" id="91" />
+          </div>
+          <div className="checkbox-wrapper label-wrapper">
+            <label className="label" htmlFor="">Potes Fechados de <b>Morango</b></label>
+            <input onChange={(event) =>
+              setMorango(event.target.value)
+            } className="inputNumber" required type="number" name="morango" min="0" id="92" />
+          </div>
+          <div className="checkbox-wrapper label-wrapper">
+            <label className="label" htmlFor="">Potes Fechados de <b>Banana</b></label>
+            <input onChange={(event) =>
+              setBanana(event.target.value)
+            } className="inputNumber" required type="number" name="banana" min="0" id="92" />
+          </div>
+          <div className="checkbox-wrapper label-wrapper">
+            <label className="label" htmlFor="">Potes Fechados de <b>Geleia de Amora</b></label>
+            <input onChange={(event) =>
+              setAmora(event.target.value)
+            } className="inputNumber" required type="number" name="amora" min="0" id="92" />
+          </div>
+          <div className="checkbox-wrapper label-wrapper">
+            <label className="label" htmlFor="">Potes Fechados de <b>Torta de Maça</b></label>
+            <input onChange={(event) =>
+              setMaca(event.target.value)
+            } className="inputNumber" required type="number" name="maca" min="0" id="92" />
+          </div>
+          <div className="checkbox-wrapper label-wrapper">
+            <label className="label" htmlFor="">Quantidade de <b>Brownies</b></label>
+            <input onChange={(event) =>
+              setBrownie(event.target.value)
+            } className="inputNumber" required type="number" name="brownie" min="0" id="92" />
+          </div>
         </div>
         <div className="sectionTitle">
           <p>4ª Saída</p>
