@@ -15,6 +15,7 @@ import ValeGelato from "./routes/ValeGelato.tsx";
 import Perdas from "./routes/Perdas.tsx";
 import Vales from "./routes/Vales.tsx";
 import Estoque from "./routes/Estoque.tsx";
+import Inventario from "./routes/Inventario.tsx";
 
 const AppLayout = () => (
   <>
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
       <Route path="/estoque" element={<Estoque />} />
       <Route path="/vales" element={<Vales />} />
       <Route path="/perdas" element={<Perdas />} />
+      <Route path="/inventario" element={<Inventario />} />
       <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
       <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
     </Route>
