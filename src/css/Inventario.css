@@ -1,0 +1,68 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap");
+h1 {
+  font-size: 3.4rem;
+}
+
+.InventarioContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-left: 75px;
+  margin-top: 75px;
+  margin-bottom: 75px;
+  text-align: center;
+}
+.containerForm {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.container-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  justify-items: center;
+  max-width: 760px;
+}
+.container-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  justify-items: center;
+}
+.container-4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  justify-items: center;
+  align-items: center;
+}
+.checkbox-wrapper-inventario {
+  width: 240px;
+  height: 120px;
+  text-align: start;
+}
+.label-inventario {
+  font-size: 2rem;
+}
+.title {
+  font-size: 2.8rem;
+  text-align: start;
+  font-weight: 600;
+}
+
+input[type="range"] {
+  appearance: slider-vertical;
+  height: 100%;
+  width: 50%;
+}
+
+datalist {
+  display: flex;
+  text-align: start;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 200px;
+  font-size: 1.4rem;
+  height: 130px;
+}
