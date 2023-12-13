@@ -9,8 +9,7 @@ const unidade = "ahu";
 
 async function sendOpenMessage(
   openDateFormat,
-  chocolate,
-  cappuccino,
+  panos,
   catupiry,
   frangocreq,
   linguica,
@@ -26,10 +25,9 @@ async function sendOpenMessage(
 ) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Inventário - Loja ${unidadeText} %0D%0A ${openDateFormat}
   
-  %0D%0A Chocolate em Pó: ${chocolate} 
-  %0D%0A Cappuccino em Pó: ${cappuccino}
+  %0D%0A Panos Limpos: ${panos} 
   %0D%0A Pão de Batata - Catupiry: ${catupiry}
-  %0D%0A PPão de Batata - Frango c/ Req: ${frangocreq}
+  %0D%0A Pão de Batata - Frango c/ Req: ${frangocreq}
   %0D%0A Pão de Batata - Linguiça: ${linguica}
   %0D%0A Pão de Batata - Pizza: ${pizza}
   %0D%0A Sanduíche - Parma: ${parma}
@@ -66,8 +64,7 @@ async function sendOpenMessage(
 
 function handleSubmit(
   event,
-  chocolate,
-  cappuccino,
+  panos,
   catupiry,
   frangocreq,
   linguica,
@@ -99,8 +96,7 @@ function handleSubmit(
     openDateFormat.getSeconds();
   sendOpenMessage(
     openDateFormat,
-    chocolate,
-    cappuccino,
+    panos,
     catupiry,
     frangocreq,
     linguica,
@@ -119,8 +115,7 @@ function handleSubmit(
 function Inventario() {
   const [isFormSending, setIsFormSending] = useState(false);
 
-  const [chocolate, setChocolate] = useState("");
-  const [cappuccino, setCappuccino] = useState("");
+  const [panos, setPanos] = useState("");
   const [catupiry, setCatupiry] = useState("");
   const [frangocreq, setFrangocreq] = useState("");
   const [linguica, setLinguica] = useState("");
@@ -143,8 +138,7 @@ function Inventario() {
           onSubmit={(event) =>
             handleSubmit(
               event,
-              chocolate,
-              cappuccino,
+              panos,
               catupiry,
               frangocreq,
               linguica,
@@ -162,10 +156,10 @@ function Inventario() {
           className="containerForm"
           action=""
         >
-          <div className="container container-2">
+          <div className="container container-1">
             <div className="checkbox-wrapper label-wrapper">
               <label className="label " htmlFor="">
-                <b>Chocolate</b> em pó
+                <b>Panos</b> Limpos
               </label>
               <input
                 onChange={(event) => setChocolate(event.target.value)}
@@ -177,23 +171,9 @@ function Inventario() {
                 id="90"
               />
             </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                <b>Cappuccino</b> em pó
-              </label>
-              <input
-                onChange={(event) => setCappuccino(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="geladeira"
-                min="0"
-                id="91"
-              />
-            </div>
           </div>
           <h2 className="title">Pão de Batata</h2>
-          <div className="container container-4">
+          <div className="container container-2">
             <div className="checkbox-wrapper label-wrapper">
               <label className="label" htmlFor="">
                 Catupiry
@@ -252,7 +232,7 @@ function Inventario() {
             </div>
           </div>
           <h2 className="title">Sanduiches</h2>
-          <div className="container container-4">
+          <div className="container container-3">
             <div className="checkbox-wrapper label-wrapper">
               <label className="label" htmlFor="">
                 Parma

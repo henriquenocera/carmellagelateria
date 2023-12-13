@@ -24,9 +24,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Limpar e Ligar a Vitrine</span>
+            <span className="label">Vitrine</span>
           </label>
-          <span className="subtitle">Interior e exterior com pano úmido e vidros com álcool líquido</span>
+          <span className="subtitle">Realizar a limpeza interna e externa da vitrine antes de ligar. Interior e exterior com pano úmido e vidros com álcool líquido
+          </span>
 
         </div>
 
@@ -64,7 +65,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Produtos / Insumos em Falta</span>
+            <span className="label">Itens em Falta</span>
           </label>
           <span className="subtitle">Verificar antes da abertura se tem algum produto / insumo em falta</span>
           <span className="subtitle">Caso tenha algo faltando, avisar no grupo do Whats</span>
@@ -88,7 +89,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
             </span>
             <span className="label new ">Loja Ifood</span>
           </label>
-          <span className="subtitle new ">Abrir loja no Ifood (Basta entrar no app)</span>
+          <span className="subtitle new ">Abrir loja no Ifood, verificar se no app consta o aviso de loja aberta
+          </span>
+          <span className="subtitle new "><img src="/ifood.png" alt="" />
+          </span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -104,7 +108,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Limpeza</span>
+            <span className="label">Limpeza Interna</span>
           </label>
           <span className="subtitle">Limpeza interna da loja, bancadas, pia, saguão, mesas dos clientes e utensílios</span>
         </div>
@@ -140,8 +144,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Ligar Máquina de Waffle ( 200º C ) “Tomada Vermelha 220V”</span>
+            <span className="label">Máquina de Waffle</span>
           </label>
+          <span className="subtitle">Ligar a máquina de Waffle na “Tomada Vermelha 220V”
+          </span>
           <span className="subtitle">Verificar o controlador manual se está configurado em 200º C</span>
         </div>
 
