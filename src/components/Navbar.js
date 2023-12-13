@@ -42,6 +42,16 @@ function NavBar() {
           </li>
 
           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/inventario">
+              <span className="icon">
+                <Icons.BsTrash />
+              </span>
+
+              <span className="text">Inventario</span>
+            </NavLink>
+          </li>
+
+          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">
                 <Icons.BsArrowBarRight />
