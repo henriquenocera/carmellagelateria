@@ -89,9 +89,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
             </span>
             <span className="label new ">Loja Ifood</span>
           </label>
-          <span className="subtitle new ">Abrir loja no Ifood, verificar se no app consta o aviso de loja aberta
+          <span className="subtitle new ">Abrir loja no Ifood. Entrar no app
           </span>
-          <span className="subtitle new "><img src="/ifood.png" alt="" />
+          <span className="subtitle new "><img width="700px" src="/ifood.png" alt="" />
+          </span>
+          <span className="subtitle new ">Certificar que consta como aberta
           </span>
         </div>
         <div className="checkbox-wrapper">
