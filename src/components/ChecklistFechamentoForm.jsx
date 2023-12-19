@@ -207,11 +207,11 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <input
             required
             className="inp-cbx"
-            id="9"
+            id="912"
             type="checkbox"
-            name="9"
+            name="912"
           />
-          <label className="cbx" htmlFor="9">
+          <label className="cbx" htmlFor="912">
             <span>
               <svg width="12px" height="9px" viewBox="0 0 12 9">
                 <polyline points="1 5 4 8 11 1"></polyline>
