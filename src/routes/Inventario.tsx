@@ -4,8 +4,8 @@ import "../css/Inventario.css";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = "Alto da XV";
+const unidade = "altoxv";
 
 async function sendOpenMessage(
   openDateFormat,
@@ -162,7 +162,7 @@ function Inventario() {
                 <b>Panos</b> Limpos
               </label>
               <input
-                onChange={(event) => setChocolate(event.target.value)}
+                onChange={(event) => setPanos(event.target.value)}
                 className="inputNumber"
                 required
                 type="number"
