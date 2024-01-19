@@ -23,6 +23,14 @@ function NavBar() {
             </NavLink>
           </li>
           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/produtos">
+              <span className="icon">
+                <Icons.BsEmojiSmile />
+              </span>
+              <span className="text">Produtos</span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/estoque">
               <span className="icon">
                 <Icons.BsPlusSlashMinus />
