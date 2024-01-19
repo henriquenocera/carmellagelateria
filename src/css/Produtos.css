@@ -1,3 +1,4 @@
+
 .container {
   display: flex;
   flex-direction: column;
@@ -7,14 +8,27 @@
   margin-left: 75px;
   text-align: center;
 }
-.subtitle {
-  font-size: 2.5rem;
-  margin-bottom: 40px;
-}
 .produtosContainer {
   margin-left: 75px;
 
 }
+.subtitle {
+  font-size: 2.5rem;
+  margin-bottom: 40px;
+}
+@media (max-width: 686px) {
+  .container {
+    margin-left: 10px;
+  }
+  .subtitle {
+    margin-left: 10px;
+  }
+  .produtosContainer{
+    margin-left: 10px;
+  }
+}
+
+
 .produtosList {
   list-style: none;
 }
