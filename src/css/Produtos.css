@@ -7,6 +7,17 @@
   margin-left: 75px;
   text-align: center;
 }
+.subtitle {
+  font-size: 2rem;
+}
+.produtosContainer {
+  border: 1px solid black;
+  margin-left: 75px;
+
+}
+.produtoTitle {
+  font-size: 1.6rem;
+}
 .logo {
   margin-bottom: 20px;
 }

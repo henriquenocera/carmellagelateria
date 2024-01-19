@@ -15,6 +15,14 @@ function Produtos() {
     <h1>Produtos</h1>
 
     <h2 className="subtitle">Carmella Gelateria</h2>
+    <div className="produtosContainer">
+      <ol>
+        <li className="produtoTitle">Pequeno ( 1 sabor )</li>
+        <li>Médio ( até 2 sabores )</li>
+        <li>Grande ( até 3 sabores )</li>
+        
+      </ol>
+    </div>
     </div>
     </>
   )
