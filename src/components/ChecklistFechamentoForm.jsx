@@ -337,9 +337,46 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Amarrar lixo do saguão dos clientes</span>
+            <span className="label">Amarrar Lixo do Saguão dos Clientes</span>
           </label>
           <span className="subtitle">Caso esteja cheio, fazer o recolhimento normal</span>
+
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="143"
+            type="checkbox"
+            name="143"
+          />
+          <label className="cbx" htmlFor="143">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Limpeza da Bancada da Cozinha (sanduíches)</span>
+          </label>
+          <span className="subtitle">Remover restos de farelo e limpar com um pano e álcool líquido a bancada</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="142"
+            type="checkbox"
+            name="142"
+          />
+          <label className="cbx" htmlFor="142">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Fechar Janela da Sala dos Funcionários</span>
+          </label>
+          <span className="subtitle">Remover toda água do container do rodo mope</span>
 
         </div>
 
@@ -412,6 +449,24 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
         <div className="sectionTitle">
           <p>4ª Saída</p>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="150"
+            type="checkbox"
+            name="150"
+          />
+          <label className="cbx" htmlFor="150">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Descarte Correto dos Panos Sujos</span>
+          </label>
+          <span className="subtitle">Panos sujos sempre devem ser colocados no balde ao final do dia</span>
         </div>
         <div className="checkbox-wrapper">
           <input
