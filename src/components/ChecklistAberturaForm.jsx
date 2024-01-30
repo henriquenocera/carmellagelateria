@@ -204,7 +204,24 @@ function ChecklistAberturaForm({ handleSubmit }) {
             </span>
             <span className="label">Reposição de Lixos</span>
           </label>
-          <span className="subtitle">Internos e externos</span>
+          <span className="subtitle">Internos, banheiro dos clientes e saguão dos clientes</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="112"
+            type="checkbox"
+            name="112"
+          />
+          <label className="cbx" htmlFor="112">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Desamarrar lixo do saguão dos clientes</span>
+          </label>
         </div>
 
 

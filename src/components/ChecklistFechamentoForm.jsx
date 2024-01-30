@@ -92,23 +92,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           </label>
         </div>
 
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="5"
-            type="checkbox"
-            name="5"
-          />
-          <label className="cbx" htmlFor="5">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Desligar luz do Banheiro dos Clientes</span>
-          </label>
-        </div>
+
 
 
         <div className="checkbox-wrapper">
@@ -242,8 +226,23 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           </span>
           <span className="subtitle">Verificar papel higiênico e papel toalha
           </span>
-
-
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="5"
+            type="checkbox"
+            name="5"
+          />
+          <label className="cbx" htmlFor="5">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Desligar luz do Banheiro dos Clientes</span>
+          </label>
         </div>
 
         <div className="checkbox-wrapper">
@@ -283,6 +282,65 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             </span>
             <span className="label">Fechar Caixa</span>
           </label>
+
+          <span className="subtitle">Realizar o fechamento do caixa pelo sistema, guardar a comanda de fechamento de caixa dentro do malote e lacrar o malote</span>
+
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="135"
+            type="checkbox"
+            name="135"
+          />
+          <label className="cbx" htmlFor="135">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Esvaziar Rodo Mope</span>
+          </label>
+          <span className="subtitle">Remover toda água do container do rodo mope</span>
+
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="136"
+            type="checkbox"
+            name="136"
+          />
+          <label className="cbx" htmlFor="136">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Recolher Lixos Internos</span>
+          </label>
+
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="137"
+            type="checkbox"
+            name="137"
+          />
+          <label className="cbx" htmlFor="137">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Amarrar lixo do saguão dos clientes</span>
+          </label>
+          <span className="subtitle">Caso esteja cheio, fazer o recolhimento normal</span>
+
         </div>
 
         <div className="checkbox-wrapper">

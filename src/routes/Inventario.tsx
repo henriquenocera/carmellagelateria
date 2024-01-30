@@ -131,7 +131,7 @@ function Inventario() {
 
   return (
     <>
-      <div className="InventarioContainer">
+      <div className="InvContainer">
         <img className="logo" src="/logo.svg" alt="" />
         <h1>Inventário</h1>
         <form
@@ -153,10 +153,10 @@ function Inventario() {
               oreo
             )
           }
-          className="containerForm"
+          className="InvContainerForm"
           action=""
         >
-          <div className="container container-1">
+          <div className="containerInv container-1">
             <div className="checkbox-wrapper label-wrapper">
               <label className="label " htmlFor="">
                 <b>Panos</b> Limpos
@@ -173,7 +173,7 @@ function Inventario() {
             </div>
           </div>
           <h2 className="title">Pão de Batata</h2>
-          <div className="container container-2">
+          <div className="containerInv container-2">
             <div className="checkbox-wrapper label-wrapper">
               <label className="label" htmlFor="">
                 Catupiry
@@ -232,7 +232,7 @@ function Inventario() {
             </div>
           </div>
           <h2 className="title">Sanduiches</h2>
-          <div className="container container-3">
+          <div className="containerInv container-3">
             <div className="checkbox-wrapper label-wrapper">
               <label className="label" htmlFor="">
                 Parma
@@ -306,7 +306,7 @@ function Inventario() {
           </div>
           <h2 className="title">Toppings Olga</h2>
           <h3>Potes em cima do balcão</h3>
-          <div className="container container-3">
+          <div className="containerInv container-3">
             <div className="checkbox-wrapper label-wrapper">
               <label className="label" htmlFor="">
                 Confete

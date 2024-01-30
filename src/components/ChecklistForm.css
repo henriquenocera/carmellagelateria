@@ -96,7 +96,7 @@
 .checkbox-wrapper .cbx span:last-child:after {
   content: "";
   position: absolute;
-  top: 12px;
+  top: 15px;
   left: 0;
   height: 1px;
   width: 100%;
