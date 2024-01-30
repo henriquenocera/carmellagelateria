@@ -1,4 +1,3 @@
-
 .container {
   display: flex;
   flex-direction: column;
@@ -10,9 +9,8 @@
 }
 .produtosContainer {
   margin-left: 75px;
-
 }
-.subtitle {
+.ProdSubtitle {
   font-size: 2.5rem;
   margin-bottom: 40px;
 }
@@ -23,11 +21,10 @@
   .subtitle {
     margin-left: 10px;
   }
-  .produtosContainer{
+  .produtosContainer {
     margin-left: 10px;
   }
 }
-
 
 .produtosList {
   list-style: none;

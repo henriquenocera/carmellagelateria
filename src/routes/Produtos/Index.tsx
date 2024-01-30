@@ -11,22 +11,21 @@ const unidade = "ahu";
 function Produtos() {
   return (
     <>
-    <div className="container">
-    <h1>Produtos</h1>
+      <div className="container">
+        <h1>Produtos</h1>
 
-    <h2 className="subtitle">Carmella Gelateria</h2>
-    <div className="produtosContainer">
-      <ul className="produtosList">
-        <li className="produtoTitle">Pequeno ( 1 sabor )</li>
-        <li className="produtoTitle">Médio ( até 2 sabores )</li>
-        <li className="produtoTitle">Grande ( até 3 sabores )</li>
-        <li className="produtoTitle">Pote 480ml</li>
-        
-      </ul>
-    </div>
-    </div>
+        <h2 className="ProdSubtitle">Carmella Gelateria</h2>
+        <div className="produtosContainer">
+          <ul className="produtosList">
+            <li className="produtoTitle">Pequeno ( 1 sabor )</li>
+            <li className="produtoTitle">Médio ( até 2 sabores )</li>
+            <li className="produtoTitle">Grande ( até 3 sabores )</li>
+            <li className="produtoTitle">Pote 480ml</li>
+          </ul>
+        </div>
+      </div>
     </>
-  )
+  );
 
 }
 
