@@ -271,7 +271,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Reposição da Vitrine ( -12º C )</span>
+            <span className="label">Reposição da Vitrine ( -9º C )</span>
           </label>
         </div>
 
