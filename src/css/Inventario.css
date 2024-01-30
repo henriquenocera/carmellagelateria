@@ -2,8 +2,23 @@
 h1 {
   font-size: 3.4rem;
 }
-
-.InventarioContainer {
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 100vh;
+  margin-left: 75px;
+  text-align: center;
+}
+.containerInv {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: center;
+  margin-bottom: 30px;
+}
+.InvContainer {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,7 +28,7 @@ h1 {
   margin-bottom: 75px;
   text-align: center;
 }
-.containerForm {
+.InvContainerForm {
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -22,17 +37,23 @@ h1 {
 }
 .container-2 {
   display: grid;
+  gap: 20px;
+
   grid-template-columns: 1fr 1fr;
   justify-items: center;
   max-width: 760px;
 }
 .container-3 {
   display: grid;
+  gap: 20px;
+
   grid-template-columns: 1fr 1fr 1fr;
   justify-items: center;
 }
 .container-4 {
   display: grid;
+  gap: 20px;
+
   grid-template-columns: 1fr 1fr 1fr 1fr;
   justify-items: center;
   align-items: center;
