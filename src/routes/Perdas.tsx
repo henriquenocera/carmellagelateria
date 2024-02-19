@@ -21,7 +21,7 @@ function Perdas() {
   const [isRtl, setIsRtl] = useState(false);
 
   async function sendValeMessage(openDateFormat) {
-    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A ${item}`;
+    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Perdas%0D%0ALoja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A ${item}`;
     try {
       const response = await fetch(checkOpenComplete, {
         method: "POST",
@@ -55,7 +55,7 @@ function Perdas() {
       openDateFormat.getMinutes() +
       ":" +
       openDateFormat.getSeconds();
-    // sendValeMessage(openDateFormat);
+    sendValeMessage(openDateFormat);
     e.preventDefault();
 
     const action = e.target.action;
@@ -84,7 +84,7 @@ function Perdas() {
         <form
           onSubmit={sendGoogleSheetData}
           method="POST"
-          action="https://script.google.com/macros/s/AKfycbyU0w9O3gAAHl4arnQj6Koq6Zh3_mnZx6qSzCwHVTn5xzfAZbsa7xCoI6W4RqTrdBod/exec"
+          action="https://script.google.com/macros/s/AKfycbxLeMhaqopAvrrldrP-gPZHGh21jyfMigL-9F-nWXxks3Sty5BS5qKgDVA7yKDKLYIE/exec"
           id="EstoqueForm"
           className="valeGelatoForm"
         >
@@ -115,6 +115,7 @@ function Perdas() {
                   onChange={(e) => handleSelect(e)}
                 />
               </div>
+
               <button className="sendForm" type="submit">
                 Enviar
               </button>
