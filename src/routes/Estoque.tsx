@@ -19,6 +19,7 @@ function Estoque() {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRtl, setIsRtl] = useState(false);
+  const [Image, setImage] = useState(null);
 
   async function sendValeMessage(openDateFormat) {
     const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A ${item}`;
@@ -74,6 +75,8 @@ function Estoque() {
 
   function handleSelect(e) {
     setItem(e.value);
+    setImage(e.image);
+    console.log(e);
   }
 
   return (
@@ -122,6 +125,9 @@ function Estoque() {
                   options={Insumos}
                   onChange={(e) => handleSelect(e)}
                 />
+                <div>
+                  <img width="250px" src={Image} />
+                </div>
               </div>
               <button className="sendForm" type="submit">
                 Enviar

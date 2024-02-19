@@ -2,10 +2,12 @@ export const Insumos: readonly Insumos[] = [
   {
     value: "Pote Pequeno 80ml - c/ 50un",
     label: "Pote Pequeno 80ml - c/ 50un",
+    image: "insumos/pote80.jpg",
   },
   {
     value: "Pote Grande 120ml - c/ 50un",
     label: "Pote Grande 120ml - c/ 50un",
+    image: "insumos/pote120.jpg",
   },
   {
     value: "Cascão - c/ 120un",
