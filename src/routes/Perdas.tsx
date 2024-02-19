@@ -7,8 +7,8 @@ import { PerdasList } from "../Perdas.ts";
 const telegramBotId = "6365911641:AAHZVRdhJ-g_zFCKbqmtls9afnV0eGppU9g";
 const telegramChatId = "-972583737";
 
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = "Alto da XV";
+const unidade = "altoxv";
 
 function Perdas() {
   const [isFormSending, setIsFormSending] = useState(false);
