@@ -53,14 +53,16 @@ function Vales() {
       setUser("Marina");
     } else if (idInput == 6532) {
       setUser("Nicolas");
-    } else if (idInput == 9485) {
-      setUser("Anna");
     } else if (idInput == 2635) {
       setUser("Beatriz");
-    } else if (idInput == ) {
-      setUser("");
-    } else if (idInput == ) {
-      setUser("");
+    } else if (idInput == 2839) {
+      setUser("Grasielli");
+    } else if (idInput == 2467) {
+      setUser("Sthefani");
+    } else if (idInput == 9485) {
+      setUser("Anna");
+    } else if (idInput == 1825) {
+      setUser("Vitoria");
     } else {
       setUser("");
     }
