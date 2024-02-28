@@ -47,6 +47,7 @@ function Vales() {
     e.preventDefault();
     let idInput = idInputRef.current.value;
 
+
     if (idInput == 270312) {
       setUser("Henrique");
     } else if (idInput == 1727) {
@@ -55,14 +56,18 @@ function Vales() {
       setUser("Nicolas");
     } else if (idInput == 2635) {
       setUser("Beatriz");
-    } else if (idInput == 1951) {
-      setUser("Nayara");
+    } else if (idInput == 2839) {
+      setUser("Grasielli");
+    } else if (idInput == 2467) {
+      setUser("Sthefani");
     } else if (idInput == 9485) {
       setUser("Anna");
-    } else {
+    } else if (idInput == 1825) {
+      setUser("Vitoria");
+     } else {
       setUser("");
     }
-  }
+ }
 
   async function sendGoogleSheetData(e) {
     console.log("enviou");
