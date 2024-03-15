@@ -29,7 +29,7 @@ function NavBar() {
               </span>
               <span className="text">Produtos</span>
             </NavLink>
-          </li> */}
+          </li>
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/estoque">
               <span className="icon">
@@ -76,7 +76,7 @@ function NavBar() {
               </span>
               <span className="text">Checklist Fechamento</span>
             </NavLink>
-          </li>
+          </li>*/}
           {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/perdas">
               <span className="icon">
