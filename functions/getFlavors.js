@@ -6,7 +6,7 @@ exports.handler = async function () {
     "ATTA4607b0c667bc6b061ba9deb7eb850fb1e000aa77fe479de728a7945216e62c6aF34C6FD7";
   const AHU_LIST_ID = "63bf0dba82f78500d81e8843";
   const ALTOXV_LIST_ID = "63c05f1f59d5e80260c52c56";
-  const BATEL_LIST_ID = "659bd6c9f1b2bc4d3512125";
+  const BATEL_LIST_ID = "659bd6c9f1b2bc4d35121255";
 
   const AHU_URL = `https://api.trello.com/1/lists/${AHU_LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`;
   const ALTOXV_URL = `https://api.trello.com/1/lists/${ALTOXV_LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`;
