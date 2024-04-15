@@ -23,6 +23,6 @@ exports.handler = async function () {
     headers: {
       "Access-Control-Allow-Origin": "*", // Allow from anywhere
     },
-    body: JSON.stringify({ data_ahu, data_altoxv }),
+    body: JSON.stringify({ data_ahu, data_altoxv, data_batel }),
   };
 };
