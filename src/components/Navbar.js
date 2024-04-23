@@ -22,7 +22,7 @@ function NavBar() {
               <span className="text">Vales</span>
             </NavLink>
           </li>
-          {/*           <li className={activeMenu ? "list active" : "list"}>
+          {/*<li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/produtos">
               <span className="icon">
                 <Icons.BsEmojiSmile />
@@ -38,7 +38,7 @@ function NavBar() {
 
               <span className="text">Estoque</span>
             </NavLink>
-          </li>
+          </li>*/}
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/perdas">
               <span className="icon">
@@ -76,7 +76,7 @@ function NavBar() {
               </span>
               <span className="text">Checklist Fechamento</span>
             </NavLink>
-          </li>*/}
+          </li>
           {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/perdas">
               <span className="icon">

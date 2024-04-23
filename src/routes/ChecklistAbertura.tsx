@@ -5,8 +5,8 @@ import "../css/Checklist.css";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = "Batel";
+const unidade = "batel";
 
 async function sendOpenMessage(openDateFormat) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando`;
@@ -71,6 +71,8 @@ function altoxvOpenSubmit() {
   sendOpenMessage(openDateFormat);
 }
 
+
+
 function ChecklistAbertura() {
   const onSubmit = (event) => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -113,7 +115,7 @@ function ChecklistAbertura() {
         <div className="unitInfo">
           <h1>Checklist de Abertura</h1>
 
-          <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+          <h2>Unidade {unidadeText} - Rua Sete de Setembro, 4837</h2>
         </div>
         <div className="unitLogo">
           <img src="/logo.svg" alt="" />
