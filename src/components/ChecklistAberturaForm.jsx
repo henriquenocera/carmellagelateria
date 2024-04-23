@@ -45,9 +45,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label ">Máquina de Café</span>
+            <span className="label ">Máquina de Café e Moedor</span>
           </label>
-          <span className="subtitle">Ligar a Máquina de café na tomada</span>
+          <span className="subtitle">Ligar a Máquina de café e o moedor na tomada</span>
           <span className="subtitle">Ligar o controlador da máquina de café</span>
 
         </div>
@@ -115,7 +115,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
 </span>
 
           <span className="subtitle">Varrer o chão para remover todo pó e sujeira</span>
-          <span className="subtitle">Passar um MOPE no chão com água e veja</span>
+          <span className="subtitle">Depois passar o MOPE no chão com água e veja</span>
+
         
 
         </div>
@@ -324,6 +325,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <span className="subtitle">Caso esteja tudo pronto antes, realizar a abertura das portas antes de 12:00</span>
 
         </div>
+        
 
 
         <button className="submit" type="submit">Enviar</button>
