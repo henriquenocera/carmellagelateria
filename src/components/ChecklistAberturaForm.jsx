@@ -69,8 +69,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
             </span>
             <span className="label">Sistema</span>
           </label>
-          <span className="subtitle">Verificar se o sistema está funcionando, impressora e máquina de cartão TEF</span>
-          <span className="subtitle">Verificar se a máquina de cartão POS e o tablet estão funcionando e com bateria</span>
+          <span className="subtitle">Verificar se o sistema está funcionando</span>
+          <span className="subtitle">Verificar se a máquina de cartão POS está funcionando e com bateria</span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -94,7 +94,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         <div className="sectionTitle">
           <p>2ª Outras Tarefas</p>
         </div>
-  
+
         <div className="checkbox-wrapper">
           <input
             required
@@ -112,12 +112,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
             <span className="label">Limpeza do Chão Interno</span>
           </label>
           <span className="subtitle">(parte interna da loja, saguão dos clintes e banheiro dos clientes)
-</span>
+          </span>
 
           <span className="subtitle">Varrer o chão para remover todo pó e sujeira</span>
           <span className="subtitle">Depois passar o MOPE no chão com água e veja</span>
 
-        
+
 
         </div>
         <div className="checkbox-wrapper">
@@ -155,7 +155,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
             <span className="label">Limpeza do Pátio Externo</span>
           </label>
           <span className="subtitle">Varrer o chão para remover lixos, folhas, plásticos, papeis, etc.</span>
-        
+
 
         </div>
         <div className="checkbox-wrapper">
@@ -240,7 +240,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <span className="subtitle">Em baixo da vitrine, ao lado direito, existe um pote preto para coleta de água da vitrine durante a noite.</span>
           <span className="subtitle">Esvaziar esse pote preto e colocar ele novamente no lugar</span>
 
-      
+
         </div>
 
 
@@ -325,7 +325,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <span className="subtitle">Caso esteja tudo pronto antes, realizar a abertura das portas antes de 12:00</span>
 
         </div>
-        
+
 
 
         <button className="submit" type="submit">Enviar</button>
