@@ -14,11 +14,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <input
             required
             className="inp-cbx"
-            id="1"
+            id="1000"
             type="checkbox"
-            name="1"
+            name="1000"
           />
-          <label className="cbx" htmlFor="1">
+          <label className="cbx" htmlFor="1000">
             <span>
               <svg width="12px" height="9px" viewBox="0 0 12 9">
                 <polyline points="1 5 4 8 11 1"></polyline>
@@ -26,8 +26,27 @@ function ChecklistAberturaForm({ handleSubmit }) {
             </span>
             <span className="label ">Vitrine</span>
           </label>
-          <span className="subtitle">Realizar a limpeza interna e externa da vitrine antes de ligar. Interior e exterior com pano úmido e vidros com álcool líquido</span>
-
+          <span className="subtitle">Realizar a limpeza interna e externa da vitrine. Aço inox com pano úmido e vidros com álcool líquido</span>
+          <span className="subtitle">Após a limpeza, ligar a vitrine</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="1001"
+            type="checkbox"
+            name="1001"
+          />
+          <label className="cbx" htmlFor="1001">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label ">Máquina de Café e Moedor</span>
+          </label>
+          <span className="subtitle">Ligar a Máquina de café e o moedor na tomada</span>
+          <span className="subtitle">Ligar o controlador da máquina de café</span>
         </div>
 
 
