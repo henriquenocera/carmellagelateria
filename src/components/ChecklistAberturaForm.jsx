@@ -54,11 +54,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <input
             required
             className="inp-cbx"
-            id="3"
+            id="1002"
             type="checkbox"
-            name="3"
+            name="1002"
           />
-          <label className="cbx" htmlFor="3">
+          <label className="cbx" htmlFor="1002">
             <span>
               <svg width="12px" height="9px" viewBox="0 0 12 9">
                 <polyline points="1 5 4 8 11 1"></polyline>
@@ -73,11 +73,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <input
             required
             className="inp-cbx"
-            id="4"
+            id="1003"
             type="checkbox"
-            name="4"
+            name="1003"
           />
-          <label className="cbx" htmlFor="4">
+          <label className="cbx" htmlFor="1003">
             <span>
               <svg width="12px" height="9px" viewBox="0 0 12 9">
                 <polyline points="1 5 4 8 11 1"></polyline>
@@ -95,11 +95,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
           <input
             required
             className="inp-cbx"
-            id="205"
+            id="1004"
             type="checkbox"
-            name="205"
+            name="1004"
           />
-          <label className="cbx" htmlFor="205">
+          <label className="cbx" htmlFor="1004">
             <span>
               <svg width="12px" height="9px" viewBox="0 0 12 9">
                 <polyline points="1 5 4 8 11 1"></polyline>
@@ -108,6 +108,43 @@ function ChecklistAberturaForm({ handleSubmit }) {
             <span className="label new ">Loja Ifood</span>
           </label>
           <span className="subtitle new ">Abrir loja no Ifood, verificar se no app consta o aviso de loja aberta</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="1005"
+            type="checkbox"
+            name="1005"
+          />
+          <label className="cbx" htmlFor="1005">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Limpeza do Chão Interno</span>
+          </label>
+          <span className="subtitle">(parte interna da loja, saguão dos clintes e sala de trás)</span>
+          <span className="subtitle">Varrer o chão para remover todo pó e sujeira <br></br>Depois passar o MOPE no chão com água e veja</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="1006"
+            type="checkbox"
+            name="1006"
+          />
+          <label className="cbx" htmlFor="1006">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Limpeza das Bancadas Internas</span>
+          </label>
+          <span className="subtitle">Limpeza interna da loja, bancadas, pia, mesas dos clientes e utensílios</span>
         </div>
         <div className="checkbox-wrapper">
           <input
@@ -123,19 +160,19 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <polyline points="1 5 4 8 11 1"></polyline>
               </svg>
             </span>
-            <span className="label">Limpeza Interna</span>
+            <span className="label">Limpeza das Pátio Externo</span>
           </label>
-          <span className="subtitle">Limpeza interna da loja, bancadas, pia, saguão, mesas dos clientes e utensílios</span>
+          <span className="subtitle">Limpeza interna da loja, bancadas, pia, mesas dos clientes e utensílios</span>
         </div>
         <div className="checkbox-wrapper">
           <input
             required
             className="inp-cbx"
-            id="6"
+            id="1007"
             type="checkbox"
-            name="6"
+            name="1007"
           />
-          <label className="cbx" htmlFor="6">
+          <label className="cbx" htmlFor="1007">
             <span>
               <svg width="12px" height="9px" viewBox="0 0 12 9">
                 <polyline points="1 5 4 8 11 1"></polyline>
