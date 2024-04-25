@@ -301,6 +301,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         <div className="sectionTitle">
           <p>3ª Contagem de Estoque</p>
         </div>
+        <div className="inventoryFlexbox">
+          <label className="inventoryLabel" htmlFor="">Brownies:</label>
+          <input onChange={(event) =>
+            setBrownie(event.target.value)
+          } className="inventoryInput" required type="number" name="brownie" min="0" id="90" />
+        </div>
         <div className="flexbox">
           <div className="checkbox-wrapper label-wrapper">
             <label className="label " htmlFor="">Massas <br></br> <b>Freezer:</b></label>
