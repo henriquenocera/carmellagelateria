@@ -74,6 +74,24 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <span className="subtitle">Realizar o fechamento das portas após as 19:00, caso tenha cliente na loja, esperar todos os clientes irem embora.</span>
 
         </div>
+        <div className="checkbox-wrapper">
+          <input
+            required
+            className="inp-cbx"
+            id="1004"
+            type="checkbox"
+            name="1004"
+          />
+          <label className="cbx" htmlFor="1004">
+            <span>
+              <svg width="12px" height="9px" viewBox="0 0 12 9">
+                <polyline points="1 5 4 8 11 1"></polyline>
+              </svg>
+            </span>
+            <span className="label">Fechar a Porta Preta Externa dos Fundos</span>
+          </label>
+
+        </div>
 
 
         <div className="checkbox-wrapper">
