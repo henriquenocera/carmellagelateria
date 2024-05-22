@@ -95,7 +95,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         <ChecklistItem
           id="15"
           title="Abertura do Caixa"
-          subtitle1="Usuário: 7"
+          subtitle1="Usuário: 5"
           subtitle2="Senha: 2849"
           subtitle3="Realizar contagem das notas para informar o valor inicial"
         />
