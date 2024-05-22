@@ -96,7 +96,7 @@
 .checkbox-wrapper .cbx span:last-child:after {
   content: "";
   position: absolute;
-  top: 15px;
+  top: 16px;
   left: 0;
   height: 1px;
   width: 100%;
@@ -162,4 +162,24 @@
   font-size: 2rem;
   background: #a17550;
   color: #fff;
+}
+.inventoryFlexbox {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 15px;
+}
+.inventoryInput {
+  padding: 7px 14px;
+  border: 1px solid #a17550;
+
+  font-size: 1.6rem;
+  border-radius: 4px;
+  text-align: center;
+  width: 75px;
+  height: 40px;
+}
+.inventoryLabel {
+  font-size: 16px;
+  margin-right: 10px;
 }
