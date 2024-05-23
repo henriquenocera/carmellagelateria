@@ -377,7 +377,6 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             </span>
             <span className="label">Fechar Janela da Sala dos Funcionários</span>
           </label>
-          <span className="subtitle">Remover toda água do container do rodo mope</span>
 
         </div>
 
