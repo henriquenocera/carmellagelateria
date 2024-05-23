@@ -21,11 +21,17 @@ async function sendOpenMessage(
   mortadela,
   confete,
   pacoca,
-  oreo
+  oreo,
+  alhoporo,
+  loraine,
+  caprese,
+  aguasgas,
+  aguacgas,
+  coca,
+  cocazero
 ) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Inventário - Loja ${unidadeText} %0D%0A ${openDateFormat}
   
-  %0D%0A Panos Limpos: ${panos} 
   %0D%0A Pão de Batata - Catupiry: ${catupiry}
   %0D%0A Pão de Batata - Frango c/ Req: ${frangocreq}
   %0D%0A Pão de Batata - Linguiça: ${linguica}
@@ -35,6 +41,13 @@ async function sendOpenMessage(
   %0D%0A Sanduíche - Frango: ${frango}
   %0D%0A Sanduíche - Pernil: ${pernil}
   %0D%0A Sanduíche - Mortadela: ${mortadela}
+  %0D%0A Quiche - Alho Poró: ${alhoporo}
+  %0D%0A Quiche - Loraine: ${loraine}
+  %0D%0A Quiche - Caprese: ${caprese}
+  %0D%0A Água s/ Gás: ${aguasgas}
+  %0D%0A Água c/ Gás: ${aguacgas}
+  %0D%0A Coca: ${coca}
+  %0D%0A Coca Zero: ${cocazero}
   %0D%0A Pote Confete: ${confete}%
   %0D%0A Pote Pacoca: ${pacoca}%
   %0D%0A Pote Oreo: ${oreo}%`;
@@ -76,7 +89,14 @@ function handleSubmit(
   mortadela,
   confete,
   pacoca,
-  oreo
+  oreo,
+  alhoporo,
+  loraine,
+  caprese,
+  aguasgas,
+  aguacgas,
+  coca,
+  cocazero
 ) {
   console.log("enviou");
   event.preventDefault();
@@ -108,7 +128,14 @@ function handleSubmit(
     mortadela,
     confete,
     pacoca,
-    oreo
+    oreo,
+    alhoporo,
+    loraine,
+    caprese,
+    aguasgas,
+    aguacgas,
+    coca,
+    cocazero
   );
 }
 
@@ -123,8 +150,15 @@ function Inventario() {
   const [parma, setParma] = useState("");
   const [carne, setCarne] = useState("");
   const [frango, setFrango] = useState("");
-  const [pernil, setPenil] = useState("");
+  const [pernil, setPernil] = useState("");
   const [mortadela, setMortadela] = useState("");
+  const [alhoporo, setAlhoporo] = useState("");
+  const [loraine, setLoraine] = useState("");
+  const [caprese, setCaprese] = useState("");
+  const [aguasgas, setAguasgas] = useState("");
+  const [aguacgas, setAguacgas] = useState("");
+  const [coca, setCoca] = useState("");
+  const [cocazero, setCocazero] = useState("");
   const [confete, setConfete] = useState("0");
   const [pacoca, setPacoca] = useState("0");
   const [oreo, setOreo] = useState("0");
@@ -150,159 +184,267 @@ function Inventario() {
               mortadela,
               confete,
               pacoca,
-              oreo
+              oreo,
+              alhoporo,
+              loraine,
+              caprese,
+              aguasgas,
+              aguacgas,
+              coca,
+              cocazero
             )
           }
           className="InvContainerForm"
           action=""
         >
-          <div className="containerInv container-1">
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label " htmlFor="">
-                <b>Panos</b> Limpos
-              </label>
-              <input
-                onChange={(event) => setPanos(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="freezer"
-                min="0"
-                id="90"
-              />
-            </div>
-          </div>
           <h2 className="title">Pão de Batata</h2>
-          <div className="containerInv container-2">
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Catupiry
-              </label>
-              <input
-                onChange={(event) => setCatupiry(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="morango"
-                min="0"
-                id="92"
-              />
-            </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Frango c/ Requeijão
-              </label>
-              <input
-                onChange={(event) => setFrangocreq(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="banana"
-                min="0"
-                id="92"
-              />
-            </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Linguiça Blumenau
-              </label>
-              <input
-                onChange={(event) => setLinguica(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="amora"
-                min="0"
-                id="92"
-              />
-            </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Pizza
-              </label>
-              <input
-                onChange={(event) => setPizza(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="maca"
-                min="0"
-                id="92"
-              />
-            </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Pão de Batata <b>Catupiry:</b>
+            </label>
+            <input
+              onChange={(event) => setCatupiry(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="catupiry"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Pão de Batata <b>Frango c/ Requeijão:</b>
+            </label>
+            <input
+              onChange={(event) => setFrangocreq(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="frangocreq"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Pão de Batata <b>Linguiça Blumenau:</b>
+            </label>
+            <input
+              onChange={(event) => setLinguica(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="linguica"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Pão de Batata <b>Pizza:</b>
+            </label>
+            <input
+              onChange={(event) => setPizza(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="pizza"
+              min="0"
+              id="90"
+            />
           </div>
           <h2 className="title">Sanduiches</h2>
-          <div className="containerInv container-3">
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Parma
-              </label>
-              <input
-                onChange={(event) => setParma(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="morango"
-                min="0"
-                id="92"
-              />
-            </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Carne
-              </label>
-              <input
-                onChange={(event) => setCarne(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="banana"
-                min="0"
-                id="92"
-              />
-            </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Frango
-              </label>
-              <input
-                onChange={(event) => setFrango(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="amora"
-                min="0"
-                id="92"
-              />
-            </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Pernil
-              </label>
-              <input
-                onChange={(event) => setPenil(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="maca"
-                min="0"
-                id="92"
-              />
-            </div>
-            <div className="checkbox-wrapper label-wrapper">
-              <label className="label" htmlFor="">
-                Mortadela
-              </label>
-              <input
-                onChange={(event) => setMortadela(event.target.value)}
-                className="inputNumber"
-                required
-                type="number"
-                name="maca"
-                min="0"
-                id="92"
-              />
-            </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Sanduíche de <b>Parma</b>
+            </label>
+            <input
+              onChange={(event) => setParma(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="parma"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Sanduíche de <b>Carne</b>
+            </label>
+            <input
+              onChange={(event) => setCarne(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="carne"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Sanduíche de <b>Frango</b>
+            </label>
+            <input
+              onChange={(event) => setFrango(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="frango"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Sanduíche de <b>Pernil</b>
+            </label>
+            <input
+              onChange={(event) => setPernil(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="panos"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Sanduíche de <b>Mortadela</b>
+            </label>
+            <input
+              onChange={(event) => setMortadela(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="mortadela"
+              min="0"
+              id="90"
+            />
+          </div>
+          <h2 className="title">Quiches</h2>
+
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Quiche de <b>Alho Poró</b>
+            </label>
+            <input
+              onChange={(event) => setAlhoporo(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="alhoporo"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Quiche de <b>Loraine</b>
+            </label>
+            <input
+              onChange={(event) => setLoraine(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="loraine"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <label className="inventoryLabel" htmlFor="">
+              Quiche de <b>Caprese</b>
+            </label>
+            <input
+              onChange={(event) => setCaprese(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="caprese"
+              min="0"
+              id="90"
+            />
+          </div>
+          <h2 className="title">Bebidas</h2>
+          <h3>Realizar a contagem de todas as bebidas: Geladeira + Estoque</h3>
+          <div className="inventoryFlexbox">
+            <img
+              className="ImgBebidas"
+              width="30px"
+              src="aguasgas.png"
+              alt=""
+            />
+            <label className="inventoryLabel" htmlFor="">
+              Água <b>sem Gás</b>
+            </label>
+            <input
+              onChange={(event) => setAguasgas(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="aguasgas"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <img
+              className="ImgBebidas"
+              width="30px"
+              src="aguacgas.png"
+              alt=""
+            />
+            <label className="inventoryLabel" htmlFor="">
+              Água <b>com Gás</b>
+            </label>
+            <input
+              onChange={(event) => setAguacgas(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="aguacgas"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <img className="ImgBebidas" width="30px" src="coca.png" alt="" />
+            <label className="inventoryLabel" htmlFor="">
+              Coca Cola <b></b>
+            </label>
+            <input
+              onChange={(event) => setCoca(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="coca"
+              min="0"
+              id="90"
+            />
+          </div>
+          <div className="inventoryFlexbox">
+            <img
+              className="ImgBebidas"
+              width="30px"
+              src="cocazero.png"
+              alt=""
+            />
+            <label className="inventoryLabel" htmlFor="">
+              Coca Cola <b>Zero</b>
+            </label>
+            <input
+              onChange={(event) => setCocazero(event.target.value)}
+              className="inventoryInput"
+              required
+              type="number"
+              name="cocazero"
+              min="0"
+              id="90"
+            />
           </div>
           <h2 className="title">Toppings Olga</h2>
           <h3>Potes em cima do balcão</h3>
