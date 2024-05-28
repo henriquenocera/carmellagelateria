@@ -12,6 +12,11 @@
     justify-content: center;
     align-items: flex-start;
   }
+  .bigText {
+    position: absolute;
+    left: -7rem;
+    bottom: 12rem;
+  }
 
   .left,
   .right {
@@ -80,6 +85,9 @@
   }
 
   @media (max-width: 1091px) {
+    .bigText {
+      bottom: 25rem;
+    }
     .left {
       width: 50%;
       margin-right: 3rem;
@@ -91,6 +99,10 @@
   @media (max-width: 867px) {
     .container {
       flex-direction: column;
+    }
+    .bigText {
+      left: 10rem;
+      bottom: -20rem;
     }
     .left,
     .right {
@@ -315,6 +327,7 @@
 
 .gelato {
   position: relative;
+  margin-bottom: 40px;
 
   .bigText {
     position: absolute;
@@ -386,7 +399,7 @@
 
   @media (max-width: 867px) {
     .bigText {
-      bottom: 46%;
+      bottom: 0rem;
     }
     .container {
       flex-direction: column-reverse;
