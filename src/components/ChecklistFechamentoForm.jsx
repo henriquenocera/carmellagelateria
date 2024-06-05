@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./ChecklistForm.css";
+import ChecklistItem from "./ChecklistItem";
 
 function ChecklistFechamentoForm({ handleSubmit }) {
   const [freezer, setFreezer] = useState("");
@@ -15,308 +16,113 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     <>
       <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca, brownie, panos)} className="fechamentoAltoxv" id="altoxvClose">
         <div className="sectionTitle">
-          <p>1ª Pré Fechamento (18:00 ~ 18:50)</p>
+          <p>1ª Pré Fechamento (18:00 ~ 18:55)</p>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1"
-            type="checkbox"
-            name="1"
-          />
-          <label className="cbx" htmlFor="1">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Espátulas e Cubas</span>
-          </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="2"
-            type="checkbox"
-            name="2"
-          />
-          <label className="cbx" htmlFor="2">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Atualizar Trello</span>
-          </label>
-          <span className="subtitle">Freezer Uso e Vitrine</span>
-        </div>
+        <ChecklistItem
+          id="1"
+          title="Espátulas e Cubas"
+          subtitle1="Realizar a limpeza das espátulas
+          "
+          subtitle2="Realizar a limpeza das cubas (nunca limpar cubas na frente do cliente)
+          "
+        />
+        <ChecklistItem
+          id="2"
+          title="Atualizar Trello"
+          subtitle1="Freezer e Vitrine"
+
+        />
+       
         <div className="sectionTitle">
           <p>2ª Fechamento (19:00)</p>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="3"
-            type="checkbox"
-            name="3"
-          />
-          <label className="cbx" htmlFor="3">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Fechamento das Portas</span>
-          </label>
-          <span className="subtitle">Realizar o fechamento das portas após as 19:00, caso tenha cliente na loja, esperar todos os clientes irem embora.</span>
-
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1004"
-            type="checkbox"
-            name="1004"
-          />
-          <label className="cbx" htmlFor="1004">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Fechar a Porta Preta Externa dos Fundos</span>
-          </label>
-
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="6"
-            type="checkbox"
-            name="6"
-          />
-          <label className="cbx" htmlFor="6">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Guardar Cubas</span>
-          </label>
-
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="7"
-            type="checkbox"
-            name="7"
-          />
-          <label className="cbx" htmlFor="7">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Desligar Vitrine</span>
-          </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="27"
-            type="checkbox"
-            name="27"
-          />
-          <label className="cbx" htmlFor="27">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Tablet e Máquina POS</span>
-          </label>
-          <span className="subtitle">Guardas tablet e máquina POS na cozinha e colocar eles para carregar</span>
-
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="8"
-            type="checkbox"
-            name="8"
-          />
-          <label className="cbx" htmlFor="8">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Máquina Waffle</span>
-          </label>
-          <span className="subtitle">Desligar Máquina de Waffle, deve ser retirado da tomada</span>
-
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="9"
-            type="checkbox"
-            name="9"
-          />
-          <label className="cbx" htmlFor="9">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Máquina de Café e Moedor</span>
-          </label>
-          <span className="subtitle">Desligar Máquina de Café e Moedor, devem ser retirados da tomada</span>
+        <ChecklistItem
+          id="3"
+          title="Fechamento das Portas"
+          subtitle1="Realizar o fechamento das portas após as 19:00, caso tenha cliente na loja, esperar todos os clientes irem embora.
+          "
+        />
+         <ChecklistItem
+          id="4"
+          title="Fechar e Trancar  a Porta Preta Externa dos Fundos"
+        />
+          <ChecklistItem
+          id="5"
+          title="Guardar Cubas no Freezer"
+          subtitle1="Carregar cubas sempre de 1 em 1"
+        />
+          <ChecklistItem
+          id="6"
+          title="Desligar Vitrine"
+          subtitle1="Limpar todo resto de sorvete que for possível"
+        />
+          <ChecklistItem
+          id="7"
+          title="Lixo do Saguão dos Clientes"
+          subtitle1="Caso o lixo não esteja cheio ainda, dar um nó nele para usar no dia seguinte "
+        />
+          <ChecklistItem
+          id="8"
+          title="Limpeza do Chão Interno"
+          subtitle1="(parte interna da loja e saguão dos clintes)"
+          subtitle2="Varrer o chão para remover todo pó e sujeira"
+          subtitle3="Depois passar o MOPE no chão com água e veja"
+        />
+          <ChecklistItem
+          id="9"
+          title="Tablet e Máquina POS"
+          subtitle1="Guardar tablet e máquina POS e colocar eles para carregar"
+        />
+          <ChecklistItem
+          id="10"
+          title="Máquina Waffle"
+          subtitle1="Desligar Máquina de Waffle, deve ser retirado da tomada"
+        />
+          <ChecklistItem
+          id="11"
+          title="Máquina de Café e Moedor"
+          subtitle1="Desligar Máquina de Café e Moedor, devem ser retirados da tomada"
+        />
+          <ChecklistItem
+          id="12"
+          title="Utensílios do Café"
+          subtitle1="Realizar a limpeza dos pitches, porta filtro, tamper, porta tamper e gaveta de borra. Lavar com água e sabão"
+        />
+          <ChecklistItem
+          id="22"
+          title="Limpeza da Bancada da Sala dos Fundos (Sanduíche)"
+          subtitle1="Remover restos de farelo e limpar com um pano e álcool líquido a bancada"
+        />
+          <ChecklistItem
+          id="13"
+          title="Banheiro dos Funcionários"
+          subtitle1="Retirar o lixo do banheiro dos funcionários ( cajo haja necessidade )"
+        />
+        <ChecklistItem
+          id="14"
+          title="Retirar Lixos Internos"
+        />
+        <ChecklistItem
+          id="15"
+          title="Retirar Lixos Externos"
+        />
+        <ChecklistItem
+          id="16"
+          title="Recolher Saco do Dog"
+        />
+        <ChecklistItem
+          id="17"
+          title="Fechar Caixa"
+          subtitle1="Realizar o fechamento do caixa pelo sistema, guardar a comanda de fechamento de caixa dentro do malote"
+        />
+        <ChecklistItem
+          id="18"
+          title="Massas de Waffle"
+          subtitle1="Transferir massas do Freezer para o Frigobar Preto para totalizar 10 massas para o dia seguinte"
+          subtitle2="Após transferência de massas realizar contagem do nº de massas no Freezer e Geladeira"
+        />
 
 
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="109"
-            type="checkbox"
-            name="109"
-          />
-          <label className="cbx" htmlFor="109">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Utensílios do Café </span>
-          </label>
-          <span className="subtitle">Realizar a limpeza dos pitches, porta filtro, tamper, porta tamper e gaveta de borra. Lavar com água e sabão</span>
-
-
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="12"
-            type="checkbox"
-            name="12"
-          />
-          <label className="cbx" htmlFor="12">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Banheiro dos Funcionários</span>
-          </label>
-          <span className="subtitle">Retirar o lixo do banheiro dos funcionários ( cajo haja necessidade )</span>
-        </div>
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="13"
-            type="checkbox"
-            name="13"
-          />
-          <label className="cbx" htmlFor="13">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Fechar Caixa</span>
-          </label>
-          <span className="subtitle">Realizar o fechamento do caixa pelo sistema, guardar a comanda de fechamento de caixa dentro do malote e lacrar o malote</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="33"
-            type="checkbox"
-            name="33"
-          />
-          <label className="cbx" htmlFor="33">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Recolher Cavalete</span>
-          </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="47"
-            type="checkbox"
-            name="47"
-          />
-          <label className="cbx" htmlFor="47">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Recolher Saco Dog</span>
-          </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="34"
-            type="checkbox"
-            name="34"
-          />
-          <label className="cbx" htmlFor="34">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Recolher Lixos Externos </span>
-          </label>
-        </div>
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="14"
-            type="checkbox"
-            name="14"
-          />
-          <label className="cbx" htmlFor="14">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Massas de Waffle</span>
-          </label>
-          <span className="subtitle">Transferir massas do Freezer para o Frigobar Preto para totalizar <b>8~14</b> massas para o dia seguinte</span>
-          <span className="subtitle">Após transferência de massas realizar contagem do nº de massas no Freezer e Geladeira</span>
-        </div>
         <div className="sectionTitle">
           <p>3ª Contagem de Estoque</p>
         </div>
@@ -368,64 +174,29 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             setPanos(event.target.value)
           } className="inventoryInput" required type="number" name="panos" min="0" id="90" />
         </div>
-
         <div className="sectionTitle">
           <p>4ª Saída</p>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="15"
-            type="checkbox"
-            name="15"
-          />
-          <label className="cbx" htmlFor="15">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Freezer e Geladeiras</span>
-          </label>
-          <span className="subtitle">Garantir que estão bem fechados → Frezer Uso, Freezer Estoque, Geladeira da Sala Cinza, Frigobar Preto, Frigobar Branco e Geladeira da Coca</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="16"
-            type="checkbox"
-            name="16"
-          />
-          <label className="cbx" htmlFor="16">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Geladeira da Sala Cinza</span>
-          </label>
-          <span className="subtitle">Garantir que não sobrou nenhuma cuba lá dentro antes de ir embora</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="17"
-            type="checkbox"
-            name="17"
-          />
-          <label className="cbx" htmlFor="17">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Confirmar Checklist e Desligar Computador</span>
-          </label>
-
-        </div>
+        <ChecklistItem
+          id="23"
+          title="Descarte Correto dos Panos sujos"
+          subtitle1="Panos sujos sempre devem ser colocados no balde ao final do dia"
+        />
+        <ChecklistItem
+          id="19"
+          title="Freezer e Geladeiras"
+          subtitle1="Garantir que estão bem fechados → Frezer Uso, Freezer Estoque, Geladeira da Sala dos Fundos, Frigobar Preto, Frigobar Branco e Geladeira da Coca"
+        />
+                <ChecklistItem
+          id="20"
+          title="Geladeira da Sala dos Fundos"
+          subtitle1="Garantir que não sobrou nenhuma cuba lá dentro antes de ir embora"
+        />
+                <ChecklistItem
+          id="21"
+          title="Confirmar Checklist e Desligar Computador"
+        />
+        
 
         <button className="submit" type="submit">Enviar</button>
       </form>

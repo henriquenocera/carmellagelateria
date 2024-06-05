@@ -42,6 +42,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           id="5"
           title="Loja Ifood"
           subtitle1="Abrir loja no Ifood, verificar se no app consta o aviso de loja aberta"
+          subtitle2="Manter o app do ifood sempre aberto no tablet durante o dia"
         />
         <ChecklistItem
           id="6"
