@@ -53,10 +53,10 @@ function Vales() {
       setUser("Marina");
     } else if (idInput == 6532) {
       setUser("Nicolas");
-    } else if (idInput == 2635) {
-      setUser("Beatriz");
-    } else if (idInput == 1476) {
-      setUser("Eduarda L.");
+    } else if (idInput == 1735) {
+      setUser("Denise");
+    } else if (idInput == e) {
+      setUser("TESTE");
     } else if (idInput == 2467) {
       setUser("Sthefani");
     } else if (idInput == 9485) {
