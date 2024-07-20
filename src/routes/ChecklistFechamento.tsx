@@ -17,11 +17,13 @@ async function sendOpenMessage(
   amora,
   maca,
   brownie,
-  panos
+  panos,
+  user
 ) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja ${unidadeText} %0D%0A ${openDateFormat}
 
-  %0D%0A Qntd Massas no Freezer: ${freezer} 
+  %0D%0A Responsável: ${user}
+  %0D%0A Qntd Massas no Freezer: ${freezer};
   %0D%0A Qntd Massas na Geladeira: ${geladeira};
   %0D%0A Potes Fechados de Morango: ${morango};
   %0D%0A Potes Fechados de Banana: ${banana};
@@ -77,7 +79,8 @@ function altoxvCloseSubmit(
   amora,
   maca,
   brownie,
-  panos
+  panos,
+  user
 ) {
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvClose", JSON.stringify(object));
@@ -104,7 +107,8 @@ function altoxvCloseSubmit(
     amora,
     maca,
     brownie,
-    panos
+    panos,
+    user
   );
 }
 
@@ -118,7 +122,8 @@ function ChecklistFechamento() {
     amora,
     maca,
     brownie,
-    panos
+    panos,
+    user
   ) => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
@@ -133,7 +138,8 @@ function ChecklistFechamento() {
       amora,
       maca,
       brownie,
-      panos
+      panos,
+      user
     );
   };
 

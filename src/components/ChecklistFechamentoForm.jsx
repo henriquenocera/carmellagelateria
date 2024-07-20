@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 
@@ -11,10 +11,39 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const [maca, setMaca] = useState("");
   const [brownie, setBrownie] = useState("");
   const [panos, setPanos] = useState("");
+  const [user, setUser] = useState("");
+  const idInputRef = useRef(null);
+
+  const unidadeText = "Ahu";
+
+
+
+  function handleClick(e) {
+    e.preventDefault();
+    let idInput = idInputRef.current.value;
+
+    if (idInput == 270312) {
+      setUser("Henrique");
+    } else if (idInput == 1727) {
+      setUser("Marina");
+    } else if (idInput == 6532) {
+      setUser("Nicolas");
+    } else if (idInput == 1735) {
+      setUser("Denise");
+    } else if (idInput == 1476) {
+      setUser("Eduarda L.");
+    } else if (idInput == 2467) {
+      setUser("Sthefani");
+    } else if (idInput == 9485) {
+      setUser("Anna");
+    } else {
+      setUser("");
+    }
+  }
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca, brownie, panos)} className="fechamentoAltoxv" id="altoxvClose">
+      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca, brownie, panos, user)} className="fechamentoAltoxv" id="altoxvClose">
         <div className="sectionTitle">
           <p>1ª Pré Fechamento (18:00 ~ 18:55)</p>
         </div>
@@ -32,7 +61,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1="Freezer e Vitrine"
 
         />
-       
+
         <div className="sectionTitle">
           <p>2ª Fechamento (19:00)</p>
         </div>
@@ -42,58 +71,58 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1="Realizar o fechamento das portas após as 19:00, caso tenha cliente na loja, esperar todos os clientes irem embora.
           "
         />
-         <ChecklistItem
+        <ChecklistItem
           id="4"
           title="Fechar e Trancar  a Porta Preta Externa dos Fundos"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="5"
           title="Guardar Cubas no Freezer"
           subtitle1="Carregar cubas sempre de 1 em 1"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="6"
           title="Desligar Vitrine"
           subtitle1="Limpar todo resto de sorvete que for possível"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="7"
           title="Lixo do Saguão dos Clientes"
           subtitle1="Caso o lixo não esteja cheio ainda, dar um nó nele para usar no dia seguinte "
         />
-          <ChecklistItem
+        <ChecklistItem
           id="8"
           title="Limpeza do Chão Interno"
           subtitle1="(parte interna da loja e saguão dos clintes)"
           subtitle2="Varrer o chão para remover todo pó e sujeira"
           subtitle3="Depois passar o MOPE no chão com água e veja"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="9"
           title="Tablet e Máquina POS"
           subtitle1="Guardar tablet e máquina POS e colocar eles para carregar"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="10"
           title="Máquina Waffle"
           subtitle1="Desligar Máquina de Waffle, deve ser retirado da tomada"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="11"
           title="Máquina de Café e Moedor"
           subtitle1="Desligar Máquina de Café e Moedor, devem ser retirados da tomada"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="12"
           title="Utensílios do Café"
           subtitle1="Realizar a limpeza dos pitches, porta filtro, tamper, porta tamper e gaveta de borra. Lavar com água e sabão"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="22"
           title="Limpeza da Bancada da Sala dos Fundos (Sanduíche)"
           subtitle1="Remover restos de farelo e limpar com um pano e álcool líquido a bancada"
         />
-          <ChecklistItem
+        <ChecklistItem
           id="13"
           title="Banheiro dos Funcionários"
           subtitle1="Retirar o lixo do banheiro dos funcionários ( cajo haja necessidade )"
@@ -187,17 +216,72 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           title="Freezer e Geladeiras"
           subtitle1="Garantir que estão bem fechados → Frezer Uso, Freezer Estoque, Geladeira da Sala dos Fundos, Frigobar Preto, Frigobar Branco e Geladeira da Coca"
         />
-                <ChecklistItem
+        <ChecklistItem
           id="20"
           title="Geladeira da Sala dos Fundos"
           subtitle1="Garantir que não sobrou nenhuma cuba lá dentro antes de ir embora"
         />
-                <ChecklistItem
+        <ChecklistItem
           id="21"
           title="Confirmar Checklist e Desligar Computador"
         />
-        
+        {/* 
+        <div>
 
+          <div>
+            <label className="idLabel" htmlFor="id">
+              ID do Responsável pelo Checklist
+            </label>
+          </div>
+
+          <div>
+            <input
+              className="idInput"
+              type="text"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              min="0"
+              max="9999"
+              autoFocus
+              required
+              ref={idInputRef}
+
+            />
+          </div>
+          <div>
+            {user == "" ? (
+              <></>
+            ) : (
+              <>
+                <div>
+                  <input
+                    name="Nome"
+                    className="userInput"
+                    type="text"
+                    value={user}
+                  />
+                </div>
+                <div>
+                  <input
+                    name="Unidade"
+                    className="userInput"
+                    type="text"
+                    value={unidadeText}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div> */}
+        {/*         <div>
+          <button
+            onClick={handleClick}
+            className="idSubmit idSubmitChecklist"
+            type="submit"
+          >
+            Verificar ID
+          </button>
+        </div> */}
         <button className="submit" type="submit">Enviar</button>
       </form>
     </>
