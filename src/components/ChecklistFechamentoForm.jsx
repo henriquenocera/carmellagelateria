@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import "./ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
-
 
 function ChecklistFechamentoForm({ handleSubmit }) {
   const [freezer, setFreezer] = useState("");
@@ -12,6 +11,35 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const [maca, setMaca] = useState("");
   const [brownie, setBrownie] = useState("");
   const [panos, setPanos] = useState("");
+  const [user, setUser] = useState("");
+  const idInputRef = useRef(null);
+
+  const unidadeText = "Alto XV";
+
+
+
+  function handleClick(e) {
+    e.preventDefault();
+    let idInput = idInputRef.current.value;
+
+    if (idInput == 270312) {
+      setUser("Henrique");
+    } else if (idInput == 1727) {
+      setUser("Marina");
+    } else if (idInput == 6532) {
+      setUser("Nicolas");
+    } else if (idInput == 1735) {
+      setUser("Denise");
+    } else if (idInput == 1476) {
+      setUser("Eduarda L.");
+    } else if (idInput == 2467) {
+      setUser("Sthefani");
+    } else if (idInput == 9485) {
+      setUser("Anna");
+    } else {
+      setUser("");
+    }
+  }
 
   return (
     <>
@@ -285,7 +313,62 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
+        <div>
 
+          <div>
+            <label className="idLabel" htmlFor="id">
+              ID do Responsável pelo Checklist
+            </label>
+          </div>
+
+          <div>
+            <input
+              className="idInput"
+              type="text"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              min="0"
+              max="9999"
+              autoFocus
+              required
+              ref={idInputRef}
+
+            />
+          </div>
+          <div>
+            {user == "" ? (
+              <></>
+            ) : (
+              <>
+                <div>
+                  <input
+                    name="Nome"
+                    className="userInput"
+                    type="text"
+                    value={user}
+                  />
+                </div>
+                <div>
+                  <input
+                    name="Unidade"
+                    className="userInput"
+                    type="text"
+                    value={unidadeText}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        <div>
+          <button
+            onClick={handleClick}
+            className="idSubmit idSubmitChecklist"
+            type="submit"
+          >
+            Verificar ID
+          </button>
+        </div>
 
 
 
