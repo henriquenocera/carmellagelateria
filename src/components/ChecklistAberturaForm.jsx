@@ -1,5 +1,7 @@
 import React from "react";
 import "./ChecklistForm.css";
+import ChecklistItem from "./ChecklistItem";
+
 
 function ChecklistAberturaForm({ handleSubmit }) {
 
@@ -8,299 +10,194 @@ function ChecklistAberturaForm({ handleSubmit }) {
     <>
       <form onSubmit={event => handleSubmit(event)} className="aberturaAltoxv" id="altoxvOpen">
         <div className="sectionTitle">
-          <p>1ª Prioridade</p>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1"
-            type="checkbox"
-            name="1"
-          />
-          <label className="cbx" htmlFor="1">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Vitrine</span>
-          </label>
-          <span className="subtitle">Realizar a limpeza interna e externa da vitrine antes de ligar. Interior e exterior com pano úmido e vidros com álcool líquido
-          </span>
-
+          <p><strong>1ª Prioridade</strong></p>
         </div>
 
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="3"
-            type="checkbox"
-            name="3"
-          />
-          <label className="cbx" htmlFor="3">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Sistema</span>
-          </label>
-          <span className="subtitle">Verificar se o sistema está funcionando, impressora e máquina de cartão TEF</span>
-          <span className="subtitle">Verificar se a máquina de cartão POS e o tablet estão funcionando e com bateria</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="4"
-            type="checkbox"
-            name="4"
-          />
-          <label className="cbx" htmlFor="4">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Itens em Falta</span>
-          </label>
-          <span className="subtitle">Verificar antes da abertura se tem algum produto / insumo em falta</span>
-          <span className="subtitle">Caso tenha algo faltando, avisar no grupo do Whats</span>
-        </div>
+        <ChecklistItem
+          id="1"
+          title="Limpar Vitrine"
+          subtitle1="Interior e exterior com pano úmido e vidros com álcool líquido"
+        />
+        <ChecklistItem
+          id="2"
+          title="Ligar Vitrine"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="3"
+          title="Ligar Máquina de Waffle"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="4"
+          title="Ligar Máquina de Café"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="5"
+          title="Ligar Moedor de Café"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="6"
+          title="Acender Toda as Luzes"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="7"
+          title="Realizar a Contagem de Notas do Malote"
+          subtitle1="Enviar no grupo do whats a contagem de notas e moedas"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="8"
+          title="Abrir Caixa"
+          subtitle1="Abrir o caixa com o valor real do malote"
+          subtitle2="Usuário: 6 | Senha: 2849"
+        />
+        <ChecklistItem
+          id="9"
+          title="Abrir Caixa"
+          subtitle1="Abrir o caixa com o valor real do malote"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="10"
+          title="Conferir Maquinha de Cartão POS e TEF"
+          subtitle1="Conferir se estão funcionando"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="11"
+          title="Conferir Tablet"
+          subtitle1="Conferir se está com bateria"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="12"
+          title="Abrir Loja do Ifood"
+          subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
+          subtitle2=""
+        />
+        <img className="imgIfood" width="700px" src="/ifood.png" alt="" />
+        <ChecklistItem
+          id="13"
+          title="Conferir Toppings do Ifood"
+          subtitle1="Se algum topping tiver em falta, desligar do ifood"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="14"
+          title="Trocar Papel Toalha dos Morangos"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="15"
+          title="Atualizar Relatório dos Salgados"
+          subtitle1=""
+          subtitle2=""
+        />
         <div className="sectionTitle">
-          <p>2ª Outras Tarefas</p>
+          <p><strong>2ª Outras Tarefas</strong></p>
         </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="205"
-            type="checkbox"
-            name="205"
-          />
-          <label className="cbx" htmlFor="205">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label new ">Loja Ifood</span>
-          </label>
-          <span className="subtitle new ">Abrir loja no Ifood. Entrar no app
-          </span>
-          <span className="subtitle new "><img width="700px" src="/ifood.png" alt="" />
-          </span>
-          <span className="subtitle new ">Certificar que consta como aberta
-          </span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="5"
-            type="checkbox"
-            name="5"
-          />
-          <label className="cbx" htmlFor="5">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Limpeza Interna</span>
-          </label>
-          <span className="subtitle">Limpeza interna da loja, bancadas, pia, saguão, mesas dos clientes e utensílios</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="6"
-            type="checkbox"
-            name="6"
-          />
-          <label className="cbx" htmlFor="6">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Reposição de Insumos</span>
-          </label>
-          <span className="subtitle">Realizar a retirada de estoque dos insumos necessários (copinhos, pázinhas, etc)</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="7"
-            type="checkbox"
-            name="7"
-          />
-          <label className="cbx" htmlFor="7">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Máquina de Waffle</span>
-          </label>
-          <span className="subtitle">Ligar a máquina de Waffle na “Tomada Vermelha 220V”
-          </span>
-          <span className="subtitle">Verificar o controlador manual se está configurado em 200º C</span>
-        </div>
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="9"
-            type="checkbox"
-            name="9"
-          />
-          <label className="cbx" htmlFor="9">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Acender Todas as Luzes da Loja</span>
-          </label>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="10"
-            type="checkbox"
-            name="10"
-          />
-          <label className="cbx" htmlFor="10">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Verificar Banheiro dos Clientes</span>
-          </label>
-          <span className="subtitle">Reposição do lixo, reposição do papel toalha e limpeza geral</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="11"
-            type="checkbox"
-            name="11"
-          />
-          <label className="cbx" htmlFor="11">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Reposição de Lixos</span>
-          </label>
-          <span className="subtitle">Internos, banheiro dos clientes e saguão dos clientes</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="112"
-            type="checkbox"
-            name="112"
-          />
-          <label className="cbx" htmlFor="112">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Desamarrar lixo do saguão dos clientes</span>
-          </label>
-        </div>
+        <ChecklistItem
+          id="16"
+          title="Varrer Chão"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="17"
+          title="Passar Mop no Chão"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="18"
+          title="Limpar Banheiro"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="19"
+          title="Colocar Todos os Sacos de Lixos"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="20"
+          title="Limpar Bancadas"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="21"
+          title="Limpar Mesas e Cadeiras do Salão"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="22"
+          title="Repor Insumos"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="23"
+          title="Abastecer Vitrine (-4ºC)"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="24"
+          title="Abrir Portas de Enrolar"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="25"
+          title="Abrir Porta do Salão dos Clientes"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="26"
+          title="Trancar Porta de Entrada dos Funcionários"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="27"
+          title="Limpar Pátio"
+          subtitle1="Recolher lixo e passar uma vassoura"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="28"
+          title="Conferir Temperatura da Máquina de Waffle"
+          subtitle1="Temperatura deve estar próximo de 200ºC"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="29"
+          title="Conferir Quebras"
+          subtitle1="Se tiver alguma quebra que pode entrar hoje, já deixe separado"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="30"
+          title="Prever Cubas para Troca"
+          subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
+          subtitle2=""
+        />
 
 
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="12"
-            type="checkbox"
-            name="12"
-          />
-          <label className="cbx" htmlFor="12">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Abertura do Caixa</span>
-          </label>
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="140"
-            type="checkbox"
-            name="140"
-          />
-          <label className="cbx" htmlFor="140">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Limpeza do Pátio Externo</span>
-          </label>
-          <span className="subtitle">Varrer todas as folhas na frente da loja para elas não entrarem com o vento após abertura das portas</span>
-
-        </div>
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="14"
-            type="checkbox"
-            name="14"
-          />
-          <label className="cbx" htmlFor="14">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Reposição da Vitrine ( -5º C )</span>
-          </label>
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="15"
-            type="checkbox"
-            name="15"
-          />
-          <label className="cbx" htmlFor="15">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Abertura das Portas ( 12:00 )</span>
-          </label>
-        </div>
 
 
         <button className="submit" type="submit">Enviar</button>
