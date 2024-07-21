@@ -1,6 +1,6 @@
 import React from "react";
 
-function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4 }) {
+function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star }) {
 
   return (
 
@@ -19,6 +19,8 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4 }
           </svg>
         </span>
         <span className="label ">{title}</span>
+        {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
+
       </label>
       <span className="subtitle">{subtitle1}</span>
       <span className="subtitle">{subtitle2}</span>
