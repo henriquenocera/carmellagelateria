@@ -1,8 +1,41 @@
-import React from "react";
+import React, { useState, useRef } from "react";
+
 import "./ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 
+
+
+
 function ChecklistAberturaForm({ handleSubmit }) {
+
+  const [user, setUser] = useState("");
+  const idInputRef = useRef(null);
+
+  const unidadeText = "Ahu";
+
+
+  function handleClick(e) {
+    e.preventDefault();
+    let idInput = idInputRef.current.value;
+
+    if (idInput == 270312) {
+      setUser("Henrique");
+    } else if (idInput == 1727) {
+      setUser("Marina");
+    } else if (idInput == 6532) {
+      setUser("Nicolas");
+    } else if (idInput == 1735) {
+      setUser("Denise");
+    } else if (idInput == 1476) {
+      setUser("Eduarda L.");
+    } else if (idInput == 2467) {
+      setUser("Sthefani");
+    } else if (idInput == 9485) {
+      setUser("Anna");
+    } else {
+      setUser("");
+    }
+  }
 
 
   return (
@@ -11,11 +44,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
         <div className="sectionTitle">
           <p><strong>1ª Prioridade</strong></p>
         </div>
+
         <ChecklistItem
           id="1"
           title="Limpar Vitrine"
           subtitle1="Interior e exterior com pano úmido e vidros com álcool líquido"
-          subtitle2=""
         />
         <ChecklistItem
           id="2"
@@ -57,111 +90,229 @@ function ChecklistAberturaForm({ handleSubmit }) {
           id="8"
           title="Abrir Caixa"
           subtitle1="Abrir o caixa com o valor real do malote"
-          subtitle2="Usuário: 5 | Senha: 2849"
+          subtitle2="Usuário: 6 | Senha: 2849"
         />
         <ChecklistItem
           id="9"
+          title="Abrir Caixa"
+          subtitle1="Abrir o caixa com o valor real do malote"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="10"
           title="Conferir Máquina de Cartão POS e TEF"
           subtitle1="Conferir se estão funcionando"
           subtitle2=""
         />
         <ChecklistItem
-          id="10"
+          id="11"
           title="Conferir Tablet"
           subtitle1="Conferir se está com bateria"
           subtitle2=""
         />
         <ChecklistItem
-          id="11"
+          id="12"
           title="Abrir Loja do Ifood"
           subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
           subtitle2=""
         />
-        <ChecklistItem
-          id="11"
-          title="Loja do Ifood"
-          subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
-          subtitle2=""
-        />
-        <div className="sectionTitle">
-          <p>2ª Outras Tarefas</p>
-        </div>
-        <ChecklistItem
-          id="5"
-          title="Loja Ifood"
-          subtitle1="Abrir loja no Ifood, verificar se no app consta o aviso de loja aberta"
-          subtitle2="Manter o app do ifood sempre aberto no tablet durante o dia"
-        />
-        <ChecklistItem
-          id="6"
-          title="Limpeza do Chão Interno"
-          subtitle1="(parte interna da loja, saguão dos clintes e sala de trás)"
-          subtitle2="Varrer o chão para remover todo pó e sujeira. Depois passar o MOPE no chão com água e veja"
-        />
-        <ChecklistItem
-          id="7"
-          title="Limpeza das Bancadas Internas"
-          subtitle1="Limpeza interna da loja, bancadas, pia, mesas dos clientes e utensílios"
-        />
-        <ChecklistItem
-          id="8"
-          title="Limpeza das Pátio Externo"
-          subtitle1="Varrer o chão para remover lixos, folhas, plásticos, papeis, etc."
-        />
-        <ChecklistItem
-          id="9"
-          title="Reposição de Insumos"
-          subtitle1="Realizar a retirada de estoque dos insumos necessários (copinhos, pázinhas, etc)"
-        />
-        <ChecklistItem
-          id="10"
-          title="Máquina de Waffle"
-          subtitle1="Ligar a máquina de Waffle na “Tomada Vermelha 220V"
-          subtitle2="Verificar o controlador manual se está configurado em 200º C"
-        />
-        <ChecklistItem
-          id="11"
-          title="Luz da Loja"
-          subtitle1="Acender todas as luzes da loja"
-        />
-        <ChecklistItem
-          id="12"
-          title="Lixos"
-          subtitle1="Fazer a reposição dos lixos"
-          subtitle2="Lixos pequenos internos > 20 Litros"
-          subtitle3="Lixos externos > 40 Litros"
-          subtitle4="Lixo grande interno > 60 Litros"
-        />
+        <img className="imgIfood" width="700px" src="/ifood.png" alt="" />
         <ChecklistItem
           id="13"
-          title="Saco do Dog"
+          title="Conferir Toppings do Ifood"
+          subtitle1="Se algum topping tiver em falta, desligar do ifood"
+          subtitle2=""
         />
         <ChecklistItem
           id="14"
-          title="Protetor de Portas"
-          subtitle1="Estruturas de metal branca para proteger os trilhos da porta da Carmella"
+          title="Trocar Papel Toalha dos Morangos"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="15"
-          title="Abertura do Caixa"
-          subtitle1="Usuário: 5"
-          subtitle2="Senha: 2849"
-          subtitle3="Realizar contagem das notas para informar o valor inicial"
+          title="Atualizar Relatório dos Salgados"
+          subtitle1=""
+          subtitle2=""
         />
+        <div className="sectionTitle">
+          <p><strong>2ª Outras Tarefas</strong></p>
+        </div>
         <ChecklistItem
           id="16"
-          title="Reposição da Vitrine ( a partir de -4º C )"
+          title="Varrer Chão"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="17"
-          title="Verificar Quebras"
-          subtitle1="Identicar as quebras que poderão ser repostas hoje e já deixar separadas no Freezer"
+          title="Passar Mop no Chão"
+          subtitle1=""
+          subtitle2=""
+        />
+        {/*         <ChecklistItem
+          id="18"
+          title="Limpar Banheiro"
+          subtitle1=""
+          subtitle2=""
+        /> */}
+        <ChecklistItem
+          id="19"
+          title="Colocar os Sacos de Lixo Internos"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
-          id="18"
-          title="Abertura das Portas ( 12:00 )"
-          subtitle1="Caso esteja tudo pronto antes, realizar a abertura das portas antes de 12:00"
+          id="20"
+          title="Limpar Bancadas"
+          subtitle1=""
+          subtitle2=""
         />
+        <ChecklistItem
+          id="21"
+          title="Limpar Mesas e Cadeiras do Salão"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="22"
+          title="Repor Insumos"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="23"
+          title="Abastecer Vitrine (-4ºC)"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="231"
+          title="Colocar Bolo na Bancada"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="24"
+          title="Abrir Portas de Enrolar"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="241"
+          title="Colocar Protetor de Portas"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="242"
+          title="Colocar Sacos de Lixo Externos"
+          subtitle1=""
+          subtitle2=""
+        />
+
+        <ChecklistItem
+          id="27"
+          title="Limpar Pátio"
+          subtitle1="Recolher lixo e passar uma vassoura"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="243"
+          title="Colocar Saco Pet e Bebedouro do Cachorro"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="244"
+          title="Colocar Mesas Externas"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="26"
+          title="Trancar Porta de Entrada dos Funcionários"
+          subtitle1="Porta de metal do corredor"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="28"
+          title="Conferir Temperatura da Máquina de Waffle"
+          subtitle1="Temperatura deve estar próximo de 200ºC"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="29"
+          title="Conferir Quebras"
+          subtitle1="Se tiver alguma quebra que pode entrar hoje, já deixe separado"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="30"
+          title="Prever Cubas para Troca"
+          subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
+          subtitle2=""
+        />
+        <div>
+
+          <div>
+            <label className="idLabel" htmlFor="id">
+              ID do Responsável pelo Checklist
+            </label>
+          </div>
+
+          <div>
+            <input
+              className="idInput"
+              type="text"
+              pattern="[0-9]*"
+              inputMode="numeric"
+              min="0"
+              max="9999"
+              autoFocus
+              required
+              ref={idInputRef}
+
+            />
+          </div>
+          <div>
+            {user == "" ? (
+              <></>
+            ) : (
+              <>
+                <div>
+                  <input
+                    name="Nome"
+                    className="userInput"
+                    type="text"
+                    value={user}
+                  />
+                </div>
+                <div>
+                  <input
+                    name="Unidade"
+                    className="userInput"
+                    type="text"
+                    value={unidadeText}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+        <div>
+          <button
+            onClick={handleClick}
+            className="idSubmit idSubmitChecklist"
+            type="submit"
+          >
+            Verificar ID
+          </button>
+        </div>
+
+
+
+
         <button className="submit" type="submit">Enviar</button>
       </form>
     </>
