@@ -99,7 +99,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle2=""
         />
         <ChecklistItem
-          id="8"
+          id="80"
           title="Desligar Máquina de Waffle"
           subtitle1=""
           subtitle2=""
@@ -275,12 +275,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1="Garantir que estão bem fechados"
           subtitle2=""
         />
-        <ChecklistItem
-          id="25"
-          title="Conferir Freezer, Geladeira e Friobar"
-          subtitle1="Garantir que estão bem fechados"
-          subtitle2=""
-        />
+
         <ChecklistItem
           id="26"
           title="Varrer Chão"
