@@ -76,7 +76,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="6"
-          title="Acender Toda as Luzes"
+          title="Acender Todas as Luzes"
           subtitle1=""
           subtitle2=""
         />
@@ -100,7 +100,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="10"
-          title="Conferir Maquinha de Cartão POS e TEF"
+          title="Conferir Máquina de Cartão POS e TEF"
           subtitle1="Conferir se estão funcionando"
           subtitle2=""
         />
