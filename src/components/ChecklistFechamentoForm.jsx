@@ -43,118 +43,101 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca, brownie, panos, user)} className="fechamentoAltoxv" id="altoxvClose">
+      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca, brownie, panos)} className="fechamentoAltoxv" id="altoxvClose">
         <div className="sectionTitle">
-          <p>1ª Pré Fechamento (18:00 ~ 18:55)</p>
+          <p><strong>1ª Pré Fechamento (18:00 ~ 18:59)</strong></p>
         </div>
         <ChecklistItem
           id="1"
-          title="Espátulas e Cubas"
-          subtitle1="Realizar a limpeza das espátulas
-          "
-          subtitle2="Realizar a limpeza das cubas (nunca limpar cubas na frente do cliente)
-          "
+          title="Limpar Espátulas"
+          subtitle1="Lavar com água e sabão"
+          subtitle2=""
         />
         <ChecklistItem
           id="2"
-          title="Atualizar Trello"
-          subtitle1="Freezer e Vitrine"
-
+          title="Limpar Cubas"
+          subtitle1="Sempre pegar um pano limpo"
+          subtitle2=""
         />
-
-        <div className="sectionTitle">
-          <p>2ª Fechamento (19:00)</p>
-        </div>
         <ChecklistItem
           id="3"
-          title="Fechamento das Portas"
-          subtitle1="Realizar o fechamento das portas após as 19:00, caso tenha cliente na loja, esperar todos os clientes irem embora.
-          "
+          title="Conferir Trello (Estoque)"
+          subtitle1="Revisar Trello e garantir que o estoque real bate com o estoque do trello"
+          subtitle2=""
         />
+        <div className="sectionTitle">
+          <p><strong>2ª Fechamento (19:00)</strong></p>
+        </div>
         <ChecklistItem
           id="4"
-          title="Fechar e Trancar  a Porta Preta Externa dos Fundos"
+          title="Recolher Mesas Externas"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="5"
-          title="Guardar Cubas no Freezer"
-          subtitle1="Carregar cubas sempre de 1 em 1"
+          title="Recolher Protetor de Guia"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="6"
-          title="Desligar Vitrine"
-          subtitle1="Limpar todo resto de sorvete que for possível"
+          title="Recolher Saco Pet e Bebedouro do Cachorro"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="7"
-          title="Lixo do Saguão dos Clientes"
-          subtitle1="Caso o lixo não esteja cheio ainda, dar um nó nele para usar no dia seguinte "
+          title="Retirar Lixo do Pátio Externo"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="71"
+          title="Fechar Portas de Rolar"
+          subtitle1="Trancar as portas"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="72"
+          title="Guardar Cubas da Vitrine"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="8"
-          title="Limpeza do Chão Interno"
-          subtitle1="(parte interna da loja e saguão dos clintes)"
-          subtitle2="Varrer o chão para remover todo pó e sujeira"
-          subtitle3="Depois passar o MOPE no chão com água e veja"
+          title="Desligar Vitrine"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="80"
+          title="Desligar Máquina de Waffle"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="9"
-          title="Tablet e Máquina POS"
-          subtitle1="Guardar tablet e máquina POS e colocar eles para carregar"
+          title="Desligar Máquina de Café e Moedor"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="10"
-          title="Máquina Waffle"
-          subtitle1="Desligar Máquina de Waffle, deve ser retirado da tomada"
+          title="Fechar Caixa"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="11"
-          title="Máquina de Café e Moedor"
-          subtitle1="Desligar Máquina de Café e Moedor, devem ser retirados da tomada"
+          title="Descongelar Massas Para o Dia Seguinte"
+          subtitle1="Transferir massas do Freezer para o Frigobar Preto para totalizar 6 massas para o dia seguinte"
+          subtitle2="Após transferência de massas realizar o inventário abaixo"
         />
-        <ChecklistItem
-          id="12"
-          title="Utensílios do Café"
-          subtitle1="Realizar a limpeza dos pitches, porta filtro, tamper, porta tamper e gaveta de borra. Lavar com água e sabão"
-        />
-        <ChecklistItem
-          id="22"
-          title="Limpeza da Bancada da Sala dos Fundos (Sanduíche)"
-          subtitle1="Remover restos de farelo e limpar com um pano e álcool líquido a bancada"
-        />
-        <ChecklistItem
-          id="13"
-          title="Banheiro dos Funcionários"
-          subtitle1="Retirar o lixo do banheiro dos funcionários ( cajo haja necessidade )"
-        />
-        <ChecklistItem
-          id="14"
-          title="Retirar Lixos Internos"
-        />
-        <ChecklistItem
-          id="15"
-          title="Retirar Lixos Externos"
-        />
-        <ChecklistItem
-          id="16"
-          title="Recolher Saco do Dog"
-        />
-        <ChecklistItem
-          id="17"
-          title="Fechar Caixa"
-          subtitle1="Realizar o fechamento do caixa pelo sistema, guardar a comanda de fechamento de caixa dentro do malote"
-        />
-        <ChecklistItem
-          id="18"
-          title="Massas de Waffle"
-          subtitle1="Transferir massas do Freezer para o Frigobar Preto para totalizar 10 massas para o dia seguinte"
-          subtitle2="Após transferência de massas realizar contagem do nº de massas no Freezer e Geladeira"
-        />
-
-
         <div className="sectionTitle">
-          <p>3ª Contagem de Estoque</p>
+          <p>Inventário (checklist)</p>
         </div>
+
         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Massas <b>Freezer:</b></label>
           <input onChange={(event) =>
@@ -203,29 +186,140 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             setPanos(event.target.value)
           } className="inventoryInput" required type="number" name="panos" min="0" id="90" />
         </div>
-        <div className="sectionTitle">
-          <p>4ª Saída</p>
-        </div>
         <ChecklistItem
-          id="23"
-          title="Descarte Correto dos Panos sujos"
-          subtitle1="Panos sujos sempre devem ser colocados no balde ao final do dia"
+          id="12"
+          title="Foto das Frutas"
+          subtitle1="Enviar uma foto do status das frutas na loja"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="13"
+          title="Atualizar Trello (dia seguinte)"
+          subtitle1="Atualizar vitrine conforme o que vai ser alterado amanhã"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="14"
+          title="Desligar Tela do Tablet"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="15"
+          title="Colocar para Carregar Tablet e Máquina POS"
+          subtitle1="Carregar eles sempre na cozinha"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="16"
+          title="Guardar Bolo na Geladeira"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="17"
+          title="Esvaziar Água do Balde das Espátulas"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="18"
+          title="Limpar Todos os Utensílios do Café"
+          subtitle1="Limpar com água e sabão"
+          subtitle2=""
+          star
         />
         <ChecklistItem
           id="19"
-          title="Freezer e Geladeiras"
-          subtitle1="Garantir que estão bem fechados → Frezer Uso, Freezer Estoque, Geladeira da Sala dos Fundos, Frigobar Preto, Frigobar Branco e Geladeira da Coca"
+          title="Limpar Máquina de Café (simples)"
+          subtitle1="Passar um pano"
+          subtitle2=""
+          star
         />
         <ChecklistItem
           id="20"
-          title="Geladeira da Sala dos Fundos"
-          subtitle1="Garantir que não sobrou nenhuma cuba lá dentro antes de ir embora"
+          title="Limpar Bancada dos Salgados"
+          subtitle1=""
+          subtitle2=""
+          star
+        />
+        <ChecklistItem
+          id="211"
+          title="Limpar Bancadas - Loja"
+          subtitle1=""
+          subtitle2=""
+          star
+        />
+        <ChecklistItem
+          id="212"
+          title="Limpar Mesas e Cadeiras - Salão"
+          subtitle1=""
+          subtitle2=""
+          star
         />
         <ChecklistItem
           id="21"
-          title="Confirmar Checklist e Desligar Computador"
+          title="Secar Pia"
+          subtitle1=""
+          subtitle2=""
         />
-        {/* 
+        <ChecklistItem
+          id="22"
+          title="Descartar Panos"
+          subtitle1="Descartar no balde de panos"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="23"
+          title="Fechar Lixo do Salão dos Clientes"
+          subtitle1="Se não tiver cheio, apenas dar um nó"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="24"
+          title="Conferir Geladeira"
+          subtitle1="Garantir que não sobrou nenuma cuba ou quebra lá dentro"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="25"
+          title="Conferir Freezer, Geladeira e Friobar"
+          subtitle1="Garantir que estão bem fechados"
+          subtitle2=""
+        />
+
+        <ChecklistItem
+          id="26"
+          title="Varrer Chão"
+          subtitle1=""
+          subtitle2=""
+          star
+        />
+        <ChecklistItem
+          id="27"
+          title="Passar Mop no Chão"
+          subtitle1=""
+          subtitle2=""
+          star
+        />
+        <ChecklistItem
+          id="28"
+          title="Esvaziar Mop"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="29"
+          title="Apagar Luzes"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="30"
+          title="Desligar Computador"
+          subtitle1=""
+          subtitle2=""
+        />
         <div>
 
           <div>
@@ -272,8 +366,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
               </>
             )}
           </div>
-        </div> */}
-        {/*         <div>
+        </div>
+        <div>
           <button
             onClick={handleClick}
             className="idSubmit idSubmitChecklist"
@@ -281,9 +375,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           >
             Verificar ID
           </button>
-        </div> */}
+        </div>
+
+
+
         <button className="submit" type="submit">Enviar</button>
-      </form>
+      </form >
     </>
   );
 }
