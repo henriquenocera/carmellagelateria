@@ -9,31 +9,79 @@ function ChecklistAberturaForm({ handleSubmit }) {
     <>
       <form onSubmit={event => handleSubmit(event)} className="aberturaAltoxv" id="altoxvOpen">
         <div className="sectionTitle">
-          <p>1ª Prioridade</p>
+          <p><strong>1ª Prioridade</strong></p>
         </div>
         <ChecklistItem
           id="1"
-          title="Vitrine"
-          subtitle1="Realizar a limpeza interna e externa da vitrine. Aço inox com pano úmido e vidros com álcool líquido"
-          subtitle2="Após a limpeza, ligar a vitrine"
+          title="Limpar Vitrine"
+          subtitle1="Interior e exterior com pano úmido e vidros com álcool líquido"
+          subtitle2=""
         />
         <ChecklistItem
           id="2"
-          title="Máquina de Café e Moedor"
-          subtitle1="Ligar a Máquina de café e o moedor na tomada"
-          subtitle2="Ligar o controlador da máquina de café"
+          title="Ligar Vitrine"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="3"
-          title="Sistema"
-          subtitle1="Verificar se o sistema está funcionando, impressora e máquina de cartão TEF"
-          subtitle2="Verificar se a máquina de cartão POS e o tablet estão funcionando e com bateria"
+          title="Ligar Máquina de Waffle"
+          subtitle1=""
+          subtitle2=""
         />
         <ChecklistItem
           id="4"
-          title="Itens em Falta"
-          subtitle1="Verificar antes da abertura se tem algum produto / insumo em falta"
-          subtitle2="Caso tenha algo faltando, avisar no grupo do Whats"
+          title="Ligar Máquina de Café"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="5"
+          title="Ligar Moedor de Café"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="6"
+          title="Acender Todas as Luzes"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="7"
+          title="Realizar a Contagem de Notas do Malote"
+          subtitle1="Enviar no grupo do whats a contagem de notas e moedas"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="8"
+          title="Abrir Caixa"
+          subtitle1="Abrir o caixa com o valor real do malote"
+          subtitle2="Usuário: 5 | Senha: 2849"
+        />
+        <ChecklistItem
+          id="9"
+          title="Conferir Máquina de Cartão POS e TEF"
+          subtitle1="Conferir se estão funcionando"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="10"
+          title="Conferir Tablet"
+          subtitle1="Conferir se está com bateria"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="11"
+          title="Abrir Loja do Ifood"
+          subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="11"
+          title="Loja do Ifood"
+          subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
+          subtitle2=""
         />
         <div className="sectionTitle">
           <p>2ª Outras Tarefas</p>

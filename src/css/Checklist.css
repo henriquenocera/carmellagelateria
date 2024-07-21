@@ -74,7 +74,7 @@ h2 {
   grid-template-columns: 1fr 1fr 1fr;
 }
 .checkbox-wrapper {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 .label-wrapper {
   display: flex;
@@ -86,7 +86,7 @@ h2 {
   padding: 9px;
 }
 .label {
-  font-size: 24px;
+  font-size: 20px;
 }
 
 .inputNumber {
