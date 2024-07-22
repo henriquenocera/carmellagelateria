@@ -48,7 +48,7 @@ function NavBar() {
               <span className="text">Perdas</span>
             </NavLink>
           </li>
-          <li className={activeMenu ? "list active" : "list"}>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/inventario">
               <span className="icon">
                 <Icons.BsArrowCounterclockwise />
@@ -57,7 +57,7 @@ function NavBar() {
               <span className="text">Inventario</span>
             </NavLink>
           </li>
-
+ */}
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">
