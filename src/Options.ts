@@ -36,6 +36,10 @@ export const Options: readonly Options[] = [
     label: "Soda Italiana",
   },
   {
+    value: "Bolo - Fatia",
+    label: "Bolo - Fatia",
+  },
+  {
     value: "COMBO SEGUNDA - Nutella e Morango",
     label: "COMBO SEGUNDA - Nutella e Morango",
   },

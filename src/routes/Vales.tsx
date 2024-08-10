@@ -181,6 +181,7 @@ function Vales() {
                     name="Item"
                     options={Options}
                     onChange={(e) => handleSelect(e)}
+                    required
                   />
                 </div>
                 <button className="sendForm" type="submit">
