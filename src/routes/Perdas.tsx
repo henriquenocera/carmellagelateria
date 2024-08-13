@@ -113,6 +113,7 @@ function Perdas() {
                   name="Item"
                   options={PerdasList}
                   onChange={(e) => handleSelect(e)}
+                  required
                 />
               </div>
 
