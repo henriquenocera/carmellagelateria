@@ -19,4 +19,20 @@ export const PerdasList: readonly PerdasList[] = [
     value: "Cascão Grande",
     label: "Cascão Grande",
   },
+  {
+    value: "Pote 480ml",
+    label: "Pote 480ml",
+  },
+  {
+    value: "Bebidas",
+    label: "Bebidas",
+  },
+  {
+    value: "Copo de Café Espresso 110ml",
+    label: "Copo de Café Espresso 110ml",
+  },
+  {
+    value: "Copo de Café Cappuccino 270ml",
+    label: "Copo de Café Cappuccino 270ml",
+  },
 ];
