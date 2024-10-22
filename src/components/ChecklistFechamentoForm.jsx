@@ -336,7 +336,6 @@ function ChecklistFechamentoForm({ handleSubmit }) {
               inputMode="numeric"
               min="0"
               max="9999"
-              autoFocus
               required
               ref={idInputRef}
 
