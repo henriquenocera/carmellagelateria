@@ -51,18 +51,18 @@ function Vales() {
       setUser("Henrique");
     } else if (idInput == 1727) {
       setUser("Marina");
-    } else if (idInput == 6532) {
-      setUser("Nicolas");
+    } else if (idInput == 2568) {
+      setUser("Maria Eduarda");
     } else if (idInput == 1627) {
-      setUser("Kethellyn");
+      setUser("");
     } else if (idInput == 1476) {
-      setUser("Eduarda L.");
+      setUser("");
     } else if (idInput == 2467) {
-      setUser("Sthefani");
+      setUser("");
     } else if (idInput == 9485) {
-      setUser("Anna");
+      setUser("");
     } else if (idInput == 1825) {
-      setUser("Vitoria");
+      setUser("");
     } else {
       setUser("");
     }
