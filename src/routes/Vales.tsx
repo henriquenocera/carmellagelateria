@@ -96,7 +96,7 @@ function Vales() {
     }).then(() => {
       console.log("sucesso");
       setIsFormSending(false);
-      window.alert("Lançamento Realizado com Sucesso!");
+      window.alert(`Lançamento Realizado com Sucesso! ${user}`);
       setUser("");
     });
   }
