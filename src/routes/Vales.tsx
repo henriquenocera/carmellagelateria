@@ -174,8 +174,7 @@ function Vales() {
                     isLoading={isLoading}
                     isClearable={isClearable}
                     isRtl={isRtl}
-                    readOnly={true}
-                    isSearchable={isSearchable}
+                    isSearchable={false}
                     name="Item"
                     options={Options}
                     onChange={(e) => handleSelect(e)}
