@@ -3,6 +3,7 @@ import Select from "react-select";
 import "../css/Valegelato.css";
 import { Options } from "../Options.ts";
 import {ListId} from '../id.ts';
+import Modal from "../components/Modal.jsx"
 
 
 const telegramBotId = "5902485837:AAFN9PL6ES3Otgwvzg6qqhvqCgw5WvL7DsY";
@@ -110,6 +111,7 @@ function Vales() {
       ) : (
         <>
           <div className="valegelatoContainer">
+
             <div className="top">
               <img className="logo" src="/logo.svg" alt="" />
               <h1>Vales</h1>
@@ -174,6 +176,7 @@ function Vales() {
                     isLoading={isLoading}
                     isClearable={isClearable}
                     isRtl={isRtl}
+                    autoFocus={true}
                     isSearchable={false}
                     name="Item"
                     options={Options}
