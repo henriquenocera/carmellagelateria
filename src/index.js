@@ -11,7 +11,6 @@ import Home from "./routes/Home";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
-import ValeGelato from "./routes/ValeGelato.tsx";
 import Perdas from "./routes/Perdas.tsx";
 import Vales from "./routes/Vales.tsx";
 import Produtos from "./routes/Produtos/Index.tsx";
@@ -34,7 +33,6 @@ const router = createBrowserRouter(
       <Route path="/produtos" element={<Produtos />} />
 
       <Route path="/perdas" element={<Perdas />} />
-      <Route path="/inventario" element={<Inventario />} />
       <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
       <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
     </Route>

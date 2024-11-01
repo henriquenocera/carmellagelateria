@@ -174,6 +174,7 @@ function Vales() {
                     isLoading={isLoading}
                     isClearable={isClearable}
                     isRtl={isRtl}
+                    readOnly={true}
                     isSearchable={isSearchable}
                     name="Item"
                     options={Options}

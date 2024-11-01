@@ -132,3 +132,8 @@
 .selectLabelCasquinha {
   left: 50px;
 }
+
+.version {
+  color: black;
+  font-size: 2rem;
+}
