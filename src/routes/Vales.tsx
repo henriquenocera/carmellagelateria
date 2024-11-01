@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import "../css/Valegelato.css";
 import { Options } from "../Options.ts";
+import {ListId} from '../id.ts';
+
 
 const telegramBotId = "5902485837:AAFN9PL6ES3Otgwvzg6qqhvqCgw5WvL7DsY";
 const telegramChatId = "-946708416";
@@ -47,24 +49,19 @@ function Vales() {
     e.preventDefault();
     let idInput = idInputRef.current.value;
 
-    if (idInput == 270312) {
-      setUser("Henrique");
-    } else if (idInput == 1727) {
-      setUser("Marina");
-    } else if (idInput == 2568) {
-      setUser("Maria Eduarda");
-    } else if (idInput == 1627) {
-      setUser("");
-    } else if (idInput == 1476) {
-      setUser("");
-    } else if (idInput == 2467) {
-      setUser("");
-    } else if (idInput == 9485) {
-      setUser("");
-    } else if (idInput == 1825) {
-      setUser("");
+
+    if (idInput == ListId[0].value) {
+      setUser(ListId[0].nome)
+    } else if (idInput == ListId[1].value) {
+      setUser(ListId[1].nome)
+    } else if (idInput == ListId[2].value) {
+      setUser(ListId[2].nome)
+    } else if (idInput == ListId[3].value) {
+      setUser(ListId[3].nome)
+    } else if (idInput == ListId[4].value) {
+      setUser(ListId[4].nome)
     } else {
-      setUser("");
+      setUser("")
     }
   }
 
