@@ -22,24 +22,22 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     e.preventDefault();
     let idInput = idInputRef.current.value;
 
-    if (idInput == 270312) {
-      setUser("Henrique");
-    } else if (idInput == 1727) {
-      setUser("Marina");
-    } else if (idInput == 6532) {
-      setUser("Nicolas");
-    } else if (idInput == 1735) {
-      setUser("Denise");
-    } else if (idInput == 1476) {
-      setUser("Eduarda L.");
-    } else if (idInput == 2467) {
-      setUser("Sthefani");
-    } else if (idInput == 9485) {
-      setUser("Anna");
+
+    if (idInput == ListId[0].value) {
+      setUser(ListId[0].nome)
+    } else if (idInput == ListId[1].value) {
+      setUser(ListId[1].nome)
+    } else if (idInput == ListId[2].value) {
+      setUser(ListId[2].nome)
+    } else if (idInput == ListId[3].value) {
+      setUser(ListId[3].nome)
+    } else if (idInput == ListId[4].value) {
+      setUser(ListId[4].nome)
     } else {
-      setUser("");
+      setUser("")
     }
   }
+
 
   return (
     <>
