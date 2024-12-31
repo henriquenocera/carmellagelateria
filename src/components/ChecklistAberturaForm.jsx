@@ -92,12 +92,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Abrir o caixa com o valor real do malote"
           subtitle2="Usuário: 6 | Senha: 2849"
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="9"
           title="Abrir Caixa"
           subtitle1="Abrir o caixa com o valor real do malote"
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="10"
           title="Conferir Máquina de Cartão POS e TEF"
