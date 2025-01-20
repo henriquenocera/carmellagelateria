@@ -3,7 +3,6 @@ import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
 
-
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
 const unidadeText = "Ahu";
@@ -26,8 +25,6 @@ async function sendOpenMessage(
   %0D%0A Responsável: ${user}
   %0D%0A Qntd Massas no Freezer: ${freezer};
   %0D%0A Qntd Massas na Geladeira: ${geladeira};
-  %0D%0A Potes Fechados de Morango: ${morango};
-  %0D%0A Potes Fechados de Banana: ${banana};
   %0D%0A Potes Fechados Gel de Amora: ${amora};
   %0D%0A Potes Fechados Torta de Maça: ${maca}
   %0D%0A Qntd de Brownies na Geladeira: ${brownie}

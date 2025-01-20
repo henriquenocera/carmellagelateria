@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import "./ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
-import {ListId} from '../id.ts';
+import { ListId } from '../id.ts';
 
 
 function ChecklistFechamentoForm({ handleSubmit }) {
@@ -150,18 +150,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             setGeladeira(event.target.value)
           } className="inventoryInput" required type="number" name="geladeira" min="0" id="90" />
         </div>
-        <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Morango:</b></label>
-          <input onChange={(event) =>
-            setMorango(event.target.value)
-          } className="inventoryInput" required type="number" name="morango" min="0" id="90" />
-        </div>
-        <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Banana:</b></label>
-          <input onChange={(event) =>
-            setBanana(event.target.value)
-          } className="inventoryInput" required type="number" name="banana" min="0" id="90" />
-        </div>
+
         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Amora:</b></label>
           <input onChange={(event) =>

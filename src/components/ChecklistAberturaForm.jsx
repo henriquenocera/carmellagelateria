@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 
 import "./ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
-import {ListId} from '../id.ts';
+import { ListId } from '../id.ts';
 
 
 
@@ -90,12 +90,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Abrir o caixa com o valor real do malote"
           subtitle2="Usuário: 6 | Senha: 2849"
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="9"
           title="Abrir Caixa"
           subtitle1="Abrir o caixa com o valor real do malote"
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="10"
           title="Conferir Máquina de Cartão POS e TEF"
@@ -148,12 +148,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        {/*         <ChecklistItem
+        <ChecklistItem
           id="18"
           title="Limpar Banheiro"
           subtitle1=""
           subtitle2=""
-        /> */}
+        />
         <ChecklistItem
           id="19"
           title="Colocar os Sacos de Lixo Internos"
@@ -196,12 +196,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="241"
           title="Colocar Protetor de Portas"
           subtitle1=""
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="242"
           title="Colocar Sacos de Lixo Externos"
