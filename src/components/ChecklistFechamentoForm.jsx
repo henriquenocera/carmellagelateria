@@ -76,7 +76,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="5"
-          title="Recolher Protetor de Guia"
+          title="Fechar Janela"
           subtitle1=""
           subtitle2=""
         />
@@ -234,14 +234,14 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="211"
-          title="Limpar Bancadas - Loja"
+          title="Limpar Bancadas da Loja"
           subtitle1=""
           subtitle2=""
           star
         />
         <ChecklistItem
           id="212"
-          title="Limpar Mesas e Cadeiras - Salão"
+          title="Limpar Mesas e Cadeiras do Salão dos Clientes"
           subtitle1=""
           subtitle2=""
           star
