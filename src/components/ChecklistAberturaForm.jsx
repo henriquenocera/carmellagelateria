@@ -196,12 +196,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        {/*         <ChecklistItem
+        <ChecklistItem
           id="241"
-          title="Colocar Protetor de Portas"
+          title="Abrir Janela do Salão dos Clientes"
           subtitle1=""
           subtitle2=""
-        /> */}
+        />
         <ChecklistItem
           id="242"
           title="Colocar Sacos de Lixo Externos"
