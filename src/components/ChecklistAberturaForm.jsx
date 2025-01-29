@@ -1,13 +1,14 @@
 import React, { useState, useRef } from "react";
 
-import "./ChecklistForm.css";
+import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
-
+import IDModal from "./IDModal.jsx"
 
 
 
 function ChecklistAberturaForm({ handleSubmit }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [user, setUser] = useState("");
   const idInputRef = useRef(null);
@@ -17,27 +18,47 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
   function handleClick(e) {
     e.preventDefault();
-    let idInput = idInputRef.current.value;
+    // Open Modal to ask for ID
+    console.log("Open Modal")
+    setIsModalOpen(true)
+    // let idInput = idInputRef.current.value;
 
-
-    if (idInput == ListId[0].value) {
-      setUser(ListId[0].nome)
-    } else if (idInput == ListId[1].value) {
-      setUser(ListId[1].nome)
-    } else if (idInput == ListId[2].value) {
-      setUser(ListId[2].nome)
-    } else if (idInput == ListId[3].value) {
-      setUser(ListId[3].nome)
-    } else if (idInput == ListId[4].value) {
-      setUser(ListId[4].nome)
-    } else {
-      setUser("")
-    }
+    /*     if (idInput == ListId[0].value) {
+          setUser(ListId[0].nome)
+        } else if (idInput == ListId[1].value) {
+          setUser(ListId[1].nome)
+        } else if (idInput == ListId[2].value) {
+          setUser(ListId[2].nome)
+        } else if (idInput == ListId[3].value) {
+          setUser(ListId[3].nome)
+        } else if (idInput == ListId[4].value) {
+          setUser(ListId[4].nome)
+        } else {
+          setUser("")
+        } */
   }
 
 
   return (
     <>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Please enter your number</h3>
+            <input
+              type="number"
+              placeholder="Enter number"
+            />
+            <div className="modal-buttons">
+              <button>Confirm</button>
+              <button> Cancel </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={event => handleSubmit(event)} className="aberturaAltoxv" id="altoxvOpen">
         <div className="sectionTitle">
           <p><strong>1ª Prioridade</strong></p>
@@ -251,66 +272,65 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
           subtitle2=""
         />
-        <div>
-
+        {/*         <section>
           <div>
-            <label className="idLabel" htmlFor="id">
-              ID do Responsável pelo Checklist
-            </label>
-          </div>
 
+            <div>
+              <label className="idLabel" htmlFor="id">
+                ID do Responsável pelo Checklist
+              </label>
+            </div>
+
+            <div>
+              <input
+                className="idInput"
+                type="text"
+                pattern="[0-9]*"
+                inputMode="numeric"
+                min="0"
+                max="9999"
+                required
+                ref={idInputRef}
+
+              />
+            </div>
+            <div>
+              {user == "" ? (
+                <></>
+              ) : (
+                <>
+                  <div>
+                    <input
+                      name="Nome"
+                      className="userInput"
+                      type="text"
+                      value={user}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      name="Unidade"
+                      className="userInput"
+                      type="text"
+                      value={unidadeText}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
           <div>
-            <input
-              className="idInput"
-              type="text"
-              pattern="[0-9]*"
-              inputMode="numeric"
-              min="0"
-              max="9999"
-              required
-              ref={idInputRef}
-
-            />
+            <button
+              onClick={handleClick}
+              className="idSubmit idSubmitChecklist"
+              type="submit"
+            >
+              Verificar ID
+            </button>
           </div>
-          <div>
-            {user == "" ? (
-              <></>
-            ) : (
-              <>
-                <div>
-                  <input
-                    name="Nome"
-                    className="userInput"
-                    type="text"
-                    value={user}
-                  />
-                </div>
-                <div>
-                  <input
-                    name="Unidade"
-                    className="userInput"
-                    type="text"
-                    value={unidadeText}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-        <div>
-          <button
-            onClick={handleClick}
-            className="idSubmit idSubmitChecklist"
-            type="submit"
-          >
-            Verificar ID
-          </button>
-        </div>
+        </section> */}
 
-
-
-
-        <button className="submit" type="submit">Enviar</button>
+        <button onClick={handleClick} className="submit" type="submit">Enviar</button>
       </form>
     </>
   );

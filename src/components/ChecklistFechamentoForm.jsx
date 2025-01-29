@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import "./ChecklistForm.css";
+import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
 

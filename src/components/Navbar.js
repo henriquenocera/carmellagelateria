@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import * as Icons from "react-icons/bs";
 import { NavLink } from "react-router-dom";
-import "./Navbar.css";
+import "../css/Navbar.css";
 
 function NavBar() {
   const [sidebar, setSidebar] = useState(false);
@@ -22,34 +22,15 @@ function NavBar() {
               <span className="text">Vales</span>
             </NavLink>
           </li>
-          {
-            <li className={activeMenu ? "list active" : "list"}>
-              <NavLink to="/inventario">
-                <span className="icon">
-                  <Icons.BsArrowCounterclockwise />
-                </span>
-                <span className="text">Inventário</span>
-              </NavLink>
-            </li>
-          }
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/estoque">
-              <span className="icon">
-                <Icons.BsPlusSlashMinus />
-              </span>
 
-              <span className="text">Estoque</span>
-            </NavLink>
-          </li> */}
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/perdas">
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/inventario">
               <span className="icon">
-                <Icons.BsTrash />
+                <Icons.BsArrowCounterclockwise />
               </span>
-
-              <span className="text">Perdas</span>
+              <span className="text">Inventário</span>
             </NavLink>
-          </li> */}
+          </li>
 
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
@@ -70,14 +51,6 @@ function NavBar() {
               <span className="text">Checklist Fechamento</span>
             </NavLink>
           </li>
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/perdas">
-              <span className="icon">
-                <Icons.BsFillTrash3Fill />
-              </span>
-              <span className="text">Lançamentos de Perdas</span>
-            </NavLink>
-          </li> */}
         </ul>
       </div>
     </>

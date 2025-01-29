@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
+
 import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
@@ -169,37 +171,43 @@ function ChecklistFechamento() {
   }, []);
 
   return (
-    <div className="checklistContainer">
-      <div className="unitContainer">
-        <div className="unitInfo">
-          <h1>Checklist de Fechamento</h1>
+    <>
+      <Helmet>
+        <title>Checklist de Fechamento</title>
+      </Helmet>
 
-          <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+      <div className="checklistContainer">
+        <div className="unitContainer">
+          <div className="unitInfo">
+            <h1>Checklist de Fechamento</h1>
+
+            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+          </div>
+          <div className="unitLogo">
+            <img src="/logo.svg" alt="" />
+          </div>
         </div>
-        <div className="unitLogo">
-          <img src="/logo.svg" alt="" />
-        </div>
+        {openC && openC.value === "complete" ? (
+          <span className="timeComplete">{timeComplete}</span>
+        ) : (
+          <>
+            <div className="checklistFormContainer">
+              <ChecklistFechamentoForm handleSubmit={onSubmit} />
+            </div>
+            <div className="warningContainer">
+              <p className="warningText">Bater Ponto</p>
+
+              <p className="warningText">
+                <span className="warningIcon">
+                  <Icons.BsExclamationDiamondFill />
+                </span>
+                Ligar Alarme e Trancar a Porta
+              </p>
+            </div>
+          </>
+        )}
       </div>
-      {openC && openC.value === "complete" ? (
-        <span className="timeComplete">{timeComplete}</span>
-      ) : (
-        <>
-          <div className="checklistFormContainer">
-            <ChecklistFechamentoForm handleSubmit={onSubmit} />
-          </div>
-          <div className="warningContainer">
-            <p className="warningText">Bater Ponto</p>
-
-            <p className="warningText">
-              <span className="warningIcon">
-                <Icons.BsExclamationDiamondFill />
-              </span>
-              Ligar Alarme e Trancar a Porta
-            </p>
-          </div>
-        </>
-      )}
-    </div>
+    </>
   );
 }
 

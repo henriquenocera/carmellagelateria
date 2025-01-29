@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
+
 import * as Icons from "react-icons/bs";
 import "../css/Inventario.css";
 
@@ -56,6 +58,9 @@ function handleSubmit(event) {
 function Inventario() {
   return (
     <>
+      <Helmet>
+        <title>Inventário</title>
+      </Helmet>
       <div className="InvContainer">
         <img className="logo" src="/logo.svg" alt="" />
         <h1>Inventário</h1>

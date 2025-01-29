@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet";
+
 import Select from "react-select";
 import "../css/Valegelato.css";
 import { Options } from "../Options.ts";
-import {ListId} from '../id.ts';
-import Modal from "../components/Modal.jsx"
-
+import { ListId } from "../id.ts";
 
 const telegramBotId = "5902485837:AAFN9PL6ES3Otgwvzg6qqhvqCgw5WvL7DsY";
 const telegramChatId = "-946708416";
@@ -50,19 +50,18 @@ function Vales() {
     e.preventDefault();
     let idInput = idInputRef.current.value;
 
-
     if (idInput == ListId[0].value) {
-      setUser(ListId[0].nome)
+      setUser(ListId[0].nome);
     } else if (idInput == ListId[1].value) {
-      setUser(ListId[1].nome)
+      setUser(ListId[1].nome);
     } else if (idInput == ListId[2].value) {
-      setUser(ListId[2].nome)
+      setUser(ListId[2].nome);
     } else if (idInput == ListId[3].value) {
-      setUser(ListId[3].nome)
+      setUser(ListId[3].nome);
     } else if (idInput == ListId[4].value) {
-      setUser(ListId[4].nome)
+      setUser(ListId[4].nome);
     } else {
-      setUser("")
+      setUser("");
     }
   }
 
@@ -102,6 +101,10 @@ function Vales() {
   }
   return (
     <>
+      <Helmet>
+        <title>Vales</title>
+      </Helmet>
+
       {isFormSending ? (
         <>
           <div className="valegelatoContainer">
@@ -111,7 +114,6 @@ function Vales() {
       ) : (
         <>
           <div className="valegelatoContainer">
-
             <div className="top">
               <img className="logo" src="/logo.svg" alt="" />
               <h1>Vales</h1>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import ChecklistAberturaForm from "../components/ChecklistAberturaForm";
 import "../css/Checklist.css";
@@ -8,6 +9,30 @@ const telegramChatId = "-1001602173856";
 const unidadeText = "Ahu";
 const unidade = "ahu";
 
+// Function Get Local Storage
+function getLocalStorage() {
+  let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
+  let today = new Date();
+  let dayToday = today.getDate();
+  console.log(`dayToday = ${dayToday}`);
+
+  if (openC) {
+    let lastDayComplete = new Date(openC.timestamp).getDate();
+    console.log(`lastDayComplete = ${lastDayComplete}`);
+
+    if (dayToday == lastDayComplete) {
+      console.log("Stop Form");
+      // Checklist already complete today
+      // Block Form
+    } else {
+      console.log("Continue Form");
+      localStorage.setItem("altoxvOpen", 0);
+    }
+  }
+}
+getLocalStorage();
+
+// Function Send Telegram Message
 async function sendOpenMessage(openDateFormat) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando`;
 
@@ -30,27 +55,8 @@ async function sendOpenMessage(openDateFormat) {
     );
   }
 }
-function getLocalStorage() {
-  let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
-  let today = new Date();
-  let dayToday = today.getDate();
-  console.log(`dayToday = ${dayToday}`);
 
-  if (openC) {
-    let lastDayComplete = new Date(openC.timestamp).getDate();
-    console.log(`lastDayComplete = ${lastDayComplete}`);
-
-    if (dayToday == lastDayComplete) {
-      console.log("Stop Form");
-      // Checklist already complete today
-      // Block Form
-    } else {
-      console.log("Continue Form");
-      localStorage.setItem("altoxvOpen", 0);
-    }
-  }
-}
-getLocalStorage();
+// Function Submit Form
 function altoxvOpenSubmit() {
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvOpen", JSON.stringify(object));
@@ -108,37 +114,42 @@ function ChecklistAbertura() {
   }, []);
 
   return (
-    <div className="checklistContainer">
-      <div className="unitContainer">
-        <div className="unitInfo">
-          <h1>Checklist de Abertura</h1>
+    <>
+      <Helmet>
+        <title>Checklist de Abertura</title>
+      </Helmet>
+      <div className="checklistContainer">
+        <div className="unitContainer">
+          <div className="unitInfo">
+            <h1>Checklist de Abertura</h1>
 
-          <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+          </div>
+          <div className="unitLogo">
+            <img src="/logo.svg" alt="" />
+          </div>
         </div>
-        <div className="unitLogo">
-          <img src="/logo.svg" alt="" />
-        </div>
+        {openC && openC.value === "complete" ? (
+          <span className="timeComplete">{timeComplete}</span>
+        ) : (
+          <>
+            <div className="warningContainer">
+              <p className="warningText">Bater Ponto</p>
+
+              <p className="warningText">
+                <span className="warningIcon">
+                  <Icons.BsExclamationDiamondFill />
+                </span>
+                Avental | Máscara | Faixa de Cabelo / Boné
+              </p>
+            </div>
+            <div className="checklistFormContainer">
+              <ChecklistAberturaForm handleSubmit={onSubmit} />
+            </div>
+          </>
+        )}
       </div>
-      {openC && openC.value === "complete" ? (
-        <span className="timeComplete">{timeComplete}</span>
-      ) : (
-        <>
-          <div className="warningContainer">
-            <p className="warningText">Bater Ponto</p>
-
-            <p className="warningText">
-              <span className="warningIcon">
-                <Icons.BsExclamationDiamondFill />
-              </span>
-              Avental | Máscara | Faixa de Cabelo / Boné
-            </p>
-          </div>
-          <div className="checklistFormContainer">
-            <ChecklistAberturaForm handleSubmit={onSubmit} />
-          </div>
-        </>
-      )}
-    </div>
+    </>
   );
 }
 
