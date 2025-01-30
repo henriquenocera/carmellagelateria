@@ -96,7 +96,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
                 <h3 className="modalTitle">Por favor, digite seu ID</h3>
                 <input
-                  type="text"
+                  type="password"
                   placeholder="Seu ID"
                   className="userInput"
                   pattern="[0-9]*"
