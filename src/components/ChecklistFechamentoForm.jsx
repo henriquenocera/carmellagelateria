@@ -7,26 +7,51 @@ import { ListId } from '../id.ts';
 function ChecklistFechamentoForm({ handleSubmit }) {
   const [freezer, setFreezer] = useState("");
   const [geladeira, setGeladeira] = useState("");
-  const [morango, setMorango] = useState("");
-  const [banana, setBanana] = useState("");
   const [amora, setAmora] = useState("");
   const [maca, setMaca] = useState("");
   const [brownie, setBrownie] = useState("");
   const [panos, setPanos] = useState("");
   const [user, setUser] = useState("");
   const idInputRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
 
   const unidadeText = "Ahu";
 
 
+  function openModal(e) {
+    // Open Modal to ask for ID
+    // const formElement = e.target;
+    //const isValid = formElement.checkValidity();
+    //console.log(formElement)
+    // console.log(isValid)
+    e.preventDefault()
 
-  function handleClick(e) {
-    e.preventDefault();
+
+    const formElement = e.currentTarget.parentNode;
+    const isValid = formElement.checkValidity();
+    console.log(isValid)
+
+    if (isValid) {
+      console.log("Open Modal")
+      setIsModalOpen(true)
+    } else {
+      setIsModalErrorOpen(true)
+    }
+
+
+  }
+
+  function checkId(e) {
+
+
+    console.log("Check ID")
+    e.preventDefault()
     let idInput = idInputRef.current.value;
-
 
     if (idInput == ListId[0].value) {
       setUser(ListId[0].nome)
+
     } else if (idInput == ListId[1].value) {
       setUser(ListId[1].nome)
     } else if (idInput == ListId[2].value) {
@@ -38,12 +63,13 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     } else {
       setUser("")
     }
+
   }
 
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event, freezer, geladeira, morango, banana, amora, maca, brownie, panos)} className="fechamentoAltoxv" id="altoxvClose">
+      <form onSubmit={event => handleSubmit(event, freezer, geladeira, amora, maca, brownie, panos, user)} className="fechamentoAltoxv" id="checklistClose">
         <div className="sectionTitle">
           <p><strong>1ª Pré Fechamento (18:00 ~ 18:59)</strong></p>
         </div>
@@ -148,32 +174,32 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <label className="inventoryLabel" htmlFor="">Massas <b>Frigobar:</b></label>
           <input onChange={(event) =>
             setGeladeira(event.target.value)
-          } className="inventoryInput" required type="number" name="geladeira" min="0" id="90" />
+          } className="inventoryInput" required type="number" name="geladeira" min="0" id="91" />
         </div>
 
         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Amora:</b></label>
           <input onChange={(event) =>
             setAmora(event.target.value)
-          } className="inventoryInput" required type="number" name="amora" min="0" id="90" />
+          } className="inventoryInput" required type="number" name="amora" min="0" id="92" />
         </div>
         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Maça:</b></label>
           <input onChange={(event) =>
             setMaca(event.target.value)
-          } className="inventoryInput" required type="number" name="maca" min="0" id="90" />
+          } className="inventoryInput" required type="number" name="maca" min="0" id="93" />
         </div>
         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Quantidade de <b>Brownies:</b></label>
           <input onChange={(event) =>
             setBrownie(event.target.value)
-          } className="inventoryInput" required type="number" name="maca" min="0" id="90" />
+          } className="inventoryInput" required type="number" name="maca" min="0" id="94" />
         </div>
         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Quantidade de <b>Panos Limpos:</b></label>
           <input onChange={(event) =>
             setPanos(event.target.value)
-          } className="inventoryInput" required type="number" name="panos" min="0" id="90" />
+          } className="inventoryInput" required type="number" name="panos" min="0" id="95" />
         </div>
         <ChecklistItem
           id="12"
@@ -216,35 +242,30 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           title="Limpar Todos os Utensílios do Café"
           subtitle1="Limpar com água e sabão"
           subtitle2=""
-          star
         />
         <ChecklistItem
           id="19"
           title="Limpar Máquina de Café (simples)"
           subtitle1="Passar um pano"
           subtitle2=""
-          star
         />
         <ChecklistItem
           id="20"
           title="Limpar Bancada dos Salgados"
           subtitle1=""
           subtitle2=""
-          star
         />
         <ChecklistItem
           id="211"
           title="Limpar Bancadas da Loja"
           subtitle1=""
           subtitle2=""
-          star
         />
         <ChecklistItem
           id="212"
           title="Limpar Mesas e Cadeiras do Salão dos Clientes"
           subtitle1=""
           subtitle2=""
-          star
         />
         <ChecklistItem
           id="21"
@@ -282,14 +303,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           title="Varrer Chão"
           subtitle1=""
           subtitle2=""
-          star
         />
         <ChecklistItem
           id="27"
           title="Passar Mop no Chão"
           subtitle1=""
           subtitle2=""
-          star
         />
         <ChecklistItem
           id="28"
@@ -309,65 +328,83 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <div>
+        {/* Modal */}
+        {isModalErrorOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content-error">
+              <h3 className="modalTitleError">Por favor, complete todos os itens do checklist antes de Confirmar</h3>
+              <div className="modal-buttons">
+                <button
+                  onClick={() => setIsModalErrorOpen(false)}
+                  className="close-button-error"
+                >
+                  Voltar
+                </button>
+              </div>
+            </div >
 
-          <div>
-            <label className="idLabel" htmlFor="id">
-              ID do Responsável pelo Checklist
-            </label>
-          </div>
+          </div >
+        )
+        }
+        {/* Modal */}
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              {user == "" ? (
+                <>
 
-          <div>
-            <input
-              className="idInput"
-              type="text"
-              pattern="[0-9]*"
-              inputMode="numeric"
-              min="0"
-              max="9999"
-              required
-              ref={idInputRef}
-
-            />
-          </div>
-          <div>
-            {user == "" ? (
-              <></>
-            ) : (
-              <>
-                <div>
+                  <h3 className="modalTitle">Por favor, digite seu ID</h3>
                   <input
-                    name="Nome"
+                    type="password"
+                    placeholder="Seu ID"
                     className="userInput"
-                    type="text"
-                    value={user}
+                    pattern="[0-9]*"
+                    inputMode="numeric"
+                    min="0"
+                    max="9999"
+                    required
+                    ref={idInputRef}
                   />
-                </div>
-                <div>
-                  <input
-                    name="Unidade"
-                    className="userInput"
-                    type="text"
-                    value={unidadeText}
-                  />
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-        <div>
-          <button
-            onClick={handleClick}
-            className="idSubmit idSubmitChecklist"
-            type="submit"
-          >
-            Verificar ID
-          </button>
-        </div>
-
-
-
-        <button className="submit" type="submit">Enviar</button>
+                  <div className="modal-buttons">
+                    <button
+                      onClick={(e) => checkId(e)}
+                      className="confirm-button">Confirmar ID</button>
+                    <button
+                      onClick={() => { setIsModalOpen(false); setUser("") }}
+                      className="close-button"
+                    >
+                      Voltar
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="modalTextContainer">
+                    <p className="modalText">Ao Enviar o Checklist você confirma que realizou todas as tarefas descritas nele</p>
+                  </div>
+                  <h3 className="modalTitle">Responsável pelo Checklist:</h3>
+                  <h2 className="user">{user}</h2>
+                  <div className="modal-buttons">
+                    <button
+                      type="submit"
+                      form="checklistClose"
+                      className="confirm-button">Enviar Checklist</button>
+                    <button
+                      onClick={() => { setIsModalOpen(false); setUser("") }}
+                      className="close-button"
+                    >
+                      Voltar
+                    </button>
+                  </div>
+                </>
+              )
+              }
+            </div >
+          </div >
+        )
+        }
+        <button onClick={openModal} className="submit"
+          type="submit">Confirmar Checklist</button>
       </form >
     </>
   );

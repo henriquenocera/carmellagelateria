@@ -73,7 +73,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
       {isModalErrorOpen && (
         <div className="modal-overlay">
           <div className="modal-content-error">
-            <h3 className="modalTitleError">Por favor, complete todos is itens do checklist antes de Enviar</h3>
+            <h3 className="modalTitleError">Por favor, complete todos os itens do checklist antes de Confirmar</h3>
             <div className="modal-buttons">
               <button
                 onClick={() => setIsModalErrorOpen(false)}
@@ -128,7 +128,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <div className="modal-buttons">
                   <button
                     type="submit"
-                    form="altoxvOpen"
+                    form="checklistOpen"
                     className="confirm-button">Enviar Checklist</button>
                   <button
                     onClick={() => { setIsModalOpen(false); setUser("") }}
@@ -144,7 +144,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         </div >
       )
       }
-      <form onSubmit={event => handleSubmit(event, user)} className="aberturaAltoxv" id="altoxvOpen">
+      <form onSubmit={event => handleSubmit(event, user)} className="aberturaAltoxv" id="checklistOpen">
         <div className="sectionTitle">
           <p><strong>1ª Prioridade</strong></p>
         </div>

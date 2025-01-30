@@ -14,8 +14,6 @@ async function sendOpenMessage(
   openDateFormat,
   freezer,
   geladeira,
-  morango,
-  banana,
   amora,
   maca,
   brownie,
@@ -74,8 +72,6 @@ getLocalStorage();
 function altoxvCloseSubmit(
   freezer,
   geladeira,
-  morango,
-  banana,
   amora,
   maca,
   brownie,
@@ -102,8 +98,6 @@ function altoxvCloseSubmit(
     openDateFormat,
     freezer,
     geladeira,
-    morango,
-    banana,
     amora,
     maca,
     brownie,
@@ -117,8 +111,6 @@ function ChecklistFechamento() {
     event,
     freezer,
     geladeira,
-    morango,
-    banana,
     amora,
     maca,
     brownie,
@@ -130,17 +122,7 @@ function ChecklistFechamento() {
 
     console.log("enviou");
     event.preventDefault();
-    altoxvCloseSubmit(
-      freezer,
-      geladeira,
-      morango,
-      banana,
-      amora,
-      maca,
-      brownie,
-      panos,
-      user
-    );
+    altoxvCloseSubmit(freezer, geladeira, amora, maca, brownie, panos, user);
   };
 
   const [timeComplete, setTimeComplete] = useState("");
