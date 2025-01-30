@@ -33,8 +33,8 @@ function getLocalStorage() {
 getLocalStorage();
 
 // Function Send Telegram Message
-async function sendOpenMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando`;
+async function sendOpenMessage(openDateFormat, user) {
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando %0D%0A ${user}`;
 
   try {
     const response = await fetch(checkOpenComplete, {
@@ -57,7 +57,7 @@ async function sendOpenMessage(openDateFormat) {
 }
 
 // Function Submit Form
-function altoxvOpenSubmit() {
+function altoxvOpenSubmit(user) {
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvOpen", JSON.stringify(object));
 
@@ -74,17 +74,18 @@ function altoxvOpenSubmit() {
     openDateFormat.getMinutes() +
     ":" +
     openDateFormat.getSeconds();
-  sendOpenMessage(openDateFormat);
+  sendOpenMessage(openDateFormat, user);
 }
 
 function ChecklistAbertura() {
-  const onSubmit = (event) => {
+  const onSubmit = (event, user) => {
+    event.preventDefault();
+
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
 
     console.log("enviou");
-    event.preventDefault();
-    altoxvOpenSubmit();
+    altoxvOpenSubmit(user);
   };
   const [timeComplete, setTimeComplete] = useState("");
   let openC = JSON.parse(localStorage.getItem("altoxvOpen"));

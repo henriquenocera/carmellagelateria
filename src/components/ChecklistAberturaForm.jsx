@@ -3,12 +3,12 @@ import React, { useState, useRef } from "react";
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
-import IDModal from "./IDModal.jsx"
 
 
 
 function ChecklistAberturaForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
 
   const [user, setUser] = useState("");
   const idInputRef = useRef(null);
@@ -16,26 +16,53 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const unidadeText = "Ahu";
 
 
-  function handleClick(e) {
-    e.preventDefault();
-    // Open Modal to ask for ID
-    console.log("Open Modal")
-    setIsModalOpen(true)
-    // let idInput = idInputRef.current.value;
 
-    /*     if (idInput == ListId[0].value) {
-          setUser(ListId[0].nome)
-        } else if (idInput == ListId[1].value) {
-          setUser(ListId[1].nome)
-        } else if (idInput == ListId[2].value) {
-          setUser(ListId[2].nome)
-        } else if (idInput == ListId[3].value) {
-          setUser(ListId[3].nome)
-        } else if (idInput == ListId[4].value) {
-          setUser(ListId[4].nome)
-        } else {
-          setUser("")
-        } */
+
+  function openModal(e) {
+    // Open Modal to ask for ID
+    // const formElement = e.target;
+    //const isValid = formElement.checkValidity();
+    //console.log(formElement)
+    // console.log(isValid)
+    e.preventDefault()
+
+
+    const formElement = e.currentTarget.parentNode;
+    const isValid = formElement.checkValidity();
+    console.log(isValid)
+
+    if (isValid) {
+      console.log("Open Modal")
+      setIsModalOpen(true)
+    } else {
+      setIsModalErrorOpen(true)
+    }
+
+
+  }
+
+  function checkId(e) {
+
+
+    console.log("Check ID")
+    e.preventDefault()
+    let idInput = idInputRef.current.value;
+
+    if (idInput == ListId[0].value) {
+      setUser(ListId[0].nome)
+
+    } else if (idInput == ListId[1].value) {
+      setUser(ListId[1].nome)
+    } else if (idInput == ListId[2].value) {
+      setUser(ListId[2].nome)
+    } else if (idInput == ListId[3].value) {
+      setUser(ListId[3].nome)
+    } else if (idInput == ListId[4].value) {
+      setUser(ListId[4].nome)
+    } else {
+      setUser("")
+    }
+
   }
 
 
@@ -43,23 +70,81 @@ function ChecklistAberturaForm({ handleSubmit }) {
     <>
 
       {/* Modal */}
+      {isModalErrorOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content-error">
+            <h3 className="modalTitleError">Por favor, complete todos is itens do checklist antes de Enviar</h3>
+            <div className="modal-buttons">
+              <button
+                onClick={() => setIsModalErrorOpen(false)}
+                className="close-button-error"
+              >
+                Voltar
+              </button>
+            </div>
+          </div >
+
+        </div >
+      )
+      }
+      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h3>Please enter your number</h3>
-            <input
-              type="number"
-              placeholder="Enter number"
-            />
-            <div className="modal-buttons">
-              <button>Confirm</button>
-              <button> Cancel </button>
-            </div>
-          </div>
-        </div>
-      )}
+            {user == "" ? (
+              <>
 
-      <form onSubmit={event => handleSubmit(event)} className="aberturaAltoxv" id="altoxvOpen">
+                <h3 className="modalTitle">Por favor, digite seu ID</h3>
+                <input
+                  type="text"
+                  placeholder="Seu ID"
+                  className="userInput"
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  min="0"
+                  max="9999"
+                  required
+                  ref={idInputRef}
+                />
+                <div className="modal-buttons">
+                  <button
+                    onClick={(e) => checkId(e)}
+                    className="confirm-button">Confirmar ID</button>
+                  <button
+                    onClick={() => { setIsModalOpen(false); setUser("") }}
+                    className="close-button"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="modalTextContainer">
+                  <p className="modalText">Ao Enviar o Checklist você confirma que realizou todas as tarefas descritas nele</p>
+                </div>
+                <h3 className="modalTitle">Responsável pelo Checklist:</h3>
+                <h2 className="user">{user}</h2>
+                <div className="modal-buttons">
+                  <button
+                    type="submit"
+                    form="altoxvOpen"
+                    className="confirm-button">Enviar Checklist</button>
+                  <button
+                    onClick={() => { setIsModalOpen(false); setUser("") }}
+                    className="close-button"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </>
+            )
+            }
+          </div >
+        </div >
+      )
+      }
+      <form onSubmit={event => handleSubmit(event, user)} className="aberturaAltoxv" id="altoxvOpen">
         <div className="sectionTitle">
           <p><strong>1ª Prioridade</strong></p>
         </div>
@@ -75,7 +160,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <ChecklistItem
+        {/*  <ChecklistItem
           id="3"
           title="Ligar Máquina de Waffle"
           subtitle1=""
@@ -111,12 +196,6 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Abrir o caixa com o valor real do malote"
           subtitle2="Usuário: 6 | Senha: 2849"
         />
-        {/*         <ChecklistItem
-          id="9"
-          title="Abrir Caixa"
-          subtitle1="Abrir o caixa com o valor real do malote"
-          subtitle2=""
-        /> */}
         <ChecklistItem
           id="10"
           title="Conferir Máquina de Cartão POS e TEF"
@@ -271,7 +350,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           title="Prever Cubas para Troca"
           subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
           subtitle2=""
-        />
+        /> */}
         {/*         <section>
           <div>
 
@@ -330,7 +409,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
           </div>
         </section> */}
 
-        <button onClick={handleClick} className="submit" type="submit">Enviar</button>
+        <button onClick={openModal} className="submit"
+          type="submit">Confirmar Checklist</button>
       </form>
     </>
   );

@@ -162,6 +162,7 @@
   font-size: 2rem;
   background: #a17550;
   color: #fff;
+  margin-bottom: 4rem;
 }
 .inventoryFlexbox {
   display: flex;
@@ -185,4 +186,76 @@
 }
 .idSubmitChecklist {
   margin-bottom: 40px;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  min-width: 300px;
+}
+
+.modal-buttons {
+  margin-top: 3rem;
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+.confirm-button,
+.close-button {
+  background-color: #a17550;
+  padding: 8px;
+  color: white;
+}
+.modalTitle {
+  border: none;
+  margin-bottom: 0px;
+  text-align: center;
+}
+.modalTextContainer {
+  max-width: 320px;
+  border: 1px dashed #a17550;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.modalText {
+  font-size: 1.6rem;
+  text-align: center;
+}
+.user {
+  font-size: 2rem;
+  text-align: center;
+  padding: 4px 8px;
+  margin-top: 0px;
+  background: #f9f2e4;
+  color: #a17550;
+  border: 1px solid #a17550;
+}
+.modal-content-error {
+  background: #ff0f0f;
+  padding: 2rem;
+  border-radius: 8px;
+  min-width: 300px;
+}
+.modalTitleError {
+  border: none;
+  margin-bottom: 10px;
+  color: white;
+}
+.close-button-error {
+  background-color: white;
+  padding: 8px;
+  color: black;
 }
