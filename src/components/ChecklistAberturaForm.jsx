@@ -160,7 +160,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        {/*  <ChecklistItem
+        <ChecklistItem
           id="3"
           title="Ligar Máquina de Waffle"
           subtitle1=""
@@ -350,7 +350,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           title="Prever Cubas para Troca"
           subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
           subtitle2=""
-        /> */}
+        />
         {/*         <section>
           <div>
 
