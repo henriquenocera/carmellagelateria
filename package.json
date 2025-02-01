@@ -5,13 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build && node rename.js",
+    "build": "rm -rf dist && astro build",
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.23.2"
+    "astro": "^0.22.7"
   },
-  "dependencies": {
-    "sass": "^1.49.9"
-  }
+  "dependencies": {}
 }

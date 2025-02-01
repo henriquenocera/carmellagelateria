@@ -1,0 +1,202 @@
+---
+import BaseHead from '../layout/BaseHead.astro'
+import BaseBody from '../layout/BaseBody.astro'
+
+import '../styles/pages/test.scss' // Page Style
+
+const title = "Carmella Gelateria Artigianale"
+const description = `Lorem ipsum dolor sit amet consectetur, adipisicing elit. A incidunt reiciendis vitae nam quis.
+facilis velit fugiat ipsa nemo recusandae, ducimus, repellendus amet laboriosam reprehenderit. Omnis, ab.`
+const url = "https://www.carmellagelateria.com.br/"
+---
+
+
+<html lang="pt-BR">
+<BaseHead title={title} description={description} url={url} />
+<BaseBody>
+
+	<section class="hero">
+		<div class="container">
+			<h1 class="title-1">O Melhor Gelato </br>da Cidade.</h1>
+			<h3>Produtos 100% naturais para garantir a melhor qualidade possível</h3>
+			<a class="button" href="">Saiba Mais</a>
+		</div>
+	</section>
+
+	<section class="cards">
+		<div class="container">
+			<img class="card-1" src="/assets/home-card-1.jpg" alt="">
+			<img class="card-2" src="/assets/home-card-2.jpg" alt="">
+			<img class="card-3" src="/assets/home-card-3.jpg" alt="">
+			<img class="card-4" src="/assets/home-card-4.jpg" alt="">
+		</div>
+	</section>
+
+	<section class="qualidade">
+		<div class="container">
+			<div class="left">
+				<img src="/assets/sorvete-coberto-em-calda.png" alt="">
+			</div>
+			<div class="right">
+				<span>Qualidade Indiscutível</span>
+				<h2 class="title-2">Gelato de Verdade</h2>
+				<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum
+					sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Lorem ipsum dolor sit amet,
+					consectetuer dipiscing</p>
+				<div class="topicos">
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+					<div class="topico">
+						<img src="/assets/ok.svg" alt="">
+						<span>Matéria Prima de Qualidade</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="produtos">
+		<div class="container">
+			<div class="left">
+				<div class="innerTop">
+					<div>
+						<span>Nossos Produtos</span>
+						<h2>Produção Artesanal</h2>
+						<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa.
+							Cum
+							sociis
+							natoque penatibus et magnis</p>
+					</div>
+					<div>
+						<a class="button" href="#">Seja um Licenciado</a>
+					</div>
+				</div>
+				<div class="innerBottom">
+					<span class="dog overlay">
+						<img class="img" src="/assets/sorvete-dog.jpg" alt="">
+						<h4 class="img-title">Sorvetes para Dogs</h4>
+						<p class="img-text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula</p>
+					</span>
+				</div>
+			</div>
+
+			<div class="right">
+				<div class="innerTop">
+					<span class="frutas overlay">
+						<img class="img" src="/assets/gelato-frutas.jpg" alt="">
+						<h4 class="img-title">Gelatos de Frutas</h4>
+						<p class="img-text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula</p>
+					</span>
+					<span class="especiais overlay">
+						<img class="img" src="/assets/gelatos-especiais.jpg" alt="">
+						<h4 class="img-title">Gelatos Especiais</h4>
+						<p class="img-text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula</p>
+					</span>
+				</div>
+				<div class="innerBottom">
+					<span class="experiencia overlay">
+						<img class="img" src="/assets/experiencia-unica.jpg" alt="">
+						<h4 class="img-title">Experiência Única</h4>
+						<p class="img-text">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula</p>
+					</span>
+				</div>
+			</div>
+
+	</section>
+
+	<section class="comentarios">
+		<div class="intro">
+			<span>Comentários</span>
+			<h2>O Que Falam Sobre Nós</h2>
+		</div>
+		<div class="container">
+
+			<div class="glide">
+				<div data-glide-el="track" class="glide__track">
+					<ul class="glide__slides">
+						<li class="glide__slide box">
+							<p class="text">Melhores Gelatos da cidade sem nenhuma dúvida.</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+						<li class="glide__slide box">
+							<p class="text">Vou toda a semana coma a minha família, eles possuem uma variedade de sabores incríveis.
+								Toda a família ama!</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+						<li class="glide__slide box">
+							<p class="text">Simplesmente sencacional, qualidade sem igual, a Carmella Gelateria já virou a nossa
+								preferida.</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+
+						<li class="glide__slide box">
+							<p class="text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus, suscipit!</p>
+							<div>
+								<span class="autor">John Doe</span>
+								<img src="/assets/quotes.svg" alt="">
+							</div>
+						</li>
+
+					</ul>
+				</div>
+
+			</div>
+		</div>
+
+	</section>
+
+
+	<script src="/node_modules/@glidejs/glide/dist/glide.min.js"></script>
+
+	<script>
+
+		new Glide('.glide', {
+			type: 'carousel',
+			startAt: 0,
+			perView: 3,
+			autoplay: 4000,
+			hoverpause: true,
+			animationDuration: 750,
+			gap: 30,
+			breakpoints: {
+				1092: {
+					perView: 2,
+				},
+				676: {
+					perView: 1,
+				}
+			}
+
+
+		}).mount()
+	</script>
+</BaseBody>
+
+</html>

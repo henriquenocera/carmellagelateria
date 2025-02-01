@@ -4,34 +4,206 @@ import BaseBody from '../layout/BaseBody.astro'
 
 import '../styles/pages/index.scss' // Page Style
 
-const title = "Carmella Gelateria"
-const description = "Melhor gelateria de Curitiba. Venha experimentar!"
+
+
+const title = "Carmella Gelateria Artigianale"
+const description = `O melhor Gelato da cidade !`
 const url = "https://www.carmellagelateria.com.br/"
 ---
+
 
 <html lang="pt-BR">
 <BaseHead title={title} description={description} url={url} />
 <BaseBody>
+
   <section class="hero">
     <div class="container">
-      <img class="logo" src="/images/logo-carmella.svg" alt="Logo Carmella">
-      <h1>Site em Desenvolvimento</h1>
-      <p class="novidades">Em breve novidades</p>
 
-      <img class="construction" src="/images/construction.png" alt="">
-
-      <p class="addres">Rua Colombo 183, Ahú - Curitiba/PR</p>
-      <span class="time">Seg à Dom - 12:00 às 19:00</span>
-
-      <div class="flex">
-        <a href="https://www.instagram.com/carmellagelateria/"><img class="instagram" src="/images/instagram.svg"
-            alt=""></a>
-        <a href="https://www.facebook.com/carmellagelateria"><img src="/images/facebook-svg.svg" alt=""></a>
+      <div class="left">
+        <span class="upperTitle">Qualidade Indiscutível</span>
+        <h1 class="title-1">O Melhor Gelato da Cidade.</h1>
+        <p class="text">Venha desfrutar de um autêntico Gelato Italiano.</p>
+        <a class="button" href="https://sabores.carmellagelateria.com.br/">Sabores do Dia</a>
+        <span class="bigText">Carmella</span>
 
       </div>
+
+      <div class="right">
+        <div class="imgContainer">
+          <span class="top"></span>
+          <span class="right-p"></span>
+          <img src="/assets/Hero.jpg" alt="">
+          <span class="left-p"></span>
+          <span class="bottom"></span>
+        </div>
+      </div>
+
     </div>
   </section>
 
+  <section class="artesanal">
+    <span class="bigText">Artesanal</span>
+    <div class="container">
+
+      <div class="left">
+        <img class='img1' src="/assets/artesanal-1.jpg" alt="">
+        <img class="img2" src="/assets/artesanal-2.jpg" alt="">
+      </div>
+
+      <div class="right">
+        <span class="upperTitle">Nossos Produtos</span>
+        <h2 class="title-2">Produção Artesanal</h2>
+        <p class="text">
+          Com uma máquina <strong>Italiana</strong> original, nós realizamos a produção do Gelato de forma 100%
+          artesanal. Nos preocupamos muito com a qualidade do nosso Gelato por isso não colocamos nenhum tipo de corante
+          ou conservante nos nossos Gelatos.
+        </p>
+        <a href="https://wa.me/+554188259047" class="button">Fale Conosco</a>
+
+      </div>
+
+    </div>
+  </section>
+
+  <section class="quality">
+    <span class="bigText">Qualidade</span>
+    <div class="container">
+
+      <div class="grid-1">
+        <span id="qualidade" class="upperTitle">Qualidade Indiscutível</span>
+        <h2 class="title-2">Gelato de Verdade</h2>
+        <img class="img" src="/assets/qualidade-1.jpg" alt="">
+      </div>
+
+      <div class="grid-2">
+        <img class="playButton" src="/assets/Gelato.svg" alt="">
+        <img class="video" src="/assets/qualidade.jpg" alt="">
+      </div>
+
+      <div class="grid-3">
+        <p class="text">Tudo começa na escolha da matéria prima.</p>
+        <p class="text">Com uma máteria prima de qualidade, escolhida a dedo nós conseguimos garantir uma qualidade
+          indiscutível nos nossos Gelatos.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="gelato">
+    <span class="bigText">Gelato</span>
+    <div class="container">
+      <div class="left">
+        <div class="box">
+          <img src="/assets/Vegano.svg" alt="">
+          <h3>Opções Veganas</h3>
+        </div>
+        <div class="box">
+          <img src="/assets/Dog.svg" alt="">
+          <h3>Para Pet</h3>
+        </div>
+        <div class="box">
+          <img src="/assets/Gelato.svg" alt="">
+          <h3>Produção Artesanal</h3>
+        </div>
+      </div>
+
+      <div class="right">
+        <span class="upperTitle">Venha Experimentar</span>
+        <h2 class="title-2">Conheça Nossa Gelateria</h2>
+
+        <h3 class="title-3">Gelatos Veganos</h3>
+        <p class="text mg">Nossos gelatos de frutas são opções 100% veganas, que não acompanham leite nem lactose. A
+          opção ideal para você que mantém uma vida saudável</p>
+
+        <h3 class="title-3">Para o seu Pet</h3>
+        <p class="text md">Sim, temos Gelato para cachorro. Um produto desenvolvido especialmente para o seu pet, um
+          gelato sem adição de leite nem açucar, totalmente a base da água e frutas.</p>
+
+        <a href="https://wa.me/+554188259047" class="button">Entre em Contato</a>
+      </div>
+    </div>
+  </section>
+  <!-- 
+  <section class="reviews">
+    <div class="container">
+      <div class="intro">
+        <span class="upperTitle">O que dizem sobre nós</span>
+        <h2 class="title-2">Nossos Clientes</h2>
+        <span class="bigText">Avaliações</span>
+      </div>
+
+
+      <div class="glide">
+        <div data-glide-el="track" class="glide__track">
+          <ul class="glide__slides">
+
+            <li class="glide__slide">
+              <div class="slide">
+                <img src="/assets/quotes.svg" alt="" class="quotes">
+                <div class="header">
+                  <img src="/assets/user-avatar.jpg" alt="" class="userAvatar">
+                  <span class="userName">John Doe</span>
+                </div>
+                <p class="text userReview">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo
+                  ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis</p>
+              </div>
+            </li>
+
+
+            <li class="glide__slide">
+              <div class="slide">
+                <img src="/assets/quotes.svg" alt="" class="quotes">
+                <div class="header">
+                  <img src="/assets/user-avatar.jpg" alt="" class="userAvatar">
+                  <span class="userName">John Doe</span>
+                </div>
+                <p class="text userReview">Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo
+                  ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis</p>
+              </div>
+            </li>
+
+
+
+          </ul>
+        </div>
+        <div class="glide__arrows" data-glide-el="controls">
+          <button class="glide__arrow glide__arrow--left" data-glide-dir="<"><img src="/assets/arrow.svg"
+              alt=""></button>
+          <button class="glide__arrow glide__arrow--right" data-glide-dir=">"><img src="/assets/arrow.svg"
+              alt=""></button>
+        </div>
+      </div>
+    </div>
+  </section> -->
+
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/@glidejs/glide"></script>
+
+
+  <script>
+
+    new Glide('.glide', {
+      type: 'carousel',
+      startAt: 0,
+      perView: 2,
+      autoplay: false,
+      hoverpause: true,
+      animationDuration: 750,
+      gap: 30,
+      breakpoints: {
+        1092: {
+          perView: 2,
+        },
+        867: {
+          perView: 1,
+        }
+      }
+
+
+    }).mount()
+  </script>
 
 </BaseBody>
 
