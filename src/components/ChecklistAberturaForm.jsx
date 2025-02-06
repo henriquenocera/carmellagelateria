@@ -144,7 +144,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         </div >
       )
       }
-      <form onSubmit={event => handleSubmit(event, user)} className="aberturaAltoxv" id="checklistOpen">
+      <form action="https://script.google.com/macros/s/AKfycbwhOUYDudL2B7Damz10m485blQxTRIldG5z_Y734oySrPeZPa5oJQVNR3yO6t1828Hm-w/exec" method="POST" onSubmit={event => handleSubmit(event, user)} className="aberturaAltoxv" id="checklistOpen">
         <div className="sectionTitle">
           <p><strong>1ª Prioridade</strong></p>
         </div>
@@ -160,7 +160,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <ChecklistItem
+        {/*  <ChecklistItem
           id="3"
           title="Ligar Máquina de Waffle"
           subtitle1=""
@@ -350,7 +350,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           title="Prever Cubas para Troca"
           subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
           subtitle2=""
-        />
+        /> */}
         {/*         <section>
           <div>
 
