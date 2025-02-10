@@ -63,7 +63,7 @@ function Inventario() {
       </Helmet>
       <div className="InvContainer">
         <img className="logo" src="/logo.svg" alt="" />
-        <h1>Inventário</h1>
+        <h1>Treinamento</h1>
         <h2>Para realizar o inventário da loja clique no link abaixo</h2>
         <a
           className="link"
