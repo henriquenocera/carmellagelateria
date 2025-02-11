@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
+import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
@@ -69,6 +70,25 @@ function getLocalStorage() {
   }
 }
 getLocalStorage();
+
+async function sendSupabase(user) {
+  console.log("supabase");
+  const newdata = {
+    checklist: "Checklist de Fechamento",
+    person: user,
+  };
+  const { data, error } = await supabase
+    .from("Checklist")
+    .insert([newdata])
+    .single();
+
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("tudo ok", data);
+  }
+}
+
 function altoxvCloseSubmit(
   freezer,
   geladeira,
@@ -121,6 +141,8 @@ function ChecklistFechamento() {
     setTimeComplete("Enviando...");
 
     console.log("enviou");
+    // supabase
+    sendSupabase(user);
     event.preventDefault();
     altoxvCloseSubmit(freezer, geladeira, amora, maca, brownie, panos, user);
   };

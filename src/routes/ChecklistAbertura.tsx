@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import ChecklistAberturaForm from "../components/ChecklistAberturaForm";
 import "../css/Checklist.css";
+import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
@@ -31,6 +32,24 @@ function getLocalStorage() {
   }
 }
 getLocalStorage();
+
+async function sendSupabase(user) {
+  console.log("supabase");
+  const newdata = {
+    checklist: "Checklist de Abertura",
+    person: user,
+  };
+  const { data, error } = await supabase
+    .from("Checklist")
+    .insert([newdata])
+    .single();
+
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("tudo ok", data);
+  }
+}
 
 // Function Send Telegram Message
 async function sendOpenMessage(openDateFormat, user) {
@@ -85,6 +104,8 @@ function ChecklistAbertura() {
     setTimeComplete("Enviando...");
 
     console.log("enviou");
+    // supabase
+    sendSupabase(user);
     altoxvOpenSubmit(user);
   };
   const [timeComplete, setTimeComplete] = useState("");
