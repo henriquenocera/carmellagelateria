@@ -14,6 +14,7 @@ import NavBar from "./components/Navbar";
 import Vales from "./routes/Vales.tsx";
 
 import Inventario from "./routes/Inventario.tsx";
+import ChecklistConferencia from "./routes/ChecklistConferencia.tsx";
 
 const AppLayout = () => (
   <>
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
       <Route path="/inventario" element={<Inventario />} />
       <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
       <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
+      <Route path="/checklist-conferencia" element={<ChecklistConferencia />} />
     </Route>
   )
 );

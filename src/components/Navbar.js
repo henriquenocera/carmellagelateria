@@ -59,6 +59,14 @@ function NavBar() {
               <span className="text">Checklist Fechamento</span>
             </NavLink>
           </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/checklist-conferencia">
+              <span className="icon">
+                <Icons.BsCheck />
+              </span>
+              <span className="text">Checklist De Conferência</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
     </>

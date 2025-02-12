@@ -5,6 +5,30 @@
   align-items: center;
   height: 100vh;
 }
+
+.abertura,
+.fechamento {
+  padding: 4px;
+  border-radius: 8px;
+}
+.table-row {
+  display: flex;
+  justify-content: space-around;
+}
+.table-data {
+  background-color: #bababa;
+  padding: 8px;
+  border-radius: 8px;
+  max-width: 220px;
+}
+.abertura {
+  background-color: rgb(7, 181, 7);
+  color: white;
+}
+.fechamento {
+  background-color: #d4362b;
+  color: white;
+}
 .mainChecklistContainer {
   width: 700px;
   height: 200px;
@@ -73,10 +97,7 @@ h6 {
 .table-row {
   display: flex;
   width: 100%;
-  padding: 18px 0;
-}
-.table-row:nth-of-type(odd) {
-  background: #eeeeee;
+  padding: 9px 0;
 }
 
 .table-data,
