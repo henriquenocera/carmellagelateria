@@ -6,7 +6,7 @@ import moment from "moment";
 import { ListId } from "../id.ts";
 
 function Voucher() {
-  const store = "Ahu";
+  const store = "Alto da XV";
   const dateNow = new Date();
   const [vouchers, setVouchers] = useState([]);
   const [rowId, setRowId] = useState("");
