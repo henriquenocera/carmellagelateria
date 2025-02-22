@@ -20,6 +20,16 @@
   padding: 8px;
   border-radius: 8px;
   max-width: 220px;
+  min-width: 180px;
+}
+.table-data-button {
+  background-color: #633713;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  max-width: 220px;
+  min-width: 180px;
+  cursor: pointer;
 }
 .abertura {
   background-color: rgb(7, 181, 7);
