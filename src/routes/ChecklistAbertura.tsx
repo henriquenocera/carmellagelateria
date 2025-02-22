@@ -38,6 +38,7 @@ async function sendSupabase(user) {
   const newdata = {
     checklist: "Checklist de Abertura",
     person: user,
+    store: unidade,
   };
   const { data, error } = await supabase
     .from("Checklist")
