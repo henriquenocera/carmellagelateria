@@ -6,8 +6,8 @@ import "../css/Inventario.css";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = "Alto da XV";
+const unidade = "altoxv";
 
 async function sendMessage(openDateFormat) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Inventário - Loja ${unidadeText} %0D%0A ${openDateFormat}`;
@@ -67,7 +67,7 @@ function Inventario() {
         <h2>Para realizar o inventário da loja clique no link abaixo</h2>
         <a
           className="link"
-          href="https://docs.google.com/spreadsheets/d/1YnkhzQS6Wn2nZw3HcoxstELKIWTN033Ie_HgYF9bVKw/edit?gid=0#gid=0"
+          href="https://docs.google.com/spreadsheets/d/1rCEtqbEBDnUJgjlAtehhS7rCLigHMx1HsaCD3yRKK5U/edit?gid=0#gid=0"
           target="_blank"
           rel="noreferrer"
         >

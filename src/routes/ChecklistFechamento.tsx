@@ -8,8 +8,8 @@ import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = "Alto da XV";
+const unidade = "altoxv";
 
 async function sendOpenMessage(
   openDateFormat,
@@ -185,7 +185,7 @@ function ChecklistFechamento() {
           <div className="unitInfo">
             <h1>Checklist de Fechamento</h1>
 
-            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+            <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
           </div>
           <div className="unitLogo">
             <img src="/logo.svg" alt="" />

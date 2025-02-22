@@ -13,7 +13,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const [user, setUser] = useState("");
   const idInputRef = useRef(null);
 
-  const unidadeText = "Ahu";
+  const unidadeText = "Alto da XV";
 
 
 
@@ -150,206 +150,369 @@ function ChecklistAberturaForm({ handleSubmit }) {
         </div>
 
         <ChecklistItem
+
           id="1"
+
           title="Limpar Vitrine"
+
           subtitle1="Interior e exterior com pano úmido e vidros com álcool líquido"
-        />
-        <ChecklistItem
-          id="2"
-          title="Ligar Vitrine"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="3"
-          title="Ligar Máquina de Waffle"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="4"
-          title="Ligar Máquina de Café"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="5"
-          title="Ligar Moedor de Café"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="6"
-          title="Acender Todas as Luzes"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="7"
-          title="Realizar a Contagem de Notas do Malote"
-          subtitle1="Enviar no grupo do whats a contagem de notas e moedas"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="8"
-          title="Abrir Caixa"
-          subtitle1="Abrir o caixa com o valor real do malote"
-          subtitle2="Usuário: 6 | Senha: 2849"
-        />
-        <ChecklistItem
-          id="10"
-          title="Conferir Máquina de Cartão POS e TEF"
-          subtitle1="Conferir se estão funcionando"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="11"
-          title="Conferir Tablet"
-          subtitle1="Conferir se está com bateria"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="12"
-          title="Abrir Loja do Ifood"
-          subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
-          subtitle2=""
-        />
-        <img className="imgIfood" width="700px" src="/ifood.png" alt="" />
-        <ChecklistItem
-          id="13"
-          title="Conferir Toppings do Ifood"
-          subtitle1="Se algum topping tiver em falta, desligar do ifood"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="14"
-          title="Trocar Papel Toalha dos Morangos"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="15"
-          title="Atualizar Relatório dos Salgados"
-          subtitle1=""
-          subtitle2=""
-        />
-        <div className="sectionTitle">
-          <p><strong>2ª Outras Tarefas</strong></p>
-        </div>
-        <ChecklistItem
-          id="16"
-          title="Varrer Chão"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="17"
-          title="Passar Mop no Chão"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="18"
-          title="Limpar Banheiro"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="19"
-          title="Colocar os Sacos de Lixo Internos"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="20"
-          title="Limpar Bancadas"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="21"
-          title="Limpar Mesas e Cadeiras do Salão"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="22"
-          title="Repor Insumos"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="23"
-          title="Abastecer Vitrine (-4ºC)"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="231"
-          title="Colocar Bolo na Bancada"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="24"
-          title="Abrir Portas de Enrolar"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="241"
-          title="Abrir Janela do Salão dos Clientes"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="242"
-          title="Colocar Sacos de Lixo Externos"
-          subtitle1=""
-          subtitle2=""
+
         />
 
         <ChecklistItem
-          id="27"
-          title="Limpar Pátio"
-          subtitle1="Recolher lixo e passar uma vassoura"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="243"
-          title="Colocar Saco Pet e Bebedouro do Cachorro"
+
+          id="2"
+
+          title="Ligar Vitrine"
+
           subtitle1=""
+
           subtitle2=""
+
         />
+
         <ChecklistItem
-          id="244"
-          title="Colocar Mesas Externas"
+
+          id="3"
+
+          title="Ligar Máquina de Waffle"
+
           subtitle1=""
+
           subtitle2=""
+
         />
+
         <ChecklistItem
+
+          id="4"
+
+          title="Ligar Máquina de Café"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="5"
+
+          title="Ligar Moedor de Café"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="6"
+
+          title="Acender Todas as Luzes"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="7"
+
+          title="Realizar a Contagem de Notas do Malote"
+
+          subtitle1="Enviar no grupo do whats a contagem de notas e moedas"
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="8"
+
+          title="Abrir Caixa"
+
+          subtitle1="Abrir o caixa com o valor real do malote"
+
+          subtitle2="Usuário: 6 | Senha: 2849"
+
+        />
+
+        {/*         <ChecklistItem
+
+          id="9"
+
+          title="Abrir Caixa"
+
+          subtitle1="Abrir o caixa com o valor real do malote"
+
+          subtitle2=""
+
+        /> */}
+
+        <ChecklistItem
+
+          id="10"
+
+          title="Conferir Máquina de Cartão POS e TEF"
+
+          subtitle1="Conferir se estão funcionando"
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="11"
+
+          title="Conferir Tablet"
+
+          subtitle1="Conferir se está com bateria"
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="12"
+
+          title="Abrir Loja do Ifood"
+
+          subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
+
+          subtitle2=""
+
+        />
+
+        <img className="imgIfood" width="700px" src="/ifood.png" alt="" />
+
+        <ChecklistItem
+
+          id="13"
+
+          title="Conferir Toppings do Ifood"
+
+          subtitle1="Se algum topping tiver em falta, desligar do ifood"
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="14"
+
+          title="Trocar Papel Toalha dos Morangos"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="15"
+
+          title="Atualizar Relatório dos Salgados"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <div className="sectionTitle">
+
+          <p><strong>2ª Outras Tarefas</strong></p>
+
+        </div>
+
+        <ChecklistItem
+
+          id="16"
+
+          title="Varrer Chão"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="17"
+
+          title="Passar Mop no Chão"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="18"
+
+          title="Limpar Banheiro"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="19"
+
+          title="Colocar Todos os Sacos de Lixos"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="20"
+
+          title="Limpar Bancadas"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="21"
+
+          title="Limpar Mesas e Cadeiras do Salão"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="22"
+
+          title="Repor Insumos"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="23"
+
+          title="Abastecer Vitrine (-4ºC)"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="24"
+
+          title="Abrir Portas de Enrolar"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
+          id="25"
+
+          title="Abrir Porta do Salão dos Clientes"
+
+          subtitle1=""
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
           id="26"
+
           title="Trancar Porta de Entrada dos Funcionários"
-          subtitle1="Porta de metal do corredor"
+
+          subtitle1=""
+
           subtitle2=""
+
         />
+
         <ChecklistItem
+
+          id="27"
+
+          title="Limpar Pátio"
+
+          subtitle1="Recolher lixo e passar uma vassoura"
+
+          subtitle2=""
+
+        />
+
+        <ChecklistItem
+
           id="28"
+
           title="Conferir Temperatura da Máquina de Waffle"
+
           subtitle1="Temperatura deve estar próximo de 200ºC"
+
           subtitle2=""
+
         />
+
         <ChecklistItem
+
           id="29"
+
           title="Conferir Quebras"
+
           subtitle1="Se tiver alguma quebra que pode entrar hoje, já deixe separado"
+
           subtitle2=""
+
         />
+
         <ChecklistItem
+
           id="30"
+
           title="Prever Cubas para Troca"
+
           subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
+
           subtitle2=""
+
         />
         {/*         <section>
           <div>

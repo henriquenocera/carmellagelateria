@@ -9,8 +9,8 @@ import { ListId } from "../id.ts";
 const telegramBotId = "5902485837:AAFN9PL6ES3Otgwvzg6qqhvqCgw5WvL7DsY";
 const telegramChatId = "-946708416";
 
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = "Alto da XV";
+const unidade = "altoxv";
 
 function Vales() {
   const [user, setUser] = useState("");
