@@ -15,7 +15,7 @@ function Home() {
     const { data, error } = await supabase
       .from("Checklist")
       .select("*")
-      .eq("store", "ahu")
+      .eq("store", "batel")
       .limit(6)
       .order("id", { ascending: false });
 
