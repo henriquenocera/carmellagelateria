@@ -1,4 +1,3 @@
-
 import React from "react";
 
 function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star }) {
@@ -6,7 +5,13 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
   return (
 
     <div className="checkbox-wrapper">
-      <input required className="inp-cbx" id={id} type="checkbox" name={id} />
+      <input
+        required
+        className="inp-cbx"
+        id={id}
+        type="checkbox"
+        name={id}
+      />
       <label className="cbx" htmlFor={id}>
         <span>
           <svg width="12px" height="9px" viewBox="0 0 12 9">
@@ -15,6 +20,7 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
         </span>
         <span className="label ">{title}</span>
         {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
+
       </label>
       <span className="subtitle">{subtitle1}</span>
       <span className="subtitle">{subtitle2}</span>
@@ -26,4 +32,5 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
 
 }
 
-export default ChecklistItem
+export default ChecklistItem;
+

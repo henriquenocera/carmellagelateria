@@ -1,13 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet";
+
 import Select from "react-select";
 import "../css/Valegelato.css";
 import { Options } from "../Options.ts";
+import { ListId } from "../id.ts";
 
 const telegramBotId = "5902485837:AAFN9PL6ES3Otgwvzg6qqhvqCgw5WvL7DsY";
 const telegramChatId = "-946708416";
 
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = "Ahu";
+const unidade = "ahu";
 
 function Vales() {
   const [user, setUser] = useState("");
@@ -47,22 +50,16 @@ function Vales() {
     e.preventDefault();
     let idInput = idInputRef.current.value;
 
-    if (idInput == 270312) {
-      setUser("Henrique");
-    } else if (idInput == 1727) {
-      setUser("Marina");
-    } else if (idInput == 6532) {
-      setUser("Nicolas");
-    } else if (idInput == 1111) {
-      setUser("NULL_");
-    } else if (idInput == 1476) {
-      setUser("Eduarda L.");
-    } else if (idInput == 2467) {
-      setUser("Sthefani");
-    } else if (idInput == 9485) {
-      setUser("Anna");
-    } else if (idInput == 1525) {
-      setUser("Daniela");
+    if (idInput == ListId[0].value) {
+      setUser(ListId[0].nome);
+    } else if (idInput == ListId[1].value) {
+      setUser(ListId[1].nome);
+    } else if (idInput == ListId[2].value) {
+      setUser(ListId[2].nome);
+    } else if (idInput == ListId[3].value) {
+      setUser(ListId[3].nome);
+    } else if (idInput == ListId[4].value) {
+      setUser(ListId[4].nome);
     } else {
       setUser("");
     }
@@ -96,16 +93,24 @@ function Vales() {
     }).then(() => {
       console.log("sucesso");
       setIsFormSending(false);
-      window.alert(`Lançamento Realizado com Sucesso! ${user}`);
+      window.alert("Lançamento Realizado com Sucesso!");
       setUser("");
+
+      // window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
     });
   }
   return (
     <>
+      <Helmet>
+        <title>Vales</title>
+      </Helmet>
+
       {isFormSending ? (
-        <div className="valegelatoContainer">
-          <h1>Enviando....</h1>
-        </div>
+        <>
+          <div className="valegelatoContainer">
+            <h1>Enviando...</h1>
+          </div>
+        </>
       ) : (
         <>
           <div className="valegelatoContainer">
@@ -173,7 +178,8 @@ function Vales() {
                     isLoading={isLoading}
                     isClearable={isClearable}
                     isRtl={isRtl}
-                    isSearchable={isSearchable}
+                    autoFocus={true}
+                    isSearchable={false}
                     name="Item"
                     options={Options}
                     onChange={(e) => handleSelect(e)}

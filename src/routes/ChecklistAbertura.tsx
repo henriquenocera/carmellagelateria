@@ -1,35 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import ChecklistAberturaForm from "../components/ChecklistAberturaForm";
 import "../css/Checklist.css";
+import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = "Ahu";
+const unidade = "ahu";
 
-async function sendOpenMessage(openDateFormat) {
-  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando`;
-
-  try {
-    const response = await fetch(checkOpenComplete, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({}),
-    });
-    const data = await response.json();
-    console.log(JSON.stringify(data));
-    window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
-  } catch (error) {
-    console.error(error);
-    window.alert(
-      "Erro na confirmação do Checklist, por gentileza tente novamente"
-    );
-  }
-}
+// Function Get Local Storage
 function getLocalStorage() {
   let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
   let today = new Date();
@@ -51,7 +32,51 @@ function getLocalStorage() {
   }
 }
 getLocalStorage();
-function altoxvOpenSubmit() {
+
+async function sendSupabase(user) {
+  console.log("supabase");
+  const newdata = {
+    checklist: "Checklist de Abertura",
+    person: user,
+  };
+  const { data, error } = await supabase
+    .from("Checklist")
+    .insert([newdata])
+    .single();
+
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("tudo ok", data);
+  }
+}
+
+// Function Send Telegram Message
+async function sendOpenMessage(openDateFormat, user) {
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A Loja Aberta e Tudo Funcionando %0D%0A ${user}`;
+
+  try {
+    const response = await fetch(checkOpenComplete, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
+    const data = await response.json();
+    console.log(JSON.stringify(data));
+    window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
+  } catch (error) {
+    console.error(error);
+    window.alert(
+      "Erro na confirmação do Checklist, por gentileza tente novamente"
+    );
+  }
+}
+
+// Function Submit Form
+function altoxvOpenSubmit(user) {
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvOpen", JSON.stringify(object));
 
@@ -68,17 +93,20 @@ function altoxvOpenSubmit() {
     openDateFormat.getMinutes() +
     ":" +
     openDateFormat.getSeconds();
-  sendOpenMessage(openDateFormat);
+  sendOpenMessage(openDateFormat, user);
 }
 
 function ChecklistAbertura() {
-  const onSubmit = (event) => {
+  const onSubmit = (event, user) => {
+    event.preventDefault();
+
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
 
     console.log("enviou");
-    event.preventDefault();
-    altoxvOpenSubmit();
+    // supabase
+    sendSupabase(user);
+    altoxvOpenSubmit(user);
   };
   const [timeComplete, setTimeComplete] = useState("");
   let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
@@ -108,37 +136,42 @@ function ChecklistAbertura() {
   }, []);
 
   return (
-    <div className="checklistContainer">
-      <div className="unitContainer">
-        <div className="unitInfo">
-          <h1>Checklist de Abertura</h1>
+    <>
+      <Helmet>
+        <title>Checklist de Abertura</title>
+      </Helmet>
+      <div className="checklistContainer">
+        <div className="unitContainer">
+          <div className="unitInfo">
+            <h1>Checklist de Abertura</h1>
 
-          <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
+            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+          </div>
+          <div className="unitLogo">
+            <img src="/logo.svg" alt="" />
+          </div>
         </div>
-        <div className="unitLogo">
-          <img src="/logo.svg" alt="" />
-        </div>
+        {openC && openC.value === "complete" ? (
+          <span className="timeComplete">{timeComplete}</span>
+        ) : (
+          <>
+            <div className="warningContainer">
+              <p className="warningText">Bater Ponto</p>
+
+              <p className="warningText">
+                <span className="warningIcon">
+                  <Icons.BsExclamationDiamondFill />
+                </span>
+                Avental | Máscara | Faixa de Cabelo / Boné
+              </p>
+            </div>
+            <div className="checklistFormContainer">
+              <ChecklistAberturaForm handleSubmit={onSubmit} />
+            </div>
+          </>
+        )}
       </div>
-      {openC && openC.value === "complete" ? (
-        <span className="timeComplete">{timeComplete}</span>
-      ) : (
-        <>
-          <div className="warningContainer">
-            <p className="warningText">Bater Ponto</p>
-
-            <p className="warningText">
-              <span className="warningIcon">
-                <Icons.BsExclamationDiamondFill />
-              </span>
-              Avental | Máscara | Faixa de Cabelo / Boné
-            </p>
-          </div>
-          <div className="checklistFormContainer">
-            <ChecklistAberturaForm handleSubmit={onSubmit} />
-          </div>
-        </>
-      )}
-    </div>
+    </>
   );
 }
 
