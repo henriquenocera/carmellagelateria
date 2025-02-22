@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import * as Icons from "react-icons/bs";
 import { NavLink } from "react-router-dom";
-import "./Navbar.css";
+import "../css/Navbar.css";
 
 function NavBar() {
   const [sidebar, setSidebar] = useState(false);
@@ -15,6 +15,14 @@ function NavBar() {
         <div className="menuToggle" onClick={showSidebar}></div>
         <ul>
           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/">
+              <span className="icon">
+                <Icons.BsEscape />
+              </span>
+              <span className="text">Início</span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
               <span className="icon">
                 <Icons.BsEmojiSmile />
@@ -22,42 +30,16 @@ function NavBar() {
               <span className="text">Vales</span>
             </NavLink>
           </li>
-          {/*<li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/produtos">
-              <span className="icon">
-                <Icons.BsEmojiSmile />
-              </span>
-              <span className="text">Produtos</span>
-            </NavLink>
-          </li>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/estoque">
-              <span className="icon">
-                <Icons.BsPlusSlashMinus />
-              </span>
 
-              <span className="text">Estoque</span>
-            </NavLink>
-          </li>*/}
           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/perdas">
-              <span className="icon">
-                <Icons.BsTrash />
-              </span>
-
-              <span className="text">Perdas</span>
-            </NavLink>
-          </li>
-          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/inventario">
               <span className="icon">
                 <Icons.BsArrowCounterclockwise />
               </span>
-
-              <span className="text">Inventario</span>
+              <span className="text">Inventário</span>
             </NavLink>
           </li>
- */}
+
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">
@@ -77,14 +59,22 @@ function NavBar() {
               <span className="text">Checklist Fechamento</span>
             </NavLink>
           </li>
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/perdas">
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/checklist-conferencia">
               <span className="icon">
-                <Icons.BsFillTrash3Fill />
+                <Icons.BsCheck />
               </span>
-              <span className="text">Lançamentos de Perdas</span>
+              <span className="text">Checklist De Conferência</span>
             </NavLink>
-          </li> */}
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/voucher">
+              <span className="icon">
+                <Icons.BsTicket />
+              </span>
+              <span className="text">Voucher</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
     </>

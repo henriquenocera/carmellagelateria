@@ -11,13 +11,11 @@ import Home from "./routes/Home";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
-import ValeGelato from "./routes/ValeGelato.tsx";
-import Perdas from "./routes/Perdas.tsx";
 import Vales from "./routes/Vales.tsx";
-import Produtos from "./routes/Produtos/Index.tsx";
 
-import Estoque from "./routes/Estoque.tsx";
 import Inventario from "./routes/Inventario.tsx";
+import ChecklistConferencia from "./routes/ChecklistConferencia.tsx";
+import Voucher from "./routes/Voucher.tsx";
 
 const AppLayout = () => (
   <>
@@ -29,14 +27,12 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
-      <Route path="/estoque" element={<Estoque />} />
       <Route path="/vales" element={<Vales />} />
-      <Route path="/produtos" element={<Produtos />} />
-
-      <Route path="/perdas" element={<Perdas />} />
       <Route path="/inventario" element={<Inventario />} />
       <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
       <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
+      <Route path="/checklist-conferencia" element={<ChecklistConferencia />} />
+      <Route path="/voucher" element={<Voucher />} />
     </Route>
   )
 );

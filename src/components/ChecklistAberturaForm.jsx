@@ -1,334 +1,416 @@
-import React from "react";
-import "./ChecklistForm.css";
+import React, { useState, useRef } from "react";
+
+import "../css/ChecklistForm.css";
+import ChecklistItem from "./ChecklistItem";
+import { ListId } from '../id.ts';
+
+
 
 function ChecklistAberturaForm({ handleSubmit }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
+
+  const [user, setUser] = useState("");
+  const idInputRef = useRef(null);
+
+  const unidadeText = "Ahu";
+
+
+
+
+  function openModal(e) {
+    // Open Modal to ask for ID
+    // const formElement = e.target;
+    //const isValid = formElement.checkValidity();
+    //console.log(formElement)
+    // console.log(isValid)
+    e.preventDefault()
+
+
+    const formElement = e.currentTarget.parentNode;
+    const isValid = formElement.checkValidity();
+    console.log(isValid)
+
+    if (isValid) {
+      console.log("Open Modal")
+      setIsModalOpen(true)
+    } else {
+      setIsModalErrorOpen(true)
+    }
+
+
+  }
+
+  function checkId(e) {
+
+
+    console.log("Check ID")
+    e.preventDefault()
+    let idInput = idInputRef.current.value;
+
+    if (idInput == ListId[0].value) {
+      setUser(ListId[0].nome)
+
+    } else if (idInput == ListId[1].value) {
+      setUser(ListId[1].nome)
+    } else if (idInput == ListId[2].value) {
+      setUser(ListId[2].nome)
+    } else if (idInput == ListId[3].value) {
+      setUser(ListId[3].nome)
+    } else if (idInput == ListId[4].value) {
+      setUser(ListId[4].nome)
+    } else {
+      setUser("")
+    }
+
+  }
 
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event)} className="aberturaAltoxv" id="altoxvOpen">
+
+      {/* Modal */}
+      {isModalErrorOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content-error">
+            <h3 className="modalTitleError">Por favor, complete todos os itens do checklist antes de Confirmar</h3>
+            <div className="modal-buttons">
+              <button
+                onClick={() => setIsModalErrorOpen(false)}
+                className="close-button-error"
+              >
+                Voltar
+              </button>
+            </div>
+          </div >
+
+        </div >
+      )
+      }
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            {user == "" ? (
+              <>
+
+                <h3 className="modalTitle">Por favor, digite seu ID</h3>
+                <input
+                  type="password"
+                  placeholder="Seu ID"
+                  className="userInput"
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  min="0"
+                  max="9999"
+                  required
+                  ref={idInputRef}
+                />
+                <div className="modal-buttons">
+                  <button
+                    onClick={(e) => checkId(e)}
+                    className="confirm-button">Confirmar ID</button>
+                  <button
+                    onClick={() => { setIsModalOpen(false); setUser("") }}
+                    className="close-button"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="modalTextContainer">
+                  <p className="modalText">Ao Enviar o Checklist você confirma que realizou todas as tarefas descritas nele</p>
+                </div>
+                <h3 className="modalTitle">Responsável pelo Checklist:</h3>
+                <h2 className="user">{user}</h2>
+                <div className="modal-buttons">
+                  <button
+                    type="submit"
+                    form="checklistOpen"
+                    className="confirm-button">Enviar Checklist</button>
+                  <button
+                    onClick={() => { setIsModalOpen(false); setUser("") }}
+                    className="close-button"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </>
+            )
+            }
+          </div >
+        </div >
+      )
+      }
+      <form action="https://script.google.com/macros/s/AKfycbwhOUYDudL2B7Damz10m485blQxTRIldG5z_Y734oySrPeZPa5oJQVNR3yO6t1828Hm-w/exec" method="POST" onSubmit={event => handleSubmit(event, user)} className="aberturaAltoxv" id="checklistOpen">
         <div className="sectionTitle">
-          <p>1ª Prioridade</p>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1000"
-            type="checkbox"
-            name="1000"
-          />
-          <label className="cbx" htmlFor="1000">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label ">Vitrine</span>
-          </label>
-          <span className="subtitle">Realizar a limpeza interna e externa da vitrine. Aço inox com pano úmido e vidros com álcool líquido</span>
-          <span className="subtitle">Após a limpeza, ligar a vitrine</span>
-
+          <p><strong>1ª Prioridade</strong></p>
         </div>
 
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1001"
-            type="checkbox"
-            name="1001"
-          />
-          <label className="cbx" htmlFor="1001">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label ">Máquina de Café e Moedor</span>
-          </label>
-          <span className="subtitle">Ligar a Máquina de café e o moedor na tomada</span>
-          <span className="subtitle">Ligar o controlador da máquina de café</span>
-
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1002"
-            type="checkbox"
-            name="1002"
-          />
-          <label className="cbx" htmlFor="1002">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Sistema</span>
-          </label>
-          <span className="subtitle">Verificar se o sistema está funcionando</span>
-          <span className="subtitle">Verificar se a máquina de cartão POS está funcionando e com bateria</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1003"
-            type="checkbox"
-            name="1003"
-          />
-          <label className="cbx" htmlFor="1003">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Itens em Falta</span>
-          </label>
-          <span className="subtitle">Verificar antes da abertura se tem algum produto / insumo em falta</span>
-          <span className="subtitle">Caso tenha algo faltando, avisar no grupo do Whats</span>
-        </div>
+        <ChecklistItem
+          id="1"
+          title="Limpar Vitrine"
+          subtitle1="Interior e exterior com pano úmido e vidros com álcool líquido"
+        />
+        <ChecklistItem
+          id="2"
+          title="Ligar Vitrine"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="3"
+          title="Ligar Máquina de Waffle"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="4"
+          title="Ligar Máquina de Café"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="5"
+          title="Ligar Moedor de Café"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="6"
+          title="Acender Todas as Luzes"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="7"
+          title="Realizar a Contagem de Notas do Malote"
+          subtitle1="Enviar no grupo do whats a contagem de notas e moedas"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="8"
+          title="Abrir Caixa"
+          subtitle1="Abrir o caixa com o valor real do malote"
+          subtitle2="Usuário: 6 | Senha: 2849"
+        />
+        <ChecklistItem
+          id="10"
+          title="Conferir Máquina de Cartão POS e TEF"
+          subtitle1="Conferir se estão funcionando"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="11"
+          title="Conferir Tablet"
+          subtitle1="Conferir se está com bateria"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="12"
+          title="Abrir Loja do Ifood"
+          subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
+          subtitle2=""
+        />
+        <img className="imgIfood" width="700px" src="/ifood.png" alt="" />
+        <ChecklistItem
+          id="13"
+          title="Conferir Toppings do Ifood"
+          subtitle1="Se algum topping tiver em falta, desligar do ifood"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="14"
+          title="Trocar Papel Toalha dos Morangos"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="15"
+          title="Atualizar Relatório dos Salgados"
+          subtitle1=""
+          subtitle2=""
+        />
         <div className="sectionTitle">
-          <p>2ª Outras Tarefas</p>
+          <p><strong>2ª Outras Tarefas</strong></p>
         </div>
+        <ChecklistItem
+          id="16"
+          title="Varrer Chão"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="17"
+          title="Passar Mop no Chão"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="18"
+          title="Limpar Banheiro"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="19"
+          title="Colocar os Sacos de Lixo Internos"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="20"
+          title="Limpar Bancadas"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="21"
+          title="Limpar Mesas e Cadeiras do Salão"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="22"
+          title="Repor Insumos"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="23"
+          title="Abastecer Vitrine (-4ºC)"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="231"
+          title="Colocar Bolo na Bancada"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="24"
+          title="Abrir Portas de Enrolar"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="241"
+          title="Abrir Janela do Salão dos Clientes"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="242"
+          title="Colocar Sacos de Lixo Externos"
+          subtitle1=""
+          subtitle2=""
+        />
 
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1013"
-            type="checkbox"
-            name="1013"
-          />
-          <label className="cbx" htmlFor="1013">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Limpeza do Chão Interno</span>
-          </label>
-          <span className="subtitle">(parte interna da loja, saguão dos clintes e banheiro dos clientes)
-          </span>
+        <ChecklistItem
+          id="27"
+          title="Limpar Pátio"
+          subtitle1="Recolher lixo e passar uma vassoura"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="243"
+          title="Colocar Saco Pet e Bebedouro do Cachorro"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="244"
+          title="Colocar Mesas Externas"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="26"
+          title="Trancar Porta de Entrada dos Funcionários"
+          subtitle1="Porta de metal do corredor"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="28"
+          title="Conferir Temperatura da Máquina de Waffle"
+          subtitle1="Temperatura deve estar próximo de 200ºC"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="29"
+          title="Conferir Quebras"
+          subtitle1="Se tiver alguma quebra que pode entrar hoje, já deixe separado"
+          subtitle2=""
+        />
+        <ChecklistItem
+          id="30"
+          title="Prever Cubas para Troca"
+          subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
+          subtitle2=""
+        />
+        {/*         <section>
+          <div>
 
-          <span className="subtitle">Varrer o chão para remover todo pó e sujeira</span>
-          <span className="subtitle">Depois passar o MOPE no chão com água e veja</span>
+            <div>
+              <label className="idLabel" htmlFor="id">
+                ID do Responsável pelo Checklist
+              </label>
+            </div>
 
+            <div>
+              <input
+                className="idInput"
+                type="text"
+                pattern="[0-9]*"
+                inputMode="numeric"
+                min="0"
+                max="9999"
+                required
+                ref={idInputRef}
 
+              />
+            </div>
+            <div>
+              {user == "" ? (
+                <></>
+              ) : (
+                <>
+                  <div>
+                    <input
+                      name="Nome"
+                      className="userInput"
+                      type="text"
+                      value={user}
+                    />
+                  </div>
+                  <div>
+                    <input
+                      name="Unidade"
+                      className="userInput"
+                      type="text"
+                      value={unidadeText}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+          <div>
+            <button
+              onClick={handleClick}
+              className="idSubmit idSubmitChecklist"
+              type="submit"
+            >
+              Verificar ID
+            </button>
+          </div>
+        </section> */}
 
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1004"
-            type="checkbox"
-            name="1004"
-          />
-          <label className="cbx" htmlFor="1004">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Limpeza das Bancadas Internas</span>
-          </label>
-          <span className="subtitle">Limpeza interna da loja, bancadas, pia, mesas dos clientes e utensílios</span>
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1014"
-            type="checkbox"
-            name="1014"
-          />
-          <label className="cbx" htmlFor="1014">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Limpeza do Pátio Externo</span>
-          </label>
-          <span className="subtitle">Varrer o chão para remover lixos, folhas, plásticos, papeis, etc.</span>
-
-
-        </div>
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1005"
-            type="checkbox"
-            name="1005"
-          />
-          <label className="cbx" htmlFor="1005">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Reposição de Insumos</span>
-          </label>
-          <span className="subtitle">Realizar a retirada de estoque dos insumos necessários (copinhos, pázinhas, etc)</span>
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1006"
-            type="checkbox"
-            name="1006"
-          />
-          <label className="cbx" htmlFor="1006">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Luz da Loja</span>
-
-          </label>
-          <span className="subtitle">Acender todas as luzes da loja</span>
-
-        </div>
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1007"
-            type="checkbox"
-            name="1007"
-          />
-          <label className="cbx" htmlFor="1007">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Lixos</span>
-          </label>
-          <span className="subtitle">Fazer a reposição dos lixos </span>
-          <span className="subtitle">Lixos pequenos internos > 20 Litros</span>
-          <span className="subtitle">Lixo do Banheiro dos Clientes > 40 Litros</span>
-          <span className="subtitle">Lixos Grande do Saguão dos clientes > 60 Litros</span>
-        </div>
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1011"
-            type="checkbox"
-            name="1011"
-          />
-          <label className="cbx" htmlFor="1011">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Água do Degelo da Vitrine</span>
-          </label>
-          <span className="subtitle">Em baixo da vitrine, ao lado direito, existe um pote preto para coleta de água da vitrine durante a noite.</span>
-          <span className="subtitle">Esvaziar esse pote preto e colocar ele novamente no lugar</span>
-
-
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1008"
-            type="checkbox"
-            name="1008"
-          />
-          <label className="cbx" htmlFor="1008">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Abertura do Caixa</span>
-          </label>
-          <span className="subtitle">Usuário: 7</span>
-          <span className="subtitle">Senha: 2849</span>
-          <span className="subtitle">Realizar contagem das notas para informar o valor inicial</span>
-
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1009"
-            type="checkbox"
-            name="1009"
-          />
-          <label className="cbx" htmlFor="1009">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Reposição da Vitrine ( a partir de -4º C )</span>
-          </label>
-        </div>
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1012"
-            type="checkbox"
-            name="1012"
-          />
-          <label className="cbx" htmlFor="1012">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Verificar as Quebras</span>
-          </label>
-          <span className="subtitle">Identicar as quebras que poderão ser repostas hoje e já deixar separadas no Freezer</span>
-
-        </div>
-
-
-        <div className="checkbox-wrapper">
-          <input
-            required
-            className="inp-cbx"
-            id="1010"
-            type="checkbox"
-            name="1010"
-          />
-          <label className="cbx" htmlFor="1010">
-            <span>
-              <svg width="12px" height="9px" viewBox="0 0 12 9">
-                <polyline points="1 5 4 8 11 1"></polyline>
-              </svg>
-            </span>
-            <span className="label">Abertura das Portas ( 12:00 )</span>
-          </label>
-          <span className="subtitle">Caso esteja tudo pronto antes, realizar a abertura das portas antes de 12:00</span>
-
-        </div>
-
-
-
-        <button className="submit" type="submit">Enviar</button>
+        <button onClick={openModal} className="submit"
+          type="submit">Confirmar Checklist</button>
       </form>
     </>
   );

@@ -1,29 +1,35 @@
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
+
 import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
+import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Batel";
-const unidade = "batel";
+const unidadeText = "Ahu";
+const unidade = "ahu";
 
 async function sendOpenMessage(
   openDateFormat,
   freezer,
   geladeira,
-  morango,
-  banana,
   amora,
   maca,
   brownie,
-  panos
+  panos,
+  user
 ) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja ${unidadeText} %0D%0A ${openDateFormat}
 
- 
-  %0D%0A Brownies na Geladeira: ${brownie}
-  %0D%0A Panos Limpos: ${panos}`;
+  %0D%0A Responsável: ${user}
+  %0D%0A Qntd Massas no Freezer: ${freezer};
+  %0D%0A Qntd Massas na Geladeira: ${geladeira};
+  %0D%0A Potes Fechados Gel de Amora: ${amora};
+  %0D%0A Potes Fechados Torta de Maça: ${maca}
+  %0D%0A Qntd de Brownies na Geladeira: ${brownie}
+  %0D%0A Qntd de Panos Limpos: ${panos}`;
   try {
     const response = await fetch(checkOpenComplete, {
       method: "POST",
@@ -64,15 +70,33 @@ function getLocalStorage() {
   }
 }
 getLocalStorage();
+
+async function sendSupabase(user) {
+  console.log("supabase");
+  const newdata = {
+    checklist: "Checklist de Fechamento",
+    person: user,
+  };
+  const { data, error } = await supabase
+    .from("Checklist")
+    .insert([newdata])
+    .single();
+
+  if (error) {
+    console.log(error);
+  } else {
+    console.log("tudo ok", data);
+  }
+}
+
 function altoxvCloseSubmit(
   freezer,
   geladeira,
-  morango,
-  banana,
   amora,
   maca,
   brownie,
-  panos
+  panos,
+  user
 ) {
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvClose", JSON.stringify(object));
@@ -94,12 +118,11 @@ function altoxvCloseSubmit(
     openDateFormat,
     freezer,
     geladeira,
-    morango,
-    banana,
     amora,
     maca,
     brownie,
-    panos
+    panos,
+    user
   );
 }
 
@@ -108,28 +131,20 @@ function ChecklistFechamento() {
     event,
     freezer,
     geladeira,
-    morango,
-    banana,
     amora,
     maca,
     brownie,
-    panos
+    panos,
+    user
   ) => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
 
     console.log("enviou");
+    // supabase
+    sendSupabase(user);
     event.preventDefault();
-    altoxvCloseSubmit(
-      freezer,
-      geladeira,
-      morango,
-      banana,
-      amora,
-      maca,
-      brownie,
-      panos
-    );
+    altoxvCloseSubmit(freezer, geladeira, amora, maca, brownie, panos, user);
   };
 
   const [timeComplete, setTimeComplete] = useState("");
@@ -160,37 +175,43 @@ function ChecklistFechamento() {
   }, []);
 
   return (
-    <div className="checklistContainer">
-      <div className="unitContainer">
-        <div className="unitInfo">
-          <h1>Checklist de Fechamento</h1>
+    <>
+      <Helmet>
+        <title>Checklist de Fechamento</title>
+      </Helmet>
 
-          <h2>Unidade {unidadeText} - Rua Sete de Setembro, 4837</h2>
+      <div className="checklistContainer">
+        <div className="unitContainer">
+          <div className="unitInfo">
+            <h1>Checklist de Fechamento</h1>
+
+            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+          </div>
+          <div className="unitLogo">
+            <img src="/logo.svg" alt="" />
+          </div>
         </div>
-        <div className="unitLogo">
-          <img src="/logo.svg" alt="" />
-        </div>
+        {openC && openC.value === "complete" ? (
+          <span className="timeComplete">{timeComplete}</span>
+        ) : (
+          <>
+            <div className="checklistFormContainer">
+              <ChecklistFechamentoForm handleSubmit={onSubmit} />
+            </div>
+            <div className="warningContainer">
+              <p className="warningText">Bater Ponto</p>
+
+              <p className="warningText">
+                <span className="warningIcon">
+                  <Icons.BsExclamationDiamondFill />
+                </span>
+                Ligar Alarme e Trancar a Porta
+              </p>
+            </div>
+          </>
+        )}
       </div>
-      {openC && openC.value === "complete" ? (
-        <span className="timeComplete">{timeComplete}</span>
-      ) : (
-        <>
-          <div className="checklistFormContainer">
-            <ChecklistFechamentoForm handleSubmit={onSubmit} />
-          </div>
-          <div className="warningContainer">
-            <p className="warningText">Bater Ponto</p>
-
-            <p className="warningText">
-              <span className="warningIcon">
-                <Icons.BsExclamationDiamondFill />
-              </span>
-              Ligar Alarme e Trancar a Porta
-            </p>
-          </div>
-        </>
-      )}
-    </div>
+    </>
   );
 }
 
