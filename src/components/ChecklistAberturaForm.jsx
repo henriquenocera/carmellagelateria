@@ -173,6 +173,17 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
         <ChecklistItem
 
+          id="80"
+
+          title="Limpar Máquina de Waffle - Antes de Ligar"
+
+          subtitle1="Esponja com água e sabão"
+
+          subtitle2="Utilizar a parte AMARELA da esponja"
+
+        />
+        <ChecklistItem
+
           id="3"
 
           title="Ligar Máquina de Waffle"
@@ -363,9 +374,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
           id="18"
 
-          title="Limpar Banheiro"
+          title="Verificar Banheiro"
 
-          subtitle1=""
+          subtitle1="Papel Higiênico, saco de lixo, papel toalha, etc"
 
           subtitle2=""
 
@@ -471,9 +482,20 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
           id="27"
 
-          title="Limpar Pátio"
+          title="Limpar Pátio da Frente"
 
           subtitle1="Recolher lixo e passar uma vassoura"
+
+          subtitle2=""
+
+        />
+        <ChecklistItem
+
+          id="270"
+
+          title="Limpar Pátio dos Fundos"
+
+          subtitle1="Verificar mesas e cadeiras, retirar lixos, etc"
 
           subtitle2=""
 
