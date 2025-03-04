@@ -136,12 +136,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <ChecklistItem
+        {/*        <ChecklistItem
           id="80"
           title="Desligar Máquina de Waffle"
           subtitle1=""
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="9"
           title="Desligar Máquina de Café e Moedor"
@@ -154,12 +154,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="11"
           title="Descongelar Massas Para o Dia Seguinte"
           subtitle1="Transferir massas do Freezer para o Frigobar Preto para totalizar 6 massas para o dia seguinte"
           subtitle2="Após transferência de massas realizar o inventário abaixo"
-        />
+        /> */}
         <div className="sectionTitle">
           <p>Inventário (checklist)</p>
         </div>
@@ -225,12 +225,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1="Carregar eles sempre na cozinha"
           subtitle2=""
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="16"
           title="Guardar Bolo na Geladeira"
           subtitle1=""
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="17"
           title="Esvaziar Água do Balde das Espátulas"
@@ -279,12 +279,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           subtitle1="Descartar no balde de panos"
           subtitle2=""
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="23"
           title="Fechar Lixo do Salão dos Clientes"
           subtitle1="Se não tiver cheio, apenas dar um nó"
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="24"
           title="Conferir Geladeira"
