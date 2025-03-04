@@ -160,12 +160,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <ChecklistItem
+        {/*        <ChecklistItem
           id="3"
           title="Ligar Máquina de Waffle"
           subtitle1=""
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="4"
           title="Ligar Máquina de Café"
@@ -194,7 +194,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           id="8"
           title="Abrir Caixa"
           subtitle1="Abrir o caixa com o valor real do malote"
-          subtitle2="Usuário: 6 | Senha: 2849"
+          subtitle2="Usuário: 5 | Senha: 2849"
         />
         <ChecklistItem
           id="10"
@@ -208,7 +208,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Conferir se está com bateria"
           subtitle2=""
         />
-        <ChecklistItem
+        {/* <ChecklistItem
           id="12"
           title="Abrir Loja do Ifood"
           subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
@@ -232,7 +232,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           title="Atualizar Relatório dos Salgados"
           subtitle1=""
           subtitle2=""
-        />
+        /> */}
         <div className="sectionTitle">
           <p><strong>2ª Outras Tarefas</strong></p>
         </div>
@@ -250,7 +250,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="18"
-          title="Limpar Banheiro"
+          title="Colocar Saco de Lixo nos Banheiro"
           subtitle1=""
           subtitle2=""
         />
@@ -284,12 +284,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="231"
           title="Colocar Bolo na Bancada"
           subtitle1=""
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="24"
           title="Abrir Portas de Enrolar"
@@ -308,7 +308,6 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1=""
           subtitle2=""
         />
-
         <ChecklistItem
           id="27"
           title="Limpar Pátio"
@@ -317,7 +316,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="243"
-          title="Colocar Saco Pet e Bebedouro do Cachorro"
+          title="Colocar Saco Pet"
           subtitle1=""
           subtitle2=""
         />
@@ -333,12 +332,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Porta de metal do corredor"
           subtitle2=""
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="28"
           title="Conferir Temperatura da Máquina de Waffle"
           subtitle1="Temperatura deve estar próximo de 200ºC"
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="29"
           title="Conferir Quebras"
