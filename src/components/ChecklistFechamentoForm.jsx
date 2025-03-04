@@ -351,7 +351,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
         />
 
-        <ChecklistItem
+        {/*        <ChecklistItem
 
           id="16"
 
@@ -361,7 +361,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
           subtitle2=""
 
-        />
+        /> */}
 
         <ChecklistItem
 
