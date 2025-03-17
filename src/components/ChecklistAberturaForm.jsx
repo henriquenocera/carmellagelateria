@@ -3,6 +3,7 @@ import React, { useState, useRef } from "react";
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
+import ContadorNotasMoedas from "./ContadorNotasMoedas.jsx";
 
 
 
@@ -238,9 +239,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
           subtitle1="Enviar no grupo do whats a contagem de notas e moedas"
 
-          subtitle2=""
+          subtitle2="Pode tirar uma foto do contador abaixo"
 
         />
+        <ContadorNotasMoedas />
 
         <ChecklistItem
 
