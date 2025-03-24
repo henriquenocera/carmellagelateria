@@ -120,7 +120,7 @@ function Voucher() {
                 <div className="modalTextContainer">
                   <p className="modalText">
                     Ao concluir, você confirma que o cliente te informou o
-                    voucher e está recebendo o desconto de 10%
+                    voucher e está recebendo o item informado
                   </p>
                 </div>
                 <h3 className="modalTitle">Responsável pelo Voucher:</h3>
