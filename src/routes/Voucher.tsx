@@ -165,6 +165,9 @@ function Voucher() {
                 </a>
               </div>
               <div className="header__item">
+                <a className="filter__link filter__link--number">Item</a>
+              </div>
+              <div className="header__item">
                 <a className="filter__link filter__link--number">
                   Utilizar Voucher
                 </a>
@@ -178,6 +181,7 @@ function Voucher() {
                       {moment(list.created_at).format("DD/MM/YYYY [às] HH:mm")}
                     </div>
                     <div className={`table-data`}>{list.voucher_id}</div>
+                    <div className={`table-data`}>{list.value}</div>
                     <button
                       onClick={() => {
                         handleClick(list.id);
