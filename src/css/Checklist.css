@@ -5,6 +5,17 @@ h1 {
 h2 {
   font-weight: 400;
 }
+.hidebtn {
+  font-size: 22px;
+  padding: 18px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100px;
+  background-color: transparent;
+  color: transparent;
+}
 .checklistContainer {
   display: flex;
   justify-content: center;

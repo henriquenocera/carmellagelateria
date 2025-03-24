@@ -10,6 +10,8 @@ import ContadorNotasMoedas from "./ContadorNotasMoedas.jsx";
 function ChecklistAberturaForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
+  const [check, setCheck] = useState(false);
+
 
   const [user, setUser] = useState("");
   const idInputRef = useRef(null);
@@ -65,8 +67,22 @@ function ChecklistAberturaForm({ handleSubmit }) {
     }
 
   }
+  const Checked = (e) => {
+    function setWithExpiry(key, value, ttl) {
+      const now = new Date()
 
+      // `item` is an object which contains the original value
+      // as well as the time when it's supposed to expire
+      const item = {
+        value: value,
+        expiry: now.getTime() + ttl,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    }
 
+    setWithExpiry("check", true, 10000)
+
+  }
   return (
     <>
 
@@ -145,7 +161,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
         </div >
       )
       }
+
       <form action="https://script.google.com/macros/s/AKfycbwhOUYDudL2B7Damz10m485blQxTRIldG5z_Y734oySrPeZPa5oJQVNR3yO6t1828Hm-w/exec" method="POST" onSubmit={event => handleSubmit(event, user)} className="aberturaAltoxv" id="checklistOpen">
+        <button className="hidebtn" onClick={Checked}>Check</button>
+
         <div className="sectionTitle">
           <p><strong>1ª Prioridade</strong></p>
         </div>

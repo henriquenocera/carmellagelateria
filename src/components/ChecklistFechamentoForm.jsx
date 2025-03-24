@@ -5,16 +5,17 @@ import { ListId } from '../id.ts';
 
 
 function ChecklistFechamentoForm({ handleSubmit }) {
-  const [freezer, setFreezer] = useState("");
+  /*   const [freezer, setFreezer] = useState(""); */
   const [geladeira, setGeladeira] = useState("");
-  const [amora, setAmora] = useState("");
-  const [maca, setMaca] = useState("");
+  /*   const [amora, setAmora] = useState("");
+    const [maca, setMaca] = useState(""); */
   const [brownie, setBrownie] = useState("");
   const [panos, setPanos] = useState("");
   const [user, setUser] = useState("");
   const idInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
+  const [check, setCheck] = useState(false);
 
   const unidadeText = "Ahu";
 
@@ -66,10 +67,32 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   }
 
+  const Checked = (e) => {
+    function setWithExpiry(key, value, ttl) {
+      const now = new Date()
+
+      // `item` is an object which contains the original value
+      // as well as the time when it's supposed to expire
+      const item = {
+        value: value,
+        expiry: now.getTime() + ttl,
+      }
+      localStorage.setItem(key, JSON.stringify(item))
+    }
+
+    setWithExpiry("check", true, 10000)
+    /*     const elements = document.querySelectorAll('.inp-cbx');
+        elements.checked = true
+        console.log(elements) */
+
+  }
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event, freezer, geladeira, amora, maca, brownie, panos, user)} className="fechamentoAltoxv" id="checklistClose">
+
+      <form onSubmit={event => handleSubmit(event, geladeira, brownie, panos, user, check)} className="fechamentoAltoxv" id="checklistClose">
+        <button className="hidebtn" onClick={Checked}>Check</button>
+
         <div className="sectionTitle">
           <p><strong>1ª Pré Fechamento (18:00 ~ 18:59)</strong></p>
         </div>
@@ -164,20 +187,20 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <p>Inventário (checklist)</p>
         </div>
 
-        <div className="inventoryFlexbox">
+        {/*         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Massas <b>Freezer:</b></label>
           <input onChange={(event) =>
             setFreezer(event.target.value)
           } className="inventoryInput" required type="number" name="freezer" min="0" id="90" />
-        </div>
+        </div> */}
         <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Massas <b>Frigobar:</b></label>
+          <label className="inventoryLabel" htmlFor="">Massas <b>Geladeira:</b></label>
           <input onChange={(event) =>
             setGeladeira(event.target.value)
           } className="inventoryInput" required type="number" name="geladeira" min="0" id="91" />
         </div>
 
-        <div className="inventoryFlexbox">
+        {/*         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Amora:</b></label>
           <input onChange={(event) =>
             setAmora(event.target.value)
@@ -188,7 +211,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <input onChange={(event) =>
             setMaca(event.target.value)
           } className="inventoryInput" required type="number" name="maca" min="0" id="93" />
-        </div>
+        </div> */}
         <div className="inventoryFlexbox">
           <label className="inventoryLabel" htmlFor="">Quantidade de <b>Brownies:</b></label>
           <input onChange={(event) =>
