@@ -69,7 +69,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   return (
     <>
-      <form onSubmit={event => handleSubmit(event, freezer, geladeira, amora, maca, brownie, panos, user)} className="fechamentoAltoxv" id="checklistClose">
+      <form onSubmit={event => handleSubmit(event, geladeira, brownie, panos, user)} className="fechamentoAltoxv" id="checklistClose">
         <div className="sectionTitle">
           <p><strong>1ª Pré Fechamento (18:00 ~ 18:59)</strong></p>
         </div>
@@ -255,7 +255,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
         </div>
 
-        <div className="inventoryFlexbox">
+        {/*         <div className="inventoryFlexbox">
 
           <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Amora:</b></label>
 
@@ -265,9 +265,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
           } className="inventoryInput" required type="number" name="amora" min="0" id="90" />
 
-        </div>
+        </div> */}
 
-        <div className="inventoryFlexbox">
+        {/*         <div className="inventoryFlexbox">
 
           <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Maça:</b></label>
 
@@ -277,7 +277,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
           } className="inventoryInput" required type="number" name="maca" min="0" id="90" />
 
-        </div>
+        </div> */}
 
         <div className="inventoryFlexbox">
 

@@ -13,10 +13,7 @@ const unidade = "altoxv";
 
 async function sendOpenMessage(
   openDateFormat,
-  freezer,
   geladeira,
-  amora,
-  maca,
   brownie,
   panos,
   user
@@ -24,10 +21,7 @@ async function sendOpenMessage(
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja ${unidadeText} %0D%0A ${openDateFormat}
 
   %0D%0A Responsável: ${user}
-  %0D%0A Qntd Massas no Freezer: ${freezer};
   %0D%0A Qntd Massas na Geladeira: ${geladeira};
-  %0D%0A Potes Fechados Gel de Amora: ${amora};
-  %0D%0A Potes Fechados Torta de Maça: ${maca}
   %0D%0A Qntd de Brownies na Geladeira: ${brownie}
   %0D%0A Qntd de Panos Limpos: ${panos}`;
   try {
@@ -90,15 +84,7 @@ async function sendSupabase(user) {
   }
 }
 
-function altoxvCloseSubmit(
-  freezer,
-  geladeira,
-  amora,
-  maca,
-  brownie,
-  panos,
-  user
-) {
+function altoxvCloseSubmit(geladeira, brownie, panos, user) {
   var object = { value: "complete", timestamp: new Date().getTime() };
   localStorage.setItem("altoxvClose", JSON.stringify(object));
 
@@ -115,29 +101,11 @@ function altoxvCloseSubmit(
     openDateFormat.getMinutes() +
     ":" +
     openDateFormat.getSeconds();
-  sendOpenMessage(
-    openDateFormat,
-    freezer,
-    geladeira,
-    amora,
-    maca,
-    brownie,
-    panos,
-    user
-  );
+  sendOpenMessage(openDateFormat, geladeira, brownie, panos, user);
 }
 
 function ChecklistFechamento() {
-  const onSubmit = (
-    event,
-    freezer,
-    geladeira,
-    amora,
-    maca,
-    brownie,
-    panos,
-    user
-  ) => {
+  const onSubmit = (event, geladeira, brownie, panos, user) => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
 
@@ -145,7 +113,7 @@ function ChecklistFechamento() {
     // supabase
     sendSupabase(user);
     event.preventDefault();
-    altoxvCloseSubmit(freezer, geladeira, amora, maca, brownie, panos, user);
+    altoxvCloseSubmit(geladeira, brownie, panos, user);
   };
 
   const [timeComplete, setTimeComplete] = useState("");
