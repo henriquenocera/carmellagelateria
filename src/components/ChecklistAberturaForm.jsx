@@ -230,19 +230,19 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Conferir se está com bateria"
           subtitle2=""
         />
-        {/* <ChecklistItem
+        {/*          <ChecklistItem
           id="12"
           title="Abrir Loja do Ifood"
           subtitle1="Para abrir a loja basta entrar no app e deixar ele aberto durante o dia"
           subtitle2=""
-        />
-        <img className="imgIfood" width="700px" src="/ifood.png" alt="" />
+        /> */}
+        {/*         <img className="imgIfood" width="700px" src="/ifood.png" alt="" />
         <ChecklistItem
           id="13"
           title="Conferir Toppings do Ifood"
           subtitle1="Se algum topping tiver em falta, desligar do ifood"
           subtitle2=""
-        />
+        /> */}
         <ChecklistItem
           id="14"
           title="Trocar Papel Toalha dos Morangos"
@@ -254,7 +254,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           title="Atualizar Relatório dos Salgados"
           subtitle1=""
           subtitle2=""
-        /> */}
+        />
         <div className="sectionTitle">
           <p><strong>2ª Outras Tarefas</strong></p>
         </div>
@@ -277,6 +277,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle2=""
         />
         <ChecklistItem
+          id="180"
+          title="Repor Papel Higiênico nos Banheiros"
+          subtitle1=""
+          subtitle2=""
+        />
+        <ChecklistItem
           id="19"
           title="Colocar os Sacos de Lixo Internos"
           subtitle1=""
@@ -284,7 +290,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="20"
-          title="Limpar Bancadas"
+          title="Limpar Bancadas da Loja"
           subtitle1=""
           subtitle2=""
         />
@@ -366,12 +372,12 @@ function ChecklistAberturaForm({ handleSubmit }) {
           subtitle1="Se tiver alguma quebra que pode entrar hoje, já deixe separado"
           subtitle2=""
         />
-        <ChecklistItem
+        {/*         <ChecklistItem
           id="30"
           title="Prever Cubas para Troca"
           subtitle1="Verificar se vai haver a necessidade de troca de uma cuba hoje, e já deixar planejado"
           subtitle2=""
-        />
+        /> */}
         {/*         <section>
           <div>
 
