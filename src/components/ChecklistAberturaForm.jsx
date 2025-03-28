@@ -220,8 +220,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
         />
         <ChecklistItem
           id="10"
-          title="Conferir Máquina de Cartão POS e TEF"
-          subtitle1="Conferir se estão funcionando"
+          title="Conferir Máquina de Cartão POS"
+          subtitle1="Conferir se está com bateria e funcionando"
           subtitle2=""
         />
         <ChecklistItem
