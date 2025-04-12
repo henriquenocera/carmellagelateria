@@ -22,6 +22,12 @@
   max-width: 220px;
   min-width: 180px;
 }
+
+/* Add a new class for cells with missing checklists */
+.table-data.missing {
+  background-color: transparent;
+}
+
 .table-data-button {
   background-color: #633713;
   color: white;
@@ -108,6 +114,16 @@ h6 {
   display: flex;
   width: 100%;
   padding: 9px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* Add a thicker border after each day's checklists */
+.table-row:nth-child(2n) {
+  border-bottom: 2px solid #a17550;
 }
 
 .table-data,
@@ -129,4 +145,17 @@ h6 {
   padding-left: 24px;
   padding-right: 24px;
   font-size: 18px;
+}
+
+.missing-checklist {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.missing-checklist svg {
+  font-size: 1.5em;
+  color: #ff0000;
 }
