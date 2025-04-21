@@ -62,6 +62,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "243", title: "Colocar saco pet", subtitle1: "", subtitle2: "" },
         { id: "244", title: "Colocar mesas externas", subtitle1: "", subtitle2: "" },
         { id: "26", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta de metal do corredor", subtitle2: "" },
+        { id: "27", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
+        { id: "28", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
         { id: "29", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" }
       ]
     }
