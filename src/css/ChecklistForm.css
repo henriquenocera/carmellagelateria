@@ -20,18 +20,21 @@
   font-weight: 600;
 }
 .subtitle {
-  margin-left: 4rem;
-  font-size: 1.6rem;
+  margin-left: 0;
+  font-size: 1.4rem;
   margin-bottom: 0.5rem;
   margin-top: 0.5rem;
+  padding-left: 2rem;
+  color: #666;
 }
 
 .checkbox-wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: flex-start;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 2rem;
+  gap: 1rem;
 }
 .checkbox-wrapper .inp-cbx {
   display: none;
@@ -41,6 +44,9 @@
   user-select: none;
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .checkbox-wrapper .cbx span {
@@ -90,19 +96,22 @@
 }
 
 .checkbox-wrapper .cbx span:last-child {
-  margin-left: 4px;
+  margin-left: 0;
+  font-size: 1.8rem;
+  position: relative;
 }
 
 .checkbox-wrapper .cbx span:last-child:after {
   content: "";
   position: absolute;
-  top: 16px;
+  top: 50%;
   left: 0;
   height: 1px;
   width: 100%;
   background: #b9b8c3;
   transform-origin: 0 0;
   transform: scaleX(0);
+  transition: all 0.3s ease;
 }
 
 .checkbox-wrapper .cbx:hover span:first-child {
@@ -130,13 +139,13 @@
   transition: all 0.3s ease;
 }
 
-.checkbox-wrapper .inp-cbx:checked ~ .subtitle {
-  color: #a3a3a3;
-  transition: all 0.3s ease;
-}
-
 .checkbox-wrapper .inp-cbx:checked + .cbx span:last-child:after {
   transform: scaleX(1);
+}
+
+.checkbox-wrapper .inp-cbx:checked ~ .checkbox-subtitle {
+  color: #a3a3a3;
+  text-decoration: line-through;
   transition: all 0.3s ease;
 }
 
@@ -370,4 +379,13 @@
 .submit:hover {
   opacity: 0.9;
   transform: translateY(-2px);
+}
+
+.checkbox-subtitle p {
+  margin-left: 0;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  padding-left: 2rem;
+  color: #666;
 }
