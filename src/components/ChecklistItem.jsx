@@ -27,18 +27,22 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
         type="checkbox"
         id={id}
         name={id}
+        className="inp-cbx"
         checked={checked}
         onChange={onChange}
       />
-      <label htmlFor={id}>
-        <div className="checkbox-title">
-          <p>{title}</p>
-        </div>
-        <div className="checkbox-subtitle">
-          <p>{subtitle1}</p>
-          <p>{subtitle2}</p>
-        </div>
+      <label htmlFor={id} className="cbx">
+        <span>
+          <svg width="12px" height="10px" viewBox="0 0 12 10">
+            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+          </svg>
+        </span>
+        <span>{title}</span>
       </label>
+      <div className="checkbox-subtitle">
+        <p>{subtitle1}</p>
+        <p>{subtitle2}</p>
+      </div>
       {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
     </div>
   );
