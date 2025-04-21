@@ -18,51 +18,51 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
   const steps = [
     {
-      title: "1ª Prioridade",
+      title: "1ª - Equipamentos",
       items: [
-        { id: "1", title: "Limpar Vitrine", subtitle1: "Interior e exterior com pano úmido e vidros com álcool líquido" },
-        { id: "2", title: "Ligar Vitrine", subtitle1: "", subtitle2: "" },
-        { id: "4", title: "Ligar Máquina de Café", subtitle1: "", subtitle2: "" },
-        { id: "5", title: "Ligar Moedor de Café", subtitle1: "", subtitle2: "" },
-        { id: "6", title: "Acender Todas as Luzes", subtitle1: "", subtitle2: "" }
+        { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido" },
+        { id: "2", title: "Limpeza externa da vitrine", subtitle1: "Vidros com álcool líquido", subtitle2: "" },
+        { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
+        { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v “tomadas vermelhas”", subtitle2: "Girar o controlador da máquina de café para a posição “1”" },
+        { id: "5", title: "Acender Todas as Luzes", subtitle1: "", subtitle2: "" },
+        { id: "6", title: "Ligar máquininha de cartão POS “Máquininha verde”", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
+        { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
+        { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Enviar no grupo do whats a contagem de notas e moedas", subtitle2: "Pode tirar uma foto do contador abaixo" },
+        { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 5 | Senha: 2849" },
       ]
     },
     {
-      title: "Contagem e Caixa",
+      title: "2ª - Organização",
       items: [
-        { id: "7", title: "Realizar a Contagem de Notas do Malote", subtitle1: "Enviar no grupo do whats a contagem de notas e moedas", subtitle2: "Pode tirar uma foto do contador abaixo" },
-        { id: "8", title: "Abrir Caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 5 | Senha: 2849" },
-        { id: "10", title: "Conferir Máquina de Cartão POS", subtitle1: "Conferir se está com bateria e funcionando", subtitle2: "" },
-        { id: "11", title: "Conferir Tablet", subtitle1: "Conferir se está com bateria", subtitle2: "" }
+        { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
+        { id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "" },
+        { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
+        { id: "13", title: "Colocar sacos de lixo externos", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
+        { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
+        { id: "15", title: "Repor papel higiênico no banheiro", subtitle1: "", subtitle2: "" },
+        { id: "16", title: "Repor papel toalha no banheiro", subtitle1: "", subtitle2: "" },
+        { id: "17", title: "Repor insumos necessários", subtitle1: "Retirar do estoque", subtitle2: "" },
       ]
     },
     {
-      title: "Preparação da Loja",
+      title: "3° - Limpeza",
       items: [
-        { id: "14", title: "Trocar Papel Toalha dos Morangos", subtitle1: "", subtitle2: "" },
-        { id: "15", title: "Atualizar Relatório dos Salgados", subtitle1: "", subtitle2: "" },
-        { id: "16", title: "Varrer Chão", subtitle1: "", subtitle2: "" },
-        { id: "17", title: "Passar Mop no Chão", subtitle1: "", subtitle2: "" },
-        { id: "18", title: "Colocar Saco de Lixo nos Banheiro", subtitle1: "", subtitle2: "" },
-        { id: "180", title: "Repor Papel Higiênico nos Banheiros", subtitle1: "", subtitle2: "" }
+        { id: "18", title: "Limpar as bancadas da loja", subtitle1: "Pano e álcool líquido", subtitle2: "" },
+        { id: "19", title: "Limpar as mesas e cadeiras do salão", subtitle1: "Pano e álcool líquido", subtitle2: "" },
+        { id: "20", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
+        { id: "21", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" },
       ]
     },
     {
-      title: "Finalização",
+      title: "4º - Abertura",
       items: [
-        { id: "19", title: "Colocar os Sacos de Lixo Internos", subtitle1: "", subtitle2: "" },
-        { id: "20", title: "Limpar Bancadas da Loja", subtitle1: "", subtitle2: "" },
-        { id: "21", title: "Limpar Mesas e Cadeiras do Salão", subtitle1: "", subtitle2: "" },
-        { id: "22", title: "Repor Insumos", subtitle1: "", subtitle2: "" },
-        { id: "23", title: "Abastecer Vitrine (-4ºC)", subtitle1: "", subtitle2: "" },
-        { id: "24", title: "Abrir Portas de Enrolar", subtitle1: "", subtitle2: "" },
-        { id: "241", title: "Abrir Janela do Salão dos Clientes", subtitle1: "", subtitle2: "" },
-        { id: "242", title: "Colocar Sacos de Lixo Externos", subtitle1: "", subtitle2: "" },
-        { id: "27", title: "Limpar Pátio", subtitle1: "Recolher lixo e passar uma vassoura", subtitle2: "" },
-        { id: "243", title: "Colocar Saco Pet", subtitle1: "", subtitle2: "" },
-        { id: "244", title: "Colocar Mesas Externas", subtitle1: "", subtitle2: "" },
-        { id: "26", title: "Trancar Porta de Entrada dos Funcionários", subtitle1: "Porta de metal do corredor", subtitle2: "" },
-        { id: "29", title: "Conferir Quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" }
+        { id: "22", title: "Abastecer vitrine (-4ºC)", subtitle1: "", subtitle2: "" },
+        { id: "24", title: "Abrir portas de enrolar", subtitle1: "", subtitle2: "" },
+        { id: "241", title: "Abrir janela do salão dos clientes", subtitle1: "", subtitle2: "" },
+        { id: "243", title: "Colocar saco pet", subtitle1: "", subtitle2: "" },
+        { id: "244", title: "Colocar mesas externas", subtitle1: "", subtitle2: "" },
+        { id: "26", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta de metal do corredor", subtitle2: "" },
+        { id: "29", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" }
       ]
     }
   ];
@@ -268,7 +268,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           />
         ))}
 
-        {currentStep === 2 && <ContadorNotasMoedas />}
+        {currentStep === 1 && <ContadorNotasMoedas />}
 
         <div className="form-navigation">
           {currentStep > 1 && (
