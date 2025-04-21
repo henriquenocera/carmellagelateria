@@ -1,11 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
 import ContadorNotasMoedas from "./ContadorNotasMoedas.jsx";
-
-
 
 function ChecklistAberturaForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,6 +11,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const [check, setCheck] = useState(false);
   const [user, setUser] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
+  const [checkedItems, setCheckedItems] = useState({});
   const idInputRef = useRef(null);
 
   const unidadeText = "Ahu";
@@ -68,10 +67,36 @@ function ChecklistAberturaForm({ handleSubmit }) {
     }
   ];
 
+  // Initialize checkedItems state with all items set to false
+  useEffect(() => {
+    const initialCheckedState = {};
+    steps.forEach(step => {
+      step.items.forEach(item => {
+        initialCheckedState[item.id] = false;
+      });
+    });
+    setCheckedItems(initialCheckedState);
+  }, []);
+
+  const handleCheckboxChange = (id) => {
+    setCheckedItems(prevState => ({
+      ...prevState,
+      [id]: !prevState[id]
+    }));
+  };
+
+  function checkValidity() {
+    // Check if all steps are completed using the checkedItems state
+    const allStepsCompleted = steps.every(step => {
+      return step.items.every(item => checkedItems[item.id]);
+    });
+
+    return allStepsCompleted;
+  }
+
   function openModal(e) {
     e.preventDefault();
-    const formElement = e.currentTarget.parentNode;
-    const isValid = formElement.checkValidity();
+    const isValid = checkValidity();
     console.log(isValid);
 
     if (isValid) {
@@ -114,14 +139,26 @@ function ChecklistAberturaForm({ handleSubmit }) {
     setWithExpiry("check", true, 10000);
   }
 
-  const nextStep = () => {
+  const validateCurrentStep = () => {
+    const currentStepItems = steps[currentStep - 1].items;
+    const allChecked = currentStepItems.every(item => checkedItems[item.id]);
+    return allChecked;
+  };
+
+  const nextStep = (e) => {
+    e.preventDefault(); // Prevent form submission
     if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      if (validateCurrentStep()) {
+        setCurrentStep(currentStep + 1);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        setIsModalErrorOpen(true);
+      }
     }
   };
 
-  const prevStep = () => {
+  const prevStep = (e) => {
+    e.preventDefault(); // Prevent form submission
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -133,7 +170,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
       {isModalErrorOpen && (
         <div className="modal-overlay">
           <div className="modal-content-error">
-            <h3 className="modalTitleError">Por favor, complete todos os itens do checklist antes de Confirmar</h3>
+            <h3 className="modalTitleError">Por favor, complete todos os itens do checklist antes de prosseguir</h3>
             <div className="modal-buttons">
               <button
                 onClick={() => setIsModalErrorOpen(false)}
@@ -226,6 +263,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
             title={item.title}
             subtitle1={item.subtitle1}
             subtitle2={item.subtitle2}
+            checked={checkedItems[item.id]}
+            onChange={() => handleCheckboxChange(item.id)}
           />
         ))}
 

@@ -1,6 +1,6 @@
 import React from "react";
 
-function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star }) {
+function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange }) {
   function getWithExpiry(key) {
     const itemStr = localStorage.getItem(key)
     // if the item doesn't exist, return null
@@ -22,35 +22,26 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
 
 
   return (
-
-    < div className="checkbox-wrapper" >
+    <div className="checkbox-wrapper">
       <input
-        required
-        className="inp-cbx"
-        id={id}
         type="checkbox"
+        id={id}
         name={id}
-        defaultChecked={isCheck}
+        checked={checked}
+        onChange={onChange}
       />
-      <label className="cbx" htmlFor={id}>
-        <span>
-          <svg width="12px" height="9px" viewBox="0 0 12 9">
-            <polyline points="1 5 4 8 11 1"></polyline>
-          </svg>
-        </span>
-        <span className="label ">{title}</span>
-        {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
-
+      <label htmlFor={id}>
+        <div className="checkbox-title">
+          <p>{title}</p>
+        </div>
+        <div className="checkbox-subtitle">
+          <p>{subtitle1}</p>
+          <p>{subtitle2}</p>
+        </div>
       </label>
-      <span className="subtitle">{subtitle1}</span>
-      <span className="subtitle">{subtitle2}</span>
-      {subtitle3 ? (<span className="subtitle">{subtitle3}</span>) : ""
-      }
-      {subtitle4 ? (<span className="subtitle">{subtitle4}</span>) : ""}
-    </div >
-
-  )
-
+      {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
+    </div>
+  );
 }
 
 export default ChecklistItem;
