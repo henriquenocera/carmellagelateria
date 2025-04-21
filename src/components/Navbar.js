@@ -75,6 +75,14 @@ function NavBar() {
               <span className="text">Voucher</span>
             </NavLink>
           </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/checklist-test">
+              <span className="icon">
+                <Icons.BsTicket />
+              </span>
+              <span className="text">checklist</span>
+            </NavLink>
+          </li>
         </ul>
       </div>
     </>
