@@ -175,7 +175,6 @@
   font-size: 2rem;
   background: #a17550;
   color: #fff;
-  margin-bottom: 4rem;
 }
 .inventoryFlexbox {
   display: flex;
@@ -210,7 +209,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1;
+  z-index: 99;
 }
 
 .modal-content {
@@ -261,6 +260,7 @@
   padding: 2rem;
   border-radius: 8px;
   min-width: 300px;
+  z-index: 99;
 }
 .modalTitleError {
   border: none;
@@ -340,9 +340,10 @@
 /* Form Navigation Styles */
 .form-navigation {
   display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
+  align-items: center;
+  margin-top: 4rem;
   padding: 1rem 0;
+  width: 30%;
 }
 
 .nav-button {
@@ -369,6 +370,7 @@
   transform: translateY(-2px);
 }
 
+
 .submit {
   background: #a17550;
   color: white;
@@ -378,7 +380,6 @@
   font-size: 1.6rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: 100%;
 }
 
 .submit:hover {
