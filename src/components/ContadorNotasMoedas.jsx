@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-function ContadorNotasMoedas() {
+function ContadorNotasMoedas({ onTotalChange }) {
   const [denominacoes, setDenominacoes] = useState({
     hundred: "",
     fifty: "",
@@ -43,6 +43,12 @@ function ContadorNotasMoedas() {
       (denominacoes.oneCent * 0.01);
 
     setTotal(calculo);
+    if (onTotalChange) {
+      onTotalChange({
+        total: calculo,
+        denominacoes: denominacoes
+      });
+    }
   };
 
   return (
