@@ -394,3 +394,25 @@
   margin-top: 0.5rem;
   color: #666;
 }
+
+.checkbox-wrapper.weekday-specific {
+  background-color: #f9f2e4;
+  border: 1px solid #a17550;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.checkbox-wrapper.weekday-specific .cbx span:first-child {
+  border-color: #a17550;
+}
+
+.checkbox-wrapper.weekday-specific .cbx span:last-child {
+  color: #a17550;
+  font-weight: 500;
+}
+
+.checkbox-wrapper.weekday-specific .checkbox-subtitle p {
+  color: #666;
+  font-style: italic;
+}

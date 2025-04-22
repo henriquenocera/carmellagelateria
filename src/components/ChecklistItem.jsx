@@ -30,7 +30,7 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
   if (!shouldDisplay()) return null;
 
   return (
-    <div className="checkbox-wrapper">
+    <div className={`checkbox-wrapper ${weekday ? 'weekday-specific' : ''}`}>
       <input
         type="checkbox"
         id={id}
