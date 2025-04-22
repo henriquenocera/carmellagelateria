@@ -1,17 +1,15 @@
 import React, { useState, useRef } from "react";
 import "../css/ChecklistForm.css";
-import ChecklistItem from "./ChecklistItem";
+import ChecklistItem from "./ChecklistItem.jsx";
 import { ListId } from '../id.ts';
 
-
 function ChecklistFechamentoForm({ handleSubmit }) {
-  /*   const [freezer, setFreezer] = useState(""); */
   const [geladeira, setGeladeira] = useState("");
-  /*   const [amora, setAmora] = useState("");
-    const [maca, setMaca] = useState(""); */
   const [brownie, setBrownie] = useState("");
   const [panos, setPanos] = useState("");
   const [user, setUser] = useState("");
+  const [currentStep, setCurrentStep] = useState(1);
+  const [checkedItems, setCheckedItems] = useState({});
   const idInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
@@ -19,416 +17,294 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   const unidadeText = "Ahu";
 
+  const steps = [
+    {
+      title: `1ª Pré Fechamento - 
+      Horários: (18:00 ~ 18:45)`,
+      items: [
+        { id: "1", title: "Limpar espátulas", subtitle1: "Lavar com água e sabão", subtitle2: "" },
+        { id: "2", title: "Limpar cubas", subtitle1: "Sempre pegar um pano limpo", subtitle2: "" },
+        { id: "3", title: "Limpar todos os utensílios do café", subtitle1: "Limpar com água e sabão", subtitle2: "" },
+        { id: "4", title: "Limpar bancada dos salgados", subtitle1: "", subtitle2: "" },
+        { id: "5", title: "Limpar máquina de café (simples)", subtitle1: "", subtitle2: "" },
+        { id: "6", title: "Conferir trello (estoque)", subtitle1: "Revisar Trello e garantir que o estoque real bate com o estoque do trello", subtitle2: "Atualizar o trello com as entradas e saídas do dia seguinte" },
+        { id: "7", title: "Foto das frutas", subtitle1: "Enviar uma foto das frutas na loja no grupo do whatsapp da loja", subtitle2: "" }
+      ]
+    },
+    {
+      title: `2ª Pré Fechamento - Horários: (18:45 ~ 19:00)`,
+      items: [
+        { id: "8", title: "Recolher mesas externas", subtitle1: "Caso tenha clientes sentados, aguardar", subtitle2: "" },
+        { id: "9", title: "Fechar janela do salão dos clientes", subtitle1: "Caso tenha clientes sentados, aguardar", subtitle2: "" },
+        { id: "10", title: "Recolher saco pet e bebedouro do cachorro", subtitle1: "", subtitle2: "" },
+        { id: "11", title: "Colocar para carregar tablet e máquininha POS", subtitle1: "", subtitle2: "" },
+        { id: "12", title: "Limpar mesas e cadeiras do salão dos clientes", subtitle1: "", subtitle2: "" },
+      ]
+    },
+    {
+      title: "3ª Fechamento (19:00)",
+      items: [
+        { id: "13", title: "Fechar as portas de enrolar", subtitle1: "", subtitle2: "" },
+        { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
+        { id: "15", title: "Desligar a vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
+        { id: "16", title: "Desligar a máquina de café e moedor", subtitle1: "", subtitle2: "" },
+        { id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
+        { id: "18", title: "Retirar todos os lixos", subtitle1: "Lixos internos, externos, banheiro e salão dos clientes", subtitle2: "" },
+        { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, deixar os lixos no corredor", subtitle1: "", subtitle2: "", weekday: 7 },
+        { id: "20", title: "Fechar caixa no PDV", subtitle1: "", subtitle2: "" },
+        { id: "21", title: "Esvaziar água do balde das espátulas", subtitle1: "", subtitle2: "" },
+        { id: "22", title: "Fechar pote de casquinhas", subtitle1: "", subtitle2: "" },
+        
+  
+      ]
+    },
+    {
+      title: "4ª Inventário",
+      items: [
+
+      ]
+    },
+    {
+      title: "4ª Finalização e Limpeza",
+      items: [
+        { id: "23", title: "Secar pia", subtitle1: "", subtitle2: "" },
+        { id: "24", title: "Descartar panos", subtitle1: "Descartar no balde de panos", subtitle2: "" },
+        { id: "25", title: "Conferir geladeira", subtitle1: "Garantir que não sobrou nenuma cuba ou quebra lá dentro", subtitle2: "" },
+        { id: "26", title: "Conferir freezer, geladeira e friobar", subtitle1: "Garantir que estão bem fechados", subtitle2: "" },
+        { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
+        { id: "28", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" }, 
+        { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
+        { id: "30", title: "Apagar todas as luzes", subtitle1: "", subtitle2: "" },
+        { id: "31", title: "Apagar as luzes dos freezers", subtitle1: "", subtitle2: "" },
+        { id: "32", title: "Desligar computador", subtitle1: "", subtitle2: "" }
+      ]
+    }
+  ];
+
+  // Initialize checkedItems state with all items set to false
+  React.useEffect(() => {
+    const initialCheckedState = {};
+    steps.forEach(step => {
+      step.items.forEach(item => {
+        initialCheckedState[item.id] = false;
+      });
+    });
+    setCheckedItems(initialCheckedState);
+  }, []);
+
+  const handleCheckboxChange = (id) => {
+    setCheckedItems(prevState => ({
+      ...prevState,
+      [id]: !prevState[id]
+    }));
+  };
+
+  const validateCurrentStep = () => {
+    const currentStepItems = steps[currentStep - 1].items;
+    const allChecked = currentStepItems.every(item => checkedItems[item.id]);
+    return allChecked;
+  };
+
+  const nextStep = (e) => {
+    e.preventDefault();
+    if (currentStep < steps.length) {
+      if (validateCurrentStep()) {
+        setCurrentStep(currentStep + 1);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        setIsModalErrorOpen(true);
+      }
+    }
+  };
+
+  const prevStep = (e) => {
+    e.preventDefault();
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   function openModal(e) {
-    // Open Modal to ask for ID
-    // const formElement = e.target;
-    //const isValid = formElement.checkValidity();
-    //console.log(formElement)
-    // console.log(isValid)
-    e.preventDefault()
-
-
-    const formElement = e.currentTarget.parentNode;
-    const isValid = formElement.checkValidity();
-    console.log(isValid)
-
+    e.preventDefault();
+    const isValid = validateCurrentStep();
     if (isValid) {
-      console.log("Open Modal")
-      setIsModalOpen(true)
+      setIsModalOpen(true);
     } else {
-      setIsModalErrorOpen(true)
+      setIsModalErrorOpen(true);
     }
-
-
   }
 
   function checkId(e) {
-
-
-    console.log("Check ID")
-    e.preventDefault()
+    e.preventDefault();
     let idInput = idInputRef.current.value;
 
     if (idInput == ListId[0].value) {
-      setUser(ListId[0].nome)
-
+      setUser(ListId[0].nome);
     } else if (idInput == ListId[1].value) {
-      setUser(ListId[1].nome)
+      setUser(ListId[1].nome);
     } else if (idInput == ListId[2].value) {
-      setUser(ListId[2].nome)
+      setUser(ListId[2].nome);
     } else if (idInput == ListId[3].value) {
-      setUser(ListId[3].nome)
+      setUser(ListId[3].nome);
     } else if (idInput == ListId[4].value) {
-      setUser(ListId[4].nome)
+      setUser(ListId[4].nome);
     } else {
-      setUser("")
+      setUser("");
     }
-
   }
 
   const Checked = (e) => {
     function setWithExpiry(key, value, ttl) {
-      const now = new Date()
-
-      // `item` is an object which contains the original value
-      // as well as the time when it's supposed to expire
+      const now = new Date();
       const item = {
         value: value,
         expiry: now.getTime() + ttl,
-      }
-      localStorage.setItem(key, JSON.stringify(item))
+      };
+      localStorage.setItem(key, JSON.stringify(item));
     }
-
-    setWithExpiry("check", true, 10000)
-    /*     const elements = document.querySelectorAll('.inp-cbx');
-        elements.checked = true
-        console.log(elements) */
-
+    setWithExpiry("check", true, 10000);
   }
 
   return (
     <>
+      {isModalErrorOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content-error">
+            <h3 className="modalTitleError">Por favor, complete todos os itens do checklist antes de prosseguir</h3>
+            <div className="modal-buttons">
+              <button
+                onClick={() => setIsModalErrorOpen(false)}
+                className="close-button-error"
+              >
+                Voltar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            {user == "" ? (
+              <>
+                <h3 className="modalTitle">Por favor, digite seu ID</h3>
+                <input
+                  type="password"
+                  placeholder="Seu ID"
+                  className="userInput"
+                  pattern="[0-9]*"
+                  inputMode="numeric"
+                  min="0"
+                  max="9999"
+                  required
+                  ref={idInputRef}
+                />
+                <div className="modal-buttons">
+                  <button
+                    onClick={(e) => checkId(e)}
+                    className="confirm-button">Confirmar ID</button>
+                  <button
+                    onClick={() => { setIsModalOpen(false); setUser("") }}
+                    className="close-button"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="modalTextContainer">
+                  <p className="modalText">Ao Enviar o Checklist você confirma que realizou todas as tarefas descritas nele</p>
+                </div>
+                <h3 className="modalTitle">Responsável pelo Checklist:</h3>
+                <h2 className="user">{user}</h2>
+                <div className="modal-buttons">
+                  <button
+                    type="submit"
+                    form="checklistClose"
+                    className="confirm-button">Enviar Checklist</button>
+                  <button
+                    onClick={() => { setIsModalOpen(false); setUser("") }}
+                    className="close-button"
+                  >
+                    Voltar
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <form onSubmit={event => handleSubmit(event, geladeira, brownie, panos, user, check)} className="fechamentoAltoxv" id="checklistClose">
         <button className="hidebtn" onClick={Checked}>Check</button>
 
+        <div className="step-indicator">
+          {steps.map((step, index) => (
+            <div 
+              key={index} 
+              className={`step ${currentStep === index + 1 ? 'active' : ''} ${index + 1 < currentStep ? 'completed' : ''}`}
+            >
+              <div className="step-number">{index + 1}</div>
+              <div className="step-title">{step.title}</div>
+            </div>
+          ))}
+        </div>
+
         <div className="sectionTitle">
-          <p><strong>1ª Pré Fechamento (18:00 ~ 18:59)</strong></p>
-        </div>
-        <ChecklistItem
-          id="1"
-          title="Limpar Espátulas"
-          subtitle1="Lavar com água e sabão"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="2"
-          title="Limpar Cubas"
-          subtitle1="Sempre pegar um pano limpo"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="3"
-          title="Conferir Trello (Estoque)"
-          subtitle1="Revisar Trello e garantir que o estoque real bate com o estoque do trello"
-          subtitle2=""
-        />
-        <div className="sectionTitle">
-          <p><strong>2ª Fechamento (19:00)</strong></p>
-        </div>
-        <ChecklistItem
-          id="4"
-          title="Recolher Mesas Externas"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="5"
-          title="Fechar Janela"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="6"
-          title="Recolher Saco Pet e Bebedouro do Cachorro"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="7"
-          title="Retirar Lixo do Pátio Externo"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="71"
-          title="Fechar Portas de Rolar"
-          subtitle1="Trancar as portas"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="72"
-          title="Guardar Cubas da Vitrine"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="8"
-          title="Desligar Vitrine"
-          subtitle1=""
-          subtitle2=""
-        />
-        {/*        <ChecklistItem
-          id="80"
-          title="Desligar Máquina de Waffle"
-          subtitle1=""
-          subtitle2=""
-        /> */}
-        <ChecklistItem
-          id="9"
-          title="Desligar Máquina de Café e Moedor"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="10"
-          title="Fechar Caixa"
-          subtitle1=""
-          subtitle2=""
-        />
-        {/*         <ChecklistItem
-          id="11"
-          title="Descongelar Massas Para o Dia Seguinte"
-          subtitle1="Transferir massas do Freezer para o Frigobar Preto para totalizar 6 massas para o dia seguinte"
-          subtitle2="Após transferência de massas realizar o inventário abaixo"
-        /> */}
-        <div className="sectionTitle">
-          <p>Inventário (checklist)</p>
+          <p><strong>{steps[currentStep - 1].title}</strong></p>
         </div>
 
-        {/*         <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Massas <b>Freezer:</b></label>
-          <input onChange={(event) =>
-            setFreezer(event.target.value)
-          } className="inventoryInput" required type="number" name="freezer" min="0" id="90" />
-        </div> */}
-        <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Massas <b>Geladeira:</b></label>
-          <input onChange={(event) =>
-            setGeladeira(event.target.value)
-          } className="inventoryInput" required type="number" name="geladeira" min="0" id="91" />
-        </div>
+        {steps[currentStep - 1].items.map((item) => (
+          <ChecklistItem
+            key={item.id}
+            id={item.id}
+            title={item.title}
+            subtitle1={item.subtitle1}
+            subtitle2={item.subtitle2}
+            checked={checkedItems[item.id]}
+            onChange={() => handleCheckboxChange(item.id)}
+            weekday={item.weekday}
 
-        {/*         <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Amora:</b></label>
-          <input onChange={(event) =>
-            setAmora(event.target.value)
-          } className="inventoryInput" required type="number" name="amora" min="0" id="92" />
-        </div>
-        <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Potes Fechados de <b>Geleia de Maça:</b></label>
-          <input onChange={(event) =>
-            setMaca(event.target.value)
-          } className="inventoryInput" required type="number" name="maca" min="0" id="93" />
-        </div> */}
-        <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Quantidade de <b>Brownies:</b></label>
-          <input onChange={(event) =>
-            setBrownie(event.target.value)
-          } className="inventoryInput" required type="number" name="maca" min="0" id="94" />
-        </div>
-        <div className="inventoryFlexbox">
-          <label className="inventoryLabel" htmlFor="">Quantidade de <b>Panos Limpos:</b></label>
-          <input onChange={(event) =>
-            setPanos(event.target.value)
-          } className="inventoryInput" required type="number" name="panos" min="0" id="95" />
-        </div>
-        <ChecklistItem
-          id="12"
-          title="Foto das Frutas"
-          subtitle1="Enviar uma foto do status das frutas na loja"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="13"
-          title="Atualizar Trello (dia seguinte)"
-          subtitle1="Atualizar vitrine conforme o que vai ser alterado amanhã"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="14"
-          title="Desligar Tela do Tablet"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="15"
-          title="Colocar para Carregar Tablet e Máquina POS"
-          subtitle1="Carregar eles sempre na cozinha"
-          subtitle2=""
-        />
-        {/*         <ChecklistItem
-          id="16"
-          title="Guardar Bolo na Geladeira"
-          subtitle1=""
-          subtitle2=""
-        /> */}
-        <ChecklistItem
-          id="17"
-          title="Esvaziar Água do Balde das Espátulas"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="18"
-          title="Limpar Todos os Utensílios do Café"
-          subtitle1="Limpar com água e sabão"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="19"
-          title="Limpar Máquina de Café (simples)"
-          subtitle1="Passar um pano"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="20"
-          title="Limpar Bancada dos Salgados"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="211"
-          title="Limpar Bancadas da Loja"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="212"
-          title="Limpar Mesas e Cadeiras do Salão dos Clientes"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="21"
-          title="Secar Pia"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="22"
-          title="Descartar Panos"
-          subtitle1="Descartar no balde de panos"
-          subtitle2=""
-        />
-        {/*         <ChecklistItem
-          id="23"
-          title="Fechar Lixo do Salão dos Clientes"
-          subtitle1="Se não tiver cheio, apenas dar um nó"
-          subtitle2=""
-        /> */}
-        <ChecklistItem
-          id="24"
-          title="Conferir Geladeira"
-          subtitle1="Garantir que não sobrou nenuma cuba ou quebra lá dentro"
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="25"
-          title="Conferir Freezer, Geladeira e Friobar"
-          subtitle1="Garantir que estão bem fechados"
-          subtitle2=""
-        />
+          />
+        ))}
 
-        <ChecklistItem
-          id="26"
-          title="Varrer Chão"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="27"
-          title="Passar Mop no Chão"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="28"
-          title="Esvaziar Mop"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="29"
-          title="Apagar Luzes"
-          subtitle1=""
-          subtitle2=""
-        />
-        <ChecklistItem
-          id="30"
-          title="Desligar Computador"
-          subtitle1=""
-          subtitle2=""
-        />
-        {/* Modal */}
-        {isModalErrorOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content-error">
-              <h3 className="modalTitleError">Por favor, complete todos os itens do checklist antes de Confirmar</h3>
-              <div className="modal-buttons">
-                <button
-                  onClick={() => setIsModalErrorOpen(false)}
-                  className="close-button-error"
-                >
-                  Voltar
-                </button>
-              </div>
-            </div >
+        {currentStep === 4 && (
+          <>
+            <div className="inventoryFlexbox">
+              <label className="inventoryLabel" htmlFor="">Quantidade de <b>Massas</b></label>
+              <input onChange={(event) => setGeladeira(event.target.value)} className="inventoryInput" required type="number" name="geladeira" min="0" id="91" />
+            </div>
+            <div className="inventoryFlexbox">
+              <label className="inventoryLabel" htmlFor="">Quantidade de <b>Brownies:</b></label>
+              <input onChange={(event) => setBrownie(event.target.value)} className="inventoryInput" required type="number" name="brownie" min="0" id="94" />
+            </div>
+            <div className="inventoryFlexbox">
+              <label className="inventoryLabel" htmlFor="">Quantidade de <b>Panos Limpos:</b></label>
+              <input onChange={(event) => setPanos(event.target.value)} className="inventoryInput" required type="number" name="panos" min="0" id="95" />
+            </div>
+          </>
+        )}
 
-          </div >
-        )
-        }
-        {/* Modal */}
-        {isModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              {user == "" ? (
-                <>
-
-                  <h3 className="modalTitle">Por favor, digite seu ID</h3>
-                  <input
-                    type="password"
-                    placeholder="Seu ID"
-                    className="userInput"
-                    pattern="[0-9]*"
-                    inputMode="numeric"
-                    min="0"
-                    max="9999"
-                    required
-                    ref={idInputRef}
-                  />
-                  <div className="modal-buttons">
-                    <button
-                      onClick={(e) => checkId(e)}
-                      className="confirm-button">Confirmar ID</button>
-                    <button
-                      onClick={() => { setIsModalOpen(false); setUser("") }}
-                      className="close-button"
-                    >
-                      Voltar
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="modalTextContainer">
-                    <p className="modalText">Ao Enviar o Checklist você confirma que realizou todas as tarefas descritas nele</p>
-                  </div>
-                  <h3 className="modalTitle">Responsável pelo Checklist:</h3>
-                  <h2 className="user">{user}</h2>
-                  <div className="modal-buttons">
-                    <button
-                      type="submit"
-                      form="checklistClose"
-                      className="confirm-button">Enviar Checklist</button>
-                    <button
-                      onClick={() => { setIsModalOpen(false); setUser("") }}
-                      className="close-button"
-                    >
-                      Voltar
-                    </button>
-                  </div>
-                </>
-              )
-              }
-            </div >
-          </div >
-        )
-        }
-        <button onClick={openModal} className="submit"
-          type="submit">Confirmar Checklist</button>
-      </form >
+        <div className="form-navigation">
+          {currentStep > 1 && (
+            <button type="button" className="nav-button prev" onClick={prevStep}>
+              Voltar
+            </button>
+          )}
+          {currentStep < steps.length ? (
+            <button type="button" className="nav-button next" onClick={nextStep}>
+              Próximo
+            </button>
+          ) : (
+            <button onClick={openModal} className="submit" type="submit">
+              Confirmar Checklist
+            </button>
+          )}
+        </div>
+      </form>
     </>
   );
 }

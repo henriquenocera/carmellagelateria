@@ -30,7 +30,6 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
         { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Utilizar o contador de notas e moedas abaixo", subtitle2: "" },
         { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 5 | Senha: 2849" },
-        // { id: "90", title: "Verificar estoque semanal", subtitle1: "Conferir quantidade de produtos", subtitle2: "Fazer pedido de reposição se necessário", weekday: 7 },
       ]
     },
     {
@@ -53,6 +52,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "19", title: "Limpar as mesas e cadeiras do salão", subtitle1: "Pano e álcool líquido", subtitle2: "" },
         { id: "20", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
         { id: "21", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" }, 
+        { id: "90", title: "(SEGUNDA) - Passar um mope no chão no salão dos clientes", subtitle1: "Piso madeirado", subtitle2: "", weekday: 1 },
+
       ]
     },
     {
