@@ -306,7 +306,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         </div>
 
         {steps[currentStep - 1].items.map((item) => (
-          <ChecklistItem
+        <ChecklistItem
             key={item.id}
             id={item.id}
             title={item.title}
