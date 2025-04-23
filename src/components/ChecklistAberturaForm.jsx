@@ -91,9 +91,17 @@ function ChecklistAberturaForm({ handleSubmit }) {
   };
 
   function checkValidity() {
+    const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
     // Check if all steps are completed using the checkedItems state
     const allStepsCompleted = steps.every(step => {
-      return step.items.every(item => checkedItems[item.id]);
+      // Only check items that should be visible today
+      const visibleItems = step.items.filter(item => {
+        if (!item.weekday) return true; // If no weekday specified, always check
+        return item.weekday === today; // Only check if it's the right weekday
+      });
+
+      return visibleItems.every(item => checkedItems[item.id]);
     });
 
     return allStepsCompleted;
