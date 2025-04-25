@@ -75,6 +75,7 @@ function NavBar() {
               <span className="text">Voucher</span>
             </NavLink>
           </li>
+
         </ul>
       </div>
     </>

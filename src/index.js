@@ -16,6 +16,7 @@ import Vales from "./routes/Vales.tsx";
 import Inventario from "./routes/Inventario.tsx";
 import ChecklistConferencia from "./routes/ChecklistConferencia.tsx";
 import Voucher from "./routes/Voucher.tsx";
+import ChecklistTest from "./routes/ChecklistTest.tsx";
 
 const AppLayout = () => (
   <>
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
       <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
       <Route path="/checklist-conferencia" element={<ChecklistConferencia />} />
       <Route path="/voucher" element={<Voucher />} />
+      <Route path="/checklist-test" element={<ChecklistTest />} />
     </Route>
   )
 );

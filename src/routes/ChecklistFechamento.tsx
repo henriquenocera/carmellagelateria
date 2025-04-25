@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
 
 import * as Icons from "react-icons/bs";
@@ -8,8 +8,8 @@ import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = "Ahu";
+const unidade = "ahu";
 
 async function sendOpenMessage(
   openDateFormat,
@@ -20,7 +20,7 @@ async function sendOpenMessage(
 ) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Fechamento - Loja ${unidadeText} %0D%0A ${openDateFormat}
 
-  %0D%0A Responsável: ${user}
+  %0D%0A  %0D%0A Responsável: ${user}  %0D%0A
   %0D%0A Qntd Massas na Geladeira: ${geladeira};
   %0D%0A Qntd de Brownies na Geladeira: ${brownie}
   %0D%0A Qntd de Panos Limpos: ${panos}`;
@@ -154,7 +154,7 @@ function ChecklistFechamento() {
           <div className="unitInfo">
             <h1>Checklist de Fechamento</h1>
 
-            <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
+            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
           </div>
           <div className="unitLogo">
             <img src="/logo.svg" alt="" />

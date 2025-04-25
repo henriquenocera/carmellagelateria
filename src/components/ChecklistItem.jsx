@@ -1,35 +1,59 @@
 import React from "react";
 
-function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star }) {
+function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday }) {
+  function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+    // if the item doesn't exist, return null
+    if (!itemStr) {
+      return null
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+    // compare the expiry time of the item with the current time
+    if (now.getTime() > item.expiry) {
+      // If the item is expired, delete the item from storage
+      // and return null
+      localStorage.removeItem(key)
+      return null
+    }
+    return item.value
+  }
+  const isCheck = getWithExpiry("check")
+
+  // Check if the item should be displayed based on weekday
+  const shouldDisplay = () => {
+    if (!weekday) return true; // If no weekday specified, always display
+    const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+    return weekday === today;
+  };
+
+  if (!shouldDisplay()) return null;
 
   return (
-
-    <div className="checkbox-wrapper">
+    <div className={`checkbox-wrapper ${weekday ? 'weekday-specific' : ''}`}>
       <input
-        required
-        className="inp-cbx"
-        id={id}
         type="checkbox"
+        id={id}
         name={id}
+        className="inp-cbx"
+        checked={checked}
+        onChange={onChange}
       />
-      <label className="cbx" htmlFor={id}>
+      <label htmlFor={id} className="cbx">
         <span>
-          <svg width="12px" height="9px" viewBox="0 0 12 9">
-            <polyline points="1 5 4 8 11 1"></polyline>
+          <svg width="12px" height="10px" viewBox="0 0 12 10">
+            <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
           </svg>
         </span>
-        <span className="label ">{title}</span>
-        {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
-
+        <span>{title}</span>
       </label>
-      <span className="subtitle">{subtitle1}</span>
-      <span className="subtitle">{subtitle2}</span>
-      {subtitle3 ? (<span className="subtitle">{subtitle3}</span>) : ""}
-      {subtitle4 ? (<span className="subtitle">{subtitle4}</span>) : ""}
+      <div className="checkbox-subtitle">
+        <p>{subtitle1}</p>
+        <p>{subtitle2}</p>
+      </div>
+      {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
     </div>
-
-  )
-
+  );
 }
 
 export default ChecklistItem;

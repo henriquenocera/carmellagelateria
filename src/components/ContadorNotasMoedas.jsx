@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
 
-function ContadorNotasMoedas() {
+function ContadorNotasMoedas({ onTotalChange }) {
   const [denominacoes, setDenominacoes] = useState({
-    hundred: 0,
-    fifty: 0,
-    twenty: 0,
-    ten: 0,
-    five: 0,
-    two: 0,
-    oneReal: 0,
-    fiftyCents: 0,
-    twentyFiveCents: 0,
-    tenCents: 0,
-    fiveCents: 0,
-    oneCent: 0
+    hundred: "",
+    fifty: "",
+    twenty: "",
+    ten: "",
+    five: "",
+    two: "",
+    oneReal: "",
+    fiftyCents: "",
+    twentyFiveCents: "",
+    tenCents: "",
+    fiveCents: "",
+    oneCent: ""
   });
 
   const [total, setTotal] = useState(0);
@@ -43,6 +43,12 @@ function ContadorNotasMoedas() {
       (denominacoes.oneCent * 0.01);
 
     setTotal(calculo);
+    if (onTotalChange) {
+      onTotalChange({
+        total: calculo,
+        denominacoes: denominacoes
+      });
+    }
   };
 
   return (
