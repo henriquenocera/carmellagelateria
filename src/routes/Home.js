@@ -20,7 +20,7 @@ function Home() {
     const { data, error } = await supabase
       .from("Checklist")
       .select("*")
-      .eq("store", "ahu")
+      .eq("store", "altoxv")
       .gte("created_at", fiveDaysAgo)
       .order("created_at", { ascending: false });
 

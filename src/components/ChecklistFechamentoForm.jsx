@@ -34,9 +34,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     {
       title: `2ª Pré Fechamento - Horários: (18:45 ~ 19:00)`,
       items: [
-        { id: "8", title: "Recolher mesas externas", subtitle1: "Caso tenha clientes sentados, aguardar", subtitle2: "" },
-        { id: "9", title: "Fechar janela do salão dos clientes", subtitle1: "Caso tenha clientes sentados, aguardar", subtitle2: "" },
-        { id: "10", title: "Recolher saco pet e bebedouro do cachorro", subtitle1: "", subtitle2: "" },
+        { id: "8", title: "Fechar janela da sala dos funcionários", subtitle1: "", subtitle2: "" },
+        { id: "9", title: "Fechar porta do salão dos clientes", subtitle1: "Caso tenha clientes sentados, aguardar", subtitle2: "" },
         { id: "11", title: "Colocar para carregar tablet e máquininha POS", subtitle1: "", subtitle2: "" },
         { id: "12", title: "Limpar mesas e cadeiras do salão dos clientes", subtitle1: "", subtitle2: "" },
       ]
@@ -72,10 +71,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "25", title: "Conferir geladeira", subtitle1: "Garantir que não sobrou nenuma cuba ou quebra lá dentro", subtitle2: "" },
         { id: "26", title: "Conferir freezer, geladeira e friobar", subtitle1: "Garantir que estão bem fechados", subtitle2: "" },
         { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "28", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" }, 
+        { id: "28", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" }, 
         { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
-        { id: "30", title: "Apagar todas as luzes", subtitle1: "", subtitle2: "" },
-        { id: "31", title: "Apagar as luzes dos freezers", subtitle1: "", subtitle2: "" },
+        { id: "30", title: "Desligar todas as luzes", subtitle1: "", subtitle2: "" },
+        { id: "31", title: "Desligar a luz do freezer", subtitle1: "", subtitle2: "" },
         { id: "32", title: "Desligar computador", subtitle1: "", subtitle2: "" }
       ]
     }

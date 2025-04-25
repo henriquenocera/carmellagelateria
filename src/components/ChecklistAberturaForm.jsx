@@ -38,8 +38,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
         { id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "" },
         { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
-        { id: "13", title: "Colocar sacos de lixo externos", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
-        { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
+        { id: "13", title: "Colocar sacos de lixo do salão dos clientes", subtitle1: "Sacos de lixo de 60 Litros", subtitle2: "" },
+        { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
         { id: "15", title: "Repor papel higiênico no banheiro", subtitle1: "", subtitle2: "" },
         { id: "16", title: "Repor papel toalha no banheiro", subtitle1: "", subtitle2: "" },
         { id: "17", title: "Repor insumos necessários", subtitle1: "Retirar do estoque", subtitle2: "" },
@@ -51,8 +51,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "18", title: "Limpar as bancadas da loja", subtitle1: "Pano e álcool líquido", subtitle2: "" },
         { id: "19", title: "Limpar as mesas e cadeiras do salão", subtitle1: "Pano e álcool líquido", subtitle2: "" },
         { id: "20", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "21", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" }, 
-        { id: "90", title: "(SEGUNDA) - Passar um mope no chão no salão dos clientes", subtitle1: "Piso madeirado", subtitle2: "", weekday: 1 },
+        { id: "21", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" }, 
+        { id: "31", title: "Limpar Pátio externo da frente", subtitle1: "Recolher lixo e varrer", subtitle2: "" }, 
+        { id: "32", title: "Limpar Pátio externo dos fundos", subtitle1: "Recolher lixo e varrer", subtitle2: "" }, 
 
       ]
     },
@@ -61,10 +62,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
       items: [
         { id: "22", title: "Abastecer vitrine (-4ºC)", subtitle1: "", subtitle2: "" },
         { id: "23", title: "Abrir portas de enrolar", subtitle1: "", subtitle2: "" },
-        { id: "24", title: "Abrir janela do salão dos clientes", subtitle1: "", subtitle2: "" },
-        { id: "25", title: "Colocar saco pet", subtitle1: "", subtitle2: "" },
-        { id: "26", title: "Colocar mesas externas", subtitle1: "", subtitle2: "" },
-        { id: "27", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta de metal do corredor", subtitle2: "" },
+        { id: "24", title: "Abrir porta do salão dos clientes", subtitle1: "", subtitle2: "" },
+        { id: "27", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta dos fundos", subtitle2: "" },
         { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
         { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" } 
