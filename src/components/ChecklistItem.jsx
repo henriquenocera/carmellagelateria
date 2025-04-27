@@ -29,8 +29,10 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
 
   if (!shouldDisplay()) return null;
 
+  const isWeekdaySpecific = weekday !== undefined && weekday !== null;
+
   return (
-    <div className={`checkbox-wrapper ${weekday ? 'weekday-specific' : ''}`}>
+    <div className={`checkbox-wrapper ${isWeekdaySpecific ? 'weekday-specific' : ''}`}>
       <input
         type="checkbox"
         id={id}
