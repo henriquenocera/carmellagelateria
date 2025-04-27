@@ -50,12 +50,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "16", title: "Desligar a máquina de café e moedor", subtitle1: "", subtitle2: "" },
         { id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
         { id: "18", title: "Retirar todos os lixos", subtitle1: "Lixos internos, externos, banheiro e salão dos clientes", subtitle2: "" },
-        { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, deixar os lixos no corredor", subtitle1: "", subtitle2: "", weekday: 7 },
+        { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, deixar os lixos no corredor", subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "20", title: "Fechar caixa no PDV", subtitle1: "", subtitle2: "" },
         { id: "21", title: "Esvaziar água do balde das espátulas", subtitle1: "", subtitle2: "" },
         { id: "22", title: "Fechar pote de casquinhas", subtitle1: "", subtitle2: "" },
-        
-  
+
+
       ]
     },
     {
@@ -72,7 +72,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "25", title: "Conferir geladeira", subtitle1: "Garantir que não sobrou nenuma cuba ou quebra lá dentro", subtitle2: "" },
         { id: "26", title: "Conferir freezer, geladeira e friobar", subtitle1: "Garantir que estão bem fechados", subtitle2: "" },
         { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "28", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" }, 
+        { id: "28", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" },
         { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
         { id: "30", title: "Apagar todas as luzes", subtitle1: "", subtitle2: "" },
         { id: "31", title: "Apagar as luzes dos freezers", subtitle1: "", subtitle2: "" },
@@ -102,7 +102,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const validateCurrentStep = () => {
     const currentStepItems = steps[currentStep - 1].items;
     const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-    
+
     // Only check items that should be visible today
     const visibleItems = currentStepItems.filter(item => {
       if (!item.weekday) return true; // If no weekday specified, always check
@@ -251,8 +251,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
         <div className="step-indicator">
           {steps.map((step, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={`step ${currentStep === index + 1 ? 'active' : ''} ${index + 1 < currentStep ? 'completed' : ''}`}
             >
               <div className="step-number">{index + 1}</div>
