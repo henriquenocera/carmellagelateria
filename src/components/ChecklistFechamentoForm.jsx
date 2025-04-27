@@ -49,7 +49,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "16", title: "Desligar a máquina de café e moedor", subtitle1: "", subtitle2: "" },
         { id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
         { id: "18", title: "Retirar todos os lixos", subtitle1: "Lixos internos, externos, banheiro e salão dos clientes", subtitle2: "" },
-        { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, deixar os lixos no corredor", subtitle1: "", subtitle2: "", weekday: 0 },
+        { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, não colocar os lixos para fora", subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "20", title: "Fechar caixa no PDV", subtitle1: "", subtitle2: "" },
         { id: "21", title: "Esvaziar água do balde das espátulas", subtitle1: "", subtitle2: "" },
         { id: "22", title: "Fechar pote de casquinhas", subtitle1: "", subtitle2: "" },
