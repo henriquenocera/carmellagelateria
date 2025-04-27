@@ -1,0 +1,67 @@
+.app-container {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.main-nav {
+  background-color: #a17550;
+  padding: 1rem 2rem;
+  display: flex;
+  gap: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1.6rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.home-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.home-page h1 {
+  color: #a17550;
+  font-size: 3.2rem;
+  margin-bottom: 1rem;
+}
+
+.home-page p {
+  color: #666;
+  font-size: 1.8rem;
+}
+
+@media (max-width: 768px) {
+  .main-nav {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nav-link {
+    text-align: center;
+  }
+
+  .home-page {
+    padding: 2rem 1rem;
+  }
+
+  .home-page h1 {
+    font-size: 2.4rem;
+  }
+
+  .home-page p {
+    font-size: 1.6rem;
+  }
+} 
