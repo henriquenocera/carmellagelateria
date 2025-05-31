@@ -108,6 +108,7 @@ textarea {
   padding: 1rem 4rem;
   color: #eeeeee;
   background: #a17550;
+  z-index: 1;
 }
 
 .bigText {
@@ -137,4 +138,4 @@ textarea {
   font-size: 1.6rem;
   line-height: 2.6rem;
   font-weight: 400;
-}/*# sourceMappingURL=main.css.map */
+} /*# sourceMappingURL=main.css.map */

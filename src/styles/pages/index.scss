@@ -3,8 +3,8 @@
 //===============================================
 // Page Vendors
 //===============================================
-@import "../vendors/glide/glide.core.scss";
-@import "../vendors/glide/glide.theme.scss";
+//@import "../vendors/glide/glide.core.scss";
+//@import "../vendors/glide/glide.theme.scss";
 
 .hero {
   position: relative;
@@ -17,6 +17,7 @@
     position: absolute;
     left: -7rem;
     bottom: 12rem;
+    z-index: 1;
   }
 
   .left,
