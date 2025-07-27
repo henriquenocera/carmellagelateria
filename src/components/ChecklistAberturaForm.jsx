@@ -51,9 +51,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "18", title: "Limpar as bancadas da loja", subtitle1: "Pano e álcool líquido", subtitle2: "" },
         { id: "19", title: "Limpar as mesas e cadeiras do salão", subtitle1: "Pano e álcool líquido", subtitle2: "" },
         { id: "20", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "21", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" }, 
-        { id: "31", title: "Limpar Pátio externo da frente", subtitle1: "Recolher lixo e varrer", subtitle2: "" }, 
-        { id: "32", title: "Limpar Pátio externo dos fundos", subtitle1: "Recolher lixo e varrer", subtitle2: "" }, 
+        { id: "21", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
+        { id: "31", title: "Limpar Pátio externo da frente", subtitle1: "Recolher lixo e varrer", subtitle2: "" },
+        { id: "32", title: "Limpar Pátio externo dos fundos", subtitle1: "Recolher lixo e varrer", subtitle2: "" },
 
       ]
     },
@@ -94,7 +94,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
   function checkValidity() {
     const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-    
+
     // Check if all steps are completed using the checkedItems state
     const allStepsCompleted = steps.every(step => {
       // Only check items that should be visible today
@@ -137,6 +137,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
       setUser(ListId[3].nome);
     } else if (idInput == ListId[4].value) {
       setUser(ListId[4].nome);
+    } else if (idInput == ListId[5].value) {
+      setUser(ListId[5].nome);
     } else {
       setUser("");
     }
@@ -157,7 +159,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const validateCurrentStep = () => {
     const currentStepItems = steps[currentStep - 1].items;
     const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
-    
+
     // Only check items that should be visible today
     const visibleItems = currentStepItems.filter(item => {
       if (!item.weekday) return true; // If no weekday specified, always check
@@ -194,11 +196,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
   const formatMoneyCounterMessage = () => {
     if (!moneyCounterData) return "";
-    
+
     const { total, denominacoes } = moneyCounterData;
     let message = "%0D%0A %0D%0A💰 Contagem de Cédulas e Moedas: %0D%0A";
     message += `Total: R$ ${total.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%0D%0A%0D%0A`;
-    
+
     message += "Cédulas:%0D%0A";
     message += `R$ 100,00: ${denominacoes.hundred}%0D%0A`;
     message += `R$ 50,00: ${denominacoes.fifty}%0D%0A`;
@@ -206,7 +208,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
     message += `R$ 10,00: ${denominacoes.ten}%0D%0A`;
     message += `R$ 5,00: ${denominacoes.five}%0D%0A`;
     message += `R$ 2,00: ${denominacoes.two}%0D%0A %0D%0A`;
-    
+
     message += "Moedas:%0D%0A";
     message += `R$ 1,00: ${denominacoes.oneReal}%0D%0A`;
     message += `R$ 0,50: ${denominacoes.fiftyCents}%0D%0A`;
@@ -214,7 +216,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
     message += `R$ 0,10: ${denominacoes.tenCents}%0D%0A`;
     message += `R$ 0,05: ${denominacoes.fiveCents}%0D%0A`;
     message += `R$ 0,01: ${denominacoes.oneCent}%0D%0A`;
-    
+
     return message;
   };
 
@@ -301,8 +303,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
         <div className="step-indicator">
           {steps.map((step, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className={`step ${currentStep === index + 1 ? 'active' : ''} ${index + 1 < currentStep ? 'completed' : ''}`}
             >
               <div className="step-number">{index + 1}</div>
@@ -316,7 +318,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         </div>
 
         {steps[currentStep - 1].items.map((item) => (
-        <ChecklistItem
+          <ChecklistItem
             key={item.id}
             id={item.id}
             title={item.title}
@@ -345,7 +347,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
               Confirmar Checklist
             </button>
           )}
-          </div>
+        </div>
       </form>
     </>
   );
