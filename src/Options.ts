@@ -28,8 +28,12 @@ export const Options: readonly Options[] = [
     label: "Pacote de Cascão (10un)",
   },
   {
-    value: "Bebidas",
-    label: "Bebidas",
+    value: "Água",
+    label: "Água",
+  },
+  {
+    value: "Refri, Chá ou Suco",
+    label: "Refri, Chá ou Suco",
   },
   {
     value: "Soda Italiana",
@@ -71,14 +75,6 @@ export const Options: readonly Options[] = [
   {
     value: "Mapple Syrup - 10gr",
     label: "Mapple Syrup - 10gr",
-  },
-  {
-    value: "Geleia de Maça - 70gr",
-    label: "Geleia de Maça - 70gr",
-  },
-  {
-    value: "Geleia de Amora - 70gr",
-    label: "Geleia de Amora - 70gr",
   },
   {
     value: "Gelato Carmella - 60gr",
@@ -158,6 +154,10 @@ export const Options: readonly Options[] = [
     label: "Espresso Duplo",
   },
   {
+    value: "Espresso Lungo",
+    label: "Espresso Lungo",
+  },
+  {
     value: "Americano",
     label: "Americano",
   },
@@ -166,12 +166,12 @@ export const Options: readonly Options[] = [
     label: "Macchiato",
   },
   {
-    value: "Affogato",
-    label: "Affogato",
+    value: "Espresso c/ Leite - P",
+    label: "Espresso c/ Leite - P",
   },
   {
-    value: "Latte",
-    label: "Latte",
+    value: "Espresso c/ Leite - G",
+    label: "Espresso c/ Leite - G",
   },
   {
     value: "Capuccino Italiano",
@@ -181,7 +181,30 @@ export const Options: readonly Options[] = [
     value: "Capuccino Brasileiro",
     label: "Capuccino Brasileiro",
   },
-
+  {
+    value: "Latte",
+    label: "Latte",
+  },
+  {
+    value: "Vanilla - Latte",
+    label: "Vanilla - Lattle",
+  },
+  {
+    value: "Caramel - Latte",
+    label: "Caramel - Lattle",
+  },
+  {
+    value: "Mocha",
+    label: "Mocha",
+  },
+  {
+    value: "Café Passado",
+    label: "Café Passado",
+  },
+  {
+    value: "Café Passado c/ Leite",
+    label: "Café Passado c/ Leite",
+  },
   {
     value: "Chocolate Quente",
     label: "Chocolate Quente",
@@ -189,5 +212,9 @@ export const Options: readonly Options[] = [
   {
     value: "Chá Quente",
     label: "Chá Quente",
+  },
+  {
+    value: "Affogato",
+    label: "Affogato",
   },
 ];
