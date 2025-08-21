@@ -14,7 +14,7 @@ function NavBar() {
       <div className={sidebar ? "navigation open" : "navigation"}>
         <div className="menuToggle" onClick={showSidebar}></div>
         <ul>
-          {/* <li className={activeMenu ? "list active" : "list"}>
+          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/">
               <span className="icon">
                 <Icons.BsEscape />
@@ -66,7 +66,7 @@ function NavBar() {
               </span>
               <span className="text">Checklist De Conferência</span>
             </NavLink>
-          </li> */}
+          </li>
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/voucher">
               <span className="icon">
