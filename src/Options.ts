@@ -28,17 +28,18 @@ export const Options: readonly Options[] = [
     label: "Pacote de Cascão (10un)",
   },
   {
-    value: "Bebidas",
-    label: "Bebidas",
+    value: "Água",
+    label: "Água",
+  },
+  {
+    value: "Refri, Chá ou Suco",
+    label: "Refri, Chá ou Suco",
   },
   {
     value: "Soda Italiana",
     label: "Soda Italiana",
   },
-  {
-    value: "Bolo - Fatia",
-    label: "Bolo - Fatia",
-  },
+
   {
     value: "COMBO SEGUNDA - Nutella e Morango",
     label: "COMBO SEGUNDA - Nutella e Morango",
@@ -64,14 +65,6 @@ export const Options: readonly Options[] = [
     label: "Waffle de Liege",
   },
   {
-    value: "Waffle Bites - 6un",
-    label: "Waffle Bites - 6un",
-  },
-  {
-    value: "Waffle Bites - 12un",
-    label: "Waffle Bites - 12un",
-  },
-  {
     value: "Nutella - 40gr",
     label: "Nutella - 40gr",
   },
@@ -82,14 +75,6 @@ export const Options: readonly Options[] = [
   {
     value: "Mapple Syrup - 10gr",
     label: "Mapple Syrup - 10gr",
-  },
-  {
-    value: "Geleia de Maça - 70gr",
-    label: "Geleia de Maça - 70gr",
-  },
-  {
-    value: "Geleia de Amora - 70gr",
-    label: "Geleia de Amora - 70gr",
   },
   {
     value: "Gelato Carmella - 60gr",
@@ -120,22 +105,6 @@ export const Options: readonly Options[] = [
     label: "Leite Condensado - 20gr",
   },
   {
-    value: "Pão de Batata - Catupiry",
-    label: "Pão de Batata - Catupiry",
-  },
-  {
-    value: "Pão de Batata - Queijo, Presunto e Tomate",
-    label: "Pão de Batata - Queijo, Presunto e Tomate",
-  },
-  {
-    value: "Pão de Batata - Linguiça Blumenau",
-    label: "Pão de Batata - Linguiça Blumenau",
-  },
-  {
-    value: "Pão de Batata - Frango c/ Cream Cheese",
-    label: "Pão de Batata - Frango c/ Cream Cheese",
-  },
-  {
     value: "Brownie",
     label: "Brownie",
   },
@@ -143,30 +112,7 @@ export const Options: readonly Options[] = [
     value: "Brownie + Gelato",
     label: "Brownie + Gelato",
   },
-  {
-    value: "Milkshake 300ml",
-    label: "Milkshake 300ml",
-  },
-  {
-    value: "Milkshake 500ml",
-    label: "Milkshake 500ml",
-  },
-  {
-    value: "Calda p/ Milkshake",
-    label: "Calda p/ Milkshake",
-  },
-  {
-    value: "Chantily p/ Milkshake",
-    label: "Chantily p/ Milkshake",
-  },
-  {
-    value: "Torta de Maça",
-    label: "Torta de Maça",
-  },
-  {
-    value: "Torta de Maça + Gelato",
-    label: "Torta de Maça + Gelato",
-  },
+
   {
     value: "Quiche Loraine",
     label: "Quiche Loraine",
@@ -200,16 +146,16 @@ export const Options: readonly Options[] = [
     label: "Sanduíche de Mortadela",
   },
   {
-    value: "Porção de Chips",
-    label: "Porção de Chips",
-  },
-  {
     value: "Espresso Simples",
     label: "Espresso Simples",
   },
   {
     value: "Espresso Duplo",
     label: "Espresso Duplo",
+  },
+  {
+    value: "Espresso Lungo",
+    label: "Espresso Lungo",
   },
   {
     value: "Americano",
@@ -220,12 +166,12 @@ export const Options: readonly Options[] = [
     label: "Macchiato",
   },
   {
-    value: "Affogato",
-    label: "Affogato",
+    value: "Espresso c/ Leite - P",
+    label: "Espresso c/ Leite - P",
   },
   {
-    value: "Latte",
-    label: "Latte",
+    value: "Espresso c/ Leite - G",
+    label: "Espresso c/ Leite - G",
   },
   {
     value: "Capuccino Italiano",
@@ -236,12 +182,28 @@ export const Options: readonly Options[] = [
     label: "Capuccino Brasileiro",
   },
   {
+    value: "Latte",
+    label: "Latte",
+  },
+  {
+    value: "Vanilla - Latte",
+    label: "Vanilla - Lattle",
+  },
+  {
+    value: "Caramel - Latte",
+    label: "Caramel - Lattle",
+  },
+  {
+    value: "Mocha",
+    label: "Mocha",
+  },
+  {
     value: "Café Passado",
     label: "Café Passado",
   },
   {
-    value: "Café Passado com Leite",
-    label: "Café Passado com Leite",
+    value: "Café Passado c/ Leite",
+    label: "Café Passado c/ Leite",
   },
   {
     value: "Chocolate Quente",
@@ -250,5 +212,9 @@ export const Options: readonly Options[] = [
   {
     value: "Chá Quente",
     label: "Chá Quente",
+  },
+  {
+    value: "Affogato",
+    label: "Affogato",
   },
 ];
