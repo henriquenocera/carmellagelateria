@@ -13,14 +13,7 @@ function Home() {
       </Helmet>
       <div className="home">
         <img className="logo" src="/logo.svg" alt="" />
-        <div className="container">
-          <button
-            className="btn btn-primary"
-            onClick={() => (window.location.href = "/vales")}
-          >
-            Vales
-          </button>
-        </div>
+        <div className="container"></div>
       </div>
     </>
   );
