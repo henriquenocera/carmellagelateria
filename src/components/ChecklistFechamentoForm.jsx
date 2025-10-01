@@ -17,11 +17,16 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   const unidadeText = "Ahu";
 
+  const weekday = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+  console.log(weekday)
+
   const steps = [
     {
       title: `1ª Pré Fechamento - 
       Horários: (18:00 ~ 18:45)`,
       items: [
+        { id: "19", title: `Hoje é ${weekday}`, subtitle1: "", subtitle2: "", weekday: 2 },
+        { id: "19", title: `Hoje é ${weekday}`, subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "1", title: "Limpar espátulas", subtitle1: "Lavar com água e sabão", subtitle2: "" },
         { id: "2", title: "Limpar cubas", subtitle1: "Sempre pegar um pano limpo", subtitle2: "" },
         { id: "3", title: "Limpar todos os utensílios do café", subtitle1: "Limpar com água e sabão", subtitle2: "" },

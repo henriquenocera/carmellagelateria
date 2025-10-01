@@ -21,6 +21,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
     {
       title: "1ª - Equipamentos",
       items: [
+        /*         { id: "90", title: "(Segunda) - Realizar o inventário", subtitle1: "Pode realizar ao longo do dia", subtitle2: "", weekday: 3 },
+                { id: "90", title: "(Quinta) - Realizar o inventário", subtitle1: "Pode realizar ao longo do dia", subtitle2: "", weekday: 4 }, */
         { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido" },
         { id: "2", title: "Limpeza externa da vitrine", subtitle1: "Vidros com álcool líquido", subtitle2: "" },
         { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
@@ -67,8 +69,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
         { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
-        { id: "90", title: "(Segunda) - Realizar o inventário", subtitle1: "Pode realizar ao longo do dia", subtitle2: "", weekday: 1 },
-        { id: "90", title: "(Quinta) - Realizar o inventário", subtitle1: "Pode realizar ao longo do dia", subtitle2: "", weekday: 4 },
+
 
       ]
     }
