@@ -25,8 +25,6 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       title: `1ª Pré Fechamento - 
       Horários: (18:00 ~ 18:45)`,
       items: [
-
-        { id: "19", title: `Hoje é ${weekday}`, subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "1", title: "Limpar espátulas", subtitle1: "Lavar com água e sabão", subtitle2: "" },
         { id: "2", title: "Limpar cubas", subtitle1: "Sempre pegar um pano limpo", subtitle2: "" },
         { id: "3", title: "Limpar todos os utensílios do café", subtitle1: "Limpar com água e sabão", subtitle2: "" },
@@ -274,18 +272,18 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         {steps[currentStep - 1].items
           .filter((item) => item.weekday === undefined || item.weekday === weekday)
           .map((item) => (
-          <ChecklistItem
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            subtitle1={item.subtitle1}
-            subtitle2={item.subtitle2}
-            checked={checkedItems[item.id]}
-            onChange={() => handleCheckboxChange(item.id)}
-            weekday={item.weekday}
+            <ChecklistItem
+              key={item.id}
+              id={item.id}
+              title={item.title}
+              subtitle1={item.subtitle1}
+              subtitle2={item.subtitle2}
+              checked={checkedItems[item.id]}
+              onChange={() => handleCheckboxChange(item.id)}
+              weekday={item.weekday}
 
-          />
-        ))}
+            />
+          ))}
 
         {currentStep === 4 && (
           <>
