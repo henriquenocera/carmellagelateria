@@ -265,19 +265,21 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <p><strong>{steps[currentStep - 1].title}</strong></p>
         </div>
 
-        {steps[currentStep - 1].items.map((item) => (
-          <ChecklistItem
-            key={item.id}
-            id={item.id}
-            title={item.title}
-            subtitle1={item.subtitle1}
-            subtitle2={item.subtitle2}
-            checked={checkedItems[item.id]}
-            onChange={() => handleCheckboxChange(item.id)}
-            weekday={item.weekday}
+        {steps[currentStep - 1].items
+          .filter((item) => item.weekday === undefined || item.weekday === weekday)
+          .map((item) => (
+            <ChecklistItem
+              key={item.id}
+              id={item.id}
+              title={item.title}
+              subtitle1={item.subtitle1}
+              subtitle2={item.subtitle2}
+              checked={checkedItems[item.id]}
+              onChange={() => handleCheckboxChange(item.id)}
+              weekday={item.weekday}
 
-          />
-        ))}
+            />
+          ))}
 
         {currentStep === 4 && (
           <>
