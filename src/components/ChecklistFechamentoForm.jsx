@@ -25,7 +25,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       title: `1ª Pré Fechamento - 
       Horários: (18:00 ~ 18:45)`,
       items: [
-        { id: "19", title: `Hoje é ${weekday}`, subtitle1: "", subtitle2: "", weekday: 2 },
+
         { id: "19", title: `Hoje é ${weekday}`, subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "1", title: "Limpar espátulas", subtitle1: "Lavar com água e sabão", subtitle2: "" },
         { id: "2", title: "Limpar cubas", subtitle1: "Sempre pegar um pano limpo", subtitle2: "" },
@@ -109,7 +109,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
     // Only check items that should be visible today
     const visibleItems = currentStepItems.filter(item => {
-      if (!item.weekday) return true; // If no weekday specified, always check
+      if (item.weekday === undefined) return true; // If no weekday specified, always check
       return item.weekday === today; // Only check if it's the right weekday
     });
 
@@ -271,7 +271,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
           <p><strong>{steps[currentStep - 1].title}</strong></p>
         </div>
 
-        {steps[currentStep - 1].items.map((item) => (
+        {steps[currentStep - 1].items
+          .filter((item) => item.weekday === undefined || item.weekday === weekday)
+          .map((item) => (
           <ChecklistItem
             key={item.id}
             id={item.id}
