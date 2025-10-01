@@ -17,6 +17,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   const unidadeText = "Ahu";
 
+  const weekday = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
+  console.log(weekday)
+
   const steps = [
     {
       title: `1ª Pré Fechamento - 
