@@ -105,9 +105,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
     // Only check items that should be visible today
     const visibleItems = currentStepItems.filter(item => {
-      if (!item.weekday) return true; // If no weekday specified, always check
+      if (item.weekday === undefined) return true; // If no weekday specified, always check
       return item.weekday === today; // Only check if it's the right weekday
     });
+
 
     const allChecked = visibleItems.every(item => checkedItems[item.id]);
     return allChecked;
