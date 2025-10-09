@@ -7,8 +7,8 @@ import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = "Batel";
+const unidade = "batel";
 
 // Function Get Local Storage
 function getLocalStorage() {
@@ -71,19 +71,23 @@ function ChecklistAbertura() {
     altoxvOpenSubmit(user);
 
     // Send Telegram message with money counter data
-    const openDateFormat = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+    const openDateFormat = new Date().toLocaleString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+    });
     const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A %0D%0A Responsável: ${user}${moneyCounterMessage}`;
-    
+
     fetch(checkOpenComplete)
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
       })
-      .catch(error => {
-        console.error('Error:', error);
-        window.alert("Erro na confirmação do Checklist, por gentileza tente novamente");
+      .catch((error) => {
+        console.error("Error:", error);
+        window.alert(
+          "Erro na confirmação do Checklist, por gentileza tente novamente"
+        );
       });
   };
 
@@ -124,7 +128,7 @@ function ChecklistAbertura() {
           <div className="unitInfo">
             <h1>Checklist de Abertura</h1>
 
-            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+            <h2>Unidade {unidadeText} - Rua Sete de Setembro, 4837</h2>
           </div>
           <div className="unitLogo">
             <img src="/logo.svg" alt="" />
