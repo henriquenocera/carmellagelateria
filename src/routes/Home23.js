@@ -10,17 +10,17 @@ function Home() {
   const [lastThreeDays, setLastThreeDays] = useState([]);
 
   useEffect(() => {
-    FetchChecklist();
+    FetchVales();
   }, []);
 
-  const FetchChecklist = async () => {
+  const FetchVales = async () => {
     // Get checklists from the last 5 days
     const fiveDaysAgo = moment().subtract(5, 'days').startOf('day').toISOString();
     
     const { data, error } = await supabase
-      .from("Checklist")
+      .from("Vales")
       .select("*")
-      .eq("store", "ahu")
+      .eq("Unidade", "batel")
       .gte("created_at", fiveDaysAgo)
       .order("created_at", { ascending: false });
 
