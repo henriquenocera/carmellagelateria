@@ -5,6 +5,8 @@ import Select from "react-select";
 import "../css/Valegelato.css";
 import { Options } from "../Options.ts";
 import { ListId } from "../id.ts";
+import supabase from "../supabase-client";
+
 
 const telegramBotId = "5902485837:AAFN9PL6ES3Otgwvzg6qqhvqCgw5WvL7DsY";
 const telegramChatId = "-946708416";
@@ -60,12 +62,42 @@ function Vales() {
       setUser(ListId[3].nome);
     } else if (idInput == ListId[4].value) {
       setUser(ListId[4].nome);
-    } else if (idInput == ListId[5].value) {
-      setUser(ListId[5].nome);
     } else {
       setUser("");
     }
   }
+
+  const handleSubmit = (e, user) => {
+    e.preventDefault(); // evita o recarregamento da página
+    
+    sendGoogleSheetData(e);
+    sendSupabaseData(e)
+  };
+
+
+
+  async function sendSupabaseData(e) {
+
+    console.log("supabase");
+    const newdata = {
+      Nome: user,
+      Unidade: unidadeText,
+      Item: item,
+    };
+    console.log(newdata)
+    const { data, error } = await supabase
+      .from("Vales")
+      .insert([newdata])
+      .single();
+  
+    if (error) {
+      console.log(`Opa, erro${error}`);
+    } else {
+      console.log("Supabase enviado com sucesso", data);
+    }
+  }
+
+
 
   async function sendGoogleSheetData(e) {
     console.log("enviou");
@@ -93,7 +125,8 @@ function Vales() {
       method: "POST",
       body: data,
     }).then(() => {
-      console.log("sucesso");
+      console.log("Google Sheets enviado com sucesso");
+      
       setIsFormSending(false);
       window.alert("Lançamento Realizado com Sucesso!");
       setUser("");
@@ -148,7 +181,7 @@ function Vales() {
               <></>
             ) : (
               <form
-                onSubmit={sendGoogleSheetData}
+              onSubmit={handleSubmit}
                 method="POST"
                 action="https://script.google.com/macros/s/AKfycbwo5DREVbk_S-YQrregCSnCeFsJr4mYVKOce0d9nq9obXFg-5hQv-iqx-5j7-3Mm7r5Tw/exec"
                 id="valeGelatoForm"
