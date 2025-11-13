@@ -9,11 +9,9 @@ import {
 } from "react-router-dom";
 import Home from "./routes/Home";
 
-import Manual from "./routes/Manual.js";
 
 const AppLayout = () => (
   <>
-    <NavBar />
     <Outlet />
   </>
 );
@@ -21,7 +19,6 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
-      <Route path="/manual" element={<Manual />} />
      
     </Route>
   )
