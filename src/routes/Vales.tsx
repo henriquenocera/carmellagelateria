@@ -64,6 +64,8 @@ function Vales() {
       setUser(ListId[4].nome);
     } else if (idInput == ListId[5].value) {
       setUser(ListId[5].nome);
+    } else if (idInput == ListId[6].value) {
+      setUser(ListId[6].nome);
     } else {
       setUser("");
     }
