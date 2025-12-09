@@ -9,6 +9,59 @@
 .container {
 }
 
+.vales-table {
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  ;
+}
+
+.vales-table thead {
+  background: #efe0c2;
+}
+
+.vales-table th,
+.vales-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #6a4908;
+  font-size: 14px;
+  
+}
+
+.vales-table th {
+  font-weight: 700;
+  color: #5a432c;
+  letter-spacing: 0.2px;
+  
+}
+
+.vales-table tbody tr:hover {
+  background: #faf7f2;
+}
+
+.vales-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.container h2 {
+  margin: 1rem 0 0.25rem;
+  color: #5a432c;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.container p {
+  margin-top: 0.5rem;
+  color: #7a6a58;
+  text-align: center;
+}
+
 .btn {
   background-image: linear-gradient(
     92.88deg,
