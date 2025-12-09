@@ -29,7 +29,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "6", title: "Ligar máquininha de cartão POS 'Máquininha verde'", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
         { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
         { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Utilizar o contador de notas e moedas abaixo", subtitle2: "" },
-        { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 5 | Senha: 2849" },
+        { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 6 | Senha: 2849" },
       ]
     },
     {
