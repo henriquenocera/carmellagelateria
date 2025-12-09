@@ -60,13 +60,72 @@ function Home() {
                 </tr>
               </thead>
               <tbody>
-                {vales.slice(0, 100).map((vale) => (
-                  <tr key={vale.id}>
-                    <td>{moment(vale.created_at).format("DD/MM/YYYY HH:mm")}</td>
-                    <td>{vale.Nome ?? "-"}</td>
-                    <td>{vale.Item ?? "-"}</td>
-                  </tr>
-                ))}
+                {(() => {
+                  const today = moment();
+                  const todaysVales = vales.filter((vale) =>
+                    moment(vale.created_at).isSame(today, "day")
+                  );
+                  const otherVales = vales.filter(
+                    (vale) => !moment(vale.created_at).isSame(today, "day")
+                  );
+
+                  const limit = 100;
+                  const todaysLimited = todaysVales.slice(0, limit);
+                  const othersLimited = otherVales.slice(
+                    0,
+                    Math.max(0, limit - todaysLimited.length)
+                  );
+
+                  return (
+                    <>
+                      {todaysLimited.length > 0 && (
+                        <>
+                          <tr className="vales-divider">
+                            <td colSpan={3}>
+                              Hoje - {today.format("DD/MM/YYYY")}
+                            </td>
+                          </tr>
+                          {todaysLimited.map((vale) => (
+                            <tr key={vale.id}>
+                              <td>
+                                {moment(vale.created_at).format(
+                                  "DD/MM/YYYY HH:mm"
+                                )}
+                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
+                                  <span className="new-tag">novo</span>
+                                )}
+                              </td>
+                              <td>{vale.Nome ?? "-"}</td>
+                              <td>{vale.Item ?? "-"}</td>
+                            </tr>
+                          ))}
+                        </>
+                      )}
+
+                      {othersLimited.length > 0 && (
+                        <>
+                          <tr className="vales-divider secondary">
+                            <td colSpan={3}>Dias anteriores</td>
+                          </tr>
+                          {othersLimited.map((vale) => (
+                            <tr key={vale.id}>
+                              <td>
+                                {moment(vale.created_at).format(
+                                  "DD/MM/YYYY HH:mm"
+                                )}
+                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
+                                  <span className="new-tag">novo</span>
+                                )}
+                              </td>
+                              <td>{vale.Nome ?? "-"}</td>
+                              <td>{vale.Item ?? "-"}</td>
+                            </tr>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
               </tbody>
             </table>
           )}

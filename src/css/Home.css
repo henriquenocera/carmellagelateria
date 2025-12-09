@@ -48,6 +48,30 @@
   border-bottom: none;
 }
 
+.vales-divider td {
+  background: #f2e4c7;
+  color: #5a432c;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.vales-divider.secondary td {
+  background: #f8f1df;
+}
+
+.new-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #2ecc71;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
 .container h2 {
   margin: 1rem 0 0.25rem;
   color: #5a432c;
