@@ -21,7 +21,7 @@ function Home() {
     const { data, error } = await supabase
       .from("Vales")
       .select("*")
-      .eq("Unidade", "Alto da XV")
+      .eq("Unidade", "Batel")
       .gte("created_at", fiveDaysAgo)
       .order("created_at", { ascending: false });
 
