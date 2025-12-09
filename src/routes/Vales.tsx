@@ -135,7 +135,7 @@ function Vales() {
       window.alert("Lançamento Realizado com Sucesso!");
       setUser("");
 
-      // window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
+      window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
     });
   }
   return (
