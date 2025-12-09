@@ -31,14 +31,14 @@ function NavBar() {
             </NavLink>
           </li>
 
-          <li className={activeMenu ? "list active" : "list"}>
+{/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/inventario">
               <span className="icon">
                 <Icons.BsArrowCounterclockwise />
               </span>
               <span className="text">Inventário</span>
             </NavLink>
-          </li>
+          </li> */}
 
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
@@ -59,14 +59,14 @@ function NavBar() {
               <span className="text">Checklist Fechamento</span>
             </NavLink>
           </li>
-          <li className={activeMenu ? "list active" : "list"}>
+{/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-conferencia">
               <span className="icon">
                 <Icons.BsCheck />
               </span>
               <span className="text">Checklist De Conferência</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/voucher">
               <span className="icon">
