@@ -7,6 +7,17 @@
 }
 
 .container {
+
+}
+.containerVales {
+  max-width: 1000px;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
 }
 
 .vales-table {

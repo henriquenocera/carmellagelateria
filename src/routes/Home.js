@@ -46,7 +46,7 @@ function Home() {
       </Helmet>
       <div className="home">
         <img className="logo" src="/logo.svg" alt="" />
-        <div className="container">
+        <div className="containerVales">
           <h2>Últimos Vales</h2>
           {vales.length === 0 ? (
             <p>Nenhum vale encontrado nos últimos dias.</p>
