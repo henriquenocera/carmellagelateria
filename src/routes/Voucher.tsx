@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import "../css/Home.css";
+import "../css/HomeCopy.css";
+
 import supabase from "../supabase-client";
 import { Helmet } from "react-helmet";
 import moment from "moment";
