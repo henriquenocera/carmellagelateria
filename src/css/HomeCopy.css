@@ -4,6 +4,13 @@
   justify-content: center;
   align-items: center;
 }
+.homeVoucher {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
 .abertura,
 .fechamento {
