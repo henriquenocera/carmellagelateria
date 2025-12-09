@@ -154,7 +154,7 @@ function Voucher() {
         </div>
       )}
 
-      <div className="home">
+      <div className="homeVoucher">
         <h1>Vouchers Ativos</h1>
         <div className="container">
           <div className="table">
