@@ -132,7 +132,7 @@ function Vales() {
       console.log("Google Sheets enviado com sucesso");
       
       setIsFormSending(false);
-      window.alert("Lançamento Realizado com Sucesso!");
+      // window.alert("Lançamento Realizado com Sucesso!");
       setUser("");
 
       window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
