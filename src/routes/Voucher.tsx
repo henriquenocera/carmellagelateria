@@ -1,18 +1,27 @@
+// @ts-nocheck
 import React, { useEffect, useRef, useState } from "react";
 import "../css/HomeCopy.css";
+
 import supabase from "../supabase-client";
 import { Helmet } from "react-helmet";
 import moment from "moment";
 import { ListId } from "../id.ts";
 
+type VoucherRow = {
+  id: number;
+  created_at: string;
+  voucher_id: string;
+  value: string;
+};
+
 function Voucher() {
   const store = "Ahu";
   const dateNow = new Date();
-  const [vouchers, setVouchers] = useState([]);
+  const [vouchers, setVouchers] = useState<VoucherRow[]>([]);
   const [rowId, setRowId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState("");
-  const idInputRef = useRef(null);
+  const idInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     FetchVouchers();
@@ -54,6 +63,10 @@ function Voucher() {
       setUser(ListId[3].nome);
     } else if (idInput == ListId[4].value) {
       setUser(ListId[4].nome);
+    } else if (idInput == ListId[5].value) {
+      setUser(ListId[5].nome);
+    } else if (idInput == ListId[6].value) {
+      setUser(ListId[6].nome);
     } else {
       setUser("");
     }
@@ -152,49 +165,39 @@ function Voucher() {
       <div className="homeVoucher">
         <h1>Vouchers Ativos</h1>
         <div className="container">
-          <div className="table">
-            <div className="table-header">
-              <div className="header__item">
-                <a id="name" className="filter__link">
-                  Criado em:
-                </a>
-              </div>
-              <div className="header__item">
-                <a className="filter__link filter__link--number">
-                  Nome do Voucher
-                </a>
-              </div>
-              <div className="header__item">
-                <a className="filter__link filter__link--number">Item</a>
-              </div>
-              <div className="header__item">
-                <a className="filter__link filter__link--number">
-                  Utilizar Voucher
-                </a>
-              </div>
-            </div>
-            <div className="table-content">
-              {vouchers.map((list) => (
-                <div className="table-row" key={list.id}>
-                  <>
-                    <div className="table-data">
-                      {moment(list.created_at).format("DD/MM/YYYY [às] HH:mm")}
-                    </div>
-                    <div className={`table-data`}>{list.voucher_id}</div>
-                    <div className={`table-data`}>{list.value}</div>
-                    <button
-                      onClick={() => {
-                        handleClick(list.id);
-                      }}
-                      className="table-data-button"
-                    >
-                      Utilizar
-                    </button>
-                  </>
-                </div>
-              ))}
-            </div>
-          </div>
+          {vouchers.length === 0 ? (
+            <p>Nenhum voucher ativo.</p>
+          ) : (
+            <table className="vales-table">
+              <thead>
+                <tr>
+                  <th>Criado em:</th>
+                  <th>Nome do Voucher</th>
+                  <th>Item</th>
+                  <th>Utilizar Voucher</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vouchers.map((list) => (
+                  <tr key={list.id}>
+                    <td>{moment(list.created_at).format("DD/MM/YYYY [às] HH:mm")}</td>
+                    <td>{list.voucher_id}</td>
+                    <td>{list.value}</td>
+                    <td>
+                      <button
+                        onClick={() => {
+                          handleClick(list.id);
+                        }}
+                        className="btn"
+                      >
+                        Utilizar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </>
