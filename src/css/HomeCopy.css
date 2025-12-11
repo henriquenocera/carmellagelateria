@@ -1,166 +1,116 @@
-.home {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
 .homeVoucher {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-}
-.abertura,
-.fechamento {
-  padding: 4px;
-  border-radius: 8px;
-}
-.table-row {
-  display: flex;
-  justify-content: space-around;
-}
-.table-data {
-  background-color: #bababa;
-  padding: 8px;
-  border-radius: 8px;
-  max-width: 220px;
-  min-width: 180px;
-}
-
-/* Add a new class for cells with missing checklists */
-.table-data.missing {
-  background-color: transparent;
-}
-
-.table-data-button {
-  background-color: #633713;
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  max-width: 220px;
-  min-width: 180px;
-  cursor: pointer;
-}
-.abertura {
-  background-color: rgb(7, 181, 7);
-  color: white;
-}
-.fechamento {
-  background-color: #d4362b;
-  color: white;
-}
-.mainChecklistContainer {
-  width: 700px;
-  height: 200px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-}
-
-.mainChecklistAbertura,
-.mainChecklistFechamento {
-  opacity: 0.6;
-  border: 1px dashed #a17550;
-  display: flex;
-  padding: 16px 32px;
-  font-size: 2rem;
-}
-
-.checked {
-  background: #a17550;
-  color: #fff;
-  opacity: 1;
-}
-*,
-*:before,
-*:after {
-  box-sizing: border-box;
-}
-
-body {
-  padding: 24px;
-  margin: 0;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0;
+  padding: 80px 0;
+  height: auto;
 }
 
 .container {
-  max-width: 1000px;
-  margin-right: auto;
-  margin-left: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
-.table {
+.vales-table {
   width: 100%;
-  border: 1px solid #eeeeee;
+  max-width: 900px;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  ;
 }
 
-.table-header {
-  display: flex;
-  width: 100%;
-  background: #a17550;
-  padding: 8px 2px;
+.vales-table thead {
+  background: #efe0c2;
 }
 
-.table-row {
-  display: flex;
-  width: 100%;
-  padding: 9px 0;
-  border-bottom: 1px solid #e0e0e0;
+.vales-table th,
+.vales-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #6a4908;
+  font-size: 14px;
+  
 }
 
-.table-row:last-child {
+.vales-table th {
+  font-weight: 700;
+  color: #5a432c;
+  letter-spacing: 0.2px;
+  
+}
+
+.vales-table tbody tr:hover {
+  background: #faf7f2;
+}
+
+.vales-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* Add a thicker border after each day's checklists */
-.table-row:nth-child(2n) {
-  border-bottom: 2px solid #a17550;
+.vales-divider td {
+  background: #f2e4c7;
+  color: #5a432c;
+  font-weight: 700;
+  letter-spacing: 0.2px;
 }
 
-.table-data,
-.header__item {
-  flex: 1 1 20%;
-  text-align: center;
-  font-size: 14px;
+.vales-divider.secondary td {
+  background: #f8f1df;
 }
 
-.header__item {
-  text-transform: uppercase;
-}
-
-.filter__link {
-  color: white;
-  text-decoration: none;
-  position: relative;
+.new-tag {
   display: inline-block;
-  padding-left: 24px;
-  padding-right: 24px;
-  font-size: 18px;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #2ecc71;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.missing-checklist {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
+.container h2 {
+  margin: 1rem 0 0.25rem;
+  color: #5a432c;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
 }
 
-.missing-checklist svg {
-  font-size: 1.5em;
-  color: #ff0000;
+.container p {
+  margin-top: 0.5rem;
+  color: #7a6a58;
+  text-align: center;
+}
+
+.btn {
+  background-image: linear-gradient(
+    92.88deg,
+    #a17550 9.16%,
+    #a17550 43.89%,
+    #a17550 64.72%
+  );
+  border-radius: 8px;
+  border-style: none;
+  box-sizing: border-box;
+  color: #ffffff;
+  cursor: pointer;
+  flex-shrink: 0;
+  font-family: "Inter UI", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  height: 3rem;
+  padding: 0 1.2rem;
+  text-align: center;
+  text-shadow: rgba(0, 0, 0, 0.25) 0 3px 8px;
+  transition: all 0.5s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
