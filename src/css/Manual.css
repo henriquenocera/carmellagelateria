@@ -8,4 +8,33 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  border: 1px solid black;
+  padding-left: 75px;
+}
+
+.produtos {
+  border: 1px solid black;
+
+}
+
+.title {
+  margin: 0;
+  color: #5a432c;
+  border: none;
+  font-size: 20px;
+  margin-top: 50px;
+}
+
+.categoria {
+  font-size: 18px;
+  color: #784e21;
+  border: none;
+  margin: 0;
+}
+.containerProduto{
+
+}
+.produto{
+  font-size: 16px;
+  color: #784e21;
 }

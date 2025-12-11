@@ -13,7 +13,12 @@ function Manual() {
   return (
     <>
     <div className="container">
-    <h1>Manual</h1>
+    <h2>Manual da Loja</h2>
+    <h3 className="title">Produtos</h3>
+    <h3 className="categoria">Gelato</h3>
+    <div className="containerProdutos">
+      <h4 className="produto">Pequeno</h4>
+    </div>
 
     </div>
     </>
