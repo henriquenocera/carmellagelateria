@@ -75,7 +75,7 @@ function App() {
       )
       .join('\n');
 
-    return `Olá! Gostaria de fazer o seguinte pedido:\n${itemsText}\nTotal: R$ ${total.toFixed(
+    return `Olá! Gostaria de fazer o seguinte pedido:\n\n${itemsText}\nTotal: R$ ${total.toFixed(
       2,
     )}`;
   }, [cart, total]);
