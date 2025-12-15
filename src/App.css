@@ -18,8 +18,13 @@ body {
   justify-content: center;
   align-items: center;
 }
+.container-2 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
 .container-produtos {
-  border: 1px solid red;
   padding: 25px;
   display: flex;
   flex-direction: column;
@@ -58,4 +63,37 @@ margin: 0;
 }
 .produto-price{
 font-weight: 600;
+font-size: 18px;
+}
+.produto-qntd {
+  padding: 5px;
+  font-size: 16px;
+  color: #151515;
+  border: 1px solid #5A432C;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  text-align: center;
+  
+
+}
+.produto-btn {
+  padding: 1.3em 3em;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+  color: #5A432C;
+  background-color: #fff;
+  border: none;
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease 0s;
+  cursor: pointer;
+  outline: none;
+}
+
+.cart-total {
+  margin-bottom: 80px;
+}
+.cart {
+  margin-bottom: 80px;
 }
