@@ -81,7 +81,7 @@ function App() {
 
   // fetch flavors for a given store key
   const fetchFlavorsForStore = async (storeKey) => {
-    console.debug('fetchFlavorsForStore called for', storeKey, { trelloKey, trelloToken, trelloLists });
+    
     setFlavorsLoading(true);
     setFlavorsError('');
     setFlavorOptions([]);
