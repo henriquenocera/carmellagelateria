@@ -329,7 +329,7 @@ font-size: 18px;
 
 /* Customer form styles */
 .customer-form {
-  width: 90%;
+  width: 100%;
   max-width: 480px;
   margin: 16px auto;
   text-align: left;
@@ -346,6 +346,7 @@ font-size: 18px;
   border-radius: 8px;
   font-size: 15px;
   flex: 1 1 10px;
+  max-width: 90%;
 }
 
 @media (max-width: 600px) {
@@ -433,3 +434,13 @@ font-size: 18px;
     background: #fff;
   }
   .trello-config .form-row { gap: 10px; }
+
+  .flavors-span {
+    font-weight: 600;
+    font-size: 12px;
+    border: 1px solid #d43a3a;
+    color: #d43a3a;
+    padding: 5px;
+    text-align: start;
+    margin: 0;
+  }

@@ -46,7 +46,8 @@ function App() {
   );
 
   const handleQuantityChange = (id, value) => {
-    const qty = Math.max(0, Math.min(99, Number(value) || 0));
+    const maxForId = id === 'pote' ? 1 : 99;
+    const qty = Math.max(0, Math.min(maxForId, Number(value) || 0));
     setQuantities((prev) => ({ ...prev, [id]: qty }));
   };
 
@@ -257,9 +258,9 @@ function App() {
                       −
                     </button>
                     <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
+                      type="number"
+                      min={product.id === 'pote' ? 0 : 0}
+                      max={product.id === 'pote' ? 1 : 99}
                       className="qty-input"
                       value={quantities[product.id] ?? 0}
                       onChange={(e) =>
@@ -297,6 +298,7 @@ function App() {
         {showStoreSelector && pendingPote && (
           <div className="store-selector">
             <h4 className="title-h3">Escolha uma loja para descobrir os sabores</h4>
+            <h4 className="title-h3">Os sabores serão confirmados no Whatsapp conforme disponibilidade</h4>
             <div className="store-options">
                 {STORES.map((s) => (
                 <label key={s.key} className="store-option">
@@ -362,7 +364,7 @@ function App() {
             )}
 
             <div className="store-actions">
-              <button type="button" className="produto-btn produto-btn--disabled" onClick={() => { setShowFlavorSelector(false); setShowStoreSelector(true); }}>
+              <button type="button" className="produto-btn" onClick={() => { setShowFlavorSelector(false); setShowStoreSelector(true); }}>
                 Voltar
               </button>
               <button
@@ -394,6 +396,7 @@ function App() {
                 {cart.map((item, idx) => (
                   <li key={`${item.id}-${idx}`} className="cart-item">
                     <span>
+                      {item.flavors ? <><br /><p className='flavors-span'>Os sabores serão confirmados no Whatsapp conforme disponibilidade da loja</p></> : null}
                       {item.quantity}x {item.name}
                       {item.store ? <><br /><small>Local: {item.store}</small></> : null}
                       {item.flavors ? <><br /><small>Sabores: {item.flavors.join(', ')}</small></> : null}
