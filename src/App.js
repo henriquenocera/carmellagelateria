@@ -1,17 +1,25 @@
 import { useMemo, useState } from 'react';
 import './App.css';
 import logo from './assets/logo.svg';
-import produto from './assets/waffle-nutella-morango.jpg';
+import nutellaemorango from './assets/waffle-nutella-morango.jpg';
+import doceebanana from './assets/waffle-doce-banana.jpg';
 
-const PHONE_NUMBER = '5599999999999'; // atualize com seu número no formato DDI+DDD+telefone
+const PHONE_NUMBER = '5541988681152'; // atualize com seu número no formato DDI+DDD+telefone
 
 const PRODUCTS = [
   {
-    id: 'waffle-nutella',
+    id: 'waffle-nutella-morango',
     name: 'Waffle de Nutella com Morango',
-    description: 'Massa de waffle de liège com Nutella e morangos',
+    description: 'Massa de waffle de liège com Nutella e Morangos',
     price: 20,
-    image: produto,
+    image: nutellaemorango,
+  },
+  {
+    id: 'waffle-doce-banana',
+    name: 'Waffle de Doce de Leite com Banana',
+    description: 'Massa de waffle de liège com Doce de Leite e Bananas',
+    price: 18,
+    image: doceebanana,
   },
   // Adicione mais produtos aqui se necessário
 ];
@@ -49,6 +57,10 @@ function App() {
     });
 
     setQuantities((prev) => ({ ...prev, [product.id]: 0 }));
+  };
+
+  const handleRemove = (id) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
   const whatsappText = useMemo(() => {
@@ -116,6 +128,8 @@ function App() {
                   </button>
                 </div>
               </div>
+              
+
             </div>
           ))}
         </form>
@@ -135,13 +149,24 @@ function App() {
                     <span>
                       R$ {(item.price * item.quantity).toFixed(2)}
                     </span>
+                    <button
+                      type="button"
+                      className="produto-btn remove-btn"
+                      onClick={() => handleRemove(item.id)}
+                    >
+                      Remover
+                    </button>
                   </li>
                 ))}
               </ul>
               <div className="cart-total">
                 <strong>Total:</strong> R$ {total.toFixed(2)}
               </div>
-              <a
+              
+            </>
+          )}
+        </div>
+        <a
                 className="produto-btn"
                 href={whatsappLink}
                 target="_blank"
@@ -150,9 +175,7 @@ function App() {
               >
                 Enviar pedido pelo WhatsApp
               </a>
-            </>
-          )}
-        </div>
+
       </div>
     </>
   );
