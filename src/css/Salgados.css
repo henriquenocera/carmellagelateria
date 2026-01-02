@@ -59,49 +59,76 @@
   border-bottom: 1px solid #eee;
 }
 .item-label {
-  font-size: 14px;
-  color: #333;
+  font-size: 16px;
+  color: #222;
+  font-weight: 600;
+  padding-left: 4px;
 }
 
 .inventory {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  justify-content: flex-start;
 }
 .qty-btn {
-  background: transparent;
-  border: none;
+  background: #fafafa;
+  border: 1px solid #ddd;
   font-size: 20px;
   line-height: 1;
-  width: 28px;
-  height: 28px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  border-radius: 8px;
+  transition: background .12s ease, transform .06s ease;
+  color: #111;
 }
+.qty-btn:hover { background: #f0f0f0; }
+.qty-btn:active { transform: translateY(1px); }
+.qty-btn:focus-visible { outline: 3px solid rgba(77,144,254,0.25); outline-offset: 2px; }
 .qty-input {
-  width: 44px;
-  height: 34px;
+  width: 56px;
+  height: 40px;
   text-align: center;
   border: 2px solid #222;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0 6px;
+  background: #fff;
 }
+.qty-input:focus { outline: none; box-shadow: 0 0 0 4px rgba(77,144,254,0.10); border-color: #4d90fe; }
 .clear-btn {
   display: none; /* hidden for inventory layout */
 }
+
+.save-status {
+  display: inline-block;
+  width: 18px;
+  text-align: center;
+  margin-left: 8px;
+  font-size: 14px;
+  color: #666;
+}
+.save-status.saving { color: #2b6cb0; }
+.save-status.saved { color: #2f855a; }
+.save-status.error { color: #c53030; }
 .form-actions {
   margin-top: 18px;
 }
 
 @media (max-width: 640px) {
   .item-row {
-    grid-template-columns: 120px 1fr 60px;
+    grid-template-columns: 110px 1fr 70px;
     gap: 8px;
   }
   .boxes {
     gap: 6px;
   }
+  .item-label { font-size: 15px; }
+  .qty-btn { width: 32px; height: 32px; font-size: 18px; }
+  .qty-input { width: 48px; height: 36px; font-size: 16px; }
 }
