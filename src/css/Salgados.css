@@ -120,6 +120,13 @@
   margin-top: 18px;
 }
 
+.last-updated {
+  font-size: 13px;
+  color: #666;
+  text-align: right;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
 @media (max-width: 640px) {
   .item-row {
     grid-template-columns: 110px 1fr 70px;

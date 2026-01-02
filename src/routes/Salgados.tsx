@@ -57,13 +57,36 @@ function Salgados() {
         Object.keys(sandwichUpdates).forEach((n) => (loadedStatus[`sandwich:${n}`] = 'idle'));
         Object.keys(quicheUpdates).forEach((n) => (loadedStatus[`quiche:${n}`] = 'idle'));
         setSaveStatus((s) => ({ ...s, ...loadedStatus }));
+        // also fetch last-updated timestamp
+        await fetchLastUpdated();
       } catch (err) {
         console.error('Error loading inventory', err);
       }
     };
     load();
-    return () => { mounted = false };
+    const poll = setInterval(() => fetchLastUpdated(), 30_000);
+    return () => { mounted = false; clearInterval(poll); };
   }, [UNIT]);
+
+  // last updated timestamp
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchLastUpdated = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('salgados_inventory')
+        .select('updated_at')
+        .eq('unit', UNIT)
+        .order('updated_at', { ascending: false })
+        .limit(1);
+      if (error) throw error;
+      if (data && data.length) {
+        setLastUpdated(new Date(data[0].updated_at));
+      }
+    } catch (err) {
+      console.error('Error fetching last-updated', err);
+    }
+  };
 
   const saveInventoryToSupabase = async (collection: string, name: string, quantity: number) => {
     const key = `${collection}:${name}`;
@@ -77,6 +100,14 @@ function Salgados() {
       setItemStatus(key, 'saved');
       // clear saved status after a short delay
       setTimeout(() => setItemStatus(key, 'idle'), 1500);
+      // update last-updated timestamp
+      try {
+        if (data && data[0] && data[0].updated_at) setLastUpdated(new Date(data[0].updated_at));
+        else fetchLastUpdated();
+      } catch (e) {
+        // fallback
+        setLastUpdated(new Date());
+      }
       return data;
     } catch (err) {
       console.error('Supabase save error', err);
@@ -139,6 +170,7 @@ function Salgados() {
   return (
     <div className="container salgados-page">
       <h2>Relatório de Salgados</h2>
+      <div className="last-updated">Última atualização: {lastUpdated ? lastUpdated.toLocaleString('pt-BR') : '—'}</div>
 
       <form className="grid-form" onSubmit={handleSubmit}>
         <section className="section">
