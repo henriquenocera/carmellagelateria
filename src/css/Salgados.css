@@ -1,0 +1,107 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap");
+
+
+.container {
+  max-width: 800px;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 75px;
+}
+
+.produtos {
+  border: 1px solid black;
+
+}
+
+.title {
+  margin: 0;
+  color: #5a432c;
+  border: none;
+  font-size: 20px;
+  margin-top: 50px;
+}
+
+.categoria {
+  font-size: 18px;
+  color: #784e21;
+  border: none;
+  margin: 0;
+}
+.containerProduto{
+
+}
+.produto{
+  font-size: 16px;
+  color: #784e21;
+}
+
+/* Grid form styles for small square boxes */
+.grid-form {
+  margin-top: 20px;
+}
+.section {
+  margin-bottom: 20px;
+}
+.section-title {
+  font-size: 18px;
+  color: #5a432c;
+  margin-bottom: 8px;
+}
+.item-row {
+  display: grid;
+  grid-template-columns: 160px 1fr 80px;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+.item-label {
+  font-size: 14px;
+  color: #333;
+}
+
+.inventory {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.qty-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.qty-input {
+  width: 44px;
+  height: 34px;
+  text-align: center;
+  border: 2px solid #222;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 16px;
+}
+.clear-btn {
+  display: none; /* hidden for inventory layout */
+}
+.form-actions {
+  margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .item-row {
+    grid-template-columns: 120px 1fr 60px;
+    gap: 8px;
+  }
+  .boxes {
+    gap: 6px;
+  }
+}

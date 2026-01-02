@@ -8,7 +8,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 1px solid black;
   padding-left: 75px;
 }
 
@@ -31,9 +30,7 @@
   border: none;
   margin: 0;
 }
-.containerProduto{
 
-}
 .produto{
   font-size: 16px;
   color: #784e21;
