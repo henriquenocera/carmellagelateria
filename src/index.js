@@ -12,7 +12,7 @@ import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
 import Vales from "./routes/Vales.tsx";
-
+import Salgados from "./routes/Salgados.tsx";
 import Inventario from "./routes/Inventario.tsx";
 import ChecklistConferencia from "./routes/ChecklistConferencia.tsx";
 import Voucher from "./routes/Voucher.tsx";
@@ -29,6 +29,7 @@ const router = createBrowserRouter(
     <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
       <Route path="/vales" element={<Vales />} />
+      <Route path="/salgados" element={<Salgados />} /> 
       <Route path="/inventario" element={<Inventario />} />
       <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
       <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />

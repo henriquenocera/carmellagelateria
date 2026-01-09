@@ -30,7 +30,14 @@ function NavBar() {
               <span className="text">Vales</span>
             </NavLink>
           </li>
-
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/salgados">
+              <span className="icon">
+                <Icons.BsArrowBarRight />
+              </span>
+              <span className="text">Salgados</span>
+            </NavLink>
+          </li>
 {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/inventario">
               <span className="icon">
