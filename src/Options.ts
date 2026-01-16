@@ -4,7 +4,7 @@ export const Options: readonly Options[] = [
     label: "Salgados Pequeno 8un",
   },
   {
-    value: "Salgados Grande 8un",
+    value: "Salgados Grande 12un",
     label: "Salgados Grande 12un",
   },
   {
@@ -12,7 +12,7 @@ export const Options: readonly Options[] = [
     label: "Salgados Pequeno PREMIUM 8un",
   },
   {
-    value: "Salgados Grande PREMIUM 8un",
+    value: "Salgados Grande PREMIUM 12un",
     label: "Salgados Grande PREMIUM 12un",
   },
   {
@@ -203,3 +203,5 @@ export const Options: readonly Options[] = [
     label: "Affogato",
   },
 ];
+
+
