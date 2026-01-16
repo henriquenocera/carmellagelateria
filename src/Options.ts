@@ -1,15 +1,35 @@
 export const Options: readonly Options[] = [
   {
-    value: "Pequeno ( 1 Sabor )",
-    label: "Pequeno ( 1 Sabor )",
+    value: "Salgados Pequeno 8un",
+    label: "Salgados Pequeno 8un",
   },
   {
-    value: "Médio ( até 2 Sabores )",
-    label: "Médio ( até 2 Sabores )",
+    value: "Salgados Grande 8un",
+    label: "Salgados Grande 12un",
   },
   {
-    value: "Grande ( até 3 Sabores )",
-    label: "Grande ( até 3 Sabores )",
+    value: "Salgados Pequeno PREMIUM 8un",
+    label: "Salgados Pequeno PREMIUM 8un",
+  },
+  {
+    value: "Salgados Grande PREMIUM 8un",
+    label: "Salgados Grande PREMIUM 12un",
+  },
+  {
+    value: "Cup Noodles",
+    label: "Cup Noodles",
+  },
+  {
+    value: "Pequeno ( 1 bola )",
+    label: "Pequeno ( 1 bola )",
+  },
+  {
+    value: "Médio ( 2 bolas )",
+    label: "Médio ( 2 bolas )",
+  },
+  {
+    value: "Grande ( 3 bolas )",
+    label: "Grande ( 3 bolas )",
   },
   {
     value: "Pote 480ml",
@@ -39,27 +59,6 @@ export const Options: readonly Options[] = [
     value: "Soda Italiana",
     label: "Soda Italiana",
   },
-
-  {
-    value: "COMBO SEGUNDA - Nutella e Morango",
-    label: "COMBO SEGUNDA - Nutella e Morango",
-  },
-  {
-    value: "COMBO TERÇA - Doce de Leite e Paçoca",
-    label: "COMBO TERÇA - Doce de Leite e Paçoca",
-  },
-  {
-    value: "COMBO QUARTA - Torta de Maça e Gelato",
-    label: "COMBO QUARTA - Torta de Maça e Gelato",
-  },
-  {
-    value: "COMBO QUINTA - Geleia de Amora e Gelato",
-    label: "COMBO QUINTA - Geleia de Amora e Gelato",
-  },
-  {
-    value: "COMBO SEXTA - Doce de Leite e Banana",
-    label: "COMBO SEXTA - Doce de Leite e Banana",
-  },
   {
     value: "Waffle de Liege",
     label: "Waffle de Liege",
@@ -77,8 +76,8 @@ export const Options: readonly Options[] = [
     label: "Mapple Syrup - 10gr",
   },
   {
-    value: "Gelato Carmella - 60gr",
-    label: "Gelato Carmella - 60gr",
+    value: "Bola de Sorvete - 70gr",
+    label: "Bola de Sorvete - 70gr",
   },
   {
     value: "Morango - 35gr",
@@ -169,10 +168,7 @@ export const Options: readonly Options[] = [
     value: "Espresso c/ Leite - P",
     label: "Espresso c/ Leite - P",
   },
-  {
-    value: "Espresso c/ Leite - G",
-    label: "Espresso c/ Leite - G",
-  },
+
   {
     value: "Capuccino Italiano",
     label: "Capuccino Italiano",
@@ -182,21 +178,10 @@ export const Options: readonly Options[] = [
     label: "Capuccino Brasileiro",
   },
   {
-    value: "Latte",
-    label: "Latte",
+    value: "Café com Leite",
+    label: "Café com Leite",
   },
-  {
-    value: "Vanilla - Latte",
-    label: "Vanilla - Lattle",
-  },
-  {
-    value: "Caramel - Latte",
-    label: "Caramel - Lattle",
-  },
-  {
-    value: "Mocha",
-    label: "Mocha",
-  },
+
   {
     value: "Café Passado",
     label: "Café Passado",
