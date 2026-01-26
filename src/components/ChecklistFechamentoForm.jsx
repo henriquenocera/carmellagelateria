@@ -23,10 +23,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const steps = [
     {
       title: `1ª Pré Fechamento - 
-      Horários: (16:30 ~ 17:30)`,
+      Horários: (17:30 ~ 18:00)`,
       items: [
-        { id: "1", title: "Limpar espátulas", subtitle1: "Lavar com água e sabão", subtitle2: "" },
-        { id: "2", title: "Limpar cubas", subtitle1: "Sempre pegar um pano limpo", subtitle2: "" },
+        // { id: "1", title: "Limpar espátulas", subtitle1: "Lavar com água e sabão", subtitle2: "" },
+        // { id: "2", title: "Limpar cubas", subtitle1: "Sempre pegar um pano limpo", subtitle2: "" },
         { id: "3", title: "Limpar todos os utensílios do café", subtitle1: "Limpar com água e sabão", subtitle2: "" },
         { id: "4", title: "Limpar mesas e cadeiras do salão dos clientes", subtitle1: "", subtitle2: "" },
         // { id: "4", title: "Limpar bancada dos salgados", subtitle1: "", subtitle2: "" },
@@ -46,11 +46,11 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       ]
     }, */
     {
-      title: "2ª Fechamento (17:30)",
+      title: "2ª Fechamento (18:10)",
       items: [
         { id: "13", title: "Fechar as portas de enrolar", subtitle1: "", subtitle2: "" },
-        { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
-        { id: "15", title: "Desligar a vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
+        // { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
+        // { id: "15", title: "Desligar a vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
         { id: "16", title: "Desligar a máquina de café", subtitle1: "", subtitle2: "" },
         //{ id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
         { id: "18", title: "Verificar se precisa retirar os lixos", subtitle1: "Lixos internos, banheiro e salão dos clientes", subtitle2: "" },
@@ -63,7 +63,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       ]
     },
     {
-      title: "4ª Inventário",
+      title: "3ª Inventário",
       items: [
 
       ]
@@ -72,14 +72,14 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       title: "4ª Finalização e Limpeza",
       items: [
         { id: "23", title: "Secar pia", subtitle1: "", subtitle2: "" },
-        { id: "24", title: "Descartar panos", subtitle1: "Descartar no balde de panos", subtitle2: "" },
+        // { id: "24", title: "Descartar panos", subtitle1: "Descartar no balde de panos", subtitle2: "" },
         { id: "25", title: "Conferir geladeira", subtitle1: "Garantir que não sobrou nenuma cuba ou quebra lá dentro", subtitle2: "" },
         { id: "26", title: "Conferir freezer e geladeira", subtitle1: "Garantir que estão bem fechados", subtitle2: "" },
         { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "28", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" },
-        { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
+        { id: "28", title: "Passar um pano no chão", subtitle1: "Parte interna da loja", subtitle2: "" },
+        { id: "29", title: "Esvaziar balde", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
         { id: "30", title: "Apagar todas as luzes", subtitle1: "", subtitle2: "" },
-        { id: "31", title: "Apagar as luzes dos freezers", subtitle1: "", subtitle2: "" },
+        // { id: "31", title: "Apagar as luzes dos freezers", subtitle1: "", subtitle2: "" },
         { id: "32", title: "Desligar computador", subtitle1: "", subtitle2: "" }
       ]
     }
@@ -296,10 +296,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
               <label className="inventoryLabel" htmlFor="">Quantidade de <b>Brownies:</b></label>
               <input onChange={(event) => setBrownie(event.target.value)} className="inventoryInput" required type="number" name="brownie" min="0" id="94" />
             </div>
-            <div className="inventoryFlexbox">
+{/*             <div className="inventoryFlexbox">
               <label className="inventoryLabel" htmlFor="">Quantidade de <b>Panos Limpos:</b></label>
               <input onChange={(event) => setPanos(event.target.value)} className="inventoryInput" required type="number" name="panos" min="0" id="95" />
-            </div>
+            </div> */}
           </>
         )}
 

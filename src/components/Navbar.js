@@ -67,14 +67,14 @@ function NavBar() {
               <span className="text">Checklist De Conferência</span>
             </NavLink>
           </li> */}
-          <li className={activeMenu ? "list active" : "list"}>
+     {/*      <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/voucher">
               <span className="icon">
                 <Icons.BsTicket />
               </span>
               <span className="text">Voucher</span>
             </NavLink>
-          </li>
+          </li> */}
 
         </ul>
       </div>
