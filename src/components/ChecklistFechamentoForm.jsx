@@ -52,7 +52,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         // { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
         // { id: "15", title: "Desligar a vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
         { id: "16", title: "Desligar a máquina de café", subtitle1: "", subtitle2: "" },
-        //{ id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
+        { id: "17", title: "Desligar Fritadeira do Óleo", subtitle1: "Colocar a tampa", subtitle2: "" },
         { id: "18", title: "Verificar se precisa retirar os lixos", subtitle1: "Lixos internos, banheiro e salão dos clientes", subtitle2: "" },
         // { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, deixar os lixos no corredor", subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "20", title: "Fechar caixa no PDV", subtitle1: "", subtitle2: "" },
