@@ -105,6 +105,73 @@
   text-align: center;
 }
 
+.containerChecklists {
+  max-width: 1000px;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  margin-top: 50px;
+}
+
+.containerChecklists h2 {
+  margin: 1rem 0 0.25rem;
+  color: #5a432c;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.checklists-table {
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.checklists-table thead {
+  background: #efe0c2;
+}
+
+.checklists-table th,
+.checklists-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #6a4908;
+  font-size: 14px;
+}
+
+.checklists-table th {
+  font-weight: 700;
+  color: #5a432c;
+  letter-spacing: 0.2px;
+}
+
+.checklists-table tbody tr:hover {
+  background: #faf7f2;
+}
+
+.checklists-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.checklists-divider td {
+  background: #f2e4c7;
+  color: #5a432c;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.checklists-divider.secondary td {
+  background: #f8f1df;
+}
+
 .btn {
   background-image: linear-gradient(
     92.88deg,
