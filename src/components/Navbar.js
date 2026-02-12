@@ -23,6 +23,14 @@ function NavBar() {
             </NavLink>
           </li>
           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/afericao">
+              <span className="icon">
+                <Icons.BsEject />
+              </span>
+              <span className="text">Aferição de Peso</span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/salgados">
               <span className="icon">
                 <Icons.BsCheck />

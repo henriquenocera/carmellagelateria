@@ -17,6 +17,7 @@ import Inventario from "./routes/Inventario.tsx";
 import ChecklistConferencia from "./routes/ChecklistConferencia.tsx";
 import Voucher from "./routes/Voucher.tsx";
 import ChecklistTest from "./routes/ChecklistTest.tsx";
+import Afericao from "./routes/Afericao.tsx";
 
 const AppLayout = () => (
   <>
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
     <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
       <Route path="/vales" element={<Vales />} />
+      <Route path="/afericao" element={<Afericao />} /> 
       <Route path="/salgados" element={<Salgados />} /> 
       <Route path="/inventario" element={<Inventario />} />
       <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
