@@ -3,8 +3,15 @@ import "../css/Afericao.css";
 import supabase from "../supabase-client";
 import { ListId } from "../id.ts";
 
-// Tabela sugerida no Supabase: "afericao_porcao"
-// Colunas: id, unit, employee_name, cup_number, weight_grams, created_at
+// Tabela no Supabase: "afericao_porcao"
+// Colunas sugeridas:
+// id (uuid) - default uuid_generate_v4()
+// unit (text)
+// employee_name (text)
+// cup_number (integer)
+// portion_label (text)
+// weight_grams (numeric)
+// created_at (timestamptz) - default now()
 
 const UNIT = process.env.REACT_APP_UNIT || "ahu";
 
@@ -64,6 +71,8 @@ function Afericao() {
     e.preventDefault();
     setSubmitMessage("");
     setErrorMessage("");
+    setEmployeeName("")
+
 
     if (!canSubmit) {
       setErrorMessage("Informe o responsável e registre 3 pesos válidos.");
@@ -78,6 +87,7 @@ function Afericao() {
           unit: UNIT,
           employee_name: employeeName.trim(),
           cup_number: idx + 1,
+          portion_label: WEIGHT_LABELS[idx] || null,
           weight_grams: w,
           created_at: nowIso,
         }))
@@ -91,6 +101,9 @@ function Afericao() {
         setSubmitMessage("Aferição salva com sucesso!");
         // opcional: limpar somente pesos, manter nome
         setWeights([0, 0, 0]);
+        if (idInputRef.current) {
+          idInputRef.current.value = "";
+        }
       }
     } catch (err) {
       console.error(err);
