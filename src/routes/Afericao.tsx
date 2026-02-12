@@ -115,7 +115,7 @@ function Afericao() {
 
   return (
     <div className="afericao-page container">
-      <h2>Controle de Aferição</h2>
+      <h2>Controle de Aferição de Mão</h2>
 
 
       <form className="afericao-form" onSubmit={handleSubmit}>

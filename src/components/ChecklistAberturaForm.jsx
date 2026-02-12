@@ -67,7 +67,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "27", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta de metal do corredor", subtitle2: "" },
         { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
         { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
-        { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" }
+        { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
+        { id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: ""}
+
       ]
     }
   ];
@@ -295,7 +297,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
       )}
 
       <form action="https://script.google.com/macros/s/AKfycbwhOUYDudL2B7Damz10m485blQxTRIldG5z_Y734oySrPeZPa5oJQVNR3yO6t1828Hm-w/exec" method="POST" onSubmit={handleFormSubmit} className="aberturaAltoxv" id="checklistOpen">
-        <button className="hidebtn" onClick={Checked}>Check</button>
+        {/* <button className="hidebtn" onClick={Checked}>Check</button> */}
 
         <div className="step-indicator">
           {steps.map((step, index) => (
