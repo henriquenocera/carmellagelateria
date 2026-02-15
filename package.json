@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "netlify dev",
-    "build": "netlify build"
+    "build": "netlify build",
+    "watch:css": "sass --watch style.scss:dist/css/style.css --style=expanded --source-map"
+    
   },
   "repository": {
     "type": "git",
@@ -24,6 +26,7 @@
   },
   "devDependencies": {
     "netlify-cli": "^12.12.0",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "sass": "^1.97.3"
   }
 }
