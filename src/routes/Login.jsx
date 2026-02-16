@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import supabase from "../supabase-client";
 import { useAuth } from "../AuthProvider";
+import "../css/Login.css";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -47,43 +48,23 @@ function Login() {
       <Helmet>
         <title>Login</title>
       </Helmet>
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#f5f5f5",
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            background: "#ffffff",
-            padding: "2rem",
-            borderRadius: "12px",
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.08)",
-          }}
-        >
-          <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+      <div className="login-page">
+        <div className="login-card">
+          <div className="login-header">
             <img
               src="/logo.svg"
               alt="Carmella Gelateria"
-              style={{ height: "60px", marginBottom: "0.75rem" }}
+              className="login-logo"
             />
-            <h2 style={{ margin: 0, fontSize: "1.4rem" }}>Acesso Restrito</h2>
-            <p style={{ margin: "0.5rem 0 0", color: "#666", fontSize: "0.9rem" }}>
+            <h2 className="login-title">Acesso Restrito</h2>
+            <p className="login-subtitle">
               Faça login para acessar o painel interno.
             </p>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                htmlFor="email"
-                style={{ display: "block", marginBottom: "0.35rem", fontSize: "0.9rem" }}
-              >
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-field">
+              <label htmlFor="email" className="login-label">
                 Email
               </label>
               <input
@@ -92,21 +73,12 @@ function Login() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.6rem 0.75rem",
-                  borderRadius: "8px",
-                  border: "1px solid #d9d9d9",
-                  fontSize: "0.95rem",
-                }}
+                className="login-input"
               />
             </div>
 
-            <div style={{ marginBottom: "1rem" }}>
-              <label
-                htmlFor="password"
-                style={{ display: "block", marginBottom: "0.35rem", fontSize: "0.9rem" }}
-              >
+            <div className="login-field">
+              <label htmlFor="password" className="login-label">
                 Senha
               </label>
               <input
@@ -115,27 +87,12 @@ function Login() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.6rem 0.75rem",
-                  borderRadius: "8px",
-                  border: "1px solid #d9d9d9",
-                  fontSize: "0.95rem",
-                }}
+                className="login-input"
               />
             </div>
 
             {error && (
-              <div
-                style={{
-                  marginBottom: "1rem",
-                  padding: "0.6rem 0.75rem",
-                  borderRadius: "8px",
-                  backgroundColor: "#fff1f0",
-                  color: "#cf1322",
-                  fontSize: "0.85rem",
-                }}
-              >
+              <div className="login-error">
                 {error}
               </div>
             )}
@@ -143,21 +100,7 @@ function Login() {
             <button
               type="submit"
               disabled={submitting}
-              style={{
-                width: "100%",
-                padding: "0.7rem 0.75rem",
-                borderRadius: "999px",
-                border: "none",
-                background:
-                  "linear-gradient(135deg, #ff8ba7 0%, #ff758c 50%, #ff7eb3 100%)",
-                color: "#ffffff",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-                cursor: submitting ? "default" : "pointer",
-                opacity: submitting ? 0.8 : 1,
-                transition: "transform 0.1s ease, box-shadow 0.1s ease",
-                boxShadow: "0 6px 18px rgba(255, 117, 140, 0.35)",
-              }}
+              className="login-submit"
             >
               {submitting ? "Entrando..." : "Entrar"}
             </button>

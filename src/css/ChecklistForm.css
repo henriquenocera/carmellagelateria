@@ -417,3 +417,34 @@
   color: #666;
   font-style: italic;
 }
+
+.copy-sample-wrapper {
+  margin: -0.5rem 0 1.5rem 3.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.copy-sample-button {
+  padding: 0.5rem 1.4rem;
+  border-radius: 999px;
+  border: none;
+  background: #a17550;
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.copy-sample-button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.copy-sample-hint {
+  font-size: 1.3rem;
+  color: #666;
+}

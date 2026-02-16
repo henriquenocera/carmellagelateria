@@ -14,6 +14,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
   const [check, setCheck] = useState(false);
+  const [copiedItem6, setCopiedItem6] = useState(false);
 
   const unidadeText = "Escritório";
 
@@ -161,6 +162,36 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     setWithExpiry("check", true, 10000);
   }
 
+  const handleCopySampleForItem6 = async () => {
+    const sampleText =
+      `Olá! 🍦
+
+Passando para saber se você gostaria de fazer um pedido para essa semana.
+Pedidos feitos hoje garantimos à entrega até *Quinta feira*.
+
+Fico à disposição!`;
+
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(sampleText);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = sampleText;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+      }
+      setCopiedItem6(true);
+      setTimeout(() => setCopiedItem6(false), 3000);
+    } catch (err) {
+      console.error("Erro ao copiar texto de exemplo:", err);
+    }
+  };
+
   return (
     <>
       {isModalErrorOpen && (
@@ -255,17 +286,33 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         {steps[currentStep - 1].items
           .filter((item) => item.weekday === undefined || item.weekday === weekday)
           .map((item) => (
-            <ChecklistItem
-              key={item.id}
-              id={item.id}
-              title={item.title}
-              subtitle1={item.subtitle1}
-              subtitle2={item.subtitle2}
-              checked={checkedItems[item.id]}
-              onChange={() => handleCheckboxChange(item.id)}
-              weekday={item.weekday}
-
-            />
+            <React.Fragment key={item.id}>
+              <ChecklistItem
+                id={item.id}
+                title={item.title}
+                subtitle1={item.subtitle1}
+                subtitle2={item.subtitle2}
+                checked={checkedItems[item.id]}
+                onChange={() => handleCheckboxChange(item.id)}
+                weekday={item.weekday}
+              />
+              {item.id === "5" && (
+                <div className="copy-sample-wrapper">
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={handleCopySampleForItem6}
+                  >
+                    Copiar texto de exemplo
+                  </button>
+                  {copiedItem6 && (
+                    <span className="copy-sample-hint">
+                      Texto de exemplo copiado para a área de transferência.
+                    </span>
+                  )}
+                </div>
+              )}
+            </React.Fragment>
           ))}
 
         {currentStep === 4 && (
