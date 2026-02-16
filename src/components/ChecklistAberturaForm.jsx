@@ -19,24 +19,19 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
   const steps = [
     {
-      title: "1ª - Equipamentos",
+      title: "1ª - Financeiro",
       items: [
-        { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido" },
-        { id: "2", title: "Limpeza externa da vitrine", subtitle1: "Vidros com álcool líquido", subtitle2: "" },
-        { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
-        { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v 'tomadas vermelhas'", subtitle2: "Girar o controlador da máquina de café para a posição '1'" },
-        { id: "5", title: "Acender Todas as Luzes", subtitle1: "", subtitle2: "" },
-        { id: "6", title: "Ligar máquininha de cartão POS 'Máquininha verde'", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
-        { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
-        { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Utilizar o contador de notas e moedas abaixo", subtitle2: "" },
-        { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 6 | Senha: 2849" },
+        { id: "1", title: "Conciliação Bancária", subtitle1: "Lojas - Conta Itaú" },
+        { id: "2", title: "Conciliação Bancária", subtitle1: "Compras - Inter" },
+        { id: "3", title: "Conciliação de Vendas das Lojas", subtitle1: "Cloudfy / Rede / Dinheiro" },
+        { id: "4", title: "Contas à Pagar e Receber", subtitle1: "" }
       ]
     },
     {
       title: "2ª - Organização",
       items: [
-        { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
-        { id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "" },
+        { id: "5", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "6", title: "Verificar Espelho Ponto das Atendentes", subtitle1: "Informar horas extras / faltantes do dia anterior", subtitle2: "" },
         { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
         { id: "13", title: "Colocar sacos de lixo do salão dos clientes", subtitle1: "Sacos de lixo de 60 Litros", subtitle2: "" },
         { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
@@ -331,7 +326,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
           />
         ))}
 
-        {currentStep === 1 && <ContadorNotasMoedas onTotalChange={handleMoneyCounterChange} />}
+        {/* {currentStep === 1 && <ContadorNotasMoedas onTotalChange={handleMoneyCounterChange} />} */}
 
         <div className="form-navigation">
           {currentStep > 1 && (

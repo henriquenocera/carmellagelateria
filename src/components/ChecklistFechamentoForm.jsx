@@ -15,35 +15,35 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
   const [check, setCheck] = useState(false);
 
-  const unidadeText = "Alto da XV";
+  const unidadeText = "Escritório";
 
   const weekday = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
   console.log(weekday)
 
   const steps = [
     {
-      title: `1ª Pré Fechamento - 
-      Horários: (18:00 ~ 18:45)`,
+      title: `1ª - Financeiro`,
       items: [
-        { id: "1", title: "Limpar espátulas", subtitle1: "Lavar com água e sabão", subtitle2: "" },
-        { id: "2", title: "Limpar cubas", subtitle1: "Sempre pegar um pano limpo", subtitle2: "" },
-        { id: "3", title: "Limpar todos os utensílios do café", subtitle1: "Limpar com água e sabão", subtitle2: "" },
-        { id: "4", title: "Limpar bancada dos salgados", subtitle1: "", subtitle2: "" },
-        { id: "5", title: "Limpar máquina de café (simples)", subtitle1: "", subtitle2: "" },
-        { id: "6", title: "Conferir trello (estoque)", subtitle1: "Revisar Trello e garantir que o estoque real bate com o estoque do trello", subtitle2: "Atualizar o trello com as entradas e saídas do dia seguinte" },
-        { id: "7", title: "Foto das frutas", subtitle1: "Enviar uma foto das frutas na loja no grupo do whatsapp da loja", subtitle2: "" }
+        { id: "1", title: "Conciliação Bancária", subtitle1: "Todas as Contas" },
+        { id: "3", title: "Conciliação de Vendas das Lojas", subtitle1: "Dinheiro / Cartão / Pix" },
+        { id: "4", title: "Contas à Pagar e Receber", subtitle1: "" }
       ]
     },
     {
-      title: `2ª Pré Fechamento - Horários: (18:45 ~ 19:00)`,
+      title: `2ª Organização`,
       items: [
-        { id: "8", title: "Fechar janela da sala dos funcionários", subtitle1: "", subtitle2: "" },
-        { id: "9", title: "Fechar porta do salão dos clientes", subtitle1: "Caso tenha clientes sentados, aguardar", subtitle2: "" },
-        { id: "11", title: "Colocar para carregar tablet e máquininha POS", subtitle1: "", subtitle2: "" },
-        { id: "12", title: "Limpar mesas e cadeiras do salão dos clientes", subtitle1: "", subtitle2: "" },
+        { id: "5", title: "(Segunda Feira) - Verificar pedidos com clientes Food Service", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "6", title: "(Segunda Feira) - Realizar Inventário do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "7", title: "(Segunda Feira) - Fazer Lista de Compras para Estoque do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "8", title: "(Segunda Feira) - Realizar Inventário da Loja XV", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "9", title: "(Segunda Feira) - Realizar Inventário da Fábrica", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "10", title: "(Terça Feira) - Verificar Inventário da loja Ahu", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
+        { id: "11", title: "(Terça Feira) - Verificar Inventário da loja Alto XV", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
+        { id: "12", title: "Verificar Espelho Ponto das Atendentes", subtitle1: "Informar horas extras / faltantes do dia anterior", subtitle2: "" },
+
       ]
     },
-    {
+    /* {
       title: "3ª Fechamento (19:00)",
       items: [
         { id: "13", title: "Fechar as portas de enrolar", subtitle1: "", subtitle2: "" },
@@ -59,28 +59,9 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
 
       ]
-    },
-    {
-      title: "4ª Inventário",
-      items: [
+    }, */
 
-      ]
-    },
-    {
-      title: "4ª Finalização e Limpeza",
-      items: [
-        { id: "23", title: "Secar pia", subtitle1: "", subtitle2: "" },
-        { id: "24", title: "Descartar panos", subtitle1: "Descartar no balde de panos", subtitle2: "" },
-        { id: "25", title: "Conferir geladeira", subtitle1: "Garantir que não sobrou nenuma cuba ou quebra lá dentro", subtitle2: "" },
-        { id: "26", title: "Conferir freezer, geladeira e friobar", subtitle1: "Garantir que estão bem fechados", subtitle2: "" },
-        { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "28", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
-        { id: "30", title: "Desligar todas as luzes", subtitle1: "", subtitle2: "" },
-        { id: "31", title: "Desligar a luz do freezer", subtitle1: "", subtitle2: "" },
-        { id: "32", title: "Desligar computador", subtitle1: "", subtitle2: "" }
-      ]
-    }
+    
   ];
 
   // Initialize checkedItems state with all items set to false

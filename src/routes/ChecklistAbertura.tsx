@@ -117,12 +117,12 @@ function ChecklistAbertura() {
   return (
     <>
       <Helmet>
-        <title>Checklist de Abertura</title>
+        <title>Checklist</title>
       </Helmet>
       <div className="checklistContainer">
         <div className="unitContainer">
           <div className="unitInfo">
-            <h1>Checklist de Abertura</h1>
+            <h1>Checklist</h1>
 
             <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
           </div>
