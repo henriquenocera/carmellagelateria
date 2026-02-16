@@ -67,22 +67,22 @@ function NavBar() {
               <span className="text">Checklist Fechamento</span>
             </NavLink>
           </li>
-{/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/checklist-conferencia">
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/informacoes">
               <span className="icon">
                 <Icons.BsCheck />
               </span>
-              <span className="text">Checklist De Conferência</span>
+              <span className="text">Informacoes</span>
             </NavLink>
-          </li> */}
-          <li className={activeMenu ? "list active" : "list"}>
+          </li>
+{/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/voucher">
               <span className="icon">
                 <Icons.BsTicket />
               </span>
               <span className="text">Voucher</span>
             </NavLink>
-          </li>
+          </li> */}
 
         </ul>
       </div>

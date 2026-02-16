@@ -4,18 +4,17 @@ import supabase from "../supabase-client";
 import moment from "moment";
 import { Helmet } from "react-helmet";
 
-function ChecklistConferencia() {
+function Informacoes() {
   return (
     <>
       <Helmet>
-        <title>Checklist de Conferência</title>
+        <title>Informações</title>
       </Helmet>
       <div className="home">
-        <h1>Checklist de Conferência</h1>
-        <p>Em construção</p>
+        <h1>Informações</h1>
       </div>
     </>
   );
 }
 
-export default ChecklistConferencia;
+export default Informacoes;
