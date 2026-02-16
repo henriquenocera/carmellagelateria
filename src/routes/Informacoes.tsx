@@ -11,7 +11,7 @@ function Informacoes() {
         <title>Informações</title>
       </Helmet>
       <div className="home">
-        <h1>Informações</h1>
+        <h1>Informações em dev</h1>
       </div>
     </>
   );
