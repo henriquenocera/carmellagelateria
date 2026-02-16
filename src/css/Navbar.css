@@ -101,6 +101,61 @@ body {
   display: flex;
 }
 
+.topbar-user-info {
+  position: fixed;
+  top: 1.6rem;
+  right: 2rem;
+  z-index: 120;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  background: #efe0c2;
+  border: 1px solid #d2b98a;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: #5a432c;
+  font-size: 1.2rem;
+}
+
+.topbar-user-info__label {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #39230b;
+}
+
+.topbar-user-info__email {
+  font-weight: 700;
+  font-size: 1.4rem;
+  padding: 2px;
+}
+
+.topbar-user-info__button {
+  padding: 0.3rem 1.4rem;
+  font-size: 1.4rem;
+  border-radius: 999px;
+  border: none;
+  background-image: linear-gradient(
+    92.88deg,
+    #a17550 9.16%,
+    #a17550 43.89%,
+    #a17550 64.72%
+  );
+  color: #ffffff;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.topbar-user-info__button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  opacity: 0.95;
+}
+
+
 .navigation ul li {
   list-style: none;
   position: relative;

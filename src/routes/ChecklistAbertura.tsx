@@ -7,8 +7,8 @@ import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = "Escritório";
+const unidade = "escritorio";
 
 // Function Get Local Storage
 function getLocalStorage() {
@@ -135,13 +135,12 @@ function ChecklistAbertura() {
         ) : (
           <>
             <div className="warningContainer">
-              <p className="warningText">Bater Ponto</p>
 
               <p className="warningText">
                 <span className="warningIcon">
                   <Icons.BsExclamationDiamondFill />
                 </span>
-                Avental | Máscara | Faixa de Cabelo / Boné
+                Bater Ponto
               </p>
             </div>
             <div className="checklistFormContainer">

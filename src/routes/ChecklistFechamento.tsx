@@ -8,8 +8,8 @@ import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = "Escritório";
+const unidade = "escritorio";
 
 async function sendOpenMessage(
   openDateFormat,

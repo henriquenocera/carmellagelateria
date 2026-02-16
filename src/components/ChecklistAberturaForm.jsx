@@ -15,7 +15,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const [moneyCounterData, setMoneyCounterData] = useState(null);
   const idInputRef = useRef(null);
 
-  const unidadeText = "Alto da XV";
+  const unidadeText = "Escritório";
 
   const steps = [
     {
