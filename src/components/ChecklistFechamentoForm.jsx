@@ -46,11 +46,12 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     {
       title: "3ª Fechamento (19:00)",
       items: [
+        { id: "133", title: "Recolher mesas e cadeiras externas", subtitle1: "", subtitle2: "" },
         { id: "13", title: "Fechar as portas de enrolar", subtitle1: "", subtitle2: "" },
         { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
         { id: "15", title: "Desligar a vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
         { id: "16", title: "Desligar a máquina de café e moedor", subtitle1: "", subtitle2: "" },
-        { id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
+        //{ id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
         { id: "18", title: "Retirar todos os lixos", subtitle1: "Lixos internos, externos, banheiro e salão dos clientes", subtitle2: "" },
         { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, não colocar os lixos para fora", subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "20", title: "Fechar caixa no PDV", subtitle1: "", subtitle2: "" },
@@ -70,7 +71,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       title: "4ª Finalização e Limpeza",
       items: [
         { id: "23", title: "Secar pia", subtitle1: "", subtitle2: "" },
-        { id: "24", title: "Descartar panos", subtitle1: "Descartar no balde de panos", subtitle2: "" },
+        { id: "24", title: "Descartar panos", subtitle1: "Descartar no balde de panos", subtitle2: "Apenas descartas os panos secos, se tiver molhado deixar no varal de um dia para outro" },
         { id: "25", title: "Conferir geladeira", subtitle1: "Garantir que não sobrou nenuma cuba ou quebra lá dentro", subtitle2: "" },
         { id: "26", title: "Conferir freezer, geladeira e friobar", subtitle1: "Garantir que estão bem fechados", subtitle2: "" },
         { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },

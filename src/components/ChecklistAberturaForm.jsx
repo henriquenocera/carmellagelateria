@@ -26,8 +26,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
         { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v 'tomadas vermelhas'", subtitle2: "Girar o controlador da máquina de café para a posição '1'" },
         { id: "5", title: "Acender Todas as Luzes", subtitle1: "", subtitle2: "" },
-        { id: "6", title: "Ligar máquininha de cartão POS 'Máquininha verde'", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
-        { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
+        { id: "6", title: "Ligar máquininha de cartão POS 'Máquininha da Rede'", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
+       // { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
         { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Utilizar o contador de notas e moedas abaixo", subtitle2: "" },
         { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 6 | Senha: 2849" },
       ]
@@ -37,12 +37,14 @@ function ChecklistAberturaForm({ handleSubmit }) {
       items: [
         { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
         { id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "" },
+        { id: "111", title: "Colocar as mesas e cadeiras externas", subtitle1: "", subtitle2: "" },
         { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
         { id: "13", title: "Colocar sacos de lixo do salão dos clientes", subtitle1: "Sacos de lixo de 60 Litros", subtitle2: "" },
+        { id: "104", title: "Colocar sacos de lixo nas lixeiras externas", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
         { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
         { id: "15", title: "Repor papel higiênico no banheiro", subtitle1: "", subtitle2: "" },
         { id: "16", title: "Repor papel toalha no banheiro", subtitle1: "", subtitle2: "" },
-        { id: "17", title: "Repor insumos necessários", subtitle1: "Retirar do estoque", subtitle2: "" },
+        //{ id: "17", title: "Repor insumos necessários", subtitle1: "Retirar do estoque", subtitle2: "" },
       ]
     },
     {
@@ -64,8 +66,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "23", title: "Abrir portas de enrolar", subtitle1: "", subtitle2: "" },
         { id: "24", title: "Abrir porta do salão dos clientes", subtitle1: "", subtitle2: "" },
         { id: "27", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta dos fundos", subtitle2: "" },
-        { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
-        { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
+        // { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
+        // { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
 
 
