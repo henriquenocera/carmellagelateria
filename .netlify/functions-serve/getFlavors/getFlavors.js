@@ -1,0 +1,1 @@
+module.exports = require('./src/.netlify/functions-serve/.unzipped/getFlavors/getFlavors.js')
