@@ -30,14 +30,14 @@ function NavBar() {
               <span className="text">Salgados</span>
             </NavLink>
           </li> */}
-          <li className={activeMenu ? "list active" : "list"}>
+{/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
               <span className="icon">
                 <Icons.BsEmojiSmile />
               </span>
               <span className="text">Vales</span>
             </NavLink>
-          </li>
+          </li> */}
 
 {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/inventario">

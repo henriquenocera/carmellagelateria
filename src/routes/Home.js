@@ -1,44 +1,86 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "../css/Home.css";
-import supabase from "../supabase-client";
-import moment from "moment";
 import { Helmet } from "react-helmet";
-import { FaTimesCircle } from "react-icons/fa";
 
 function Home() {
-  const [vales, setVales] = useState([]);
-  const [lastThreeDays, setLastThreeDays] = useState([]);
+  const [copiedIndex, setCopiedIndex] = useState(null);
 
-  useEffect(() => {
-    FetchVales();
-  }, []);
+  const predefinedTexts = [
+    {
+      id: 1,
+      title: "Horários e Endereços",
+      text: `📍 Rua Colombo,183 - Ahú
+📍 Rua Sete de Abril, 934 - Alto da XV
+🕐 Todos os dias | 12:00 as 19:00`
+    },
+    {
+      id: 2,
+      title: "Sabores do Dia",
+      text: `Olá! 🍦
 
-  const FetchVales = async () => {
-    console.log("Fetching vales");
-    // Get checklists from the last 5 days
-    const fiveDaysAgo = moment().subtract(5, 'days').startOf('day').toISOString();
-    
-    const { data, error } = await supabase
-      .from("Vales")
-      .select("*")
-      .eq("Unidade", "Alto da XV")
-      .gte("created_at", fiveDaysAgo)
-      .order("created_at", { ascending: false });
+Nós trabalhamos atualmente com quase 60 sabores, de forma rotativa, então estamos sempre trocando os sabores da vitrine, mas você pode acompanhar os sabores em tempo real pelo nosso site.
+sabores.carmellagelateria.com.br
 
-    if (error) {
-      console.log(error);
-    } else {
-      setVales(data);
-      console.log(vales)
-      
-      // Generate array of last 5 days
-      const days = [];
-      for (let i = 0; i < 5; i++) {
-        days.push(moment().subtract(i, 'days').startOf('day').toISOString());
+Qualquer dúvida, fico à disposição!
+`
+    },
+    {
+      id: 3,
+      title: "Glúten",
+      text: `A grande maioria dos nossos sabores não contém glúten, apesar de termos alguns sabores como Oreo, Lemon Pie, entre outros que tem glúten na receita.
+
+Porém, nenhum de nossos Gelatos são livres de glúten devido a contaminação cruzada, tanto na produção quanto na loja. Caso você seja celíaca nós NÃO recomendamos o consumo.`
+    },
+    {
+      id: 4,
+      title: "Diets (zero açúcar)",
+      text: `Olá! 🍦
+
+Nós possuímos alguns sabores diets, porém não conseguimos garantir a sua disponibilidade sempre.
+Você consegue acompanhar os sabores atuais de cada loja pelo nosso site
+sabores.carmellagelateria.com.br
+
+Fico à disposição!`
+    },
+    {
+      id: 5,
+      title: "Pedidos Food Service",
+      text: `Olá! 🍦
+
+Passando para saber se você gostaria de fazer um pedido para essa semana.
+Pedidos até as 16:00 entregamos até Quinta feira.
+
+Fico à disposição!`
+    },
+    {
+      id: 6,
+      title: "",
+      text: ""
+    }
+  ];
+
+  const handleCopy = async (text, index) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
       }
-      setLastThreeDays(days);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    } catch (err) {
+      console.error("Erro ao copiar texto:", err);
     }
   };
+
   return (
     <>
       <Helmet>
@@ -47,88 +89,22 @@ function Home() {
       <div className="home">
         <img className="logo" src="/logo.svg" alt="" />
         <div className="container">
-          <h2>Últimos Vales</h2>
-          {vales.length === 0 ? (
-            <p>Nenhum vale encontrado nos últimos dias.</p>
-          ) : (
-            <table className="vales-table">
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Nome</th>
-                  <th>Item</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(() => {
-                  const today = moment();
-                  const todaysVales = vales.filter((vale) =>
-                    moment(vale.created_at).isSame(today, "day")
-                  );
-                  const otherVales = vales.filter(
-                    (vale) => !moment(vale.created_at).isSame(today, "day")
-                  );
-
-                  const limit = 100;
-                  const todaysLimited = todaysVales.slice(0, limit);
-                  const othersLimited = otherVales.slice(
-                    0,
-                    Math.max(0, limit - todaysLimited.length)
-                  );
-
-                  return (
-                    <>
-                      {todaysLimited.length > 0 && (
-                        <>
-                          <tr className="vales-divider">
-                            <td colSpan={3}>
-                              Hoje - {today.format("DD/MM/YYYY")}
-                            </td>
-                          </tr>
-                          {todaysLimited.map((vale) => (
-                            <tr key={vale.id}>
-                              <td>
-                                {moment(vale.created_at).format(
-                                  "DD/MM/YYYY HH:mm"
-                                )}
-                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
-                                  <span className="new-tag">novo</span>
-                                )}
-                              </td>
-                              <td>{vale.Nome ?? "-"}</td>
-                              <td>{vale.Item ?? "-"}</td>
-                            </tr>
-                          ))}
-                        </>
-                      )}
-
-                      {othersLimited.length > 0 && (
-                        <>
-                          <tr className="vales-divider secondary">
-                            <td colSpan={3}>Dias anteriores</td>
-                          </tr>
-                          {othersLimited.map((vale) => (
-                            <tr key={vale.id}>
-                              <td>
-                                {moment(vale.created_at).format(
-                                  "DD/MM/YYYY HH:mm"
-                                )}
-                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
-                                  <span className="new-tag">novo</span>
-                                )}
-                              </td>
-                              <td>{vale.Nome ?? "-"}</td>
-                              <td>{vale.Item ?? "-"}</td>
-                            </tr>
-                          ))}
-                        </>
-                      )}
-                    </>
-                  );
-                })()}
-              </tbody>
-            </table>
-          )}
+          <h2>Textos Pré Prontos e Formatados</h2>
+          <div className="text-quotes-grid">
+            {predefinedTexts.map((item, index) => (
+              <div key={item.id} className="text-quote-card">
+                <h3 className="text-quote-title">{item.title}</h3>
+                <p className="text-quote-text">{item.text}</p>
+                <button
+                  type="button"
+                  className="text-quote-copy-btn"
+                  onClick={() => handleCopy(item.text, index)}
+                >
+                  {copiedIndex === index ? "✓ Copiado!" : "Copiar texto"}
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </>

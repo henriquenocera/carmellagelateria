@@ -7,7 +7,15 @@
   height: auto;
 }
 
-.container {
+.containerHome {
+  max-width: 800px;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding-left: 75px;
 }
 
 .vales-table {
@@ -113,4 +121,75 @@
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
+}
+
+.text-quotes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 2rem;
+}
+
+.text-quote-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.8rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.text-quote-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.text-quote-title {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #5a432c;
+  font-weight: 700;
+  border-bottom: 2px solid #efe0c2;
+  padding-bottom: 0.5rem;
+}
+
+.text-quote-text {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #7a6a58;
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.text-quote-copy-btn {
+  align-self: center;
+  padding: 0.7rem 1.4rem;
+  border: none;
+  background-image: linear-gradient(
+    92.88deg,
+    #a17550 9.16%,
+    #a17550 43.89%,
+    #a17550 64.72%
+  );
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-shadow: rgba(0, 0, 0, 0.25) 0 2px 4px;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.text-quote-copy-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.text-quote-copy-btn:active {
+  transform: translateY(0);
 }

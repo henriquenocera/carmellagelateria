@@ -23,24 +23,33 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   const steps = [
     {
-      title: `1ª - Financeiro`,
+      title: `1ª - Acessos`,
       items: [
-        { id: "1", title: "Conciliação Bancária", subtitle1: "Todas as Contas" },
-        { id: "3", title: "Conciliação de Vendas das Lojas", subtitle1: "Dinheiro / Cartão / Pix" },
-        { id: "4", title: "Contas à Pagar e Receber", subtitle1: "" }
+        { id: "1", title: "Acessar na conta do Whatsapp Business da Carmella", subtitle1: "Deixar ela aberta durante todo o dia" },
+        { id: "3", title: "Acessar na conta do Instagram da Carmella", subtitle1: "Deixar ela aberta durante todo o dia" },
+        { id: "4", title: "Acessar a conta do Telegram da Carmella", subtitle1: "" },
+        { id: "5", title: "Acessar a conta do Trello", subtitle1: "" },
       ]
     },
     {
-      title: `2ª Organização`,
+      title: `2ª - Financeiro`,
       items: [
-        { id: "5", title: "(Segunda Feira) - Verificar pedidos com clientes Food Service", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "6", title: "(Segunda Feira) - Realizar Inventário do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "7", title: "(Segunda Feira) - Fazer Lista de Compras para Estoque do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "8", title: "(Segunda Feira) - Realizar Inventário da Loja XV", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "9", title: "(Segunda Feira) - Realizar Inventário da Fábrica", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "10", title: "(Terça Feira) - Verificar Inventário da loja Ahu", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
-        { id: "11", title: "(Terça Feira) - Verificar Inventário da loja Alto XV", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
-        { id: "12", title: "Verificar Espelho Ponto das Atendentes", subtitle1: "Informar horas extras / faltantes do dia anterior", subtitle2: "" },
+        { id: "55", title: "Conciliação Bancária", subtitle1: "Todas as Contas" },
+        { id: "6", title: "Conciliação de Vendas das Lojas", subtitle1: "Dinheiro / Cartão / Pix" },
+        { id: "7", title: "Contas à Pagar e Receber", subtitle1: "" }
+      ]
+    },
+    {
+      title: `3ª Organização`,
+      items: [
+        { id: "8", title: "(Segunda Feira) - Verificar pedidos com clientes Food Service", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "9", title: "(Segunda Feira) - Realizar Inventário do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "10", title: "(Segunda Feira) - Fazer Lista de Compras para Estoque do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "11", title: "(Segunda Feira) - Realizar Inventário da Loja XV", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "12", title: "(Segunda Feira) - Realizar Inventário da Fábrica", subtitle1: "", subtitle2: "", weekday: 1},
+        { id: "13", title: "(Terça Feira) - Verificar Inventário da loja Ahu", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
+        { id: "14", title: "(Terça Feira) - Verificar Inventário da loja Alto XV", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
+        { id: "15", title: "Verificar Espelho Ponto das Atendentes", subtitle1: "Informar horas extras / faltantes do dia anterior", subtitle2: "" },
 
       ]
     },
@@ -296,7 +305,7 @@ Fico à disposição!`;
                 onChange={() => handleCheckboxChange(item.id)}
                 weekday={item.weekday}
               />
-              {item.id === "5" && (
+              {item.id === "8" && (
                 <div className="copy-sample-wrapper">
                   <button
                     type="button"
