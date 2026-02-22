@@ -1,91 +1,81 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import * as Icons from "react-icons/bs";
 import { NavLink } from "react-router-dom";
 import "../css/Navbar.css";
 
+const navItems = [
+  { to: "/", icon: Icons.BsEscape, label: "Manual dos Produtos" },
+  // { to: "/manual", icon: Icons.BsJournalBookmarkFill, label: "Manual" },
+  //{ to: "/vales", icon: Icons.BsEmojiSmile, label: "Vales" },
+  //{ to: "/checklist-abertura", icon: Icons.BsArrowBarRight, label: "Checklist Abertura" },
+  //{ to: "/checklist-fechamento", icon: Icons.BsArrowBarLeft, label: "Checklist Fechamento" },
+  //{ to: "/voucher", icon: Icons.BsTicket, label: "Voucher" },
+];
+
 function NavBar() {
-  const [sidebar, setSidebar] = useState(false);
-  // const [menuActive, setMenuActive] = useState(false);
-  const showSidebar = () => setSidebar(!sidebar);
-  let activeMenu = false;
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const closeSidebar = () => setSidebarOpen(false);
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape") closeSidebar();
+    };
+    if (sidebarOpen) {
+      document.addEventListener("keydown", handleEscape);
+      document.body.style.overflow = "hidden";
+    }
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "";
+    };
+  }, [sidebarOpen]);
 
   return (
     <>
-      <div className={sidebar ? "navigation open" : "navigation"}>
-        <div className="menuToggle" onClick={showSidebar}></div>
-        <ul>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/">
-              <span className="icon">
-                <Icons.BsEscape />
-              </span>
-              <span className="text">Início</span>
-            </NavLink>
-          </li>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/manual">
-              <span className="icon">
-                <Icons.BsJournalBookmarkFill />
-              </span>
-              <span className="text">Manual</span>
-            </NavLink>
-          </li>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/vales">
-              <span className="icon">
-                <Icons.BsEmojiSmile />
-              </span>
-              <span className="text">Vales</span>
-            </NavLink>
-          </li>
+      <header className="nav-bar">
+        <button
+          type="button"
+          className="nav-menu-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
+          aria-expanded={sidebarOpen}
+        >
+          <Icons.BsList />
+        </button>
+        <span className="nav-bar-title">Carmella Gelateria</span>
+      </header>
 
-  {/*         <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/inventario">
-              <span className="icon">
-                <Icons.BsArrowCounterclockwise />
-              </span>
-              <span className="text">Inventário</span>
-            </NavLink>
-          </li> */}
+      <div
+        className={`nav-overlay ${sidebarOpen ? "open" : ""}`}
+        onClick={closeSidebar}
+        role="presentation"
+      />
 
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/checklist-abertura">
-              <span className="icon">
-                <Icons.BsArrowBarRight />
-              </span>
-
-              <span className="text">
-                Checklist <br></br> Abertura
-              </span>
-            </NavLink>
-          </li>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/checklist-fechamento">
-              <span className="icon">
-                <Icons.BsArrowBarLeft />
-              </span>
-              <span className="text">Checklist Fechamento</span>
-            </NavLink>
-          </li>
-{/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/checklist-conferencia">
-              <span className="icon">
-                <Icons.BsCheck />
-              </span>
-              <span className="text">Checklist De Conferência</span>
-            </NavLink>
-          </li> */}
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/voucher">
-              <span className="icon">
-                <Icons.BsTicket />
-              </span>
-              <span className="text">Voucher</span>
-            </NavLink>
-          </li>
-
+      <aside className={`nav-sidebar ${sidebarOpen ? "open" : ""}`}>
+        <div className="nav-sidebar-header">
+          <h2>Menu</h2>
+        </div>
+        <ul className="nav-sidebar-list">
+          {navItems.map(({ to, icon: Icon, label }) => (
+            <li key={to}>
+              <NavLink
+                to={to}
+                onClick={closeSidebar}
+                className={({ isActive }) => (isActive ? "active" : "")}
+                end={to === "/"}
+              >
+                <span className="nav-icon">
+                  <Icon />
+                </span>
+                <span className="nav-text">{label}</span>
+              </NavLink>
+            </li>
+          ))}
         </ul>
-      </div>
+      </aside>
+
+      <div className="nav-spacer" />
     </>
   );
 }
