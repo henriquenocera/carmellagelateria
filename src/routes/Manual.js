@@ -16,6 +16,8 @@ const manualData = [
             size: "Pequeno",
             grams: 80,
             description: "2 bolas",
+            finishedImage: "/images/manual/copo-pequeno.jpg",
+            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
               "Pegar o copo pequeno (capacidade aprox. 200ml)",
               "Servir 2 bolas de sorvete (40g cada = 80g total)",
@@ -29,6 +31,9 @@ const manualData = [
             size: "Médio",
             grams: 120,
             description: "3 bolas",
+            finishedImage: "/images/manual/copo-medio.jpg",
+            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
+
             steps: [
               "Pegar o copo médio (capacidade aprox. 300ml)",
               "Servir 3 bolas de sorvete (40g cada = 120g total)",
@@ -43,6 +48,7 @@ const manualData = [
             size: "Grande",
             grams: 160,
             description: "4 bolas",
+            finishedImage: "/images/manual/copo-grande.jpg",
             steps: [
               "Pegar o copo grande (capacidade aprox. 400ml)",
               "Servir 4 bolas de sorvete (40g cada = 160g total)",
@@ -58,6 +64,7 @@ const manualData = [
       {
         id: 2,
         name: "Cascão (Casquinha)",
+        finishedImage: "/images/manual/cascao.jpg",
         portions: [
           { size: "Pequeno", grams: 80, description: "1 bola" },
           { size: "Médio", grams: 120, description: "2 bolas" },
@@ -102,6 +109,7 @@ const manualData = [
       {
         id: 4,
         name: "Milk Shake Tradicional",
+        finishedImage: "/images/manual/milkshake.jpg",
         portions: [
           { size: "300ml", grams: 300, description: "Copo pequeno" },
           { size: "400ml", grams: 400, description: "Copo médio" },
@@ -124,6 +132,7 @@ const manualData = [
       {
         id: 5,
         name: "Sundae",
+        finishedImage: "/images/manual/sundae.jpg",
         portions: [
           { size: "Pequeno", grams: 100, description: "1 bola + coberturas" },
           { size: "Grande", grams: 200, description: "2 bolas + coberturas" },
@@ -209,16 +218,16 @@ function Manual() {
                             <tbody>
                               {product.portions.map((p) => {
                                 const portionKey = `${category.id}-${product.id}-${p.size}`;
-                                const hasInstructions = p.steps?.length || product.steps?.length;
+                                const hasContent = p.steps?.length || product.steps?.length || p.finishedImage || product.finishedImage || p.preparationMedia || product.preparationMedia;
                                 const isPortionExpanded = expandedPortion === portionKey;
                                 const steps = p.steps || product.steps || [];
 
                                 return (
                                   <React.Fragment key={p.size}>
                                     <tr
-                                      className={hasInstructions ? "manual-row-clickable" : ""}
+                                      className={hasContent ? "manual-row-clickable" : ""}
                                       onClick={() =>
-                                        hasInstructions && togglePortion(category.id, product.id, p.size)
+                                        hasContent && togglePortion(category.id, product.id, p.size)
                                       }
                                     >
                                       <td>
@@ -227,20 +236,58 @@ function Manual() {
                                       <td><strong>{p.grams}g</strong></td>
                                       <td>{p.description || "-"}</td>
                                       <td className="manual-row-arrow">
-                                        {hasInstructions && (
+                                        {hasContent && (
                                           <span>{isPortionExpanded ? "▲" : "▼"}</span>
                                         )}
                                       </td>
                                     </tr>
-                                    {isPortionExpanded && steps.length > 0 && (
+                                    {isPortionExpanded && (steps.length > 0 || p.finishedImage || product.finishedImage || p.preparationMedia || product.preparationMedia) && (
                                       <tr className="manual-detail-row">
                                         <td colSpan={4}>
                                           <div className="manual-portion-instructions">
-                                            <ol className="manual-steps">
-                                              {steps.map((step, i) => (
-                                                <li key={i}>{step}</li>
-                                              ))}
-                                            </ol>
+                                            {(p.finishedImage || product.finishedImage) && (
+                                              <div className="manual-media-section">
+                                                <h4>Produto final</h4>
+                                                <img
+                                                  src={p.finishedImage || product.finishedImage}
+                                                  alt={`${p.size} - produto final`}
+                                                  className="manual-finished-image"
+                                                />
+                                              </div>
+                                            )}
+                                            {steps.length > 0 && (
+                                              <>
+                                                <h4>Como montar</h4>
+                                                <ol className="manual-steps">
+                                                  {steps.map((step, i) => (
+                                                    <li key={i}>{step}</li>
+                                                  ))}
+                                                </ol>
+                                              </>
+                                            )}
+                                            {(p.preparationMedia || product.preparationMedia) && (
+                                              <div className="manual-media-section">
+                                                <h4>Preparação</h4>
+                                                {(p.preparationMedia || product.preparationMedia).type === "video" ? (
+                                                  <video
+                                                    className="manual-prep-media"
+                                                    controls
+                                                    playsInline
+                                                    muted
+                                                    loop
+                                                    src={(p.preparationMedia || product.preparationMedia).url}
+                                                  >
+                                                    Seu navegador não suporta vídeo.
+                                                  </video>
+                                                ) : (
+                                                  <img
+                                                    src={(p.preparationMedia || product.preparationMedia).url}
+                                                    alt="Preparação"
+                                                    className="manual-prep-image"
+                                                  />
+                                                )}
+                                              </div>
+                                            )}
                                           </div>
                                         </td>
                                       </tr>
