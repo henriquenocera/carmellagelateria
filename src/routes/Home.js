@@ -17,7 +17,7 @@ const manualData = [
             grams: 120,
             description: "1 Sabor",
             container: '- Copo pequeno 80ml - Casquinha Pequena',
-            finishedImage: "/images/manual/copo-pequeno.jpg",
+            finishedImage: "/images/manual/pequeno.png",
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
               "Pegar o copo pequeno (capacidade aprox. 200ml)",
@@ -107,9 +107,9 @@ const manualData = [
         id: 3,
         name: "Açaí na Tigela",
         portions: [
-          { size: "300g", grams: 300, description: "Tigela pequena" },
-          { size: "500g", grams: 500, description: "Tigela média" },
-          { size: "700g", grams: 700, description: "Tigela grande" },
+          { size: "300g", grams: 300, description: "Tigela pequena", container: "Tigela pequena" },
+          { size: "500g", grams: 500, description: "Tigela média", container: "Tigela média" },
+          { size: "700g", grams: 700, description: "Tigela grande", container: "Tigela grande" },
         ],
         steps: [
           "Medir o açaí na balança conforme o tamanho",
@@ -130,9 +130,9 @@ const manualData = [
         name: "Milk Shake Tradicional",
         finishedImage: "/images/manual/milkshake.jpg",
         portions: [
-          { size: "300ml", grams: 300, description: "Copo pequeno" },
-          { size: "400ml", grams: 400, description: "Copo médio" },
-          { size: "500ml", grams: 500, description: "Copo grande" },
+          { size: "300ml", grams: 300, description: "Copo pequeno", container: "Copo pequeno" },
+          { size: "400ml", grams: 400, description: "Copo médio", container: "Copo médio" },
+          { size: "500ml", grams: 500, description: "Copo grande", container: "Copo grande" },
         ],
         steps: [
           "Adicionar 2-3 bolas de sorvete na base do milk shake",
@@ -153,8 +153,8 @@ const manualData = [
         name: "Sundae",
         finishedImage: "/images/manual/sundae.jpg",
         portions: [
-          { size: "Pequeno", grams: 100, description: "1 bola + coberturas" },
-          { size: "Grande", grams: 200, description: "2 bolas + coberturas" },
+          { size: "Pequeno", grams: 100, description: "1 bola + coberturas", container: "Copo ou caneca" },
+          { size: "Grande", grams: 200, description: "2 bolas + coberturas", container: "Copo ou caneca" },
         ],
         steps: [
           "Colocar a base de sorvete no copo/caneca",
@@ -262,13 +262,22 @@ function Home() {
                                           />
                                         </div>
                                       )}
-                                      {category.id === "gelatos" && (p.container || product.container) && (
-                                        <div className="manual-media-section manual-container-section">
-                                          <h4>Recipiente</h4>
-                                          
-                                          <p className="manual-container-info">{p.container || product.container}</p>
-                                        </div>
-                                      )}
+                                      {(p.container || product.container) && (() => {
+                                        const raw = p.container || product.container;
+                                        const items = Array.isArray(raw)
+                                          ? raw
+                                          : String(raw).split(/\s*-\s*/).map((s) => s.trim()).filter(Boolean);
+                                        return (
+                                          <div className="manual-media-section manual-container-section">
+                                            <h4>Recipiente</h4>
+                                            <ul className="manual-container-list">
+                                              {items.map((item, i) => (
+                                                <li key={i}>{item}</li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        );
+                                      })()}
                                       {steps.length > 0 && (
                                         <>
                                           <h4>Como montar</h4>

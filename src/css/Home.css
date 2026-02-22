@@ -191,6 +191,19 @@
   line-height: 1.6;
 }
 
+.manual-container-list {
+  margin: 0;
+  padding-left: 2rem;
+  list-style: disc;
+}
+
+.manual-container-list li {
+  font-size: 1.4rem;
+  color: #333;
+  line-height: 1.7;
+  margin-bottom: 0.6rem;
+}
+
 .manual-finished-image,
 .manual-prep-image {
   max-width: 100%;
