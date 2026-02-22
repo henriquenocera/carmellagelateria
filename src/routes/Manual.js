@@ -206,97 +206,82 @@ function Manual() {
                       <div className="manual-product-body">
                         <div className="manual-portion-section">
                           <h3>Porções por tamanho — clique para ver instruções</h3>
-                          <table className="manual-table manual-table-clickable">
-                            <thead>
-                              <tr>
-                                <th>Tamanho</th>
-                                <th>Gramas</th>
-                                <th>Observação</th>
-                                <th></th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {product.portions.map((p) => {
-                                const portionKey = `${category.id}-${product.id}-${p.size}`;
-                                const hasContent = p.steps?.length || product.steps?.length || p.finishedImage || product.finishedImage || p.preparationMedia || product.preparationMedia;
-                                const isPortionExpanded = expandedPortion === portionKey;
-                                const steps = p.steps || product.steps || [];
+                          <div className="manual-portions-list">
+                            {product.portions.map((p) => {
+                              const portionKey = `${category.id}-${product.id}-${p.size}`;
+                              const hasContent = p.steps?.length || product.steps?.length || p.finishedImage || product.finishedImage || p.preparationMedia || product.preparationMedia;
+                              const isPortionExpanded = expandedPortion === portionKey;
+                              const steps = p.steps || product.steps || [];
 
-                                return (
-                                  <React.Fragment key={p.size}>
-                                    <tr
-                                      className={hasContent ? "manual-row-clickable" : ""}
-                                      onClick={() =>
-                                        hasContent && togglePortion(category.id, product.id, p.size)
-                                      }
-                                    >
-                                      <td>
-                                        <span className="manual-portion-name">{p.size}</span>
-                                      </td>
-                                      <td><strong>{p.grams}g</strong></td>
-                                      <td>{p.description || "-"}</td>
-                                      <td className="manual-row-arrow">
-                                        {hasContent && (
-                                          <span>{isPortionExpanded ? "▲" : "▼"}</span>
-                                        )}
-                                      </td>
-                                    </tr>
-                                    {isPortionExpanded && (steps.length > 0 || p.finishedImage || product.finishedImage || p.preparationMedia || product.preparationMedia) && (
-                                      <tr className="manual-detail-row">
-                                        <td colSpan={4}>
-                                          <div className="manual-portion-instructions">
-                                            {(p.finishedImage || product.finishedImage) && (
-                                              <div className="manual-media-section">
-                                                <h4>Produto final</h4>
-                                                <img
-                                                  src={p.finishedImage || product.finishedImage}
-                                                  alt={`${p.size} - produto final`}
-                                                  className="manual-finished-image"
-                                                />
-                                              </div>
-                                            )}
-                                            {steps.length > 0 && (
-                                              <>
-                                                <h4>Como montar</h4>
-                                                <ol className="manual-steps">
-                                                  {steps.map((step, i) => (
-                                                    <li key={i}>{step}</li>
-                                                  ))}
-                                                </ol>
-                                              </>
-                                            )}
-                                            {(p.preparationMedia || product.preparationMedia) && (
-                                              <div className="manual-media-section">
-                                                <h4>Preparação</h4>
-                                                {(p.preparationMedia || product.preparationMedia).type === "video" ? (
-                                                  <video
-                                                    className="manual-prep-media"
-                                                    controls
-                                                    playsInline
-                                                    muted
-                                                    loop
-                                                    src={(p.preparationMedia || product.preparationMedia).url}
-                                                  >
-                                                    Seu navegador não suporta vídeo.
-                                                  </video>
-                                                ) : (
-                                                  <img
-                                                    src={(p.preparationMedia || product.preparationMedia).url}
-                                                    alt="Preparação"
-                                                    className="manual-prep-image"
-                                                  />
-                                                )}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </td>
-                                      </tr>
+                              return (
+                                <div key={p.size} className="manual-portion-wrapper">
+                                  <button
+                                    type="button"
+                                    className={`manual-portion-card ${hasContent ? "clickable" : ""} ${isPortionExpanded ? "expanded" : ""}`}
+                                    onClick={() => hasContent && togglePortion(category.id, product.id, p.size)}
+                                    disabled={!hasContent}
+                                  >
+                                    <span className="manual-portion-main">
+                                      <span className="manual-portion-name">{p.size}</span>
+                                      <span className="manual-portion-meta">{p.grams}g · {p.description || "-"}</span>
+                                    </span>
+                                    {hasContent && (
+                                      <span className="manual-portion-arrow" aria-hidden="true">
+                                        {isPortionExpanded ? "▲" : "▼"}
+                                      </span>
                                     )}
-                                  </React.Fragment>
-                                );
-                              })}
-                            </tbody>
-                          </table>
+                                  </button>
+                                  {isPortionExpanded && (steps.length > 0 || p.finishedImage || product.finishedImage || p.preparationMedia || product.preparationMedia) && (
+                                    <div className="manual-portion-instructions">
+                                      {(p.finishedImage || product.finishedImage) && (
+                                        <div className="manual-media-section">
+                                          <h4>Produto final</h4>
+                                          <img
+                                            src={p.finishedImage || product.finishedImage}
+                                            alt={`${p.size} - produto final`}
+                                            className="manual-finished-image"
+                                          />
+                                        </div>
+                                      )}
+                                      {steps.length > 0 && (
+                                        <>
+                                          <h4>Como montar</h4>
+                                          <ol className="manual-steps">
+                                            {steps.map((step, i) => (
+                                              <li key={i}>{step}</li>
+                                            ))}
+                                          </ol>
+                                        </>
+                                      )}
+                                      {(p.preparationMedia || product.preparationMedia) && (
+                                        <div className="manual-media-section">
+                                          <h4>Preparação</h4>
+                                          {(p.preparationMedia || product.preparationMedia).type === "video" ? (
+                                            <video
+                                              className="manual-prep-media"
+                                              controls
+                                              playsInline
+                                              muted
+                                              loop
+                                              src={(p.preparationMedia || product.preparationMedia).url}
+                                            >
+                                              Seu navegador não suporta vídeo.
+                                            </video>
+                                          ) : (
+                                            <img
+                                              src={(p.preparationMedia || product.preparationMedia).url}
+                                              alt="Preparação"
+                                              className="manual-prep-image"
+                                            />
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     )}
