@@ -10,28 +10,31 @@ const manualData = [
     products: [
       {
         id: 1,
-        name: "Gelato",
+        name: "Copo de Sorvete",
         portions: [
           {
             size: "Pequeno",
-            grams: 120,
-            description: "1 Sabor",
-            finishedImage: "/images/manual/pequeno.png",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
+            grams: 80,
+            description: "2 bolas",
+            container: "Copo pequeno (capacidade aprox. 200ml)",
+            finishedImage: "/images/manual/copo-pequeno.jpg",
+            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
-              "Pegar o pote pequeno (80ml)",
-              "Encher o pote até o topo ~90gr",
-              "Adicionar meia porção (~30gr) em cima do pote",
-  
+              "Pegar o copo pequeno (capacidade aprox. 200ml)",
+              "Servir 2 bolas de sorvete (40g cada = 80g total)",
+              "Dispor as bolas lado a lado ou em camada conforme o sabor",
+              "Verificar se o sorvete está no nível correto — não ultrapassar a borda",
+              "Oferecer calda e coberturas ao cliente (opcional)",
+              "Entregar com colher descartável e guardanapo",
             ],
           },
           {
             size: "Médio",
-            grams: 140,
-            description: "2 sabores",
-            // finishedImage: "/images/manual/medio.png",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-
+            grams: 120,
+            description: "3 bolas",
+            container: "Copo médio (capacidade aprox. 300ml)",
+            finishedImage: "/images/manual/copo-medio.jpg",
+            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
               "Pegar o copo médio (capacidade aprox. 300ml)",
               "Servir 3 bolas de sorvete (40g cada = 120g total)",
@@ -46,6 +49,7 @@ const manualData = [
             size: "Grande",
             grams: 160,
             description: "4 bolas",
+            container: "Copo grande (capacidade aprox. 400ml)",
             finishedImage: "/images/manual/copo-grande.jpg",
             steps: [
               "Pegar o copo grande (capacidade aprox. 400ml)",
@@ -64,9 +68,9 @@ const manualData = [
         name: "Cascão (Casquinha)",
         finishedImage: "/images/manual/cascao.jpg",
         portions: [
-          { size: "Pequeno", grams: 80, description: "1 bola" },
-          { size: "Médio", grams: 120, description: "2 bolas" },
-          { size: "Grande", grams: 160, description: "3 bolas" },
+          { size: "Pequeno", grams: 80, description: "1 bola", container: "Casquinha" },
+          { size: "Médio", grams: 120, description: "2 bolas", container: "Casquinha" },
+          { size: "Grande", grams: 160, description: "3 bolas", container: "Casquinha" },
         ],
         steps: [
           "Verificar integridade da casquinha (sem quebradas)",
@@ -203,7 +207,7 @@ function Home() {
                     {isExpanded && (
                       <div className="manual-product-body">
                         <div className="manual-portion-section">
-                          <h3>Porções por tamanho — clique para ver instruções</h3>
+                          <h3>Clique para ver instruções</h3>
                           <div className="manual-portions-list">
                             {product.portions.map((p) => {
                               const portionKey = `${category.id}-${product.id}-${p.size}`;
@@ -239,6 +243,12 @@ function Home() {
                                             alt={`${p.size} - produto final`}
                                             className="manual-finished-image"
                                           />
+                                        </div>
+                                      )}
+                                      {category.id === "sorvetes" && (p.container || product.container) && (
+                                        <div className="manual-media-section manual-container-section">
+                                          <h4>Recipiente</h4>
+                                          <p className="manual-container-info">{p.container || product.container}</p>
                                         </div>
                                       )}
                                       {steps.length > 0 && (

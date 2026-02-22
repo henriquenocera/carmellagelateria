@@ -184,6 +184,13 @@
   font-weight: 600;
 }
 
+.manual-container-info {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #333;
+  line-height: 1.6;
+}
+
 .manual-finished-image,
 .manual-prep-image {
   max-width: 100%;
