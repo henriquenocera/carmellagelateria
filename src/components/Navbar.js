@@ -5,6 +5,7 @@ import "../css/Navbar.css";
 
 const navItems = [
   { to: "/", icon: Icons.BsEscape, label: "Manual dos Produtos" },
+  { to: "/regras", icon: Icons.BsJournalCheck, label: "Regras da Loja" },
   // { to: "/manual", icon: Icons.BsJournalBookmarkFill, label: "Manual" },
   //{ to: "/vales", icon: Icons.BsEmojiSmile, label: "Vales" },
   //{ to: "/checklist-abertura", icon: Icons.BsArrowBarRight, label: "Checklist Abertura" },

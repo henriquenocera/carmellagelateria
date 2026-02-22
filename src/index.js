@@ -8,7 +8,7 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./routes/Home";
-
+import Regras from "./routes/Regras";
 import NavBar from "./components/Navbar";
 
 const AppLayout = () => (
@@ -22,7 +22,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
-
+      <Route path="/regras" element={<Regras />} />
     </Route>
   )
 );

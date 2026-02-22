@@ -4,19 +4,19 @@ import { Helmet } from "react-helmet";
 
 const manualData = [
   {
-    id: "sorvetes",
-    title: "Sorvetes",
+    id: "gelatos",
+    title: "Gelatos",
     icon: "🍦",
     products: [
       {
         id: 1,
-        name: "Copo de Sorvete",
+        name: "Gelatos",
         portions: [
           {
             size: "Pequeno",
-            grams: 80,
-            description: "2 bolas",
-            container: "Copo pequeno (capacidade aprox. 200ml)",
+            grams: 120,
+            description: "1 Sabor",
+            container: '- Copo pequeno 80ml - Casquinha Pequena',
             finishedImage: "/images/manual/copo-pequeno.jpg",
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
@@ -61,29 +61,46 @@ const manualData = [
               "Entregar com colher descartável e guardanapo",
             ],
           },
+          {
+            size: "Pote 480ml",
+            grams: 160,
+            description: "4 bolas",
+            container: "Copo grande (capacidade aprox. 400ml)",
+            finishedImage: "/images/manual/copo-grande.jpg",
+            steps: [
+              "Pegar o copo grande (capacidade aprox. 400ml)",
+              "Servir 4 bolas de sorvete (40g cada = 160g total)",
+              "Dispor as bolas em duas camadas ou em leque, conforme o sabor",
+              "Para múltiplos sabores: distribuir de forma equilibrada",
+              "O sorvete pode ocupar até 3/4 da altura do copo",
+              "Oferecer calda e coberturas ao cliente (opcional)",
+              "Entregar com colher descartável e guardanapo",
+            ],
+          },
+          {
+            size: "Sorvete do Dog",
+            grams: 160,
+            description: "4 bolas",
+            container: "Copo grande (capacidade aprox. 400ml)",
+            finishedImage: "/images/manual/copo-grande.jpg",
+            steps: [
+              "Pegar o copo grande (capacidade aprox. 400ml)",
+              "Servir 4 bolas de sorvete (40g cada = 160g total)",
+              "Dispor as bolas em duas camadas ou em leque, conforme o sabor",
+              "Para múltiplos sabores: distribuir de forma equilibrada",
+              "O sorvete pode ocupar até 3/4 da altura do copo",
+              "Oferecer calda e coberturas ao cliente (opcional)",
+              "Entregar com colher descartável e guardanapo",
+            ],
+          },
         ],
       },
-      {
-        id: 2,
-        name: "Cascão (Casquinha)",
-        finishedImage: "/images/manual/cascao.jpg",
-        portions: [
-          { size: "Pequeno", grams: 80, description: "1 bola", container: "Casquinha" },
-          { size: "Médio", grams: 120, description: "2 bolas", container: "Casquinha" },
-          { size: "Grande", grams: 160, description: "3 bolas", container: "Casquinha" },
-        ],
-        steps: [
-          "Verificar integridade da casquinha (sem quebradas)",
-          "Servir o sorvete em formato de cascão",
-          "Para cascão duplo: 2 sabores em camadas",
-          "Finalizar com calda se o cliente pedir",
-        ],
-      },
+      
     ],
   },
   {
-    id: "acai",
-    title: "Açaí",
+    id: "waffle",
+    title: "Waffle",
     icon: "🫐",
     products: [
       {
@@ -245,9 +262,10 @@ function Home() {
                                           />
                                         </div>
                                       )}
-                                      {category.id === "sorvetes" && (p.container || product.container) && (
+                                      {category.id === "gelatos" && (p.container || product.container) && (
                                         <div className="manual-media-section manual-container-section">
                                           <h4>Recipiente</h4>
+                                          
                                           <p className="manual-container-info">{p.container || product.container}</p>
                                         </div>
                                       )}

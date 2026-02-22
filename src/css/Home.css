@@ -239,6 +239,20 @@
   margin-bottom: 0.6rem;
 }
 
+/* Rules page */
+.regras-list {
+  margin: 0;
+  padding-left: 2rem;
+  list-style: disc;
+}
+
+.regras-list li {
+  font-size: 1.4rem;
+  color: #333;
+  line-height: 1.7;
+  margin-bottom: 0.6rem;
+}
+
 /* Mobile-friendly styles */
 @media (max-width: 768px) {
   .manual-page {
