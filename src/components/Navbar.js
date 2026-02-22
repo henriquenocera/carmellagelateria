@@ -23,6 +23,14 @@ function NavBar() {
             </NavLink>
           </li>
           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/manual">
+              <span className="icon">
+                <Icons.BsJournalBookmarkFill />
+              </span>
+              <span className="text">Manual</span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
               <span className="icon">
                 <Icons.BsEmojiSmile />

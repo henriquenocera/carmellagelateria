@@ -1,0 +1,190 @@
+.manual-page {
+  padding: 2rem 1.5rem 4rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.manual-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.manual-header h1 {
+  font-size: 2.4rem;
+  color: #5a432c;
+  margin: 0 0 0.5rem;
+}
+
+.manual-header p {
+  font-size: 1.5rem;
+  color: #7a6a58;
+  margin: 0;
+}
+
+.manual-category {
+  margin-bottom: 2.5rem;
+}
+
+.manual-category-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 2rem;
+  color: #5a432c;
+  margin: 0 0 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #efe0c2;
+}
+
+.manual-category-icon {
+  font-size: 1.8rem;
+}
+
+.manual-product {
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e8e0d0;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.manual-product.expanded {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.manual-product-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem;
+  background: #faf7f2;
+  border: none;
+  cursor: pointer;
+  font-size: 1.6rem;
+  color: #5a432c;
+  font-weight: 600;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.manual-product-header:hover {
+  background: #f2e4c7;
+}
+
+.manual-product-arrow {
+  font-size: 1.2rem;
+  color: #a17550;
+}
+
+.manual-product-body {
+  padding: 1.5rem;
+  background: #fff;
+}
+
+.manual-portion-section h3,
+.manual-steps-section h3 {
+  font-size: 1.5rem;
+  color: #5a432c;
+  margin: 0 0 1rem;
+}
+
+.manual-table-clickable .manual-row-clickable {
+  cursor: pointer;
+}
+
+.manual-table-clickable .manual-row-clickable:hover {
+  background: #f2e4c7 !important;
+}
+
+.manual-row-arrow {
+  color: #a17550;
+  font-size: 1.2rem;
+}
+
+.manual-detail-row td {
+  padding: 0 !important;
+  border-bottom: 1px solid #e8e0d0;
+  vertical-align: top;
+}
+
+.manual-portion-instructions {
+  padding: 1.2rem 1.5rem;
+  background: #faf7f2;
+  border-left: 4px solid #a17550;
+}
+
+.manual-portion-instructions .manual-steps {
+  margin: 0;
+  padding-left: 2rem;
+}
+
+.manual-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.manual-table thead {
+  background: #efe0c2;
+}
+
+.manual-table th,
+.manual-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 1.4rem;
+}
+
+.manual-table th {
+  font-weight: 700;
+  color: #5a432c;
+}
+
+.manual-table td {
+  color: #333;
+  border-bottom: 1px solid #e8e0d0;
+}
+
+.manual-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.manual-table tbody tr:hover {
+  background: #faf7f2;
+}
+
+.manual-portion-block {
+  margin-bottom: 2rem;
+  padding: 1.2rem;
+  background: #faf7f2;
+  border-radius: 8px;
+  border-left: 4px solid #a17550;
+}
+
+.manual-portion-block:last-child {
+  margin-bottom: 0;
+}
+
+.manual-portion-title {
+  font-size: 1.6rem;
+  color: #5a432c;
+  margin: 0 0 1rem;
+  font-weight: 700;
+}
+
+.manual-steps {
+  margin: 0;
+  padding-left: 2rem;
+}
+
+.manual-steps li {
+  font-size: 1.4rem;
+  color: #333;
+  line-height: 1.7;
+  margin-bottom: 0.6rem;
+}
