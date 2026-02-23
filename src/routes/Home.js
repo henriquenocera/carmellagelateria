@@ -105,7 +105,7 @@ const manualData = [
     products: [
       {
         id: 3,
-        name: "Açaí na Tigela",
+        name: "Waffle",
         portions: [
           { size: "300g", grams: 300, description: "Tigela pequena", container: "Tigela pequena" },
           { size: "500g", grams: 500, description: "Tigela média", container: "Tigela média" },
