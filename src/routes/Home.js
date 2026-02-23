@@ -4,12 +4,32 @@ import { Helmet } from "react-helmet";
 
 const manualData = [
   {
-    id: "gelatos",
+    id: "medidas",
     title: "Gelatos",
     icon: "🍦",
     products: [
       {
         id: 1,
+        name: "Porção Espátula",
+        portions: [
+          {
+            size: "Porção padrão da espátula",
+            grams: 70,
+            description: "porção padrão",
+            // container: '- Copo pequeno 80ml - Casquinha Pequena',
+            //finishedImage: "/images/manual/pequeno.png",
+            //preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
+            //steps: [
+            //  "Pegar o copo pequeno e encher até o topo (~90gr), depois completar com mais meia porção (~30gr)",
+            //  "Preencher a casquina pequena com sorvete (~30gr), depois pegar 1 porção e meia (~90gr) e completar por cima",
+
+            //],
+          },
+          
+        ],
+      },
+      {
+        id: 2,
         name: "Gelatos",
         portions: [
           {
@@ -20,77 +40,62 @@ const manualData = [
             finishedImage: "/images/manual/pequeno.png",
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
-              "Pegar o copo pequeno (capacidade aprox. 200ml)",
-              "Servir 2 bolas de sorvete (40g cada = 80g total)",
-              "Dispor as bolas lado a lado ou em camada conforme o sabor",
-              "Verificar se o sorvete está no nível correto — não ultrapassar a borda",
-              "Oferecer calda e coberturas ao cliente (opcional)",
-              "Entregar com colher descartável e guardanapo",
+              "Pegar o copo pequeno e encher até o topo (~90gr), depois completar com mais meia porção (~30gr)",
+              "Preencher a casquina pequena com sorvete (~30gr), depois pegar 1 porção e meia (~90gr) e completar por cima",
+
             ],
           },
           {
             size: "Médio",
-            grams: 120,
-            description: "3 bolas",
-            container: "Copo médio (capacidade aprox. 300ml)",
+            grams: 140,
+            description: "até 2 sabores",
+            container: "- Copo pequeno 80ml - Cascão Grande",
             finishedImage: "/images/manual/copo-medio.jpg",
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
-              "Pegar o copo médio (capacidade aprox. 300ml)",
-              "Servir 3 bolas de sorvete (40g cada = 120g total)",
-              "Organizar as bolas de forma uniforme — evite amontoar",
-              "Se dois sabores: 2 bolas de um + 1 do outro, ou em camadas",
-              "Garantir que o sorvete não ultrapasse 2/3 da altura do copo",
-              "Oferecer calda e coberturas ao cliente (opcional)",
-              "Entregar com colher descartável e guardanapo",
+              "Pegar o copo pequeno e preencher com 2 porções padrão de 70gr cada, uma de cada lado do potinho para manter os sabores um ao lado do outro",
+              "Pegar o cascão e preencher com 2 porções padrão de 70gr cada, um por baixo e outra por cima",
+            
             ],
           },
           {
             size: "Grande",
-            grams: 160,
-            description: "4 bolas",
-            container: "Copo grande (capacidade aprox. 400ml)",
+            grams: 210,
+            description: "até 3 sabores",
+            container: "- Copo grande 120ml - Cascão Grande",
             finishedImage: "/images/manual/copo-grande.jpg",
+            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
+
             steps: [
-              "Pegar o copo grande (capacidade aprox. 400ml)",
-              "Servir 4 bolas de sorvete (40g cada = 160g total)",
-              "Dispor as bolas em duas camadas ou em leque, conforme o sabor",
-              "Para múltiplos sabores: distribuir de forma equilibrada",
-              "O sorvete pode ocupar até 3/4 da altura do copo",
-              "Oferecer calda e coberturas ao cliente (opcional)",
-              "Entregar com colher descartável e guardanapo",
+              "Pegar o copo grande e preencher com 3 porções padrão de 70gr cada, uma de cada lado do potinho divido em 3",
+              "Pegar o cascão e preencher com 3 porções padrão de 70gr cada, um por baixo e as outras 2 por cima lado a lado",
+
+          
             ],
           },
           {
             size: "Pote 480ml",
-            grams: 160,
-            description: "4 bolas",
-            container: "Copo grande (capacidade aprox. 400ml)",
+            grams: 400,
+            description: "até 2 sabores",
+            container: "Pote 480ml",
             finishedImage: "/images/manual/copo-grande.jpg",
             steps: [
-              "Pegar o copo grande (capacidade aprox. 400ml)",
-              "Servir 4 bolas de sorvete (40g cada = 160g total)",
-              "Dispor as bolas em duas camadas ou em leque, conforme o sabor",
-              "Para múltiplos sabores: distribuir de forma equilibrada",
-              "O sorvete pode ocupar até 3/4 da altura do copo",
-              "Oferecer calda e coberturas ao cliente (opcional)",
-              "Entregar com colher descartável e guardanapo",
+              "Pegar o pote de 480ml e servir uma porção de cada lado",
+              "Entregar ao cliente dentro da Sacola"
+
             ],
           },
           {
             size: "Sorvete do Dog",
-            grams: 160,
-            description: "4 bolas",
-            container: "Copo grande (capacidade aprox. 400ml)",
+            description: "Sorvete de Banana e Beterraba",
+            container: "Copo de 100ml descartável",
             finishedImage: "/images/manual/copo-grande.jpg",
             steps: [
-              "Pegar o copo grande (capacidade aprox. 400ml)",
-              "Servir 4 bolas de sorvete (40g cada = 160g total)",
-              "Dispor as bolas em duas camadas ou em leque, conforme o sabor",
-              "Para múltiplos sabores: distribuir de forma equilibrada",
-              "O sorvete pode ocupar até 3/4 da altura do copo",
-              "Oferecer calda e coberturas ao cliente (opcional)",
-              "Entregar com colher descartável e guardanapo",
+              "Descongelar o balde de 1hr a 2hr",
+              "Porcionar uma bolinha com o boleador mecânico",
+              "Cobrir com um filme plástico cada porção",
+              "Guardar as porções no Freezer",
+
             ],
           },
         ],
@@ -101,21 +106,22 @@ const manualData = [
   {
     id: "waffle",
     title: "Waffle",
-    icon: "🫐",
+    icon: "🧇",
     products: [
       {
         id: 3,
         name: "Waffle",
         portions: [
-          { size: "300g", grams: 300, description: "Tigela pequena", container: "Tigela pequena" },
-          { size: "500g", grams: 500, description: "Tigela média", container: "Tigela média" },
-          { size: "700g", grams: 700, description: "Tigela grande", container: "Tigela grande" },
+          { 
+            size: "Waffle de Lìege", 
+            description: "Waffle belga",
+            container: "Prato de cerâmica - Embalagem de papel"
+          },
+
         ],
         steps: [
-          "Medir o açaí na balança conforme o tamanho",
-          "Colocar na tigela e alisar a superfície",
-          "Adicionar acompanhamentos conforme pedido (banana, leite em pó, granola)",
-          "Servir com colher longa",
+          "4mins a 180ºC no forninho",
+          "Montagem dos toppings conforme manual impresso na loja",
         ],
       },
     ],
@@ -224,7 +230,6 @@ function Home() {
                     {isExpanded && (
                       <div className="manual-product-body">
                         <div className="manual-portion-section">
-                          <h3>Clique para ver instruções</h3>
                           <div className="manual-portions-list">
                             {product.portions.map((p) => {
                               const portionKey = `${category.id}-${product.id}-${p.size}`;
@@ -242,7 +247,17 @@ function Home() {
                                   >
                                     <span className="manual-portion-main">
                                       <span className="manual-portion-name">{p.size}</span>
-                                      <span className="manual-portion-meta">{p.grams}g · {p.description || "-"}</span>
+                                      {p.grams  ? (
+
+                                        <span className="manual-portion-meta">{p.grams}gr · {p.description || "-"}</span>
+                                      ) : (
+                                        <span className="manual-portion-meta">{p.description || "-"}</span>
+
+                                      )
+                                    
+                                    } 
+                                     
+
                                     </span>
                                     {hasContent && (
                                       <span className="manual-portion-arrow" aria-hidden="true">
