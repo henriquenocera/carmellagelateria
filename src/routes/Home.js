@@ -105,7 +105,7 @@ const manualData = [
   },
   {
     id: "waffle",
-    title: "Waffle",
+    title: "Waffle & Brownie",
     icon: "🧇",
     products: [
       {
@@ -115,7 +115,7 @@ const manualData = [
           { 
             size: "Waffle de Lìege", 
             description: "Waffle belga",
-            container: "Prato de cerâmica - Embalagem de papel"
+            container: "Prato de cerâmica (comer no local) - Embalagem de papel (para levar)"
           },
 
         ],
@@ -124,31 +124,71 @@ const manualData = [
           "Montagem dos toppings conforme manual impresso na loja",
         ],
       },
-    ],
-  },
-  {
-    id: "milk-shake",
-    title: "Milk Shake",
-    icon: "🥤",
-    products: [
       {
         id: 4,
-        name: "Milk Shake Tradicional",
-        finishedImage: "/images/manual/milkshake.jpg",
+        name: "Brownie",
         portions: [
-          { size: "300ml", grams: 300, description: "Copo pequeno", container: "Copo pequeno" },
-          { size: "400ml", grams: 400, description: "Copo médio", container: "Copo médio" },
-          { size: "500ml", grams: 500, description: "Copo grande", container: "Copo grande" },
+          { 
+            size: "Brownie", 
+            description: "Brownie de Chocolate",
+            container: "Prato de cerâmica (comer no local) - Embalagem de alumínio (para levar)"
+          },
+
         ],
         steps: [
-          "Adicionar 2-3 bolas de sorvete na base do milk shake",
-          "Despejar leite até a marca do tamanho",
-          "Bater até ficar homogêneo",
-          "Servir com canudo e finalizar com chantilly se pedido",
+          "Desenformar da embalagem de alumínio em um prato de cerâmica",
+          "Aquecer por 45 segundos no microondas",
+          "Servir com uma colher",
+          "Caso tenha uma bola de sorvete para acompanhar, servir a bola de sorvete com o boleador em cima do brownie",
         ],
       },
     ],
   },
+  {
+    id: "sanduiche",
+    title: "Sanduíches e Quiches",
+    icon: "🥖",
+    products: [
+      {
+        id: 5,
+        name: "Sanduíches Baguete",
+        portions: [
+          { 
+            size: "Sanduíche", 
+            description: "Sanduíches congelados",
+            container: "Prato de cerâmica (comer no local) - Embalagem de papel (para levar)"
+          },
+
+        ],
+        steps: [
+          "Abrir o sanduíche da embalagem plástica e colocar sob uma folha de papel manteiga",
+          "Aquecer por 1min e 30seg à 2min no microondas",
+          "Aquecer por 3min na Air Fryer a 180º",
+          "Cortar o sanduíche ao meio",
+          "Retirar do papel manteiga e empratar no prato de cerâmica ou na embalagem de papel",
+        ],
+      },
+      {
+        id: 5,
+        name: "Quiches",
+        portions: [
+          { 
+            size: "Quiches", 
+            description: "Brownie de Chocolate",
+            container: "Prato de cerâmica (comer no local) - Embalagem de alumínio (para levar)"
+          },
+
+        ],
+        steps: [
+          "Desenformar da embalagem de alumínio em um prato de cerâmica",
+          "Aquecer por 45 segundos no microondas",
+          "Servir com uma colher",
+          "Caso tenha uma bola de sorvete para acompanhar, servir a bola de sorvete com o boleador em cima do brownie",
+        ],
+      },
+    ],
+  },
+  
   {
     id: "outros",
     title: "Outros Produtos",
