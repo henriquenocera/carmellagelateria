@@ -210,11 +210,10 @@ const manualData = [
           },
           {
             size: "Espresso Duplo",
-            grams: 140,
-            description: "até 2 sabores",
-            container: "- Copo pequeno 80ml - Cascão Grande",
-            finishedImage: "/images/manual/copo-medio.jpg",
-            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
+            description: "60ml de espresso",
+            container: '- Copo de papel pequeno 110ml - Copo de vidro pequeno',
+            // finishedImage: "/images/manual/copo-medio.jpg",
+            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
               "Pegar o copo pequeno e preencher com 2 porções padrão de 70gr cada, uma de cada lado do potinho para manter os sabores um ao lado do outro",
               "Pegar o cascão e preencher com 2 porções padrão de 70gr cada, um por baixo e outra por cima",
@@ -275,8 +274,28 @@ function Home() {
 
   const toggleProduct = (categoryId, productId) => {
     const key = `${categoryId}-${productId}`;
-    setExpandedProduct((prev) => (prev === key ? null : key));
-    setExpandedPortion(null);
+
+    if (expandedProduct === key) {
+      // Fechando o produto atual
+      setExpandedProduct(null);
+      setExpandedPortion(null);
+      return;
+    }
+
+    // Abrindo um novo produto
+    setExpandedProduct(key);
+
+    // Para categorias com apenas 1 item (ex.: Waffle, Brownie, Sanduíches, Quiches),
+    // já abre automaticamente a única porção.
+    const category = manualData.find((c) => c.id === categoryId);
+    const product = category?.products.find((p) => p.id === productId);
+
+    if (product && product.portions.length === 1) {
+      const size = product.portions[0].size;
+      setExpandedPortion(`${categoryId}-${productId}-${size}`);
+    } else {
+      setExpandedPortion(null);
+    }
   };
 
   const togglePortion = (categoryId, productId, size) => {
@@ -305,9 +324,8 @@ function Home() {
 
               {category.products.map((product) => {
                 const key = `${category.id}-${product.id}`;
-                const isFlatCategory =
-                  category.id === "waffles" || category.id === "sanduiches" ;
-                const isExpanded = isFlatCategory || expandedProduct === key;
+                const isFlatCategory = false;
+                const isExpanded = expandedProduct === key;
 
                 const renderPortions = () => (
                   <div className="manual-product-body">
