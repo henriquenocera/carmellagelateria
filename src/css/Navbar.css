@@ -108,7 +108,8 @@
   padding: 0;
 }
 
-.nav-sidebar-list a {
+.nav-sidebar-list a,
+.nav-sidebar-list .nav-logout-button {
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -122,7 +123,8 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.nav-sidebar-list a:hover {
+.nav-sidebar-list a:hover,
+.nav-sidebar-list .nav-logout-button:hover {
   background: #faf7f2;
 }
 

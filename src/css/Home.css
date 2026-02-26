@@ -266,6 +266,50 @@
   margin-bottom: 0.6rem;
 }
 
+/* Login */
+.login-card {
+  max-width: 420px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e8e0d0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  padding: 1.75rem 1.5rem 2rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.login-label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 1.4rem;
+  color: #5a432c;
+}
+
+.login-label input {
+  border-radius: 8px;
+  border: 1px solid #e0d4c0;
+  padding: 0.6rem 0.75rem;
+  font-size: 1.4rem;
+}
+
+.login-label input:focus {
+  outline: none;
+  border-color: #a17550;
+  box-shadow: 0 0 0 2px rgba(161, 117, 80, 0.15);
+}
+
+.login-error {
+  color: #b3261e;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
 /* Mobile-friendly styles */
 @media (max-width: 768px) {
   .manual-page {

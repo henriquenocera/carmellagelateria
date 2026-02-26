@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import * as Icons from "react-icons/bs";
 import { NavLink } from "react-router-dom";
 import "../css/Navbar.css";
+import { supabase } from "../supabaseClient";
+import { useAuth } from "../auth/AuthContext";
 
 const navItems = [
   { to: "/", icon: Icons.BsEscape, label: "Manual dos Produtos" },
@@ -15,6 +17,7 @@ const navItems = [
 
 function NavBar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
 
   const closeSidebar = () => setSidebarOpen(false);
 
@@ -31,6 +34,15 @@ function NavBar() {
       document.body.style.overflow = "";
     };
   }, [sidebarOpen]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setSidebarOpen(false);
+  };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <>
@@ -73,6 +85,18 @@ function NavBar() {
               </NavLink>
             </li>
           ))}
+          <li>
+            <button
+              type="button"
+              className="nav-logout-button"
+              onClick={handleSignOut}
+            >
+              <span className="nav-icon">
+                <Icons.BsBoxArrowRight />
+              </span>
+              <span className="nav-text">Sair</span>
+            </button>
+          </li>
         </ul>
       </aside>
 

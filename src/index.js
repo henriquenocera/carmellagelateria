@@ -10,23 +10,35 @@ import {
 import Home from "./routes/Home";
 import Regras from "./routes/Regras";
 import NavBar from "./components/Navbar";
+import Login from "./routes/Login";
+import { AuthProvider, useAuth } from "./auth/AuthContext";
+import ProtectedRoute from "./auth/ProtectedRoute";
 
-const AppLayout = () => (
-  <>
-    <NavBar />
-    <Outlet />
-  </>
-);
+const AppLayout = () => {
+  const { user } = useAuth();
+
+  return (
+    <>
+      {user && <NavBar />}
+      <Outlet />
+    </>
+  );
+};
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<AppLayout />}>
-      <Route path="/" element={<Home />} />
-      <Route path="/regras" element={<Regras />} />
+      <Route path="/login" element={<Login />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/regras" element={<Regras />} />
+      </Route>
     </Route>
   )
 );
 
 createRoot(document.getElementById("root")).render(
-  <RouterProvider router={router} />
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>
 );

@@ -3,7 +3,7 @@ import "../css/Home.css";
 import { Helmet } from "react-helmet";
 
 const rulesData = [
-  {
+  /* {
     id: "geral",
     title: "Regras Gerais",
     icon: "📋",
@@ -42,7 +42,7 @@ const rulesData = [
       "Respeitar as porções e recipientes indicados.",
       "Comunicar quando produtos estiverem acabando.",
     ],
-  },
+  }, */
 ];
 
 function Regras() {
