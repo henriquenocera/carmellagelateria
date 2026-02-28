@@ -41,7 +41,7 @@ const manualData = [
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
               "Pegar o copo pequeno e encher até o topo (~90gr), depois completar com mais meia porção (~30gr)",
-              "Preencher a casquina pequena com sorvete (~30gr), depois pegar 1 porção e meia (~90gr) e completar por cima",
+              "Preencher a casquina pequena com sorvete (~20gr), depois pegar 1 porção e meia (~100gr) e completar por cima",
 
             ],
           },
