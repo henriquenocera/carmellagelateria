@@ -142,6 +142,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
       setUser(ListId[5].nome);
     } else if (idInput == ListId[6].value) {
       setUser(ListId[6].nome);
+    } else if (idInput == ListId[7].value) {
+      setUser(ListId[7].nome);
     } else {
       setUser("");
     }

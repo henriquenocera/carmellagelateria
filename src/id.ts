@@ -27,4 +27,8 @@ export const ListId: readonly ListId[] = [
     nome: "Lidiane",
     value: "9612",
   },
+  {
+    nome: "Endryw",
+    value: "9485",
+  },
 ];
