@@ -11,7 +11,7 @@ const rulesData = [
     icon: "⏰",
     items: [
       "É obrigatório chegar no horário estabelecido em contrato, eventuais faltas e atrasos, justificados ou não, devem ser avisados o quanto antes.",
-      "É obrigatório respeitar o tempo de intervalo definido em contrato.",
+      "É obrigatório respeitar o tempo de intervalo definido em contrato ou acordo realizado",
       "É obrigatório o registro de ponto eletrônico 4 (quatro) vezes ao dia:\n1ª - Início do expediente\n2ª - Saída para o intervalo\n3ª - Retorno do intervalo\n4ª - Fim do expediente",
     ],
   },
