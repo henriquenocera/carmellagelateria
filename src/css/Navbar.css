@@ -9,6 +9,7 @@
   background: #fff;
   border-bottom: 1px solid #e8e0d0;
   display: flex;
+  justify-content: flex-start;
   align-items: center;
   padding: 0 1rem;
   z-index: 1000;
@@ -23,7 +24,7 @@
 }
 
 .nav-user {
-  margin-left: 10px;
+  margin-left: 25px;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -37,7 +38,7 @@
 }
 
 .nav-user-email {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .nav-menu-toggle {
@@ -174,7 +175,7 @@
   }
 
   .nav-bar-title {
-    font-size: 1.1rem;
+    font-size: 0.8rem;
   }
 
   .nav-menu-toggle {
