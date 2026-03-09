@@ -8,6 +8,7 @@ import { useAuth } from "../auth/AuthContext";
 const navItems = [
   { to: "/", icon: Icons.BsEscape, label: "Manual dos Produtos" },
   { to: "/regras", icon: Icons.BsJournalCheck, label: "Regras da Loja" },
+  // { to: "/regulamento-interno", icon: Icons.BsFileEarmarkText, label: "Regulamento Interno" },
   // { to: "/manual", icon: Icons.BsJournalBookmarkFill, label: "Manual" },
   //{ to: "/vales", icon: Icons.BsEmojiSmile, label: "Vales" },
   //{ to: "/checklist-abertura", icon: Icons.BsArrowBarRight, label: "Checklist Abertura" },
@@ -57,6 +58,14 @@ function NavBar() {
           <Icons.BsList />
         </button>
         <span className="nav-bar-title">Carmella Gelateria</span>
+        <div className="nav-user">
+          <span className="nav-user-icon">
+            <Icons.BsPersonCircle />
+          </span>
+          <span className="nav-user-email">
+            {user?.email || user?.user_metadata?.name || "Usuário"}
+          </span>
+        </div>
       </header>
 
       <div

@@ -20,7 +20,24 @@
   font-weight: 600;
   color: #5a432c;
   margin-left: 0.5rem;
-  flex: 1;
+}
+
+.nav-user {
+  margin-left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.95rem;
+  color: #7a6a58;
+}
+
+.nav-user-icon {
+  font-size: 1.2rem;
+  color: #a17550;
+}
+
+.nav-user-email {
+  font-size: 0.85rem;
 }
 
 .nav-menu-toggle {

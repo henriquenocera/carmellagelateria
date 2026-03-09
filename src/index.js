@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import Home from "./routes/Home";
 import Regras from "./routes/Regras";
+import RegulamentoInterno from "./routes/RegulamentoInterno";
 import NavBar from "./components/Navbar";
 import Login from "./routes/Login";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
@@ -32,6 +33,7 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute />}>
         <Route path="/" element={<Home />} />
         <Route path="/regras" element={<Regras />} />
+        <Route path="/regulamento-interno" element={<RegulamentoInterno />} />
       </Route>
     </Route>
   )
