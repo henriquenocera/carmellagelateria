@@ -90,6 +90,60 @@
   margin: 0 0 1rem;
 }
 
+/* Rules Confirmation */
+.rules-confirmation-section {
+  margin-top: 1.5rem;
+  text-align: center;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #e8e0d0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.rules-confirm-btn {
+  background-color: #faf7f2;
+  color: #5a432c;
+  border: 2px solid #d4c4a8;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rules-confirm-btn:hover:not(:disabled) {
+  background-color: #f2e4c7;
+  border-color: #a17550;
+  color: #a17550;
+  box-shadow: 0 4px 12px rgba(161, 117, 80, 0.15);
+}
+
+.rules-confirm-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.rules-confirm-btn:disabled {
+  background-color: #faf7f2;
+  color: #c4bcae;
+  border-color: #e8e0d0;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.rules-confirmed-msg {
+  background-color: #f2e4c7;
+  color: #5a432c;
+  padding: 1.25rem 2rem;
+  border-radius: 8px;
+  border-left: 4px solid #a17550;
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
 /* Portion cards — replaces table, mobile-first */
 .manual-portions-list {
   display: flex;

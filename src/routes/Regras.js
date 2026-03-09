@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "../css/Home.css";
 import { Helmet } from "react-helmet";
+import { useAuth } from "../auth/AuthContext";
+import { supabase } from "../supabaseClient";
 
 const rulesData = [
   {
@@ -85,6 +87,68 @@ const rulesData = [
 ];
 
 function Regras() {
+  const { user } = useAuth();
+  const [confirmedAt, setConfirmedAt] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    async function checkConfirmation() {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('rules_confirmations')
+          .select('confirmed_at')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) {
+          console.error("Error fetching confirmation:", error);
+        }
+
+        if (data) {
+          setConfirmedAt(data.confirmed_at);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    checkConfirmation();
+  }, [user]);
+
+  const handleConfirm = async () => {
+    if (!user) return;
+
+    setConfirming(true);
+    try {
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('rules_confirmations')
+        .insert([{ user_id: user.id }]);
+
+      if (error) throw error;
+
+      setConfirmedAt(now);
+    } catch (err) {
+      console.error("Error confirming rules:", err);
+      alert("Houve um erro ao confirmar. Tente novamente.");
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  const formatDate = (isoString) => {
+    const date = new Date(isoString);
+    return date.toLocaleDateString('pt-BR');
+  };
+
   return (
     <>
       <Helmet>
@@ -142,6 +206,26 @@ function Regras() {
               </ul>
             </section>
           ))}
+
+          {!loading && user && (
+            <div className="rules-confirmation-section">
+              {confirmedAt ? (
+                <div className="rules-confirmed-msg">
+                  O usuário leu e confirmou as regras na data {formatDate(confirmedAt)}
+                </div>
+              ) : (
+                <>
+                  <button
+                    className="rules-confirm-btn"
+                    onClick={handleConfirm}
+                    disabled={confirming}
+                  >
+                    {confirming ? "Confirmando..." : "Declaro que li e concordo com as regras"}
+                  </button>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </>
