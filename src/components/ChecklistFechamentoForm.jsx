@@ -42,36 +42,30 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     {
       title: `3ª Organização`,
       items: [
-        { id: "8", title: "(Segunda Feira) - Verificar pedidos com clientes Food Service", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "9", title: "(Segunda Feira) - Realizar Inventário do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "10", title: "(Segunda Feira) - Fazer Lista de Compras para Estoque do Escritório", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "11", title: "(Segunda Feira) - Realizar Inventário da Loja XV", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "12", title: "(Segunda Feira) - Realizar Inventário da Fábrica", subtitle1: "", subtitle2: "", weekday: 1},
-        { id: "13", title: "(Terça Feira) - Verificar Inventário da loja Ahu", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
-        { id: "14", title: "(Terça Feira) - Verificar Inventário da loja Alto XV", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2},
+        { id: "8", title: "(Segunda Feira) - Verificar pedidos com clientes Food Service", subtitle1: "", subtitle2: "", weekday: 1 },
+        { id: "9", title: "(Segunda Feira) - Realizar Inventário do Escritório", subtitle1: "", subtitle2: "", weekday: 1 },
+        { id: "10", title: "(Segunda Feira) - Fazer Lista de Compras para Estoque do Escritório", subtitle1: "", subtitle2: "", weekday: 1 },
+        { id: "11", title: "(Segunda Feira) - Realizar Inventário da Loja XV", subtitle1: "", subtitle2: "", weekday: 1 },
+        { id: "12", title: "(Segunda Feira) - Realizar Inventário da Fábrica", subtitle1: "", subtitle2: "", weekday: 1 },
+        { id: "13", title: "(Terça Feira) - Verificar Inventário da loja Ahu", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2 },
+        { id: "14", title: "(Terça Feira) - Verificar Inventário da loja Alto XV", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2 },
         { id: "15", title: "Verificar Espelho Ponto das Atendentes", subtitle1: "Informar horas extras / faltantes do dia anterior", subtitle2: "" },
 
       ]
     },
-    /* {
-      title: "3ª Fechamento (19:00)",
+    {
+      title: "4ª - Após Loja Aberta (12:00) ",
       items: [
-        { id: "13", title: "Fechar as portas de enrolar", subtitle1: "", subtitle2: "" },
-        { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
-        { id: "15", title: "Desligar a vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
-        { id: "16", title: "Desligar a máquina de café e moedor", subtitle1: "", subtitle2: "" },
-        { id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
-        { id: "18", title: "Retirar todos os lixos", subtitle1: "Lixos internos, externos, banheiro e salão dos clientes", subtitle2: "" },
-        { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, não colocar os lixos para fora", subtitle1: "", subtitle2: "", weekday: 0 },
-        { id: "20", title: "Fechar caixa no PDV", subtitle1: "", subtitle2: "" },
-        { id: "21", title: "Esvaziar água do balde das espátulas", subtitle1: "", subtitle2: "" },
-        { id: "22", title: "Fechar pote de casquinhas", subtitle1: "", subtitle2: "" },
+        { id: "16", title: "Enviar Fechamento de Caixa do dia Anterior", subtitle1: "", subtitle2: "" },
+        { id: "17", title: "Verificar lojas do ifood", subtitle1: "Se estão abertas", subtitle2: "" },
+        { id: "18", title: "Alterar valor dos produtos em R$ 0,05 até R$ 0,15", subtitle1: "Alterar no Ifood", subtitle2: "Alterar no Cloudfy" },
+
 
 
       ]
-    }, */
+    },
 
-    
+
   ];
 
   // Initialize checkedItems state with all items set to false
@@ -324,7 +318,7 @@ Fico à disposição!`;
             </React.Fragment>
           ))}
 
-        {currentStep === 4 && (
+        {currentStep === 40 && (
           <>
             <div className="inventoryFlexbox">
               <label className="inventoryLabel" htmlFor="">Quantidade de <b>Massas</b></label>
