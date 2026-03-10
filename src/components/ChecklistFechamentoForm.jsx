@@ -315,6 +315,24 @@ Fico à disposição!`;
                   )}
                 </div>
               )}
+              {item.id === "17" && (
+                <div className="copy-sample-wrapper" style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={() => window.open("https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---ahu-ahu/b8f4806a-7fd6-4df5-a739-65fc17356556", "_blank")}
+                  >
+                    Loja Ifood Ahu
+                  </button>
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={() => window.open("https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---alto-xv-alto-da-rua-xv/02625ea1-bc47-4f29-9d84-ab9e275206e6", "_blank")}
+                  >
+                    Loja Ifood Alto XV
+                  </button>
+                </div>
+              )}
             </React.Fragment>
           ))}
 
