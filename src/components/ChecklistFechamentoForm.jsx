@@ -58,7 +58,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       items: [
         { id: "16", title: "Enviar Fechamento de Caixa do dia Anterior", subtitle1: "", subtitle2: "" },
         { id: "17", title: "Verificar lojas do ifood", subtitle1: "Se estão abertas", subtitle2: "" },
-        { id: "18", title: "Alterar valor dos produtos em R$ 0,05 até R$ 0,15", subtitle1: "Alterar no Ifood", subtitle2: "Alterar no Cloudfy" },
+        { id: "19", title: "Verificar cardápio do ifood", subtitle1: "Toppings", subtitle2: "" },
+        { id: "18", title: "Alterar valor dos produtos em R$ 0,05 até R$ 0,10", subtitle1: "Alterar no Ifood", subtitle2: "Alterar no Cloudfy" },
 
 
 
@@ -330,6 +331,24 @@ Fico à disposição!`;
                     onClick={() => window.open("https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---alto-xv-alto-da-rua-xv/02625ea1-bc47-4f29-9d84-ab9e275206e6", "_blank")}
                   >
                     Loja Ifood Alto XV
+                  </button>
+                </div>
+              )}
+              {item.id === "18" && (
+                <div className="copy-sample-wrapper" style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={() => window.open("https://portal.ifood.com.br/login", "_blank")}
+                  >
+                    Portal Ifood
+                  </button>
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={() => window.open("https://app.cloudfy.net.br/login/", "_blank")}
+                  >
+                    Cloudfy
                   </button>
                 </div>
               )}
