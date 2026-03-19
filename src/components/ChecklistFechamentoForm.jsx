@@ -159,7 +159,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       setUser(ListId[2].nome);
     } else if (idInput == ListId[3].value) {
       setUser(ListId[3].nome);
-    } else if (idInput == ListId[4].value) {  
+    } else if (idInput == ListId[4].value) {
       setUser(ListId[4].nome);
     } else if (idInput == ListId[5].value) {
       setUser(ListId[5].nome);
@@ -287,6 +287,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
               checked={checkedItems[item.id]}
               onChange={() => handleCheckboxChange(item.id)}
               weekday={item.weekday}
+              newItemDate={item.new}
 
             />
           ))}

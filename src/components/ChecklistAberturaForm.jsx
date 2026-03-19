@@ -68,7 +68,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
         { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
-        { id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: ""}
+        { id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "" }
 
       ]
     }
@@ -331,6 +331,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
             checked={checkedItems[item.id]}
             onChange={() => handleCheckboxChange(item.id)}
             weekday={item.weekday}
+            newItemDate={item.new}
           />
         ))}
 
