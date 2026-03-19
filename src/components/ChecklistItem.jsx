@@ -34,15 +34,15 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
 
   const isNewItem = () => {
     if (!newItemDate) return false;
-    
+
     const [year, month, day] = newItemDate.split('-').map(Number);
     const itemDate = new Date(year, month - 1, day);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const diffTime = today - itemDate;
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
-    
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
     return diffDays >= 0 && diffDays <= 7;
   };
 
@@ -68,6 +68,11 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
       <div className="checkbox-subtitle">
         <p>{subtitle1}</p>
         <p>{subtitle2}</p>
+        {buttonLink && buttonText && (
+          <a href={buttonLink} target="_blank" rel="noreferrer" className="item-action-button">
+            {buttonText}
+          </a>
+        )}
       </div>
       {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
     </div>
