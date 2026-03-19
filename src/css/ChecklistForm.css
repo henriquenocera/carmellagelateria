@@ -1,14 +1,17 @@
 .fechamentoAltoxv {
   margin-bottom: 20px;
 }
+
 .aberturaAltoxv {
   margin-bottom: 20px;
   width: 100%;
 }
+
 .sectionTitle p {
   font-size: 2.4rem;
   margin-bottom: 20px;
 }
+
 .checkbox-wrapper p {
   font-size: 2.4rem;
 }
@@ -16,10 +19,12 @@
 .label {
   font-size: 1.8rem;
 }
+
 .new {
   color: #f12323;
   font-weight: 600;
 }
+
 .subtitle {
   margin-left: 0;
   font-size: 1.4rem;
@@ -122,32 +127,32 @@
   border-color: #a17550;
 }
 
-.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child {
+.checkbox-wrapper .inp-cbx:checked+.cbx span:first-child {
   border-color: #a17550;
   background: #a17550;
   animation: check-15 0.6s ease;
 }
 
-.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child svg {
+.checkbox-wrapper .inp-cbx:checked+.cbx span:first-child svg {
   stroke-dashoffset: 0;
 }
 
-.checkbox-wrapper .inp-cbx:checked + .cbx span:first-child:before {
+.checkbox-wrapper .inp-cbx:checked+.cbx span:first-child:before {
   transform: scale(2.2);
   opacity: 0;
   transition: all 0.6s ease;
 }
 
-.checkbox-wrapper .inp-cbx:checked + .cbx span:last-child {
+.checkbox-wrapper .inp-cbx:checked+.cbx span:last-child {
   color: #a3a3a3;
   transition: all 0.3s ease;
 }
 
-.checkbox-wrapper .inp-cbx:checked + .cbx span:last-child:after {
+.checkbox-wrapper .inp-cbx:checked+.cbx span:last-child:after {
   transform: scaleX(1);
 }
 
-.checkbox-wrapper .inp-cbx:checked ~ .checkbox-subtitle {
+.checkbox-wrapper .inp-cbx:checked~.checkbox-subtitle {
   color: #a3a3a3;
   text-decoration: line-through;
   transition: all 0.3s ease;
@@ -158,6 +163,7 @@
     transform: scale(1.2);
   }
 }
+
 .inputNumber {
   font-size: 1.6rem;
   margin-bottom: 1rem;
@@ -176,12 +182,14 @@
   background: #a17550;
   color: #fff;
 }
+
 .inventoryFlexbox {
   display: flex;
   justify-content: flex-start;
   align-items: center;
   margin-bottom: 15px;
 }
+
 .inventoryInput {
   padding: 7px 14px;
   border: 1px solid #a17550;
@@ -192,13 +200,16 @@
   width: 75px;
   height: 40px;
 }
+
 .inventoryLabel {
   font-size: 16px;
   margin-right: 10px;
 }
+
 .idSubmitChecklist {
   margin-bottom: 40px;
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -225,27 +236,32 @@
   gap: 2rem;
   justify-content: center;
 }
+
 .confirm-button,
 .close-button {
   background-color: #a17550;
   padding: 8px;
   color: white;
 }
+
 .modalTitle {
   border: none;
   margin-bottom: 0px;
   text-align: center;
 }
+
 .modalTextContainer {
   max-width: 320px;
   border: 1px dashed #a17550;
   padding: 16px;
   margin-bottom: 20px;
 }
+
 .modalText {
   font-size: 1.6rem;
   text-align: center;
 }
+
 .user {
   font-size: 2rem;
   text-align: center;
@@ -255,6 +271,7 @@
   color: #a17550;
   border: 1px solid #a17550;
 }
+
 .modal-content-error {
   background: #ff0f0f;
   padding: 2rem;
@@ -262,11 +279,13 @@
   min-width: 300px;
   z-index: 99;
 }
+
 .modalTitleError {
   border: none;
   margin-bottom: 10px;
   color: white;
 }
+
 .close-button-error {
   background-color: white;
   padding: 8px;
@@ -415,4 +434,29 @@
 .checkbox-wrapper.weekday-specific .checkbox-subtitle p {
   color: #666;
   font-style: italic;
+}
+
+.checkbox-wrapper.new-item-border {
+  position: relative;
+  border: 1.5px solid #a17550;
+  border-radius: 8px;
+  padding: 1.5rem 1rem 1rem 1rem;
+  margin-top: 1.5rem;
+}
+
+.new-item-title {
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  background-color: #f3f3f3;
+  padding: 0 8px;
+  color: #a17550;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.checkbox-wrapper.weekday-specific.new-item-border .new-item-title {
+  background-color: #f9f2e4;
 }

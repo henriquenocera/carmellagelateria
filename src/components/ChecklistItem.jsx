@@ -1,6 +1,6 @@
 import React from "react";
 
-function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday }) {
+function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday, newItemDate }) {
   function getWithExpiry(key) {
     const itemStr = localStorage.getItem(key)
     // if the item doesn't exist, return null
@@ -32,8 +32,23 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
 
   const isWeekdaySpecific = weekday !== undefined && weekday !== null;
 
+  const isNewItem = () => {
+    if (!newItemDate) return false;
+    
+    const [year, month, day] = newItemDate.split('-').map(Number);
+    const itemDate = new Date(year, month - 1, day);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = today - itemDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    return diffDays >= 0 && diffDays <= 7;
+  };
+
   return (
-    <div className={`checkbox-wrapper ${isWeekdaySpecific ? 'weekday-specific' : ''}`}>
+    <div className={`checkbox-wrapper ${isWeekdaySpecific ? 'weekday-specific' : ''} ${isNewItem() ? 'new-item-border' : ''}`}>
+      {isNewItem() && <span className="new-item-title">Nova tarefa</span>}
       <input
         type="checkbox"
         id={id}
