@@ -287,6 +287,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
               onChange={() => handleCheckboxChange(item.id)}
               weekday={item.weekday}
               newItemDate={item.new}
+              buttonLink={item.buttonLink}
+              buttonText={item.buttonText}
 
             />
           ))}
