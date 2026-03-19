@@ -13,7 +13,7 @@ import { ListId } from "../id.ts";
 // weight_grams (numeric)
 // created_at (timestamptz) - default now()
 
-const UNIT = process.env.REACT_APP_UNIT || "ahu";
+const UNIT = process.env.REACT_APP_UNIT || "Alto XV";
 
 function Afericao() {
   const WEIGHT_LABELS = [

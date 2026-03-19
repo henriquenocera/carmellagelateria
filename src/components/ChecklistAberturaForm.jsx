@@ -76,16 +76,9 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
         {
           id: "34", title: "(Sábado) - Aferição de Mão", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 6
+          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao",
         },
-        {
-          id: "35", title: "(Domingo) - Aferição de Mão", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 0
-        },
-        {
-          id: "36", title: "(Sexta) - Aferição de Mão", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 5
-        },
+
 
 
       ]
