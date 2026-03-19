@@ -1,6 +1,6 @@
 import React from "react";
 
-function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday, newItemDate }) {
+function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday, newItemDate, buttonLink, buttonText }) {
   function getWithExpiry(key) {
     const itemStr = localStorage.getItem(key)
     // if the item doesn't exist, return null
@@ -68,6 +68,11 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
       <div className="checkbox-subtitle">
         <p>{subtitle1}</p>
         <p>{subtitle2}</p>
+        {buttonLink && buttonText && (
+          <a href={buttonLink} target="_blank" rel="noreferrer" className="item-action-button">
+            {buttonText}
+          </a>
+        )}
       </div>
       {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
     </div>

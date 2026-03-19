@@ -21,7 +21,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
     {
       title: "1ª - Equipamentos",
       items: [
-        { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido" },
+        { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido", },
         { id: "2", title: "Limpeza externa da vitrine", subtitle1: "Vidros com álcool líquido", subtitle2: "" },
         { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
         { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v 'tomadas vermelhas'", subtitle2: "Girar o controlador da máquina de café para a posição '1'" },
@@ -36,7 +36,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
       title: "2ª - Organização",
       items: [
         { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
-        { id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "" },
+        {
+          id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "", buttonText: "Relatório dos Salgados",
+          buttonLink: "https://ahu.carmellagelateria.com.br/salgados"
+        },
         { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
         { id: "13", title: "Colocar sacos de lixo externos", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
         { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
@@ -68,7 +71,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
         { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
-        { id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "2026-03-19" }
+        {
+          id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
+          buttonLink: "https://ahu.carmellagelateria.com.br/afericao"
+        }
 
       ]
     }
@@ -332,6 +338,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
             onChange={() => handleCheckboxChange(item.id)}
             weekday={item.weekday}
             newItemDate={item.new}
+            buttonLink={item.buttonLink}
+            buttonText={item.buttonText}
           />
         ))}
 

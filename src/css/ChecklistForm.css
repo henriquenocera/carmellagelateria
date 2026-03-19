@@ -460,3 +460,22 @@
 .checkbox-wrapper.weekday-specific.new-item-border .new-item-title {
   background-color: #f9f2e4;
 }
+
+.item-action-button {
+  display: inline-block;
+  margin-top: 1rem;
+  margin-left: 3.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.8rem 1.6rem;
+  background-color: #a17550;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.item-action-button:hover {
+  opacity: 0.9;
+}
