@@ -37,7 +37,10 @@ function ChecklistAberturaForm({ handleSubmit }) {
       title: "2ª - Organização",
       items: [
         { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
-        { id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "" },
+        {
+          id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "", buttonText: "Acessar Relatório dos Salgados",
+          buttonLink: "https://altoxv.carmellagelateria.com.br/salgados"
+        },
         { id: "111", title: "Colocar as mesas e cadeiras externas", subtitle1: "", subtitle2: "" },
         { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
         { id: "13", title: "Colocar sacos de lixo do salão dos clientes", subtitle1: "Sacos de lixo de 60 Litros", subtitle2: "" },

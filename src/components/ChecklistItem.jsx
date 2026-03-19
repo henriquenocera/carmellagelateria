@@ -1,6 +1,6 @@
 import React from "react";
 
-function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday, newItemDate }) {
+function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday, newItemDate, buttonLink, buttonText }) {
   function getWithExpiry(key) {
     const itemStr = localStorage.getItem(key)
     // if the item doesn't exist, return null
