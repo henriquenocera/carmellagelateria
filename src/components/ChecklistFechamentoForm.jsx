@@ -58,8 +58,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       items: [
         { id: "16", title: "Enviar Fechamento de Caixa do dia Anterior", subtitle1: "", subtitle2: "" },
         { id: "17", title: "Verificar lojas do ifood", subtitle1: "Se estão abertas", subtitle2: "" },
-        { id: "19", title: "Verificar cardápio do ifood", subtitle1: "Toppings", subtitle2: "" },
-        { id: "18", title: "Alterar valor dos produtos em R$ 0,05 até R$ 0,10", subtitle1: "Alterar no Ifood", subtitle2: "Alterar no Cloudfy" },
+        { id: "19", title: "Verificar cardápio do ifood", subtitle1: "Toppings", subtitle2: "Se tiver algo desligado, confirmar com a loja" },
+        // { id: "18", title: "Alterar valor dos produtos em R$ 0,05 até R$ 0,10", subtitle1: "Alterar no Ifood", subtitle2: "Alterar no Cloudfy" },
 
 
 
