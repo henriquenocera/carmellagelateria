@@ -19,6 +19,7 @@ import Voucher from "./routes/Voucher.tsx";
 import ChecklistTest from "./routes/ChecklistTest.tsx";
 import Manual from "./routes/Manual.tsx";
 import Salgados from "./routes/Salgados.tsx";
+import Afericao from "./routes/Afericao.tsx";
 
 const AppLayout = () => (
   <>
@@ -30,6 +31,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route element={<AppLayout />}>
       <Route path="/" element={<Home />} />
+      <Route path="/afericao" element={<Afericao />} />
       <Route path="/salgados" element={<Salgados />} />
       <Route path="/manual" element={<Manual />} />
       <Route path="/vales" element={<Vales />} />
