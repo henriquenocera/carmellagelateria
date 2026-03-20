@@ -73,7 +73,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
         {
           id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
-          buttonLink: "https://docs.google.com/..."
+          buttonLink: "https://ahu.carmellagelateria.com.br/afericao"
         }
 
       ]
