@@ -31,7 +31,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "4", title: "Limpar bancada dos salgados", subtitle1: "", subtitle2: "" },
         { id: "5", title: "Limpar máquina de café (simples)", subtitle1: "", subtitle2: "" },
         { id: "6", title: "Conferir trello (estoque)", subtitle1: "Revisar Trello e garantir que o estoque real bate com o estoque do trello", subtitle2: "Atualizar o trello com as entradas e saídas do dia seguinte" },
-        { id: "7", title: "Foto das frutas", subtitle1: "Enviar uma foto das frutas na loja no grupo do whatsapp da loja", subtitle2: "" }
+        { id: "7", title: "Foto das frutas", subtitle1: "Enviar uma foto das frutas na loja no grupo do whatsapp da loja", subtitle2: "" },
+        { id: "85", title: "Recolher cadeiras das mesas externas do gramado", subtitle1: "Empilhar as cadeiras encostadas na parede do pátio externo", subtitle2: "", new: "2026-03-31" }
       ]
     },
     {
@@ -51,7 +52,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
         { id: "15", title: "Desligar a vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
         { id: "16", title: "Desligar a máquina de café e moedor", subtitle1: "", subtitle2: "" },
-        //{ id: "17", title: "Desligar tela do tablet", subtitle1: "", subtitle2: "" },
+        { id: "17", title: "Desligar varal de luzes do pátio dos fundos", subtitle1: "", subtitle2: "", new: "2026-03-31" },
         { id: "18", title: "Retirar todos os lixos", subtitle1: "Lixos internos, externos, banheiro e salão dos clientes", subtitle2: "" },
         { id: "19", title: "(DOMINGO) - Hoje não passa caminhão do lixo, deixar os sacos de lixo atras da lixeira", subtitle1: "", subtitle2: "", weekday: 0 },
         { id: "19", title: "(Segunda) - Colocar os lixos de ontem que estão atrás da lixeira lá fora", subtitle1: "", subtitle2: "", weekday: 1 },
@@ -79,7 +80,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "28", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
         { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
         { id: "30", title: "Desligar todas as luzes", subtitle1: "", subtitle2: "" },
-        { id: "31", title: "Desligar a luz do freezer", subtitle1: "", subtitle2: "" },
+        { id: "31", title: "Desligar a luz do freezer", subtitle1: "", subtitle2: "", new: "2026-03-31" },
         { id: "32", title: "Desligar computador", subtitle1: "", subtitle2: "" }
       ]
     }
