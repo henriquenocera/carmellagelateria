@@ -10,23 +10,51 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let isMounted = true;
 
-    supabase.auth
-      .getSession()
-      .then(({ data }) => {
-        if (!isMounted) return;
-        setSession(data.session ?? null);
-        setLoading(false);
-      })
-      .catch(() => {
-        if (!isMounted) return;
-        setSession(null);
-        setLoading(false);
-      });
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+          // getUser() makes a network request to verify the user exists in the database
+          const { error } = await supabase.auth.getUser();
+          if (error) {
+            await supabase.auth.signOut();
+            if (isMounted) {
+              setSession(null);
+              setLoading(false);
+            }
+            return;
+          }
+        }
+
+        if (isMounted) {
+          setSession(session ?? null);
+          setLoading(false);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setSession(null);
+          setLoading(false);
+        }
+      }
+    };
+
+    checkSession();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession);
+    } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+      if (event === "SIGNED_IN" && newSession) {
+        const { error } = await supabase.auth.getUser();
+        if (error) {
+          await supabase.auth.signOut();
+          setSession(null);
+          return;
+        }
+      }
+      if (isMounted) {
+        setSession(newSession);
+      }
     });
 
     return () => {
