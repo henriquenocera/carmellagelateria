@@ -1,0 +1,10 @@
+{
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "cli": "node index.js"
+  }
+}

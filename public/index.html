@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ponto Mais — funcionários e status</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0f1419;
+        --panel: #1a2332;
+        --text: #e7ecf3;
+        --muted: #8b9cb3;
+        --accent: #5b9fd4;
+        --danger: #e07a7a;
+        --ok: #7bc96f;
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f4f6f9;
+          --panel: #fff;
+          --text: #1a2332;
+          --muted: #5c6b7e;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+      header {
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+      p.sub {
+        margin: 0.35rem 0 0;
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+      main {
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 1.25rem 1.5rem 2rem;
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+      button {
+        cursor: pointer;
+        border: none;
+        border-radius: 8px;
+        padding: 0.55rem 1rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        background: var(--accent);
+        color: #0f1419;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .status-pill {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--muted) 25%, transparent);
+        color: var(--text);
+      }
+      .status-pill.ok {
+        background: color-mix(in srgb, var(--ok) 35%, transparent);
+      }
+      .status-pill.err {
+        background: color-mix(in srgb, var(--danger) 35%, transparent);
+      }
+      .banner {
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+      }
+      .banner.error {
+        background: color-mix(in srgb, var(--danger) 22%, transparent);
+        color: var(--text);
+      }
+      .banner.info {
+        background: color-mix(in srgb, var(--accent) 18%, transparent);
+      }
+      .panel {
+        background: var(--panel);
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        border: 1px solid color-mix(in srgb, var(--text) 10%, transparent);
+        margin-bottom: 1rem;
+      }
+      .panel h2 {
+        margin: 0 0 0.65rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--muted);
+      }
+      pre.json {
+        margin: 0;
+        overflow: auto;
+        max-height: 55vh;
+        font-size: 0.8rem;
+        line-height: 1.45;
+        tab-size: 2;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.45rem 0.5rem;
+        border-bottom: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+      tr:nth-child(even) td {
+        background: color-mix(in srgb, var(--text) 4%, transparent);
+      }
+      .ws-badge {
+        display: inline-block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        line-height: 1.3;
+        white-space: nowrap;
+      }
+      .ws-jornada {
+        background: color-mix(in srgb, var(--ok) 42%, transparent);
+        color: var(--text);
+      }
+      .ws-intervalo {
+        background: color-mix(in srgb, #e6c84a 45%, transparent);
+        color: #1a1508;
+      }
+      @media (prefers-color-scheme: dark) {
+        .ws-intervalo {
+          color: #f5efd3;
+        }
+      }
+      .ws-folga {
+        background: color-mix(in srgb, var(--accent) 38%, transparent);
+        color: var(--text);
+      }
+      .ws-encerrado {
+        background: color-mix(in srgb, var(--muted) 35%, transparent);
+        color: var(--text);
+      }
+      .ws-ausente {
+        background: color-mix(in srgb, var(--danger) 32%, transparent);
+        color: var(--text);
+      }
+      .ws-outro {
+        background: color-mix(in srgb, var(--muted) 22%, transparent);
+        color: var(--text);
+      }
+      .muted-cell {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      details.raw {
+        margin-top: 0.5rem;
+      }
+      details.raw summary {
+        cursor: pointer;
+        color: var(--muted);
+        font-size: 0.88rem;
+        user-select: none;
+      }
+      details.raw pre {
+        margin-top: 0.65rem;
+        max-height: 40vh;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Funcionários e status no ponto</h1>
+      <p class="sub">
+        Tabela com o <strong>work status</strong> de cada um (jornada, folga, intervalo, etc.). Uso local
+        — servidor lê o <code>.env</code>. Senhas vêm mascaradas.
+      </p>
+    </header>
+    <main>
+      <div class="toolbar">
+        <button type="button" id="btn-refresh">Atualizar</button>
+        <span id="pill" class="status-pill" hidden></span>
+      </div>
+      <div id="banner" class="banner" hidden></div>
+      <section class="panel" id="table-section" hidden>
+        <h2>Equipe</h2>
+        <div id="table-wrap"></div>
+      </section>
+      <section class="panel">
+        <details class="raw" id="raw-details">
+          <summary>JSON bruto (depuração)</summary>
+          <pre class="json" id="json-out">Carregando…</pre>
+        </details>
+      </section>
+    </main>
+    <script>
+      const btn = document.getElementById("btn-refresh");
+      const jsonOut = document.getElementById("json-out");
+      const banner = document.getElementById("banner");
+      const pill = document.getElementById("pill");
+      const tableSection = document.getElementById("table-section");
+      const tableWrap = document.getElementById("table-wrap");
+
+      /** Classe visual a partir do nome do status (API em PT-BR). */
+      function workStatusBadgeClass(name) {
+        const n = (name || "").toLowerCase();
+        if (n.includes("jornada")) return "ws-jornada";
+        if (n.includes("intervalo")) return "ws-intervalo";
+        if (n.includes("folga")) return "ws-folga";
+        if (n.includes("encerrad")) return "ws-encerrado";
+        if (n.includes("ausente") || n.includes("falta") || n.includes("atraso")) return "ws-ausente";
+        return "ws-outro";
+      }
+
+      function lastPunch(emp) {
+        const t = emp.work_status_time_card;
+        if (!t) return "—";
+        const date = t.date || "";
+        const time = t.time || "";
+        if (date && time) return `${date} · ${time}`;
+        return date || time || "—";
+      }
+
+      function renderEmployeesTable(employees) {
+        if (!Array.isArray(employees) || !employees.length) {
+          tableSection.hidden = true;
+          return false;
+        }
+
+        const sorted = [...employees].sort((a, b) =>
+          String(a.name || "").localeCompare(String(b.name || ""), "pt-BR", { sensitivity: "base" })
+        );
+
+        const rows = sorted
+          .map((emp) => {
+            const nome = escapeHtml(String(emp.name || "—"));
+            const statusName = String(emp.work_status?.name || "—");
+            const badgeClass = workStatusBadgeClass(statusName);
+            const statusHtml = `<span class="ws-badge ${badgeClass}">${escapeHtml(statusName)}</span>`;
+            const equipe = escapeHtml(String(emp.team?.name || "—"));
+            const ultimo = escapeHtml(lastPunch(emp));
+            return `<tr><td>${nome}</td><td>${statusHtml}</td><td class="muted-cell">${equipe}</td><td class="muted-cell">${ultimo}</td></tr>`;
+          })
+          .join("");
+
+        tableWrap.innerHTML = `<table>
+          <thead>
+            <tr>
+              <th>Funcionário</th>
+              <th>Status no ponto</th>
+              <th>Equipe</th>
+              <th>Registro do status</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+        tableSection.hidden = false;
+        return true;
+      }
+
+      function escapeHtml(s) {
+        return s
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function setBanner(type, text) {
+        if (!text) {
+          banner.hidden = true;
+          banner.textContent = "";
+          banner.className = "banner";
+          return;
+        }
+        banner.hidden = false;
+        banner.className = "banner " + (type === "error" ? "error" : "info");
+        banner.textContent = text;
+      }
+
+      async function load() {
+        btn.disabled = true;
+        pill.hidden = true;
+        setBanner("", "");
+        jsonOut.textContent = "Carregando…";
+        tableSection.hidden = true;
+
+        try {
+          const res = await fetch("/api/statuses", { cache: "no-store" });
+          const payload = await res.json();
+
+          pill.hidden = false;
+          pill.textContent = `HTTP ${res.status}`;
+          pill.className = "status-pill " + (res.ok ? "ok" : "err");
+
+          if (!res.ok) {
+            const msg =
+              payload.message ||
+              payload.error ||
+              (typeof payload.data === "object" && payload.data?.error) ||
+              JSON.stringify(payload);
+            setBanner("error", msg);
+            jsonOut.textContent = JSON.stringify(payload, null, 2);
+            return;
+          }
+
+          const data = payload.data;
+          jsonOut.textContent = JSON.stringify(data, null, 2);
+
+          const okTable = renderEmployeesTable(data?.employees);
+
+          if (payload.upstreamOk === false) {
+            setBanner(
+              "error",
+              `API upstream: ${payload.upstreamStatus} ${payload.upstreamStatusText || ""}`.trim()
+            );
+          } else if (!okTable) {
+            setBanner(
+              "info",
+              "A resposta não trouxe employees[]. Abra o JSON bruto para ver o formato."
+            );
+          }
+        } catch (e) {
+          pill.hidden = false;
+          pill.textContent = "Erro";
+          pill.className = "status-pill err";
+          setBanner("error", String(e.message || e));
+          jsonOut.textContent = "";
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
+      btn.addEventListener("click", load);
+      load();
+    </script>
+  </body>
+</html>
