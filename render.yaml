@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: carmellagelateria-status
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: PONTOMAIS_REFRESH_MS
+        value: 120000
+      - key: NODE_ENV
+        value: production

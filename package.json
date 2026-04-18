@@ -5,6 +5,12 @@
   },
   "scripts": {
     "start": "node server.mjs",
-    "cli": "node index.js"
+    "cli": "node index.js",
+    "dev": "node server.mjs"
+  },
+  "name": "carmellagelateria",
+  "private": true,
+  "engines": {
+    "node": ">=20"
   }
 }

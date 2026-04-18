@@ -120,6 +120,20 @@ async function ensureInitialCache() {
 const server = http.createServer(async (req, res) => {
   const url = req.url?.split("?")[0] || "/";
 
+  if (req.method === "GET" && url === "/healthz") {
+    const isBootstrapping = Boolean(pullPromise);
+    const healthy = Boolean(cache.entry) || isBootstrapping;
+    sendJson(res, healthy ? 200 : 503, {
+      ok: healthy,
+      state: cache.entry ? "ready" : isBootstrapping ? "bootstrapping" : "waiting_first_pull",
+      service: "carmella-pontomais",
+      refreshedAt: cache.entry ? new Date(cache.entry.fetchedAt).toISOString() : null,
+      refreshIntervalMs: REFRESH_MS,
+      lastPullError: cache.lastPullError,
+    });
+    return;
+  }
+
   if (req.method === "GET" && (url === "/" || url === "/index.html")) {
     const file = path.join(publicDir, "index.html");
     try {
