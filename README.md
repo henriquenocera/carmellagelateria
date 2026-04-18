@@ -40,10 +40,14 @@ Mini servidor Node para exibir no front-end o status de cada funcionario via API
 
 - `/`: pagina HTML
 - `/api/statuses`: dados em cache para o front-end
+- `/api/employees-status`: tabela completa em JSON (todos os funcionarios e status)
+- `/api/employees-status.csv`: exportacao CSV da tabela completa
 - `/healthz`: healthcheck para Render
 
 ## Variaveis de ambiente importantes
 
 - `PONTOMAIS_REFRESH_MS`: intervalo de atualizacao do cache (padrao 120000 = 2min)
+- `PONTOMAIS_EXPORT_PER_PAGE`: tamanho de pagina na exportacao completa (padrao 100)
+- `PONTOMAIS_EXPORT_MAX_PAGES`: limite de paginas para protecao (padrao 100)
 - `PORT`: definido automaticamente pelo Render
 

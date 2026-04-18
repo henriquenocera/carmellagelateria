@@ -3,7 +3,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import "dotenv/config";
-import { buildHeaders, fetchStatuses, hasAnyAuth } from "./pontomais-api.mjs";
+import {
+  buildHeaders,
+  fetchAllEmployeesStatuses,
+  fetchStatuses,
+  hasAnyAuth,
+} from "./pontomais-api.mjs";
 
 /** Evita exibir no browser campos como senha (a API às vezes os devolve). */
 function redactForBrowser(value, keys = new Set(["password"])) {
@@ -112,6 +117,52 @@ function sendJson(res, status, obj) {
   res.end(JSON.stringify(obj));
 }
 
+function employeeRowsFromPayload(payload) {
+  const employees = Array.isArray(payload?.employees) ? payload.employees : [];
+  return employees
+    .map((emp) => ({
+      id: emp.id ?? "",
+      nome: emp.name ?? "",
+      status: emp.work_status?.name ?? "",
+      status_id: emp.work_status?.id ?? "",
+      equipe: emp.team?.name ?? "",
+      equipe_id: emp.team?.id ?? "",
+      registro_data: emp.work_status_time_card?.date ?? "",
+      registro_hora: emp.work_status_time_card?.time ?? "",
+      email: emp.email ?? "",
+      login: emp.login ?? "",
+    }))
+    .sort((a, b) => String(a.nome).localeCompare(String(b.nome), "pt-BR", { sensitivity: "base" }));
+}
+
+function csvEscape(v) {
+  const s = String(v ?? "");
+  if (s.includes('"') || s.includes(",") || s.includes("\n")) {
+    return `"${s.replaceAll('"', '""')}"`;
+  }
+  return s;
+}
+
+function toCsv(rows) {
+  const headers = [
+    "id",
+    "nome",
+    "status",
+    "status_id",
+    "equipe",
+    "equipe_id",
+    "registro_data",
+    "registro_hora",
+    "email",
+    "login",
+  ];
+  const lines = [headers.join(",")];
+  for (const row of rows) {
+    lines.push(headers.map((h) => csvEscape(row[h])).join(","));
+  }
+  return lines.join("\n");
+}
+
 async function ensureInitialCache() {
   if (cache.entry) return;
   await pullStatuses();
@@ -181,6 +232,70 @@ const server = http.createServer(async (req, res) => {
       });
     } catch (e) {
       sendJson(res, 500, { error: "server_error", message: String(e.message || e) });
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url === "/api/employees-status") {
+    try {
+      const headers = buildHeaders();
+      if (!hasAnyAuth(headers)) {
+        sendJson(res, 401, {
+          error: "missing_auth",
+          message:
+            "Configure PONTOMAIS_* no .env na pasta do projeto e reinicie o servidor.",
+        });
+        return;
+      }
+
+      const full = await fetchAllEmployeesStatuses();
+      const rows = employeeRowsFromPayload({ employees: full.employees });
+      sendJson(res, 200, {
+        rows,
+        total: rows.length,
+        pagesFetched: full.pagesFetched,
+        fetchedAt: new Date().toISOString(),
+      });
+    } catch (e) {
+      sendJson(res, 500, {
+        error: "export_error",
+        message: String(e.message || e),
+        status: e.status,
+        statusText: e.statusText,
+      });
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url === "/api/employees-status.csv") {
+    try {
+      const headers = buildHeaders();
+      if (!hasAnyAuth(headers)) {
+        sendJson(res, 401, {
+          error: "missing_auth",
+          message:
+            "Configure PONTOMAIS_* no .env na pasta do projeto e reinicie o servidor.",
+        });
+        return;
+      }
+
+      const full = await fetchAllEmployeesStatuses();
+      const rows = employeeRowsFromPayload({ employees: full.employees });
+      const csv = toCsv(rows);
+
+      res.writeHead(200, {
+        "Content-Type": "text/csv; charset=utf-8",
+        "Cache-Control": "no-store",
+        "Content-Disposition": 'attachment; filename="employees-status.csv"',
+      });
+      res.end(csv);
+    } catch (e) {
+      sendJson(res, 500, {
+        error: "export_error",
+        message: String(e.message || e),
+        status: e.status,
+        statusText: e.statusText,
+      });
     }
     return;
   }

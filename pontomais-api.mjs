@@ -81,6 +81,13 @@ export function getTargetUrl() {
   return pick("PONTOMAIS_URL", "URL") || DEFAULT_URL;
 }
 
+function buildPagedUrl(page, perPage) {
+  const base = new URL(getTargetUrl());
+  base.searchParams.set("page", String(page));
+  base.searchParams.set("per_page", String(perPage));
+  return base.toString();
+}
+
 /**
  * @returns {Promise<{ ok: boolean, status: number, statusText: string, body: object | null, rawText: string }>}
  */
@@ -109,5 +116,87 @@ export async function fetchStatuses() {
     statusText: response.statusText,
     body,
     rawText,
+  };
+}
+
+/**
+ * Busca uma página da API de statuses.
+ * @returns {Promise<{ ok: boolean, status: number, statusText: string, body: object | null, rawText: string }>}
+ */
+export async function fetchStatusesPage(page, perPage) {
+  const url = buildPagedUrl(page, perPage);
+  const headers = buildHeaders();
+
+  if (!hasAnyAuth(headers)) {
+    const err = new Error("MISSING_AUTH");
+    err.code = "MISSING_AUTH";
+    throw err;
+  }
+
+  const response = await fetch(url, { method: "GET", headers });
+  const rawText = await response.text();
+  let body = null;
+  try {
+    body = JSON.parse(rawText);
+  } catch {
+    /* mantém body null */
+  }
+
+  return {
+    ok: response.ok,
+    status: response.status,
+    statusText: response.statusText,
+    body,
+    rawText,
+  };
+}
+
+/**
+ * Busca todos os funcionários percorrendo paginação.
+ * @returns {Promise<{ employees: object[], pagesFetched: number, meta: object }>}
+ */
+export async function fetchAllEmployeesStatuses() {
+  const perPage = Number(pick("PONTOMAIS_EXPORT_PER_PAGE")) || 100;
+  const maxPages = Number(pick("PONTOMAIS_EXPORT_MAX_PAGES")) || 100;
+
+  let page = 1;
+  let pagesFetched = 0;
+  const employees = [];
+  let lastMeta = {};
+
+  while (page <= maxPages) {
+    const result = await fetchStatusesPage(page, perPage);
+
+    if (!result.ok) {
+      const err = new Error(`UPSTREAM_HTTP_${result.status}`);
+      err.code = "UPSTREAM_HTTP_ERROR";
+      err.status = result.status;
+      err.statusText = result.statusText;
+      err.body = result.body;
+      throw err;
+    }
+
+    if (!result.body) {
+      const err = new Error("UPSTREAM_INVALID_JSON");
+      err.code = "UPSTREAM_INVALID_JSON";
+      err.rawText = result.rawText;
+      throw err;
+    }
+
+    const chunk = Array.isArray(result.body.employees) ? result.body.employees : [];
+    employees.push(...chunk);
+    pagesFetched += 1;
+    lastMeta = result.body.meta || {};
+
+    const total = Number(lastMeta.count);
+    if (Number.isFinite(total) && employees.length >= total) break;
+    if (chunk.length < perPage) break;
+    page += 1;
+  }
+
+  return {
+    employees,
+    pagesFetched,
+    meta: lastMeta,
   };
 }
