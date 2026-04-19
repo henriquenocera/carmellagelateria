@@ -19,7 +19,7 @@ function Home() {
       text: `Olá! 🍦
 
 Nós trabalhamos atualmente com quase 60 sabores, de forma rotativa, então estamos sempre trocando os sabores da vitrine, mas você pode acompanhar os sabores em tempo real pelo nosso site.
-sabores.carmellagelateria.com.br
+https://sabores.carmellagelateria.com.br
 
 Qualquer dúvida, fico à disposição!
 `
@@ -27,9 +27,12 @@ Qualquer dúvida, fico à disposição!
     {
       id: 3,
       title: "Glúten",
-      text: `A grande maioria dos nossos sabores não contém glúten, apesar de termos alguns sabores como Oreo, Lemon Pie, entre outros que tem glúten na receita.
+      text: `Olá! 🍦
+      
+A grande maioria dos nossos sabores não contém glúten, apesar de termos alguns sabores como Oreo, Lemon Pie, entre outros que tem glúten na receita.
 
-Porém, nenhum de nossos Gelatos são livres de glúten devido a contaminação cruzada, tanto na produção quanto na loja. Caso você seja celíaca nós NÃO recomendamos o consumo.`
+Porém, nenhum de nossos Gelatos são livres de glúten devido a contaminação cruzada, tanto na produção quanto na loja.
+Em caso de doença celíaca, nós infelizmente não recomendamos o consumo dos nossos Gelatos.`
     },
     {
       id: 4,
@@ -38,9 +41,9 @@ Porém, nenhum de nossos Gelatos são livres de glúten devido a contaminação 
 
 Nós possuímos alguns sabores diets, porém não conseguimos garantir a sua disponibilidade sempre.
 Você consegue acompanhar os sabores atuais de cada loja pelo nosso site
-sabores.carmellagelateria.com.br
+https://sabores.carmellagelateria.com.br
 
-Fico à disposição!`
+Qualquer dúvida, fico à disposição!`
     },
     {
       id: 5,
@@ -54,8 +57,17 @@ Fico à disposição!`
     },
     {
       id: 6,
-      title: "",
-      text: ""
+      title: "Delivery",
+      text: `Olá! 🍦
+      
+      Nós Trabalhamos com delivery somente via Ifood, segue o link de nossas lojas
+      
+      Loja Ifood Alto XV:
+      https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---alto-xv-alto-da-rua-xv/02625ea1-bc47-4f29-9d84-ab9e275206e6
+
+      Loja Ifood Ahu:
+      https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---ahu-ahu/b8f4806a-7fd6-4df5-a739-65fc17356556
+      `
     }
   ];
 
