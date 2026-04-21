@@ -56,7 +56,7 @@ function Informacoes() {
       setRows(data.rows || []);
       setDrafts({});
     } catch (err) {
-      console.error("Erro ao carregar dados da planilha:", err);
+      console.error("Erro ao carregar dados da planilha!:", err);
       setError("Erro ao carregar dados da planilha.");
     } finally {
       setIsLoading(false);
