@@ -34,7 +34,28 @@ function Informacoes() {
   const [error, setError] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
 
-  const hasApiConfigured = useMemo(() => Boolean(API_URL), []);
+  const hasApiConfigured = useMemo(() => /^https?:\/\//i.test(API_URL), []);
+
+  const parseJsonResponse = async (response: Response) => {
+    const rawText = await response.text();
+
+    if (!rawText) {
+      throw new Error("Resposta vazia da API.");
+    }
+
+    const trimmed = rawText.trim();
+    if (trimmed.startsWith("<")) {
+      throw new Error(
+        "A API retornou HTML em vez de JSON. Verifique REACT_APP_SHEETS_API_URL no ambiente de produção."
+      );
+    }
+
+    try {
+      return JSON.parse(trimmed) as ApiResponse & { ok?: boolean };
+    } catch {
+      throw new Error("Resposta inválida da API (não é JSON válido).");
+    }
+  };
 
   const loadRows = async () => {
     if (!hasApiConfigured) {
@@ -47,7 +68,7 @@ function Informacoes() {
       setError("");
       setIsLoading(true);
       const response = await fetch(API_URL);
-      const data = (await response.json()) as ApiResponse;
+      const data = await parseJsonResponse(response);
 
       if (!response.ok) {
         throw new Error(data.error || "Falha ao carregar dados.");
@@ -96,7 +117,7 @@ function Informacoes() {
         body,
       });
 
-      const data = await response.json();
+      const data = await parseJsonResponse(response);
       if (!response.ok || data.error) {
         throw new Error(data.error || "Falha ao salvar linha.");
       }
@@ -131,7 +152,7 @@ function Informacoes() {
         }),
       });
 
-      const data = await response.json();
+      const data = await parseJsonResponse(response);
       if (!response.ok || data.error) {
         throw new Error(data.error || "Falha ao adicionar linha.");
       }
@@ -163,7 +184,7 @@ function Informacoes() {
         }),
       });
 
-      const data = await response.json();
+      const data = await parseJsonResponse(response);
       if (!response.ok || data.error) {
         throw new Error(data.error || "Falha ao remover linha.");
       }
@@ -190,8 +211,8 @@ function Informacoes() {
 
           {!hasApiConfigured && (
             <p style={{ color: "#8a5b2d" }}>
-              Defina <code>REACT_APP_SHEETS_API_URL</code> no arquivo{" "}
-              <code>.env</code> com a URL do seu Apps Script publicado.
+              Defina <code>REACT_APP_SHEETS_API_URL</code> com URL completa
+              (<code>https://...</code>) do Apps Script publicado.
             </p>
           )}
 
