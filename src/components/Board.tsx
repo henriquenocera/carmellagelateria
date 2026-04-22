@@ -4,6 +4,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { Column } from './Column';
 import type { CardItem, ItemStatus, ColumnData } from '../types';
 import { fetchCards, upsertCards } from '../services/cards';
+import { useAuth } from '../contexts/AuthContext';
 import './Board.css';
 
 export const COLUMNS: ColumnData[] = [
@@ -20,6 +21,7 @@ export function Board() {
   const [isLoading, setIsLoading] = useState(true);
   const [syncError, setSyncError] = useState<string | null>(null);
   const latestCardsRef = useRef<CardItem[]>([]);
+  const { user } = useAuth();
 
   const editingCard = editingCardId ? cards.find((c) => c.id === editingCardId) : null;
 
@@ -72,6 +74,7 @@ export function Board() {
           status: targetStatus,
           entryDate: entryDate,
           exitDate: exitDate,
+          lastEditedBy: user?.email || c.lastEditedBy,
         };
       }
       return c;
@@ -89,8 +92,9 @@ export function Board() {
       status: 'freezer-estoque',
       productionDate: today,
       entryDate: '',
-      createdBy: 'A definir',
-      lastEditedBy: 'A definir',
+      exitDate: '',
+      createdBy: user?.email || 'A definir',
+      lastEditedBy: user?.email || 'A definir',
       position: cards.length,
     };
     const nextCards = [...cards, newCard];
@@ -125,7 +129,7 @@ export function Board() {
               ...card,
               title: editingTitle.trim() || card.title,
               productionDate: editingProductionDate || card.productionDate,
-              lastEditedBy: 'A definir',
+              lastEditedBy: user?.email || card.lastEditedBy,
             }
           : card
     );

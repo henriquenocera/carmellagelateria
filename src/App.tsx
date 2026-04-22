@@ -1,8 +1,20 @@
 import { Board } from './components/Board';
-import { IceCream } from 'lucide-react';
+import { LoginPage } from './components/LoginPage';
+import { IceCream, LogOut } from 'lucide-react';
+import { useAuth } from './contexts/AuthContext';
 import './App.css';
 
 function App() {
+  const { user, isLoading, signOut } = useAuth();
+
+  if (isLoading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#64748b' }}>Carregando sessão...</div>;
+  }
+
+  if (!user) {
+    return <LoginPage />;
+  }
+
   return (
     <div className="app-layout">
       <header className="app-header">
@@ -11,6 +23,17 @@ function App() {
             <IceCream size={24} color="#e07a5f" />
           </div>
           <h1>Carmella Gelateria</h1>
+        </div>
+        <div className="flex items-center" style={{ gap: '16px' }}>
+          <span style={{ fontSize: '14px', color: '#64748b' }}>{user.email}</span>
+          <button 
+            onClick={signOut}
+            className="icon-button" 
+            title="Sair"
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#64748b' }}
+          >
+            <LogOut size={20} />
+          </button>
         </div>
       </header>
       <main className="app-main">
