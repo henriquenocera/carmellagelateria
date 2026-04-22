@@ -1,133 +1,230 @@
-import { useState } from 'react';
-import {
-  DndContext,
-  DragOverlay,
-  closestCorners,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import type {
-  DragStartEvent,
-  DragOverEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 import { Column } from './Column';
-import { Card } from './Card';
-import type { CardItem, ItemStatus } from '../types';
-import { COLUMNS, INITIAL_CARDS } from '../data/mockData';
+import type { CardItem, ItemStatus, ColumnData } from '../types';
+import { fetchCards, upsertCards } from '../services/cards';
 import './Board.css';
 
+export const COLUMNS: ColumnData[] = [
+  { id: 'freezer-estoque', title: 'Freezer Estoque', maxCapacity: 18 },
+  { id: 'vitrine-atual', title: 'Vitrine Atual', maxCapacity: 16 },
+  { id: 'cubas-saidas-vitrine', title: 'Cubas Saídas da Vitrine' },
+];
+
 export function Board() {
-  const [cards, setCards] = useState<CardItem[]>(INITIAL_CARDS);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [cards, setCards] = useState<CardItem[]>([]);
+  const [editingCardId, setEditingCardId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const [editingProductionDate, setEditingProductionDate] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const latestCardsRef = useRef<CardItem[]>([]);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const editingCard = editingCardId ? cards.find((c) => c.id === editingCardId) : null;
 
-  const activeCard = activeId ? cards.find(c => c.id === activeId) : null;
+  const getToday = () => new Date().toISOString().slice(0, 10);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over) return;
-
-    const activeId = active.id;
-    const overId = over.id;
-
-    if (activeId === overId) return;
-
-    const isActiveTask = active.data.current?.type === 'Card';
-    const isOverTask = over.data.current?.type === 'Card';
-
-    if (!isActiveTask) return;
-
-    // Dropping a Card over another Card
-    if (isActiveTask && isOverTask) {
-      setCards((cards) => {
-        const activeIndex = cards.findIndex((c) => c.id === activeId);
-        const overIndex = cards.findIndex((c) => c.id === overId);
-
-        if (cards[activeIndex].status !== cards[overIndex].status) {
-          const newCards = [...cards];
-          newCards[activeIndex].status = cards[overIndex].status;
-          return arrayMove(newCards, activeIndex, overIndex);
+  useEffect(() => {
+    const loadCards = async () => {
+      try {
+        setIsLoading(true);
+        const dbCards = await fetchCards();
+        if (dbCards.length > 0) {
+          setCards(dbCards);
+        } else {
+          setCards([]);
         }
+        setSyncError(null);
+      } catch (error) {
+        console.error('Erro ao carregar cards do Supabase:', error);
+        setSyncError('Nao foi possivel carregar do Supabase. Usando dados locais.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-        return arrayMove(cards, activeIndex, overIndex);
-      });
-    }
+    void loadCards();
+  }, []);
 
-    // Dropping a Card over a Column
-    const isOverColumn = over.data.current?.type !== 'Card';
-    if (isActiveTask && isOverColumn) {
-      setCards((cards) => {
-        const activeIndex = cards.findIndex((c) => c.id === activeId);
-        const newCards = [...cards];
-        newCards[activeIndex].status = overId as ItemStatus;
-        
-        // Custom logic when moving to Vitrine Atual
-        if (newCards[activeIndex].status === 'vitrine-atual' && cards[activeIndex].status !== 'vitrine-atual') {
-          newCards[activeIndex].endedAt = 'Agora'; // Can be customized
-        } else if (newCards[activeIndex].status !== 'vitrine-atual') {
-          newCards[activeIndex].endedAt = undefined;
-        }
+  useEffect(() => {
+    latestCardsRef.current = cards;
+  }, [cards]);
 
-        return arrayMove(newCards, activeIndex, activeIndex);
-      });
+  const persistCards = async (nextCards: CardItem[]) => {
+    try {
+      await upsertCards(nextCards);
+      setSyncError(null);
+    } catch (error) {
+      console.error('Erro ao salvar cards no Supabase:', error);
+      setSyncError('Falha ao sincronizar com Supabase.');
     }
   };
 
-  const handleDragEnd = () => {
-    setActiveId(null);
+  const handleMoveCard = async (card: CardItem, targetStatus: ItemStatus) => {
+    const nextCards = cards.map((c) => {
+      if (c.id === card.id) {
+        const sourceStatus = c.status;
+        const entryDate = targetStatus === 'vitrine-atual' && sourceStatus !== 'vitrine-atual' ? getToday() : c.entryDate;
+        return {
+          ...c,
+          status: targetStatus,
+          entryDate: entryDate,
+        };
+      }
+      return c;
+    });
+
+    setCards(nextCards);
+    await persistCards(nextCards);
   };
 
-  const handleAddCard = (columnId: string) => {
+  const handleAddCard = async (columnId: string) => {
+    const today = getToday();
     const newCard: CardItem = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       title: 'Novo Sabor',
       status: columnId as ItemStatus,
-      startedAt: 'Hoje',
+      productionDate: today,
+      entryDate: '',
+      createdBy: 'A definir',
+      lastEditedBy: 'A definir',
+      position: cards.length,
     };
-    setCards([...cards, newCard]);
+    const nextCards = [...cards, newCard];
+    setCards(nextCards);
+    await persistCards(nextCards);
+  };
+
+  const handleCardClick = (card: CardItem) => {
+    setEditingCardId(card.id);
+    setEditingTitle(card.title);
+    setEditingProductionDate(card.productionDate);
+  };
+
+  const handleCloseModal = () => {
+    setEditingCardId(null);
+    setEditingTitle('');
+    setEditingProductionDate('');
+  };
+
+  const handleSaveModal = async () => {
+    if (!editingCardId) return;
+
+    const nextCards = cards.map((card) =>
+        card.id === editingCardId
+          ? {
+              ...card,
+              title: editingTitle.trim() || card.title,
+              productionDate: editingProductionDate || card.productionDate,
+              lastEditedBy: 'A definir',
+            }
+          : card
+    );
+    setCards(nextCards);
+    await persistCards(nextCards);
+
+    handleCloseModal();
   };
 
   return (
     <div className="board-container">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="board">
-          {COLUMNS.map((col) => (
-            <Column
-              key={col.id}
-              column={col}
-              cards={cards.filter((c) => c.status === col.id)}
-              onAddCard={handleAddCard}
-            />
-          ))}
-        </div>
+      {isLoading && <p>Carregando cards...</p>}
+      {syncError && <p className="sync-error">{syncError}</p>}
+      {!isLoading && cards.length === 0 && <p className="empty-message" style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.1rem', color: '#64748b' }}>Nenhum item cadastrado ainda</p>}
+      <div className="board">
+        {COLUMNS.map((col) => (
+          <Column
+            key={col.id}
+            column={col}
+            cards={cards.filter((c) => c.status === col.id)}
+            onAddCard={handleAddCard}
+            onCardClick={handleCardClick}
+          />
+        ))}
+      </div>
 
-        <DragOverlay>
-          {activeCard ? <Card card={activeCard} /> : null}
-        </DragOverlay>
-      </DndContext>
+      {editingCardId && (
+        <div className="modal-backdrop" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(event) => event.stopPropagation()}>
+            <h3>Editar cartao</h3>
+            <label className="modal-label" htmlFor="card-title-input">
+              Titulo
+            </label>
+            <input
+              id="card-title-input"
+              className="modal-input"
+              type="text"
+              value={editingTitle}
+              onChange={(event) => setEditingTitle(event.target.value)}
+            />
+
+            <label className="modal-label" htmlFor="card-production-date-input">
+              Data de producao
+            </label>
+            <input
+              id="card-production-date-input"
+              className="modal-input"
+              type="date"
+              value={editingProductionDate}
+              onChange={(event) => setEditingProductionDate(event.target.value)}
+            />
+
+            <div className="modal-readonly-grid">
+              <div className="modal-readonly-item">
+                <span className="modal-readonly-label">Criado por</span>
+                <span className="modal-readonly-value">{editingCard?.createdBy || 'A definir'}</span>
+              </div>
+              <div className="modal-readonly-item">
+                <span className="modal-readonly-label">Ultima vez editado por</span>
+                <span className="modal-readonly-value">{editingCard?.lastEditedBy || 'A definir'}</span>
+              </div>
+            </div>
+
+            <div className="modal-actions">
+              <button type="button" className="modal-btn modal-btn-secondary" onClick={handleCloseModal}>
+                Cancelar
+              </button>
+              <button type="button" className="modal-btn modal-btn-primary" onClick={handleSaveModal}>
+                Salvar
+              </button>
+            </div>
+
+            <div className="modal-movement-actions" style={{ display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+              {editingCard?.status === 'freezer-estoque' && (
+                <button
+                  type="button"
+                  className="move-btn"
+                  style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  onClick={async () => { await handleMoveCard(editingCard, 'vitrine-atual'); handleCloseModal(); }}
+                >
+                  Mover para Vitrine <ArrowRight size={16} />
+                </button>
+              )}
+              {editingCard?.status === 'vitrine-atual' && (
+                <>
+                  <button
+                    type="button"
+                    className="move-btn"
+                    style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    onClick={async () => { await handleMoveCard(editingCard, 'freezer-estoque'); handleCloseModal(); }}
+                  >
+                    <ArrowLeft size={16} /> Voltar para Freezer
+                  </button>
+                  <button
+                    type="button"
+                    className="move-btn"
+                    style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    onClick={async () => { await handleMoveCard(editingCard, 'cubas-saidas-vitrine'); handleCloseModal(); }}
+                  >
+                    Mover para Saída <ArrowRight size={16} />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

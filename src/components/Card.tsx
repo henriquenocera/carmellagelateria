@@ -1,57 +1,37 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { Clock, CheckCircle2 } from 'lucide-react';
 import type { CardItem } from '../types';
 import './Card.css';
 
 interface CardProps {
   card: CardItem;
+  onClick?: (card: CardItem) => void;
 }
 
-export function Card({ card }: CardProps) {
-  const {
-    setNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: card.id,
-    data: {
-      type: 'Card',
-      card,
-    },
-  });
+const formatDate = (date: string) => {
+  if (!date) return '-';
+  const parsed = new Date(`${date}T00:00:00`);
+  if (Number.isNaN(parsed.getTime())) return date;
+  return new Intl.DateTimeFormat('pt-BR').format(parsed);
+};
 
-  const style = {
-    transition,
-    transform: CSS.Transform.toString(transform),
-  };
-
-  const isVitrine = card.status === 'vitrine-atual';
-
+export function Card({ card, onClick }: CardProps) {
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`card ${isDragging ? 'is-dragging' : ''} ${isVitrine ? 'is-vitrine' : ''}`}
+      className="card"
+      onClick={() => onClick?.(card)}
     >
       <div className="card-header">
-        {isVitrine && <CheckCircle2 className="icon-check" size={16} />}
         <span className="card-title">{card.title}</span>
       </div>
-      
-      <div className={`card-footer ${isVitrine ? 'bg-green' : ''}`}>
-        <Clock size={12} className="icon-clock" />
-        <span className="card-date">
-          {isVitrine && card.endedAt 
-            ? `${card.startedAt} - ${card.endedAt}`
-            : `Começou: ${card.startedAt}`
-          }
-        </span>
+
+      <div className="card-meta-list">
+        <div className="card-meta-item">
+          <span className="card-meta-label">Data de produção</span>
+          <span className="card-meta-value">{formatDate(card.productionDate)}</span>
+        </div>
+        <div className="card-meta-item">
+          <span className="card-meta-label">Data de entrada</span>
+          <span className="card-meta-value">{formatDate(card.entryDate)}</span>
+        </div>
       </div>
     </div>
   );

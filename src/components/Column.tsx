@@ -1,5 +1,3 @@
-import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { MoreHorizontal, PlusSquare, ArrowRightLeft } from 'lucide-react';
 import type { CardItem, ColumnData } from '../types';
 import { Card } from './Card';
@@ -9,13 +7,10 @@ interface ColumnProps {
   column: ColumnData;
   cards: CardItem[];
   onAddCard: (columnId: string) => void;
+  onCardClick: (card: CardItem) => void;
 }
 
-export function Column({ column, cards, onAddCard }: ColumnProps) {
-  const { setNodeRef } = useDroppable({
-    id: column.id,
-  });
-
+export function Column({ column, cards, onAddCard, onCardClick }: ColumnProps) {
   const isVitrine = column.id === 'vitrine-atual';
 
   return (
@@ -33,12 +28,10 @@ export function Column({ column, cards, onAddCard }: ColumnProps) {
         </div>
       </div>
 
-      <div className="column-content" ref={setNodeRef}>
-        <SortableContext items={cards.map(c => c.id)} strategy={verticalListSortingStrategy}>
-          {cards.map((card) => (
-            <Card key={card.id} card={card} />
-          ))}
-        </SortableContext>
+      <div className="column-content">
+        {cards.map((card) => (
+          <Card key={card.id} card={card} onClick={onCardClick} />
+        ))}
       </div>
 
       <div className="column-footer">
