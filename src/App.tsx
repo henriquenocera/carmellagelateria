@@ -2,6 +2,7 @@ import { Board } from './components/Board';
 import { LoginPage } from './components/LoginPage';
 import { IceCream, LogOut } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
+import { SessionTimer } from './components/SessionTimer';
 import './App.css';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <h1>Carmella Gelateria</h1>
         </div>
         <div className="flex items-center" style={{ gap: '16px' }}>
+          <SessionTimer />
           <span style={{ fontSize: '14px', color: '#64748b' }}>{user.email}</span>
           <button 
             onClick={signOut}

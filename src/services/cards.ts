@@ -54,3 +54,13 @@ export async function upsertCards(cards: CardItem[]) {
   const { error } = await supabase.from(TABLE_NAME).upsert(rows, { onConflict: 'id' });
   if (error) throw error;
 }
+
+export async function deleteCard(id: string) {
+  const { error } = await supabase.from(TABLE_NAME).delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function clearSaidasCards() {
+  const { error } = await supabase.from(TABLE_NAME).delete().eq('status', 'cubas-saidas-vitrine');
+  if (error) throw error;
+}

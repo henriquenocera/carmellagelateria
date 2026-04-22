@@ -30,3 +30,8 @@ create policy if not exists "Allow update cards"
   to anon, authenticated
   using (true)
   with check (true);
+
+create policy if not exists "Allow delete cards"
+  on public.cards for delete
+  to anon, authenticated
+  using (true);
