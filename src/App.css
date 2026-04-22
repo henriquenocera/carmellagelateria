@@ -30,5 +30,6 @@
 .app-main {
   flex: 1;
   display: flex;
-  overflow: hidden; /* Let board handle overflow */
+  overflow: hidden;
+  /* Let board handle overflow */
 }

@@ -6,6 +6,7 @@ export interface CardItem {
   status: ItemStatus;
   productionDate: string;
   entryDate: string;
+  exitDate?: string;
   createdBy: string;
   lastEditedBy: string;
   position: number;

@@ -32,6 +32,12 @@ export function Card({ card, onClick }: CardProps) {
           <span className="card-meta-label">Data de entrada</span>
           <span className="card-meta-value">{formatDate(card.entryDate)}</span>
         </div>
+        {card.exitDate && (
+          <div className="card-meta-item">
+            <span className="card-meta-label">Data de saída</span>
+            <span className="card-meta-value">{formatDate(card.exitDate)}</span>
+          </div>
+        )}
       </div>
     </div>
   );

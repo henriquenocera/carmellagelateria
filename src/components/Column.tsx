@@ -1,4 +1,4 @@
-import { MoreHorizontal, PlusSquare, ArrowRightLeft } from 'lucide-react';
+import { MoreHorizontal, ArrowRightLeft } from 'lucide-react';
 import type { CardItem, ColumnData } from '../types';
 import { Card } from './Card';
 import './Column.css';
@@ -6,11 +6,10 @@ import './Column.css';
 interface ColumnProps {
   column: ColumnData;
   cards: CardItem[];
-  onAddCard: (columnId: string) => void;
   onCardClick: (card: CardItem) => void;
 }
 
-export function Column({ column, cards, onAddCard, onCardClick }: ColumnProps) {
+export function Column({ column, cards, onCardClick }: ColumnProps) {
   const isVitrine = column.id === 'vitrine-atual';
 
   return (
@@ -32,16 +31,6 @@ export function Column({ column, cards, onAddCard, onCardClick }: ColumnProps) {
         {cards.map((card) => (
           <Card key={card.id} card={card} onClick={onCardClick} />
         ))}
-      </div>
-
-      <div className="column-footer">
-        <button className="add-card-btn" onClick={() => onAddCard(column.id)}>
-          <div className="flex items-center" style={{ gap: '8px' }}>
-            <span style={{ fontSize: '20px', fontWeight: '300' }}>+</span>
-            <span>Adicionar um cartão</span>
-          </div>
-          <PlusSquare size={16} />
-        </button>
       </div>
     </div>
   );

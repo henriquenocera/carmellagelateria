@@ -66,10 +66,12 @@ export function Board() {
       if (c.id === card.id) {
         const sourceStatus = c.status;
         const entryDate = targetStatus === 'vitrine-atual' && sourceStatus !== 'vitrine-atual' ? getToday() : c.entryDate;
+        const exitDate = targetStatus === 'cubas-saidas-vitrine' && sourceStatus === 'vitrine-atual' ? getToday() : c.exitDate;
         return {
           ...c,
           status: targetStatus,
           entryDate: entryDate,
+          exitDate: exitDate,
         };
       }
       return c;
@@ -79,12 +81,12 @@ export function Board() {
     await persistCards(nextCards);
   };
 
-  const handleAddCard = async (columnId: string) => {
+  const handleCreateNewCard = async () => {
     const today = getToday();
     const newCard: CardItem = {
       id: crypto.randomUUID(),
       title: 'Novo Sabor',
-      status: columnId as ItemStatus,
+      status: 'freezer-estoque',
       productionDate: today,
       entryDate: '',
       createdBy: 'A definir',
@@ -93,10 +95,16 @@ export function Board() {
     };
     const nextCards = [...cards, newCard];
     setCards(nextCards);
+
+    setEditingCardId(newCard.id);
+    setEditingTitle(newCard.title);
+    setEditingProductionDate(newCard.productionDate);
+
     await persistCards(nextCards);
   };
 
   const handleCardClick = (card: CardItem) => {
+    if (card.status === 'cubas-saidas-vitrine') return;
     setEditingCardId(card.id);
     setEditingTitle(card.title);
     setEditingProductionDate(card.productionDate);
@@ -128,7 +136,17 @@ export function Board() {
   };
 
   return (
-    <div className="board-container">
+    <div className="board-container" style={{ flexDirection: 'column' }}>
+      <div className="board-header" style={{ flexShrink: 0, marginBottom: '24px' }}>
+        <button 
+          onClick={handleCreateNewCard}
+          style={{ background: '#e07a5f', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '15px' }}
+        >
+          <span style={{ fontSize: '20px', fontWeight: '400', lineHeight: 1 }}>+</span>
+          Criar Novo Cartão
+        </button>
+      </div>
+
       {isLoading && <p>Carregando cards...</p>}
       {syncError && <p className="sync-error">{syncError}</p>}
       {!isLoading && cards.length === 0 && <p className="empty-message" style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.1rem', color: '#64748b' }}>Nenhum item cadastrado ainda</p>}
@@ -138,7 +156,6 @@ export function Board() {
             key={col.id}
             column={col}
             cards={cards.filter((c) => c.status === col.id)}
-            onAddCard={handleAddCard}
             onCardClick={handleCardClick}
           />
         ))}

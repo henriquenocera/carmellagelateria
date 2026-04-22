@@ -6,6 +6,7 @@ create table if not exists public.cards (
   status text not null check (status in ('freezer-estoque', 'vitrine-atual', 'cubas-saidas-vitrine')),
   production_date date not null,
   entry_date date null,
+  exit_date date null,
   created_by text not null default 'A definir',
   last_edited_by text not null default 'A definir',
   position integer not null default 0,
