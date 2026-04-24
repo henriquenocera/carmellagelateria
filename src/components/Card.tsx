@@ -4,7 +4,8 @@ import './Card.css';
 interface CardProps {
   card: CardItem;
   onClick?: (card: CardItem) => void;
-  movedCardId?: string;
+  movedCardId?: string | null;
+  moveDirection?: 'left' | 'right' | null;
 }
 
 const formatDate = (date: string) => {
@@ -14,12 +15,13 @@ const formatDate = (date: string) => {
   return new Intl.DateTimeFormat('pt-BR').format(parsed);
 };
 
-export function Card({ card, onClick, movedCardId }: CardProps) {
+export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
   const isMoved = card.id === movedCardId;
+  const slideClass = isMoved ? (moveDirection === 'right' ? 'slide-from-left' : 'slide-from-right') : '';
   
   return (
     <div
-      className={`card ${isMoved ? 'is-moved' : ''}`}
+      className={`card ${isMoved ? 'is-moved' : ''} ${slideClass}`}
       onClick={() => onClick?.(card)}
     >
       <div className="card-header">

@@ -26,6 +26,7 @@ export function Board() {
   const [editingTitle, setEditingTitle] = useState('');
   const [editingProductionDate, setEditingProductionDate] = useState('');
   const [movedCardId, setMovedCardId] = useState<string | null>(null);
+  const [moveDirection, setMoveDirection] = useState<'left' | 'right' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -89,10 +90,20 @@ export function Board() {
       return c;
     });
 
+    const statusOrder = ['freezer-estoque', 'vitrine-atual', 'cubas-saidas-vitrine'];
+    const sourceIndex = statusOrder.indexOf(card.status);
+    const targetIndex = statusOrder.indexOf(targetStatus);
+    const direction = targetIndex > sourceIndex ? 'right' : 'left';
+
     setCards(nextCards);
     setMovedCardId(card.id);
+    setMoveDirection(direction);
+    
     // Reset highlight after a short period (matching animation duration)
-    setTimeout(() => setMovedCardId(null), 3000);
+    setTimeout(() => {
+      setMovedCardId(null);
+      setMoveDirection(null);
+    }, 3000);
     await persistCards(nextCards);
   };
 
@@ -218,6 +229,7 @@ export function Board() {
             cards={cards.filter((c) => c.status === col.id)}
             onCardClick={handleCardClick}
             movedCardId={movedCardId}
+            moveDirection={moveDirection}
           />
         ))}
       </div>

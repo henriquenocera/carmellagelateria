@@ -7,10 +7,11 @@ interface ColumnProps {
   column: ColumnData;
   cards: CardItem[];
   onCardClick: (card: CardItem) => void;
-  movedCardId?: string;
+  movedCardId?: string | null;
+  moveDirection?: 'left' | 'right' | null;
 }
 
-export function Column({ column, cards, onCardClick, movedCardId }: ColumnProps) {
+export function Column({ column, cards, onCardClick, movedCardId, moveDirection }: ColumnProps) {
   const isVitrine = column.id === 'vitrine-atual';
 
   return (
@@ -35,6 +36,7 @@ export function Column({ column, cards, onCardClick, movedCardId }: ColumnProps)
             card={card} 
             onClick={onCardClick} 
             movedCardId={movedCardId} 
+            moveDirection={moveDirection}
           />
         ))}
       </div>
