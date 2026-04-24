@@ -8,6 +8,18 @@ export const COLUMNS: ColumnData[] = [
 
 export const INITIAL_CARDS: CardItem[] = [
   // Freezer Estoque
-  { id: 'f50db9bb-0cdf-4618-929d-5262f0e48019', title: 'Teste', status: 'freezer-estoque', productionDate: '2026-04-09', entryDate: '2026-04-10', createdBy: 'A definir', lastEditedBy: 'A definir', position: 0 },
+  { 
+    id: 'f50db9bb-0cdf-4618-929d-5262f0e48019', 
+    title: 'Teste', 
+    status: 'freezer-estoque', 
+    productionDate: '2026-04-09', 
+    entryDate: '2026-04-10', 
+    createdBy: 'A definir', 
+    createdAt: '2026-04-24T12:00:00Z',
+    lastEditedBy: 'A definir', 
+    updatedAt: '2026-04-24T12:00:00Z',
+    position: 0,
+    history: []
+  },
 
 ];

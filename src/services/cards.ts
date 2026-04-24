@@ -1,4 +1,4 @@
-import type { CardItem, ItemStatus } from '../types';
+import type { CardItem, ItemStatus, HistoryItem } from '../types';
 import { supabase } from '../lib/supabase';
 
 const TABLE_NAME = 'cards';
