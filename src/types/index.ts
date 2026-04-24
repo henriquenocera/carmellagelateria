@@ -8,7 +8,9 @@ export interface CardItem {
   entryDate: string;
   exitDate?: string;
   createdBy: string;
+  createdAt: string;
   lastEditedBy: string;
+  updatedAt: string;
   position: number;
 }
 

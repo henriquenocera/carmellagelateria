@@ -11,7 +11,9 @@ type CardRow = {
   entry_date: string | null;
   exit_date: string | null;
   created_by: string;
+  created_at: string;
   last_edited_by: string;
+  updated_at: string;
   position: number;
 };
 
@@ -23,7 +25,9 @@ const toCard = (row: CardRow): CardItem => ({
   entryDate: row.entry_date ?? '',
   exitDate: row.exit_date ?? undefined,
   createdBy: row.created_by,
+  createdAt: row.created_at,
   lastEditedBy: row.last_edited_by,
+  updatedAt: row.updated_at,
   position: row.position,
 });
 
@@ -35,14 +39,16 @@ const toRow = (card: CardItem, index: number): CardRow => ({
   entry_date: card.entryDate || null,
   exit_date: card.exitDate || null,
   created_by: card.createdBy,
+  created_at: card.createdAt,
   last_edited_by: card.lastEditedBy,
+  updated_at: card.updatedAt,
   position: index,
 });
 
 export async function fetchCards() {
   const { data, error } = await supabase
     .from(TABLE_NAME)
-    .select('id, title, status, production_date, entry_date, exit_date, created_by, last_edited_by, position')
+    .select('id, title, status, production_date, entry_date, exit_date, created_by, created_at, last_edited_by, updated_at, position')
     .order('position', { ascending: true });
 
   if (error) throw error;

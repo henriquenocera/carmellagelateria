@@ -83,6 +83,7 @@ export function Board() {
           entryDate: entryDate,
           exitDate: exitDate,
           lastEditedBy: user?.email || c.lastEditedBy,
+          updatedAt: new Date().toISOString(),
         };
       }
       return c;
@@ -105,7 +106,9 @@ export function Board() {
       entryDate: '',
       exitDate: '',
       createdBy: user?.email || 'A definir',
+      createdAt: new Date().toISOString(),
       lastEditedBy: user?.email || 'A definir',
+      updatedAt: new Date().toISOString(),
       position: cards.length,
     };
     const nextCards = [...cards, newCard];
@@ -119,7 +122,9 @@ export function Board() {
   };
 
   const handleCardClick = (card: CardItem) => {
-    if (card.status === 'cubas-saidas-vitrine') return;
+    const isAuthorized = user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email);
+    if (card.status === 'cubas-saidas-vitrine' && !isAuthorized) return;
+    
     setEditingCardId(card.id);
     setEditingTitle(card.title);
     setEditingProductionDate(card.productionDate);
@@ -141,6 +146,7 @@ export function Board() {
           title: editingTitle.trim() || card.title,
           productionDate: editingProductionDate || card.productionDate,
           lastEditedBy: user?.email || card.lastEditedBy,
+          updatedAt: new Date().toISOString(),
         }
         : card
     );
@@ -245,11 +251,25 @@ export function Board() {
             <div className="modal-readonly-grid">
               <div className="modal-readonly-item">
                 <span className="modal-readonly-label">Criado por</span>
-                <span className="modal-readonly-value">{editingCard?.createdBy || 'A definir'}</span>
+                <span className="modal-readonly-value">
+                  {editingCard?.createdBy || 'A definir'}
+                  {editingCard?.createdAt && (
+                    <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                      {new Date(editingCard.createdAt).toLocaleString('pt-BR')}
+                    </div>
+                  )}
+                </span>
               </div>
               <div className="modal-readonly-item">
                 <span className="modal-readonly-label">Ultima vez editado por</span>
-                <span className="modal-readonly-value">{editingCard?.lastEditedBy || 'A definir'}</span>
+                <span className="modal-readonly-value">
+                  {editingCard?.lastEditedBy || 'A definir'}
+                  {editingCard?.updatedAt && (
+                    <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                      {new Date(editingCard.updatedAt).toLocaleString('pt-BR')}
+                    </div>
+                  )}
+                </span>
               </div>
             </div>
 
@@ -306,6 +326,16 @@ export function Board() {
                     Mover para Saída <ArrowRight size={16} />
                   </button>
                 </>
+              )}
+              {editingCard?.status === 'cubas-saidas-vitrine' && (
+                <button
+                  type="button"
+                  className="move-btn"
+                  style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                  onClick={async () => { await handleMoveCard(editingCard, 'vitrine-atual'); handleCloseModal(); }}
+                >
+                  <ArrowLeft size={16} /> Voltar para Vitrine
+                </button>
               )}
             </div>
           </div>

@@ -10,7 +10,8 @@ create table if not exists public.cards (
   created_by text not null default 'A definir',
   last_edited_by text not null default 'A definir',
   position integer not null default 0,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 alter table public.cards enable row level security;
