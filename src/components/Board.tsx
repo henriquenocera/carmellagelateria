@@ -28,6 +28,7 @@ export function Board() {
   const [movedCardId, setMovedCardId] = useState<string | null>(null);
   const [moveDirection, setMoveDirection] = useState<'left' | 'right' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   const [syncError, setSyncError] = useState<string | null>(null);
   const latestCardsRef = useRef<CardItem[]>([]);
@@ -115,36 +116,11 @@ export function Board() {
     await persistCards(nextCards);
   };
 
-  const handleCreateNewCard = async () => {
-    const today = getToday();
-    const newCard: CardItem = {
-      id: crypto.randomUUID(),
-      title: 'Novo Sabor',
-      status: 'freezer-estoque',
-      productionDate: today,
-      entryDate: '',
-      exitDate: '',
-      createdBy: user?.email || 'A definir',
-      createdAt: new Date().toISOString(),
-      lastEditedBy: user?.email || 'A definir',
-      updatedAt: new Date().toISOString(),
-      position: cards.length,
-      history: [
-        {
-          timestamp: new Date().toISOString(),
-          user: user?.email || 'A definir',
-          action: 'Criado no Estoque',
-        },
-      ],
-    };
-    const nextCards = [...cards, newCard];
-    setCards(nextCards);
-
-    setEditingCardId(newCard.id);
-    setEditingTitle(newCard.title);
-    setEditingProductionDate(newCard.productionDate);
-
-    await persistCards(nextCards);
+  const handleCreateNewCard = () => {
+    setIsCreating(true);
+    setEditingTitle('Novo Sabor');
+    setEditingProductionDate(getToday());
+    setEditingCardId('new'); // Usamos um ID temporário para indicar criação
   };
 
   const handleCardClick = (card: CardItem) => {
@@ -158,6 +134,7 @@ export function Board() {
 
   const handleCloseModal = () => {
     setEditingCardId(null);
+    setIsCreating(false);
     setEditingTitle('');
     setEditingProductionDate('');
   };
@@ -165,27 +142,53 @@ export function Board() {
   const handleSaveModal = async () => {
     if (!editingCardId) return;
 
-    const nextCards = cards.map((card) =>
-      card.id === editingCardId
-        ? {
-          ...card,
-          title: editingTitle.trim() || card.title,
-          productionDate: editingProductionDate || card.productionDate,
-          lastEditedBy: user?.email || card.lastEditedBy,
-          updatedAt: new Date().toISOString(),
-          history: [
-            ...(card.history || []),
-            {
-              timestamp: new Date().toISOString(),
-              user: user?.email || 'Sistema',
-              action: `Editado: ${editingTitle !== card.title ? 'Título' : ''}${editingTitle !== card.title && editingProductionDate !== card.productionDate ? ' e ' : ''}${editingProductionDate !== card.productionDate ? 'Data' : ''}`,
-            },
-          ],
-        }
-        : card
-    );
-    setCards(nextCards);
-    await persistCards(nextCards);
+    if (isCreating) {
+      const newCard: CardItem = {
+        id: crypto.randomUUID(),
+        title: editingTitle.trim() || 'Novo Sabor',
+        status: 'freezer-estoque',
+        productionDate: editingProductionDate || getToday(),
+        entryDate: '',
+        exitDate: '',
+        createdBy: user?.email || 'A definir',
+        createdAt: new Date().toISOString(),
+        lastEditedBy: user?.email || 'A definir',
+        updatedAt: new Date().toISOString(),
+        position: cards.length,
+        history: [
+          {
+            timestamp: new Date().toISOString(),
+            user: user?.email || 'A definir',
+            action: 'Criado no Estoque',
+          },
+        ],
+      };
+      const nextCards = [...cards, newCard];
+      setCards(nextCards);
+      await persistCards(nextCards);
+    } else {
+      const nextCards = cards.map((card) =>
+        card.id === editingCardId
+          ? {
+            ...card,
+            title: editingTitle.trim() || card.title,
+            productionDate: editingProductionDate || card.productionDate,
+            lastEditedBy: user?.email || card.lastEditedBy,
+            updatedAt: new Date().toISOString(),
+            history: [
+              ...(card.history || []),
+              {
+                timestamp: new Date().toISOString(),
+                user: user?.email || 'Sistema',
+                action: `Editado: ${editingTitle !== card.title ? 'Título' : ''}${editingTitle !== card.title && editingProductionDate !== card.productionDate ? ' e ' : ''}${editingProductionDate !== card.productionDate ? 'Data' : ''}`,
+              },
+            ],
+          }
+          : card
+      );
+      setCards(nextCards);
+      await persistCards(nextCards);
+    }
 
     handleCloseModal();
   };
@@ -260,7 +263,7 @@ export function Board() {
       {editingCardId && (
         <div className="modal-backdrop" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(event) => event.stopPropagation()}>
-            <h3>Editar cartao</h3>
+            <h3>{isCreating ? 'Novo Cartão' : 'Editar Cartão'}</h3>
             <label className="modal-label" htmlFor="card-title-input">
               Titulo
             </label>
@@ -283,51 +286,55 @@ export function Board() {
               onChange={(event) => setEditingProductionDate(event.target.value)}
             />
 
-            <div className="modal-readonly-grid">
-              <div className="modal-readonly-item">
-                <span className="modal-readonly-label">Criado por</span>
-                <span className="modal-readonly-value">
-                  {editingCard?.createdBy || 'A definir'}
-                  {editingCard?.createdAt && (
-                    <div style={{ fontSize: '12px', opacity: 0.7 }}>
-                      {new Date(editingCard.createdAt).toLocaleString('pt-BR')}
-                    </div>
-                  )}
-                </span>
+            {!isCreating && (
+              <div className="modal-readonly-grid">
+                <div className="modal-readonly-item">
+                  <span className="modal-readonly-label">Criado por</span>
+                  <span className="modal-readonly-value">
+                    {editingCard?.createdBy || 'A definir'}
+                    {editingCard?.createdAt && (
+                      <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                        {new Date(editingCard.createdAt).toLocaleString('pt-BR')}
+                      </div>
+                    )}
+                  </span>
+                </div>
+                <div className="modal-readonly-item">
+                  <span className="modal-readonly-label">Ultima vez editado por</span>
+                  <span className="modal-readonly-value">
+                    {editingCard?.lastEditedBy || 'A definir'}
+                    {editingCard?.updatedAt && (
+                      <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                        {new Date(editingCard.updatedAt).toLocaleString('pt-BR')}
+                      </div>
+                    )}
+                  </span>
+                </div>
               </div>
-              <div className="modal-readonly-item">
-                <span className="modal-readonly-label">Ultima vez editado por</span>
-                <span className="modal-readonly-value">
-                  {editingCard?.lastEditedBy || 'A definir'}
-                  {editingCard?.updatedAt && (
-                    <div style={{ fontSize: '12px', opacity: 0.7 }}>
-                      {new Date(editingCard.updatedAt).toLocaleString('pt-BR')}
-                    </div>
-                  )}
-                </span>
-              </div>
-            </div>
+            )}
 
-            <div className="modal-history-container">
-              <span className="modal-readonly-label" style={{ display: 'block', marginBottom: '8px' }}>Histórico completo</span>
-              <div className="modal-history-list">
-                {(editingCard?.history || []).slice().reverse().map((item, idx) => (
-                  <div key={idx} className="modal-history-item">
-                    <div className="modal-history-dot"></div>
-                    <div className="modal-history-content">
-                      <div className="modal-history-action">{item.action}</div>
-                      <div className="modal-history-meta">
-                        {new Date(item.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} • {item.user.split('@')[0]}
+            {!isCreating && (
+              <div className="modal-history-container">
+                <span className="modal-readonly-label" style={{ display: 'block', marginBottom: '8px' }}>Histórico completo</span>
+                <div className="modal-history-list">
+                  {(editingCard?.history || []).slice().reverse().map((item, idx) => (
+                    <div key={idx} className="modal-history-item">
+                      <div className="modal-history-dot"></div>
+                      <div className="modal-history-content">
+                        <div className="modal-history-action">{item.action}</div>
+                        <div className="modal-history-meta">
+                          {new Date(item.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} • {item.user.split('@')[0]}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <div className="modal-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
               <div>
-                {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) ? (
+                {(!isCreating && user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) ? (
                   <button
                     type="button"
                     className="modal-btn"
@@ -348,48 +355,50 @@ export function Board() {
               </div>
             </div>
 
-            <div className="modal-movement-actions" style={{ display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
-              {editingCard?.status === 'freezer-estoque' && (
-                <button
-                  type="button"
-                  className="move-btn"
-                  style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                  onClick={async () => { await handleMoveCard(editingCard, 'vitrine-atual'); handleCloseModal(); }}
-                >
-                  Mover para Vitrine <ArrowRight size={16} />
-                </button>
-              )}
-              {editingCard?.status === 'vitrine-atual' && (
-                <>
+            {!isCreating && (
+              <div className="modal-movement-actions" style={{ display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                {editingCard?.status === 'freezer-estoque' && (
                   <button
                     type="button"
                     className="move-btn"
                     style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                    onClick={async () => { await handleMoveCard(editingCard, 'freezer-estoque'); handleCloseModal(); }}
+                    onClick={async () => { await handleMoveCard(editingCard, 'vitrine-atual'); handleCloseModal(); }}
                   >
-                    <ArrowLeft size={16} /> Voltar para Freezer
+                    Mover para Vitrine <ArrowRight size={16} />
                   </button>
+                )}
+                {editingCard?.status === 'vitrine-atual' && (
+                  <>
+                    <button
+                      type="button"
+                      className="move-btn"
+                      style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                      onClick={async () => { await handleMoveCard(editingCard, 'freezer-estoque'); handleCloseModal(); }}
+                    >
+                      <ArrowLeft size={16} /> Voltar para Freezer
+                    </button>
+                    <button
+                      type="button"
+                      className="move-btn"
+                      style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                      onClick={async () => { await handleMoveCard(editingCard, 'cubas-saidas-vitrine'); handleCloseModal(); }}
+                    >
+                      Mover para Saída <ArrowRight size={16} />
+                    </button>
+                  </>
+                )}
+                {editingCard?.status === 'cubas-saidas-vitrine' && (
                   <button
                     type="button"
                     className="move-btn"
                     style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                    onClick={async () => { await handleMoveCard(editingCard, 'cubas-saidas-vitrine'); handleCloseModal(); }}
+                    onClick={async () => { await handleMoveCard(editingCard, 'vitrine-atual'); handleCloseModal(); }}
                   >
-                    Mover para Saída <ArrowRight size={16} />
+                    <ArrowLeft size={16} /> Voltar para Vitrine
                   </button>
-                </>
-              )}
-              {editingCard?.status === 'cubas-saidas-vitrine' && (
-                <button
-                  type="button"
-                  className="move-btn"
-                  style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                  onClick={async () => { await handleMoveCard(editingCard, 'vitrine-atual'); handleCloseModal(); }}
-                >
-                  <ArrowLeft size={16} /> Voltar para Vitrine
-                </button>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
