@@ -15,6 +15,7 @@ type CardRow = {
   last_edited_by: string;
   updated_at: string;
   position: number;
+  history: HistoryItem[];
 };
 
 const toCard = (row: CardRow): CardItem => ({
@@ -29,6 +30,7 @@ const toCard = (row: CardRow): CardItem => ({
   lastEditedBy: row.last_edited_by,
   updatedAt: row.updated_at,
   position: row.position,
+  history: row.history || [],
 });
 
 const toRow = (card: CardItem, index: number): CardRow => ({
@@ -43,12 +45,13 @@ const toRow = (card: CardItem, index: number): CardRow => ({
   last_edited_by: card.lastEditedBy,
   updated_at: card.updatedAt,
   position: index,
+  history: card.history || [],
 });
 
 export async function fetchCards() {
   const { data, error } = await supabase
     .from(TABLE_NAME)
-    .select('id, title, status, production_date, entry_date, exit_date, created_by, created_at, last_edited_by, updated_at, position')
+    .select('id, title, status, production_date, entry_date, exit_date, created_by, created_at, last_edited_by, updated_at, position, history')
     .order('position', { ascending: true });
 
   if (error) throw error;

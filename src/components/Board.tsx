@@ -11,7 +11,7 @@ import './Board.css';
 // ALtere este array com os e-mails dos usuários que podem excluir cartões
 const AUTHORIZED_EMAILS_TO_DELETE = [
   'henocera@gmail.com',
-  'seuemail@carmella.com.br'
+  'marina_nocera@yahoo.com.br'
 ];
 
 export const COLUMNS: ColumnData[] = [
@@ -85,6 +85,14 @@ export function Board() {
           exitDate: exitDate,
           lastEditedBy: user?.email || c.lastEditedBy,
           updatedAt: new Date().toISOString(),
+          history: [
+            ...(c.history || []),
+            {
+              timestamp: new Date().toISOString(),
+              user: user?.email || 'Sistema',
+              action: `Movido para ${targetStatus === 'freezer-estoque' ? 'Estoque' : targetStatus === 'vitrine-atual' ? 'Vitrine' : 'Saídas'}`,
+            },
+          ],
         };
       }
       return c;
@@ -98,7 +106,7 @@ export function Board() {
     setCards(nextCards);
     setMovedCardId(card.id);
     setMoveDirection(direction);
-    
+
     // Reset highlight after a short period (matching animation duration)
     setTimeout(() => {
       setMovedCardId(null);
@@ -121,6 +129,13 @@ export function Board() {
       lastEditedBy: user?.email || 'A definir',
       updatedAt: new Date().toISOString(),
       position: cards.length,
+      history: [
+        {
+          timestamp: new Date().toISOString(),
+          user: user?.email || 'A definir',
+          action: 'Criado no Estoque',
+        },
+      ],
     };
     const nextCards = [...cards, newCard];
     setCards(nextCards);
@@ -135,7 +150,7 @@ export function Board() {
   const handleCardClick = (card: CardItem) => {
     const isAuthorized = user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email);
     if (card.status === 'cubas-saidas-vitrine' && !isAuthorized) return;
-    
+
     setEditingCardId(card.id);
     setEditingTitle(card.title);
     setEditingProductionDate(card.productionDate);
@@ -158,6 +173,14 @@ export function Board() {
           productionDate: editingProductionDate || card.productionDate,
           lastEditedBy: user?.email || card.lastEditedBy,
           updatedAt: new Date().toISOString(),
+          history: [
+            ...(card.history || []),
+            {
+              timestamp: new Date().toISOString(),
+              user: user?.email || 'Sistema',
+              action: `Editado: ${editingTitle !== card.title ? 'Título' : ''}${editingTitle !== card.title && editingProductionDate !== card.productionDate ? ' e ' : ''}${editingProductionDate !== card.productionDate ? 'Data' : ''}`,
+            },
+          ],
         }
         : card
     );
@@ -282,6 +305,23 @@ export function Board() {
                     </div>
                   )}
                 </span>
+              </div>
+            </div>
+
+            <div className="modal-history-container">
+              <span className="modal-readonly-label" style={{ display: 'block', marginBottom: '8px' }}>Histórico completo</span>
+              <div className="modal-history-list">
+                {(editingCard?.history || []).slice().reverse().map((item, idx) => (
+                  <div key={idx} className="modal-history-item">
+                    <div className="modal-history-dot"></div>
+                    <div className="modal-history-content">
+                      <div className="modal-history-action">{item.action}</div>
+                      <div className="modal-history-meta">
+                        {new Date(item.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} • {item.user.split('@')[0]}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

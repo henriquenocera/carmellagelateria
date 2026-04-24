@@ -98,3 +98,61 @@
   background: #e07a5f;
   color: #fff;
 }
+
+.modal-history-container {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.modal-history-list {
+  max-height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 8px;
+}
+
+.modal-history-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal-history-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.modal-history-list::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 10px;
+}
+
+.modal-history-item {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-history-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #e07a5f;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.modal-history-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-history-action {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.modal-history-meta {
+  font-size: 12px;
+  color: #64748b;
+}
