@@ -9,7 +9,7 @@
 }
 
 .column-vitrine {
-  background: #f0f4eb;
+  background: #ffead0;
 }
 
 .column-header {
@@ -58,7 +58,7 @@
 }
 
 .icon-button:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
 }
 
@@ -91,6 +91,6 @@
 }
 
 .add-card-btn:hover {
-  background: rgba(0,0,0,0.05);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
 }

@@ -7,9 +7,10 @@ interface ColumnProps {
   column: ColumnData;
   cards: CardItem[];
   onCardClick: (card: CardItem) => void;
+  movedCardId?: string;
 }
 
-export function Column({ column, cards, onCardClick }: ColumnProps) {
+export function Column({ column, cards, onCardClick, movedCardId }: ColumnProps) {
   const isVitrine = column.id === 'vitrine-atual';
 
   return (
@@ -29,7 +30,12 @@ export function Column({ column, cards, onCardClick }: ColumnProps) {
 
       <div className="column-content">
         {cards.map((card) => (
-          <Card key={card.id} card={card} onClick={onCardClick} />
+          <Card 
+            key={card.id} 
+            card={card} 
+            onClick={onCardClick} 
+            movedCardId={movedCardId} 
+          />
         ))}
       </div>
     </div>

@@ -4,6 +4,7 @@ import './Card.css';
 interface CardProps {
   card: CardItem;
   onClick?: (card: CardItem) => void;
+  movedCardId?: string;
 }
 
 const formatDate = (date: string) => {
@@ -13,10 +14,12 @@ const formatDate = (date: string) => {
   return new Intl.DateTimeFormat('pt-BR').format(parsed);
 };
 
-export function Card({ card, onClick }: CardProps) {
+export function Card({ card, onClick, movedCardId }: CardProps) {
+  const isMoved = card.id === movedCardId;
+  
   return (
     <div
-      className="card"
+      className={`card ${isMoved ? 'is-moved' : ''}`}
       onClick={() => onClick?.(card)}
     >
       <div className="card-header">

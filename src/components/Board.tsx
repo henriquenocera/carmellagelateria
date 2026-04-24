@@ -25,7 +25,9 @@ export function Board() {
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [editingProductionDate, setEditingProductionDate] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [movedCardId, setMovedCardId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [syncError, setSyncError] = useState<string | null>(null);
   const latestCardsRef = useRef<CardItem[]>([]);
   const { user } = useAuth();
@@ -69,7 +71,6 @@ export function Board() {
       setSyncError('Falha ao sincronizar com Supabase.');
     }
   };
-
   const handleMoveCard = async (card: CardItem, targetStatus: ItemStatus) => {
     const nextCards = cards.map((c) => {
       if (c.id === card.id) {
@@ -88,6 +89,9 @@ export function Board() {
     });
 
     setCards(nextCards);
+    setMovedCardId(card.id);
+    // Reset highlight after a short period (matching animation duration)
+    setTimeout(() => setMovedCardId(null), 3000);
     await persistCards(nextCards);
   };
 
@@ -207,6 +211,7 @@ export function Board() {
             column={col}
             cards={cards.filter((c) => c.status === col.id)}
             onCardClick={handleCardClick}
+            movedCardId={movedCardId}
           />
         ))}
       </div>
