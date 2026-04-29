@@ -1,8 +1,7 @@
 .board-container {
   flex: 1;
   display: flex;
-  overflow-x: auto;
-  overflow-y: auto;
+  overflow: hidden;
   padding: 24px;
 }
 
@@ -10,6 +9,23 @@
   display: flex;
   gap: 16px;
   height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .board-container {
+    padding: 16px 0;
+  }
+  .board-header {
+    padding: 0 16px;
+  }
+  .board {
+    padding: 0 16px;
+    gap: 12px;
+  }
 }
 
 .sync-error {
