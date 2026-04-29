@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ArrowLeft, Archive } from 'lucide-react';
 
 import { Column } from './Column';
-import type { CardItem, ItemStatus, ColumnData } from '../types';
-import { fetchCards, upsertCards, deleteCard, clearSaidasCards } from '../services/cards';
+import type { CardItem, ItemStatus } from '../types';
+import { fetchCards, upsertCards } from '../services/cards';
 import { useAuth } from '../contexts/AuthContext';
 import { Trash2 } from 'lucide-react';
 import { GELATO_FLAVORS } from '../constants/flavors';
