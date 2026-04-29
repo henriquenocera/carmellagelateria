@@ -12,7 +12,8 @@ import './Board.css';
 // ALtere este array com os e-mails dos usuários que podem excluir cartões
 const AUTHORIZED_EMAILS_TO_DELETE = [
   'henocera@gmail.com',
-  'marina_nocera@yahoo.com.br'
+  'marina_nocera@yahoo.com.br',
+  'mh.escritoriocarmella@gmail.com'
 ];
 
 export const COLUMNS: ColumnData[] = [
