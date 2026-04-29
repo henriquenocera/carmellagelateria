@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { supabase } from '../lib/supabase';
-import { IceCream } from 'lucide-react';
 import './LoginPage.css';
 
 export function LoginPage() {
@@ -29,14 +28,14 @@ export function LoginPage() {
     <div className="login-container">
       <div className="login-box">
         <div className="login-header">
-          <IceCream size={48} color="#e07a5f" />
-          <h1>Bem-vindo à Carmella Gelateria</h1>
-          <p>Faça login para acessar o sistema.</p>
+          <img width="200px" src="/Logo.png" alt="Carmella Gelateria" className="login-logo" />
+          <h2>Acesso Restrito</h2>
+          <p>Faça login para acessar o estoque.</p>
         </div>
-        
+
         <form onSubmit={handleLogin} className="login-form">
           {error && <div className="login-error">{error}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -44,11 +43,11 @@ export function LoginPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
+              placeholder="Seu e-mail"
               required
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Senha</label>
             <input
@@ -56,11 +55,11 @@ export function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Sua senha"
+              placeholder="Seu ID"
               required
             />
           </div>
-          
+
           <button type="submit" className="login-btn" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </button>

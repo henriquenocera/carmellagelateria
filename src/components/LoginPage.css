@@ -4,32 +4,39 @@
   justify-content: center;
   min-height: 100vh;
   width: 100vw;
-  background-color: #f8fafc;
+  background-color: #f4f4f4;
 }
 
 .login-box {
   background: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  padding: 40px 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
   width: 100%;
-  max-width: 400px;
+  max-width: 360px;
 }
 
 .login-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
 }
 
-.login-header h1 {
-  font-size: 24px;
-  color: #1e293b;
-  margin: 16px 0 8px;
+.login-logo {
+  max-width: 220px;
+  height: auto;
+  margin-bottom: 16px;
+}
+
+.login-header h2 {
+  font-size: 18px;
+  color: #5c4033;
+  margin: 0 0 8px;
+  font-weight: 600;
 }
 
 .login-header p {
-  color: #64748b;
-  font-size: 14px;
+  color: #a0a0a0;
+  font-size: 13px;
   margin: 0;
 }
 
@@ -44,47 +51,50 @@
 }
 
 .login-form .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
 }
 
 .login-form label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
-  color: #334155;
+  color: #888;
   text-align: left;
 }
 
 .login-form input {
-  padding: 12px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  font-size: 14px;
   outline: none;
+  background-color: #eef4fc;
+  color: #333;
   transition: border-color 0.2s;
 }
 
 .login-form input:focus {
-  border-color: #e07a5f;
+  border-color: #A07553;
 }
 
 .login-btn {
   width: 100%;
   padding: 12px;
-  background: #e07a5f;
+  background: #A07553;
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 16px;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
+  margin-top: 8px;
   transition: background-color 0.2s;
 }
 
 .login-btn:hover:not(:disabled) {
-  background: #d16b51;
+  background: #8e6546;
 }
 
 .login-btn:disabled {
