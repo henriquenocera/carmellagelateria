@@ -1,27 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Archive } from 'lucide-react';
 
 import { Column } from './Column';
 import type { CardItem, ItemStatus, ColumnData } from '../types';
-import { fetchCards, upsertCards, clearSaidasCards } from '../services/cards';
+import { fetchCards, upsertCards, deleteCard, clearSaidasCards } from '../services/cards';
 import { useAuth } from '../contexts/AuthContext';
 import { Trash2 } from 'lucide-react';
 import { GELATO_FLAVORS } from '../constants/flavors';
+import { AUTHORIZED_EMAILS_TO_DELETE, COLUMNS } from '../constants/config';
+import { supabase } from '../lib/supabase';
 import './Board.css';
-
-// ALtere este array com os e-mails dos usuários que podem excluir cartões
-const AUTHORIZED_EMAILS_TO_DELETE = [
-  'henocera@gmail.com',
-  'marina_nocera@yahoo.com.br',
-  'mh.escritoriocarmella@gmail.com'
-];
-
-export const COLUMNS: ColumnData[] = [
-  { id: 'freezer-estoque', title: 'Freezer Estoque', maxCapacity: 18 },
-  { id: 'vitrine-atual', title: 'Vitrine Atual', maxCapacity: 12 },
-  { id: 'cubas-saidas-vitrine', title: 'Arquivo' },
-  { id: 'excluidos', title: 'Histórico Excluídos' },
-];
 
 export function Board() {
   const [cards, setCards] = useState<CardItem[]>([]);
@@ -212,12 +200,40 @@ export function Board() {
     }
   };
 
-  const handleDeleteCard = async () => {
+  const handleArchiveCard = async () => {
     if (!editingCardId) return;
     const card = cards.find(c => c.id === editingCardId);
     if (!card) return;
 
-    const confirmDelete = window.confirm('Tem certeza que deseja mover este cartão para o histórico de excluídos?');
+    const confirmArchive = window.confirm('Tem certeza que deseja arquivar este cartão?');
+    if (!confirmArchive) return;
+
+    const nextCards = cards.map(c =>
+      c.id === editingCardId
+        ? {
+          ...c,
+          status: 'cubas-saidas-vitrine' as ItemStatus,
+          updatedAt: new Date().toISOString(),
+          history: [
+            ...(c.history || []),
+            {
+              timestamp: new Date().toISOString(),
+              user: user?.email || 'Sistema',
+              action: 'Arquivado',
+            }
+          ]
+        }
+        : c
+    );
+
+    setCards(nextCards);
+    handleCloseModal();
+    await persistCards(nextCards);
+  };
+
+  const handleMoveToHistory = async () => {
+    if (!editingCardId) return;
+    const confirmDelete = window.confirm('Deseja excluir este cartão? Ele será movido para o histórico.');
     if (!confirmDelete) return;
 
     const nextCards = cards.map(c =>
@@ -231,7 +247,7 @@ export function Board() {
             {
               timestamp: new Date().toISOString(),
               user: user?.email || 'Sistema',
-              action: 'Movido para Histórico Excluídos',
+              action: 'Excluído (Movido para Histórico)',
             }
           ]
         }
@@ -243,6 +259,44 @@ export function Board() {
     await persistCards(nextCards);
   };
 
+  const handleDeletePermanent = async () => {
+    if (!editingCardId) return;
+    const confirmDelete = window.confirm('Tem certeza que deseja DELETAR PERMANENTEMENTE este cartão? Esta ação não pode ser desfeita.');
+    if (!confirmDelete) return;
+
+    const idToDelete = editingCardId;
+
+    try {
+      // Atualiza o estado local primeiro para evitar que outros processos o re-salvem
+      setCards(prev => prev.filter(c => c.id !== idToDelete));
+      handleCloseModal();
+
+      // Deleta diretamente do banco de dados e retorna o dado deletado para confirmação
+      const { data, error } = await supabase
+        .from('cards')
+        .delete()
+        .eq('id', idToDelete)
+        .select();
+      
+      console.log('Tentativa de delete concluída. Dados retornados:', data);
+
+      if (error) {
+        console.error('Erro ao deletar no Supabase:', error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn('Nenhum dado foi deletado. Verifique se o ID existe ou se há restrições de RLS.');
+      }
+    } catch (error) {
+      console.error('Erro ao deletar cartão:', error);
+      alert('Ocorreu um erro ao deletar permanentemente. Por favor, recarregue a página.');
+      // Recarrega os cards em caso de erro para manter sincronia
+      const dbCards = await fetchCards();
+      setCards(dbCards);
+    }
+  };
+
   const globalLogs = cards.flatMap(card =>
     (card.history || []).map(h => ({
       ...h,
@@ -251,15 +305,47 @@ export function Board() {
   ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
   const handleClearSaidas = async () => {
-    const confirmDelete = window.confirm('Tem certeza que deseja apagar PERMANENTEMENTE TODAS as cubas "Saídas da Vitrine"?');
+    const confirmMove = window.confirm('Deseja mover todos os itens do Arquivo para o Histórico de Excluídos?');
+    if (!confirmMove) return;
+
+    try {
+      const nextCards = cards.map(c =>
+        c.status === 'cubas-saidas-vitrine'
+          ? {
+            ...c,
+            status: 'excluidos' as ItemStatus,
+            updatedAt: new Date().toISOString(),
+            history: [
+              ...(c.history || []),
+              {
+                timestamp: new Date().toISOString(),
+                user: user?.email || 'Sistema',
+                action: 'Movido em massa para Histórico',
+              }
+            ]
+          }
+          : c
+      );
+
+      setCards(nextCards);
+      await persistCards(nextCards);
+    } catch (error) {
+      console.error('Erro ao mover arquivo:', error);
+      alert('Não foi possível mover os itens.');
+    }
+  };
+
+  const handleClearExcluidos = async () => {
+    const confirmDelete = window.confirm('Tem certeza que deseja apagar PERMANENTEMENTE TODO o Histórico de Excluídos?');
     if (!confirmDelete) return;
 
     try {
-      await clearSaidasCards();
-      setCards(cards.filter(c => c.status !== 'cubas-saidas-vitrine'));
+      const { error } = await supabase.from('cards').delete().eq('status', 'excluidos');
+      if (error) throw error;
+      setCards(prev => prev.filter(c => c.status !== 'excluidos'));
     } catch (error) {
-      console.error('Erro ao limpar saídas:', error);
-      alert('Não foi possível limpar a lista de saídas.');
+      console.error('Erro ao limpar excluídos:', error);
+      alert('Não foi possível limpar o histórico.');
     }
   };
 
@@ -275,14 +361,24 @@ export function Board() {
         </button>
 
         {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
-          <button
-            onClick={handleClearSaidas}
-            className="clear-saidas-btn"
-            style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '14px', marginLeft: 'auto' }}
-          >
-            <Trash2 size={18} />
-            Limpar Arquivo
-          </button>
+          <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+            <button
+              onClick={handleClearExcluidos}
+              className="clear-saidas-btn"
+              style={{ background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '14px' }}
+            >
+              <Trash2 size={18} />
+              Limpar Histórico
+            </button>
+            <button
+              onClick={handleClearSaidas}
+              className="clear-saidas-btn"
+              style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '14px' }}
+            >
+              <Trash2 size={18} />
+              Limpar Arquivo
+            </button>
+          </div>
         )}
       </div>
       
@@ -458,14 +554,25 @@ export function Board() {
             <div className="modal-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
               <div>
                 {(!isCreating && user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email) && editingCard?.status !== 'excluidos') ? (
-                  <button
-                    type="button"
-                    className="modal-btn"
-                    style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: '6px' }}
-                    onClick={handleDeleteCard}
-                  >
-                    <Trash2 size={16} /> Excluir
-                  </button>
+                  editingCard?.status === 'cubas-saidas-vitrine' ? (
+                    <button
+                      type="button"
+                      className="modal-btn"
+                      style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      onClick={handleMoveToHistory}
+                    >
+                      <Trash2 size={16} /> Excluir
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="modal-btn"
+                      style={{ background: '#f8fafc', color: '#475569', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      onClick={handleArchiveCard}
+                    >
+                      <Archive size={16} /> Arquivar
+                    </button>
+                  )
                 ) : <span />}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
@@ -524,10 +631,10 @@ export function Board() {
                   <button
                     type="button"
                     className="move-btn"
-                    style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
-                    onClick={async () => { await handleMoveCard(editingCard, 'freezer-estoque'); handleCloseModal(); }}
+                    style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', borderRadius: '4px' }}
+                    onClick={handleDeletePermanent}
                   >
-                    <ArrowLeft size={16} /> Restaurar para Freezer
+                    <Trash2 size={16} /> Deletar permanentemente
                   </button>
                 )}
               </div>
