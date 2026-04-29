@@ -32,6 +32,11 @@ export function Board() {
   const isVitrineInvalid = vitrineCol && vitrineCount !== vitrineCol.maxCapacity;
 
   const getToday = () => new Date().toISOString().slice(0, 10);
+  
+  const getStatusName = (status: ItemStatus) => {
+    const col = COLUMNS.find(c => c.id === status);
+    return col ? col.title : status;
+  };
 
   useEffect(() => {
     const loadCards = async () => {
@@ -86,7 +91,7 @@ export function Board() {
             {
               timestamp: new Date().toISOString(),
               user: user?.email || 'Sistema',
-              action: `Movido para ${targetStatus === 'freezer-estoque' ? 'Estoque' : targetStatus === 'vitrine-atual' ? 'Vitrine' : targetStatus === 'cubas-saidas-vitrine' ? 'Arquivo' : 'Histórico'}`,
+              action: `${getStatusName(sourceStatus)} → ${getStatusName(targetStatus)}`,
             },
           ],
         };
@@ -219,7 +224,7 @@ export function Board() {
             {
               timestamp: new Date().toISOString(),
               user: user?.email || 'Sistema',
-              action: 'Arquivado',
+              action: `${getStatusName(c.status)} → ${getStatusName('cubas-saidas-vitrine')} (Arq)`,
             }
           ]
         }
@@ -247,7 +252,7 @@ export function Board() {
             {
               timestamp: new Date().toISOString(),
               user: user?.email || 'Sistema',
-              action: 'Excluído (Movido para Histórico)',
+              action: `${getStatusName(c.status)} → ${getStatusName('excluidos')} (Exc)`,
             }
           ]
         }
@@ -320,7 +325,7 @@ export function Board() {
               {
                 timestamp: new Date().toISOString(),
                 user: user?.email || 'Sistema',
-                action: 'Movido em massa para Histórico',
+                action: `${getStatusName('cubas-saidas-vitrine')} → ${getStatusName('excluidos')} (Massa)`,
               }
             ]
           }
