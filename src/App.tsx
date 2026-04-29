@@ -21,7 +21,6 @@ function App() {
       <header className="app-header">
         <div className="flex items-center" style={{ gap: '12px' }}>
 
-          <h1>Carmella Gelateria</h1>
         </div>
         <div className="flex items-center" style={{ gap: '16px' }}>
           <SessionTimer />
