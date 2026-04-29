@@ -20,17 +20,15 @@ function App() {
     <div className="app-layout">
       <header className="app-header">
         <div className="flex items-center" style={{ gap: '12px' }}>
-          <div className="logo-icon">
-            <IceCream size={24} color="#e07a5f" />
-          </div>
+
           <h1>Carmella Gelateria</h1>
         </div>
         <div className="flex items-center" style={{ gap: '16px' }}>
           <SessionTimer />
           <span style={{ fontSize: '14px', color: '#64748b' }}>{user.email}</span>
-          <button 
+          <button
             onClick={signOut}
-            className="icon-button" 
+            className="icon-button"
             title="Sair"
             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#64748b' }}
           >
