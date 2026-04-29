@@ -1,6 +1,6 @@
 import { Board } from './components/Board';
 import { LoginPage } from './components/LoginPage';
-import { IceCream, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { SessionTimer } from './components/SessionTimer';
 import './App.css';

@@ -3,7 +3,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react';
 
 import { Column } from './Column';
 import type { CardItem, ItemStatus, ColumnData } from '../types';
-import { fetchCards, upsertCards, deleteCard, clearSaidasCards } from '../services/cards';
+import { fetchCards, upsertCards, clearSaidasCards } from '../services/cards';
 import { useAuth } from '../contexts/AuthContext';
 import { Trash2 } from 'lucide-react';
 import { GELATO_FLAVORS } from '../constants/flavors';
