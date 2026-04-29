@@ -38,6 +38,9 @@ export function Board() {
   const { user } = useAuth();
 
   const editingCard = editingCardId ? cards.find((c) => c.id === editingCardId) : null;
+  const vitrineCol = COLUMNS.find(c => c.id === 'vitrine-atual');
+  const vitrineCount = cards.filter(c => c.status === 'vitrine-atual').length;
+  const isVitrineInvalid = vitrineCol && vitrineCount !== vitrineCol.maxCapacity;
 
   const getToday = () => new Date().toISOString().slice(0, 10);
 
@@ -267,6 +270,26 @@ export function Board() {
           </button>
         )}
       </div>
+      
+      {isVitrineInvalid && (
+        <div className="capacity-warning" style={{
+          background: '#fff7ed',
+          border: '1px solid #ffedd5',
+          color: '#c2410c',
+          padding: '12px 16px',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontSize: '14px',
+          fontWeight: '500',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+        }}>
+          <span style={{ fontSize: '16px' }}>⚠️</span>
+          A Vitrine Atual está com <strong>{vitrineCount}</strong> de <strong>{vitrineCol.maxCapacity}</strong> cubas.
+        </div>
+      )}
 
       {isLoading && <p>Carregando cards...</p>}
       {syncError && <p className="sync-error">{syncError}</p>}
