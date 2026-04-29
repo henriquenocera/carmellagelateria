@@ -31,6 +31,7 @@ export function Board() {
   const [movedCardId, setMovedCardId] = useState<string | null>(null);
   const [moveDirection, setMoveDirection] = useState<'left' | 'right' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const [syncError, setSyncError] = useState<string | null>(null);
@@ -146,62 +147,69 @@ export function Board() {
   };
 
   const handleSaveModal = async () => {
-    if (!editingCardId) return;
+    if (!editingCardId || isSaving) return;
 
     if (!editingTitle || !GELATO_FLAVORS.includes(editingTitle)) {
       alert('Por favor, selecione um sabor válido da lista.');
       return;
     }
 
-    if (isCreating) {
-      const newCard: CardItem = {
-        id: crypto.randomUUID(),
-        title: editingTitle.trim() || 'Novo Sabor',
-        status: 'freezer-estoque',
-        productionDate: editingProductionDate || getToday(),
-        entryDate: '',
-        exitDate: '',
-        createdBy: user?.email || 'A definir',
-        createdAt: new Date().toISOString(),
-        lastEditedBy: user?.email || 'A definir',
-        updatedAt: new Date().toISOString(),
-        position: cards.length,
-        history: [
-          {
-            timestamp: new Date().toISOString(),
-            user: user?.email || 'A definir',
-            action: 'Criado no Estoque',
-          },
-        ],
-      };
-      const nextCards = [...cards, newCard];
-      setCards(nextCards);
-      await persistCards(nextCards);
-    } else {
-      const nextCards = cards.map((card) =>
-        card.id === editingCardId
-          ? {
-            ...card,
-            title: editingTitle.trim() || card.title,
-            productionDate: editingProductionDate || card.productionDate,
-            lastEditedBy: user?.email || card.lastEditedBy,
-            updatedAt: new Date().toISOString(),
-            history: [
-              ...(card.history || []),
-              {
-                timestamp: new Date().toISOString(),
-                user: user?.email || 'Sistema',
-                action: `Editado: ${editingTitle !== card.title ? 'Título' : ''}${editingTitle !== card.title && editingProductionDate !== card.productionDate ? ' e ' : ''}${editingProductionDate !== card.productionDate ? 'Data' : ''}`,
-              },
-            ],
-          }
-          : card
-      );
-      setCards(nextCards);
-      await persistCards(nextCards);
+    setIsSaving(true);
+    try {
+      if (isCreating) {
+        const newCard: CardItem = {
+          id: crypto.randomUUID(),
+          title: editingTitle.trim() || 'Novo Sabor',
+          status: 'freezer-estoque',
+          productionDate: editingProductionDate || getToday(),
+          entryDate: '',
+          exitDate: '',
+          createdBy: user?.email || 'A definir',
+          createdAt: new Date().toISOString(),
+          lastEditedBy: user?.email || 'A definir',
+          updatedAt: new Date().toISOString(),
+          position: cards.length,
+          history: [
+            {
+              timestamp: new Date().toISOString(),
+              user: user?.email || 'A definir',
+              action: 'Criado no Estoque',
+            },
+          ],
+        };
+        const nextCards = [...cards, newCard];
+        setCards(nextCards);
+        await persistCards(nextCards);
+      } else {
+        const nextCards = cards.map((card) =>
+          card.id === editingCardId
+            ? {
+              ...card,
+              title: editingTitle.trim() || card.title,
+              productionDate: editingProductionDate || card.productionDate,
+              lastEditedBy: user?.email || card.lastEditedBy,
+              updatedAt: new Date().toISOString(),
+              history: [
+                ...(card.history || []),
+                {
+                  timestamp: new Date().toISOString(),
+                  user: user?.email || 'Sistema',
+                  action: `Editado: ${editingTitle !== card.title ? 'Título' : ''}${editingTitle !== card.title && editingProductionDate !== card.productionDate ? ' e ' : ''}${editingProductionDate !== card.productionDate ? 'Data' : ''}`,
+                },
+              ],
+            }
+            : card
+        );
+        setCards(nextCards);
+        await persistCards(nextCards);
+      }
+      handleCloseModal();
+    } catch (error) {
+      console.error('Erro ao salvar:', error);
+      alert('Ocorreu um erro ao salvar o cartão.');
+    } finally {
+      setIsSaving(false);
     }
-
-    handleCloseModal();
   };
 
   const handleDeleteCard = async () => {
@@ -391,8 +399,8 @@ export function Board() {
                 <button type="button" className="modal-btn modal-btn-secondary" onClick={handleCloseModal}>
                   Cancelar
                 </button>
-                <button type="button" className="modal-btn modal-btn-primary" onClick={handleSaveModal}>
-                  Salvar
+                <button type="button" className="modal-btn modal-btn-primary" onClick={handleSaveModal} disabled={isSaving}>
+                  {isSaving ? 'Salvando...' : 'Salvar'}
                 </button>
               </div>
             </div>
