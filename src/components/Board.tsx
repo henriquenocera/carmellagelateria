@@ -299,17 +299,6 @@ export function Board() {
                     )}
                   </span>
                 </div>
-                <div className="modal-readonly-item">
-                  <span className="modal-readonly-label">Ultima vez editado por</span>
-                  <span className="modal-readonly-value">
-                    {editingCard?.lastEditedBy || 'A definir'}
-                    {editingCard?.updatedAt && (
-                      <div style={{ fontSize: '12px', opacity: 0.7 }}>
-                        {new Date(editingCard.updatedAt).toLocaleString('pt-BR')}
-                      </div>
-                    )}
-                  </span>
-                </div>
               </div>
             )}
 
