@@ -305,7 +305,8 @@ export function Board() {
   const globalLogs = cards.flatMap(card =>
     (card.history || []).map(h => ({
       ...h,
-      cardTitle: card.title
+      cardTitle: card.title,
+      card: card
     }))
   ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
@@ -408,21 +409,32 @@ export function Board() {
       )}
 
       {isLoading && <p>Carregando cards...</p>}
-      {syncError && <p className="sync-error">{syncError}</p>}
+{syncError && <p className="sync-error">{syncError}</p>}
       {!isLoading && cards.length === 0 && <p className="empty-message" style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.1rem', color: '#64748b' }}>Nenhum item cadastrado ainda</p>}
       <div className="board">
         {COLUMNS
           .filter(col => col.id !== 'excluidos' || (user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)))
-          .map((col) => (
+          .map((col) => {
+          let columnCards = cards.filter((c) => c.status === col.id);
+          
+          // Ordenar Freezer e Vitrine por data de produção (mais velho primeiro)
+          if (col.id === 'freezer-estoque' || col.id === 'vitrine-atual') {
+            columnCards = [...columnCards].sort((a, b) => 
+              new Date(a.productionDate).getTime() - new Date(b.productionDate).getTime()
+            );
+          }
+
+          return (
             <Column
               key={col.id}
               column={col}
-              cards={cards.filter((c) => c.status === col.id)}
+              cards={columnCards}
               onCardClick={handleCardClick}
               movedCardId={movedCardId}
               moveDirection={moveDirection}
             />
-          ))}
+          );
+        })}
         
         {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
           <div className="activity-logs-column" style={{ 
@@ -481,7 +493,24 @@ export function Board() {
                           {log.action}
                         </span>
                       </td>
-                      <td style={{ padding: '12px 24px', fontWeight: '600', color: '#0f172a' }}>{log.cardTitle}</td>
+                      <td style={{ padding: '12px 24px', fontWeight: '600', color: '#0f172a' }}>
+                        <button
+                          onClick={() => handleCardClick(log.card)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            padding: 0,
+                            color: 'var(--primary-color, #A07553)',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            fontSize: '13px',
+                            textAlign: 'left'
+                          }}
+                        >
+                          {log.cardTitle}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

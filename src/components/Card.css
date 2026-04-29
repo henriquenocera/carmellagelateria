@@ -43,6 +43,31 @@
   line-height: 1.3;
 }
 
+.card-age-badge {
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+.card-age-badge.age-green {
+  background: #22c55e;
+  box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+}
+
+.card-age-badge.age-yellow {
+  background: #eab308;
+  color: #422006;
+  box-shadow: 0 2px 4px rgba(234, 179, 8, 0.2);
+}
+
+.card-age-badge.age-red {
+  background: #ef4444;
+  box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
+
 .drag-handle {
   border: none;
   background: transparent;
