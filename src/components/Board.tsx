@@ -6,6 +6,7 @@ import type { CardItem, ItemStatus, ColumnData } from '../types';
 import { fetchCards, upsertCards, deleteCard, clearSaidasCards } from '../services/cards';
 import { useAuth } from '../contexts/AuthContext';
 import { Trash2 } from 'lucide-react';
+import { GELATO_FLAVORS } from '../constants/flavors';
 import './Board.css';
 
 // ALtere este array com os e-mails dos usuários que podem excluir cartões
@@ -118,7 +119,7 @@ export function Board() {
 
   const handleCreateNewCard = () => {
     setIsCreating(true);
-    setEditingTitle('Novo Sabor');
+    setEditingTitle('');
     setEditingProductionDate(getToday());
     setEditingCardId('new'); // Usamos um ID temporário para indicar criação
   };
@@ -141,6 +142,11 @@ export function Board() {
 
   const handleSaveModal = async () => {
     if (!editingCardId) return;
+
+    if (!editingTitle || !GELATO_FLAVORS.includes(editingTitle)) {
+      alert('Por favor, selecione um sabor válido da lista.');
+      return;
+    }
 
     if (isCreating) {
       const newCard: CardItem = {
@@ -267,13 +273,17 @@ export function Board() {
             <label className="modal-label" htmlFor="card-title-input">
               Titulo
             </label>
-            <input
+            <select
               id="card-title-input"
               className="modal-input"
-              type="text"
               value={editingTitle}
               onChange={(event) => setEditingTitle(event.target.value)}
-            />
+            >
+              <option value="" disabled>Selecione um sabor</option>
+              {GELATO_FLAVORS.map(flavor => (
+                <option key={flavor} value={flavor}>{flavor}</option>
+              ))}
+            </select>
 
             <label className="modal-label" htmlFor="card-production-date-input">
               Data de producao
