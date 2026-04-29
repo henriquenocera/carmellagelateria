@@ -243,6 +243,13 @@ export function Board() {
     await persistCards(nextCards);
   };
 
+  const globalLogs = cards.flatMap(card =>
+    (card.history || []).map(h => ({
+      ...h,
+      cardTitle: card.title
+    }))
+  ).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
   const handleClearSaidas = async () => {
     const confirmDelete = window.confirm('Tem certeza que deseja apagar PERMANENTEMENTE TODAS as cubas "Saídas da Vitrine"?');
     if (!confirmDelete) return;
@@ -315,6 +322,72 @@ export function Board() {
               moveDirection={moveDirection}
             />
           ))}
+        
+        {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
+          <div className="activity-logs-column" style={{ 
+            minWidth: '600px', 
+            background: '#fff', 
+            borderRadius: '12px', 
+            display: 'flex', 
+            flexDirection: 'column',
+            height: '100%',
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid rgba(0,0,0,0.05)',
+            marginLeft: '8px'
+          }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Logs de Atividades</h3>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1, borderBottom: '1px solid #e2e8f0' }}>
+                  <tr>
+                    <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', width: '140px' }}>Data/Hora</th>
+                    <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', width: '120px' }}>Usuário</th>
+                    <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', minWidth: '180px' }}>Ação</th>
+                    <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', minWidth: '160px' }}>Cartão</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {globalLogs.slice(0, 100).map((log, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }} className="log-row">
+                      <td style={{ padding: '12px 24px', color: '#334155', whiteSpace: 'nowrap' }}>
+                        <span style={{ color: '#94a3b8' }}>
+                          {new Date(log.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                        </span>
+                        {' '}
+                        <span style={{ fontWeight: '500' }}>
+                          {new Date(log.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 24px', color: '#64748b' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '600', color: '#475569' }}>
+                            {log.user.charAt(0).toUpperCase()}
+                          </div>
+                          {log.user.split('@')[0]}
+                        </div>
+                      </td>
+                      <td style={{ padding: '12px 24px', color: '#334155' }}>
+                        <span style={{ 
+                          padding: '2px 8px', 
+                          borderRadius: '12px', 
+                          background: log.action.includes('Criado') ? '#f0fdf4' : log.action.includes('Movido') ? '#eff6ff' : '#f8fafc',
+                          color: log.action.includes('Criado') ? '#166534' : log.action.includes('Movido') ? '#1e40af' : '#475569',
+                          fontSize: '12px',
+                          fontWeight: '500'
+                        }}>
+                          {log.action}
+                        </span>
+                      </td>
+                      <td style={{ padding: '12px 24px', fontWeight: '600', color: '#0f172a' }}>{log.cardTitle}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
       </div>
 
       {editingCardId && (
