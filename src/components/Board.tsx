@@ -19,6 +19,7 @@ export const COLUMNS: ColumnData[] = [
   { id: 'freezer-estoque', title: 'Freezer Estoque', maxCapacity: 18 },
   { id: 'vitrine-atual', title: 'Vitrine Atual', maxCapacity: 16 },
   { id: 'cubas-saidas-vitrine', title: 'Arquivo' },
+  { id: 'excluidos', title: 'Histórico Excluídos' },
 ];
 
 export function Board() {
@@ -92,7 +93,7 @@ export function Board() {
             {
               timestamp: new Date().toISOString(),
               user: user?.email || 'Sistema',
-              action: `Movido para ${targetStatus === 'freezer-estoque' ? 'Estoque' : targetStatus === 'vitrine-atual' ? 'Vitrine' : 'Saídas'}`,
+              action: `Movido para ${targetStatus === 'freezer-estoque' ? 'Estoque' : targetStatus === 'vitrine-atual' ? 'Vitrine' : targetStatus === 'cubas-saidas-vitrine' ? 'Arquivo' : 'Histórico'}`,
             },
           ],
         };
@@ -126,7 +127,7 @@ export function Board() {
 
   const handleCardClick = (card: CardItem) => {
     const isAuthorized = user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email);
-    if (card.status === 'cubas-saidas-vitrine' && !isAuthorized) return;
+    if ((card.status === 'cubas-saidas-vitrine' || card.status === 'excluidos') && !isAuthorized) return;
 
     setEditingCardId(card.id);
     setEditingTitle(card.title);
@@ -201,17 +202,33 @@ export function Board() {
 
   const handleDeleteCard = async () => {
     if (!editingCardId) return;
-    const confirmDelete = window.confirm('Tem certeza que deseja excluir este cartão? Esta ação não pode ser desfeita.');
+    const card = cards.find(c => c.id === editingCardId);
+    if (!card) return;
+
+    const confirmDelete = window.confirm('Tem certeza que deseja mover este cartão para o histórico de excluídos?');
     if (!confirmDelete) return;
 
-    try {
-      await deleteCard(editingCardId);
-      setCards(cards.filter(c => c.id !== editingCardId));
-      handleCloseModal();
-    } catch (error) {
-      console.error('Erro ao excluir cartão:', error);
-      alert('Não foi possível excluir o cartão.');
-    }
+    const nextCards = cards.map(c =>
+      c.id === editingCardId
+        ? {
+          ...c,
+          status: 'excluidos' as ItemStatus,
+          updatedAt: new Date().toISOString(),
+          history: [
+            ...(c.history || []),
+            {
+              timestamp: new Date().toISOString(),
+              user: user?.email || 'Sistema',
+              action: 'Movido para Histórico Excluídos',
+            }
+          ]
+        }
+        : c
+    );
+
+    setCards(nextCards);
+    handleCloseModal();
+    await persistCards(nextCards);
   };
 
   const handleClearSaidas = async () => {
@@ -245,7 +262,7 @@ export function Board() {
             style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '14px', marginLeft: 'auto' }}
           >
             <Trash2 size={18} />
-            Limpar Saídas da Vitrine
+            Limpar Arquivo
           </button>
         )}
       </div>
@@ -254,16 +271,18 @@ export function Board() {
       {syncError && <p className="sync-error">{syncError}</p>}
       {!isLoading && cards.length === 0 && <p className="empty-message" style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.1rem', color: '#64748b' }}>Nenhum item cadastrado ainda</p>}
       <div className="board">
-        {COLUMNS.map((col) => (
-          <Column
-            key={col.id}
-            column={col}
-            cards={cards.filter((c) => c.status === col.id)}
-            onCardClick={handleCardClick}
-            movedCardId={movedCardId}
-            moveDirection={moveDirection}
-          />
-        ))}
+        {COLUMNS
+          .filter(col => col.id !== 'excluidos' || (user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)))
+          .map((col) => (
+            <Column
+              key={col.id}
+              column={col}
+              cards={cards.filter((c) => c.status === col.id)}
+              onCardClick={handleCardClick}
+              movedCardId={movedCardId}
+              moveDirection={moveDirection}
+            />
+          ))}
       </div>
 
       {editingCardId && (
@@ -333,7 +352,7 @@ export function Board() {
 
             <div className="modal-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
               <div>
-                {(!isCreating && user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) ? (
+                {(!isCreating && user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email) && editingCard?.status !== 'excluidos') ? (
                   <button
                     type="button"
                     className="modal-btn"
@@ -394,6 +413,16 @@ export function Board() {
                     onClick={async () => { await handleMoveCard(editingCard, 'vitrine-atual'); handleCloseModal(); }}
                   >
                     <ArrowLeft size={16} /> Voltar para Vitrine
+                  </button>
+                )}
+                {editingCard?.status === 'excluidos' && (
+                  <button
+                    type="button"
+                    className="move-btn"
+                    style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#f8fafc', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '4px' }}
+                    onClick={async () => { await handleMoveCard(editingCard, 'freezer-estoque'); handleCloseModal(); }}
+                  >
+                    <ArrowLeft size={16} /> Restaurar para Freezer
                   </button>
                 )}
               </div>
