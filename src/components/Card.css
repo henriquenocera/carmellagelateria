@@ -86,14 +86,14 @@
 }
 
 .card.is-moved.slide-from-left {
-  animation: move-from-left 3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: move-from-left 8s cubic-bezier(0.2, 1, 0.3, 1);
   z-index: 10;
   position: relative;
   transition: none !important;
 }
 
 .card.is-moved.slide-from-right {
-  animation: move-from-right 3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: move-from-right 8s cubic-bezier(0.2, 1, 0.3, 1);
   z-index: 10;
   position: relative;
   transition: none !important;
@@ -101,25 +101,25 @@
 
 @keyframes move-from-left {
   0% {
-    transform: translateX(-120%) scale(0.98);
+    transform: translateX(-100%);
     opacity: 0;
   }
 
-  30% {
-    transform: translateX(0) scale(1.02) translateY(-2px);
+  10% {
+    transform: translateX(0);
     opacity: 1;
     background-color: #fff7ed;
     border-color: #e07a5f;
-    box-shadow: 0 4px 12px rgba(224, 122, 95, 0.2);
+    box-shadow: 0 0 0 2px rgba(224, 122, 95, 0.3);
   }
 
-  60% {
-    transform: scale(1.01) translateY(0);
+  85% {
     background-color: #fff7ed;
+    border-color: #e07a5f;
+    box-shadow: 0 0 0 2px rgba(224, 122, 95, 0.3);
   }
 
   100% {
-    transform: scale(1);
     background-color: var(--card-bg);
     border-color: rgba(0, 0, 0, 0.04);
     box-shadow: var(--shadow-sm);
@@ -128,25 +128,25 @@
 
 @keyframes move-from-right {
   0% {
-    transform: translateX(120%) scale(0.98);
+    transform: translateX(100%);
     opacity: 0;
   }
 
-  30% {
-    transform: translateX(0) scale(1.02) translateY(-2px);
+  10% {
+    transform: translateX(0);
     opacity: 1;
     background-color: #fff7ed;
     border-color: #e07a5f;
-    box-shadow: 0 4px 12px rgba(224, 122, 95, 0.2);
+    box-shadow: 0 0 0 2px rgba(224, 122, 95, 0.3);
   }
 
-  60% {
-    transform: scale(1.01) translateY(0);
+  85% {
     background-color: #fff7ed;
+    border-color: #e07a5f;
+    box-shadow: 0 0 0 2px rgba(224, 122, 95, 0.3);
   }
 
   100% {
-    transform: scale(1);
     background-color: var(--card-bg);
     border-color: rgba(0, 0, 0, 0.04);
     box-shadow: var(--shadow-sm);

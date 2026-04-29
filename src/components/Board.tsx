@@ -112,7 +112,7 @@ export function Board() {
     setTimeout(() => {
       setMovedCardId(null);
       setMoveDirection(null);
-    }, 3000);
+    }, 8000);
     await persistCards(nextCards);
   };
 
