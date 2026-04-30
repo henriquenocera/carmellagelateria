@@ -188,7 +188,13 @@ export function Board() {
         };
         const nextCards = [...cards, newCard];
         setCards(nextCards);
+        setMovedCardId(newCard.id);
         await persistCards(nextCards);
+
+        // Reset highlight and priority sort after 8 seconds
+        setTimeout(() => {
+          setMovedCardId(null);
+        }, 8000);
       } else {
         const currentCard = cards.find(c => c.id === editingCardId);
         const hasExitDateChanged = editingExitDate !== (currentCard?.exitDate || null);
@@ -410,10 +416,13 @@ export function Board() {
             let columnCards = cards.filter((c) => c.status === col.id);
 
             // Ordenar Freezer e Vitrine por data de produção (mais velho primeiro)
+            // MAS mantém o cartão recém-mexido (movedCardId) no topo temporariamente
             if (col.id === 'freezer-estoque' || col.id === 'vitrine-atual') {
-              columnCards = [...columnCards].sort((a, b) =>
-                new Date(a.productionDate).getTime() - new Date(b.productionDate).getTime()
-              );
+              columnCards = [...columnCards].sort((a, b) => {
+                if (a.id === movedCardId) return -1;
+                if (b.id === movedCardId) return 1;
+                return new Date(a.productionDate).getTime() - new Date(b.productionDate).getTime();
+              });
             }
 
             const getColumnAction = () => {
