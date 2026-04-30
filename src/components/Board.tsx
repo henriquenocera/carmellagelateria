@@ -563,7 +563,21 @@ export function Board() {
       {editingCardId && (
         <div className="modal-backdrop" onClick={handleCloseModal}>
           <div className="modal-content" onClick={(event) => event.stopPropagation()}>
-            <h3>{isCreating ? 'Novo Cartão' : 'Editar Cartão'}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ margin: 0 }}>{isCreating ? 'Novo Cartão' : 'Editar Cartão'}</h3>
+              {!isCreating && (
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>
+                    Criado por: <strong>{editingCard?.createdBy?.split('@')[0] || 'A definir'}</strong>
+                  </span>
+                  {editingCard?.createdAt && (
+                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                      {new Date(editingCard.createdAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
             <label className="modal-label" htmlFor="card-title-input">
               Titulo
             </label>
@@ -579,58 +593,48 @@ export function Board() {
               ))}
             </select>
 
-            <label className="modal-label" htmlFor="card-production-date-input">
-              Data de producao
-            </label>
-            <input
-              id="card-production-date-input"
-              className="modal-input"
-              type="date"
-              value={editingProductionDate}
-              onChange={(event) => setEditingProductionDate(event.target.value)}
-            />
-
-            {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
-              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <label className="modal-label" htmlFor="card-exit-date-input" style={{ margin: 0 }}>
-                    Data de Saída (Administrador)
-                  </label>
-                  {editingExitDate && (
-                    <button 
-                      onClick={() => setEditingExitDate(null)}
-                      style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
-                    >
-                      Limpar Data
-                    </button>
-                  )}
-                </div>
+            <div className="modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+              <div>
+                <label className="modal-label" htmlFor="card-production-date-input">
+                  Data de produção
+                </label>
                 <input
-                  id="card-exit-date-input"
+                  id="card-production-date-input"
                   className="modal-input"
                   type="date"
-                  value={editingExitDate || ''}
-                  onChange={(event) => setEditingExitDate(event.target.value)}
-                  style={{ borderColor: '#fecaca' }}
+                  value={editingProductionDate}
+                  onChange={(event) => setEditingProductionDate(event.target.value)}
                 />
               </div>
-            )}
 
-            {!isCreating && (
-              <div className="modal-readonly-grid">
-                <div className="modal-readonly-item">
-                  <span className="modal-readonly-label">Criado por</span>
-                  <span className="modal-readonly-value">
-                    {editingCard?.createdBy || 'A definir'}
-                    {editingCard?.createdAt && (
-                      <div style={{ fontSize: '12px', opacity: 0.7 }}>
-                        {new Date(editingCard.createdAt).toLocaleString('pt-BR')}
-                      </div>
+              {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <label className="modal-label" htmlFor="card-exit-date-input" style={{ margin: 0 }}>
+                      Data de Saída (Adm)
+                    </label>
+                    {editingExitDate && (
+                      <button 
+                        onClick={() => setEditingExitDate(null)}
+                        style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                      >
+                        Limpar Data
+                      </button>
                     )}
-                  </span>
+                  </div>
+                  <input
+                    id="card-exit-date-input"
+                    className="modal-input"
+                    type="date"
+                    value={editingExitDate || ''}
+                    onChange={(event) => setEditingExitDate(event.target.value)}
+                    style={{ borderColor: '#fecaca' }}
+                  />
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+
 
             {!isCreating && (
               <div className="modal-history-container">
