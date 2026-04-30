@@ -1,9 +1,8 @@
 import { Board } from './components/Board';
 import { LoginPage } from './components/LoginPage';
-import { LogOut, Trash2, Plus } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { SessionTimer } from './components/SessionTimer';
-import { AUTHORIZED_EMAILS_TO_DELETE } from './constants/config';
 import './App.css';
 
 function App() {

@@ -1,4 +1,4 @@
-import { MoreHorizontal, ArrowRightLeft } from 'lucide-react';
+import React from 'react';
 import type { CardItem, ColumnData } from '../types';
 import { Card } from './Card';
 import './Column.css';
