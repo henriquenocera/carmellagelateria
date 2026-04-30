@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowLeft, Archive, Plus, Trash2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Archive, Plus, Trash2, Clock, ArrowDownAz } from 'lucide-react';
 
 import { Column } from './Column';
 import type { CardItem, ItemStatus } from '../types';
@@ -465,6 +465,26 @@ export function Board() {
               return null;
             };
 
+            const getSortIndicator = () => {
+              if (col.id === 'freezer-estoque' || col.id === 'vitrine-atual') {
+                if (columnCards.some(c => c.id === movedCardId)) {
+                  return (
+                    <>
+                      <Clock size={12} style={{ color: '#e07a5f' }} />
+                      <span style={{ color: '#e07a5f', fontWeight: '600' }}>Organizando novo item...</span>
+                    </>
+                  );
+                }
+                return (
+                  <>
+                    <ArrowDownAz size={12} />
+                    <span>Mais antigos no topo (FIFO)</span>
+                  </>
+                );
+              }
+              return null;
+            };
+
             return (
               <Column
                 key={col.id}
@@ -474,6 +494,7 @@ export function Board() {
                 movedCardId={movedCardId}
                 moveDirection={moveDirection}
                 action={getColumnAction()}
+                sortIndicator={getSortIndicator()}
               />
             );
           })}
