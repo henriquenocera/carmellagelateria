@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowLeft, Archive } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Archive, Plus, Trash2 } from 'lucide-react';
 
 import { Column } from './Column';
 import type { CardItem, ItemStatus } from '../types';
 import { fetchCards, upsertCards } from '../services/cards';
 import { useAuth } from '../contexts/AuthContext';
-import { Trash2 } from 'lucide-react';
 import { GELATO_FLAVORS } from '../constants/flavors';
 import { AUTHORIZED_EMAILS_TO_DELETE, COLUMNS } from '../constants/config';
 import { supabase } from '../lib/supabase';
@@ -32,11 +31,23 @@ export function Board() {
   const isVitrineInvalid = vitrineCol && vitrineCount !== vitrineCol.maxCapacity;
 
   const getToday = () => new Date().toISOString().slice(0, 10);
-  
+
   const getStatusName = (status: ItemStatus) => {
     const col = COLUMNS.find(c => c.id === status);
     return col ? col.title : status;
   };
+
+  useEffect(() => {
+    const handleBoardAction = (e: any) => {
+      const action = e.detail;
+      if (action === 'add-card') handleCreateNewCard();
+      if (action === 'clear-history') handleClearExcluidos();
+      if (action === 'clear-archive') handleClearSaidas();
+    };
+
+    window.addEventListener('board-action', handleBoardAction);
+    return () => window.removeEventListener('board-action', handleBoardAction);
+  }, [cards, user]); // Dependencies ensure we use latest state/user in handlers
 
   useEffect(() => {
     const loadCards = async () => {
@@ -282,7 +293,7 @@ export function Board() {
         .delete()
         .eq('id', idToDelete)
         .select();
-      
+
       console.log('Tentativa de delete concluída. Dados retornados:', data);
 
       if (error) {
@@ -357,37 +368,6 @@ export function Board() {
 
   return (
     <div className="board-container" style={{ flexDirection: 'column' }}>
-      <div className="board-header" style={{ flexShrink: 0, marginBottom: '24px', display: 'flex', gap: '16px', alignItems: 'center' }}>
-        <button
-          onClick={handleCreateNewCard}
-          style={{ background: '#e07a5f', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '15px' }}
-        >
-          <span style={{ fontSize: '20px', fontWeight: '400', lineHeight: 1 }}>+</span>
-          Criar Novo Cartão
-        </button>
-
-        {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
-          <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
-            <button
-              onClick={handleClearExcluidos}
-              className="clear-saidas-btn"
-              style={{ background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '14px' }}
-            >
-              <Trash2 size={18} />
-              Limpar Histórico
-            </button>
-            <button
-              onClick={handleClearSaidas}
-              className="clear-saidas-btn"
-              style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fecaca', padding: '10px 16px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '500', fontSize: '14px' }}
-            >
-              <Trash2 size={18} />
-              Limpar Arquivo
-            </button>
-          </div>
-        )}
-      </div>
-      
       {isVitrineInvalid && (
         <div className="capacity-warning" style={{
           background: '#fff7ed',
@@ -409,39 +389,80 @@ export function Board() {
       )}
 
       {isLoading && <p>Carregando cards...</p>}
-{syncError && <p className="sync-error">{syncError}</p>}
+      {syncError && <p className="sync-error">{syncError}</p>}
       {!isLoading && cards.length === 0 && <p className="empty-message" style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.1rem', color: '#64748b' }}>Nenhum item cadastrado ainda</p>}
       <div className="board">
         {COLUMNS
           .filter(col => col.id !== 'excluidos' || (user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)))
           .map((col) => {
-          let columnCards = cards.filter((c) => c.status === col.id);
-          
-          // Ordenar Freezer e Vitrine por data de produção (mais velho primeiro)
-          if (col.id === 'freezer-estoque' || col.id === 'vitrine-atual') {
-            columnCards = [...columnCards].sort((a, b) => 
-              new Date(a.productionDate).getTime() - new Date(b.productionDate).getTime()
-            );
-          }
+            let columnCards = cards.filter((c) => c.status === col.id);
 
-          return (
-            <Column
-              key={col.id}
-              column={col}
-              cards={columnCards}
-              onCardClick={handleCardClick}
-              movedCardId={movedCardId}
-              moveDirection={moveDirection}
-            />
-          );
-        })}
-        
+            // Ordenar Freezer e Vitrine por data de produção (mais velho primeiro)
+            if (col.id === 'freezer-estoque' || col.id === 'vitrine-atual') {
+              columnCards = [...columnCards].sort((a, b) =>
+                new Date(a.productionDate).getTime() - new Date(b.productionDate).getTime()
+              );
+            }
+
+            const getColumnAction = () => {
+              if (col.id === 'freezer-estoque') {
+                return (
+                  <button
+                    onClick={handleCreateNewCard}
+                    className="icon-button"
+                    title="Novo Cartão"
+                    style={{ background: '#e07a5f', color: '#fff', padding: '4px 8px', fontSize: '11px', borderRadius: '6px' }}
+                  >
+                    <Plus size={14} style={{ marginRight: '4px' }} /> Novo
+                  </button>
+                );
+              }
+              if (col.id === 'cubas-saidas-vitrine' && user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) {
+                return (
+                  <button
+                    onClick={handleClearSaidas}
+                    className="icon-button"
+                    title="Limpar Arquivo"
+                    style={{ background: '#fef2f2', color: '#ef4444', padding: '4px 8px', fontSize: '11px', border: '1px solid #fecaca', borderRadius: '6px' }}
+                  >
+                    <Trash2 size={14} style={{ marginRight: '4px' }} /> Limpar
+                  </button>
+                );
+              }
+              if (col.id === 'excluidos' && user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) {
+                return (
+                  <button
+                    onClick={handleClearExcluidos}
+                    className="icon-button"
+                    title="Limpar Histórico"
+                    style={{ background: '#f8fafc', color: '#64748b', padding: '4px 8px', fontSize: '11px', border: '1px solid #e2e8f0', borderRadius: '6px' }}
+                  >
+                    <Trash2 size={14} style={{ marginRight: '4px' }} /> Limpar
+                  </button>
+                );
+              }
+              return null;
+            };
+
+            return (
+              <Column
+                key={col.id}
+                column={col}
+                cards={columnCards}
+                onCardClick={handleCardClick}
+                movedCardId={movedCardId}
+                moveDirection={moveDirection}
+                action={getColumnAction()}
+              />
+            );
+          })}
+
         {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
-          <div className="activity-logs-column" style={{ 
-            minWidth: '600px', 
-            background: '#fff', 
-            borderRadius: '12px', 
-            display: 'flex', 
+          <div className="activity-logs-column" style={{
+            minWidth: '600px',
+            background: '#fff',
+            borderRadius: '12px',
+            display: 'flex',
             flexDirection: 'column',
             height: '100%',
             boxShadow: 'var(--shadow-sm)',
@@ -482,9 +503,9 @@ export function Board() {
                         </div>
                       </td>
                       <td style={{ padding: '12px 24px', color: '#334155' }}>
-                        <span style={{ 
-                          padding: '2px 8px', 
-                          borderRadius: '12px', 
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '12px',
                           background: log.action.includes('Criado') ? '#f0fdf4' : log.action.includes('Movido') ? '#eff6ff' : '#f8fafc',
                           color: log.action.includes('Criado') ? '#166534' : log.action.includes('Movido') ? '#1e40af' : '#475569',
                           fontSize: '12px',

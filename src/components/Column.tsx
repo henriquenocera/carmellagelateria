@@ -9,9 +9,10 @@ interface ColumnProps {
   onCardClick: (card: CardItem) => void;
   movedCardId?: string | null;
   moveDirection?: 'left' | 'right' | null;
+  action?: React.ReactNode;
 }
 
-export function Column({ column, cards, onCardClick, movedCardId, moveDirection }: ColumnProps) {
+export function Column({ column, cards, onCardClick, movedCardId, moveDirection, action }: ColumnProps) {
   const isVitrine = column.id === 'vitrine-atual';
 
   return (
@@ -24,8 +25,7 @@ export function Column({ column, cards, onCardClick, movedCardId, moveDirection 
           </div>
         </div>
         <div className="column-actions">
-          <button className="icon-button"><ArrowRightLeft size={16} /></button>
-          <button className="icon-button"><MoreHorizontal size={16} /></button>
+          {action}
         </div>
       </div>
 

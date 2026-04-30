@@ -1,8 +1,9 @@
 import { Board } from './components/Board';
 import { LoginPage } from './components/LoginPage';
-import { LogOut } from 'lucide-react';
+import { LogOut, Trash2, Plus } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { SessionTimer } from './components/SessionTimer';
+import { AUTHORIZED_EMAILS_TO_DELETE } from './constants/config';
 import './App.css';
 
 function App() {
@@ -20,11 +21,12 @@ function App() {
     <div className="app-layout">
       <header className="app-header">
         <div className="flex items-center" style={{ gap: '12px' }}>
-
+          {/* Lado esquerdo do header agora vazio */}
         </div>
         <div className="flex items-center" style={{ gap: '16px' }}>
           <SessionTimer />
-          <span style={{ fontSize: '14px', color: '#64748b' }}>{user.email}</span>
+          <span className="user-email" style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>{user.email}</span>
+
           <button
             onClick={signOut}
             className="icon-button"
