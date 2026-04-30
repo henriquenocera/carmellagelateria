@@ -22,6 +22,7 @@ export function Board() {
   const [isCreating, setIsCreating] = useState(false);
 
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
   const latestCardsRef = useRef<CardItem[]>([]);
   const { user } = useAuth();
 
@@ -43,6 +44,7 @@ export function Board() {
       if (action === 'add-card') handleCreateNewCard();
       if (action === 'clear-history') handleClearExcluidos();
       if (action === 'clear-archive') handleClearSaidas();
+      if (action === 'open-logs') setIsLogsOpen(true);
     };
 
     window.addEventListener('board-action', handleBoardAction);
@@ -456,21 +458,22 @@ export function Board() {
               />
             );
           })}
+      </div>
 
-        {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
-          <div className="activity-logs-column" style={{
-            minWidth: '600px',
-            background: '#fff',
-            borderRadius: '12px',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            boxShadow: 'var(--shadow-sm)',
-            border: '1px solid rgba(0,0,0,0.05)',
-            marginLeft: '8px'
+      {isLogsOpen && (
+        <div className="modal-backdrop" onClick={() => setIsLogsOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ 
+            width: '90%', 
+            maxWidth: '1000px', 
+            height: '85vh', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            padding: 0,
+            overflow: 'hidden'
           }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9' }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#1e293b', margin: 0 }}>Logs de Atividades</h3>
+              <button onClick={() => setIsLogsOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '20px', color: '#64748b' }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
@@ -516,7 +519,10 @@ export function Board() {
                       </td>
                       <td style={{ padding: '12px 24px', fontWeight: '600', color: '#0f172a' }}>
                         <button
-                          onClick={() => handleCardClick(log.card)}
+                          onClick={() => {
+                            handleCardClick(log.card);
+                            setIsLogsOpen(false);
+                          }}
                           style={{
                             background: 'none',
                             border: 'none',
@@ -537,9 +543,12 @@ export function Board() {
                 </tbody>
               </table>
             </div>
+            <div style={{ padding: '16px 24px', borderTop: '1px solid #f1f5f9', textAlign: 'right' }}>
+              <button onClick={() => setIsLogsOpen(false)} className="modal-btn modal-btn-secondary">Fechar</button>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {editingCardId && (
         <div className="modal-backdrop" onClick={handleCloseModal}>

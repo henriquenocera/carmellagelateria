@@ -27,6 +27,7 @@ function App() {
           <SessionTimer />
           <span className="user-email" style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>{user.email}</span>
 
+
           <button
             onClick={signOut}
             className="icon-button"
@@ -34,6 +35,25 @@ function App() {
             style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#64748b' }}
           >
             <LogOut size={20} />
+          </button>
+
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('board-action', { detail: 'open-logs' }))}
+            style={{
+              background: '#f1f5f9',
+              color: '#475569',
+              border: '1px solid #e2e8f0',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              fontSize: '13px'
+            }}
+          >
+            Logs de Atividades
           </button>
         </div>
       </header>
