@@ -15,6 +15,7 @@ export function Board() {
   const [editingCardId, setEditingCardId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [editingProductionDate, setEditingProductionDate] = useState('');
+  const [editingExitDate, setEditingExitDate] = useState<string | null>(null);
   const [movedCardId, setMovedCardId] = useState<string | null>(null);
   const [moveDirection, setMoveDirection] = useState<'left' | 'right' | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -143,6 +144,7 @@ export function Board() {
     setEditingCardId(card.id);
     setEditingTitle(card.title);
     setEditingProductionDate(card.productionDate);
+    setEditingExitDate(card.exitDate || null);
   };
 
   const handleCloseModal = () => {
@@ -150,6 +152,7 @@ export function Board() {
     setIsCreating(false);
     setEditingTitle('');
     setEditingProductionDate('');
+    setEditingExitDate(null);
   };
 
   const handleSaveModal = async () => {
@@ -187,25 +190,32 @@ export function Board() {
         setCards(nextCards);
         await persistCards(nextCards);
       } else {
-        const nextCards = cards.map((card) =>
-          card.id === editingCardId
-            ? {
-              ...card,
-              title: editingTitle.trim() || card.title,
-              productionDate: editingProductionDate || card.productionDate,
-              lastEditedBy: user?.email || card.lastEditedBy,
-              updatedAt: new Date().toISOString(),
-              history: [
-                ...(card.history || []),
-                {
-                  timestamp: new Date().toISOString(),
-                  user: user?.email || 'Sistema',
-                  action: `Editado: ${editingTitle !== card.title ? 'Título' : ''}${editingTitle !== card.title && editingProductionDate !== card.productionDate ? ' e ' : ''}${editingProductionDate !== card.productionDate ? 'Data' : ''}`,
-                },
-              ],
+        const currentCard = cards.find(c => c.id === editingCardId);
+        const hasExitDateChanged = editingExitDate !== (currentCard?.exitDate || null);
+        
+        const nextCards = cards.map((c) => {
+          if (c.id === editingCardId) {
+            const history = [...(c.history || [])];
+            if (hasExitDateChanged) {
+              history.push({
+                timestamp: new Date().toISOString(),
+                user: user?.email || 'Sistema',
+                action: editingExitDate ? `Data de saída alterada para ${editingExitDate}` : 'Data de saída removida',
+              });
             }
-            : card
-        );
+
+            return {
+              ...c,
+              title: editingTitle,
+              productionDate: editingProductionDate,
+              exitDate: editingExitDate || '',
+              lastEditedBy: user?.email || c.lastEditedBy,
+              updatedAt: new Date().toISOString(),
+              history
+            };
+          }
+          return c;
+        });
         setCards(nextCards);
         await persistCards(nextCards);
       }
@@ -579,6 +589,32 @@ export function Board() {
               value={editingProductionDate}
               onChange={(event) => setEditingProductionDate(event.target.value)}
             />
+
+            {(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)) && (
+              <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label className="modal-label" htmlFor="card-exit-date-input" style={{ margin: 0 }}>
+                    Data de Saída (Administrador)
+                  </label>
+                  {editingExitDate && (
+                    <button 
+                      onClick={() => setEditingExitDate(null)}
+                      style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                    >
+                      Limpar Data
+                    </button>
+                  )}
+                </div>
+                <input
+                  id="card-exit-date-input"
+                  className="modal-input"
+                  type="date"
+                  value={editingExitDate || ''}
+                  onChange={(event) => setEditingExitDate(event.target.value)}
+                  style={{ borderColor: '#fecaca' }}
+                />
+              </div>
+            )}
 
             {!isCreating && (
               <div className="modal-readonly-grid">
