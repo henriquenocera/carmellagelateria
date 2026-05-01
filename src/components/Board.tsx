@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, ArrowLeft, Archive, Plus, Trash2, Clock, ArrowDownAz } from 'lucide-react';
 
 import { Column } from './Column';
@@ -198,7 +198,7 @@ export function Board() {
       } else {
         const currentCard = cards.find(c => c.id === editingCardId);
         const hasExitDateChanged = editingExitDate !== (currentCard?.exitDate || null);
-        
+
         const nextCards = cards.map((c) => {
           if (c.id === editingCardId) {
             const history = [...(c.history || [])];
@@ -425,6 +425,15 @@ export function Board() {
               });
             }
 
+            // Ordenar Histórico Excluídos por data de saída (mais recente primeiro)
+            if (col.id === 'excluidos') {
+              columnCards = [...columnCards].sort((a, b) => {
+                const dateA = a.exitDate ? new Date(a.exitDate).getTime() : 0;
+                const dateB = b.exitDate ? new Date(b.exitDate).getTime() : 0;
+                return dateB - dateA;
+              });
+            }
+
             const getColumnAction = () => {
               if (col.id === 'freezer-estoque') {
                 return (
@@ -444,7 +453,7 @@ export function Board() {
                     onClick={handleClearSaidas}
                     className="icon-button"
                     title="Limpar Arquivo"
-                    style={{ background: '#fef2f2', color: '#ef4444', padding: '4px 8px', fontSize: '11px', border: '1px solid #fecaca', borderRadius: '6px' }}
+                    style={{ background: '#f8fafc', color: '#64748b', padding: '4px 8px', fontSize: '11px', border: '1px solid #e2e8f0', borderRadius: '6px' }}
                   >
                     <Trash2 size={14} style={{ marginRight: '4px' }} /> Limpar
                   </button>
@@ -456,9 +465,9 @@ export function Board() {
                     onClick={handleClearExcluidos}
                     className="icon-button"
                     title="Limpar Histórico"
-                    style={{ background: '#f8fafc', color: '#64748b', padding: '4px 8px', fontSize: '11px', border: '1px solid #e2e8f0', borderRadius: '6px' }}
+                    style={{ background: '#fef2f2', color: '#ef4444', padding: '4px 8px', fontSize: '11px', border: '1px solid #fecaca', borderRadius: '6px' }}
                   >
-                    <Trash2 size={14} style={{ marginRight: '4px' }} /> Limpar
+                    <Trash2 size={14} style={{ marginRight: '4px' }} /> Excluir
                   </button>
                 );
               }
@@ -478,7 +487,7 @@ export function Board() {
                 return (
                   <>
                     <ArrowDownAz size={12} />
-                    <span>Mais antigos no topo (FIFO)</span>
+                    <span>Mais antigos no topo</span>
                   </>
                 );
               }
@@ -502,12 +511,12 @@ export function Board() {
 
       {isLogsOpen && (
         <div className="modal-backdrop" onClick={() => setIsLogsOpen(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ 
-            width: '90%', 
-            maxWidth: '1000px', 
-            height: '85vh', 
-            display: 'flex', 
-            flexDirection: 'column', 
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{
+            width: '90%',
+            maxWidth: '1000px',
+            height: '85vh',
+            display: 'flex',
+            flexDirection: 'column',
             padding: 0,
             overflow: 'hidden'
           }}>
@@ -519,67 +528,85 @@ export function Board() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                 <thead style={{ position: 'sticky', top: 0, background: '#f8fafc', zIndex: 1, borderBottom: '1px solid #e2e8f0' }}>
                   <tr>
-                    <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', width: '140px' }}>Data/Hora</th>
+                    <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', width: '140px' }}>Hora</th>
                     <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', width: '120px' }}>Usuário</th>
                     <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', minWidth: '180px' }}>Ação</th>
                     <th style={{ textAlign: 'left', padding: '12px 24px', color: '#64748b', fontWeight: '600', minWidth: '160px' }}>Cartão</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {globalLogs.slice(0, 100).map((log, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }} className="log-row">
-                      <td style={{ padding: '12px 24px', color: '#334155', whiteSpace: 'nowrap' }}>
-                        <span style={{ color: '#94a3b8' }}>
-                          {new Date(log.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
-                        </span>
-                        {' '}
-                        <span style={{ fontWeight: '500' }}>
-                          {new Date(log.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 24px', color: '#64748b' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '600', color: '#475569' }}>
-                            {log.user.charAt(0).toUpperCase()}
-                          </div>
-                          {log.user.split('@')[0]}
-                        </div>
-                      </td>
-                      <td style={{ padding: '12px 24px', color: '#334155' }}>
-                        <span style={{
-                          padding: '2px 8px',
-                          borderRadius: '12px',
-                          background: log.action.includes('Criado') ? '#f0fdf4' : log.action.includes('Movido') ? '#eff6ff' : '#f8fafc',
-                          color: log.action.includes('Criado') ? '#166534' : log.action.includes('Movido') ? '#1e40af' : '#475569',
-                          fontSize: '12px',
-                          fontWeight: '500'
-                        }}>
-                          {log.action}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 24px', fontWeight: '600', color: '#0f172a' }}>
-                        <button
-                          onClick={() => {
-                            handleCardClick(log.card);
-                            setIsLogsOpen(false);
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            padding: 0,
-                            color: 'var(--primary-color, #A07553)',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            textDecoration: 'underline',
-                            fontSize: '13px',
-                            textAlign: 'left'
-                          }}
-                        >
-                          {log.cardTitle}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {(() => {
+                    const groups: { [key: string]: typeof globalLogs } = {};
+                    const sortedLogs = [...globalLogs].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+                    sortedLogs.slice(0, 100).forEach(log => {
+                      const date = new Date(log.timestamp).toLocaleDateString('pt-BR');
+                      const today = new Date().toLocaleDateString('pt-BR');
+                      const key = date === today ? 'Hoje' : date;
+                      if (!groups[key]) groups[key] = [];
+                      groups[key].push(log);
+                    });
+
+                    return Object.entries(groups).map(([date, logs]) => (
+                      <React.Fragment key={date}>
+                        <tr style={{ background: '#f8fafc' }}>
+                          <td colSpan={4} style={{ padding: '12px 24px', fontWeight: '800', color: '#1e293b', fontSize: '12px', borderBottom: '1px solid #e2e8f0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                            {date === 'Hoje' ? '📅 Hoje' : date}
+                          </td>
+                        </tr>
+                        {logs.map((log, idx) => (
+                          <tr key={`${date}-${idx}`} style={{ borderBottom: '1px solid #f1f5f9', transition: 'background 0.2s' }} className="log-row">
+                            <td style={{ padding: '12px 24px', color: '#334155', whiteSpace: 'nowrap' }}>
+                              <span style={{ fontWeight: '600', color: '#1e293b' }}>
+                                {new Date(log.timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px 24px', color: '#64748b' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '600', color: '#475569' }}>
+                                  {log.user.charAt(0).toUpperCase()}
+                                </div>
+                                {log.user.split('@')[0]}
+                              </div>
+                            </td>
+                            <td style={{ padding: '12px 24px', color: '#334155' }}>
+                              <span style={{
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                background: log.action.includes('Criado') ? '#f0fdf4' : log.action.includes('Movido') ? '#eff6ff' : '#f8fafc',
+                                color: log.action.includes('Criado') ? '#166534' : log.action.includes('Movido') ? '#1e40af' : '#475569',
+                                fontSize: '12px',
+                                fontWeight: '500'
+                              }}>
+                                {log.action}
+                              </span>
+                            </td>
+                            <td style={{ padding: '12px 24px', fontWeight: '600', color: '#0f172a' }}>
+                              <button
+                                onClick={() => {
+                                  handleCardClick(log.card);
+                                  setIsLogsOpen(false);
+                                }}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  padding: 0,
+                                  color: 'var(--primary-color, #A07553)',
+                                  fontWeight: '600',
+                                  cursor: 'pointer',
+                                  textDecoration: 'underline',
+                                  fontSize: '13px',
+                                  textAlign: 'left'
+                                }}
+                              >
+                                {log.cardTitle}
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    ));
+                  })()}
                 </tbody>
               </table>
             </div>
@@ -644,7 +671,7 @@ export function Board() {
                       Data de Saída (Adm)
                     </label>
                     {editingExitDate && (
-                      <button 
+                      <button
                         onClick={() => setEditingExitDate(null)}
                         style={{ fontSize: '12px', color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
                       >
@@ -688,7 +715,17 @@ export function Board() {
             <div className="modal-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
               <div>
                 {(!isCreating && user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email) && editingCard?.status !== 'excluidos') ? (
-                  editingCard?.status === 'cubas-saidas-vitrine' ? (
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {editingCard?.status !== 'cubas-saidas-vitrine' && (
+                      <button
+                        type="button"
+                        className="modal-btn"
+                        style={{ background: '#f8fafc', color: '#475569', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}
+                        onClick={handleArchiveCard}
+                      >
+                        <Archive size={16} /> Arquivar
+                      </button>
+                    )}
                     <button
                       type="button"
                       className="modal-btn"
@@ -697,16 +734,7 @@ export function Board() {
                     >
                       <Trash2 size={16} /> Excluir
                     </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="modal-btn"
-                      style={{ background: '#f8fafc', color: '#475569', border: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '6px' }}
-                      onClick={handleArchiveCard}
-                    >
-                      <Archive size={16} /> Arquivar
-                    </button>
-                  )
+                  </div>
                 ) : <span />}
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>

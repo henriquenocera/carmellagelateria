@@ -77,7 +77,7 @@ export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
           </div>
         )}
         
-        {card.status === 'cubas-saidas-vitrine' && (
+        {(card.status === 'cubas-saidas-vitrine' || card.status === 'excluidos') && (
           <>
             <div className="card-meta-item" style={{ marginTop: '4px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '4px' }}>
               <span className="card-meta-label">Tempo de freezer</span>
