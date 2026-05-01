@@ -11,10 +11,51 @@ interface ColumnProps {
   moveDirection?: 'left' | 'right' | null;
   action?: React.ReactNode;
   sortIndicator?: React.ReactNode;
+  groupByDate?: boolean;
 }
 
-export function Column({ column, cards, onCardClick, movedCardId, moveDirection, action, sortIndicator }: ColumnProps) {
+export function Column({ column, cards, onCardClick, movedCardId, moveDirection, action, sortIndicator, groupByDate }: ColumnProps) {
   const isVitrine = column.id === 'vitrine-atual';
+
+  const renderContent = () => {
+    if (!groupByDate) {
+      return cards.map((card) => (
+        <Card
+          key={card.id}
+          card={card}
+          onClick={onCardClick}
+          movedCardId={movedCardId}
+          moveDirection={moveDirection}
+        />
+      ));
+    }
+
+    const groups: { [key: string]: CardItem[] } = {};
+    cards.forEach(card => {
+      // Usamos a exitDate para o agrupamento, ou entryDate se for freezer
+      const dateSource = card.exitDate || card.entryDate;
+      const date = dateSource ? new Date(`${dateSource}T00:00:00`).toLocaleDateString('pt-BR') : 'Sem data';
+      if (!groups[date]) groups[date] = [];
+      groups[date].push(card);
+    });
+
+    return Object.entries(groups).map(([date, groupCards]) => (
+      <div key={date} className="column-date-group">
+        <div className="column-date-marker">
+          <span>{date}</span>
+        </div>
+        {groupCards.map(card => (
+          <Card
+            key={card.id}
+            card={card}
+            onClick={onCardClick}
+            movedCardId={movedCardId}
+            moveDirection={moveDirection}
+          />
+        ))}
+      </div>
+    ));
+  };
 
   return (
     <div className={`column ${isVitrine ? 'column-vitrine' : ''}`}>
@@ -36,15 +77,7 @@ export function Column({ column, cards, onCardClick, movedCardId, moveDirection,
       )}
 
       <div className="column-content">
-        {cards.map((card) => (
-          <Card
-            key={card.id}
-            card={card}
-            onClick={onCardClick}
-            movedCardId={movedCardId}
-            moveDirection={moveDirection}
-          />
-        ))}
+        {renderContent()}
       </div>
     </div>
   );

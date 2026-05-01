@@ -101,3 +101,40 @@
   background: rgba(0, 0, 0, 0.05);
   color: var(--text-primary);
 }
+
+.column-date-group {
+  margin-bottom: 24px;
+}
+
+.column-date-marker {
+  position: sticky;
+  top: -1px;
+  z-index: 10;
+  padding: 12px 0 8px 0;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  background: inherit;
+}
+
+.column-date-marker span {
+  font-size: 10px;
+  font-weight: 800;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 12px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
+}
+
+.column-date-marker::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, #e2e8f0, transparent);
+  margin-left: 12px;
+}

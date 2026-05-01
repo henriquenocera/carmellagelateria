@@ -504,6 +504,7 @@ export function Board() {
                 moveDirection={moveDirection}
                 action={getColumnAction()}
                 sortIndicator={getSortIndicator()}
+                groupByDate={col.id === 'cubas-saidas-vitrine' || col.id === 'excluidos'}
               />
             );
           })}
