@@ -65,12 +65,15 @@ function getLocalStorage() {
 }
 getLocalStorage();
 
-async function sendSupabase(user) {
+async function sendSupabase(user, massas, brownies, panos) {
   console.log("supabase");
   const newdata = {
     checklist: "Checklist de Fechamento",
     person: user,
     store: unidade,
+    massas: massas,
+    brownies: brownies,
+    panos: panos
   };
   const { data, error } = await supabase
     .from("Checklist")
@@ -111,7 +114,7 @@ function ChecklistFechamento() {
 
     console.log("enviou");
     // supabase
-    sendSupabase(user);
+    sendSupabase(user, geladeira, brownie, panos);
     event.preventDefault();
     altoxvCloseSubmit(geladeira, brownie, panos, user);
   };

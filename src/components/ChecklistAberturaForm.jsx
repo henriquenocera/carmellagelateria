@@ -233,7 +233,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const handleFormSubmit = (event) => {
     event.preventDefault();
     const moneyCounterMessage = formatMoneyCounterMessage();
-    handleSubmit(event, user, moneyCounterMessage);
+    handleSubmit(event, user, moneyCounterMessage, moneyCounterData);
   };
 
   return (

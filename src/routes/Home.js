@@ -2,22 +2,43 @@ import React, { useEffect, useState } from "react";
 import "../css/Home.css";
 import supabase from "../supabase-client";
 import moment from "moment";
+import "moment/locale/pt-br";
 import { Helmet } from "react-helmet";
 import { FaTimesCircle } from "react-icons/fa";
 
 function Home() {
   const [vales, setVales] = useState([]);
+  const [checklists, setChecklists] = useState([]);
   const [lastThreeDays, setLastThreeDays] = useState([]);
 
   useEffect(() => {
     FetchVales();
+    FetchChecklists();
   }, []);
+
+  const FetchChecklists = async () => {
+    console.log("Fetching checklists");
+    const fiveDaysAgo = moment().subtract(5, 'days').startOf('day').toISOString();
+
+    const { data, error } = await supabase
+      .from("Checklist")
+      .select("*")
+      .eq("store", "ahu")
+      .gte("created_at", fiveDaysAgo)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.log(error);
+    } else {
+      setChecklists(data);
+    }
+  };
 
   const FetchVales = async () => {
     console.log("Fetching vales");
     // Get checklists from the last 5 days
     const fiveDaysAgo = moment().subtract(5, 'days').startOf('day').toISOString();
-    
+
     const { data, error } = await supabase
       .from("Vales")
       .select("*")
@@ -30,7 +51,7 @@ function Home() {
     } else {
       setVales(data);
       console.log(vales)
-      
+
       // Generate array of last 5 days
       const days = [];
       for (let i = 0; i < 5; i++) {
@@ -125,6 +146,68 @@ function Home() {
                       )}
                     </>
                   );
+                })()}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="container">
+          <h2>Últimos Checklists</h2>
+          {checklists.length === 0 ? (
+            <p>Nenhum checklist encontrado nos últimos dias.</p>
+          ) : (
+            <table className="vales-table">
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th>Responsável</th>
+                  <th className="text-center">Massas</th>
+                  <th className="text-center">Brownies</th>
+                  <th className="text-center">Panos</th>
+                  <th className="text-center">Dinheiro</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  let lastDate = null;
+                  return checklists.map((item) => {
+                    const currentDate = moment(item.created_at).format("DD/MM/YYYY");
+                    const showDivider = currentDate !== lastDate;
+                    lastDate = currentDate;
+
+                    return (
+                      <React.Fragment key={item.id}>
+                        {showDivider && (
+                          <tr className="vales-divider">
+                            <td colSpan={7}>
+                              {(() => {
+                                const dayName = moment(item.created_at).locale('pt-br').format("dddd");
+                                const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+                                return currentDate === moment().format("DD/MM/YYYY") 
+                                  ? `Hoje - ${capitalizedDay}` 
+                                  : `${currentDate} - ${capitalizedDay}`;
+                              })()}
+                            </td>
+                          </tr>
+                        )}
+                        <tr>
+                          <td>{moment(item.created_at).format("HH:mm")}</td>
+                          <td>{item.checklist}</td>
+                          <td>{item.person}</td>
+                          <td className="text-center">{item.massas ?? "-"}</td>
+                          <td className="text-center">{item.brownies ?? "-"}</td>
+                          <td className="text-center">{item.panos ?? "-"}</td>
+                          <td className="text-center">
+                            {item.money_data?.total 
+                              ? `R$ ${item.money_data.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
+                              : "-"}
+                          </td>
+                        </tr>
+                      </React.Fragment>
+                    );
+                  });
                 })()}
               </tbody>
             </table>
