@@ -75,6 +75,14 @@ function NavBar() {
               <span className="text">Informacoes</span>
             </NavLink>
           </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/etiquetas">
+              <span className="icon">
+                <Icons.BsPrinter />
+              </span>
+              <span className="text">Etiquetas</span>
+            </NavLink>
+          </li>
 {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/voucher">
               <span className="icon">

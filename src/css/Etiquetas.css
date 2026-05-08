@@ -1,0 +1,256 @@
+.etiquetas-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  font-family: 'Inter', sans-serif;
+  text-align: center;
+}
+
+.etiquetas-container h1 {
+  color: #5a432c;
+  margin-bottom: 10px;
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+
+.etiquetas-container p {
+  color: #8a7a6b;
+  margin-bottom: 30px;
+}
+
+.selection-section {
+  text-align: left;
+  margin-bottom: 30px;
+}
+
+.selection-section label {
+  display: block;
+  font-weight: 700;
+  color: #5a432c;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+}
+
+.input-group-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  background: #fdfaf7;
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid #f0e6dd;
+  text-align: left;
+}
+
+.flavor-input-part {
+  flex: 2;
+}
+
+.date-input-part {
+  flex: 1;
+}
+
+.custom-or {
+  text-align: center;
+  margin: 10px 0;
+  font-size: 0.8rem;
+  color: #a08a75;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.custom-name-input, .date-input {
+  width: 100%;
+  padding: 15px;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  color: #5a432c;
+  outline: none;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.custom-name-input:focus, .date-input:focus {
+  border-color: #5a432c;
+}
+
+.add-to-list-btn {
+  width: 100%;
+  padding: 18px;
+  background: #5a432c;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 15px;
+  box-shadow: 0 4px 15px rgba(90, 67, 44, 0.15);
+}
+
+.add-to-list-btn:hover {
+  background: #4a331c;
+}
+
+.add-to-list-btn:active {
+  transform: scale(0.98);
+}
+
+.tag-complex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #f0e6dd;
+  padding: 10px 15px;
+  border-radius: 12px;
+  min-width: 200px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+}
+
+.tag-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.tag-flavor {
+  font-weight: 800;
+  color: #5a432c;
+  font-size: 1.3rem;
+}
+
+.tag-date {
+  font-size: 1rem;
+  color: #a08a75;
+  font-weight: 500;
+}
+
+.selected-list {
+  margin-top: 30px;
+  text-align: left;
+}
+
+.selected-list h3 {
+  color: #5a432c;
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  border-bottom: 2px solid #f0e6dd;
+  padding-bottom: 10px;
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0e6dd;
+  color: #5a432c;
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.tag .remove-btn {
+  background: none;
+  border: none;
+  color: #a08a75;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.tag .remove-btn:hover {
+  color: #ff4d4d;
+}
+
+.generate-section {
+  margin-top: 40px;
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 22px;
+  background: linear-gradient(135deg, #5a432c 0%, #3e2c1a 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 1.4rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  box-shadow: 0 10px 25px rgba(90, 67, 44, 0.25);
+}
+
+.generate-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(90, 67, 44, 0.2);
+}
+
+.generate-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.logo-etiquetas {
+  width: 120px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .etiquetas-container {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .etiquetas-container h1 {
+    font-size: 1.8rem;
+  }
+}
+
+/* React Select Custom Styling */
+.react-select__control {
+  min-height: 54px !important;
+  border-radius: 10px !important;
+  border: 2px solid #ddd !important;
+  font-size: 1.2rem !important;
+  cursor: pointer !important;
+}
+
+.react-select__control--is-focused {
+  border-color: #5a432c !important;
+  box-shadow: 0 0 0 1px #5a432c !important;
+}
+
+.react-select__placeholder {
+  color: #a08a75 !important;
+}
+
+.react-select__option {
+  font-size: 1.1rem !important;
+  padding: 12px 15px !important;
+}

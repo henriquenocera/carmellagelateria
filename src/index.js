@@ -19,6 +19,7 @@ import Voucher from "./routes/Voucher.tsx";
 import ChecklistTest from "./routes/ChecklistTest.tsx";
 import Manual from "./routes/Manual.tsx";
 import Salgados from "./routes/Salgados.tsx";
+import Etiquetas from "./routes/Etiquetas.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
 import supabase from "./supabase-client";
@@ -74,6 +75,7 @@ const router = createBrowserRouter(
         <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
         <Route path="/informacoes" element={<Informacoes />} />
         <Route path="/voucher" element={<Voucher />} />
+        <Route path="/etiquetas" element={<Etiquetas />} />
         <Route path="/checklist-test" element={<ChecklistTest />} />
       </Route>
     </>
