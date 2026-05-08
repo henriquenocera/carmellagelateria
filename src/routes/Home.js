@@ -163,7 +163,7 @@ function Home() {
                   <th>Data</th>
                   <th>Tipo</th>
                   <th>Responsável</th>
-                  <th className="text-center">Massas</th>
+                  <th className="text-center">Waffles</th>
                   <th className="text-center">Brownies</th>
                   <th className="text-center">Panos</th>
                   <th className="text-center">Dinheiro</th>
@@ -185,8 +185,8 @@ function Home() {
                               {(() => {
                                 const dayName = moment(item.created_at).locale('pt-br').format("dddd");
                                 const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
-                                return currentDate === moment().format("DD/MM/YYYY") 
-                                  ? `Hoje - ${capitalizedDay}` 
+                                return currentDate === moment().format("DD/MM/YYYY")
+                                  ? `Hoje - ${capitalizedDay}`
                                   : `${currentDate} - ${capitalizedDay}`;
                               })()}
                             </td>
@@ -200,8 +200,8 @@ function Home() {
                           <td className="text-center">{item.brownies ?? "-"}</td>
                           <td className="text-center">{item.panos ?? "-"}</td>
                           <td className="text-center">
-                            {item.money_data?.total 
-                              ? `R$ ${item.money_data.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` 
+                            {item.money_data?.total
+                              ? `R$ ${item.money_data.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
                               : "-"}
                           </td>
                         </tr>
