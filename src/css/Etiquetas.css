@@ -129,9 +129,10 @@
 }
 
 .tag-date {
-  font-size: 1rem;
-  color: #a08a75;
-  font-weight: 500;
+  font-size: 1.1rem;
+  color: #7d664f;
+  font-weight: 600;
+  margin-top: 4px;
 }
 
 .selected-list {

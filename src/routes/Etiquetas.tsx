@@ -198,7 +198,7 @@ const Etiquetas: React.FC = () => {
                 <div key={item.id} className="tag-complex">
                   <div className="tag-info">
                     <span className="tag-flavor">{item.flavor}</span>
-                    <span className="tag-date">{item.date.split('-').reverse().join('/')}</span>
+                    <span className="tag-date">Produção: {item.date.split('-').reverse().join('/')}</span>
                   </div>
                   <button className="remove-btn" onClick={() => removeItem(item.id)}>
                     <BsXLg size={12} />
