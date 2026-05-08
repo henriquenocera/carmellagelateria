@@ -69,7 +69,17 @@ const Etiquetas: React.FC = () => {
       const formattedVal = valDate.toLocaleDateString('pt-BR');
       
       // Code generation logic
-      const prefix = item.flavor.substring(0, 3).toUpperCase();
+      const words = item.flavor.split(' ').filter(w => 
+        !['com', 'de', 'da', 'do', 'e', 'o', 'a'].includes(w.toLowerCase())
+      );
+      
+      let prefix = '';
+      if (words.length === 1) {
+        prefix = words[0].substring(0, 3).toUpperCase();
+      } else {
+        prefix = words.map(w => w[0]).join('').toUpperCase();
+      }
+
       const datePart = item.date.split('-').reverse().join('').substring(0, 4) + item.date.split('-')[0].substring(2); // DDMMYY
       
       const countKey = `${item.flavor}_${item.date}`;

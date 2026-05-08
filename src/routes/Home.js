@@ -102,20 +102,31 @@ Fico à disposição!`
         <img className="logo" src="/logo.svg" alt="" />
         <div className="container">
           <h2>Textos Pré Prontos e Formatados</h2>
-          <div className="text-quotes-grid">
-            {predefinedTexts.map((item, index) => (
-              <div key={item.id} className="text-quote-card">
-                <h3 className="text-quote-title">{item.title}</h3>
-                <p className="text-quote-text">{item.text}</p>
-                <button
-                  type="button"
-                  className="text-quote-copy-btn"
-                  onClick={() => handleCopy(item.text, index)}
-                >
-                  {copiedIndex === index ? "✓ Copiado!" : "Copiar texto"}
-                </button>
-              </div>
-            ))}
+          <div className="table-container">
+            <table className="predefined-texts-table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th style={{ width: "200px" }}>Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                {predefinedTexts.map((item, index) => (
+                  <tr key={item.id}>
+                    <td className="table-title">{item.title}</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="table-copy-btn"
+                        onClick={() => handleCopy(item.text, index)}
+                      >
+                        {copiedIndex === index ? "✓ Copiado!" : "Copiar Texto"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
