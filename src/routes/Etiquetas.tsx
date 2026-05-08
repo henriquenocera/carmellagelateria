@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
 import Select from "react-select";
-import { Sabores } from "../Sabores.ts";
+import { GELATO_FLAVORS } from "../Sabores.ts";
 import "../css/Etiquetas.css";
 import { jsPDF } from "jspdf";
 import { BsPrinterFill, BsPlusLg, BsXLg } from "react-icons/bs";
@@ -11,6 +11,10 @@ const Etiquetas: React.FC = () => {
   const [currentFlavor, setCurrentFlavor] = useState<{ value: string; label: string } | null>(null);
   const [customName, setCustomName] = useState("");
   const [dataProducao, setDataProducao] = useState(new Date().toISOString().split('T')[0]);
+
+  const flavorOptions = React.useMemo(() => 
+    GELATO_FLAVORS.map(flavor => ({ value: flavor, label: flavor })),
+  []);
 
   const addItem = () => {
     const flavorName = customName.trim() || (currentFlavor ? currentFlavor.label : "");
@@ -41,6 +45,16 @@ const Etiquetas: React.FC = () => {
     const pageWidth = 80;
     const pageHeight = 50;
 
+    // 1. Pre-calculate total counts for each flavor + date combination
+    const totalCounts: Record<string, number> = {};
+    selectedItems.forEach(item => {
+      const key = `${item.flavor}_${item.date}`;
+      totalCounts[key] = (totalCounts[key] || 0) + 1;
+    });
+
+    // 2. Track running counts as we generate pages
+    const runningCounts: Record<string, number> = {};
+
     selectedItems.forEach((item, index) => {
       if (index > 0) {
         doc.addPage([80, 50], "landscape");
@@ -53,7 +67,22 @@ const Etiquetas: React.FC = () => {
 
       const formattedProd = prodDate.toLocaleDateString('pt-BR');
       const formattedVal = valDate.toLocaleDateString('pt-BR');
-      const code = item.flavor.substring(0, 3).toUpperCase();
+      
+      // Code generation logic
+      const prefix = item.flavor.substring(0, 3).toUpperCase();
+      const datePart = item.date.split('-').reverse().join('').substring(0, 4) + item.date.split('-')[0].substring(2); // DDMMYY
+      
+      const countKey = `${item.flavor}_${item.date}`;
+      runningCounts[countKey] = (runningCounts[countKey] || 0) + 1;
+      
+      // Format: PREFIX-DATE
+      let fullCode = `${prefix}-${datePart}`;
+      
+      // Only add counter if there's more than one of the same flavor+date in the list
+      if (totalCounts[countKey] > 1) {
+        const counter = String(runningCounts[countKey]).padStart(2, '0');
+        fullCode += `-${counter}`;
+      }
 
       // We don't need a border since the page itself is the label size
       // but let's add a subtle one if desired or just content
@@ -81,18 +110,27 @@ const Etiquetas: React.FC = () => {
       doc.text(formattedVal, valueColX, startY + rowHeight, { align: "right" });
 
       doc.text("Código:", labelColX, startY + rowHeight * 2);
-      doc.text(code, valueColX, startY + rowHeight * 2, { align: "right" });
+      doc.text(fullCode, valueColX, startY + rowHeight * 2, { align: "right" });
 
       // 3. Peso and Tara
       const lineStartY = startY + rowHeight * 3.5;
-      const lineLength = 35;
-      const lineX = pageWidth - 5 - lineLength;
+      const kgPadding = 6;
+      const lineLength = 30;
+      const lineX = pageWidth - 5 - lineLength - kgPadding;
+      const lineEndX = pageWidth - 5 - kgPadding;
+      const kgX = pageWidth - 5;
 
+      const verticalGap = 10; // Increased spacing between lines
+
+      // Peso Row
       doc.text("Peso:", labelColX, lineStartY);
-      doc.line(lineX, lineStartY + 1, valueColX, lineStartY + 1);
+      doc.line(lineX, lineStartY + 1, lineEndX, lineStartY + 1);
+      doc.text("kg", kgX, lineStartY, { align: "right" });
 
-      doc.text("Tara:", labelColX, lineStartY + rowHeight * 1.5);
-      doc.line(lineX, lineStartY + rowHeight * 1.5 + 1, valueColX, lineStartY + rowHeight * 1.5 + 1);
+      // Tara Row
+      doc.text("Tara:", labelColX, lineStartY + verticalGap);
+      doc.line(lineX, lineStartY + verticalGap + 1, lineEndX, lineStartY + verticalGap + 1);
+      doc.text("kg", kgX, lineStartY + verticalGap, { align: "right" });
     });
 
     doc.save(`etiquetas_carmella_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -113,7 +151,7 @@ const Etiquetas: React.FC = () => {
             <div className="flavor-input-part">
               <label>Sabor:</label>
               <Select
-                options={Sabores}
+                options={flavorOptions}
                 value={currentFlavor}
                 onChange={(option) => {
                   setCurrentFlavor(option as { value: string; label: string });
