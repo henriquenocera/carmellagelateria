@@ -417,11 +417,18 @@ export function Board() {
 
             // Ordenar Freezer e Vitrine por data de produção (mais velho primeiro)
             // MAS mantém o cartão recém-mexido (movedCardId) no topo temporariamente
-            if (col.id === 'freezer-estoque' || col.id === 'vitrine-atual') {
+            if (col.id === 'freezer-estoque') {
               columnCards = [...columnCards].sort((a, b) => {
                 if (a.id === movedCardId) return -1;
                 if (b.id === movedCardId) return 1;
                 return new Date(a.productionDate).getTime() - new Date(b.productionDate).getTime();
+              });
+            }
+            if (col.id === 'vitrine-atual') {
+              columnCards = [...columnCards].sort((a, b) => {
+                if (a.id === movedCardId) return -1;
+                if (b.id === movedCardId) return 1;
+                return new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime();
               });
             }
 
