@@ -9,7 +9,7 @@ export const GELATO_FLAVORS = [
   'Chocolate',
   'Chocolate Branco com Maracujá',
   'Cocada',
-  'Coco',
+  'Coco Diet',
   'Danoninho',
   'Doce de Leite',
   'Dolce Mocha',
