@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AlertCircle } from 'lucide-react';
 import type { CardItem } from '../types';
 import './Card.css';
