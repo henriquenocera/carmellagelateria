@@ -428,7 +428,7 @@ export function Board() {
               columnCards = [...columnCards].sort((a, b) => {
                 if (a.id === movedCardId) return -1;
                 if (b.id === movedCardId) return 1;
-                return new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime();
+                return new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime();
               });
             }
 
@@ -482,7 +482,7 @@ export function Board() {
             };
 
             const getSortIndicator = () => {
-              if (col.id === 'freezer-estoque' || col.id === 'vitrine-atual') {
+              if (col.id === 'freezer-estoque') {
                 if (columnCards.some(c => c.id === movedCardId)) {
                   return (
                     <>
@@ -495,6 +495,21 @@ export function Board() {
                   <>
                     <ArrowDownAz size={12} />
                     <span>Mais antigos no topo</span>
+                  </>
+                );
+              } else if (col.id === 'vitrine-atual') {
+                if (columnCards.some(c => c.id === movedCardId)) {
+                  return (
+                    <>
+                      <Clock size={12} style={{ color: '#e07a5f' }} />
+                      <span style={{ color: '#e07a5f', fontWeight: '600' }}>Organizando novo item...</span>
+                    </>
+                  );
+                }
+                return (
+                  <>
+                    <ArrowDownAz size={12} />
+                    <span>Mais novos no topo</span>
                   </>
                 );
               }

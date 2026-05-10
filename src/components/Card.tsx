@@ -1,3 +1,5 @@
+import React, { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import type { CardItem } from '../types';
 import './Card.css';
 
@@ -25,6 +27,7 @@ const formatDate = (date: string) => {
 };
 
 export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
   const isMoved = card.id === movedCardId;
   const slideClass = isMoved ? (moveDirection === 'right' ? 'slide-from-left' : 'slide-from-right') : '';
 
@@ -39,26 +42,77 @@ export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
   };
 
   const daysOld = calculateDaysInFreezer();
-  
+
+  const getEntryBadge = () => {
+    if (card.status === 'vitrine-atual' && card.entryDate) {
+      const entryDateObj = new Date(`${card.entryDate}T00:00:00`);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      if (entryDateObj.getTime() === today.getTime()) {
+        return { text: 'Hoje', class: 'entry-today' };
+      }
+      if (entryDateObj.getTime() === yesterday.getTime()) {
+        return { text: 'Ontem', class: 'entry-yesterday' };
+      }
+    }
+
+    if (card.status === 'freezer-estoque' && card.entryDate) {
+      return { text: 'Voltou da vitrine', class: 'returned-from-vitrine', isIcon: true };
+    }
+
+    return null;
+  };
+
+  const entryBadge = getEntryBadge();
+
   const getBadgeClass = (days: number) => {
     if (days > 20) return 'age-red';
     if (days >= 15) return 'age-yellow';
     if (days >= 10) return 'age-green';
     return '';
   };
-  
+
   return (
     <div
       className={`card ${isMoved ? 'is-moved' : ''} ${slideClass}`}
+      style={{ zIndex: showTooltip ? 100 : 1 }}
       onClick={() => onClick?.(card)}
     >
-      <div className="card-header">
-        <span className="card-title">{card.title}</span>
+      <div className="card-badges">
         {daysOld !== null && (
           <div className={`card-age-badge ${getBadgeClass(daysOld)}`} title={`${daysOld} dias desde a produção`}>
             {daysOld}d
           </div>
         )}
+        {entryBadge && (
+          <div
+            className={`card-entry-badge ${entryBadge.class} ${entryBadge.isIcon ? 'is-icon' : ''}`}
+            onClick={(e) => {
+              if (entryBadge.isIcon) {
+                e.stopPropagation();
+                setShowTooltip(!showTooltip);
+              }
+            }}
+            onMouseLeave={() => setShowTooltip(false)}
+          >
+            {entryBadge.isIcon ? (
+              <>
+                <AlertCircle size={14} />
+                {showTooltip && <div className="card-tooltip">Voltou da vitrine</div>}
+              </>
+            ) : (
+              entryBadge.text
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="card-header">
+        <span className="card-title">{card.title}</span>
       </div>
 
       <div className="card-meta-list">
@@ -76,7 +130,7 @@ export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
             <span className="card-meta-value">{formatDate(card.exitDate)}</span>
           </div>
         )}
-        
+
         {(card.status === 'cubas-saidas-vitrine' || card.status === 'excluidos') && (
           <>
             <div className="card-meta-item" style={{ marginTop: '4px', borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '4px' }}>
