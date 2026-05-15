@@ -2,9 +2,9 @@ name: Supa-backup
 
 on:
   push:
-    branches: [ main, escritorio ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, escritorio ]
+    branches: [ main ]
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *' # Runs every day at midnight
