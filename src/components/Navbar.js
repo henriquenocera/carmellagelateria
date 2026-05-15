@@ -22,7 +22,7 @@ function NavBar() {
               <span className="text">Início</span>
             </NavLink>
           </li>
-{/*           <li className={activeMenu ? "list active" : "list"}>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/salgados">
               <span className="icon">
                 <Icons.BsCheck />
@@ -30,7 +30,7 @@ function NavBar() {
               <span className="text">Salgados</span>
             </NavLink>
           </li> */}
-{/*           <li className={activeMenu ? "list active" : "list"}>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
               <span className="icon">
                 <Icons.BsEmojiSmile />
@@ -39,7 +39,7 @@ function NavBar() {
             </NavLink>
           </li> */}
 
-{/*           <li className={activeMenu ? "list active" : "list"}>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/inventario">
               <span className="icon">
                 <Icons.BsArrowCounterclockwise />
@@ -48,7 +48,7 @@ function NavBar() {
             </NavLink>
           </li> */}
 
-{/*           <li className={activeMenu ? "list active" : "list"}>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">
                 <Icons.BsArrowBarRight />
@@ -67,14 +67,14 @@ function NavBar() {
               <span className="text">Checklist Fechamento</span>
             </NavLink>
           </li>
-          <li className={activeMenu ? "list active" : "list"}>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/informacoes">
               <span className="icon">
                 <Icons.BsCheck />
               </span>
               <span className="text">Informacoes</span>
             </NavLink>
-          </li>
+          </li> */}
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/etiquetas">
               <span className="icon">
@@ -83,7 +83,7 @@ function NavBar() {
               <span className="text">Etiquetas</span>
             </NavLink>
           </li>
-{/*           <li className={activeMenu ? "list active" : "list"}>
+          {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/voucher">
               <span className="icon">
                 <Icons.BsTicket />
