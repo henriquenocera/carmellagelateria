@@ -1,0 +1,374 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
+
+:root {
+  --crm-primary: #7c4dff;
+  --crm-primary-light: #b47cff;
+  --crm-secondary: #1a1a2e;
+  --crm-accent: #00d2ff;
+  --crm-bg: #f0f2f5;
+  --crm-glass: rgba(255, 255, 255, 0.85);
+  --crm-text: #2d3436;
+  --crm-text-muted: #636e72;
+  --crm-success: #00b894;
+  --crm-warning: #fdcb6e;
+  --crm-danger: #ff7675;
+  --crm-info: #0984e3;
+  --crm-shadow: 0 8px 32px rgba(31, 38, 135, 0.07);
+  --crm-radius: 16px;
+}
+
+.crm-page {
+  padding: 3rem;
+  padding-top: 8rem;
+  margin-left: 75px;
+  background: radial-gradient(circle at top right, #f8f9fa, #e9ecef);
+  min-height: 100vh;
+  font-family: 'Outfit', 'Inter', sans-serif;
+  color: var(--crm-text);
+  transition: all 0.5s ease;
+  width: calc(100% - 75px);
+}
+
+/* If the user doesn't have a way to pass the state, 
+   we can use a media query or just a safe margin. 
+   But here, let's just make sure it's usable. */
+
+.crm-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2.5rem;
+  background: var(--crm-glass);
+  backdrop-filter: blur(10px);
+  padding: 2rem;
+  border-radius: var(--crm-radius);
+  box-shadow: var(--crm-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@media (min-width: 768px) {
+  .crm-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.crm-header h1 {
+  font-size: 2.8rem;
+  margin: 0;
+  background: linear-gradient(135deg, var(--crm-secondary), var(--crm-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+}
+
+.crm-add-btn {
+  background: linear-gradient(135deg, var(--crm-primary), #6c5ce7);
+  color: white;
+  border: none;
+  padding: 1.2rem 2.5rem;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.2rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: 0 4px 15px rgba(124, 77, 255, 0.3);
+}
+
+.crm-add-btn:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(124, 77, 255, 0.4);
+}
+
+.crm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+  width: 100%;
+}
+
+.crm-stat-card {
+  background: var(--crm-glass);
+  backdrop-filter: blur(8px);
+  padding: 1.8rem;
+  border-radius: var(--crm-radius);
+  box-shadow: var(--crm-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  transition: transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.crm-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--crm-primary);
+}
+
+.crm-stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.crm-stat-card .label {
+  font-size: 1rem;
+  color: var(--crm-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+.crm-stat-card .value {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: var(--crm-secondary);
+  margin-top: 0.5rem;
+}
+
+.crm-content {
+  background: var(--crm-glass);
+  backdrop-filter: blur(12px);
+  border-radius: var(--crm-radius);
+  box-shadow: var(--crm-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow-x: auto;
+  animation: fadeIn 0.5s ease-out;
+  margin-bottom: 4rem;
+  width: 100%;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.crm-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 800px; /* Ensure table doesn't squash too much */
+}
+
+.crm-table th {
+  text-align: left;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 2.2rem;
+  font-weight: 800;
+  color: var(--crm-secondary);
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.crm-table td {
+  padding: 2.2rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  vertical-align: middle;
+  font-size: 1.4rem;
+  font-weight: 500;
+}
+
+.crm-table tr:last-child td {
+  border-bottom: none;
+}
+
+.crm-table tr {
+  transition: background-color 0.2s;
+}
+
+.crm-table tr:hover {
+  background-color: rgba(124, 77, 255, 0.03);
+}
+
+.status-badge {
+  padding: 0.7rem 1.5rem;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  display: inline-block;
+}
+
+.status-lead { background: #e0e7ff; color: #4338ca; border: 1px solid rgba(67, 56, 202, 0.1); }
+.status-prospect { background: #fef3c7; color: #b45309; border: 1px solid rgba(180, 83, 9, 0.1); }
+.status-customer { background: #d1fae5; color: #065f46; border: 1px solid rgba(6, 95, 70, 0.1); }
+.status-lost { background: #fee2e2; color: #991b1b; border: 1px solid rgba(153, 27, 27, 0.1); }
+
+.action-btns {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.action-btn {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: var(--crm-text-muted);
+  transition: all 0.2s;
+  font-size: 1.4rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.action-btn:hover {
+  background: var(--crm-primary);
+  color: white;
+  transform: translateY(-2px);
+  border-color: var(--crm-primary);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(26, 26, 46, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  padding: 3rem;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 550px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 2rem;
+  color: var(--crm-secondary);
+  font-weight: 800;
+  font-size: 1.8rem;
+}
+
+.crm-search-container {
+  padding: 1.5rem 2.5rem;
+  background: rgba(0, 0, 0, 0.01);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.crm-search-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.crm-search-icon {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--crm-text-muted);
+}
+
+.crm-search-input {
+  width: 100%;
+  padding: 1.4rem 1.4rem 1.4rem 4rem;
+  border-radius: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: white;
+  font-family: inherit;
+  font-size: 1.3rem;
+  transition: all 0.3s;
+}
+
+.crm-search-input:focus {
+  outline: none;
+  border-color: var(--crm-primary);
+  box-shadow: 0 0 0 4px rgba(124, 77, 255, 0.1);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+  color: var(--crm-secondary);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: #fcfcfc;
+  transition: all 0.2s;
+}
+
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--crm-primary);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(124, 77, 255, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 2.5rem;
+}
+
+.btn-cancel {
+  background: #f1f2f6;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--crm-text-muted);
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #dfe4ea;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, var(--crm-primary), #6c5ce7);
+  color: white;
+  border: none;
+  padding: 1rem 2.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(124, 77, 255, 0.2);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 77, 255, 0.3);
+}

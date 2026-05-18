@@ -71,6 +71,39 @@ Fico à disposição!`
     }
   ];
 
+  const quickLinks = [
+    {
+      id: 1,
+      title: "Site de Sabores do Dia",
+      link: "https://sabores.carmellagelateria.com.br",
+      emoji: "🔗"
+    },
+    {
+      id: 2,
+      title: "Ifood - Loja Alto XV",
+      link: "https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---alto-xv-alto-da-rua-xv/02625ea1-bc47-4f29-9d84-ab9e275206e6",
+      emoji: "🔗"
+    },
+    {
+      id: 3,
+      title: "Ifood - Loja Ahú",
+      link: "https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---ahu-ahu/b8f4806a-7fd6-4df5-a739-65fc17356556",
+      emoji: "🔗"
+    },
+    {
+      id: 4,
+      title: "Ifood - Portal",
+      link: "https://portal.ifood.com.br/",
+      emoji: "🔗"
+    },
+    {
+      id: 5,
+      title: "Ifood - Gestor de Pedidos",
+      link: "https://gestordepedidos.ifood.com.br/",
+      emoji: "🔗"
+    }
+  ];
+
   const handleCopy = async (text, index) => {
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -122,6 +155,35 @@ Fico à disposição!`
                       >
                         {copiedIndex === index ? "✓ Copiado!" : "Copiar Texto"}
                       </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h2 style={{ marginTop: "2rem" }}>Links Rápidos</h2>
+          <div className="table-container">
+            <table className="predefined-texts-table">
+              <thead>
+                <tr>
+                  <th>Título</th>
+                  <th style={{ width: "200px" }}>Link</th>
+                </tr>
+              </thead>
+              <tbody>
+                {quickLinks.map((item) => (
+                  <tr key={item.id}>
+                    <td className="table-title">{item.title}</td>
+                    <td>
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: "1.5rem", textDecoration: "none", display: "flex", justifyContent: "center" }}
+                      >
+                        {item.emoji}
+                      </a>
                     </td>
                   </tr>
                 ))}

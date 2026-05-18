@@ -92,6 +92,14 @@ function NavBar() {
             </NavLink>
           </li> */}
 
+          {/*           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/crm">
+              <span className="icon">
+                <Icons.BsPeople />
+              </span>
+              <span className="text">CRM</span>
+            </NavLink>
+          </li> */}
         </ul>
       </div>
     </>
