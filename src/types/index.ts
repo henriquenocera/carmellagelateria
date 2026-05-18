@@ -1,4 +1,4 @@
-export type ItemStatus = 'freezer-estoque' | 'vitrine-atual' | 'cubas-saidas-vitrine' | 'excluidos';
+export type ItemStatus = 'quebras' | 'freezer-estoque' | 'vitrine-atual' | 'cubas-saidas-vitrine' | 'excluidos';
 
 export interface HistoryItem {
   timestamp: string;

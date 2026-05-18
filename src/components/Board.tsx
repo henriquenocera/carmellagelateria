@@ -21,6 +21,7 @@ export function Board() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [creatingInStatus, setCreatingInStatus] = useState<ItemStatus>('freezer-estoque');
 
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
@@ -33,6 +34,11 @@ export function Board() {
   const vitrineCount = cards.filter(c => c.status === 'vitrine-atual').length;
   const isVitrineInvalid = vitrineCol && vitrineCount !== vitrineCol.maxCapacity;
 
+  const vitrineFlavorsList = cards.filter(c => c.status === 'vitrine-atual').map(c => c.title);
+  const quebrasFlavorsWithConflict = Array.from(new Set(
+    cards.filter(c => c.status === 'quebras' && vitrineFlavorsList.includes(c.title)).map(c => c.title)
+  ));
+
   const getToday = () => new Date().toISOString().slice(0, 10);
 
   const getStatusName = (status: ItemStatus) => {
@@ -43,7 +49,7 @@ export function Board() {
   useEffect(() => {
     const handleBoardAction = (e: any) => {
       const action = e.detail;
-      if (action === 'add-card') handleCreateNewCard();
+      if (action === 'add-card') handleCreateNewCard('freezer-estoque');
       if (action === 'clear-history') handleClearExcluidos();
       if (action === 'clear-archive') handleClearSaidas();
       if (action === 'open-logs') setIsLogsOpen(true);
@@ -92,7 +98,7 @@ export function Board() {
     const nextCards = cards.map((c) => {
       if (c.id === card.id) {
         const sourceStatus = c.status;
-        const entryDate = targetStatus === 'vitrine-atual' && sourceStatus !== 'vitrine-atual' ? getToday() : c.entryDate;
+        const entryDate = targetStatus === 'quebras' ? '' : (targetStatus === 'vitrine-atual' && sourceStatus !== 'vitrine-atual' ? getToday() : c.entryDate);
         const exitDate = targetStatus === 'cubas-saidas-vitrine' && sourceStatus === 'vitrine-atual' ? getToday() : c.exitDate;
         return {
           ...c,
@@ -114,7 +120,7 @@ export function Board() {
       return c;
     });
 
-    const statusOrder = ['freezer-estoque', 'vitrine-atual', 'cubas-saidas-vitrine'];
+    const statusOrder = ['quebras', 'freezer-estoque', 'vitrine-atual', 'cubas-saidas-vitrine'];
     const sourceIndex = statusOrder.indexOf(card.status);
     const targetIndex = statusOrder.indexOf(targetStatus);
     const direction = targetIndex > sourceIndex ? 'right' : 'left';
@@ -131,8 +137,9 @@ export function Board() {
     await persistCards(nextCards);
   };
 
-  const handleCreateNewCard = () => {
+  const handleCreateNewCard = (status: ItemStatus = 'freezer-estoque') => {
     setIsCreating(true);
+    setCreatingInStatus(status);
     setEditingTitle('');
     setEditingProductionDate(getToday());
     setEditingCardId('new'); // Usamos um ID temporário para indicar criação
@@ -169,7 +176,7 @@ export function Board() {
         const newCard: CardItem = {
           id: crypto.randomUUID(),
           title: editingTitle.trim() || 'Novo Sabor',
-          status: 'freezer-estoque',
+          status: creatingInStatus,
           productionDate: editingProductionDate || getToday(),
           entryDate: '',
           exitDate: '',
@@ -182,7 +189,7 @@ export function Board() {
             {
               timestamp: new Date().toISOString(),
               user: user?.email || 'A definir',
-              action: 'Criado no Estoque',
+              action: creatingInStatus === 'quebras' ? 'Criado em Quebras' : 'Criado no Estoque',
             },
           ],
         };
@@ -331,6 +338,31 @@ export function Board() {
     }
   };
 
+  const handleConsumeQuebra = async (card: CardItem) => {
+    const confirmConsume = window.confirm(`Deseja marcar "${card.title}" como Quebra Consumida? Ele será removido definitivamente.`);
+    if (!confirmConsume) return;
+
+    try {
+      setCards(prev => prev.filter(c => c.id !== card.id));
+      handleCloseModal();
+
+      const { error } = await supabase
+        .from('cards')
+        .delete()
+        .eq('id', card.id);
+
+      if (error) {
+        console.error('Erro ao excluir quebra no Supabase:', error);
+        throw error;
+      }
+    } catch (error) {
+      console.error('Erro ao consumir quebra:', error);
+      alert('Ocorreu um erro ao excluir a quebra consumida.');
+      const dbCards = await fetchCards();
+      setCards(dbCards);
+    }
+  };
+
   const globalLogs = cards.flatMap(card =>
     (card.history || []).map(h => ({
       ...h,
@@ -406,6 +438,28 @@ export function Board() {
         </div>
       )}
 
+      {quebrasFlavorsWithConflict.length > 0 && (
+        <div className="conflict-warning" style={{
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#991b1b',
+          padding: '12px 16px',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontSize: '14px',
+          fontWeight: '500',
+          boxShadow: '0 2px 4px rgba(239,68,68,0.02)'
+        }}>
+          <span style={{ fontSize: '16px' }}>🚨</span>
+          <span>
+            Atenção: Os seguintes sabores ativos na <strong>Vitrine</strong> possuem registros de <strong>Quebra</strong>: <strong>{quebrasFlavorsWithConflict.join(', ')}</strong>.
+          </span>
+        </div>
+      )}
+
       {isLoading && <p>Carregando cards...</p>}
       {syncError && <p className="sync-error">{syncError}</p>}
       {!isLoading && cards.length === 0 && <p className="empty-message" style={{ textAlign: 'center', margin: '20px 0', fontSize: '1.1rem', color: '#64748b' }}>Nenhum item cadastrado ainda</p>}
@@ -413,10 +467,25 @@ export function Board() {
         {COLUMNS
           .filter(col => col.id !== 'excluidos' || (user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email)))
           .map((col) => {
+            const vitrineFlavors = new Set(cards.filter(c => c.status === 'vitrine-atual').map(c => c.title));
             let columnCards = cards.filter((c) => c.status === col.id);
 
             // Ordenar Freezer e Vitrine por data de produção (mais velho primeiro)
             // MAS mantém o cartão recém-mexido (movedCardId) no topo temporariamente
+            if (col.id === 'quebras') {
+              columnCards = [...columnCards].sort((a, b) => {
+                if (a.id === movedCardId) return -1;
+                if (b.id === movedCardId) return 1;
+
+                const aInVitrine = vitrineFlavors.has(a.title);
+                const bInVitrine = vitrineFlavors.has(b.title);
+
+                if (aInVitrine && !bInVitrine) return -1;
+                if (!aInVitrine && bInVitrine) return 1;
+
+                return new Date(a.productionDate).getTime() - new Date(b.productionDate).getTime();
+              });
+            }
             if (col.id === 'freezer-estoque') {
               columnCards = [...columnCards].sort((a, b) => {
                 if (a.id === movedCardId) return -1;
@@ -442,10 +511,22 @@ export function Board() {
             }
 
             const getColumnAction = () => {
+              if (col.id === 'quebras') {
+                return (
+                  <button
+                    onClick={() => handleCreateNewCard('quebras')}
+                    className="icon-button"
+                    title="Registrar Quebra"
+                    style={{ background: '#ef4444', color: '#fff', padding: '4px 8px', fontSize: '11px', borderRadius: '6px' }}
+                  >
+                    <Plus size={14} style={{ marginRight: '4px' }} /> Novo
+                  </button>
+                );
+              }
               if (col.id === 'freezer-estoque') {
                 return (
                   <button
-                    onClick={handleCreateNewCard}
+                    onClick={() => handleCreateNewCard('freezer-estoque')}
                     className="icon-button"
                     title="Novo Cartão"
                     style={{ background: '#e07a5f', color: '#fff', padding: '4px 8px', fontSize: '11px', borderRadius: '6px' }}
@@ -482,7 +563,22 @@ export function Board() {
             };
 
             const getSortIndicator = () => {
-              if (col.id === 'freezer-estoque') {
+              if (col.id === 'quebras') {
+                if (columnCards.some(c => c.id === movedCardId)) {
+                  return (
+                    <>
+                      <Clock size={12} style={{ color: '#e07a5f' }} />
+                      <span style={{ color: '#e07a5f', fontWeight: '600' }}>Organizando novo item...</span>
+                    </>
+                  );
+                }
+                return (
+                  <>
+                    <ArrowDownAz size={12} />
+                    <span>Mais antigos no topo</span>
+                  </>
+                );
+              } else if (col.id === 'freezer-estoque') {
                 if (columnCards.some(c => c.id === movedCardId)) {
                   return (
                     <>
@@ -527,6 +623,7 @@ export function Board() {
                 action={getColumnAction()}
                 sortIndicator={getSortIndicator()}
                 groupByDate={col.id === 'cubas-saidas-vitrine' || col.id === 'excluidos'}
+                vitrineFlavors={vitrineFlavors}
               />
             );
           })}
@@ -677,7 +774,7 @@ export function Board() {
             <div className="modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
               <div>
                 <label className="modal-label" htmlFor="card-production-date-input">
-                  Data de produção
+                  {((isCreating && creatingInStatus === 'quebras') || (!isCreating && editingCard?.status === 'quebras')) ? 'Data de criação' : 'Data de produção'}
                 </label>
                 <input
                   id="card-production-date-input"
@@ -776,6 +873,16 @@ export function Board() {
 
             {!isCreating && (
               <div className="modal-movement-actions" style={{ display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
+                {editingCard?.status === 'quebras' && (
+                  <button
+                    type="button"
+                    className="move-btn"
+                    style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '4px', fontWeight: '600' }}
+                    onClick={async () => { if (editingCard) await handleConsumeQuebra(editingCard); }}
+                  >
+                    Quebra Consumida <Trash2 size={16} style={{ marginLeft: '4px' }} />
+                  </button>
+                )}
                 {editingCard?.status === 'freezer-estoque' && (
                   <button
                     type="button"

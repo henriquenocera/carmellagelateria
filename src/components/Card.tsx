@@ -8,6 +8,7 @@ interface CardProps {
   onClick?: (card: CardItem) => void;
   movedCardId?: string | null;
   moveDirection?: 'left' | 'right' | null;
+  isConflict?: boolean;
 }
 
 const getDiffDays = (date1: string, date2: string) => {
@@ -26,7 +27,7 @@ const formatDate = (date: string) => {
   return new Intl.DateTimeFormat('pt-BR').format(parsed);
 };
 
-export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
+export function Card({ card, onClick, movedCardId, moveDirection, isConflict }: CardProps) {
   const [showTooltip, setShowTooltip] = useState(false);
   const isMoved = card.id === movedCardId;
   const slideClass = isMoved ? (moveDirection === 'right' ? 'slide-from-left' : 'slide-from-right') : '';
@@ -78,10 +79,15 @@ export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
 
   return (
     <div
-      className={`card ${isMoved ? 'is-moved' : ''} ${slideClass}`}
+      className={`card ${isMoved ? 'is-moved' : ''} ${slideClass} ${isConflict ? 'is-conflict' : ''}`}
       style={{ zIndex: showTooltip ? 100 : 1 }}
       onClick={() => onClick?.(card)}
     >
+      {isConflict && (
+        <div className="card-conflict-badge">
+          ⚠️ Sabor ativo na Vitrine!
+        </div>
+      )}
       <div className="card-badges">
         {daysOld !== null && (
           <div className={`card-age-badge ${getBadgeClass(daysOld)}`} title={`${daysOld} dias desde a produção`}>
@@ -117,13 +123,17 @@ export function Card({ card, onClick, movedCardId, moveDirection }: CardProps) {
 
       <div className="card-meta-list">
         <div className="card-meta-item">
-          <span className="card-meta-label">Data de produção</span>
+          <span className="card-meta-label">
+            {card.status === 'quebras' ? 'Data de criação' : 'Data de produção'}
+          </span>
           <span className="card-meta-value">{formatDate(card.productionDate)}</span>
         </div>
-        <div className="card-meta-item">
-          <span className="card-meta-label">Data de entrada</span>
-          <span className="card-meta-value">{formatDate(card.entryDate)}</span>
-        </div>
+        {card.status !== 'quebras' && (
+          <div className="card-meta-item">
+            <span className="card-meta-label">Data de entrada</span>
+            <span className="card-meta-value">{formatDate(card.entryDate)}</span>
+          </div>
+        )}
         {card.exitDate && (
           <div className="card-meta-item">
             <span className="card-meta-label">Data de saída</span>

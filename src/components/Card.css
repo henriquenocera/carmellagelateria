@@ -19,9 +19,7 @@
   box-shadow: var(--shadow-md);
 }
 
-.card:active {
-  cursor: grabbing;
-}
+
 
 .card.is-dragging {
   opacity: 0.5;
@@ -36,7 +34,7 @@
   justify-content: space-between;
   gap: 12px;
   /* Add padding to prevent title from overlapping with absolute badges */
-  padding-right: 30px; 
+  padding-right: 30px;
 }
 
 .card-badges {
@@ -44,7 +42,8 @@
   top: 10px;
   right: 10px;
   display: flex;
-  flex-direction: row-reverse; /* Align from the right */
+  flex-direction: row-reverse;
+  /* Align from the right */
   gap: 4px;
   align-items: center;
   z-index: 2;
@@ -157,8 +156,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .drag-handle {
@@ -268,5 +274,44 @@
     background-color: var(--card-bg);
     border-color: rgba(0, 0, 0, 0.04);
     box-shadow: var(--shadow-sm);
+  }
+}
+
+.card.is-conflict {
+  border: 1px dashed #ef4444 !important;
+  background-color: #fffaf0 !important;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15), var(--shadow-sm);
+  animation: border-pulse 2s infinite ease-in-out;
+}
+
+.card-conflict-badge {
+  background: #fef2f2;
+  border: 1px solid #fee2e2;
+  color: #b91c1c;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 2px rgba(239, 68, 68, 0.05);
+  width: fit-content;
+}
+
+@keyframes border-pulse {
+  0% {
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.15), var(--shadow-sm);
+  }
+
+  50% {
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.3), var(--shadow-sm);
+  }
+
+  100% {
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.15), var(--shadow-sm);
   }
 }

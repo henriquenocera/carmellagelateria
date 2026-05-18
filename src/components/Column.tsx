@@ -12,22 +12,28 @@ interface ColumnProps {
   action?: React.ReactNode;
   sortIndicator?: React.ReactNode;
   groupByDate?: boolean;
+  vitrineFlavors?: Set<string>;
 }
 
-export function Column({ column, cards, onCardClick, movedCardId, moveDirection, action, sortIndicator, groupByDate }: ColumnProps) {
+export function Column({ column, cards, onCardClick, movedCardId, moveDirection, action, sortIndicator, groupByDate, vitrineFlavors }: ColumnProps) {
   const isVitrine = column.id === 'vitrine-atual';
+  const isQuebras = column.id === 'quebras';
 
   const renderContent = () => {
     if (!groupByDate) {
-      return cards.map((card) => (
-        <Card
-          key={card.id}
-          card={card}
-          onClick={onCardClick}
-          movedCardId={movedCardId}
-          moveDirection={moveDirection}
-        />
-      ));
+      return cards.map((card) => {
+        const isConflict = column.id === 'quebras' && vitrineFlavors?.has(card.title);
+        return (
+          <Card
+            key={card.id}
+            card={card}
+            onClick={onCardClick}
+            movedCardId={movedCardId}
+            moveDirection={moveDirection}
+            isConflict={isConflict}
+          />
+        );
+      });
     }
 
     const groups: { [key: string]: CardItem[] } = {};
@@ -58,7 +64,7 @@ export function Column({ column, cards, onCardClick, movedCardId, moveDirection,
   };
 
   return (
-    <div className={`column ${isVitrine ? 'column-vitrine' : ''}`}>
+    <div className={`column ${isVitrine ? 'column-vitrine' : ''} ${isQuebras ? 'column-quebras' : ''}`}>
       <div className="column-header" style={{ paddingBottom: '8px' }}>
         <div className="column-title-area">
           <h2 className="column-title">{column.title}</h2>
