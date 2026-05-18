@@ -25,6 +25,11 @@ export function Board() {
 
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [quebraConfirmData, setQuebraConfirmData] = useState<{
+    card: CardItem;
+    nextCards: CardItem[];
+    direction: 'left' | 'right';
+  } | null>(null);
   const latestCardsRef = useRef<CardItem[]>([]);
   const { user } = useAuth();
   const isAuthorized = !!(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email));
@@ -124,6 +129,15 @@ export function Board() {
     const sourceIndex = statusOrder.indexOf(card.status);
     const targetIndex = statusOrder.indexOf(targetStatus);
     const direction = targetIndex > sourceIndex ? 'right' : 'left';
+
+    if (targetStatus === 'cubas-saidas-vitrine' && card.status === 'vitrine-atual') {
+      setQuebraConfirmData({
+        card,
+        nextCards,
+        direction: direction || 'right'
+      });
+      return;
+    }
 
     setCards(nextCards);
     setMovedCardId(card.id);
@@ -361,6 +375,48 @@ export function Board() {
       const dbCards = await fetchCards();
       setCards(dbCards);
     }
+  };
+
+  const handleConfirmQuebraDialog = async (shouldCreateQuebra: boolean) => {
+    if (!quebraConfirmData) return;
+    const { card, nextCards, direction } = quebraConfirmData;
+    let finalCards = nextCards;
+
+    if (shouldCreateQuebra) {
+      const newQuebraCard: CardItem = {
+        id: crypto.randomUUID(),
+        title: card.title,
+        status: 'quebras',
+        productionDate: getToday(),
+        entryDate: '',
+        exitDate: '',
+        createdBy: user?.email || 'Sistema',
+        lastEditedBy: user?.email || 'Sistema',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        history: [
+          {
+            timestamp: new Date().toISOString(),
+            user: user?.email || 'Sistema',
+            action: 'Criado em Quebras (Auto via Saída da Vitrine)',
+          }
+        ]
+      };
+      finalCards = [...nextCards, newQuebraCard];
+    }
+
+    setCards(finalCards);
+    setMovedCardId(card.id);
+    setMoveDirection(direction);
+
+    // Reset highlight after a short period (matching animation duration)
+    setTimeout(() => {
+      setMovedCardId(null);
+      setMoveDirection(null);
+    }, 8000);
+
+    setQuebraConfirmData(null);
+    await persistCards(finalCards);
   };
 
   const globalLogs = cards.flatMap(card =>
@@ -935,6 +991,36 @@ export function Board() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {quebraConfirmData && (
+        <div className="modal-backdrop" onClick={() => handleConfirmQuebraDialog(false)}>
+          <div className="modal-content" onClick={(event) => event.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center', padding: '24px' }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚨</div>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>Registro de Quebra</h3>
+            <p style={{ margin: '0 0 24px 0', fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
+              O sabor <strong>{quebraConfirmData.card.title}</strong> gerou quebra ao sair da vitrine?
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button
+                type="button"
+                className="modal-btn modal-btn-secondary"
+                style={{ flex: 1, padding: '10px', fontWeight: 600 }}
+                onClick={() => handleConfirmQuebraDialog(false)}
+              >
+                Não
+              </button>
+              <button
+                type="button"
+                className="modal-btn"
+                style={{ flex: 1, padding: '10px', fontWeight: 600, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                onClick={() => handleConfirmQuebraDialog(true)}
+              >
+                Sim, Gerou Quebra
+              </button>
+            </div>
           </div>
         </div>
       )}
