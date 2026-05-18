@@ -30,6 +30,7 @@ export function Board() {
     nextCards: CardItem[];
     direction: 'left' | 'right';
   } | null>(null);
+  const [profiles, setProfiles] = useState<{ [email: string]: string }>({});
   const latestCardsRef = useRef<CardItem[]>([]);
   const { user } = useAuth();
   const isAuthorized = !!(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email));
@@ -49,6 +50,15 @@ export function Board() {
   const getStatusName = (status: ItemStatus) => {
     const col = COLUMNS.find(c => c.id === status);
     return col ? col.title : status;
+  };
+
+  const getUserDisplayName = (email: string | null | undefined) => {
+    if (!email) return 'A definir';
+    const cleanEmail = email.trim().toLowerCase();
+    if (profiles[cleanEmail]) {
+      return profiles[cleanEmail];
+    }
+    return email.split('@')[0];
   };
 
   useEffect(() => {
@@ -83,7 +93,31 @@ export function Board() {
       }
     };
 
+    const loadProfiles = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('email, name');
+        if (error) {
+          console.warn('Tabela profiles nao encontrada:', error.message);
+          return;
+        }
+        if (data) {
+          const profileMap: { [email: string]: string } = {};
+          data.forEach((p: any) => {
+            if (p.email) {
+              profileMap[p.email.toLowerCase().trim()] = p.name;
+            }
+          });
+          setProfiles(profileMap);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar perfis:', error);
+      }
+    };
+
     void loadCards();
+    void loadProfiles();
   }, []);
 
   useEffect(() => {
@@ -394,6 +428,7 @@ export function Board() {
         lastEditedBy: user?.email || 'Sistema',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        position: cards.length,
         history: [
           {
             timestamp: new Date().toISOString(),
@@ -740,9 +775,9 @@ export function Board() {
                             <td style={{ padding: '12px 24px', color: '#64748b' }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: '600', color: '#475569' }}>
-                                  {log.user.charAt(0).toUpperCase()}
+                                  {getUserDisplayName(log.user).charAt(0).toUpperCase()}
                                 </div>
-                                {log.user.split('@')[0]}
+                                {getUserDisplayName(log.user)}
                               </div>
                             </td>
                             <td style={{ padding: '12px 24px', color: '#334155' }}>
@@ -801,7 +836,7 @@ export function Board() {
               {!isCreating && (
                 <div style={{ textAlign: 'right' }}>
                   <span style={{ fontSize: '12px', color: '#64748b', display: 'block' }}>
-                    Criado por: <strong>{editingCard?.createdBy?.split('@')[0] || 'A definir'}</strong>
+                    Criado por: <strong>{getUserDisplayName(editingCard?.createdBy)}</strong>
                   </span>
                   {editingCard?.createdAt && (
                     <span style={{ fontSize: '11px', color: '#94a3b8' }}>
@@ -881,7 +916,7 @@ export function Board() {
                       <div className="modal-history-content">
                         <div className="modal-history-action">{item.action}</div>
                         <div className="modal-history-meta">
-                          {new Date(item.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} • {item.user.split('@')[0]}
+                          {new Date(item.timestamp).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })} • {getUserDisplayName(item.user)}
                         </div>
                       </div>
                     </div>
