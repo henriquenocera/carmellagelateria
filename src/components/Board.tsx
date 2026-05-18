@@ -36,6 +36,10 @@ export function Board() {
   const isAuthorized = !!(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email));
 
   const editingCard = editingCardId ? cards.find((c) => c.id === editingCardId) : null;
+  const sameGroupCards = editingCard && editingCard.status === 'quebras'
+    ? cards.filter(c => c.status === 'quebras' && c.title.toLowerCase().trim() === editingCard.title.toLowerCase().trim() && c.productionDate === editingCard.productionDate)
+    : [];
+  const isGrouped = sameGroupCards.length > 1;
   const vitrineCol = COLUMNS.find(c => c.id === 'vitrine-atual');
   const vitrineCount = cards.filter(c => c.status === 'vitrine-atual').length;
   const isVitrineInvalid = vitrineCol && vitrineCount !== vitrineCol.maxCapacity;
@@ -386,22 +390,51 @@ export function Board() {
     }
   };
 
-  const handleConsumeQuebra = async (card: CardItem) => {
-    const confirmConsume = window.confirm(`Deseja marcar "${card.title}" como Quebra Consumida? Ele será removido definitivamente.`);
+  const handleConsumeQuebra = async (card: CardItem, consumeAll: boolean = false) => {
+    const sameGroup = cards.filter(
+      c =>
+        c.status === 'quebras' &&
+        c.title.toLowerCase().trim() === card.title.toLowerCase().trim() &&
+        c.productionDate === card.productionDate
+    );
+    const count = sameGroup.length;
+
+    const confirmMsg = consumeAll
+      ? `Deseja marcar todo o grupo de "${card.title}" (${count} itens) como Quebra Consumida? Eles serão removidos definitivamente.`
+      : `Deseja marcar 1 unidade de "${card.title}" como Quebra Consumida? Ela será removida definitivamente.`;
+
+    const confirmConsume = window.confirm(confirmMsg);
     if (!confirmConsume) return;
 
     try {
-      setCards(prev => prev.filter(c => c.id !== card.id));
-      handleCloseModal();
+      if (consumeAll) {
+        const idsToDelete = sameGroup.map(c => c.id);
+        setCards(prev => prev.filter(c => !idsToDelete.includes(c.id)));
+        handleCloseModal();
 
-      const { error } = await supabase
-        .from('cards')
-        .delete()
-        .eq('id', card.id);
+        const { error } = await supabase
+          .from('cards')
+          .delete()
+          .in('id', idsToDelete);
 
-      if (error) {
-        console.error('Erro ao excluir quebra no Supabase:', error);
-        throw error;
+        if (error) {
+          console.error('Erro ao excluir grupo de quebras no Supabase:', error);
+          throw error;
+        }
+      } else {
+        const itemToDelete = sameGroup[0];
+        setCards(prev => prev.filter(c => c.id !== itemToDelete.id));
+        handleCloseModal();
+
+        const { error } = await supabase
+          .from('cards')
+          .delete()
+          .eq('id', itemToDelete.id);
+
+        if (error) {
+          console.error('Erro ao excluir quebra no Supabase:', error);
+          throw error;
+        }
       }
     } catch (error) {
       console.error('Erro ao consumir quebra:', error);
@@ -564,9 +597,34 @@ export function Board() {
             // Ordenar Freezer e Vitrine por data de produção (mais velho primeiro)
             // MAS mantém o cartão recém-mexido (movedCardId) no topo temporariamente
             if (col.id === 'quebras') {
-              columnCards = [...columnCards].sort((a, b) => {
-                if (a.id === movedCardId) return -1;
-                if (b.id === movedCardId) return 1;
+              // Agrupar cartões que possuem o mesmo título e mesma data (productionDate representa data de criação nas quebras)
+              const groups: { [key: string]: CardItem[] } = {};
+              columnCards.forEach(c => {
+                const key = `${c.title.toLowerCase().trim()}_${c.productionDate}`;
+                if (!groups[key]) {
+                  groups[key] = [];
+                }
+                groups[key].push(c);
+              });
+
+              const groupedCards: CardItem[] = [];
+              Object.values(groups).forEach(group => {
+                if (group.length === 1) {
+                  groupedCards.push(group[0]);
+                } else {
+                  groupedCards.push({
+                    ...group[0],
+                    count: group.length,
+                    groupedIds: group.map(g => g.id),
+                  });
+                }
+              });
+
+              columnCards = groupedCards.sort((a, b) => {
+                const aMoved = a.id === movedCardId || (a.groupedIds && a.groupedIds.includes(movedCardId || ''));
+                const bMoved = b.id === movedCardId || (b.groupedIds && b.groupedIds.includes(movedCardId || ''));
+                if (aMoved) return -1;
+                if (bMoved) return 1;
 
                 const aInVitrine = vitrineFlavors.has(a.title);
                 const bInVitrine = vitrineFlavors.has(b.title);
@@ -965,14 +1023,35 @@ export function Board() {
             {!isCreating && (
               <div className="modal-movement-actions" style={{ display: 'flex', gap: '8px', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #e2e8f0' }}>
                 {editingCard?.status === 'quebras' && (
-                  <button
-                    type="button"
-                    className="move-btn"
-                    style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '4px', fontWeight: '600' }}
-                    onClick={async () => { if (editingCard) await handleConsumeQuebra(editingCard); }}
-                  >
-                    Quebra Consumida <Trash2 size={16} style={{ marginLeft: '4px' }} />
-                  </button>
+                  isGrouped ? (
+                    <div style={{ display: 'flex', gap: '8px', width: '100%' }}>
+                      <button
+                        type="button"
+                        className="move-btn"
+                        style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '4px', fontWeight: '600' }}
+                        onClick={async () => { if (editingCard) await handleConsumeQuebra(editingCard, false); }}
+                      >
+                        Consumir 1 <Trash2 size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        className="move-btn"
+                        style={{ flex: 1.5, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', cursor: 'pointer', background: '#b91c1c', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: '600' }}
+                        onClick={async () => { if (editingCard) await handleConsumeQuebra(editingCard, true); }}
+                      >
+                        Consumir Grupo ({sameGroupCards.length}) <Trash2 size={15} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      className="move-btn"
+                      style={{ flex: 1, padding: '8px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', borderRadius: '4px', fontWeight: '600' }}
+                      onClick={async () => { if (editingCard) await handleConsumeQuebra(editingCard, false); }}
+                    >
+                      Quebra Consumida <Trash2 size={16} style={{ marginLeft: '4px' }} />
+                    </button>
+                  )
                 )}
                 {editingCard?.status === 'freezer-estoque' && (
                   <button

@@ -63,13 +63,15 @@ export function Column({ column, cards, onCardClick, movedCardId, moveDirection,
     ));
   };
 
+  const totalQuantity = cards.reduce((sum, card) => sum + (card.count || 1), 0);
+
   return (
     <div className={`column ${isVitrine ? 'column-vitrine' : ''} ${isQuebras ? 'column-quebras' : ''}`}>
       <div className="column-header" style={{ paddingBottom: '8px' }}>
         <div className="column-title-area">
           <h2 className="column-title">{column.title}</h2>
           <div className="column-count">
-            {cards.length} {column.maxCapacity ? `/ ${column.maxCapacity}` : ''}
+            {totalQuantity} {column.maxCapacity ? `/ ${column.maxCapacity}` : ''}
           </div>
         </div>
         <div className="column-actions">

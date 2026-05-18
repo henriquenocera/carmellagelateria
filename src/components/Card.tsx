@@ -79,7 +79,7 @@ export function Card({ card, onClick, movedCardId, moveDirection, isConflict }: 
 
   return (
     <div
-      className={`card ${isMoved ? 'is-moved' : ''} ${slideClass} ${isConflict ? 'is-conflict' : ''}`}
+      className={`card ${isMoved ? 'is-moved' : ''} ${slideClass} ${isConflict ? 'is-conflict' : ''} ${card.count && card.count > 1 ? 'is-grouped' : ''}`}
       style={{ zIndex: showTooltip ? 100 : 1 }}
       onClick={() => onClick?.(card)}
     >
@@ -89,6 +89,11 @@ export function Card({ card, onClick, movedCardId, moveDirection, isConflict }: 
         </div>
       )}
       <div className="card-badges">
+        {card.count && card.count > 1 && (
+          <div className="card-group-badge" title={`${card.count} cartões agrupados`}>
+            {card.count}x
+          </div>
+        )}
         {daysOld !== null && (
           <div className={`card-age-badge ${getBadgeClass(daysOld)}`} title={`${daysOld} dias desde a produção`}>
             {daysOld}d

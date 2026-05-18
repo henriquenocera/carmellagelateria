@@ -19,6 +19,8 @@ export interface CardItem {
   updatedAt: string;
   position: number;
   history: HistoryItem[];
+  count?: number;
+  groupedIds?: string[];
 }
 
 export interface ColumnData {
