@@ -26,6 +26,7 @@ export function Board() {
   const [isLogsOpen, setIsLogsOpen] = useState(false);
   const latestCardsRef = useRef<CardItem[]>([]);
   const { user } = useAuth();
+  const isAuthorized = !!(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email));
 
   const editingCard = editingCardId ? cards.find((c) => c.id === editingCardId) : null;
   const vitrineCol = COLUMNS.find(c => c.id === 'vitrine-atual');
@@ -138,7 +139,6 @@ export function Board() {
   };
 
   const handleCardClick = (card: CardItem) => {
-    const isAuthorized = user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email);
     if ((card.status === 'cubas-saidas-vitrine' || card.status === 'excluidos') && !isAuthorized) return;
 
     setEditingCardId(card.id);
@@ -666,6 +666,7 @@ export function Board() {
               className="modal-input"
               value={editingTitle}
               onChange={(event) => setEditingTitle(event.target.value)}
+              disabled={!isCreating && !isAuthorized}
             >
               <option value="" disabled>Selecione um sabor</option>
               {GELATO_FLAVORS.map(flavor => (
@@ -684,6 +685,7 @@ export function Board() {
                   type="date"
                   value={editingProductionDate}
                   onChange={(event) => setEditingProductionDate(event.target.value)}
+                  disabled={!isCreating && !isAuthorized}
                 />
               </div>
 
@@ -762,11 +764,13 @@ export function Board() {
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
                 <button type="button" className="modal-btn modal-btn-secondary" onClick={handleCloseModal}>
-                  Cancelar
+                  {(!isCreating && !isAuthorized) ? 'Fechar' : 'Cancelar'}
                 </button>
-                <button type="button" className="modal-btn modal-btn-primary" onClick={handleSaveModal} disabled={isSaving}>
-                  {isSaving ? 'Salvando...' : 'Salvar'}
-                </button>
+                {(isCreating || isAuthorized) && (
+                  <button type="button" className="modal-btn modal-btn-primary" onClick={handleSaveModal} disabled={isSaving}>
+                    {isSaving ? 'Salvando...' : 'Salvar'}
+                  </button>
+                )}
               </div>
             </div>
 
