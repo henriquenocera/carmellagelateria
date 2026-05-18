@@ -4,8 +4,21 @@ import ChecklistItem from "./ChecklistItem.jsx";
 import { ListId } from '../id.ts';
 
 function ChecklistFechamentoForm({ handleSubmit }) {
-  const [geladeira, setGeladeira] = useState("");
-  const [brownie, setBrownie] = useState("");
+  const [brownieBatches, setBrownieBatches] = useState([{ quantity: "", date: "" }]);
+
+  const getFormattedBrownies = () => {
+    const total = brownieBatches.reduce((acc, curr) => acc + (parseInt(curr.quantity) || 0), 0);
+    const details = brownieBatches
+      .filter(b => b.quantity && b.date)
+      .map(b => {
+        const parts = b.date.split('-');
+        const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : b.date;
+        return `${b.quantity} (venc. ${formattedDate})`;
+      })
+      .join(", ");
+
+    return `${total} [${details}]`;
+  };
   const [panos, setPanos] = useState("");
   const [user, setUser] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
@@ -14,8 +27,23 @@ function ChecklistFechamentoForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
   const [check, setCheck] = useState(false);
+  const [waffleBatches, setWaffleBatches] = useState([{ quantity: "", date: "" }]);
 
-  const unidadeText = "Alto da XV";
+  const getFormattedWaffles = () => {
+    const total = waffleBatches.reduce((acc, curr) => acc + (parseInt(curr.quantity) || 0), 0);
+    const details = waffleBatches
+      .filter(b => b.quantity && b.date)
+      .map(b => {
+        const parts = b.date.split('-');
+        const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : b.date;
+        return `${b.quantity} (venc. ${formattedDate})`;
+      })
+      .join(", ");
+
+    return `${total} [${details}]`;
+  };
+
+  const unidadeText = "Alto XV";
 
   const weekday = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
   console.log(weekday)
@@ -113,6 +141,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       if (item.weekday === undefined) return true; // If no weekday specified, always check
       return item.weekday === today; // Only check if it's the right weekday
     });
+
 
     const allChecked = visibleItems.every(item => checkedItems[item.id]);
     return allChecked;
@@ -257,7 +286,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         </div>
       )}
 
-      <form onSubmit={event => handleSubmit(event, geladeira, brownie, panos, user, check)} className="fechamentoAltoxv" id="checklistClose">
+      <form onSubmit={event => handleSubmit(event, getFormattedWaffles(), getFormattedBrownies(), panos, user, check)} className="fechamentoAltoxv" id="checklistClose">
         <button className="hidebtn" onClick={Checked}>Check</button>
 
         <div className="step-indicator">
@@ -291,19 +320,196 @@ function ChecklistFechamentoForm({ handleSubmit }) {
               newItemDate={item.new}
               buttonLink={item.buttonLink}
               buttonText={item.buttonText}
-
             />
           ))}
 
         {currentStep === 4 && (
           <>
-            <div className="inventoryFlexbox">
-              <label className="inventoryLabel" htmlFor="">Quantidade de <b>Massas</b></label>
-              <input onChange={(event) => setGeladeira(event.target.value)} className="inventoryInput" required type="number" name="geladeira" min="0" id="91" />
+            <div style={{ marginBottom: "20px", border: "1px solid #a17550", borderRadius: "8px", padding: "15px", backgroundColor: "#fbf9f6", width: "100%", maxWidth: "500px" }}>
+              <p style={{ fontSize: "1.6rem", fontWeight: "bold", color: "#a17550", marginBottom: "15px", marginTop: "0" }}>Lotes de Waffles</p>
+
+              {waffleBatches.map((batch, index) => (
+                <div key={index} className="waffle-batch-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "15px", marginBottom: index < waffleBatches.length - 1 ? "15px" : "0", paddingBottom: index < waffleBatches.length - 1 ? "15px" : "0", borderBottom: index < waffleBatches.length - 1 ? "1px dashed #e2d5c5" : "none" }}>
+                  <span style={{ fontSize: "1.4rem", fontWeight: "600", minWidth: "60px" }}>Lote {index + 1}:</span>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label style={{ fontSize: "1.4rem" }}>Qtd:</label>
+                    <input
+                      value={batch.quantity}
+                      onChange={(e) => {
+                        const newBatches = [...waffleBatches];
+                        newBatches[index].quantity = e.target.value;
+                        setWaffleBatches(newBatches);
+                      }}
+                      className="inventoryInput"
+                      required
+                      type="number"
+                      min="0"
+                      style={{ width: "80px", height: "36px", padding: "5px" }}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label style={{ fontSize: "1.4rem" }}>Vencimento:</label>
+                    <input
+                      value={batch.date}
+                      onChange={(e) => {
+                        const newBatches = [...waffleBatches];
+                        newBatches[index].date = e.target.value;
+                        setWaffleBatches(newBatches);
+                      }}
+                      className="inventoryInput"
+                      required
+                      type="date"
+                      style={{ width: "150px", height: "36px", padding: "5px" }}
+                    />
+                  </div>
+
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newBatches = waffleBatches.filter((_, i) => i !== index);
+                        setWaffleBatches(newBatches);
+                      }}
+                      style={{
+                        background: "#ff0f0f",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 12px",
+                        cursor: "pointer",
+                        borderRadius: "4px",
+                        fontSize: "1.2rem",
+                        fontWeight: "600",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      Remover Lote
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              {waffleBatches.length < 3 && (
+                <button
+                  type="button"
+                  onClick={() => setWaffleBatches([...waffleBatches, { quantity: "", date: "" }])}
+                  style={{
+                    marginTop: "15px",
+                    background: "transparent",
+                    color: "#a17550",
+                    border: "1.5px dashed #a17550",
+                    padding: "8px 16px",
+                    cursor: "pointer",
+                    borderRadius: "6px",
+                    fontSize: "1.4rem",
+                    fontWeight: "600",
+                    width: "100%",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "5px"
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "#a17550"; e.currentTarget.style.color = "white"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#a17550"; }}
+                >
+                  + Adicionar outro lote
+                </button>
+              )}
             </div>
-            <div className="inventoryFlexbox">
-              <label className="inventoryLabel" htmlFor="">Quantidade de <b>Brownies:</b></label>
-              <input onChange={(event) => setBrownie(event.target.value)} className="inventoryInput" required type="number" name="brownie" min="0" id="94" />
+            <div style={{ marginBottom: "20px", border: "1px solid #a17550", borderRadius: "8px", padding: "15px", backgroundColor: "#fbf9f6", width: "100%", maxWidth: "500px" }}>
+              <p style={{ fontSize: "1.6rem", fontWeight: "bold", color: "#a17550", marginBottom: "15px", marginTop: "0" }}>Lotes de Brownies</p>
+
+              {brownieBatches.map((batch, index) => (
+                <div key={index} className="brownie-batch-row" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "15px", marginBottom: index < brownieBatches.length - 1 ? "15px" : "0", paddingBottom: index < brownieBatches.length - 1 ? "15px" : "0", borderBottom: index < brownieBatches.length - 1 ? "1px dashed #e2d5c5" : "none" }}>
+                  <span style={{ fontSize: "1.4rem", fontWeight: "600", minWidth: "60px" }}>Lote {index + 1}:</span>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label style={{ fontSize: "1.4rem" }}>Qtd:</label>
+                    <input
+                      value={batch.quantity}
+                      onChange={(e) => {
+                        const newBatches = [...brownieBatches];
+                        newBatches[index].quantity = e.target.value;
+                        setBrownieBatches(newBatches);
+                      }}
+                      className="inventoryInput"
+                      required
+                      type="number"
+                      min="0"
+                      style={{ width: "80px", height: "36px", padding: "5px" }}
+                    />
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <label style={{ fontSize: "1.4rem" }}>Vencimento:</label>
+                    <input
+                      value={batch.date}
+                      onChange={(e) => {
+                        const newBatches = [...brownieBatches];
+                        newBatches[index].date = e.target.value;
+                        setBrownieBatches(newBatches);
+                      }}
+                      className="inventoryInput"
+                      required
+                      type="date"
+                      style={{ width: "150px", height: "36px", padding: "5px" }}
+                    />
+                  </div>
+
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newBatches = brownieBatches.filter((_, i) => i !== index);
+                        setBrownieBatches(newBatches);
+                      }}
+                      style={{
+                        background: "#ff0f0f",
+                        color: "white",
+                        border: "none",
+                        padding: "6px 12px",
+                        cursor: "pointer",
+                        borderRadius: "4px",
+                        fontSize: "1.2rem",
+                        fontWeight: "600",
+                        transition: "all 0.2s"
+                      }}
+                    >
+                      Remover Lote
+                    </button>
+                  )}
+                </div>
+              ))}
+
+              {brownieBatches.length < 3 && (
+                <button
+                  type="button"
+                  onClick={() => setBrownieBatches([...brownieBatches, { quantity: "", date: "" }])}
+                  style={{
+                    marginTop: "15px",
+                    background: "transparent",
+                    color: "#a17550",
+                    border: "1.5px dashed #a17550",
+                    padding: "8px 16px",
+                    cursor: "pointer",
+                    borderRadius: "6px",
+                    fontSize: "1.4rem",
+                    fontWeight: "600",
+                    width: "100%",
+                    transition: "all 0.2s",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    gap: "5px"
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "#a17550"; e.currentTarget.style.color = "white"; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#a17550"; }}
+                >
+                  + Adicionar outro lote
+                </button>
+              )}
             </div>
             <div className="inventoryFlexbox">
               <label className="inventoryLabel" htmlFor="">Quantidade de <b>Panos Limpos:</b></label>
@@ -328,7 +534,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
             </button>
           )}
         </div>
-      </form>
+      </form >
     </>
   );
 }
