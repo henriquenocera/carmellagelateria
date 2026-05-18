@@ -26,7 +26,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
         { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v 'tomadas vermelhas'", subtitle2: "Girar o controlador da máquina de café para a posição '1'" },
         { id: "5", title: "Acender Todas as Luzes", subtitle1: "", subtitle2: "" },
-        { id: "6", title: "Ligar máquininha de cartão POS 'Máquininha verde'", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
+        { id: "6", title: "Ligar máquininha de cartão POS", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
         { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
         { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Utilizar o contador de notas e moedas abaixo", subtitle2: "" },
         { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 5 | Senha: 2849" },
@@ -73,7 +73,15 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
         {
           id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
-          buttonLink: "https://ahu.carmellagelateria.com.br/afericao"
+          buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 5,
+        },
+        {
+          id: "92", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
+          buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 6,
+        },
+        {
+          id: "93", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
+          buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 0,
         }
 
       ]

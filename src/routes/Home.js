@@ -60,6 +60,27 @@ function Home() {
       setLastThreeDays(days);
     }
   };
+  const renderWaffles = (massas) => {
+    if (!massas) return "-";
+    const match = massas.match(/^(\d+)\s*\[(.*)\]$/);
+    if (match) {
+      const total = match[1];
+      const detailsStr = match[2];
+      const batches = detailsStr.split(',').map(b => b.trim());
+      return (
+        <div style={{ textAlign: "center", lineHeight: "1.4" }}>
+          <strong>Total: {total}</strong>
+          {batches.map((batch, idx) => (
+            <div key={idx} style={{ fontSize: "1.3rem", color: "#666", marginTop: "2px" }}>
+              {batch}
+            </div>
+          ))}
+        </div>
+      );
+    }
+    return <div style={{ textAlign: "center" }}>{massas}</div>;
+  };
+
   return (
     <>
       <Helmet>
@@ -196,7 +217,7 @@ function Home() {
                           <td>{moment(item.created_at).format("HH:mm")}</td>
                           <td>{item.checklist}</td>
                           <td>{item.person}</td>
-                          <td className="text-center">{item.massas ?? "-"}</td>
+                          <td className="text-center">{renderWaffles(item.massas)}</td>
                           <td className="text-center">{item.brownies ?? "-"}</td>
                           <td className="text-center">{item.panos ?? "-"}</td>
                           <td className="text-center">
