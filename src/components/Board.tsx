@@ -31,6 +31,7 @@ export function Board() {
     direction: 'left' | 'right';
   } | null>(null);
   const [profiles, setProfiles] = useState<{ [email: string]: string }>({});
+  const [quebraQuantity, setQuebraQuantity] = useState<number>(1);
   const latestCardsRef = useRef<CardItem[]>([]);
   const { user } = useAuth();
   const isAuthorized = !!(user?.email && AUTHORIZED_EMAILS_TO_DELETE.includes(user.email));
@@ -169,6 +170,7 @@ export function Board() {
     const direction = targetIndex > sourceIndex ? 'right' : 'left';
 
     if (targetStatus === 'cubas-saidas-vitrine' && card.status === 'vitrine-atual') {
+      setQuebraQuantity(1);
       setQuebraConfirmData({
         card,
         nextCards,
@@ -450,27 +452,32 @@ export function Board() {
     let finalCards = nextCards;
 
     if (shouldCreateQuebra) {
-      const newQuebraCard: CardItem = {
-        id: crypto.randomUUID(),
-        title: card.title,
-        status: 'quebras',
-        productionDate: getToday(),
-        entryDate: '',
-        exitDate: '',
-        createdBy: user?.email || 'Sistema',
-        lastEditedBy: user?.email || 'Sistema',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        position: cards.length,
-        history: [
-          {
-            timestamp: new Date().toISOString(),
-            user: user?.email || 'Sistema',
-            action: 'Criado em Quebras (Auto via Saída da Vitrine)',
-          }
-        ]
-      };
-      finalCards = [...nextCards, newQuebraCard];
+      const newQuebraCards: CardItem[] = [];
+      for (let i = 0; i < quebraQuantity; i++) {
+        newQuebraCards.push({
+          id: crypto.randomUUID(),
+          title: card.title,
+          status: 'quebras',
+          productionDate: getToday(),
+          entryDate: '',
+          exitDate: '',
+          createdBy: user?.email || 'Sistema',
+          lastEditedBy: user?.email || 'Sistema',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          position: cards.length + i,
+          history: [
+            {
+              timestamp: new Date().toISOString(),
+              user: user?.email || 'Sistema',
+              action: quebraQuantity === 1 
+                ? 'Criado em Quebras (Auto via Saída da Vitrine)' 
+                : `Criado em Quebras (Auto via Saída da Vitrine - Item ${i + 1} de ${quebraQuantity})`,
+            }
+          ]
+        });
+      }
+      finalCards = [...nextCards, ...newQuebraCards];
     }
 
     setCards(finalCards);
@@ -1114,9 +1121,63 @@ export function Board() {
           <div className="modal-content" onClick={(event) => event.stopPropagation()} style={{ maxWidth: '400px', textAlign: 'center', padding: '24px' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚨</div>
             <h3 style={{ margin: '0 0 8px 0', fontSize: '18px', color: '#1e293b', fontWeight: 600 }}>Registro de Quebra</h3>
-            <p style={{ margin: '0 0 24px 0', fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
+            <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
               O sabor <strong>{quebraConfirmData.card.title}</strong> gerou quebra ao sair da vitrine?
             </p>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', margin: '16px 0 24px 0', padding: '12px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Quantidade de Quebras</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <button
+                  type="button"
+                  onClick={() => setQuebraQuantity(prev => Math.max(1, prev - 1))}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    userSelect: 'none',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  -
+                </button>
+                <span style={{ fontSize: '20px', fontWeight: '800', color: '#0f172a', minWidth: '40px', textAlign: 'center' }}>
+                  {quebraQuantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuebraQuantity(prev => prev + 1)}
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    border: '1px solid #cbd5e1',
+                    background: '#ffffff',
+                    color: '#0f172a',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    userSelect: 'none',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 type="button"
@@ -1129,10 +1190,10 @@ export function Board() {
               <button
                 type="button"
                 className="modal-btn"
-                style={{ flex: 1, padding: '10px', fontWeight: 600, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                style={{ flex: 1.2, padding: '10px', fontWeight: 600, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
                 onClick={() => handleConfirmQuebraDialog(true)}
               >
-                Sim, Gerou Quebra
+                Sim, Gerou {quebraQuantity > 1 ? `${quebraQuantity} Quebras` : 'Quebra'}
               </button>
             </div>
           </div>
