@@ -17,8 +17,8 @@ import Inventario from "./routes/Inventario.tsx";
 import Informacoes from "./routes/Informacoes.tsx";
 import Voucher from "./routes/Voucher.tsx";
 import ChecklistTest from "./routes/ChecklistTest.tsx";
+import Lojas from "./routes/Lojas.tsx";
 import Manual from "./routes/Manual.tsx";
-import Salgados from "./routes/Salgados.tsx";
 import Etiquetas from "./routes/Etiquetas.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
@@ -68,7 +68,7 @@ const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedLayout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/salgados" element={<Salgados />} />
+        <Route path="/lojas" element={<Lojas />} />
         <Route path="/manual" element={<Manual />} />
         <Route path="/vales" element={<Vales />} />
         <Route path="/inventario" element={<Inventario />} />

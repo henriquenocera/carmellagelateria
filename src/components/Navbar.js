@@ -22,14 +22,14 @@ function NavBar() {
               <span className="text">Início</span>
             </NavLink>
           </li>
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/salgados">
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/lojas">
               <span className="icon">
-                <Icons.BsCheck />
+                <Icons.BsAppIndicator />
               </span>
-              <span className="text">Salgados</span>
+              <span className="text">Lojas</span>
             </NavLink>
-          </li> */}
+          </li>
           {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
               <span className="icon">
