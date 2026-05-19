@@ -99,6 +99,49 @@ function Lojas() {
     return value;
   };
 
+  const renderMoneyValue = (moneyData: any) => {
+    if (!moneyData) return "-";
+    if (typeof moneyData === "object") {
+      if (moneyData.total !== undefined && moneyData.total !== null) {
+        const total = Number(moneyData.total);
+        return `R$ ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+    }
+    try {
+      const parsed = typeof moneyData === "string" ? JSON.parse(moneyData) : moneyData;
+      if (parsed && parsed.total !== undefined && parsed.total !== null) {
+        const total = Number(parsed.total);
+        return `R$ ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+    } catch (e) {}
+    return String(moneyData);
+  };
+
+  const getMoneyTooltip = (moneyData: any) => {
+    if (!moneyData) return "";
+    try {
+      const parsed = typeof moneyData === "string" ? JSON.parse(moneyData) : moneyData;
+      if (parsed && parsed.denominacoes) {
+        const den = parsed.denominacoes;
+        const lines = [];
+        if (den.hundred) lines.push(`R$ 100,00: ${den.hundred}`);
+        if (den.fifty) lines.push(`R$ 50,00: ${den.fifty}`);
+        if (den.twenty) lines.push(`R$ 20,00: ${den.twenty}`);
+        if (den.ten) lines.push(`R$ 10,00: ${den.ten}`);
+        if (den.five) lines.push(`R$ 5,00: ${den.five}`);
+        if (den.two) lines.push(`R$ 2,00: ${den.two}`);
+        if (den.oneReal) lines.push(`R$ 1,00: ${den.oneReal}`);
+        if (den.fiftyCents) lines.push(`R$ 0,50: ${den.fiftyCents}`);
+        if (den.twentyFiveCents) lines.push(`R$ 0,25: ${den.twentyFiveCents}`);
+        if (den.tenCents) lines.push(`R$ 0,10: ${den.tenCents}`);
+        if (den.fiveCents) lines.push(`R$ 0,05: ${den.fiveCents}`);
+        if (den.oneCent) lines.push(`R$ 0,01: ${den.oneCent}`);
+        return "Detalhamento:\n" + lines.join("\n");
+      }
+    } catch (e) {}
+    return "";
+  };
+
   const storeKeys = ["altoxv", "ahu"];
 
   return (
@@ -227,6 +270,7 @@ function Lojas() {
                   <th>Loja</th>
                   <th>Tipo</th>
                   <th>Responsável</th>
+                  <th>Dinheiro</th>
                   <th className="qty-col">Massas</th>
                   <th className="qty-col">Brownies</th>
                   <th className="qty-col">Panos</th>
@@ -244,23 +288,38 @@ function Lojas() {
                     minute: "2-digit",
                   });
 
+                  const tooltip = getMoneyTooltip(row.money_data);
+
                   return (
                     <tr key={row.id} className="checklist-row">
-                      <td className="date-cell">{formattedDate}</td>
-                      <td>
+                      <td data-label="Data e Hora" className="date-cell">{formattedDate}</td>
+                      <td data-label="Loja">
                         <span className={`store-badge ${row.store}`}>
                           {storeMap[row.store] || row.store}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Tipo">
                         <span className={`type-badge ${isAbertura ? "abertura" : "fechamento"}`}>
                           {isAbertura ? "Abertura" : "Fechamento"}
                         </span>
                       </td>
-                      <td className="person-cell">{row.person || "-"}</td>
-                      <td className="qty-col value-cell">{renderInventoryValue(row.massas)}</td>
-                      <td className="qty-col value-cell">{renderInventoryValue(row.brownies)}</td>
-                      <td className="qty-col value-cell">{renderInventoryValue(row.panos)}</td>
+                      <td data-label="Responsável" className="person-cell">{row.person || "-"}</td>
+                      <td data-label="Dinheiro" className="money-cell">
+                        {row.money_data ? (
+                          <span
+                            title={tooltip}
+                            className="money-value-badge"
+                            style={{ cursor: tooltip ? "help" : "default" }}
+                          >
+                            {renderMoneyValue(row.money_data)}
+                          </span>
+                        ) : (
+                          "-"
+                        )}
+                      </td>
+                      <td data-label="Massas" className="qty-col value-cell">{renderInventoryValue(row.massas)}</td>
+                      <td data-label="Brownies" className="qty-col value-cell">{renderInventoryValue(row.brownies)}</td>
+                      <td data-label="Panos" className="qty-col value-cell">{renderInventoryValue(row.panos)}</td>
                     </tr>
                   );
                 })}

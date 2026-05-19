@@ -46,7 +46,7 @@ body {
   max-width: 1200px;
   margin: 40px auto;
   padding: 0 24px;
-  padding-left: 90px; /* Spacing for sidebar navbar if present */
+  padding-left: 95px; /* Spacing for sidebar navbar if present */
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -265,7 +265,8 @@ body {
   border-radius: 16px;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   position: relative;
   min-height: 200px;
 }
@@ -281,7 +282,7 @@ body {
   background-color: #f7f1eb;
   color: var(--secondary-color);
   font-weight: 700;
-  padding: 16px 20px;
+  padding: 12px 14px;
   font-size: 13px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -289,7 +290,7 @@ body {
 }
 
 .checklist-table td {
-  padding: 16px 20px;
+  padding: 12px 14px;
   border-bottom: 1px solid #f2ece6;
   color: var(--text-dark);
 }
@@ -305,6 +306,7 @@ body {
 .date-cell {
   font-weight: 500;
   color: #3e332a;
+  white-space: nowrap;
 }
 
 .person-cell {
@@ -352,6 +354,7 @@ body {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .store-badge.ahu {
@@ -385,6 +388,22 @@ body {
 .type-badge.fechamento {
   background-color: var(--color-fechamento-bg);
   color: var(--color-fechamento);
+}
+
+.money-cell {
+  font-weight: 600;
+}
+
+.money-value-badge {
+  display: inline-block;
+  background-color: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
 }
 
 /* States */
@@ -445,7 +464,7 @@ body {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .lojas-dashboard-container {
-    padding-left: 24px;
+    padding-left: 95px;
     margin: 20px auto;
   }
   
@@ -454,19 +473,102 @@ body {
     align-items: flex-start;
     gap: 16px;
   }
+
+  .lojas-header h1 {
+    font-size: 22px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    padding: 16px;
+  }
+
+  .stat-content {
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .stat-item {
+    border-right: none;
+    border-bottom: 1px solid #f2ece6;
+    padding: 0;
+    padding-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    text-align: left;
+  }
+
+  .stat-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
   
   .filters-container {
     flex-direction: column;
     gap: 16px;
     padding: 16px;
   }
-  
-  .checklist-table th, .checklist-table td {
-    padding: 12px 10px;
+
+  .tabs {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .tab-btn {
+    width: 100%;
+    text-align: center;
+    padding: 10px;
+  }
+
+  /* Responsive Table Stack */
+  .checklist-table, 
+  .checklist-table thead, 
+  .checklist-table tbody, 
+  .checklist-table th, 
+  .checklist-table td, 
+  .checklist-table tr {
+    display: block;
+  }
+
+  .checklist-table thead {
+    display: none;
+  }
+
+  .checklist-row {
+    border-bottom: 2px solid var(--border-color);
+    padding: 16px 8px;
+  }
+
+  .checklist-table td {
+    border-bottom: none;
+    padding: 10px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: right;
     font-size: 13px;
+  }
+
+  .checklist-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 11px;
+    color: var(--secondary-color);
+    margin-right: 16px;
+    text-align: left;
   }
   
   .qty-col {
-    width: 60px;
+    width: auto !important;
+    text-align: right;
   }
 }
