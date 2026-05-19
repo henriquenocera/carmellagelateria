@@ -9,19 +9,19 @@
   --text-dark: #2d241e;
   --text-muted: #857264;
   --border-color: #e6dfd9;
-  
+
   --color-ahu: #3b82f6;
   --color-ahu-bg: rgba(59, 130, 246, 0.1);
   --color-altoxv: #10b981;
   --color-altoxv-bg: rgba(16, 185, 129, 0.1);
   --color-escritorio: #8b5cf6;
   --color-escritorio-bg: rgba(139, 92, 246, 0.1);
-  
+
   --color-abertura: #d97706;
   --color-abertura-bg: #fef3c7;
   --color-fechamento: #059669;
   --color-fechamento-bg: #d1fae5;
-  
+
   --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -46,13 +46,21 @@ body {
   max-width: 1200px;
   margin: 40px auto;
   padding: 0 24px;
-  padding-left: 95px; /* Spacing for sidebar navbar if present */
+  padding-left: 95px;
+  /* Spacing for sidebar navbar if present */
   animation: fadeIn 0.5s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .lojas-header {
@@ -407,7 +415,9 @@ body {
 }
 
 /* States */
-.loading-state, .error-state, .empty-state {
+.loading-state,
+.error-state,
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -417,7 +427,9 @@ body {
   color: var(--text-muted);
 }
 
-.loading-icon, .error-icon, .empty-icon {
+.loading-icon,
+.error-icon,
+.empty-icon {
   font-size: 40px;
   margin-bottom: 16px;
 }
@@ -457,8 +469,13 @@ body {
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Responsive adjustments */
@@ -467,7 +484,7 @@ body {
     padding-left: 95px;
     margin: 20px auto;
   }
-  
+
   .lojas-header {
     flex-direction: column;
     align-items: flex-start;
@@ -477,7 +494,7 @@ body {
   .lojas-header h1 {
     font-size: 22px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
     gap: 16px;
@@ -510,7 +527,7 @@ body {
     border-bottom: none;
     padding-bottom: 0;
   }
-  
+
   .filters-container {
     flex-direction: column;
     gap: 16px;
@@ -529,11 +546,11 @@ body {
   }
 
   /* Responsive Table Stack */
-  .checklist-table, 
-  .checklist-table thead, 
-  .checklist-table tbody, 
-  .checklist-table th, 
-  .checklist-table td, 
+  .checklist-table,
+  .checklist-table thead,
+  .checklist-table tbody,
+  .checklist-table th,
+  .checklist-table td,
   .checklist-table tr {
     display: block;
   }
@@ -566,7 +583,7 @@ body {
     margin-right: 16px;
     text-align: left;
   }
-  
+
   .qty-col {
     width: auto !important;
     text-align: right;

@@ -23,6 +23,7 @@ import Etiquetas from "./routes/Etiquetas.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
 import CRM from "./routes/CRM.jsx";
+import Status from "./routes/Status.tsx";
 import supabase from "./supabase-client";
 
 const ProtectedLayout = () => {
@@ -79,6 +80,7 @@ const router = createBrowserRouter(
         <Route path="/etiquetas" element={<Etiquetas />} />
         <Route path="/checklist-test" element={<ChecklistTest />} />
         <Route path="/crm" element={<CRM />} />
+        <Route path="/status" element={<Status />} />
       </Route>
     </>
   )

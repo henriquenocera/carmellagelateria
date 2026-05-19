@@ -30,6 +30,14 @@ function NavBar() {
               <span className="text">Lojas</span>
             </NavLink>
           </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/status">
+              <span className="icon">
+                <Icons.BsCheckCircle />
+              </span>
+              <span className="text">Status</span>
+            </NavLink>
+          </li>
           {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
               <span className="icon">
