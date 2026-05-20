@@ -4,7 +4,6 @@ import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
 import ContadorNotasMoedas from "./ContadorNotasMoedas.jsx";
-import { weekdays } from "moment";
 
 function ChecklistAberturaForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +15,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const [moneyCounterData, setMoneyCounterData] = useState(null);
   const idInputRef = useRef(null);
 
-  const unidadeText = "Alto da XV";
+  const unidadeText = "Alto XV";
 
   const steps = [
     {
@@ -80,16 +79,16 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
 
         {
-          id: "34", title: "Aferição de Mão", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 1
+          id: "34", title: "Aferição de Mão - Domingo", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
+          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 0
         },
         {
-          id: "346", title: "Aferição de Mão", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 3
+          id: "346", title: "Aferição de Mão - Sábado", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
+          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 6
         },
         {
-          id: "347", title: "Aferição de Mão", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 5
+          id: "347", title: "Aferição de Mão - Quinta", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
+          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 4
         },
 
 
@@ -121,9 +120,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
     // Check if all steps are completed using the checkedItems state
     const allStepsCompleted = steps.every(step => {
-      // Only check items that should be visible today
       const visibleItems = step.items.filter(item => {
-        if (!item.weekday) return true; // If no weekday specified, always check
+        if (item.weekday === undefined || item.weekday === null) return true; // If no weekday specified, always check
         return item.weekday === today; // Only check if it's the right weekday
       });
 
@@ -188,9 +186,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
     const currentStepItems = steps[currentStep - 1].items;
     const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
 
-    // Only check items that should be visible today
     const visibleItems = currentStepItems.filter(item => {
-      if (!item.weekday) return true; // If no weekday specified, always check
+      if (item.weekday === undefined || item.weekday === null) return true; // If no weekday specified, always check
       return item.weekday === today; // Only check if it's the right weekday
     });
 
@@ -251,7 +248,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const handleFormSubmit = (event) => {
     event.preventDefault();
     const moneyCounterMessage = formatMoneyCounterMessage();
-    handleSubmit(event, user, moneyCounterMessage);
+    handleSubmit(event, user, moneyCounterMessage, moneyCounterData);
   };
 
   return (
@@ -327,7 +324,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
       )}
 
       <form action="https://script.google.com/macros/s/AKfycbwhOUYDudL2B7Damz10m485blQxTRIldG5z_Y734oySrPeZPa5oJQVNR3yO6t1828Hm-w/exec" method="POST" onSubmit={handleFormSubmit} className="aberturaAltoxv" id="checklistOpen">
-        <button className="hidebtn" onClick={Checked}>Check</button>
+        {/* <button className="hidebtn" onClick={Checked}>Check</button> */}
 
         <div className="step-indicator">
           {steps.map((step, index) => (
