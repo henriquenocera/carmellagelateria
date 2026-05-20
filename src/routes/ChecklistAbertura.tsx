@@ -33,12 +33,14 @@ function getLocalStorage() {
 }
 getLocalStorage();
 
-async function sendSupabase(user) {
+async function sendSupabase(user, money_data) {
   console.log("supabase");
   const newdata = {
     checklist: "Checklist de Abertura",
     person: user,
     store: unidade,
+    money_data: money_data,
+
   };
   const { data, error } = await supabase
     .from("Checklist")
@@ -59,7 +61,7 @@ function altoxvOpenSubmit(user) {
 }
 
 function ChecklistAbertura() {
-  const handleSubmit = (event, user, moneyCounterMessage = "") => {
+  const handleSubmit = (event, user, moneyCounterMessage = "", moneyCounterData = null) => {
     event.preventDefault();
 
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -67,13 +69,13 @@ function ChecklistAbertura() {
 
     console.log("enviou");
     // supabase
-    sendSupabase(user);
+    sendSupabase(user, moneyCounterData);
     altoxvOpenSubmit(user);
 
     // Send Telegram message with money counter data
     const openDateFormat = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
     const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A %0D%0A Responsável: ${user}${moneyCounterMessage}`;
-    
+
     fetch(checkOpenComplete)
       .then(response => {
         if (!response.ok) {
