@@ -20,10 +20,8 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
   }
   const isCheck = getWithExpiry("check")
 
-  // Check if the item should be displayed based on weekday
   const shouldDisplay = () => {
-
-    if (!weekday) return true; // If no weekday specified, always display
+    if (weekday === undefined || weekday === null) return true; // If no weekday specified, always display
     const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
     return weekday === today;
   };

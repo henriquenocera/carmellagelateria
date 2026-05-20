@@ -21,6 +21,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
     {
       title: "1ª - Equipamentos",
       items: [
+
         { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido", },
         { id: "2", title: "Limpeza externa da vitrine", subtitle1: "Vidros com álcool líquido", subtitle2: "" },
         { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
@@ -72,17 +73,17 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
         { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
         {
-          id: "91", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
+          id: "91", title: "Realizar Aferição de Mão - Sexta", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
           buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 5,
         },
         {
-          id: "92", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
+          id: "92", title: "Realizar Aferição de Mão - Sábado", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
           buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 6,
         },
         {
-          id: "93", title: "Realizar Aferição de Mão", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
+          id: "93", title: "Realizar Aferição de Mão - Domingo", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
           buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 0,
-        }
+        },
 
       ]
     }
@@ -111,9 +112,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
 
     // Check if all steps are completed using the checkedItems state
     const allStepsCompleted = steps.every(step => {
-      // Only check items that should be visible today
       const visibleItems = step.items.filter(item => {
-        if (!item.weekday) return true; // If no weekday specified, always check
+        if (item.weekday === undefined || item.weekday === null) return true; // If no weekday specified, always check
         return item.weekday === today; // Only check if it's the right weekday
       });
 
@@ -178,9 +178,8 @@ function ChecklistAberturaForm({ handleSubmit }) {
     const currentStepItems = steps[currentStep - 1].items;
     const today = new Date().getDay(); // 0 = Sunday, 1 = Monday, etc.
 
-    // Only check items that should be visible today
     const visibleItems = currentStepItems.filter(item => {
-      if (!item.weekday) return true; // If no weekday specified, always check
+      if (item.weekday === undefined || item.weekday === null) return true; // If no weekday specified, always check
       return item.weekday === today; // Only check if it's the right weekday
     });
 
