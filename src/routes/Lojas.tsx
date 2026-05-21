@@ -87,12 +87,27 @@ function Lojas() {
     const strVal = String(value);
     if (strVal.includes("[")) {
       const parts = strVal.split(/(?=\[)/); // splits before [
+      const mainQty = parts[0].trim();
+      const detailsPart = parts[1] ? parts[1].trim() : "";
+
+      let batches: string[] = [];
+      if (detailsPart) {
+        const cleanDetails = detailsPart.replace(/^\[|\]$/g, "").trim();
+        batches = cleanDetails ? cleanDetails.split(", ") : [];
+      }
+
       return (
         <div className="inventory-val-formatted">
-          <span className="qty-main">{parts[0].trim()}</span>
-          {parts.slice(1).map((part, idx) => (
-            <div key={idx} className="qty-sub">{part.trim()}</div>
-          ))}
+          <span className="qty-main">{mainQty}</span>
+          {batches.length >= 2 ? (
+            batches.map((batch, idx) => (
+              <div key={idx} className="qty-sub">
+                {batch}
+              </div>
+            ))
+          ) : (
+            detailsPart && <div className="qty-sub">{detailsPart}</div>
+          )}
         </div>
       );
     }
