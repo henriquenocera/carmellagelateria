@@ -368,7 +368,7 @@ export function Board() {
 
       // Deleta diretamente do banco de dados e retorna o dado deletado para confirmação
       const { data, error } = await supabase
-        .from('cards')
+        .from('cardsaltoxv')
         .delete()
         .eq('id', idToDelete)
         .select();
@@ -415,7 +415,7 @@ export function Board() {
         handleCloseModal();
 
         const { error } = await supabase
-          .from('cards')
+          .from('cardsaltoxv')
           .delete()
           .in('id', idsToDelete);
 
@@ -429,7 +429,7 @@ export function Board() {
         handleCloseModal();
 
         const { error } = await supabase
-          .from('cards')
+          .from('cardsaltoxv')
           .delete()
           .eq('id', itemToDelete.id);
 
@@ -470,8 +470,8 @@ export function Board() {
             {
               timestamp: new Date().toISOString(),
               user: user?.email || 'Sistema',
-              action: quebraQuantity === 1 
-                ? 'Criado em Quebras (Auto via Saída da Vitrine)' 
+              action: quebraQuantity === 1
+                ? 'Criado em Quebras (Auto via Saída da Vitrine)'
                 : `Criado em Quebras (Auto via Saída da Vitrine - Item ${i + 1} de ${quebraQuantity})`,
             }
           ]
@@ -538,7 +538,7 @@ export function Board() {
     if (!confirmDelete) return;
 
     try {
-      const { error } = await supabase.from('cards').delete().eq('status', 'excluidos');
+      const { error } = await supabase.from('cardsaltoxv').delete().eq('status', 'excluidos');
       if (error) throw error;
       setCards(prev => prev.filter(c => c.status !== 'excluidos'));
     } catch (error) {
@@ -1124,7 +1124,7 @@ export function Board() {
             <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: '#64748b', lineHeight: '1.5' }}>
               O sabor <strong>{quebraConfirmData.card.title}</strong> gerou quebra ao sair da vitrine?
             </p>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px', margin: '16px 0 24px 0', padding: '12px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
               <label style={{ fontSize: '13px', fontWeight: '700', color: '#475569' }}>Quantidade de Quebras</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
