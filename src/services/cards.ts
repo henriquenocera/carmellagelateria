@@ -1,7 +1,7 @@
 import type { CardItem, ItemStatus, HistoryItem } from '../types';
 import { supabase } from '../lib/supabase';
 
-const TABLE_NAME = 'cardsaltoxv';
+const TABLE_NAME = 'cardsahu';
 
 type CardRow = {
   id: string;
