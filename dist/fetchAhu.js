@@ -1,11 +1,9 @@
-// Supabase client – loaded via CDN in the HTML
-const SUPABASE_URL = "https://zfkvpqqqekxaxnhevwno.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpma3ZwcXFxZWt4YXhuaGV2d25vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyNzYyMzYsImV4cCI6MjA1NDg1MjIzNn0.Rw7bFAtUNMIPYL3cwEEGg_3amQe5aTHeG0Csj1m3v3U";
+;(async () => {
+  const SUPABASE_URL = "https://zfkvpqqqekxaxnhevwno.supabase.co";
+  const SUPABASE_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpma3ZwcXFxZWt4YXhuaGV2d25vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyNzYyMzYsImV4cCI6MjA1NDg1MjIzNn0.Rw7bFAtUNMIPYL3cwEEGg_3amQe5aTHeG0Csj1m3v3U";
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-async function loadCards() {
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
   const container = document.getElementById("data-container");
 
   const { data, error } = await supabase
@@ -30,10 +28,8 @@ async function loadCards() {
     .map(
       (item) => `
       <div class="data-item">
-        <div>${item.name}</div>
+        <div>${item.title}</div>
       </div>`
     )
     .join("");
-}
-
-loadCards();
+})();

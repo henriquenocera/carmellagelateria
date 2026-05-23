@@ -1,28 +1,37 @@
-const fetch = require("node-fetch");
+const { createClient } = require("@supabase/supabase-js");
+
+const SUPABASE_URL = "https://zfkvpqqqekxaxnhevwno.supabase.co";
+const SUPABASE_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpma3ZwcXFxZWt4YXhuaGV2d25vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkyNzYyMzYsImV4cCI6MjA1NDg1MjIzNn0.Rw7bFAtUNMIPYL3cwEEGg_3amQe5aTHeG0Csj1m3v3U";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 exports.handler = async function () {
-  const API_KEY = "68c821de116f8b65737668adc66e62f1";
-  const TOKEN =
-    "ATTA4607b0c667bc6b061ba9deb7eb850fb1e000aa77fe479de728a7945216e62c6aF34C6FD7";
-  const AHU_LIST_ID = "63bf0dba82f78500d81e8843";
-  const ALTOXV_LIST_ID = "63c05f1f59d5e80260c52c56";
-  const BATEL_LIST_ID = "659bd6c9f1b2bc4d35121255";
+  try {
+    const [data_ahu, data_altoxv] = await Promise.all([
+      supabase
+        .from("cardsahu")
+        .select("title")
+        .eq("status", "vitrine-atual")
+        .then((r) => r.data || []),
+      supabase
+        .from("cardsaltoxv")
+        .select("title")
+        .eq("status", "vitrine-atual")
+        .then((r) => r.data || []),
+    ]);
 
-  const AHU_URL = `https://api.trello.com/1/lists/${AHU_LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`;
-  const ALTOXV_URL = `https://api.trello.com/1/lists/${ALTOXV_LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`;
-  const BATEL_URL = `https://api.trello.com/1/lists/${BATEL_LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`;
-
-  const response_ahu = await fetch(AHU_URL);
-  const data_ahu = await response_ahu.json();
-  const response_altoxv = await fetch(ALTOXV_URL);
-  const data_altoxv = await response_altoxv.json();
-  const response_batel = await fetch(BATEL_URL);
-  const data_batel = await response_batel.json();
-  return {
-    statusCode: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*", // Allow from anywhere
-    },
-    body: JSON.stringify({ data_ahu, data_altoxv, data_batel }),
-  };
+    return {
+      statusCode: 200,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ data_ahu, data_altoxv }),
+    };
+  } catch (err) {
+    console.error("Erro ao buscar sabores:", err);
+    return {
+      statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: "Erro ao buscar sabores" }),
+    };
+  }
 };
