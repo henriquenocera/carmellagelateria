@@ -10,7 +10,7 @@ async function loadCards() {
 
   const { data, error } = await supabase
     .from("cardsahu")
-    .select("name")
+    .select("title")
     .eq("status", "vitrine-atual");
 
   if (error) {
