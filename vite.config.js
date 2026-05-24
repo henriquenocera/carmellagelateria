@@ -5,13 +5,14 @@ export default defineConfig({
   plugins: [react()],
   appType: "spa",
   build: {
+    outDir: "build",
     rollupOptions: {
       input: "index.html",
     },
   },
   server: {
     watch: {
-      ignored: ["**/build/**", "**/dist/**", "**/functions/**", "**/.ENV*"],
+      ignored: ["**/build/**", "**/functions/**", "**/.ENV*"],
     },
   },
   optimizeDeps: {
