@@ -110,25 +110,23 @@ function NavBar() {
               <span className="text">CRM</span>
             </NavLink>
           </li> */}
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/frequencia">
+              <span className="icon">
+                <Icons.BsCalendarCheck />
+              </span>
+              <span className="text">Frequência</span>
+            </NavLink>
+          </li>
           {isAdmin && (
-            <>
-              <li className={activeMenu ? "list active" : "list"}>
-                <NavLink to="/cadastro-pessoas">
-                  <span className="icon">
-                    <Icons.BsPeople />
-                  </span>
-                  <span className="text">Pessoas</span>
-                </NavLink>
-              </li>
-              <li className={activeMenu ? "list active" : "list"}>
-                <NavLink to="/frequencia">
-                  <span className="icon">
-                    <Icons.BsCalendarCheck />
-                  </span>
-                  <span className="text">Frequência</span>
-                </NavLink>
-              </li>
-            </>
+            <li className={activeMenu ? "list active" : "list"}>
+              <NavLink to="/cadastro-pessoas">
+                <span className="icon">
+                  <Icons.BsPeople />
+                </span>
+                <span className="text">Pessoas</span>
+              </NavLink>
+            </li>
           )}
         </ul>
       </div>

@@ -19,6 +19,16 @@ const supabaseAdmin = createClient(
   }
 );
 
+const WEEKDAYS = [
+  { value: "1", label: "Seg" },
+  { value: "2", label: "Ter" },
+  { value: "3", label: "Qua" },
+  { value: "4", label: "Qui" },
+  { value: "5", label: "Sex" },
+  { value: "6", label: "Sáb" },
+  { value: "0", label: "Dom" }
+];
+
 interface Profile {
   id: string;
   short_id: string | null;
@@ -27,6 +37,7 @@ interface Profile {
   updated_at: string;
   is_admin: boolean | null;
   controlar_frequencia?: boolean | null;
+  folgas_fixas?: string | null;
 }
 
 function CadastroPessoas() {
@@ -39,7 +50,7 @@ function CadastroPessoas() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true });
+  const [formData, setFormData] = useState({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "" });
   const [createLogin, setCreateLogin] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 
@@ -47,6 +58,16 @@ function CadastroPessoas() {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordUserId, setPasswordUserId] = useState<string | null>(null);
   const [newPasswordInput, setNewPasswordInput] = useState("");
+
+  const handleWeekdayToggle = (dayVal: string) => {
+    let currentDays = formData.folgas_fixas ? formData.folgas_fixas.split(",") : [];
+    if (currentDays.includes(dayVal)) {
+      currentDays = currentDays.filter((d) => d !== dayVal);
+    } else {
+      currentDays.push(dayVal);
+    }
+    setFormData({ ...formData, folgas_fixas: currentDays.join(",") });
+  };
 
   useEffect(() => {
     checkAccess();
@@ -97,11 +118,12 @@ function CadastroPessoas() {
         email: profile.email || "",
         short_id: profile.short_id || "",
         is_admin: profile.is_admin || false,
-        controlar_frequencia: profile.controlar_frequencia !== false
+        controlar_frequencia: profile.controlar_frequencia !== false,
+        folgas_fixas: profile.folgas_fixas || ""
       });
       setCreateLogin(false);
     } else {
-      setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true });
+      setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "" });
       setCreateLogin(true); // Default to true for new users
     }
     setGeneratedPassword(null);
@@ -110,7 +132,7 @@ function CadastroPessoas() {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true });
+    setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "" });
     setCreateLogin(false);
     setGeneratedPassword(null);
   };
@@ -128,7 +150,7 @@ function CadastroPessoas() {
         // Update
         const { error: updateError } = await supabase
           .from("profiles")
-          .update({ name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, updated_at: new Date().toISOString() })
+          .update({ name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, updated_at: new Date().toISOString() })
           .eq("id", formData.id);
         if (updateError) throw updateError;
         closeModal();
@@ -167,6 +189,7 @@ function CadastroPessoas() {
                 short_id: formData.short_id,
                 is_admin: formData.is_admin,
                 controlar_frequencia: formData.controlar_frequencia,
+                folgas_fixas: formData.folgas_fixas,
                 updated_at: new Date().toISOString()
               }], { onConflict: 'id' });
 
@@ -179,7 +202,7 @@ function CadastroPessoas() {
           const newId = crypto.randomUUID();
           const { error: insertError } = await supabase
             .from("profiles")
-            .insert([{ id: newId, name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, updated_at: new Date().toISOString() }]);
+            .insert([{ id: newId, name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, updated_at: new Date().toISOString() }]);
           if (insertError) throw insertError;
           closeModal();
         }
@@ -442,6 +465,43 @@ function CadastroPessoas() {
                     Controlar frequência deste funcionário
                   </label>
                 </div>
+                <div className="form-group" style={{ marginTop: "8px", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
+                   <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "6px" }}>
+                     Dias Fixos de Folga Semanal
+                   </label>
+                   <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                     {WEEKDAYS.map((day) => {
+                       const isChecked = (formData.folgas_fixas || "").split(",").includes(day.value);
+                       return (
+                         <label
+                           key={day.value}
+                           style={{
+                             display: "flex",
+                             alignItems: "center",
+                             padding: "6px 12px",
+                             borderRadius: "20px",
+                             fontSize: "12px",
+                             fontWeight: 700,
+                             cursor: "pointer",
+                             userSelect: "none",
+                             transition: "all 0.2s ease",
+                             background: isChecked ? "#f5ede4" : "#f3f4f6",
+                             border: isChecked ? "1.5px solid #784e21" : "1.5px solid #e5e7eb",
+                             color: isChecked ? "#784e21" : "#4b5563"
+                           }}
+                         >
+                           <input
+                             type="checkbox"
+                             checked={isChecked}
+                             onChange={() => handleWeekdayToggle(day.value)}
+                             style={{ display: "none" }}
+                           />
+                           {day.label}
+                         </label>
+                       );
+                     })}
+                   </div>
+                 </div>
                 {!formData.id && (
                   <div className="form-group" style={{ flexDirection: "row", alignItems: "center", gap: "8px", marginTop: "4px", paddingTop: "12px", borderTop: "1px solid var(--border-color)" }}>
                     <input

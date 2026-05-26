@@ -12,6 +12,7 @@ interface Profile {
   email: string;
   is_admin: boolean | null;
   controlar_frequencia?: boolean | null;
+  folgas_fixas?: string | null;
 }
 
 interface AttendanceMap {
@@ -20,19 +21,25 @@ interface AttendanceMap {
 
 const STATUS_OPTIONS = [
   { value: "Trabalhado", label: "Trabalhado", className: "status-trabalhado" },
-  { value: "Folga Fixa Semanal", label: "Folga Fixa Semanal", className: "status-folga-fixa" },
-  { value: "Folga Compensatória", label: "Folga Compensatória", className: "status-folga-comp" },
-  { value: "Domingo de Folga", label: "Domingo de Folga", className: "status-folga-dom" },
   { value: "Falta Não Justificada", label: "Falta Não Justificada", className: "status-falta-n-just" },
-  { value: "Falta Justificada", label: "Falta Justificada", className: "status-falta-just" },
   { value: "Atestado", label: "Atestado", className: "status-atestado" },
+  { value: "Declaração de Horas", label: "Declaração de Horas", className: "status-declaracao-horas" },
+  { value: "Saída Antecipada", label: "Saída Antecipada", className: "status-saida-antecipada" },
   { value: "Atraso", label: "Atraso", className: "status-atraso" },
+  { value: "Folga Fixa Semanal", label: "Folga Fixa Semanal", className: "status-folga-fixa" },
+  { value: "Domingo de Folga", label: "Domingo de Folga", className: "status-folga-dom" },
+  { value: "Folga Compensatória", label: "Folga Compensatória", className: "status-folga-comp" },
+  { value: "Férias", label: "Férias", className: "status-ferias" },
+  { value: "Período de Teste", label: "Período de Teste", className: "status-periodo-teste" },
+  { value: "Registro Formal", label: "Registro Formal", className: "status-registro-formal" },
+  { value: "Rescisão de Contrato", label: "Rescisão de Contrato", className: "status-rescisao-contrato" },
+  { value: "Outro", label: "Outro", className: "status-outro" },
 ];
 
 function Frequencia() {
   const { user } = useAuth();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  
+
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [attendance, setAttendance] = useState<AttendanceMap>({});
   const [loading, setLoading] = useState(true);
@@ -42,7 +49,7 @@ function Frequencia() {
   const today = new Date();
   const [month, setMonth] = useState<number>(today.getMonth() + 1); // 1-12
   const [year, setYear] = useState<number>(today.getFullYear());
-  
+
   // Save status indicator: 'idle' | 'saving' | 'saved' | 'error'
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
@@ -76,31 +83,19 @@ function Frequencia() {
 
   async function checkAccess() {
     if (!user) return;
-    try {
-      const { data, error } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-      if (error) throw error;
-      
-      if (data && data.is_admin) {
-        setIsAuthorized(true);
-        fetchProfiles();
-      } else {
-        setIsAuthorized(false);
-      }
-    } catch (err) {
-      console.error("Erro ao verificar acesso:", err);
-      setIsAuthorized(false);
-    }
+    setIsAuthorized(true);
+    fetchProfiles();
   }
 
   async function fetchProfiles() {
     try {
       const { data, error: dbError } = await supabase
         .from("profiles")
-        .select("id, short_id, name, email, is_admin, controlar_frequencia")
+        .select("id, short_id, name, email, is_admin, controlar_frequencia, folgas_fixas")
         .order("name", { ascending: true });
 
       if (dbError) throw dbError;
-      
+
       // Filtra perfis que têm controlar_frequencia ativado (ou não definidos como false)
       const filteredProfiles = (data || []).filter((p) => p.controlar_frequencia !== false);
       setProfiles(filteredProfiles);
@@ -155,6 +150,27 @@ function Frequencia() {
   };
 
   const datesList = getDaysArray();
+
+  const getWorkedDaysCount = (employeeId: string) => {
+    let count = 0;
+    const profile = profiles.find((p) => p.id === employeeId);
+    const fixedOffDays = profile?.folgas_fixas ? profile.folgas_fixas.split(",") : [];
+
+    datesList.forEach((dateObj) => {
+      const dateStr = getLocalDateString(dateObj);
+      const cellKey = `${employeeId}_${dateStr}`;
+
+      const weekdayVal = String(dateObj.getDay());
+      const isFixedOff = fixedOffDays.includes(weekdayVal);
+      const defaultStatus = isFixedOff ? "Folga Fixa Semanal" : "Trabalhado";
+
+      const status = attendance[cellKey] || defaultStatus;
+      if (status === "Trabalhado") {
+        count++;
+      }
+    });
+    return count;
+  };
 
   // Helper date formatters
   const getLocalDateString = (date: Date) => {
@@ -248,7 +264,12 @@ function Frequencia() {
 
       const empStatuses = profiles.map((p) => {
         const key = `${p.id}_${dateStr}`;
-        return attendance[key] || "Trabalhado";
+        const weekdayVal = String(dateObj.getDay());
+        const fixedOffDays = p.folgas_fixas ? p.folgas_fixas.split(",") : [];
+        const isFixedOff = fixedOffDays.includes(weekdayVal);
+        const defaultStatus = isFixedOff ? "Folga Fixa Semanal" : "Trabalhado";
+
+        return attendance[key] || defaultStatus;
       });
 
       return [displayDate, weekday, ...empStatuses];
@@ -265,7 +286,7 @@ function Frequencia() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     const monthLabel = monthsList.find((m) => m.value === month)?.label || month;
-    
+
     link.setAttribute("href", url);
     link.setAttribute("download", `Frequencia_${monthLabel}_${year}.csv`);
     document.body.appendChild(link);
@@ -308,7 +329,7 @@ function Frequencia() {
             <h1>Controle de Frequência</h1>
             <p>Monitore e informe a presença, faltas, folgas e atestados da equipe.</p>
           </div>
-          
+
           <button onClick={handleExportCSV} className="primary-btn" style={{ marginTop: 0 }}>
             <Icons.BsDownload />
             Exportar Excel (CSV)
@@ -321,7 +342,7 @@ function Frequencia() {
             <button className="nav-btn" onClick={() => handleMonthNavigation("prev")} title="Mês Anterior">
               <Icons.BsChevronLeft />
             </button>
-            
+
             <select
               className="frequencia-select"
               value={month}
@@ -404,12 +425,19 @@ function Frequencia() {
                 <tr>
                   <th className="sticky-date">Data</th>
                   <th className="sticky-day">Dia</th>
-                  {profiles.map((p) => (
-                    <th key={p.id} title={p.email}>
-                      {p.short_id ? `${p.short_id} - ` : ""}
-                      {p.name.split(" ")[0] || p.name} {/* Display first name to save column width */}
-                    </th>
-                  ))}
+                  {profiles.map((p) => {
+                    const workedCount = getWorkedDaysCount(p.id);
+                    const firstName = p.name.split(" ")[0] || p.name;
+                    const displayName = p.short_id ? `${firstName}` : firstName;
+                    return (
+                      <th key={p.id} title={p.email} style={{ whiteSpace: 'nowrap' }}>
+                        <span>{displayName}</span>
+                        <span style={{ marginLeft: '8px', fontSize: '1.2rem', fontWeight: 700, color: '#ffffff', background: '#784e21', padding: '2px 8px', borderRadius: '20px', display: 'inline-block', verticalAlign: 'middle', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                          {workedCount}d
+                        </span>
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
               <tbody>
@@ -421,19 +449,24 @@ function Frequencia() {
                   const isToday = dateStr === todayStr;
 
                   return (
-                    <tr 
-                      key={dateStr} 
+                    <tr
+                      key={dateStr}
                       className={`${isWeekend ? "weekend" : ""} ${isToday ? "today" : ""}`}
                     >
                       {/* Sticky Date */}
                       <td className="sticky-date">{displayDate}</td>
                       {/* Sticky Weekday */}
                       <td className="sticky-day">{weekdayStr}</td>
-                      
+
                       {/* Employee Dropdowns */}
                       {profiles.map((p) => {
                         const cellKey = `${p.id}_${dateStr}`;
-                        const currentVal = attendance[cellKey] || "Trabalhado";
+                        const weekdayVal = String(dateObj.getDay());
+                        const fixedOffDays = p.folgas_fixas ? p.folgas_fixas.split(",") : [];
+                        const isFixedOff = fixedOffDays.includes(weekdayVal);
+                        const defaultStatus = isFixedOff ? "Folga Fixa Semanal" : "Trabalhado";
+
+                        const currentVal = attendance[cellKey] || defaultStatus;
                         const selectedOption = STATUS_OPTIONS.find((opt) => opt.value === currentVal);
 
                         return (
@@ -467,8 +500,8 @@ function Frequencia() {
           <h3>Legenda e Atalhos de Cores</h3>
           <div className="legend-items">
             {STATUS_OPTIONS.map((opt) => (
-              <div 
-                key={opt.value} 
+              <div
+                key={opt.value}
                 className={`legend-badge ${opt.className}`}
               >
                 {opt.label}

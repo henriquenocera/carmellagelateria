@@ -292,22 +292,7 @@
 /* Status colors and backgrounds */
 .status-trabalhado {
   background-color: transparent;
-  color: #9ca3af !important; /* Muted text */
-}
-
-.status-folga-fixa {
-  background-color: #e2f0d9 !important;
-  color: #385723 !important;
-}
-
-.status-folga-comp {
-  background-color: #c6e0b4 !important;
-  color: #385723 !important;
-}
-
-.status-folga-dom {
-  background-color: #a8d08d !important;
-  color: #385723 !important;
+  color: #9ca3af !important; /* Muted grey text */
 }
 
 .status-falta-n-just {
@@ -316,19 +301,64 @@
   font-weight: 700 !important;
 }
 
-.status-falta-just {
-  background-color: #e0f2fe !important;
-  color: #0369a1 !important;
-}
-
 .status-atestado {
   background-color: #e1d5e7 !important;
   color: #7030a0 !important;
 }
 
+.status-declaracao-horas {
+  background-color: #dcd3e8 !important;
+  color: #4c2c77 !important;
+}
+
+.status-saida-antecipada {
+  background-color: #fff2cc !important;
+  color: #7f6000 !important;
+}
+
 .status-atraso {
   background-color: #fff2cc !important;
   color: #7f6000 !important;
+}
+
+.status-folga-fixa {
+  background-color: #e2f0d9 !important;
+  color: #385723 !important;
+}
+
+.status-folga-dom {
+  background-color: #c6e0b4 !important;
+  color: #385723 !important;
+}
+
+.status-folga-comp {
+  background-color: #a8d08d !important;
+  color: #385723 !important;
+}
+
+.status-ferias {
+  background-color: #fce5cd !important;
+  color: #b45f06 !important;
+}
+
+.status-periodo-teste {
+  background-color: #efefef !important;
+  color: #595959 !important;
+}
+
+.status-registro-formal {
+  background-color: #c9daf8 !important;
+  color: #1c4587 !important;
+}
+
+.status-rescisao-contrato {
+  background-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+.status-outro {
+  background-color: #ead1dc !important;
+  color: #741b47 !important;
 }
 
 /* Row Hover */
