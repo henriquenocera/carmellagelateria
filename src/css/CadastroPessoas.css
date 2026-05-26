@@ -240,3 +240,77 @@
     margin: 20px auto;
   }
 }
+
+/* Usuários inativos */
+.pessoas-table tr.inactive-row {
+  opacity: 0.55;
+  background-color: #fcfbfa;
+}
+
+.pessoas-table tr.inactive-row:hover {
+  background-color: #f7f5f2;
+}
+
+.pessoas-table tr.inactive-row td {
+  color: var(--text-muted);
+}
+
+/* Checkbox customizados e modernos para o formulário */
+.checkbox-group {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-group input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+  display: grid;
+  place-content: center;
+  transition: all 0.2s ease;
+  margin-top: 2px; /* Alinhamento fino com o texto */
+  flex-shrink: 0;
+}
+
+.checkbox-group input[type="checkbox"]:hover {
+  border-color: var(--primary-color, #784e21);
+  background-color: #faf9f7;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+  background-color: var(--primary-color, #784e21);
+  border-color: var(--primary-color, #784e21);
+}
+
+.checkbox-group input[type="checkbox"]::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em #fff;
+  background-color: CanvasText;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.checkbox-group input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+.checkbox-group label {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-dark, #374151);
+  cursor: pointer;
+  line-height: 1.5;
+  text-transform: none; /* Garante que não ficará tudo em maiúsculo */
+}

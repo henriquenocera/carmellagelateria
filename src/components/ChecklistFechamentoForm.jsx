@@ -27,8 +27,8 @@ function ChecklistFechamentoForm({ handleSubmit }) {
       items: [
         { id: "1", title: "Acessar na conta do Whatsapp Business da Carmella", subtitle1: "Deixar ela aberta durante todo o dia" },
         { id: "3", title: "Acessar na conta do Instagram da Carmella", subtitle1: "Deixar ela aberta durante todo o dia" },
-        { id: "4", title: "Acessar a conta do Telegram da Carmella", subtitle1: "" },
-        { id: "5", title: "Acessar a conta do Trello", subtitle1: "" },
+        { id: "4", title: "Acessar o sistema de controle de estoque", subtitle1: "" },
+        // { id: "5", title: "Acessar a conta do Trello", subtitle1: "" },
       ]
     },
     {
@@ -50,6 +50,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "13", title: "(Terça Feira) - Verificar Inventário da loja Ahu", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2 },
         { id: "14", title: "(Terça Feira) - Verificar Inventário da loja Alto XV", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2 },
         { id: "15", title: "Verificar Espelho Ponto das Atendentes", subtitle1: "Informar horas extras / faltantes do dia anterior", subtitle2: "" },
+        { id: "20", title: "Ajustar relatório de Frequência", subtitle1: "Atrasos, faltas, atestados, etc", subtitle2: "" },
 
       ]
     },
@@ -300,6 +301,17 @@ Fico à disposição!`;
                 onChange={() => handleCheckboxChange(item.id)}
                 weekday={item.weekday}
               />
+              {item.id === "20" && (
+                <div className="copy-sample-wrapper">
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={() => window.open("https://escritorio.carmellagelateria.com.br/frequencia", "_blank")}
+                  >
+                    Relatório de Frequência
+                  </button>
+                </div>
+              )}
               {item.id === "8" && (
                 <div className="copy-sample-wrapper">
                   <button
@@ -314,6 +326,24 @@ Fico à disposição!`;
                       Texto de exemplo copiado para a área de transferência.
                     </span>
                   )}
+                </div>
+              )}
+              {item.id === "4" && (
+                <div className="copy-sample-wrapper" style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={() => window.open("https://estoqueahu.carmellagelateria.com.br", "_blank")}
+                  >
+                    Estoque Ahu
+                  </button>
+                  <button
+                    type="button"
+                    className="copy-sample-button"
+                    onClick={() => window.open("https://estoquealtoxv.carmellagelateria.com.br", "_blank")}
+                  >
+                    Estoque XV
+                  </button>
                 </div>
               )}
               {item.id === "17" && (

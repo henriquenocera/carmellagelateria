@@ -13,6 +13,7 @@ interface Profile {
   is_admin: boolean | null;
   controlar_frequencia?: boolean | null;
   folgas_fixas?: string | null;
+  ativo?: boolean | null;
 }
 
 interface AttendanceMap {
@@ -91,13 +92,13 @@ function Frequencia() {
     try {
       const { data, error: dbError } = await supabase
         .from("profiles")
-        .select("id, short_id, name, email, is_admin, controlar_frequencia, folgas_fixas")
+        .select("id, short_id, name, email, is_admin, controlar_frequencia, folgas_fixas, ativo")
         .order("name", { ascending: true });
 
       if (dbError) throw dbError;
 
-      // Filtra perfis que têm controlar_frequencia ativado (ou não definidos como false)
-      const filteredProfiles = (data || []).filter((p) => p.controlar_frequencia !== false);
+      // Filtra perfis que têm controlar_frequencia ativado (ou não definidos como false) e que estão ativos
+      const filteredProfiles = (data || []).filter((p) => p.controlar_frequencia !== false && p.ativo !== false);
       setProfiles(filteredProfiles);
     } catch (err: any) {
       console.error("Erro ao buscar perfis:", err);
@@ -330,7 +331,7 @@ function Frequencia() {
             <p>Monitore e informe a presença, faltas, folgas e atestados da equipe.</p>
           </div>
 
-          <button onClick={handleExportCSV} className="primary-btn" style={{ marginTop: 0 }}>
+          <button onClick={handleExportCSV} className="primary-btn" style={{ marginTop: 15 }}>
             <Icons.BsDownload />
             Exportar Excel (CSV)
           </button>

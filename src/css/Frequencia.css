@@ -2,7 +2,8 @@
   max-width: 100%;
   margin: 40px auto;
   padding: 0 24px;
-  padding-left: 95px; /* Offset for the sidebar */
+  padding-left: 95px;
+  /* Offset for the sidebar */
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -11,6 +12,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -207,14 +209,16 @@
   background-color: #fff;
   font-weight: 500;
   color: var(--text-muted);
-  border-right: 2px solid var(--border-color); /* Thicker right border to separate from data cells */
+  border-right: 2px solid var(--border-color);
+  /* Thicker right border to separate from data cells */
   width: 60px;
   min-width: 60px;
 }
 
 /* Cell borders */
 .frequencia-table td {
-  padding: 0; /* Let dropdown select fill the cell */
+  padding: 0;
+  /* Let dropdown select fill the cell */
   border-bottom: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
   height: 38px;
@@ -264,7 +268,8 @@
   background-color: transparent;
   padding: 8px;
   transition: var(--transition);
-  appearance: none; /* Hide default arrow to look clean */
+  appearance: none;
+  /* Hide default arrow to look clean */
   -webkit-appearance: none;
   -moz-appearance: none;
 }
@@ -292,7 +297,8 @@
 /* Status colors and backgrounds */
 .status-trabalhado {
   background-color: transparent;
-  color: #9ca3af !important; /* Muted grey text */
+  color: #9ca3af !important;
+  /* Muted grey text */
 }
 
 .status-falta-n-just {

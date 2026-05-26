@@ -16,9 +16,17 @@ export function AuthProvider({ children }) {
     try {
       const { data } = await supabase
         .from("profiles")
-        .select("is_admin")
+        .select("is_admin, ativo")
         .eq("id", userId)
         .single();
+
+      if (data && data.ativo === false) {
+        await supabase.auth.signOut();
+        alert("Sua conta está inativa no sistema. Entre em contato com o administrador.");
+        setIsAdmin(false);
+        return;
+      }
+
       setIsAdmin(data?.is_admin === true);
     } catch {
       setIsAdmin(false);

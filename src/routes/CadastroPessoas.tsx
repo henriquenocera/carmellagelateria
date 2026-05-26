@@ -39,19 +39,20 @@ interface Profile {
   is_admin: boolean | null;
   controlar_frequencia?: boolean | null;
   folgas_fixas?: string | null;
+  ativo?: boolean | null;
 }
 
 function CadastroPessoas() {
   const { user } = useAuth();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-  
+
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "" });
+  const [formData, setFormData] = useState({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true });
   const [createLogin, setCreateLogin] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 
@@ -79,7 +80,7 @@ function CadastroPessoas() {
     try {
       const { data, error } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
       if (error) throw error;
-      
+
       if (data && data.is_admin) {
         setIsAuthorized(true);
         fetchProfiles();
@@ -102,7 +103,22 @@ function CadastroPessoas() {
         .order("name", { ascending: true });
 
       if (dbError) throw dbError;
-      setProfiles(data || []);
+
+      const sorted = (data || []).sort((a, b) => {
+        const aActive = a.ativo !== false;
+        const bActive = b.ativo !== false;
+        if (aActive && !bActive) return -1;
+        if (!aActive && bActive) return 1;
+
+        const aAdmin = a.is_admin === true;
+        const bAdmin = b.is_admin === true;
+        if (aAdmin && !bAdmin) return -1;
+        if (!aAdmin && bAdmin) return 1;
+
+        return (a.name || "").localeCompare(b.name || "");
+      });
+
+      setProfiles(sorted);
     } catch (err: any) {
       console.error("Erro ao buscar perfis:", err);
       setError("Falha ao carregar a lista de pessoas.");
@@ -120,11 +136,12 @@ function CadastroPessoas() {
         short_id: profile.short_id || "",
         is_admin: profile.is_admin || false,
         controlar_frequencia: profile.controlar_frequencia !== false,
-        folgas_fixas: profile.folgas_fixas || ""
+        folgas_fixas: profile.folgas_fixas || "",
+        ativo: profile.ativo !== false
       });
       setCreateLogin(false);
     } else {
-      setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "" });
+      setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true });
       setCreateLogin(true); // Default to true for new users
     }
     setGeneratedPassword(null);
@@ -133,7 +150,7 @@ function CadastroPessoas() {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "" });
+    setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true });
     setCreateLogin(false);
     setGeneratedPassword(null);
   };
@@ -151,7 +168,7 @@ function CadastroPessoas() {
         // Update
         const { error: updateError } = await supabase
           .from("profiles")
-          .update({ name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, updated_at: new Date().toISOString() })
+          .update({ name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, ativo: formData.ativo, updated_at: new Date().toISOString() })
           .eq("id", formData.id);
         if (updateError) throw updateError;
         closeModal();
@@ -191,6 +208,7 @@ function CadastroPessoas() {
                 is_admin: formData.is_admin,
                 controlar_frequencia: formData.controlar_frequencia,
                 folgas_fixas: formData.folgas_fixas,
+                ativo: formData.ativo,
                 updated_at: new Date().toISOString()
               }], { onConflict: 'id' });
 
@@ -203,7 +221,7 @@ function CadastroPessoas() {
           const newId = crypto.randomUUID();
           const { error: insertError } = await supabase
             .from("profiles")
-            .insert([{ id: newId, name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, updated_at: new Date().toISOString() }]);
+            .insert([{ id: newId, name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, ativo: formData.ativo, updated_at: new Date().toISOString() }]);
           if (insertError) throw insertError;
           closeModal();
         }
@@ -332,13 +350,14 @@ function CadastroPessoas() {
               </thead>
               <tbody>
                 {profiles.map((p) => (
-                  <tr key={p.id}>
+                  <tr key={p.id} className={p.ativo === false ? "inactive-row" : ""}>
                     <td style={{ fontFamily: "monospace", fontSize: "14px", color: "var(--primary-color)", fontWeight: "bold" }}>
                       {p.short_id || "-"}
                     </td>
                     <td style={{ fontWeight: 600 }}>
                       {p.name || "-"}
                       {p.is_admin && <span style={{ marginLeft: "8px", background: "#fef3c7", color: "#d97706", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Admin</span>}
+                      {p.ativo === false && <span style={{ marginLeft: "8px", background: "#fee2e2", color: "#ef4444", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Inativo</span>}
                     </td>
                     <td>{p.email || "-"}</td>
                     <td>
@@ -445,77 +464,86 @@ function CadastroPessoas() {
                     placeholder="joao@exemplo.com"
                   />
                 </div>
-                <div className="form-group" style={{ flexDirection: "row", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                <div className="checkbox-group">
+                  <input
+                    type="checkbox"
+                    id="ativoCheckbox"
+                    checked={formData.ativo}
+                    onChange={(e) => setFormData({ ...formData, ativo: e.target.checked })}
+                  />
+                  <label htmlFor="ativoCheckbox">
+                    Usuário Ativo (Acessa o sistema)
+                  </label>
+                </div>
+                <div className="checkbox-group">
                   <input
                     type="checkbox"
                     id="isAdminCheckbox"
                     checked={formData.is_admin}
                     onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })}
-                    style={{ width: "16px", height: "16px", cursor: "pointer" }}
                   />
-                  <label htmlFor="isAdminCheckbox" style={{ cursor: "pointer", color: "var(--text-dark)", fontWeight: 500 }}>
+                  <label htmlFor="isAdminCheckbox">
                     Este usuário é um Administrador
                   </label>
                 </div>
-                <div className="form-group" style={{ flexDirection: "row", alignItems: "center", gap: "8px", marginTop: "4px" }}>
+                <div className="checkbox-group">
                   <input
                     type="checkbox"
                     id="controlarFrequenciaCheckbox"
                     checked={formData.controlar_frequencia}
                     onChange={(e) => setFormData({ ...formData, controlar_frequencia: e.target.checked })}
-                    style={{ width: "16px", height: "16px", cursor: "pointer" }}
                   />
-                  <label htmlFor="controlarFrequenciaCheckbox" style={{ cursor: "pointer", color: "var(--text-dark)", fontWeight: 500 }}>
+                  <label htmlFor="controlarFrequenciaCheckbox">
                     Controlar frequência deste funcionário
                   </label>
                 </div>
+
                 <div className="form-group" style={{ marginTop: "8px", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
-                   <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "6px" }}>
-                     Dias Fixos de Folga Semanal
-                   </label>
-                   <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                     {WEEKDAYS.map((day) => {
-                       const isChecked = (formData.folgas_fixas || "").split(",").includes(day.value);
-                       return (
-                         <label
-                           key={day.value}
-                           style={{
-                             display: "flex",
-                             alignItems: "center",
-                             padding: "6px 12px",
-                             borderRadius: "20px",
-                             fontSize: "12px",
-                             fontWeight: 700,
-                             cursor: "pointer",
-                             userSelect: "none",
-                             transition: "all 0.2s ease",
-                             background: isChecked ? "#f5ede4" : "#f3f4f6",
-                             border: isChecked ? "1.5px solid #784e21" : "1.5px solid #e5e7eb",
-                             color: isChecked ? "#784e21" : "#4b5563"
-                           }}
-                         >
-                           <input
-                             type="checkbox"
-                             checked={isChecked}
-                             onChange={() => handleWeekdayToggle(day.value)}
-                             style={{ display: "none" }}
-                           />
-                           {day.label}
-                         </label>
-                       );
-                     })}
-                   </div>
-                 </div>
+                  <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "6px" }}>
+                    Dias Fixos de Folga Semanal
+                  </label>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                    {WEEKDAYS.map((day) => {
+                      const isChecked = (formData.folgas_fixas || "").split(",").includes(day.value);
+                      return (
+                        <label
+                          key={day.value}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "6px 12px",
+                            borderRadius: "20px",
+                            fontSize: "12px",
+                            fontWeight: 700,
+                            cursor: "pointer",
+                            userSelect: "none",
+                            transition: "all 0.2s ease",
+                            background: isChecked ? "#f5ede4" : "#f3f4f6",
+                            border: isChecked ? "1.5px solid #784e21" : "1.5px solid #e5e7eb",
+                            color: isChecked ? "#784e21" : "#4b5563"
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => handleWeekdayToggle(day.value)}
+                            style={{ display: "none" }}
+                          />
+                          {day.label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
                 {!formData.id && (
-                  <div className="form-group" style={{ flexDirection: "row", alignItems: "center", gap: "8px", marginTop: "4px", paddingTop: "12px", borderTop: "1px solid var(--border-color)" }}>
+                  <div className="checkbox-group" style={{ paddingTop: "12px", borderTop: "1px solid var(--border-color)", marginTop: "12px" }}>
                     <input
                       type="checkbox"
                       id="createLoginCheckbox"
                       checked={createLogin}
                       onChange={(e) => setCreateLogin(e.target.checked)}
-                      style={{ width: "16px", height: "16px", cursor: "pointer" }}
                     />
-                    <label htmlFor="createLoginCheckbox" style={{ cursor: "pointer", color: "var(--text-dark)", fontWeight: 500 }}>
+                    <label htmlFor="createLoginCheckbox">
                       Gerar senha de acesso (Login)
                     </label>
                   </div>

@@ -24,7 +24,7 @@ function Login() {
     setError("");
     setSubmitting(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -33,6 +33,22 @@ function Login() {
       setError(signInError.message);
       setSubmitting(false);
       return;
+    }
+
+    const loggedUser = signInData?.user;
+    if (loggedUser) {
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("ativo")
+        .eq("id", loggedUser.id)
+        .single();
+
+      if (profileData && profileData.ativo === false) {
+        await supabase.auth.signOut();
+        setError("Sua conta está inativa no sistema. Entre em contato com o administrador.");
+        setSubmitting(false);
+        return;
+      }
     }
 
     setSubmitting(false);
