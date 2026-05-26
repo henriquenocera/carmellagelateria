@@ -136,6 +136,14 @@ function NavBar() {
                   <span className="text">Cálculo de Vales</span>
                 </NavLink>
               </li>
+              <li className={activeMenu ? "list active" : "list"}>
+                <NavLink to="/logs">
+                  <span className="icon">
+                    <Icons.BsListCheck />
+                  </span>
+                  <span className="text">Logs</span>
+                </NavLink>
+              </li>
             </>
           )}
         </ul>
