@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
+import { Link } from "react-router-dom";
 import * as Icons from "react-icons/bs";
 import "../css/CadastroPessoas.css";
 import supabase from "../supabase-client";
@@ -342,6 +343,9 @@ function CadastroPessoas() {
                     <td>{p.email || "-"}</td>
                     <td>
                       <div className="actions-cell">
+                        <Link className="icon-btn" title="Histórico e Ocorrências" to={`/cadastro-pessoas/${p.id}`} style={{ backgroundColor: "rgba(139, 92, 246, 0.1)", color: "#8b5cf6" }}>
+                          <Icons.BsFolder2Open />
+                        </Link>
                         <button className="icon-btn" title="Alterar Senha" onClick={() => openPasswordModal(p.id)} style={{ backgroundColor: "rgba(16, 185, 129, 0.1)", color: "#10b981" }}>
                           <Icons.BsKey />
                         </button>
