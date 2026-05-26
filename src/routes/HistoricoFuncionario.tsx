@@ -12,6 +12,10 @@ interface Profile {
   email: string;
   short_id: string | null;
   is_admin: boolean | null;
+  folgas_fixas?: string | null;
+  data_registro?: string | null;
+  controlar_frequencia?: boolean | null;
+  ativo?: boolean | null;
 }
 
 interface HistoricoRecord {
@@ -59,6 +63,40 @@ function HistoricoFuncionario() {
     description: "",
   });
 
+  // Frequency state
+  const today = new Date();
+  const [freqMonth, setFreqMonth] = useState<number>(today.getMonth() + 1);
+  const [freqYear, setFreqYear] = useState<number>(today.getFullYear());
+  const [freqRecords, setFreqRecords] = useState<{ date: string; status: string; observacao?: string | null }[]>([]);
+  const [loadingFreq, setLoadingFreq] = useState(false);
+
+  const freqYearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
+  const freqMonthsList = [
+    { value: 1, label: "Janeiro" }, { value: 2, label: "Fevereiro" },
+    { value: 3, label: "Março" }, { value: 4, label: "Abril" },
+    { value: 5, label: "Maio" }, { value: 6, label: "Junho" },
+    { value: 7, label: "Julho" }, { value: 8, label: "Agosto" },
+    { value: 9, label: "Setembro" }, { value: 10, label: "Outubro" },
+    { value: 11, label: "Novembro" }, { value: 12, label: "Dezembro" }
+  ];
+
+  const FREQ_STATUS_OPTIONS = [
+    { value: "Trabalhado", className: "freq-status-trabalhado" },
+    { value: "Falta Não Justificada", className: "freq-status-falta" },
+    { value: "Atestado", className: "freq-status-atestado" },
+    { value: "Declaração de Horas", className: "freq-status-declaracao" },
+    { value: "Saída Antecipada", className: "freq-status-saida" },
+    { value: "Atraso", className: "freq-status-atraso" },
+    { value: "Folga Fixa Semanal", className: "freq-status-folga-fixa" },
+    { value: "Domingo de Folga", className: "freq-status-folga-dom" },
+    { value: "Folga Compensatória", className: "freq-status-folga-comp" },
+    { value: "Férias", className: "freq-status-ferias" },
+    { value: "Período de Teste", className: "freq-status-periodo" },
+    { value: "Registro Formal", className: "freq-status-registro" },
+    { value: "Rescisão de Contrato", className: "freq-status-rescisao" },
+    { value: "Outro", className: "freq-status-outro" },
+  ];
+
   useEffect(() => {
     checkAccess();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,7 +128,7 @@ function HistoricoFuncionario() {
       setLoadingEmployee(true);
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name, email, short_id, is_admin")
+        .select("id, name, email, short_id, is_admin, folgas_fixas, data_registro, controlar_frequencia, ativo")
         .eq("id", empId)
         .single();
 
@@ -222,6 +260,99 @@ function HistoricoFuncionario() {
     return d.toLocaleString("pt-BR", { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
+  // Frequency logic
+  async function fetchFrequency(empId: string, m: number, y: number) {
+    try {
+      setLoadingFreq(true);
+      const daysInMonth = new Date(y, m, 0).getDate();
+      const startStr = `${y}-${String(m).padStart(2, "0")}-01`;
+      const endStr = `${y}-${String(m).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
+
+      const { data, error } = await supabase
+        .from("frequencia")
+        .select("date, status, observacao")
+        .eq("employee_id", empId)
+        .gte("date", startStr)
+        .lte("date", endStr)
+        .order("date", { ascending: true });
+
+      if (error) throw error;
+      setFreqRecords(data || []);
+    } catch (err) {
+      console.error("Erro ao buscar frequência:", err);
+    } finally {
+      setLoadingFreq(false);
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthorized && id) {
+      fetchFrequency(id, freqMonth, freqYear);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, id, freqMonth, freqYear]);
+
+  const getFreqDaysArray = () => {
+    const daysInMonth = new Date(freqYear, freqMonth, 0).getDate();
+    const dates: Date[] = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      dates.push(new Date(freqYear, freqMonth - 1, d));
+    }
+    return dates;
+  };
+
+  const getWeekdayName = (date: Date) => {
+    const names = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    return names[date.getDay()];
+  };
+
+  const getFreqStatusForDate = (dateStr: string, dateObj: Date) => {
+    const record = freqRecords.find((r) => r.date === dateStr);
+    if (record) return record.status;
+
+    // Default status based on fixed off-days
+    const fixedOffDays = employee?.folgas_fixas ? employee.folgas_fixas.split(",") : [];
+    const dayOfWeek = String(dateObj.getDay());
+    if (fixedOffDays.includes(dayOfWeek)) return "Folga Fixa Semanal";
+    return "Trabalhado";
+  };
+
+  const getFreqStatusClass = (status: string) => {
+    const opt = FREQ_STATUS_OPTIONS.find((o) => o.value === status);
+    return opt?.className || "freq-status-trabalhado";
+  };
+
+  const isWorkedStatus = (status: string) => {
+    return ["Trabalhado", "Declaração de Horas", "Saída Antecipada", "Atraso", "Registro Formal", "Rescisão de Contrato", "Outro"].includes(status);
+  };
+
+  const getFreqSummary = () => {
+    const allDates = getFreqDaysArray();
+    let trabalhados = 0;
+    let faltas = 0;
+    let atestados = 0;
+    let folgas = 0;
+    let outros = 0;
+
+    allDates.forEach((dateObj) => {
+      const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+
+      // Skip dates before registration
+      if (employee?.data_registro && dateStr < employee.data_registro) return;
+
+      const status = getFreqStatusForDate(dateStr, dateObj);
+      if (isWorkedStatus(status)) trabalhados++;
+      else if (status === "Falta Não Justificada") faltas++;
+      else if (status === "Atestado") atestados++;
+      else if (["Folga Fixa Semanal", "Domingo de Folga", "Folga Compensatória", "Férias"].includes(status)) folgas++;
+      else outros++;
+    });
+
+    return { trabalhados, faltas, atestados, folgas, outros };
+  };
+
+  const freqSummary = getFreqSummary();
+
   if (isAuthorized === null) {
     return (
       <div className="historico-container" style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
@@ -278,6 +409,7 @@ function HistoricoFuncionario() {
             <button onClick={() => navigate("/cadastro-pessoas")} className="primary-btn" style={{ marginTop: '16px' }}>Voltar para Pessoas</button>
           </div>
         ) : (
+          <>
           <div className="historico-layout">
             {/* Form Column */}
             <div className="historico-form-card">
@@ -411,6 +543,116 @@ function HistoricoFuncionario() {
               )}
             </div>
           </div>
+
+            {/* Frequency Section */}
+            {employee?.controlar_frequencia !== false && (
+              <div className="freq-section">
+                <div className="freq-section-header">
+                  <h2><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência</h2>
+                  <div className="freq-selectors">
+                    <select className="freq-select" value={freqMonth} onChange={(e) => setFreqMonth(parseInt(e.target.value))}>
+                      {freqMonthsList.map((m) => (
+                        <option key={m.value} value={m.value}>{m.label}</option>
+                      ))}
+                    </select>
+                    <select className="freq-select" value={freqYear} onChange={(e) => setFreqYear(parseInt(e.target.value))}>
+                      {freqYearsList.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Summary badges */}
+                <div className="freq-summary-row">
+                  <div className="freq-summary-badge freq-badge-worked">
+                    <Icons.BsCheckCircleFill />
+                    <span className="freq-badge-number">{freqSummary.trabalhados}</span>
+                    <span className="freq-badge-label">Trabalhados</span>
+                  </div>
+                  <div className="freq-summary-badge freq-badge-absence">
+                    <Icons.BsXCircleFill />
+                    <span className="freq-badge-number">{freqSummary.faltas}</span>
+                    <span className="freq-badge-label">Faltas</span>
+                  </div>
+                  <div className="freq-summary-badge freq-badge-medical">
+                    <Icons.BsClipboard2PulseFill />
+                    <span className="freq-badge-number">{freqSummary.atestados}</span>
+                    <span className="freq-badge-label">Atestados</span>
+                  </div>
+                  <div className="freq-summary-badge freq-badge-offday">
+                    <Icons.BsMoonFill />
+                    <span className="freq-badge-number">{freqSummary.folgas}</span>
+                    <span className="freq-badge-label">Folgas</span>
+                  </div>
+                  <div className="freq-summary-badge freq-badge-other">
+                    <Icons.BsThreeDotsVertical />
+                    <span className="freq-badge-number">{freqSummary.outros}</span>
+                    <span className="freq-badge-label">Outros</span>
+                  </div>
+                </div>
+
+                {/* Frequency table */}
+                <div className="freq-table-wrapper">
+                  {loadingFreq ? (
+                    <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
+                      <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
+                    </div>
+                  ) : (
+                    <table className="freq-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: "80px" }}>Data</th>
+                          <th style={{ width: "50px" }}>Dia</th>
+                          <th>Status</th>
+                          <th style={{ width: "40%" }}>Observação</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {getFreqDaysArray().map((dateObj) => {
+                          const yStr = dateObj.getFullYear();
+                          const mStr = String(dateObj.getMonth() + 1).padStart(2, "0");
+                          const dStr = String(dateObj.getDate()).padStart(2, "0");
+                          const dateStr = `${yStr}-${mStr}-${dStr}`;
+                          const weekday = getWeekdayName(dateObj);
+                          const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+                          const isBeforeReg = employee?.data_registro && dateStr < employee.data_registro;
+                          const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+                          const isToday = dateStr === todayDateStr;
+
+                          if (isBeforeReg) {
+                            return (
+                              <tr key={dateStr} className="freq-row-disabled">
+                                <td>{`${dStr}/${mStr}`}</td>
+                                <td>{weekday}</td>
+                                <td colSpan={2} style={{ color: "#9ca3af", textAlign: "center" }}>—</td>
+                              </tr>
+                            );
+                          }
+
+                          const status = getFreqStatusForDate(dateStr, dateObj);
+                          const statusClass = getFreqStatusClass(status);
+                          const obs = freqRecords.find((r) => r.date === dateStr)?.observacao || "";
+
+                          return (
+                            <tr key={dateStr} className={`${isWeekend ? "freq-row-weekend" : ""} ${isToday ? "freq-row-today" : ""}`}>
+                              <td className="freq-td-date">{`${dStr}/${mStr}`}</td>
+                              <td className="freq-td-weekday">{weekday}</td>
+                              <td>
+                                <span className={`freq-status-pill ${statusClass}`}>{status}</span>
+                              </td>
+                              <td className="freq-td-obs">{obs}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+            )}
+
+          </>
         )}
       </div>
     </>

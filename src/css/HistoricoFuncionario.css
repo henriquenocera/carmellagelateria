@@ -2,7 +2,8 @@
   max-width: 1200px;
   margin: 40px auto;
   padding: 0 24px;
-  padding-left: 95px; /* Space for the sidebar navbar */
+  padding-left: 95px;
+  /* Space for the sidebar navbar */
   animation: fadeIn 0.5s ease-out;
 }
 
@@ -11,6 +12,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -112,6 +114,27 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  max-height: 720px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Custom scrollbar for timeline */
+.historico-timeline-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.historico-timeline-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.historico-timeline-container::-webkit-scrollbar-thumb {
+  background-color: rgba(120, 78, 33, 0.2);
+  border-radius: 10px;
+}
+
+.historico-timeline-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(120, 78, 33, 0.4);
 }
 
 .historico-timeline-container h2 {
@@ -263,6 +286,7 @@
 .marker-advertencia {
   background-color: #ef4444;
 }
+
 .badge-advertencia {
   background-color: rgba(239, 68, 68, 0.1);
   color: #ef4444;
@@ -272,6 +296,7 @@
 .marker-suspensao {
   background-color: #b91c1c;
 }
+
 .badge-suspensao {
   background-color: rgba(185, 28, 28, 0.1);
   color: #b91c1c;
@@ -281,6 +306,7 @@
 .marker-elogio {
   background-color: #eab308;
 }
+
 .badge-elogio {
   background-color: rgba(234, 179, 8, 0.1);
   color: #a16207;
@@ -290,6 +316,7 @@
 .marker-informacao {
   background-color: #3b82f6;
 }
+
 .badge-informacao {
   background-color: rgba(59, 130, 246, 0.1);
   color: #3b82f6;
@@ -299,6 +326,7 @@
 .marker-observacao {
   background-color: #6b7280;
 }
+
 .badge-observacao {
   background-color: rgba(107, 114, 128, 0.1);
   color: #4b5563;
@@ -308,6 +336,7 @@
 .marker-outro {
   background-color: #a855f7;
 }
+
 .badge-outro {
   background-color: rgba(168, 85, 247, 0.1);
   color: #a855f7;
@@ -333,20 +362,313 @@
   color: #cbd5e1;
 }
 
+/* ============================== */
+/* Frequency Section              */
+/* ============================== */
+.freq-section {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow);
+  animation: fadeIn 0.5s ease-out;
+  margin-top: 25px;
+}
+
+.freq-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 14px;
+}
+
+.freq-section-header h2 {
+  font-size: 2rem;
+  color: var(--secondary-color);
+  margin: 0;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.freq-selectors {
+  display: flex;
+  gap: 8px;
+}
+
+.freq-select {
+  padding: 8px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1.3rem;
+  font-family: inherit;
+  background-color: #fff;
+  cursor: pointer;
+  color: var(--text-dark);
+  transition: var(--transition);
+}
+
+.freq-select:hover {
+  border-color: var(--primary-color);
+}
+
+/* Summary Badges */
+.freq-summary-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.freq-summary-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-size: 1.3rem;
+  flex: 1;
+  min-width: 120px;
+  border: 1px solid transparent;
+}
+
+.freq-summary-badge svg {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.freq-badge-number {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.freq-badge-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.freq-badge-worked {
+  background-color: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.freq-badge-absence {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.freq-badge-medical {
+  background-color: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.freq-badge-offday {
+  background-color: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.freq-badge-other {
+  background-color: rgba(107, 114, 128, 0.08);
+  color: #4b5563;
+  border-color: rgba(107, 114, 128, 0.2);
+}
+
+/* Frequency Table */
+.freq-table-wrapper {
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.freq-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1.3rem;
+}
+
+.freq-table thead {
+  background: linear-gradient(135deg, #f5ede4 0%, #f0e6d9 100%);
+}
+
+.freq-table th {
+  padding: 10px 12px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.freq-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid #f3f0ec;
+  color: var(--text-dark);
+  vertical-align: middle;
+}
+
+.freq-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.freq-table tbody tr:hover {
+  background-color: rgba(120, 78, 33, 0.03);
+}
+
+.freq-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.freq-row-weekend {
+  background-color: rgba(99, 102, 241, 0.03);
+}
+
+.freq-row-today {
+  background-color: rgba(245, 158, 11, 0.06) !important;
+  border-left: 3px solid #f59e0b;
+}
+
+.freq-row-disabled {
+  opacity: 0.4;
+}
+
+.freq-td-date {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--secondary-color);
+  font-family: monospace;
+}
+
+.freq-td-weekday {
+  font-weight: 600;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+
+.freq-td-obs {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Status Pills */
+.freq-status-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.freq-status-trabalhado {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+.freq-status-falta {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.freq-status-atestado {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.freq-status-declaracao {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+.freq-status-saida {
+  background-color: rgba(168, 85, 247, 0.1);
+  color: #7c3aed;
+}
+
+.freq-status-atraso {
+  background-color: rgba(251, 146, 60, 0.1);
+  color: #ea580c;
+}
+
+.freq-status-folga-fixa {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: #4f46e5;
+}
+
+.freq-status-folga-dom {
+  background-color: rgba(99, 102, 241, 0.08);
+  color: #6366f1;
+}
+
+.freq-status-folga-comp {
+  background-color: rgba(14, 165, 233, 0.1);
+  color: #0284c7;
+}
+
+.freq-status-ferias {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.freq-status-periodo {
+  background-color: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+}
+
+.freq-status-registro {
+  background-color: rgba(120, 78, 33, 0.1);
+  color: var(--primary-color);
+}
+
+.freq-status-rescisao {
+  background-color: rgba(185, 28, 28, 0.1);
+  color: #b91c1c;
+}
+
+.freq-status-outro {
+  background-color: rgba(107, 114, 128, 0.08);
+  color: #6b7280;
+}
+
 /* Responsive Layout */
 @media (max-width: 900px) {
   .historico-layout {
     grid-template-columns: 1fr;
   }
-  
+
   .historico-container {
     padding-left: 95px;
     margin: 20px auto;
+  }
+
+  .freq-summary-row {
+    flex-wrap: wrap;
+  }
+
+  .freq-summary-badge {
+    min-width: 100px;
   }
 }
 
 @media (max-width: 768px) {
   .historico-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .freq-section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;

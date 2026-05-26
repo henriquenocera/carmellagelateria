@@ -31,11 +31,23 @@ const WEEKDAYS = [
   { value: "0", label: "Dom" }
 ];
 
+const getPrevMonthAndYear = (currMonth: number, currYear: number) => {
+  let m = currMonth - 1;
+  let y = currYear;
+  if (m < 1) {
+    m = 12;
+    y -= 1;
+  }
+  return { month: m, year: y };
+};
+
 function CalculoVales() {
   const { user } = useAuth();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [prevMonthAttendance, setPrevMonthAttendance] = useState<{ [employeeId: string]: number }>({});
+  const [currMonthAttendance, setCurrMonthAttendance] = useState<{ [key: string]: string }>({});
   const [adjustedDays, setAdjustedDays] = useState<{ [profileId: string]: number }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,6 +87,7 @@ function CalculoVales() {
 
   useEffect(() => {
     checkAccess();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   async function checkAccess() {
@@ -89,7 +102,6 @@ function CalculoVales() {
 
       if (data && data.is_admin) {
         setIsAuthorized(true);
-        fetchProfiles();
       } else {
         setIsAuthorized(false);
       }
@@ -99,32 +111,13 @@ function CalculoVales() {
     }
   }
 
-  async function fetchProfiles() {
-    try {
-      setLoading(true);
-      setError(null);
-      const { data, error: dbError } = await supabase
-        .from("profiles")
-        .select("id, short_id, name, email, is_admin, controlar_frequencia, folgas_fixas, ativo, data_registro, passagens_urbs, passagens_metrocard")
-        .order("name", { ascending: true });
-
-      if (dbError) throw dbError;
-
-      // Filter active profiles that have frequency control enabled
-      const filtered = (data || []).filter(
-        (p) => p.controlar_frequencia !== false && p.ativo !== false
-      );
-      setProfiles(filtered);
-    } catch (err: any) {
-      console.error("Erro ao buscar perfis:", err);
-      setError("Falha ao carregar a lista de pessoas.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   // Pre-calculate working days based on month, year, registration date and weekly off-days
-  const calculateDefaultWorkdays = (profile: Profile, targetMonth: number, targetYear: number) => {
+  const calculateDefaultWorkdays = (
+    profile: Profile,
+    targetMonth: number,
+    targetYear: number,
+    attendanceMap: { [key: string]: string } = currMonthAttendance
+  ) => {
     const daysInMonth = new Date(targetYear, targetMonth, 0).getDate();
     const fixedOffDays = profile.folgas_fixas ? profile.folgas_fixas.split(",") : [];
     const regDateStr = profile.data_registro;
@@ -143,22 +136,114 @@ function CalculoVales() {
         continue;
       }
 
-      const dayOfWeek = String(dateObj.getDay());
-      if (!fixedOffDays.includes(dayOfWeek)) {
+      const cellKey = `${profile.id}_${currentDateStr}`;
+      const weekdayVal = String(dateObj.getDay());
+      const isFixedOff = fixedOffDays.includes(weekdayVal);
+      const defaultStatus = isFixedOff ? "Folga Fixa Semanal" : "Trabalhado";
+
+      const status = attendanceMap[cellKey] || defaultStatus;
+      const isWorkedStatus = [
+        "Trabalhado",
+        "Declaração de Horas",
+        "Saída Antecipada",
+        "Atraso",
+        "Registro Formal",
+        "Rescisão de Contrato",
+        "Outro"
+      ].includes(status);
+
+      if (isWorkedStatus) {
         workdays++;
       }
     }
     return workdays;
   };
 
-  // Populate adjustedDays whenever target period or profiles change
+  const fetchValesData = async (targetMonth: number, targetYear: number) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 1. Fetch profiles
+      const { data: profilesData, error: dbError } = await supabase
+        .from("profiles")
+        .select("id, short_id, name, email, is_admin, controlar_frequencia, folgas_fixas, ativo, data_registro, passagens_urbs, passagens_metrocard")
+        .order("name", { ascending: true });
+
+      if (dbError) throw dbError;
+
+      // Filter active profiles that have frequency control enabled
+      const filtered = (profilesData || []).filter(
+        (p) => p.controlar_frequencia !== false && p.ativo !== false
+      );
+      setProfiles(filtered);
+
+      // 2. Fetch previous month's attendance
+      const prevPeriod = getPrevMonthAndYear(targetMonth, targetYear);
+      const daysInPrevMonth = new Date(prevPeriod.year, prevPeriod.month, 0).getDate();
+      const startOfPrevStr = `${prevPeriod.year}-${String(prevPeriod.month).padStart(2, "0")}-01`;
+      const endOfPrevStr = `${prevPeriod.year}-${String(prevPeriod.month).padStart(2, "0")}-${String(daysInPrevMonth).padStart(2, "0")}`;
+
+      const { data: attData, error: attError } = await supabase
+        .from("frequencia")
+        .select("employee_id, status")
+        .gte("date", startOfPrevStr)
+        .lte("date", endOfPrevStr)
+        .in("status", ["Falta Não Justificada", "Atestado", "Folga Compensatória"]);
+
+      if (attError) throw attError;
+
+      const counts: { [employeeId: string]: number } = {};
+      (attData || []).forEach((row) => {
+        counts[row.employee_id] = (counts[row.employee_id] || 0) + 1;
+      });
+
+      setPrevMonthAttendance(counts);
+
+      // 3. Fetch target month's attendance (to align base days with Frequencia table)
+      const daysInTargetMonth = new Date(targetYear, targetMonth, 0).getDate();
+      const startOfTargetStr = `${targetYear}-${String(targetMonth).padStart(2, "0")}-01`;
+      const endOfTargetStr = `${targetYear}-${String(targetMonth).padStart(2, "0")}-${String(daysInTargetMonth).padStart(2, "0")}`;
+
+      const { data: targetAttData, error: targetAttError } = await supabase
+        .from("frequencia")
+        .select("employee_id, date, status")
+        .gte("date", startOfTargetStr)
+        .lte("date", endOfTargetStr);
+
+      if (targetAttError) throw targetAttError;
+
+      const targetAttMap: { [key: string]: string } = {};
+      (targetAttData || []).forEach((row) => {
+        const key = `${row.employee_id}_${row.date}`;
+        targetAttMap[key] = row.status;
+      });
+
+      setCurrMonthAttendance(targetAttMap);
+
+      // 4. Populate adjustedDays
+      const initialAdjustments: { [key: string]: number } = {};
+      filtered.forEach((p) => {
+        const defaultDays = calculateDefaultWorkdays(p, targetMonth, targetYear, targetAttMap);
+        const discount = counts[p.id] || 0;
+        initialAdjustments[p.id] = Math.max(0, defaultDays - discount);
+      });
+      setAdjustedDays(initialAdjustments);
+
+    } catch (err: any) {
+      console.error("Erro ao buscar perfis e faltas:", err);
+      setError("Falha ao carregar dados do cálculo de vales.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const initialAdjustments: { [key: string]: number } = {};
-    profiles.forEach((p) => {
-      initialAdjustments[p.id] = calculateDefaultWorkdays(p, month, year);
-    });
-    setAdjustedDays(initialAdjustments);
-  }, [profiles, month, year]);
+    if (isAuthorized) {
+      fetchValesData(month, year);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, month, year]);
 
   const handleDayChange = (profileId: string, val: string) => {
     const intVal = parseInt(val);
@@ -200,6 +285,9 @@ function CalculoVales() {
 
   const totals = getTotals();
 
+  const prevPeriodInfo = getPrevMonthAndYear(month, year);
+  const prevMonthLabel = monthsList.find((m) => m.value === prevPeriodInfo.month)?.label || "";
+
   const getFixedOffDaysLabel = (folgasStr: string | null | undefined) => {
     if (!folgasStr) return "Nenhuma";
     const days = folgasStr.split(",");
@@ -225,10 +313,14 @@ function CalculoVales() {
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     const monthLabel = monthsList.find((m) => m.value === month)?.label;
+    const prevPeriod = getPrevMonthAndYear(month, year);
+    const prevMonthLabel = monthsList.find((m) => m.value === prevPeriod.month)?.label;
     doc.text(`Referência: ${monthLabel} de ${year}`, 14, 27);
     doc.text(`Data de Geração: ${new Date().toLocaleDateString("pt-BR")}`, 14, 33);
 
     const tableRows = profiles.map((p) => {
+      const baseDays = calculateDefaultWorkdays(p, month, year);
+      const discount = prevMonthAttendance[p.id] || 0;
       const days = adjustedDays[p.id] ?? 0;
       const urbsQty = days * (p.passagens_urbs ?? 0);
       const urbsCost = urbsQty * 6.0;
@@ -240,6 +332,8 @@ function CalculoVales() {
 
       return [
         p.name,
+        baseDays.toString(),
+        discount.toString(),
         days.toString(),
         `${urbsQty} (R$ ${urbsCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`,
         `${metroQty} (R$ ${metroCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`,
@@ -251,6 +345,8 @@ function CalculoVales() {
     tableRows.push([
       "TOTAL CONSOLIDADO",
       "",
+      "",
+      "",
       `${totals.urbsCount} (R$ ${totals.urbsCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`,
       `${totals.metrocardCount} (R$ ${totals.metrocardCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`,
       `${totals.vrCount} (R$ ${totals.vrCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`,
@@ -259,18 +355,20 @@ function CalculoVales() {
 
     autoTable(doc, {
       startY: 40,
-      head: [["Funcionário", "Dias Previstos", "URBS (R$ 6,00)", "Metrocard (R$ 5,50)", "VR (R$ 17,00)", "Valor Total"]],
+      head: [["Funcionário", "Dias Base", `Descontos (${prevMonthLabel})`, "Dias Previstos", "URBS (R$ 6,00)", "Metrocard (R$ 5,50)", "VR (R$ 17,00)", "Valor Total"]],
       body: tableRows,
       theme: "striped",
       headStyles: { fillColor: [120, 78, 33], textColor: [255, 255, 255] },
-      styles: { fontSize: 8.5 },
+      styles: { fontSize: 8 },
       columnStyles: {
         0: { fontStyle: "bold" },
         1: { halign: "center" },
-        2: { halign: "left" },
-        3: { halign: "left" },
+        2: { halign: "center" },
+        3: { halign: "center" },
         4: { halign: "left" },
-        5: { halign: "right", fontStyle: "bold" }
+        5: { halign: "left" },
+        6: { halign: "left" },
+        7: { halign: "right", fontStyle: "bold" }
       },
       didParseCell: function (data: any) {
         if (data.row.index === tableRows.length - 1) {
@@ -286,6 +384,8 @@ function CalculoVales() {
   const handleExportCSV = () => {
     const headers = [
       "Funcionário",
+      "Dias Base",
+      "Descontos",
       "Dias Previstos",
       "Qtd URBS",
       "Valor URBS (R$)",
@@ -298,6 +398,8 @@ function CalculoVales() {
     const monthLabel = monthsList.find((m) => m.value === month)?.label;
 
     const rows = profiles.map((p) => {
+      const baseDays = calculateDefaultWorkdays(p, month, year);
+      const discount = prevMonthAttendance[p.id] || 0;
       const days = adjustedDays[p.id] ?? 0;
       const urbsQty = days * (p.passagens_urbs ?? 0);
       const urbsCost = urbsQty * 6.0;
@@ -309,6 +411,8 @@ function CalculoVales() {
 
       return [
         p.name,
+        baseDays.toString(),
+        discount.toString(),
         days.toString(),
         urbsQty.toString(),
         urbsCost.toFixed(2),
@@ -484,7 +588,9 @@ function CalculoVales() {
               <thead>
                 <tr>
                   <th>Funcionário</th>
-                  <th style={{ textAlign: "center", width: "110px" }}>Dias Previstos</th>
+                  <th style={{ textAlign: "center", width: "100px" }}>Dias Base</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Descontos ({prevMonthLabel})</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Dias Previstos</th>
                   <th style={{ width: "130px" }}>URBS (Qtd)</th>
                   <th style={{ width: "130px" }}>Metrocard (Qtd)</th>
                   <th style={{ width: "130px" }}>VR (Qtd)</th>
@@ -493,6 +599,8 @@ function CalculoVales() {
               </thead>
               <tbody>
                 {profiles.map((p) => {
+                  const baseDays = calculateDefaultWorkdays(p, month, year);
+                  const discount = prevMonthAttendance[p.id] || 0;
                   const days = adjustedDays[p.id] ?? 0;
                   const urbsQty = days * (p.passagens_urbs ?? 0);
                   const urbsCost = urbsQty * 6.00;
@@ -511,6 +619,12 @@ function CalculoVales() {
                           {p.data_registro && ` | Adm: ${formatDisplayDate(p.data_registro)}`}
                         </div>
                       </td>
+                      <td style={{ textAlign: "center", fontWeight: "bold" }}>
+                        {baseDays}
+                      </td>
+                      <td style={{ textAlign: "center", color: discount > 0 ? "#ef4444" : "inherit", fontWeight: discount > 0 ? "bold" : "normal" }}>
+                        {discount}
+                      </td>
                       <td style={{ textAlign: "center" }}>
                         <input
                           type="number"
@@ -522,25 +636,56 @@ function CalculoVales() {
                         />
                       </td>
                       <td className="numeric">
-                        {urbsQty} <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "normal" }}>(x{p.passagens_urbs || 0}/dia)</span>
-                        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px", fontWeight: "normal" }}>
-                          R$ {urbsCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
+                        {p.passagens_urbs && p.passagens_urbs > 0 ? (
+                          <div className="vales-cell-container">
+                            <div className="vales-cell-main">
+                              <span className="vales-cell-qty">{urbsQty}</span>
+                              <span className="vales-cell-badge urbs">x{p.passagens_urbs}/dia</span>
+                            </div>
+                            <div className="vales-cell-sub">
+                              R$ {urbsCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="vales-empty-cell">—</span>
+                        )}
                       </td>
                       <td className="numeric">
-                        {metroQty} <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "normal" }}>(x{p.passagens_metrocard || 0}/dia)</span>
-                        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px", fontWeight: "normal" }}>
-                          R$ {metroCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
+                        {p.passagens_metrocard && p.passagens_metrocard > 0 ? (
+                          <div className="vales-cell-container">
+                            <div className="vales-cell-main">
+                              <span className="vales-cell-qty">{metroQty}</span>
+                              <span className="vales-cell-badge metrocard">x{p.passagens_metrocard}/dia</span>
+                            </div>
+                            <div className="vales-cell-sub">
+                              R$ {metroCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="vales-empty-cell">—</span>
+                        )}
                       </td>
                       <td className="numeric">
-                        {vrQty} <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "normal" }}>(x1/dia)</span>
-                        <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px", fontWeight: "normal" }}>
-                          R$ {vrCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </div>
+                        {vrQty > 0 ? (
+                          <div className="vales-cell-container">
+                            <div className="vales-cell-main">
+                              <span className="vales-cell-qty">{vrQty}</span>
+                              <span className="vales-cell-badge vr">x1/dia</span>
+                            </div>
+                            <div className="vales-cell-sub">
+                              R$ {vrCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="vales-empty-cell">—</span>
+                        )}
                       </td>
-                      <td className="numeric" style={{ textAlign: "right", color: "var(--primary-color)" }}>
-                        R$ {totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <td className="numeric" style={{ textAlign: "right", color: "var(--primary-color)", fontSize: "15px", fontWeight: "bold" }}>
+                        {totalCost > 0 ? (
+                          `R$ ${totalCost.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        ) : (
+                          "—"
+                        )}
                       </td>
                     </tr>
                   );
