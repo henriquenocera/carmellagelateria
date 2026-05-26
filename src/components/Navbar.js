@@ -119,14 +119,24 @@ function NavBar() {
             </NavLink>
           </li>
           {isAdmin && (
-            <li className={activeMenu ? "list active" : "list"}>
-              <NavLink to="/cadastro-pessoas">
-                <span className="icon">
-                  <Icons.BsPeople />
-                </span>
-                <span className="text">Pessoas</span>
-              </NavLink>
-            </li>
+            <>
+              <li className={activeMenu ? "list active" : "list"}>
+                <NavLink to="/cadastro-pessoas">
+                  <span className="icon">
+                    <Icons.BsPeople />
+                  </span>
+                  <span className="text">Pessoas</span>
+                </NavLink>
+              </li>
+              <li className={activeMenu ? "list active" : "list"}>
+                <NavLink to="/calculo-vales">
+                  <span className="icon">
+                    <Icons.BsCalculator />
+                  </span>
+                  <span className="text">Cálculo de Vales</span>
+                </NavLink>
+              </li>
+            </>
           )}
         </ul>
       </div>

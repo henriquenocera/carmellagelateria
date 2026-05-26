@@ -40,6 +40,9 @@ interface Profile {
   controlar_frequencia?: boolean | null;
   folgas_fixas?: string | null;
   ativo?: boolean | null;
+  data_registro?: string | null;
+  passagens_urbs?: number | null;
+  passagens_metrocard?: number | null;
 }
 
 function CadastroPessoas() {
@@ -52,7 +55,7 @@ function CadastroPessoas() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [formData, setFormData] = useState({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true });
+  const [formData, setFormData] = useState({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true, data_registro: "", passagens_urbs: 0, passagens_metrocard: 0 });
   const [createLogin, setCreateLogin] = useState(false);
   const [generatedPassword, setGeneratedPassword] = useState<string | null>(null);
 
@@ -137,11 +140,14 @@ function CadastroPessoas() {
         is_admin: profile.is_admin || false,
         controlar_frequencia: profile.controlar_frequencia !== false,
         folgas_fixas: profile.folgas_fixas || "",
-        ativo: profile.ativo !== false
+        ativo: profile.ativo !== false,
+        data_registro: profile.data_registro || "",
+        passagens_urbs: profile.passagens_urbs ?? 0,
+        passagens_metrocard: profile.passagens_metrocard ?? 0
       });
       setCreateLogin(false);
     } else {
-      setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true });
+      setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true, data_registro: "", passagens_urbs: 0, passagens_metrocard: 0 });
       setCreateLogin(true); // Default to true for new users
     }
     setGeneratedPassword(null);
@@ -150,7 +156,7 @@ function CadastroPessoas() {
 
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true });
+    setFormData({ id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true, data_registro: "", passagens_urbs: 0, passagens_metrocard: 0 });
     setCreateLogin(false);
     setGeneratedPassword(null);
   };
@@ -168,7 +174,19 @@ function CadastroPessoas() {
         // Update
         const { error: updateError } = await supabase
           .from("profiles")
-          .update({ name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, ativo: formData.ativo, updated_at: new Date().toISOString() })
+          .update({
+            name: formData.name,
+            email: formData.email,
+            short_id: formData.short_id,
+            is_admin: formData.is_admin,
+            controlar_frequencia: formData.controlar_frequencia,
+            folgas_fixas: formData.folgas_fixas,
+            ativo: formData.ativo,
+            data_registro: formData.data_registro || null,
+            passagens_urbs: formData.passagens_urbs,
+            passagens_metrocard: formData.passagens_metrocard,
+            updated_at: new Date().toISOString()
+          })
           .eq("id", formData.id);
         if (updateError) throw updateError;
         closeModal();
@@ -209,6 +227,9 @@ function CadastroPessoas() {
                 controlar_frequencia: formData.controlar_frequencia,
                 folgas_fixas: formData.folgas_fixas,
                 ativo: formData.ativo,
+                data_registro: formData.data_registro || null,
+                passagens_urbs: formData.passagens_urbs,
+                passagens_metrocard: formData.passagens_metrocard,
                 updated_at: new Date().toISOString()
               }], { onConflict: 'id' });
 
@@ -221,7 +242,20 @@ function CadastroPessoas() {
           const newId = crypto.randomUUID();
           const { error: insertError } = await supabase
             .from("profiles")
-            .insert([{ id: newId, name: formData.name, email: formData.email, short_id: formData.short_id, is_admin: formData.is_admin, controlar_frequencia: formData.controlar_frequencia, folgas_fixas: formData.folgas_fixas, ativo: formData.ativo, updated_at: new Date().toISOString() }]);
+            .insert([{
+              id: newId,
+              name: formData.name,
+              email: formData.email,
+              short_id: formData.short_id,
+              is_admin: formData.is_admin,
+              controlar_frequencia: formData.controlar_frequencia,
+              folgas_fixas: formData.folgas_fixas,
+              ativo: formData.ativo,
+              data_registro: formData.data_registro || null,
+              passagens_urbs: formData.passagens_urbs,
+              passagens_metrocard: formData.passagens_metrocard,
+              updated_at: new Date().toISOString()
+            }]);
           if (insertError) throw insertError;
           closeModal();
         }
@@ -416,7 +450,7 @@ function CadastroPessoas() {
 
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content" style={{ maxWidth: generatedPassword ? "400px" : "680px" }}>
             <h2>{formData.id ? "Editar Pessoa" : "Nova Pessoa"}</h2>
 
             {generatedPassword ? (
@@ -431,112 +465,161 @@ function CadastroPessoas() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-                <div style={{ display: "flex", gap: "16px" }}>
-                  <div className="form-group" style={{ flex: 1 }}>
-                    <label>ID (Máx 4)</label>
-                    <input
-                      type="text"
-                      maxLength={4}
-                      value={formData.short_id}
-                      onChange={(e) => setFormData({ ...formData, short_id: e.target.value.replace(/\D/g, '') })}
-                      placeholder="Ex: 1234"
-                    />
+              <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div style={{ display: "flex", gap: "24px" }}>
+                  {/* Left Column: Personal and Account Status */}
+                  <div style={{ flex: 1.2, display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <div className="form-group" style={{ width: "80px" }}>
+                        <label>ID (Máx 4)</label>
+                        <input
+                          type="text"
+                          maxLength={4}
+                          value={formData.short_id}
+                          onChange={(e) => setFormData({ ...formData, short_id: e.target.value.replace(/\D/g, '') })}
+                          placeholder="Ex: 1234"
+                        />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>Nome</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder="Ex: João Silva"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>E-mail</label>
+                      <input
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="joao@exemplo.com"
+                      />
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "4px" }}>
+                      <div className="checkbox-group">
+                        <input
+                          type="checkbox"
+                          id="ativoCheckbox"
+                          checked={formData.ativo}
+                          onChange={(e) => setFormData({ ...formData, ativo: e.target.checked })}
+                        />
+                        <label htmlFor="ativoCheckbox">
+                          Usuário Ativo (Acessa o sistema)
+                        </label>
+                      </div>
+                      <div className="checkbox-group">
+                        <input
+                          type="checkbox"
+                          id="isAdminCheckbox"
+                          checked={formData.is_admin}
+                          onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })}
+                        />
+                        <label htmlFor="isAdminCheckbox">
+                          Este usuário é um Administrador
+                        </label>
+                      </div>
+                      <div className="checkbox-group">
+                        <input
+                          type="checkbox"
+                          id="controlarFrequenciaCheckbox"
+                          checked={formData.controlar_frequencia}
+                          onChange={(e) => setFormData({ ...formData, controlar_frequencia: e.target.checked })}
+                        />
+                        <label htmlFor="controlarFrequenciaCheckbox">
+                          Controlar frequência deste funcionário
+                        </label>
+                      </div>
+                    </div>
                   </div>
-                  <div className="form-group" style={{ flex: 3 }}>
-                    <label>Nome</label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Ex: João Silva"
-                    />
+
+                  {/* Vertical Divider */}
+                  <div style={{ width: "1px", backgroundColor: "var(--border-color)", alignSelf: "stretch" }}></div>
+
+                  {/* Right Column: Admission date, tickets and fix offdays */}
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div className="form-group">
+                      <label>Data de Admissão / Registro</label>
+                      <input
+                        type="date"
+                        value={formData.data_registro}
+                        onChange={(e) => setFormData({ ...formData, data_registro: e.target.value })}
+                        style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px" }}
+                      />
+                    </div>
+
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label style={{ textTransform: "none" }}>Passagens URBS (Dia)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={formData.passagens_urbs}
+                          onChange={(e) => setFormData({ ...formData, passagens_urbs: parseInt(e.target.value) || 0 })}
+                          placeholder="Ex: 2"
+                        />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label style={{ textTransform: "none" }}>Passagens Metrocard (Dia)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={formData.passagens_metrocard}
+                          onChange={(e) => setFormData({ ...formData, passagens_metrocard: parseInt(e.target.value) || 0 })}
+                          placeholder="Ex: 2"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: "4px" }}>
+                      <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "6px" }}>
+                        Dias Fixos de Folga Semanal
+                      </label>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                        {WEEKDAYS.map((day) => {
+                          const isChecked = (formData.folgas_fixas || "").split(",").includes(day.value);
+                          return (
+                            <label
+                              key={day.value}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "6px 10px",
+                                borderRadius: "20px",
+                                fontSize: "12px",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                userSelect: "none",
+                                transition: "all 0.2s ease",
+                                background: isChecked ? "#f5ede4" : "#f3f4f6",
+                                border: isChecked ? "1.5px solid #784e21" : "1.5px solid #e5e7eb",
+                                color: isChecked ? "#784e21" : "#4b5563"
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => handleWeekdayToggle(day.value)}
+                                style={{ display: "none" }}
+                              />
+                              {day.label}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="form-group">
-                  <label>E-mail</label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    placeholder="joao@exemplo.com"
-                  />
-                </div>
-                <div className="checkbox-group">
-                  <input
-                    type="checkbox"
-                    id="ativoCheckbox"
-                    checked={formData.ativo}
-                    onChange={(e) => setFormData({ ...formData, ativo: e.target.checked })}
-                  />
-                  <label htmlFor="ativoCheckbox">
-                    Usuário Ativo (Acessa o sistema)
-                  </label>
-                </div>
-                <div className="checkbox-group">
-                  <input
-                    type="checkbox"
-                    id="isAdminCheckbox"
-                    checked={formData.is_admin}
-                    onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })}
-                  />
-                  <label htmlFor="isAdminCheckbox">
-                    Este usuário é um Administrador
-                  </label>
-                </div>
-                <div className="checkbox-group">
-                  <input
-                    type="checkbox"
-                    id="controlarFrequenciaCheckbox"
-                    checked={formData.controlar_frequencia}
-                    onChange={(e) => setFormData({ ...formData, controlar_frequencia: e.target.checked })}
-                  />
-                  <label htmlFor="controlarFrequenciaCheckbox">
-                    Controlar frequência deste funcionário
-                  </label>
                 </div>
 
-                <div className="form-group" style={{ marginTop: "8px", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
-                  <label style={{ fontSize: "13px", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "6px" }}>
-                    Dias Fixos de Folga Semanal
-                  </label>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                    {WEEKDAYS.map((day) => {
-                      const isChecked = (formData.folgas_fixas || "").split(",").includes(day.value);
-                      return (
-                        <label
-                          key={day.value}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            padding: "6px 12px",
-                            borderRadius: "20px",
-                            fontSize: "12px",
-                            fontWeight: 700,
-                            cursor: "pointer",
-                            userSelect: "none",
-                            transition: "all 0.2s ease",
-                            background: isChecked ? "#f5ede4" : "#f3f4f6",
-                            border: isChecked ? "1.5px solid #784e21" : "1.5px solid #e5e7eb",
-                            color: isChecked ? "#784e21" : "#4b5563"
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => handleWeekdayToggle(day.value)}
-                            style={{ display: "none" }}
-                          />
-                          {day.label}
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
                 {!formData.id && (
-                  <div className="checkbox-group" style={{ paddingTop: "12px", borderTop: "1px solid var(--border-color)", marginTop: "12px" }}>
+                  <div className="checkbox-group" style={{ paddingTop: "12px", borderTop: "1px solid var(--border-color)", marginTop: "8px" }}>
                     <input
                       type="checkbox"
                       id="createLoginCheckbox"
@@ -548,7 +631,8 @@ function CadastroPessoas() {
                     </label>
                   </div>
                 )}
-                <div className="modal-actions">
+
+                <div className="modal-actions" style={{ marginTop: "12px", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
                   <button type="button" className="cancel-btn" onClick={closeModal} disabled={saving}>
                     Cancelar
                   </button>

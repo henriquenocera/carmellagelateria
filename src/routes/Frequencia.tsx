@@ -14,6 +14,7 @@ interface Profile {
   controlar_frequencia?: boolean | null;
   folgas_fixas?: string | null;
   ativo?: boolean | null;
+  data_registro?: string | null;
 }
 
 interface AttendanceMap {
@@ -107,7 +108,7 @@ function Frequencia() {
     try {
       const { data, error: dbError } = await supabase
         .from("profiles")
-        .select("id, short_id, name, email, is_admin, controlar_frequencia, folgas_fixas, ativo")
+        .select("id, short_id, name, email, is_admin, controlar_frequencia, folgas_fixas, ativo, data_registro")
         .order("name", { ascending: true });
 
       if (dbError) throw dbError;
@@ -314,17 +315,33 @@ function Frequencia() {
     let count = 0;
     const profile = profiles.find((p) => p.id === employeeId);
     const fixedOffDays = profile?.folgas_fixas ? profile.folgas_fixas.split(",") : [];
+    const regDate = profile?.data_registro;
 
     datesList.forEach((dateObj) => {
       const dateStr = getLocalDateString(dateObj);
-      const cellKey = `${employeeId}_${dateStr}`;
+      
+      // Se a data do dia for anterior à data de admissão, não conta como trabalhado
+      if (regDate && dateStr < regDate) {
+        return;
+      }
 
+      const cellKey = `${employeeId}_${dateStr}`;
       const weekdayVal = String(dateObj.getDay());
       const isFixedOff = fixedOffDays.includes(weekdayVal);
       const defaultStatus = isFixedOff ? "Folga Fixa Semanal" : "Trabalhado";
 
       const status = attendance[cellKey] || defaultStatus;
-      if (status === "Trabalhado") {
+      const isWorkedStatus = [
+        "Trabalhado",
+        "Declaração de Horas",
+        "Saída Antecipada",
+        "Atraso",
+        "Registro Formal",
+        "Rescisão de Contrato",
+        "Outro"
+      ].includes(status);
+
+      if (isWorkedStatus) {
         count++;
       }
     });
@@ -629,6 +646,17 @@ function Frequencia() {
                         const currentVal = attendance[cellKey] || defaultStatus;
                         const selectedOption = STATUS_OPTIONS.find((opt) => opt.value === currentVal);
                         const comment = comments[cellKey];
+
+                        const regDate = p.data_registro;
+                        const isBeforeRegistration = regDate && dateStr < regDate;
+
+                        if (isBeforeRegistration) {
+                          return (
+                            <td key={p.id} style={{ backgroundColor: "#f3f4f6", color: "#9ca3af", textAlign: "center", verticalAlign: "middle", fontSize: "1.2rem", fontWeight: 500 }}>
+                              -
+                            </td>
+                          );
+                        }
 
                         return (
                           <td key={p.id}>

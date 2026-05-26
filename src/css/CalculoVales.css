@@ -1,0 +1,319 @@
+.vales-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 24px;
+  padding-left: 95px;
+  animation: valesFadeIn 0.5s ease-out;
+}
+
+@keyframes valesFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.vales-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 20px;
+}
+
+.vales-title-group h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--secondary-color);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.vales-title-group p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.vales-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  background: var(--card-bg);
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+}
+
+.vales-month-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vales-select {
+  padding: 10px 16px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-dark);
+  background-color: #fff;
+  cursor: pointer;
+  outline: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.vales-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(120, 78, 33, 0.1);
+}
+
+.vales-export-group {
+  display: flex;
+  gap: 12px;
+}
+
+.vales-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+}
+
+.vales-btn-primary {
+  background-color: var(--primary-color);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+
+.vales-btn-primary:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-1px);
+}
+
+.vales-btn-secondary {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+.vales-btn-secondary:hover {
+  background-color: #e5e7eb;
+  color: #1f2937;
+  transform: translateY(-1px);
+}
+
+/* Summary Grid */
+.vales-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.vales-summary-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: var(--transition);
+}
+
+.vales-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.vales-card-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.vales-card-icon-wrapper.urbs {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.vales-card-icon-wrapper.metrocard {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+}
+
+.vales-card-icon-wrapper.vr {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8b5cf6;
+}
+
+.vales-card-icon-wrapper.money {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.vales-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.vales-card-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vales-card-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--secondary-color);
+  margin-top: 4px;
+}
+
+/* Table wrapper */
+.calculo-vales-table-wrapper {
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  overflow-x: auto;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.calculo-vales-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.calculo-vales-table th {
+  background-color: #f7f1eb;
+  color: var(--secondary-color);
+  font-weight: 700;
+  padding: 14px 16px;
+  font-size: 13px;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.calculo-vales-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f2ece6;
+  color: var(--text-dark);
+  vertical-align: middle;
+}
+
+.calculo-vales-table tr:hover {
+  background-color: #faf7f2;
+}
+
+.calculo-vales-table tr:last-child td {
+  border-bottom: none;
+}
+
+.calculo-vales-table td.numeric {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vales-td-name {
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
+.vales-td-subinfo {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: normal;
+}
+
+.vales-days-input {
+  width: 70px;
+  padding: 6px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  color: var(--text-dark);
+  transition: var(--transition);
+}
+
+.vales-days-input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(120, 78, 33, 0.1);
+  background-color: #fffdfb;
+}
+
+/* Empty/Loading states */
+.vales-loading-state,
+.vales-error-state,
+.vales-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--card-bg);
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+}
+
+.vales-spin {
+  animation: valesSpin 1s linear infinite;
+  color: var(--primary-color);
+}
+
+@keyframes valesSpin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .vales-container {
+    padding-left: 95px;
+    margin: 20px auto;
+  }
+  .vales-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .vales-export-group {
+    justify-content: flex-end;
+  }
+}

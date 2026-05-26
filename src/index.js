@@ -28,6 +28,7 @@ import Status from "./routes/Status.tsx";
 import CadastroPessoas from "./routes/CadastroPessoas.tsx";
 import Frequencia from "./routes/Frequencia.tsx";
 import HistoricoFuncionario from "./routes/HistoricoFuncionario.tsx";
+import CalculoVales from "./routes/CalculoVales.tsx";
 import supabase from "./supabase-client";
 
 const ProtectedLayout = () => {
@@ -103,6 +104,7 @@ const router = createBrowserRouter(
         <Route path="/cadastro-pessoas" element={<CadastroPessoas />} />
         <Route path="/cadastro-pessoas/:id" element={<HistoricoFuncionario />} />
         <Route path="/frequencia" element={<Frequencia />} />
+        <Route path="/calculo-vales" element={<CalculoVales />} />
       </Route>
     </>
   )
