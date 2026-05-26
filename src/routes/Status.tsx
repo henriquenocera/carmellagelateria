@@ -36,7 +36,7 @@ function Status() {
     try {
       const timestamp = new Date().getTime();
       const urlWithCacheBuster = `${store.url}?t=${timestamp}`;
-      const proxyUrl = "https://corsproxy.io/?" + encodeURIComponent(urlWithCacheBuster);
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(urlWithCacheBuster)}`;
       const response = await fetch(proxyUrl);
       if (!response.ok) throw new Error("CORS Proxy error");
       const html = await response.text();

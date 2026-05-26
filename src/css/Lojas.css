@@ -132,6 +132,9 @@ body {
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
 .stat-card::before {
@@ -202,11 +205,25 @@ body {
 }
 
 .stat-footer {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-muted);
-  text-align: right;
   border-top: 1px solid #f2ece6;
-  padding-top: 10px;
+  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-footer-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.stat-footer-item svg {
+  color: var(--primary-color);
+  font-size: 13px;
 }
 
 /* Filters */

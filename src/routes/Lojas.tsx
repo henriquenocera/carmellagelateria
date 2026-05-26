@@ -37,9 +37,13 @@ function Lojas() {
     try {
       setLoading(true);
       setError(null);
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+
       const { data: checklistData, error: dbError } = await supabase
         .from("Checklist")
         .select("*")
+        .gte("created_at", tenDaysAgo.toISOString())
         .order("created_at", { ascending: false });
 
       if (dbError) throw dbError;
@@ -76,8 +80,14 @@ function Lojas() {
       massas: latestFechamento?.massas ?? "-",
       brownies: latestFechamento?.brownies ?? "-",
       panos: latestFechamento?.panos ?? "-",
+      person: latestFechamento?.person ?? "-",
       updatedAt: latestFechamento?.created_at
-        ? new Date(latestFechamento.created_at).toLocaleDateString("pt-BR")
+        ? new Date(latestFechamento.created_at).toLocaleString("pt-BR", {
+            day: "2-digit",
+            month: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
         : null,
     };
   };
@@ -203,7 +213,14 @@ function Lojas() {
                 </div>
                 {inv.updatedAt && (
                   <div className="stat-footer">
-                    Último inventário: {inv.updatedAt}
+                    <div className="stat-footer-item" title="Responsável pelo último fechamento">
+                      <Icons.BsPerson />
+                      <span>{inv.person}</span>
+                    </div>
+                    <div className="stat-footer-item" title="Data do último inventário">
+                      <Icons.BsClock />
+                      <span>{inv.updatedAt}</span>
+                    </div>
                   </div>
                 )}
               </div>

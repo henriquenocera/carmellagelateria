@@ -2,11 +2,13 @@ import React, { useState } from "react";
 import * as Icons from "react-icons/bs";
 import { NavLink } from "react-router-dom";
 import "../css/Navbar.css";
+import { useAuth } from "../AuthProvider";
 
 function NavBar() {
   const [sidebar, setSidebar] = useState(false);
   // const [menuActive, setMenuActive] = useState(false);
   const showSidebar = () => setSidebar(!sidebar);
+  const { isAdmin } = useAuth();
   let activeMenu = false;
 
   return (
@@ -30,14 +32,14 @@ function NavBar() {
               <span className="text">Lojas</span>
             </NavLink>
           </li>
-          <li className={activeMenu ? "list active" : "list"}>
+          {/*          <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/status">
               <span className="icon">
                 <Icons.BsCheckCircle />
               </span>
               <span className="text">Status</span>
             </NavLink>
-          </li>
+          </li> */}
           {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/vales">
               <span className="icon">
@@ -108,6 +110,26 @@ function NavBar() {
               <span className="text">CRM</span>
             </NavLink>
           </li> */}
+          {isAdmin && (
+            <>
+              <li className={activeMenu ? "list active" : "list"}>
+                <NavLink to="/cadastro-pessoas">
+                  <span className="icon">
+                    <Icons.BsPeople />
+                  </span>
+                  <span className="text">Pessoas</span>
+                </NavLink>
+              </li>
+              <li className={activeMenu ? "list active" : "list"}>
+                <NavLink to="/frequencia">
+                  <span className="icon">
+                    <Icons.BsCalendarCheck />
+                  </span>
+                  <span className="text">Frequência</span>
+                </NavLink>
+              </li>
+            </>
+          )}
         </ul>
       </div>
     </>

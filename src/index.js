@@ -7,6 +7,7 @@ import {
   Route,
   Outlet,
   createRoutesFromElements,
+  useLocation,
 } from "react-router-dom";
 import Home from "./routes/Home";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
@@ -24,14 +25,31 @@ import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
 import CRM from "./routes/CRM.jsx";
 import Status from "./routes/Status.tsx";
+import CadastroPessoas from "./routes/CadastroPessoas.tsx";
+import Frequencia from "./routes/Frequencia.tsx";
 import supabase from "./supabase-client";
 
 const ProtectedLayout = () => {
   const { session, loading, user } = useAuth();
+  const location = useLocation();
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
+
+  React.useEffect(() => {
+    // Verifica na API se o usuário ainda existe no banco de dados
+    const checkUserValid = async () => {
+      if (session) {
+        const { data: { user: dbUser }, error } = await supabase.auth.getUser();
+        if (error || !dbUser) {
+           await supabase.auth.signOut();
+           window.location.href = "/login"; // Força o redirecionamento
+        }
+      }
+    };
+    checkUserValid();
+  }, [location.pathname, session]);
 
   if (loading) {
     return <div style={{ padding: "2rem", textAlign: "center" }}>Carregando...</div>;
@@ -81,6 +99,8 @@ const router = createBrowserRouter(
         <Route path="/checklist-test" element={<ChecklistTest />} />
         <Route path="/crm" element={<CRM />} />
         <Route path="/status" element={<Status />} />
+        <Route path="/cadastro-pessoas" element={<CadastroPessoas />} />
+        <Route path="/frequencia" element={<Frequencia />} />
       </Route>
     </>
   )

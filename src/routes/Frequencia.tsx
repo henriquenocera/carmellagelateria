@@ -1,0 +1,484 @@
+import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
+import * as Icons from "react-icons/bs";
+import "../css/Frequencia.css";
+import supabase from "../supabase-client";
+import { useAuth } from "../AuthProvider";
+
+interface Profile {
+  id: string;
+  short_id: string | null;
+  name: string;
+  email: string;
+  is_admin: boolean | null;
+  controlar_frequencia?: boolean | null;
+}
+
+interface AttendanceMap {
+  [key: string]: string; // key: employeeId_dateStr, value: status
+}
+
+const STATUS_OPTIONS = [
+  { value: "Trabalhado", label: "Trabalhado", className: "status-trabalhado" },
+  { value: "Folga Fixa Semanal", label: "Folga Fixa Semanal", className: "status-folga-fixa" },
+  { value: "Folga Compensatória", label: "Folga Compensatória", className: "status-folga-comp" },
+  { value: "Domingo de Folga", label: "Domingo de Folga", className: "status-folga-dom" },
+  { value: "Falta Não Justificada", label: "Falta Não Justificada", className: "status-falta-n-just" },
+  { value: "Falta Justificada", label: "Falta Justificada", className: "status-falta-just" },
+  { value: "Atestado", label: "Atestado", className: "status-atestado" },
+  { value: "Atraso", label: "Atraso", className: "status-atraso" },
+];
+
+function Frequencia() {
+  const { user } = useAuth();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [attendance, setAttendance] = useState<AttendanceMap>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Default to current month and year
+  const today = new Date();
+  const [month, setMonth] = useState<number>(today.getMonth() + 1); // 1-12
+  const [year, setYear] = useState<number>(today.getFullYear());
+  
+  // Save status indicator: 'idle' | 'saving' | 'saved' | 'error'
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  const yearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
+  const monthsList = [
+    { value: 1, label: "Janeiro" },
+    { value: 2, label: "Fevereiro" },
+    { value: 3, label: "Março" },
+    { value: 4, label: "Abril" },
+    { value: 5, label: "Maio" },
+    { value: 6, label: "Junho" },
+    { value: 7, label: "Julho" },
+    { value: 8, label: "Agosto" },
+    { value: 9, label: "Setembro" },
+    { value: 10, label: "Outubro" },
+    { value: 11, label: "Novembro" },
+    { value: 12, label: "Dezembro" },
+  ];
+
+  useEffect(() => {
+    checkAccess();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+  useEffect(() => {
+    if (isAuthorized) {
+      fetchAttendanceData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, month, year]);
+
+  async function checkAccess() {
+    if (!user) return;
+    try {
+      const { data, error } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
+      if (error) throw error;
+      
+      if (data && data.is_admin) {
+        setIsAuthorized(true);
+        fetchProfiles();
+      } else {
+        setIsAuthorized(false);
+      }
+    } catch (err) {
+      console.error("Erro ao verificar acesso:", err);
+      setIsAuthorized(false);
+    }
+  }
+
+  async function fetchProfiles() {
+    try {
+      const { data, error: dbError } = await supabase
+        .from("profiles")
+        .select("id, short_id, name, email, is_admin, controlar_frequencia")
+        .order("name", { ascending: true });
+
+      if (dbError) throw dbError;
+      
+      // Filtra perfis que têm controlar_frequencia ativado (ou não definidos como false)
+      const filteredProfiles = (data || []).filter((p) => p.controlar_frequencia !== false);
+      setProfiles(filteredProfiles);
+    } catch (err: any) {
+      console.error("Erro ao buscar perfis:", err);
+      setError("Falha ao carregar a lista de funcionários.");
+    }
+  }
+
+  async function fetchAttendanceData() {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Generate date range for selected month
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const startOfMonthStr = `${year}-${String(month).padStart(2, "0")}-01`;
+      const endOfMonthStr = `${year}-${String(month).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
+
+      const { data, error: dbError } = await supabase
+        .from("frequencia")
+        .select("*")
+        .gte("date", startOfMonthStr)
+        .lte("date", endOfMonthStr);
+
+      if (dbError) throw dbError;
+
+      // Map rows to map key: 'employeeId_date'
+      const map: AttendanceMap = {};
+      if (data) {
+        data.forEach((row: any) => {
+          map[`${row.employee_id}_${row.date}`] = row.status;
+        });
+      }
+      setAttendance(map);
+    } catch (err: any) {
+      console.error("Erro ao buscar frequência:", err);
+      setError("Erro ao carregar os dados de frequência.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Generate days array for the selected month
+  const getDaysArray = () => {
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const dates = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      dates.push(new Date(year, month - 1, d));
+    }
+    return dates;
+  };
+
+  const datesList = getDaysArray();
+
+  // Helper date formatters
+  const getLocalDateString = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  const formatDisplayDate = (dateStr: string) => {
+    const [y, m, d] = dateStr.split("-");
+    return `${d}/${m}/${y}`;
+  };
+
+  const getWeekdayAbbreviation = (date: Date) => {
+    const weekdays = ["dom.", "seg.", "ter.", "qua.", "qui.", "sex.", "sáb."];
+    return weekdays[date.getDay()];
+  };
+
+  const handleMonthNavigation = (direction: "prev" | "next") => {
+    if (direction === "prev") {
+      if (month === 1) {
+        setMonth(12);
+        setYear((prev) => prev - 1);
+      } else {
+        setMonth((prev) => prev - 1);
+      }
+    } else {
+      if (month === 12) {
+        setMonth(1);
+        setYear((prev) => prev + 1);
+      } else {
+        setMonth((prev) => prev + 1);
+      }
+    }
+  };
+
+  const handleStatusChange = async (employeeId: string, dateStr: string, newStatus: string) => {
+    setSaveStatus("saving");
+    const cacheKey = `${employeeId}_${dateStr}`;
+    const previousStatus = attendance[cacheKey] || "Trabalhado";
+
+    // Optimistic UI update
+    setAttendance((prev) => ({
+      ...prev,
+      [cacheKey]: newStatus,
+    }));
+
+    try {
+      const { error } = await supabase
+        .from("frequencia")
+        .upsert(
+          {
+            employee_id: employeeId,
+            date: dateStr,
+            status: newStatus,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "employee_id,date" }
+        );
+
+      if (error) throw error;
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+    } catch (err) {
+      console.error("Erro ao salvar alteração:", err);
+      setSaveStatus("error");
+      // Revert optimistic update
+      setAttendance((prev) => ({
+        ...prev,
+        [cacheKey]: previousStatus,
+      }));
+    }
+  };
+
+  const handleExportCSV = () => {
+    if (profiles.length === 0) return;
+
+    // Build CSV Headers
+    const headers = [
+      "Data",
+      "Dia",
+      ...profiles.map((p) => `${p.short_id ? p.short_id + " - " : ""}${p.name}`),
+    ];
+
+    // Build CSV Rows
+    const rows = datesList.map((dateObj) => {
+      const dateStr = getLocalDateString(dateObj);
+      const displayDate = formatDisplayDate(dateStr);
+      const weekday = getWeekdayAbbreviation(dateObj);
+
+      const empStatuses = profiles.map((p) => {
+        const key = `${p.id}_${dateStr}`;
+        return attendance[key] || "Trabalhado";
+      });
+
+      return [displayDate, weekday, ...empStatuses];
+    });
+
+    // Create CSV content with semicolon separator for direct Excel import in PT-BR
+    const csvContent = [
+      headers.join(";"),
+      ...rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(";")),
+    ].join("\r\n");
+
+    // Add BOM for proper UTF-8 decoding in Excel
+    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const monthLabel = monthsList.find((m) => m.value === month)?.label || month;
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Frequencia_${monthLabel}_${year}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (isAuthorized === null) {
+    return (
+      <div className="frequencia-container" style={{ display: 'flex', justifyContent: 'center', marginTop: '100px' }}>
+        <Icons.BsArrowClockwise className="spin" style={{ fontSize: "3rem", color: "var(--primary-color)" }} />
+      </div>
+    );
+  }
+
+  if (isAuthorized === false) {
+    return (
+      <div className="frequencia-container">
+        <div className="error-state">
+          <Icons.BsShieldLock style={{ fontSize: "4rem", color: "#ef4444", marginBottom: "16px" }} />
+          <h2 style={{ color: "var(--secondary-color)", marginBottom: "8px" }}>Acesso Negado</h2>
+          <p>Somente administradores podem acessar a página de Controle de Frequência.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const todayStr = getLocalDateString(today);
+
+  return (
+    <>
+      <Helmet>
+        <title>Frequência de Funcionários</title>
+      </Helmet>
+
+      <div className="frequencia-container">
+        {/* Header */}
+        <div className="frequencia-header">
+          <div className="frequencia-title-group">
+            <h1>Controle de Frequência</h1>
+            <p>Monitore e informe a presença, faltas, folgas e atestados da equipe.</p>
+          </div>
+          
+          <button onClick={handleExportCSV} className="primary-btn" style={{ marginTop: 0 }}>
+            <Icons.BsDownload />
+            Exportar Excel (CSV)
+          </button>
+        </div>
+
+        {/* Controls Bar */}
+        <div className="frequencia-controls">
+          <div className="control-group">
+            <button className="nav-btn" onClick={() => handleMonthNavigation("prev")} title="Mês Anterior">
+              <Icons.BsChevronLeft />
+            </button>
+            
+            <select
+              className="frequencia-select"
+              value={month}
+              onChange={(e) => setMonth(Number(e.target.value))}
+            >
+              {monthsList.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="frequencia-select"
+              value={year}
+              onChange={(e) => setYear(Number(e.target.value))}
+            >
+              {yearsList.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+
+            <button className="nav-btn" onClick={() => handleMonthNavigation("next")} title="Próximo Mês">
+              <Icons.BsChevronRight />
+            </button>
+          </div>
+
+          <div className="actions-group">
+            {saveStatus === "saving" && (
+              <div className="save-status-indicator salvando">
+                <Icons.BsArrowClockwise className="spin" />
+                <span>Salvando...</span>
+              </div>
+            )}
+            {saveStatus === "saved" && (
+              <div className="save-status-indicator salvo">
+                <Icons.BsCheckLg />
+                <span>Salvo no banco</span>
+              </div>
+            )}
+            {saveStatus === "error" && (
+              <div className="save-status-indicator erro">
+                <Icons.BsExclamationTriangle />
+                <span>Erro ao salvar</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Main Grid Sheet */}
+        {loading ? (
+          <div className="frequencia-table-wrapper" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+            <div className="loading-state">
+              <Icons.BsArrowClockwise className="spin" style={{ fontSize: "3rem", marginBottom: "12px" }} />
+              <p>Carregando planilha de frequência...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="frequencia-table-wrapper" style={{ padding: '40px' }}>
+            <div className="error-state">
+              <Icons.BsExclamationTriangle style={{ fontSize: "3rem", color: "#ef4444", marginBottom: "12px" }} />
+              <p>{error}</p>
+              <button onClick={fetchAttendanceData} className="primary-btn" style={{ marginTop: "16px" }}>Tentar Novamente</button>
+            </div>
+          </div>
+        ) : profiles.length === 0 ? (
+          <div className="frequencia-table-wrapper" style={{ padding: '40px' }}>
+            <div className="empty-state">
+              <Icons.BsPeople style={{ fontSize: "3rem", marginBottom: "12px" }} />
+              <p>Nenhum funcionário cadastrado no sistema.</p>
+              <p style={{ fontSize: "1.2rem", marginTop: "4px" }}>Cadastre pessoas na aba de Usuários primeiro.</p>
+            </div>
+          </div>
+        ) : (
+          <div className="frequencia-table-wrapper">
+            <table className="frequencia-table">
+              <thead>
+                <tr>
+                  <th className="sticky-date">Data</th>
+                  <th className="sticky-day">Dia</th>
+                  {profiles.map((p) => (
+                    <th key={p.id} title={p.email}>
+                      {p.short_id ? `${p.short_id} - ` : ""}
+                      {p.name.split(" ")[0] || p.name} {/* Display first name to save column width */}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {datesList.map((dateObj) => {
+                  const dateStr = getLocalDateString(dateObj);
+                  const displayDate = formatDisplayDate(dateStr);
+                  const weekdayStr = getWeekdayAbbreviation(dateObj);
+                  const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6; // Sunday or Saturday
+                  const isToday = dateStr === todayStr;
+
+                  return (
+                    <tr 
+                      key={dateStr} 
+                      className={`${isWeekend ? "weekend" : ""} ${isToday ? "today" : ""}`}
+                    >
+                      {/* Sticky Date */}
+                      <td className="sticky-date">{displayDate}</td>
+                      {/* Sticky Weekday */}
+                      <td className="sticky-day">{weekdayStr}</td>
+                      
+                      {/* Employee Dropdowns */}
+                      {profiles.map((p) => {
+                        const cellKey = `${p.id}_${dateStr}`;
+                        const currentVal = attendance[cellKey] || "Trabalhado";
+                        const selectedOption = STATUS_OPTIONS.find((opt) => opt.value === currentVal);
+
+                        return (
+                          <td key={p.id}>
+                            <div className="cell-select-wrapper">
+                              <select
+                                className={`cell-select ${selectedOption?.className || "status-trabalhado"}`}
+                                value={currentVal}
+                                onChange={(e) => handleStatusChange(p.id, dateStr, e.target.value)}
+                              >
+                                {STATUS_OPTIONS.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Legend Panel */}
+        <div className="frequencia-legend-card">
+          <h3>Legenda e Atalhos de Cores</h3>
+          <div className="legend-items">
+            {STATUS_OPTIONS.map((opt) => (
+              <div 
+                key={opt.value} 
+                className={`legend-badge ${opt.className}`}
+              >
+                {opt.label}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default Frequencia;

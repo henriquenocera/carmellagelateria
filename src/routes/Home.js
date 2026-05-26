@@ -140,7 +140,7 @@ Fico à disposição!`
               <thead>
                 <tr>
                   <th>Título</th>
-                  <th style={{ width: "200px" }}>Ação</th>
+                  <th style={{ width: "200px", textAlign: "center" }}>Ação</th>
                 </tr>
               </thead>
               <tbody>
@@ -168,7 +168,7 @@ Fico à disposição!`
               <thead>
                 <tr>
                   <th>Título</th>
-                  <th style={{ width: "200px" }}>Link</th>
+                  <th style={{ width: "200px", textAlign: "center" }}>Link</th>
                 </tr>
               </thead>
               <tbody>

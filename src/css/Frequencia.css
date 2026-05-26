@@ -1,0 +1,433 @@
+.frequencia-container {
+  max-width: 100%;
+  margin: 40px auto;
+  padding: 0 24px;
+  padding-left: 95px; /* Offset for the sidebar */
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header */
+.frequencia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.frequencia-title-group h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  margin: 0 0 6px 0;
+  letter-spacing: -0.5px;
+}
+
+.frequencia-title-group p {
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Controls & Filters */
+.frequencia-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--card-bg);
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.control-group label {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.frequencia-select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: #fff;
+  color: var(--text-dark);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 1.4rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.frequencia-select:focus {
+  border-color: var(--primary-color);
+}
+
+.nav-btn {
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  color: var(--secondary-color);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.nav-btn:hover {
+  background-color: #f7f1eb;
+  color: var(--primary-color);
+}
+
+.actions-group {
+  margin-left: auto;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.save-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1.3rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+}
+
+.save-status-indicator.salvo {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.save-status-indicator.salvando {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.save-status-indicator.erro {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Excel Grid Wrapper */
+.frequencia-table-wrapper {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg);
+  overflow: auto;
+  max-height: calc(100vh - 280px);
+  position: relative;
+}
+
+.frequencia-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+/* Headers */
+.frequencia-table th {
+  background-color: #f7f1eb;
+  color: var(--secondary-color);
+  font-weight: 700;
+  padding: 12px 14px;
+  font-size: 1.3rem;
+  border-bottom: 2px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 9;
+}
+
+/* Make headers stick to top-left when scrolling */
+.frequencia-table th.sticky-date {
+  left: 0;
+  z-index: 11;
+  width: 110px;
+  min-width: 110px;
+}
+
+.frequencia-table th.sticky-day {
+  left: 110px;
+  z-index: 11;
+  width: 60px;
+  min-width: 60px;
+}
+
+/* Sticky Data and Dia columns */
+.frequencia-table td.sticky-date {
+  position: sticky;
+  left: 0;
+  z-index: 8;
+  background-color: #fff;
+  font-weight: 600;
+  color: var(--text-dark);
+  border-right: 1px solid var(--border-color);
+  border-left: 1px solid var(--border-color);
+  width: 110px;
+  min-width: 110px;
+}
+
+.frequencia-table td.sticky-day {
+  position: sticky;
+  left: 110px;
+  z-index: 8;
+  background-color: #fff;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-right: 2px solid var(--border-color); /* Thicker right border to separate from data cells */
+  width: 60px;
+  min-width: 60px;
+}
+
+/* Cell borders */
+.frequencia-table td {
+  padding: 0; /* Let dropdown select fill the cell */
+  border-bottom: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  height: 38px;
+}
+
+/* Row highlights */
+.frequencia-table tr.weekend td.sticky-date,
+.frequencia-table tr.weekend td.sticky-day {
+  background-color: #faf6f0;
+}
+
+.frequencia-table tr.weekend td:not(.sticky-date):not(.sticky-day) {
+  background-color: #faf8f5;
+}
+
+.frequencia-table tr.today td.sticky-date,
+.frequencia-table tr.today td.sticky-day {
+  background-color: #fef9c3;
+  color: #854d0e;
+}
+
+.frequencia-table tr.today td {
+  border-bottom: 2px solid #eab308;
+  border-top: 2px solid #eab308;
+}
+
+/* Dropdown select design in cells */
+.cell-select-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell-select {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  font-family: inherit;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+  background-color: transparent;
+  padding: 8px;
+  transition: var(--transition);
+  appearance: none; /* Hide default arrow to look clean */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Add custom simple indicator on hover */
+.cell-select-wrapper {
+  position: relative;
+}
+
+.cell-select-wrapper::after {
+  content: "▼";
+  font-size: 0.8rem;
+  color: currentColor;
+  position: absolute;
+  right: 6px;
+  pointer-events: none;
+  opacity: 0.3;
+  transition: var(--transition);
+}
+
+.cell-select-wrapper:hover::after {
+  opacity: 0.8;
+}
+
+/* Status colors and backgrounds */
+.status-trabalhado {
+  background-color: transparent;
+  color: #9ca3af !important; /* Muted text */
+}
+
+.status-folga-fixa {
+  background-color: #e2f0d9 !important;
+  color: #385723 !important;
+}
+
+.status-folga-comp {
+  background-color: #c6e0b4 !important;
+  color: #385723 !important;
+}
+
+.status-folga-dom {
+  background-color: #a8d08d !important;
+  color: #385723 !important;
+}
+
+.status-falta-n-just {
+  background-color: #fce4d6 !important;
+  color: #c00000 !important;
+  font-weight: 700 !important;
+}
+
+.status-falta-just {
+  background-color: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+
+.status-atestado {
+  background-color: #e1d5e7 !important;
+  color: #7030a0 !important;
+}
+
+.status-atraso {
+  background-color: #fff2cc !important;
+  color: #7f6000 !important;
+}
+
+/* Row Hover */
+.frequencia-table tr:hover td.sticky-date,
+.frequencia-table tr:hover td.sticky-day {
+  background-color: #faf7f2;
+}
+
+.frequencia-table tr:hover td:not(.sticky-date):not(.sticky-day) {
+  filter: brightness(0.98);
+}
+
+/* Legend Section */
+.frequencia-legend-card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 24px;
+  box-shadow: var(--shadow);
+}
+
+.frequencia-legend-card h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--secondary-color);
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legend-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.legend-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Empty & Loading states */
+.loading-state,
+.empty-state,
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.empty-state svg,
+.error-state svg {
+  font-size: 3.2rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .frequencia-container {
+    padding-left: 95px;
+    margin: 20px auto;
+  }
+
+  .frequencia-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .frequencia-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .actions-group {
+    margin-left: 0;
+    justify-content: space-between;
+    width: 100%;
+  }
+}

@@ -6,6 +6,24 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const fetchAdminStatus = async (userId) => {
+    if (!userId) {
+      setIsAdmin(false);
+      return;
+    }
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("is_admin")
+        .eq("id", userId)
+        .single();
+      setIsAdmin(data?.is_admin === true);
+    } catch {
+      setIsAdmin(false);
+    }
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -24,6 +42,9 @@ export function AuthProvider({ children }) {
         if (isMounted) {
           setSession(currentSession ?? null);
           setLoading(false);
+          if (currentSession?.user) {
+            fetchAdminStatus(currentSession.user.id);
+          }
         }
       } catch (err) {
         console.error("Unexpected error getting Supabase session", err);
@@ -41,6 +62,7 @@ export function AuthProvider({ children }) {
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (isMounted) {
         setSession(newSession ?? null);
+        fetchAdminStatus(newSession?.user?.id ?? null);
       }
     });
 
@@ -54,6 +76,7 @@ export function AuthProvider({ children }) {
     session,
     user: session?.user ?? null,
     loading,
+    isAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
