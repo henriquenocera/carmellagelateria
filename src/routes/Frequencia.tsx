@@ -54,6 +54,20 @@ function Frequencia() {
   // Save status indicator: 'idle' | 'saving' | 'saved' | 'error'
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
+  interface CommentData {
+    text: string;
+    created_by: string;
+    created_at: string;
+  }
+  interface CommentsMap {
+    [key: string]: CommentData;
+  }
+
+  const [comments, setComments] = useState<CommentsMap>({});
+  const [profileNames, setProfileNames] = useState<{[key: string]: string}>({});
+  const [hoveredCell, setHoveredCell] = useState<{ employeeId: string; date: string } | null>(null);
+  const [activeCommentModal, setActiveCommentModal] = useState<{ employeeId: string; date: string; text: string } | null>(null);
+
   const yearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
   const monthsList = [
     { value: 1, label: "Janeiro" },
@@ -86,6 +100,7 @@ function Frequencia() {
     if (!user) return;
     setIsAuthorized(true);
     fetchProfiles();
+    fetchAllProfileNames();
   }
 
   async function fetchProfiles() {
@@ -106,6 +121,42 @@ function Frequencia() {
     }
   }
 
+  async function fetchAllProfileNames() {
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, name");
+      if (data) {
+        const map: {[key: string]: string} = {};
+        data.forEach(p => {
+          map[p.id] = p.name || "";
+        });
+        setProfileNames(map);
+      }
+    } catch (err) {
+      console.error("Erro ao buscar nomes dos perfis:", err);
+    }
+  }
+
+  const formatCommentDate = (dateStr: string) => {
+    if (!dateStr) return "";
+    const d = new Date(dateStr);
+    const today = new Date();
+    
+    const isToday = d.getDate() === today.getDate() &&
+                    d.getMonth() === today.getMonth() &&
+                    d.getFullYear() === today.getFullYear();
+                    
+    const timeStr = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    
+    if (isToday) {
+      return `${timeStr} Hoje`;
+    }
+    
+    const dateFormatted = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+    return `${timeStr} ${dateFormatted}`;
+  };
+
   async function fetchAttendanceData() {
     try {
       setLoading(true);
@@ -125,13 +176,23 @@ function Frequencia() {
       if (dbError) throw dbError;
 
       // Map rows to map key: 'employeeId_date'
-      const map: AttendanceMap = {};
+      const attMap: AttendanceMap = {};
+      const commMap: CommentsMap = {};
       if (data) {
         data.forEach((row: any) => {
-          map[`${row.employee_id}_${row.date}`] = row.status;
+          const key = `${row.employee_id}_${row.date}`;
+          attMap[key] = row.status;
+          if (row.observacao) {
+            commMap[key] = {
+              text: row.observacao,
+              created_by: row.observacao_by || "",
+              created_at: row.observacao_at || ""
+            };
+          }
         });
       }
-      setAttendance(map);
+      setAttendance(attMap);
+      setComments(commMap);
     } catch (err: any) {
       console.error("Erro ao buscar frequência:", err);
       setError("Erro ao carregar os dados de frequência.");
@@ -139,6 +200,103 @@ function Frequencia() {
       setLoading(false);
     }
   }
+
+  const handleSaveComment = async (employeeId: string, dateStr: string, text: string) => {
+    if (!user) return;
+    setSaveStatus("saving");
+
+    const key = `${employeeId}_${dateStr}`;
+    const prevComment = comments[key];
+    const now = new Date().toISOString();
+
+    setComments((prev) => ({
+      ...prev,
+      [key]: {
+        text,
+        created_by: user.id,
+        created_at: now,
+      },
+    }));
+
+    try {
+      const currentStatus = attendance[key] || "Trabalhado";
+      const { error } = await supabase
+        .from("frequencia")
+        .upsert(
+          {
+            employee_id: employeeId,
+            date: dateStr,
+            status: currentStatus,
+            observacao: text,
+            observacao_by: user.id,
+            observacao_at: now,
+            updated_at: now,
+          },
+          { onConflict: "employee_id,date" }
+        );
+
+      if (error) throw error;
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+      setActiveCommentModal(null);
+    } catch (err) {
+      console.error("Erro ao salvar comentário:", err);
+      setSaveStatus("error");
+      if (prevComment) {
+        setComments((prev) => ({ ...prev, [key]: prevComment }));
+      } else {
+        setComments((prev) => {
+          const copy = { ...prev };
+          delete copy[key];
+          return copy;
+        });
+      }
+    }
+  };
+
+  const handleDeleteComment = async (employeeId: string, dateStr: string) => {
+    if (!user) return;
+    if (!window.confirm("Deseja realmente remover este comentário?")) return;
+    setSaveStatus("saving");
+
+    const key = `${employeeId}_${dateStr}`;
+    const prevComment = comments[key];
+
+    setComments((prev) => {
+      const copy = { ...prev };
+      delete copy[key];
+      return copy;
+    });
+
+    try {
+      const currentStatus = attendance[key] || "Trabalhado";
+      const { error } = await supabase
+        .from("frequencia")
+        .upsert(
+          {
+            employee_id: employeeId,
+            date: dateStr,
+            status: currentStatus,
+            observacao: null,
+            observacao_by: null,
+            observacao_at: null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "employee_id,date" }
+        );
+
+      if (error) throw error;
+      setSaveStatus("saved");
+      setTimeout(() => setSaveStatus("idle"), 2000);
+      setActiveCommentModal(null);
+    } catch (err) {
+      console.error("Erro ao deletar comentário:", err);
+      setSaveStatus("error");
+      if (prevComment) {
+        setComments((prev) => ({ ...prev, [key]: prevComment }));
+      }
+    }
+  };
 
   // Generate days array for the selected month
   const getDaysArray = () => {
@@ -442,12 +600,13 @@ function Frequencia() {
                 </tr>
               </thead>
               <tbody>
-                {datesList.map((dateObj) => {
+                {datesList.map((dateObj, rowIndex) => {
                   const dateStr = getLocalDateString(dateObj);
                   const displayDate = formatDisplayDate(dateStr);
                   const weekdayStr = getWeekdayAbbreviation(dateObj);
                   const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6; // Sunday or Saturday
                   const isToday = dateStr === todayStr;
+                  const isNearBottom = rowIndex > datesList.length - 8;
 
                   return (
                     <tr
@@ -469,10 +628,15 @@ function Frequencia() {
 
                         const currentVal = attendance[cellKey] || defaultStatus;
                         const selectedOption = STATUS_OPTIONS.find((opt) => opt.value === currentVal);
+                        const comment = comments[cellKey];
 
                         return (
                           <td key={p.id}>
-                            <div className="cell-select-wrapper">
+                            <div 
+                              className="cell-select-wrapper"
+                              onMouseEnter={() => setHoveredCell({ employeeId: p.id, date: dateStr })}
+                              onMouseLeave={() => setHoveredCell(null)}
+                            >
                               <select
                                 className={`cell-select ${selectedOption?.className || "status-trabalhado"}`}
                                 value={currentVal}
@@ -484,6 +648,45 @@ function Frequencia() {
                                   </option>
                                 ))}
                               </select>
+
+                              {/* Comment orange indicator */}
+                              {comment && (
+                                <div 
+                                  className="comment-indicator" 
+                                  onClick={() => setActiveCommentModal({ employeeId: p.id, date: dateStr, text: comment.text })}
+                                />
+                              )}
+
+                              {/* Comment hover button to edit/add */}
+                              <button 
+                                className="comment-hover-btn" 
+                                title={comment ? "Editar comentário" : "Adicionar comentário"}
+                                onClick={() => setActiveCommentModal({ employeeId: p.id, date: dateStr, text: comment ? comment.text : "" })}
+                              >
+                                <Icons.BsChatText />
+                              </button>
+
+                              {/* Hover Popover */}
+                              {hoveredCell?.employeeId === p.id && hoveredCell?.date === dateStr && comment && (
+                                <div className={`comment-popover ${isNearBottom ? "popover-up" : ""}`}>
+                                  <div className="comment-popover-header">
+                                    <div className="comment-avatar">
+                                      <Icons.BsPersonFill />
+                                    </div>
+                                    <div className="comment-meta">
+                                      <span className="comment-author">
+                                        {profileNames[comment.created_by] || "Usuário"}
+                                      </span>
+                                      <span className="comment-time">
+                                        {formatCommentDate(comment.created_at)}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="comment-popover-body">
+                                    {comment.text}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </td>
                         );
@@ -511,6 +714,75 @@ function Frequencia() {
           </div>
         </div>
       </div>
+
+      {/* Modal de Comentário */}
+      {activeCommentModal && (
+        <div className="modal-overlay">
+          <div className="modal-content comment-modal">
+            <h2>
+              {comments[`${activeCommentModal.employeeId}_${activeCommentModal.date}`]
+                ? "Editar Comentário"
+                : "Adicionar Comentário"}
+            </h2>
+            <p style={{ fontSize: "12px", color: "var(--text-muted)", margin: "-8px 0 8px 0" }}>
+              Colaborador: {profiles.find(p => p.id === activeCommentModal.employeeId)?.name} | Data: {formatDisplayDate(activeCommentModal.date)}
+            </p>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSaveComment(activeCommentModal.employeeId, activeCommentModal.date, activeCommentModal.text);
+              }}
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              <div className="form-group">
+                <label>Comentário / Observação</label>
+                <textarea
+                  required
+                  rows={4}
+                  value={activeCommentModal.text}
+                  onChange={(e) => setActiveCommentModal({ ...activeCommentModal, text: e.target.value })}
+                  placeholder="Ex: Chegou 15 minutos atrasado devido ao trânsito."
+                  style={{
+                    padding: "10px",
+                    border: "1px solid var(--border-color)",
+                    borderRadius: "6px",
+                    fontFamily: "inherit",
+                    fontSize: "14px",
+                    resize: "vertical",
+                  }}
+                />
+              </div>
+              <div className="modal-actions" style={{ justifyContent: "space-between" }}>
+                {comments[`${activeCommentModal.employeeId}_${activeCommentModal.date}`] ? (
+                  <button
+                    type="button"
+                    className="delete-btn icon-btn"
+                    title="Excluir Comentário"
+                    onClick={() => handleDeleteComment(activeCommentModal.employeeId, activeCommentModal.date)}
+                    style={{ padding: "10px 14px", borderRadius: "8px", display: "flex", alignItems: "center", gap: "6px", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "#ef4444", border: "none", cursor: "pointer" }}
+                  >
+                    <Icons.BsTrash /> Excluir
+                  </button>
+                ) : (
+                  <div />
+                )}
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setActiveCommentModal(null)}
+                  >
+                    Cancelar
+                  </button>
+                  <button type="submit" className="primary-btn" style={{ marginTop: 0 }}>
+                    <Icons.BsCheckLg /> Salvar
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }
