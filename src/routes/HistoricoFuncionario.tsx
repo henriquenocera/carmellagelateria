@@ -82,7 +82,7 @@ function HistoricoFuncionario() {
   const [feriadosGlobais, setFeriadosGlobais] = useState<{ id: string; date: string; name: string }[]>([]);
   const [feriadosTrabalhados, setFeriadosTrabalhados] = useState<{ id: string; data_feriado: string; nome_feriado: string; data_folga: string | null }[]>([]);
   const [loadingFeriados, setLoadingFeriados] = useState(false);
-  const [isFeriadosExpanded, setIsFeriadosExpanded] = useState(false);
+  const [isFeriadosExpanded, setIsFeriadosExpanded] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const freqYearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
@@ -94,6 +94,27 @@ function HistoricoFuncionario() {
     { value: 9, label: "Setembro" }, { value: 10, label: "Outubro" },
     { value: 11, label: "Novembro" }, { value: 12, label: "Dezembro" }
   ];
+
+  const handlePrevMonth = () => {
+    if (freqMonth === 1) {
+      setFreqMonth(12);
+      setFreqYear((y) => y - 1);
+    } else {
+      setFreqMonth((m) => m - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (freqMonth === 12) {
+      setFreqMonth(1);
+      setFreqYear((y) => y + 1);
+    } else {
+      setFreqMonth((m) => m + 1);
+    }
+  };
+
+  const handlePrevYear = () => setFreqYear((y) => y - 1);
+  const handleNextYear = () => setFreqYear((y) => y + 1);
 
   const FREQ_STATUS_OPTIONS = [
     { value: "Trabalhado", className: "freq-status-trabalhado" },
@@ -226,7 +247,7 @@ function HistoricoFuncionario() {
             description: formData.description,
           })
           .eq("id", editingId);
-        
+
         if (error) throw error;
       } else {
         const { error } = await supabase
@@ -239,7 +260,7 @@ function HistoricoFuncionario() {
             title: formData.title,
             description: formData.description,
           }]);
-        
+
         if (error) throw error;
       }
 
@@ -367,18 +388,13 @@ function HistoricoFuncionario() {
     }
   }
 
-  async function fetchFeriadosGlobais(y: number) {
+  async function fetchFeriadosGlobais() {
     try {
       setLoadingFeriados(true);
-      const startStr = `${y}-01-01`;
-      const endStr = `${y}-12-31`;
-
       const { data, error } = await supabase
         .from("feriados_globais")
         .select("id, date, name")
-        .gte("date", startStr)
-        .lte("date", endStr)
-        .order("date", { ascending: true });
+        .order("date", { ascending: false });
 
       if (error) throw error;
       setFeriadosGlobais(data || []);
@@ -422,6 +438,7 @@ function HistoricoFuncionario() {
   useEffect(() => {
     if (isAuthorized && id) {
       fetchFeriadosTrabalhados(id);
+      fetchFeriadosGlobais();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, id]);
@@ -436,7 +453,6 @@ function HistoricoFuncionario() {
   useEffect(() => {
     if (isAuthorized && id) {
       fetchAnnualFrequency(id, freqYear);
-      fetchFeriadosGlobais(freqYear);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, id, freqYear]);
@@ -512,9 +528,9 @@ function HistoricoFuncionario() {
 
     annualRecords.forEach(record => {
       if (employee?.data_registro && record.date < employee.data_registro) return;
-      
+
       const recordMonth = parseInt(record.date.split('-')[1], 10);
-      
+
       if (record.status === "Falta Não Justificada") summary[recordMonth - 1].faltas++;
       else if (record.status === "Atestado") summary[recordMonth - 1].atestados++;
       else if (record.status === "Atraso") summary[recordMonth - 1].atrasos++;
@@ -651,10 +667,10 @@ function HistoricoFuncionario() {
                       )}
                     </button>
                     {editingId && (
-                      <button 
-                        type="button" 
-                        className="secondary-btn" 
-                        disabled={saving} 
+                      <button
+                        type="button"
+                        className="secondary-btn"
+                        disabled={saving}
                         onClick={() => {
                           setEditingId(null);
                           setFormData({ type: "Informação", date: todayStr, title: "", description: "" });
@@ -763,9 +779,9 @@ function HistoricoFuncionario() {
                         <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.5rem", color: "var(--primary-color)" }} />
                       </div>
                     ) : feriadosGlobais.length === 0 ? (
-                      <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>Nenhum feriado global configurado para este ano.</p>
+                      <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>Nenhum feriado global configurado no sistema.</p>
                     ) : (
-                      <div className="freq-table-wrapper">
+                      <div className="freq-table-wrapper" style={{ maxHeight: "420px", overflowY: "auto" }}>
                         <table className="freq-table">
                           <thead>
                             <tr>
@@ -776,7 +792,12 @@ function HistoricoFuncionario() {
                             </tr>
                           </thead>
                           <tbody>
-                            {feriadosGlobais.map((globalFeriado) => {
+                            {feriadosGlobais
+                              .filter((globalFeriado) => {
+                                if (!employee?.data_registro) return true;
+                                return globalFeriado.date >= employee.data_registro;
+                              })
+                              .map((globalFeriado) => {
                               const freqRecord = annualRecords.find(r => r.date === globalFeriado.date);
                               let freqStatus = freqRecord?.status;
                               if (!freqStatus) {
@@ -786,7 +807,7 @@ function HistoricoFuncionario() {
                                 const dayOfWeek = String(dateObj.getDay());
                                 freqStatus = fixedOffDays.includes(dayOfWeek) ? "Folga Fixa Semanal" : "Trabalhado";
                               }
-                              
+
                               const didWork = freqStatus === "Trabalhado";
                               const trabalhadoRecord = feriadosTrabalhados.find(f => f.data_feriado === globalFeriado.date);
 
@@ -813,8 +834,8 @@ function HistoricoFuncionario() {
                                     ) : trabalhadoRecord?.data_folga ? (
                                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                         <span className="type-badge badge-elogio" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Tirada em: {formatDisplayDate(trabalhadoRecord.data_folga)}</span>
-                                        <button 
-                                          onClick={() => handleUpdateFolga(globalFeriado, "")} 
+                                        <button
+                                          onClick={() => handleUpdateFolga(globalFeriado, "")}
                                           style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "4px" }}
                                           title="Remover data da folga"
                                           disabled={saving}
@@ -825,9 +846,9 @@ function HistoricoFuncionario() {
                                     ) : (
                                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                         <span className="type-badge badge-advertencia" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Pendente</span>
-                                        <input 
-                                          type="date" 
-                                          className="frequencia-select" 
+                                        <input
+                                          type="date"
+                                          className="frequencia-select"
                                           style={{ width: "auto", padding: "4px 8px", minHeight: "auto", fontSize: "1.1rem" }}
                                           onChange={(e) => handleUpdateFolga(globalFeriado, e.target.value)}
                                           title="Registrar data da folga"
@@ -854,177 +875,186 @@ function HistoricoFuncionario() {
                 {/* Annual Summary Section */}
                 <div className="freq-section">
                   <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsAnnualExpanded(!isAnnualExpanded)}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <h2 style={{ margin: 0 }}><Icons.BsCalendar3 style={{ marginRight: "8px" }} />Resumo Anual</h2>
-                    <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
-                      {isAnnualExpanded ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
-                    </button>
-                  </div>
-                  <div className="freq-selectors" onClick={(e) => e.stopPropagation()}>
-                    <select className="freq-select" value={freqYear} onChange={(e) => setFreqYear(parseInt(e.target.value))}>
-                      {freqYearsList.map((y) => (
-                        <option key={y} value={y}>{y}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {isAnnualExpanded && (
-                  <div className="freq-annual-summary-wrapper">
-                    {loadingAnnual ? (
-                    <div style={{ display: "flex", justifyContent: "center", padding: "20px" }}>
-                      <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.5rem", color: "var(--primary-color)" }} />
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <h2 style={{ margin: 0 }}><Icons.BsCalendar3 style={{ marginRight: "8px" }} />Resumo Anual</h2>
+                      <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
+                        {isAnnualExpanded ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
+                      </button>
                     </div>
-                  ) : (
-                    <div className="freq-table-wrapper">
-                      <table className="freq-table">
-                        <thead>
-                          <tr>
-                            <th>Mês</th>
-                            <th style={{ textAlign: 'center' }}>Faltas</th>
-                            <th style={{ textAlign: 'center' }}>Atestados</th>
-                            <th style={{ textAlign: 'center' }}>Atrasos</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {annualSummaryData.map((row) => (
-                            <tr key={row.month}>
-                              <td style={{ fontWeight: 600 }}>{freqMonthsList.find(m => m.value === row.month)?.label}</td>
-                              <td style={{ textAlign: 'center' }}>
-                                {row.faltas > 0 ? <span className="freq-status-pill freq-status-falta">{row.faltas}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
-                              </td>
-                              <td style={{ textAlign: 'center' }}>
-                                {row.atestados > 0 ? <span className="freq-status-pill freq-status-atestado">{row.atestados}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
-                              </td>
-                              <td style={{ textAlign: 'center' }}>
-                                {row.atrasos > 0 ? <span className="freq-status-pill freq-status-atraso">{row.atrasos}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
-                              </td>
-                            </tr>
+                  </div>
+
+                  {isAnnualExpanded && (
+                    <div className="freq-annual-summary-wrapper">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '0 0 16px 0' }}>
+                        <button type="button" onClick={handlePrevYear} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', padding: '6px 10px', display: 'flex', alignItems: 'center', color: 'var(--text-dark)' }}>
+                          <Icons.BsChevronLeft style={{ strokeWidth: 1 }} />
+                        </button>
+                        <select className="freq-select" value={freqYear} onChange={(e) => setFreqYear(parseInt(e.target.value))} style={{ minWidth: '100px', fontSize: '1.4rem', margin: 0 }}>
+                          {freqYearsList.map((y) => (
+                            <option key={y} value={y}>{y}</option>
                           ))}
-                          {/* Total Row */}
-                          <tr style={{ backgroundColor: 'rgba(120, 78, 33, 0.05)', fontWeight: 700 }}>
-                            <td style={{ color: 'var(--primary-color)' }}>Total {freqYear}</td>
-                            <td style={{ textAlign: 'center' }}>
-                              {annualSummaryData.reduce((acc, row) => acc + row.faltas, 0)}
-                            </td>
-                            <td style={{ textAlign: 'center' }}>
-                              {annualSummaryData.reduce((acc, row) => acc + row.atestados, 0)}
-                            </td>
-                            <td style={{ textAlign: 'center' }}>
-                              {annualSummaryData.reduce((acc, row) => acc + row.atrasos, 0)}
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
+                        </select>
+                        <button type="button" onClick={handleNextYear} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', padding: '6px 10px', display: 'flex', alignItems: 'center', color: 'var(--text-dark)' }}>
+                          <Icons.BsChevronRight style={{ strokeWidth: 1 }} />
+                        </button>
+                      </div>
+
+                      {loadingAnnual ? (
+                        <div style={{ display: "flex", justifyContent: "center", padding: "20px" }}>
+                          <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.5rem", color: "var(--primary-color)" }} />
+                        </div>
+                      ) : (
+                        <div className="freq-table-wrapper">
+                          <table className="freq-table">
+                            <thead>
+                              <tr>
+                                <th>Mês</th>
+                                <th style={{ textAlign: 'center' }}>Faltas</th>
+                                <th style={{ textAlign: 'center' }}>Atestados</th>
+                                <th style={{ textAlign: 'center' }}>Atrasos</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {annualSummaryData.map((row) => (
+                                <tr key={row.month}>
+                                  <td style={{ fontWeight: 600 }}>{freqMonthsList.find(m => m.value === row.month)?.label}</td>
+                                  <td style={{ textAlign: 'center' }}>
+                                    {row.faltas > 0 ? <span className="freq-status-pill freq-status-falta">{row.faltas}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
+                                  </td>
+                                  <td style={{ textAlign: 'center' }}>
+                                    {row.atestados > 0 ? <span className="freq-status-pill freq-status-atestado">{row.atestados}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
+                                  </td>
+                                  <td style={{ textAlign: 'center' }}>
+                                    {row.atrasos > 0 ? <span className="freq-status-pill freq-status-atraso">{row.atrasos}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
+                                  </td>
+                                </tr>
+                              ))}
+                              {/* Total Row */}
+                              <tr style={{ backgroundColor: 'rgba(120, 78, 33, 0.05)', fontWeight: 700 }}>
+                                <td style={{ color: 'var(--primary-color)' }}>Total {freqYear}</td>
+                                <td style={{ textAlign: 'center' }}>
+                                  {annualSummaryData.reduce((acc, row) => acc + row.faltas, 0)}
+                                </td>
+                                <td style={{ textAlign: 'center' }}>
+                                  {annualSummaryData.reduce((acc, row) => acc + row.atestados, 0)}
+                                </td>
+                                <td style={{ textAlign: 'center' }}>
+                                  {annualSummaryData.reduce((acc, row) => acc + row.atrasos, 0)}
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </div>
                   )}
-                  </div>
-                )}
                 </div>
 
                 {/* Monthly Frequency Section */}
                 <div className="freq-section">
-                <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsMonthlyExpanded(!isMonthlyExpanded)}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <h2 style={{ margin: 0 }}><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência Mensal</h2>
-                    <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
-                      {isMonthlyExpanded ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
-                    </button>
-                  </div>
-                  <div className="freq-selectors" onClick={(e) => e.stopPropagation()}>
-                    <select className="freq-select" value={freqMonth} onChange={(e) => setFreqMonth(parseInt(e.target.value))}>
-                      {freqMonthsList.map((m) => (
-                        <option key={m.value} value={m.value}>{m.label}</option>
-                      ))}
-                    </select>
-                    <select className="freq-select" value={freqYear} onChange={(e) => setFreqYear(parseInt(e.target.value))}>
-                      {freqYearsList.map((y) => (
-                        <option key={y} value={y}>{y}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                {isMonthlyExpanded && (
-                  <>
-                    {/* Summary badges */}
-                <div className="freq-summary-row">
-                  <div className="freq-summary-badge freq-badge-absence">
-                    <Icons.BsXCircleFill />
-                    <span className="freq-badge-number">{freqSummary.faltas}</span>
-                    <span className="freq-badge-label">Faltas</span>
-                  </div>
-                  <div className="freq-summary-badge freq-badge-medical">
-                    <Icons.BsClipboard2PulseFill />
-                    <span className="freq-badge-number">{freqSummary.atestados}</span>
-                    <span className="freq-badge-label">Atestados</span>
-                  </div>
-                  <div className="freq-summary-badge freq-badge-late">
-                    <Icons.BsClockHistory />
-                    <span className="freq-badge-number">{freqSummary.atrasos}</span>
-                    <span className="freq-badge-label">Atrasos</span>
-                  </div>
-                </div>
-
-                {/* Frequency table */}
-                <div className="freq-table-wrapper">
-                  {loadingFreq ? (
-                    <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
-                      <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
+                  <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsMonthlyExpanded(!isMonthlyExpanded)}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <h2 style={{ margin: 0 }}><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência Mensal</h2>
+                      <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
+                        {isMonthlyExpanded ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
+                      </button>
                     </div>
-                  ) : (
-                    <table className="freq-table">
-                      <thead>
-                        <tr>
-                          <th style={{ width: "80px" }}>Data</th>
-                          <th style={{ width: "50px" }}>Dia</th>
-                          <th>Status</th>
-                          <th style={{ width: "40%" }}>Observação</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {getFreqDaysArray().map((dateObj) => {
-                          const yStr = dateObj.getFullYear();
-                          const mStr = String(dateObj.getMonth() + 1).padStart(2, "0");
-                          const dStr = String(dateObj.getDate()).padStart(2, "0");
-                          const dateStr = `${yStr}-${mStr}-${dStr}`;
-                          const weekday = getWeekdayName(dateObj);
-                          const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-                          const isBeforeReg = employee?.data_registro && dateStr < employee.data_registro;
-                          const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-                          const isToday = dateStr === todayDateStr;
-
-                          if (isBeforeReg) {
-                            return (
-                              <tr key={dateStr} className="freq-row-disabled">
-                                <td>{`${dStr}/${mStr}`}</td>
-                                <td>{weekday}</td>
-                                <td colSpan={2} style={{ color: "#9ca3af", textAlign: "center" }}>—</td>
-                              </tr>
-                            );
-                          }
-
-                          const status = getFreqStatusForDate(dateStr, dateObj);
-                          const statusClass = getFreqStatusClass(status);
-                          const obs = freqRecords.find((r) => r.date === dateStr)?.observacao || "";
-
-                          return (
-                            <tr key={dateStr} className={`${isWeekend ? "freq-row-weekend" : ""} ${isToday ? "freq-row-today" : ""}`}>
-                              <td className="freq-td-date">{`${dStr}/${mStr}`}</td>
-                              <td className="freq-td-weekday">{weekday}</td>
-                              <td>
-                                <span className={`freq-status-pill ${statusClass}`}>{status}</span>
-                              </td>
-                              <td className="freq-td-obs">{obs}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  )}
                   </div>
-                  </>
-                )}
+
+                  {isMonthlyExpanded && (
+                    <>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '0 0 16px 0' }}>
+                        <button type="button" onClick={handlePrevMonth} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', padding: '6px 10px', display: 'flex', alignItems: 'center', color: 'var(--text-dark)' }}>
+                          <Icons.BsChevronLeft style={{ strokeWidth: 1 }} />
+                        </button>
+                        <select className="freq-select" value={freqMonth} onChange={(e) => setFreqMonth(parseInt(e.target.value))} style={{ minWidth: '140px', fontSize: '1.4rem', margin: 0 }}>
+                          {freqMonthsList.map((m) => (
+                            <option key={m.value} value={m.value}>{m.label}</option>
+                          ))}
+                        </select>
+                        <button type="button" onClick={handleNextMonth} style={{ background: 'none', border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer', padding: '6px 10px', display: 'flex', alignItems: 'center', color: 'var(--text-dark)' }}>
+                          <Icons.BsChevronRight style={{ strokeWidth: 1 }} />
+                        </button>
+                      </div>
+
+                      {/* Summary badges */}
+                      <div className="freq-summary-row">
+                        <div className="freq-summary-badge freq-badge-absence">
+                          <Icons.BsXCircleFill />
+                          <span className="freq-badge-number">{freqSummary.faltas}</span>
+                          <span className="freq-badge-label">Faltas</span>
+                        </div>
+                        <div className="freq-summary-badge freq-badge-medical">
+                          <Icons.BsClipboard2PulseFill />
+                          <span className="freq-badge-number">{freqSummary.atestados}</span>
+                          <span className="freq-badge-label">Atestados</span>
+                        </div>
+                        <div className="freq-summary-badge freq-badge-late">
+                          <Icons.BsClockHistory />
+                          <span className="freq-badge-number">{freqSummary.atrasos}</span>
+                          <span className="freq-badge-label">Atrasos</span>
+                        </div>
+                      </div>
+
+                      {/* Frequency table */}
+                      <div className="freq-table-wrapper">
+                        {loadingFreq ? (
+                          <div style={{ display: "flex", justifyContent: "center", padding: "30px" }}>
+                            <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
+                          </div>
+                        ) : (
+                          <table className="freq-table">
+                            <thead>
+                              <tr>
+                                <th style={{ width: "80px" }}>Data</th>
+                                <th style={{ width: "50px" }}>Dia</th>
+                                <th>Status</th>
+                                <th style={{ width: "40%" }}>Observação</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {getFreqDaysArray().map((dateObj) => {
+                                const yStr = dateObj.getFullYear();
+                                const mStr = String(dateObj.getMonth() + 1).padStart(2, "0");
+                                const dStr = String(dateObj.getDate()).padStart(2, "0");
+                                const dateStr = `${yStr}-${mStr}-${dStr}`;
+                                const weekday = getWeekdayName(dateObj);
+                                const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+                                const isBeforeReg = employee?.data_registro && dateStr < employee.data_registro;
+                                const todayDateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+                                const isToday = dateStr === todayDateStr;
+
+                                if (isBeforeReg) {
+                                  return (
+                                    <tr key={dateStr} className="freq-row-disabled">
+                                      <td>{`${dStr}/${mStr}`}</td>
+                                      <td>{weekday}</td>
+                                      <td colSpan={2} style={{ color: "#9ca3af", textAlign: "center" }}>—</td>
+                                    </tr>
+                                  );
+                                }
+
+                                const status = getFreqStatusForDate(dateStr, dateObj);
+                                const statusClass = getFreqStatusClass(status);
+                                const obs = freqRecords.find((r) => r.date === dateStr)?.observacao || "";
+
+                                return (
+                                  <tr key={dateStr} className={`${isWeekend ? "freq-row-weekend" : ""} ${isToday ? "freq-row-today" : ""}`}>
+                                    <td className="freq-td-date">{`${dStr}/${mStr}`}</td>
+                                    <td className="freq-td-weekday">{weekday}</td>
+                                    <td>
+                                      <span className={`freq-status-pill ${statusClass}`}>{status}</span>
+                                    </td>
+                                    <td className="freq-td-obs">{obs}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             )}
