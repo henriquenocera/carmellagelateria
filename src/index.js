@@ -31,6 +31,7 @@ import HistoricoFuncionario from "./routes/HistoricoFuncionario.tsx";
 import CalculoVales from "./routes/CalculoVales.tsx";
 import Logs from "./routes/Logs.tsx";
 import FeriadosGlobais from "./routes/FeriadosGlobais.tsx";
+import EstoqueLojas from "./routes/EstoqueLojas.jsx";
 import supabase from "./supabase-client";
 
 const ProtectedLayout = () => {
@@ -92,6 +93,7 @@ const router = createBrowserRouter(
       <Route element={<ProtectedLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/lojas" element={<Lojas />} />
+        <Route path="/estoque-lojas" element={<EstoqueLojas />} />
         <Route path="/manual" element={<Manual />} />
         <Route path="/vales" element={<Vales />} />
         <Route path="/inventario" element={<Inventario />} />

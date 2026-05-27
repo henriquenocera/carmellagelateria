@@ -16,6 +16,7 @@ const MENU_CONFIG = [
     id: "operacoes",
     subItems: [
       { title: "Lojas", path: "/lojas" },
+      { title: "Estoque Lojas", path: "/estoque-lojas" },
       { title: "Etiquetas", path: "/etiquetas" },
       { title: "Frequência", path: "/frequencia" },
     ]
