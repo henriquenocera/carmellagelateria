@@ -3,6 +3,7 @@ import * as Icons from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 import supabase from "../supabase-client";
+import { avaliarRegrasDeNegocio } from "../utils/regrasDeNegocio";
 
 // Helpers
 const formatDateAndTime = (dateStr) => {
@@ -55,6 +56,7 @@ function Home() {
   const [checklists, setChecklists] = useState({ ahu: null, altoxv: null });
   const [estoque, setEstoque] = useState({ ahu: { vitrine: 0, estoque: 0 }, altoxv: { vitrine: 0, estoque: 0 } });
   const [folgas, setFolgas] = useState([]);
+  const [notificacoes, setNotificacoes] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -125,8 +127,14 @@ function Home() {
         });
 
         if (isMounted) {
+          const estadoEstoque = { ahu: ahuEstoque, altoxv: altoxvEstoque };
+          setEstoque(estadoEstoque);
+          
+          // Avaliar regras de negócio para gerar notificações
+          const alertas = avaliarRegrasDeNegocio({ estoque: estadoEstoque });
+          setNotificacoes(alertas);
+
           setChecklists({ ahu: latestAhu, altoxv: latestAltoxv });
-          setEstoque({ ahu: ahuEstoque, altoxv: altoxvEstoque });
           setFolgas(folgasHoje);
           setLoading(false);
         }
@@ -274,23 +282,38 @@ function Home() {
           <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
             <Icons.BsBell style={{ color: "#a17550" }} /> Notificações e Instruções
           </h2>
-          <div style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", color: "#64748b" }}>
-              <Icons.BsInfoCircle style={{ fontSize: "2rem", color: "#3b82f6", flexShrink: 0 }} />
-              <div>
-                <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.5rem" }}>Aguardando novas instruções</h3>
-                <p style={{ margin: 0, fontSize: "1.3rem", lineHeight: "1.5" }}>As notificações e recados importantes aparecerão aqui.</p>
+          <div style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", flex: 1, display: "flex", flexDirection: "column" }}>
+            
+            {notificacoes.length === 0 ? (
+              <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", color: "#64748b" }}>
+                <Icons.BsCheckCircle style={{ fontSize: "2rem", color: "#10b981", flexShrink: 0 }} />
+                <div>
+                  <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.5rem" }}>Tudo certo por aqui!</h3>
+                  <p style={{ margin: 0, fontSize: "1.3rem", lineHeight: "1.5" }}>Não há nenhuma notificação ou recado importante no momento.</p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {notificacoes.map((notif) => {
+                  return (
+                    <div key={notif.id} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: "1px solid #fef2f2" }}>
+                      <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0 }} />
+                      <span style={{ color: "#ef4444", fontSize: "1.4rem", fontWeight: "600" }}>{notif.titulo}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
           </div>
         </section>
 
         {/* Quem Folga Hoje (Row 2, Col 2) */}
-        <section style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        <section style={{ display: "flex", flexDirection: "column", alignSelf: "start" }}>
           <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
             <Icons.BsCupHot style={{ color: "#10b981" }} /> Folgas de Hoje
           </h2>
-          <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", flex: 1 }}>
+          <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0" }}>
             
             {folgas.length === 0 ? (
               <p style={{ color: "#94a3b8", fontStyle: "italic", margin: 0, fontSize: "1.3rem" }}>Ninguém de folga hoje.</p>
