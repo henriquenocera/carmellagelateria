@@ -470,6 +470,12 @@
   border-color: rgba(245, 158, 11, 0.2);
 }
 
+.freq-badge-late {
+  background-color: rgba(251, 146, 60, 0.08);
+  color: #ea580c;
+  border-color: rgba(251, 146, 60, 0.2);
+}
+
 .freq-badge-offday {
   background-color: rgba(99, 102, 241, 0.08);
   color: #6366f1;

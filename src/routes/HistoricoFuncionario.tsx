@@ -70,6 +70,10 @@ function HistoricoFuncionario() {
   const [freqRecords, setFreqRecords] = useState<{ date: string; status: string; observacao?: string | null }[]>([]);
   const [loadingFreq, setLoadingFreq] = useState(false);
 
+  // Annual state
+  const [annualRecords, setAnnualRecords] = useState<{ date: string; status: string }[]>([]);
+  const [loadingAnnual, setLoadingAnnual] = useState(false);
+
   const freqYearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
   const freqMonthsList = [
     { value: 1, label: "Janeiro" }, { value: 2, label: "Fevereiro" },
@@ -285,12 +289,41 @@ function HistoricoFuncionario() {
     }
   }
 
+  async function fetchAnnualFrequency(empId: string, y: number) {
+    try {
+      setLoadingAnnual(true);
+      const startStr = `${y}-01-01`;
+      const endStr = `${y}-12-31`;
+
+      const { data, error } = await supabase
+        .from("frequencia")
+        .select("date, status")
+        .eq("employee_id", empId)
+        .gte("date", startStr)
+        .lte("date", endStr);
+
+      if (error) throw error;
+      setAnnualRecords(data || []);
+    } catch (err) {
+      console.error("Erro ao buscar frequência anual:", err);
+    } finally {
+      setLoadingAnnual(false);
+    }
+  }
+
   useEffect(() => {
     if (isAuthorized && id) {
       fetchFrequency(id, freqMonth, freqYear);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, id, freqMonth, freqYear]);
+
+  useEffect(() => {
+    if (isAuthorized && id) {
+      fetchAnnualFrequency(id, freqYear);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, id, freqYear]);
 
   const getFreqDaysArray = () => {
     const daysInMonth = new Date(freqYear, freqMonth, 0).getDate();
@@ -323,7 +356,7 @@ function HistoricoFuncionario() {
   };
 
   const isWorkedStatus = (status: string) => {
-    return ["Trabalhado", "Declaração de Horas", "Saída Antecipada", "Atraso", "Registro Formal", "Rescisão de Contrato", "Outro"].includes(status);
+    return ["Trabalhado", "Declaração de Horas", "Saída Antecipada", "Registro Formal", "Rescisão de Contrato", "Outro"].includes(status);
   };
 
   const getFreqSummary = () => {
@@ -333,6 +366,7 @@ function HistoricoFuncionario() {
     let atestados = 0;
     let folgas = 0;
     let outros = 0;
+    let atrasos = 0;
 
     allDates.forEach((dateObj) => {
       const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
@@ -344,14 +378,37 @@ function HistoricoFuncionario() {
       if (isWorkedStatus(status)) trabalhados++;
       else if (status === "Falta Não Justificada") faltas++;
       else if (status === "Atestado") atestados++;
+      else if (status === "Atraso") atrasos++;
       else if (["Folga Fixa Semanal", "Domingo de Folga", "Folga Compensatória", "Férias"].includes(status)) folgas++;
       else outros++;
     });
 
-    return { trabalhados, faltas, atestados, folgas, outros };
+    return { trabalhados, faltas, atestados, folgas, outros, atrasos };
+  };
+
+  const getAnnualSummaryByMonth = () => {
+    const summary = Array.from({ length: 12 }, (_, i) => ({
+      month: i + 1,
+      faltas: 0,
+      atestados: 0,
+      atrasos: 0
+    }));
+
+    annualRecords.forEach(record => {
+      if (employee?.data_registro && record.date < employee.data_registro) return;
+      
+      const recordMonth = parseInt(record.date.split('-')[1], 10);
+      
+      if (record.status === "Falta Não Justificada") summary[recordMonth - 1].faltas++;
+      else if (record.status === "Atestado") summary[recordMonth - 1].atestados++;
+      else if (record.status === "Atraso") summary[recordMonth - 1].atrasos++;
+    });
+
+    return summary;
   };
 
   const freqSummary = getFreqSummary();
+  const annualSummaryData = getAnnualSummaryByMonth();
 
   if (isAuthorized === null) {
     return (
@@ -410,145 +467,211 @@ function HistoricoFuncionario() {
           </div>
         ) : (
           <>
-          <div className="historico-layout">
-            {/* Form Column */}
-            <div className="historico-form-card">
-              <h2>Nova Ocorrência</h2>
-              <form onSubmit={handleSave} className="historico-form">
-                <div className="form-group">
-                  <label>Tipo</label>
-                  <select
-                    className="frequencia-select"
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  >
-                    {TYPE_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+            <div className="historico-layout">
+              {/* Form Column */}
+              <div className="historico-form-card">
+                <h2>Nova Ocorrência</h2>
+                <form onSubmit={handleSave} className="historico-form">
+                  <div className="form-group">
+                    <label>Tipo</label>
+                    <select
+                      className="frequencia-select"
+                      value={formData.type}
+                      onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                    >
+                      {TYPE_OPTIONS.filter((opt) => ["Advertência", "Suspensão", "Informação"].includes(opt.value)).map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div className="form-group">
-                  <label>Data</label>
-                  <input
-                    type="date"
-                    required
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '1.4rem', fontFamily: 'inherit' }}
-                  />
-                </div>
+                  <div className="form-group">
+                    <label>Data</label>
+                    <input
+                      type="date"
+                      required
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '1.4rem', fontFamily: 'inherit' }}
+                    />
+                  </div>
 
-                <div className="form-group">
-                  <label>Título / Assunto</label>
-                  <input
-                    type="text"
-                    required
-                    maxLength={100}
-                    placeholder="Ex: Advertência por atraso"
-                    value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '1.4rem', fontFamily: 'inherit' }}
-                  />
-                </div>
+                  <div className="form-group">
+                    <label>Título / Assunto</label>
+                    <input
+                      type="text"
+                      required
+                      maxLength={100}
+                      placeholder="Ex: Advertência por atraso"
+                      value={formData.title}
+                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      style={{ padding: '8px 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '1.4rem', fontFamily: 'inherit' }}
+                    />
+                  </div>
 
-                <div className="form-group">
-                  <label>Descrição / Observações</label>
-                  <textarea
-                    required
-                    rows={6}
-                    placeholder="Escreva os detalhes da ocorrência aqui..."
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    style={{ padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '1.4rem', fontFamily: 'inherit', resize: 'vertical' }}
-                  />
-                </div>
+                  <div className="form-group">
+                    <label>Descrição / Observações</label>
+                    <textarea
+                      required
+                      rows={6}
+                      placeholder="Escreva os detalhes da ocorrência aqui..."
+                      value={formData.description}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      style={{ padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '1.4rem', fontFamily: 'inherit', resize: 'vertical' }}
+                    />
+                  </div>
 
-                <button type="submit" className="primary-btn" disabled={saving} style={{ width: '100%', justifyContent: 'center' }}>
-                  {saving ? (
-                    <Icons.BsArrowClockwise className="spin" />
-                  ) : (
-                    <>
-                      <Icons.BsPlusLg />
-                      Salvar Registro
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
+                  <button type="submit" className="primary-btn" disabled={saving} style={{ width: '100%', justifyContent: 'center' }}>
+                    {saving ? (
+                      <Icons.BsArrowClockwise className="spin" />
+                    ) : (
+                      <>
+                        <Icons.BsPlusLg />
+                        Salvar Registro
+                      </>
+                    )}
+                  </button>
+                </form>
+              </div>
 
-            {/* Timeline Column */}
-            <div className="historico-timeline-container">
-              <h2>Linha do Tempo</h2>
-              {loadingRecords ? (
-                <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-                  <Icons.BsArrowClockwise className="spin" style={{ fontSize: '2.5rem', color: 'var(--primary-color)' }} />
-                </div>
-              ) : records.length === 0 ? (
-                <div className="timeline-empty-state">
-                  <Icons.BsFolder2Open />
-                  <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>Nenhum registro encontrado</p>
-                  <p style={{ fontSize: '1.3rem', marginTop: '4px' }}>Utilize o formulário ao lado para cadastrar a primeira ocorrência.</p>
-                </div>
-              ) : (
-                <div className="timeline-wrapper">
-                  {records.map((r) => {
-                    const typeOption = TYPE_OPTIONS.find((opt) => opt.value === r.type) || TYPE_OPTIONS[5];
-                    return (
-                      <div key={r.id} className="timeline-item">
-                        {/* Circle marker on the line */}
-                        <div className={`timeline-marker marker-${typeOption.colorClass}`}>
-                          {typeOption.icon}
-                        </div>
+              {/* Timeline Column */}
+              <div className="historico-timeline-container">
+                <h2>Linha do Tempo</h2>
+                {loadingRecords ? (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+                    <Icons.BsArrowClockwise className="spin" style={{ fontSize: '2.5rem', color: 'var(--primary-color)' }} />
+                  </div>
+                ) : records.length === 0 ? (
+                  <div className="timeline-empty-state">
+                    <Icons.BsFolder2Open />
+                    <p style={{ fontSize: '1.5rem', fontWeight: 600 }}>Nenhum registro encontrado</p>
+                    <p style={{ fontSize: '1.3rem', marginTop: '4px' }}>Utilize o formulário ao lado para cadastrar a primeira ocorrência.</p>
+                  </div>
+                ) : (
+                  <div className="timeline-wrapper">
+                    {records.map((r) => {
+                      const typeOption = TYPE_OPTIONS.find((opt) => opt.value === r.type) || TYPE_OPTIONS[5];
+                      return (
+                        <div key={r.id} className="timeline-item">
+                          {/* Circle marker on the line */}
+                          <div className={`timeline-marker marker-${typeOption.colorClass}`}>
+                            {typeOption.icon}
+                          </div>
 
-                        {/* Event Card */}
-                        <div className="timeline-card">
-                          <div className="timeline-card-header">
-                            <div className="timeline-type-group">
-                              <span className={`type-badge badge-${typeOption.colorClass}`}>
-                                {r.type}
+                          {/* Event Card */}
+                          <div className="timeline-card">
+                            <div className="timeline-card-header">
+                              <div className="timeline-type-group">
+                                <span className={`type-badge badge-${typeOption.colorClass}`}>
+                                  {r.type}
+                                </span>
+                              </div>
+                              <span className="timeline-event-date">
+                                Ocorrido em: {formatDisplayDate(r.date)}
                               </span>
                             </div>
-                            <span className="timeline-event-date">
-                              Ocorrido em: {formatDisplayDate(r.date)}
-                            </span>
-                          </div>
 
-                          <h3 className="timeline-card-title">{r.title}</h3>
-                          <p className="timeline-card-desc">{r.description}</p>
+                            <h3 className="timeline-card-title">{r.title}</h3>
+                            <p className="timeline-card-desc">{r.description}</p>
 
-                          <div className="timeline-card-footer">
-                            <span className="timeline-creator-info" title="Responsável pelo registro">
-                              <Icons.BsPersonCircle />
-                              Por: {r.creator_name}
-                            </span>
-                            <span style={{ fontSize: '1.1rem' }}>
-                              Registrado em: {formatTimestamp(r.created_at)}
-                            </span>
-                            <button
-                              onClick={() => handleDelete(r.id)}
-                              className="delete-record-btn"
-                              title="Excluir Ocorrência"
-                            >
-                              <Icons.BsTrash />
-                            </button>
+                            <div className="timeline-card-footer">
+                              <span className="timeline-creator-info" title="Responsável pelo registro">
+                                <Icons.BsPersonCircle />
+                                Por: {r.creator_name}
+                              </span>
+                              <span style={{ fontSize: '1.1rem' }}>
+                                Registrado em: {formatTimestamp(r.created_at)}
+                              </span>
+                              <button
+                                onClick={() => handleDelete(r.id)}
+                                className="delete-record-btn"
+                                title="Excluir Ocorrência"
+                              >
+                                <Icons.BsTrash />
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-            {/* Frequency Section */}
+            {/* Annual Summary Section */}
             {employee?.controlar_frequencia !== false && (
               <div className="freq-section">
                 <div className="freq-section-header">
-                  <h2><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência</h2>
+                  <h2><Icons.BsCalendar3 style={{ marginRight: "8px" }} />Resumo Anual</h2>
+                  <div className="freq-selectors">
+                    <select className="freq-select" value={freqYear} onChange={(e) => setFreqYear(parseInt(e.target.value))}>
+                      {freqYearsList.map((y) => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="freq-annual-summary-wrapper">
+                  {loadingAnnual ? (
+                    <div style={{ display: "flex", justifyContent: "center", padding: "20px" }}>
+                      <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.5rem", color: "var(--primary-color)" }} />
+                    </div>
+                  ) : (
+                    <div className="freq-table-wrapper">
+                      <table className="freq-table">
+                        <thead>
+                          <tr>
+                            <th>Mês</th>
+                            <th style={{ textAlign: 'center' }}>Faltas</th>
+                            <th style={{ textAlign: 'center' }}>Atestados</th>
+                            <th style={{ textAlign: 'center' }}>Atrasos</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {annualSummaryData.map((row) => (
+                            <tr key={row.month}>
+                              <td style={{ fontWeight: 600 }}>{freqMonthsList.find(m => m.value === row.month)?.label}</td>
+                              <td style={{ textAlign: 'center' }}>
+                                {row.faltas > 0 ? <span className="freq-status-pill freq-status-falta">{row.faltas}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                {row.atestados > 0 ? <span className="freq-status-pill freq-status-atestado">{row.atestados}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
+                              </td>
+                              <td style={{ textAlign: 'center' }}>
+                                {row.atrasos > 0 ? <span className="freq-status-pill freq-status-atraso">{row.atrasos}</span> : <span style={{ color: '#9ca3af' }}>-</span>}
+                              </td>
+                            </tr>
+                          ))}
+                          {/* Total Row */}
+                          <tr style={{ backgroundColor: 'rgba(120, 78, 33, 0.05)', fontWeight: 700 }}>
+                            <td style={{ color: 'var(--primary-color)' }}>Total {freqYear}</td>
+                            <td style={{ textAlign: 'center' }}>
+                              {annualSummaryData.reduce((acc, row) => acc + row.faltas, 0)}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {annualSummaryData.reduce((acc, row) => acc + row.atestados, 0)}
+                            </td>
+                            <td style={{ textAlign: 'center' }}>
+                              {annualSummaryData.reduce((acc, row) => acc + row.atrasos, 0)}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Monthly Frequency Section */}
+            {employee?.controlar_frequencia !== false && (
+              <div className="freq-section">
+                <div className="freq-section-header">
+                  <h2><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência Mensal</h2>
                   <div className="freq-selectors">
                     <select className="freq-select" value={freqMonth} onChange={(e) => setFreqMonth(parseInt(e.target.value))}>
                       {freqMonthsList.map((m) => (
@@ -565,11 +688,6 @@ function HistoricoFuncionario() {
 
                 {/* Summary badges */}
                 <div className="freq-summary-row">
-                  <div className="freq-summary-badge freq-badge-worked">
-                    <Icons.BsCheckCircleFill />
-                    <span className="freq-badge-number">{freqSummary.trabalhados}</span>
-                    <span className="freq-badge-label">Trabalhados</span>
-                  </div>
                   <div className="freq-summary-badge freq-badge-absence">
                     <Icons.BsXCircleFill />
                     <span className="freq-badge-number">{freqSummary.faltas}</span>
@@ -580,15 +698,10 @@ function HistoricoFuncionario() {
                     <span className="freq-badge-number">{freqSummary.atestados}</span>
                     <span className="freq-badge-label">Atestados</span>
                   </div>
-                  <div className="freq-summary-badge freq-badge-offday">
-                    <Icons.BsMoonFill />
-                    <span className="freq-badge-number">{freqSummary.folgas}</span>
-                    <span className="freq-badge-label">Folgas</span>
-                  </div>
-                  <div className="freq-summary-badge freq-badge-other">
-                    <Icons.BsThreeDotsVertical />
-                    <span className="freq-badge-number">{freqSummary.outros}</span>
-                    <span className="freq-badge-label">Outros</span>
+                  <div className="freq-summary-badge freq-badge-late">
+                    <Icons.BsClockHistory />
+                    <span className="freq-badge-number">{freqSummary.atrasos}</span>
+                    <span className="freq-badge-label">Atrasos</span>
                   </div>
                 </div>
 
