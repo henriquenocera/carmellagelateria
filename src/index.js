@@ -9,7 +9,8 @@ import {
   createRoutesFromElements,
   useLocation,
 } from "react-router-dom";
-import Home from "./routes/Home";
+import Home from "./routes/Home.jsx";
+import TextosELinks from "./routes/TextosELinks.jsx";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
@@ -92,6 +93,7 @@ const router = createBrowserRouter(
       <Route path="/login" element={<Login />} />
       <Route element={<ProtectedLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/textos-e-links" element={<TextosELinks />} />
         <Route path="/lojas" element={<Lojas />} />
         <Route path="/estoque-lojas" element={<EstoqueLojas />} />
         <Route path="/manual" element={<Manual />} />
