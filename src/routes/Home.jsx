@@ -128,13 +128,14 @@ function Home() {
 
         if (isMounted) {
           const estadoEstoque = { ahu: ahuEstoque, altoxv: altoxvEstoque };
+          const estadoChecklists = { ahu: latestAhu, altoxv: latestAltoxv };
           setEstoque(estadoEstoque);
+          setChecklists(estadoChecklists);
           
           // Avaliar regras de negócio para gerar notificações
-          const alertas = avaliarRegrasDeNegocio({ estoque: estadoEstoque });
+          const alertas = avaliarRegrasDeNegocio({ estoque: estadoEstoque, checklists: estadoChecklists });
           setNotificacoes(alertas);
 
-          setChecklists({ ahu: latestAhu, altoxv: latestAltoxv });
           setFolgas(folgasHoje);
           setLoading(false);
         }

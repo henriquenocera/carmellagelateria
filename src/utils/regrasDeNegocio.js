@@ -1,9 +1,15 @@
 export const avaliarRegrasDeNegocio = (dados) => {
   const notificacoes = [];
 
-  if (!dados || !dados.estoque) return notificacoes;
+  if (!dados) return notificacoes;
 
-  const { estoque } = dados;
+  const { estoque, checklists } = dados;
+
+  const extrairNumero = (valorString) => {
+    if (!valorString) return 0;
+    const match = String(valorString).trim().match(/^\d+/);
+    return match ? parseInt(match[0], 10) : 0;
+  };
 
   // Definição dos limites para cada loja
   const regras = {
@@ -52,6 +58,28 @@ export const avaliarRegrasDeNegocio = (dados) => {
     }
   }
 
+  // Regras de Checklist - Loja Ahú
+  if (checklists && checklists.ahu) {
+    const numMassas = extrairNumero(checklists.ahu.massas);
+    const numBrownies = extrairNumero(checklists.ahu.brownies);
+
+    if (numMassas < 5) {
+      notificacoes.push({
+        id: 'ahu-massas-baixo',
+        tipo: 'erro',
+        titulo: `Falta de Waffles - Ahú (${numMassas} un.)`
+      });
+    }
+
+    if (numBrownies < 6) {
+      notificacoes.push({
+        id: 'ahu-brownies-baixo',
+        tipo: 'erro',
+        titulo: `Falta de Brownies - Ahú (${numBrownies} un.)`
+      });
+    }
+  }
+
   // ---- Loja Alto da XV ----
   if (estoque.altoxv) {
     const totalXv = estoque.altoxv.vitrine + estoque.altoxv.estoque;
@@ -81,6 +109,28 @@ export const avaliarRegrasDeNegocio = (dados) => {
         tipo: 'aviso',
         titulo: 'Estoque Baixo de Cubas - Alto da XV',
         mensagem: `Atenção: A loja Alto da XV está com apenas ${totalXv} cubas no total (Vitrine + Freezer). O mínimo de segurança é ${regras.altoxv.minTotal} cubas.`
+      });
+    }
+  }
+
+  // Regras de Checklist - Loja Alto da XV
+  if (checklists && checklists.altoxv) {
+    const numMassas = extrairNumero(checklists.altoxv.massas);
+    const numBrownies = extrairNumero(checklists.altoxv.brownies);
+
+    if (numMassas < 5) {
+      notificacoes.push({
+        id: 'altoxv-massas-baixo',
+        tipo: 'erro',
+        titulo: `Falta de Waffles - Alto da XV (${numMassas} un.)`
+      });
+    }
+
+    if (numBrownies < 6) {
+      notificacoes.push({
+        id: 'altoxv-brownies-baixo',
+        tipo: 'erro',
+        titulo: `Falta de Brownies - Alto da XV (${numBrownies} un.)`
       });
     }
   }
