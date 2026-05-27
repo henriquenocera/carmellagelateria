@@ -61,6 +61,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         { id: "17", title: "Verificar lojas do ifood", subtitle1: "Se estão abertas", subtitle2: "" },
         { id: "19", title: "Verificar cardápio do ifood", subtitle1: "Toppings", subtitle2: "Se tiver algo desligado, confirmar com a loja" },
         { id: "18", title: "Verificar Painel do Ifood", },
+        { id: "21", title: "Verificar Foto da Vitrine", subtitle1: "Em Comparação ao Sistema de Estoque de Cubas" },
 
 
 

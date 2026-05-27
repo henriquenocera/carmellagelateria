@@ -1,162 +1,158 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as Icons from "react-icons/bs";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import "../css/Navbar.css";
 import { useAuth } from "../AuthProvider";
 
+const MENU_CONFIG = [
+  {
+    title: "Início",
+    icon: <Icons.BsHouseDoor />,
+    path: "/",
+  },
+  {
+    title: "Operações",
+    icon: <Icons.BsBriefcase />,
+    id: "operacoes",
+    subItems: [
+      { title: "Lojas", path: "/lojas" },
+      { title: "Etiquetas", path: "/etiquetas" },
+      { title: "Frequência", path: "/frequencia" },
+    ]
+  },
+  {
+    title: "Checklists",
+    icon: <Icons.BsCardChecklist />,
+    id: "checklists",
+    subItems: [
+      { title: "Checklist", path: "/checklist-fechamento" }
+    ]
+  },
+  {
+    title: "Administrativo",
+    icon: <Icons.BsShieldLock />,
+    id: "admin",
+    adminOnly: true,
+    subItems: [
+      { title: "Pessoas", path: "/cadastro-pessoas" },
+      { title: "Cálculo de Vales", path: "/calculo-vales" },
+      { title: "Feriados Globais", path: "/feriados-globais" },
+      { title: "Logs", path: "/logs" },
+    ]
+  }
+];
+
 function NavBar() {
   const [sidebar, setSidebar] = useState(false);
-  // const [menuActive, setMenuActive] = useState(false);
-  const showSidebar = () => setSidebar(!sidebar);
+  const [openMenus, setOpenMenus] = useState({});
   const { isAdmin } = useAuth();
-  let activeMenu = false;
+  const location = useLocation();
+  const navRef = useRef(null);
+
+  const toggleSidebar = () => setSidebar(!sidebar);
+
+  const toggleMenu = (menuId) => {
+    if (!sidebar) {
+      setSidebar(true);
+      setOpenMenus({ [menuId]: true });
+    } else {
+      setOpenMenus((prev) => ({
+        ...prev,
+        [menuId]: !prev[menuId]
+      }));
+    }
+  };
+
+  useEffect(() => {
+    const currentPath = location.pathname;
+    const newOpenMenus = { ...openMenus };
+    let changed = false;
+
+    MENU_CONFIG.forEach(item => {
+      if (item.subItems) {
+        const isActive = item.subItems.some(sub => currentPath === sub.path || currentPath.startsWith(sub.path + "/"));
+        if (isActive && !openMenus[item.id]) {
+          newOpenMenus[item.id] = true;
+          changed = true;
+        }
+      }
+    });
+
+    if (changed) {
+      setOpenMenus(newOpenMenus);
+    }
+    
+    // Auto-close sidebar on page change
+    setSidebar(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  // Handle click outside to close sidebar
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setSidebar(false);
+      }
+    }
+
+    if (sidebar) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [sidebar]);
 
   return (
-    <>
-      <div className={sidebar ? "navigation open" : "navigation"}>
-        <div className="menuToggle" onClick={showSidebar}></div>
-        <ul>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/">
-              <span className="icon">
-                <Icons.BsEscape />
-              </span>
-              <span className="text">Início</span>
-            </NavLink>
-          </li>
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/lojas">
-              <span className="icon">
-                <Icons.BsAppIndicator />
-              </span>
-              <span className="text">Lojas</span>
-            </NavLink>
-          </li>
-          {/*          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/status">
-              <span className="icon">
-                <Icons.BsCheckCircle />
-              </span>
-              <span className="text">Status</span>
-            </NavLink>
-          </li> */}
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/vales">
-              <span className="icon">
-                <Icons.BsEmojiSmile />
-              </span>
-              <span className="text">Vales</span>
-            </NavLink>
-          </li> */}
+    <div ref={navRef} className={sidebar ? "navigation open" : "navigation"}>
+      <div className="menuToggle" onClick={toggleSidebar}></div>
+      <div className="menu-container">
+        <ul className="nav-list">
+          {MENU_CONFIG.map((item, index) => {
+            if (item.adminOnly && !isAdmin) return null;
 
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/inventario">
-              <span className="icon">
-                <Icons.BsArrowCounterclockwise />
-              </span>
-              <span className="text">Inventário</span>
-            </NavLink>
-          </li> */}
+            if (item.path) {
+              return (
+                <li key={index} className="nav-item">
+                  <NavLink to={item.path} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
+                    <span className="icon">{item.icon}</span>
+                    <span className="text">{item.title}</span>
+                  </NavLink>
+                </li>
+              );
+            }
 
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/checklist-abertura">
-              <span className="icon">
-                <Icons.BsArrowBarRight />
-              </span>
+            const isOpen = openMenus[item.id];
+            const isChildActive = item.subItems.some(sub => location.pathname === sub.path || location.pathname.startsWith(sub.path + "/"));
 
-              <span className="text">
-                Checklist <br></br> Abertura
-              </span>
-            </NavLink>
-          </li> */}
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/checklist-fechamento">
-              <span className="icon">
-                <Icons.BsArrowBarRight />
-              </span>
-              <span className="text">Checklist Fechamento</span>
-            </NavLink>
-          </li>
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/informacoes">
-              <span className="icon">
-                <Icons.BsCheck />
-              </span>
-              <span className="text">Informacoes</span>
-            </NavLink>
-          </li> */}
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/etiquetas">
-              <span className="icon">
-                <Icons.BsPrinter />
-              </span>
-              <span className="text">Etiquetas</span>
-            </NavLink>
-          </li>
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/voucher">
-              <span className="icon">
-                <Icons.BsTicket />
-              </span>
-              <span className="text">Voucher</span>
-            </NavLink>
-          </li> */}
+            return (
+              <li key={index} className={`nav-item accordion ${isOpen ? 'open' : ''} ${isChildActive ? 'child-active' : ''}`}>
+                <div className="nav-link accordion-header" onClick={() => toggleMenu(item.id)}>
+                  <span className="icon">{item.icon}</span>
+                  <span className="text">{item.title}</span>
+                  <span className="chevron-icon">
+                    {isOpen ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
+                  </span>
+                </div>
 
-          {/*           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/crm">
-              <span className="icon">
-                <Icons.BsPeople />
-              </span>
-              <span className="text">CRM</span>
-            </NavLink>
-          </li> */}
-          <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/frequencia">
-              <span className="icon">
-                <Icons.BsCalendarCheck />
-              </span>
-              <span className="text">Frequência</span>
-            </NavLink>
-          </li>
-          {isAdmin && (
-            <>
-              <li className={activeMenu ? "list active" : "list"}>
-                <NavLink to="/cadastro-pessoas">
-                  <span className="icon">
-                    <Icons.BsPeople />
-                  </span>
-                  <span className="text">Pessoas</span>
-                </NavLink>
+                <div className="submenu-wrapper" style={{ height: isOpen && sidebar ? `${item.subItems.length * 45}px` : '0px' }}>
+                  <ul className="submenu">
+                    {item.subItems.map((subItem, subIndex) => (
+                      <li key={subIndex} className="submenu-item">
+                        <NavLink to={subItem.path} className={({ isActive }) => isActive ? "submenu-link active" : "submenu-link"}>
+                          <span className="submenu-indicator"></span>
+                          <span className="text">{subItem.title}</span>
+                        </NavLink>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </li>
-              <li className={activeMenu ? "list active" : "list"}>
-                <NavLink to="/calculo-vales">
-                  <span className="icon">
-                    <Icons.BsCalculator />
-                  </span>
-                  <span className="text">Cálculo de Vales</span>
-                </NavLink>
-              </li>
-              <li className={activeMenu ? "list active" : "list"}>
-                <NavLink to="/logs">
-                  <span className="icon">
-                    <Icons.BsListCheck />
-                  </span>
-                  <span className="text">Logs</span>
-                </NavLink>
-              </li>
-              <li className={activeMenu ? "list active" : "list"}>
-                <NavLink to="/feriados-globais">
-                  <span className="icon">
-                    <Icons.BsBriefcaseFill />
-                  </span>
-                  <span className="text">Feriados Globais</span>
-                </NavLink>
-              </li>
-            </>
-          )}
+            );
+          })}
         </ul>
       </div>
-    </>
+    </div>
   );
 }
 
