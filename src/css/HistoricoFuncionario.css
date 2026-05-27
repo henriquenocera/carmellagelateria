@@ -647,8 +647,19 @@
   color: #6b7280;
 }
 
+.freq-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  align-items: start;
+}
+
 /* Responsive Layout */
 @media (max-width: 900px) {
+  .freq-grid-container {
+    grid-template-columns: 1fr;
+  }
+
   .historico-layout {
     grid-template-columns: 1fr;
   }

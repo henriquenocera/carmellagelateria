@@ -82,7 +82,8 @@ function HistoricoFuncionario() {
   const [feriadosGlobais, setFeriadosGlobais] = useState<{ id: string; date: string; name: string }[]>([]);
   const [feriadosTrabalhados, setFeriadosTrabalhados] = useState<{ id: string; data_feriado: string; nome_feriado: string; data_folga: string | null }[]>([]);
   const [loadingFeriados, setLoadingFeriados] = useState(false);
-  const [isFeriadosExpanded, setIsFeriadosExpanded] = useState(true);
+  const [isFeriadosExpanded, setIsFeriadosExpanded] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
 
   const freqYearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
   const freqMonthsList = [
@@ -214,20 +215,36 @@ function HistoricoFuncionario() {
 
     try {
       setSaving(true);
-      const { error } = await supabase
-        .from("historico_colaborador")
-        .insert([{
-          employee_id: id,
-          created_by: user.id,
-          type: formData.type,
-          date: formData.date,
-          title: formData.title,
-          description: formData.description,
-        }]);
 
-      if (error) throw error;
+      if (editingId) {
+        const { error } = await supabase
+          .from("historico_colaborador")
+          .update({
+            type: formData.type,
+            date: formData.date,
+            title: formData.title,
+            description: formData.description,
+          })
+          .eq("id", editingId);
+        
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("historico_colaborador")
+          .insert([{
+            employee_id: id,
+            created_by: user.id,
+            type: formData.type,
+            date: formData.date,
+            title: formData.title,
+            description: formData.description,
+          }]);
+        
+        if (error) throw error;
+      }
 
       // Reset form
+      setEditingId(null);
       setFormData({
         type: "Informação",
         date: todayStr,
@@ -239,10 +256,21 @@ function HistoricoFuncionario() {
       fetchHistoricoRecords(id);
     } catch (err: any) {
       console.error("Erro ao salvar histórico:", err);
-      alert("Falha ao salvar. Certifique-se de que a tabela 'historico_colaborador' foi criada.");
+      alert("Falha ao salvar. Certifique-se de que a tabela 'historico_colaborador' foi configurada.");
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleEdit = (record: any) => {
+    setEditingId(record.id);
+    setFormData({
+      type: record.type,
+      date: record.date,
+      title: record.title,
+      description: record.description,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (recordId: number) => {
@@ -558,7 +586,7 @@ function HistoricoFuncionario() {
             <div className="historico-layout">
               {/* Form Column */}
               <div className="historico-form-card">
-                <h2>Nova Ocorrência</h2>
+                <h2>{editingId ? "Editar Ocorrência" : "Nova Ocorrência"}</h2>
                 <form onSubmit={handleSave} className="historico-form">
                   <div className="form-group">
                     <label>Tipo</label>
@@ -611,16 +639,33 @@ function HistoricoFuncionario() {
                     />
                   </div>
 
-                  <button type="submit" className="primary-btn" disabled={saving} style={{ width: '100%', justifyContent: 'center' }}>
-                    {saving ? (
-                      <Icons.BsArrowClockwise className="spin" />
-                    ) : (
-                      <>
-                        <Icons.BsPlusLg />
-                        Salvar Registro
-                      </>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button type="submit" className="primary-btn" disabled={saving} style={{ flex: 1, justifyContent: 'center' }}>
+                      {saving ? (
+                        <Icons.BsArrowClockwise className="spin" />
+                      ) : (
+                        <>
+                          <Icons.BsSave />
+                          {editingId ? "Atualizar" : "Salvar Registro"}
+                        </>
+                      )}
+                    </button>
+                    {editingId && (
+                      <button 
+                        type="button" 
+                        className="secondary-btn" 
+                        disabled={saving} 
+                        onClick={() => {
+                          setEditingId(null);
+                          setFormData({ type: "Informação", date: todayStr, title: "", description: "" });
+                        }}
+                        style={{ padding: '8px 16px', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#475569', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                      >
+                        <Icons.BsX />
+                        Cancelar
+                      </button>
                     )}
-                  </button>
+                  </div>
                 </form>
               </div>
 
@@ -672,13 +717,23 @@ function HistoricoFuncionario() {
                               <span style={{ fontSize: '1.1rem' }}>
                                 Registrado em: {formatTimestamp(r.created_at)}
                               </span>
-                              <button
-                                onClick={() => handleDelete(r.id)}
-                                className="delete-record-btn"
-                                title="Excluir Ocorrência"
-                              >
-                                <Icons.BsTrash />
-                              </button>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button
+                                  onClick={() => handleEdit(r)}
+                                  className="edit-record-btn"
+                                  title="Editar Ocorrência"
+                                  style={{ background: 'none', border: 'none', color: 'var(--primary-color)', cursor: 'pointer', fontSize: '1.3rem' }}
+                                >
+                                  <Icons.BsPencilSquare />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(r.id)}
+                                  className="delete-record-btn"
+                                  title="Excluir Ocorrência"
+                                >
+                                  <Icons.BsTrash />
+                                </button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -793,10 +848,12 @@ function HistoricoFuncionario() {
               </div>
             )}
 
-            {/* Annual Summary Section */}
+            {/* Frequency Grids (Annual and Monthly) */}
             {employee?.controlar_frequencia !== false && (
-              <div className="freq-section">
-                <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsAnnualExpanded(!isAnnualExpanded)}>
+              <div className="freq-grid-container">
+                {/* Annual Summary Section */}
+                <div className="freq-section">
+                  <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsAnnualExpanded(!isAnnualExpanded)}>
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <h2 style={{ margin: 0 }}><Icons.BsCalendar3 style={{ marginRight: "8px" }} />Resumo Anual</h2>
                     <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
@@ -863,12 +920,10 @@ function HistoricoFuncionario() {
                   )}
                   </div>
                 )}
-              </div>
-            )}
+                </div>
 
-            {/* Monthly Frequency Section */}
-            {employee?.controlar_frequencia !== false && (
-              <div className="freq-section">
+                {/* Monthly Frequency Section */}
+                <div className="freq-section">
                 <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsMonthlyExpanded(!isMonthlyExpanded)}>
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <h2 style={{ margin: 0 }}><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência Mensal</h2>
@@ -970,6 +1025,7 @@ function HistoricoFuncionario() {
                   </div>
                   </>
                 )}
+                </div>
               </div>
             )}
 

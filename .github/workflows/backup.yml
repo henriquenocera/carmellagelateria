@@ -2,7 +2,7 @@ name: Supa-backup
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, escritorio ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
