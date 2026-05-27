@@ -650,3 +650,15 @@
 .cell-select-wrapper:hover {
   z-index: 250 !important;
 }
+
+/* Feriados Globais */
+.frequencia-table tr.holiday-row td.sticky-date,
+.frequencia-table tr.holiday-row td.sticky-day {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.frequencia-table tr.holiday-row td {
+  border-bottom: 2px solid #ef4444;
+  border-top: 2px solid #ef4444;
+}

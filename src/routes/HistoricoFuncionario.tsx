@@ -74,6 +74,16 @@ function HistoricoFuncionario() {
   const [annualRecords, setAnnualRecords] = useState<{ date: string; status: string }[]>([]);
   const [loadingAnnual, setLoadingAnnual] = useState(false);
 
+  // Expansion state
+  const [isAnnualExpanded, setIsAnnualExpanded] = useState(true);
+  const [isMonthlyExpanded, setIsMonthlyExpanded] = useState(true);
+
+  // Feriados state
+  const [feriadosGlobais, setFeriadosGlobais] = useState<{ id: string; date: string; name: string }[]>([]);
+  const [feriadosTrabalhados, setFeriadosTrabalhados] = useState<{ id: string; data_feriado: string; nome_feriado: string; data_folga: string | null }[]>([]);
+  const [loadingFeriados, setLoadingFeriados] = useState(false);
+  const [isFeriadosExpanded, setIsFeriadosExpanded] = useState(true);
+
   const freqYearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
   const freqMonthsList = [
     { value: 1, label: "Janeiro" }, { value: 2, label: "Fevereiro" },
@@ -311,6 +321,83 @@ function HistoricoFuncionario() {
     }
   }
 
+  async function fetchFeriadosTrabalhados(empId: string) {
+    try {
+      setLoadingFeriados(true);
+      const { data, error } = await supabase
+        .from("feriados_trabalhados")
+        .select("id, data_feriado, nome_feriado, data_folga")
+        .eq("employee_id", empId)
+        .order("data_feriado", { ascending: false });
+
+      if (error) throw error;
+      setFeriadosTrabalhados(data || []);
+    } catch (err) {
+      console.error("Erro ao buscar feriados trabalhados:", err);
+    } finally {
+      setLoadingFeriados(false);
+    }
+  }
+
+  async function fetchFeriadosGlobais(y: number) {
+    try {
+      setLoadingFeriados(true);
+      const startStr = `${y}-01-01`;
+      const endStr = `${y}-12-31`;
+
+      const { data, error } = await supabase
+        .from("feriados_globais")
+        .select("id, date, name")
+        .gte("date", startStr)
+        .lte("date", endStr)
+        .order("date", { ascending: true });
+
+      if (error) throw error;
+      setFeriadosGlobais(data || []);
+    } catch (err) {
+      console.error("Erro ao buscar feriados globais:", err);
+    } finally {
+      setLoadingFeriados(false);
+    }
+  }
+
+  async function handleUpdateFolga(globalFeriado: any, dataFolga: string) {
+    if (!id) return;
+    try {
+      setSaving(true);
+      const existing = feriadosTrabalhados.find(f => f.data_feriado === globalFeriado.date);
+      if (existing) {
+        const { error } = await supabase
+          .from("feriados_trabalhados")
+          .update({ data_folga: dataFolga || null })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("feriados_trabalhados").insert([{
+          employee_id: id,
+          data_feriado: globalFeriado.date,
+          nome_feriado: globalFeriado.name,
+          data_folga: dataFolga || null
+        }]);
+        if (error) throw error;
+      }
+      fetchFeriadosTrabalhados(id);
+    } catch (err: any) {
+      console.error("Erro ao atualizar data da folga:", err);
+      alert(err.message || "Erro ao atualizar data da folga");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+
+  useEffect(() => {
+    if (isAuthorized && id) {
+      fetchFeriadosTrabalhados(id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthorized, id]);
+
   useEffect(() => {
     if (isAuthorized && id) {
       fetchFrequency(id, freqMonth, freqYear);
@@ -321,6 +408,7 @@ function HistoricoFuncionario() {
   useEffect(() => {
     if (isAuthorized && id) {
       fetchAnnualFrequency(id, freqYear);
+      fetchFeriadosGlobais(freqYear);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, id, freqYear]);
@@ -601,12 +689,121 @@ function HistoricoFuncionario() {
               </div>
             </div>
 
+            {/* Feriados Trabalhados Section */}
+            {employee?.controlar_frequencia !== false && (
+              <div className="freq-section">
+                <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsFeriadosExpanded(!isFeriadosExpanded)}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <h2 style={{ margin: 0 }}><Icons.BsBriefcaseFill style={{ marginRight: "8px" }} />Feriados Trabalhados</h2>
+                    <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
+                      {isFeriadosExpanded ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
+                    </button>
+                  </div>
+                </div>
+
+                {isFeriadosExpanded && (
+                  <div className="freq-annual-summary-wrapper">
+                    {loadingFeriados ? (
+                      <div style={{ display: "flex", justifyContent: "center", padding: "20px" }}>
+                        <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.5rem", color: "var(--primary-color)" }} />
+                      </div>
+                    ) : feriadosGlobais.length === 0 ? (
+                      <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>Nenhum feriado global configurado para este ano.</p>
+                    ) : (
+                      <div className="freq-table-wrapper">
+                        <table className="freq-table">
+                          <thead>
+                            <tr>
+                              <th style={{ width: "20%" }}>Data</th>
+                              <th style={{ width: "30%" }}>Feriado</th>
+                              <th style={{ width: "15%", textAlign: "center" }}>Trabalhou?</th>
+                              <th style={{ width: "35%" }}>Folga Compensatória</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {feriadosGlobais.map((globalFeriado) => {
+                              const freqRecord = annualRecords.find(r => r.date === globalFeriado.date);
+                              let freqStatus = freqRecord?.status;
+                              if (!freqStatus) {
+                                const [y, m, d] = globalFeriado.date.split("-");
+                                const dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+                                const fixedOffDays = employee?.folgas_fixas ? employee.folgas_fixas.split(",") : [];
+                                const dayOfWeek = String(dateObj.getDay());
+                                freqStatus = fixedOffDays.includes(dayOfWeek) ? "Folga Fixa Semanal" : "Trabalhado";
+                              }
+                              
+                              const didWork = freqStatus === "Trabalhado";
+                              const trabalhadoRecord = feriadosTrabalhados.find(f => f.data_feriado === globalFeriado.date);
+
+                              return (
+                                <tr key={globalFeriado.id}>
+                                  <td style={{ fontWeight: 500 }}>{formatDisplayDate(globalFeriado.date)}</td>
+                                  <td>{globalFeriado.name}</td>
+                                  <td style={{ textAlign: "center" }}>
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }} title="Sincronizado automaticamente da tabela de Frequência">
+                                      {didWork ? (
+                                        <span className="type-badge badge-elogio" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "6px" }}>
+                                          <Icons.BsCheckCircleFill /> Sim
+                                        </span>
+                                      ) : (
+                                        <span className="type-badge" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "6px", backgroundColor: "#f1f5f9", color: "#64748b" }}>
+                                          <Icons.BsDashCircleFill /> Não
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
+                                  <td>
+                                    {!didWork ? (
+                                      <span style={{ color: "var(--text-muted)", fontSize: "1.2rem" }}>-</span>
+                                    ) : trabalhadoRecord?.data_folga ? (
+                                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span className="type-badge badge-elogio" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Tirada em: {formatDisplayDate(trabalhadoRecord.data_folga)}</span>
+                                        <button 
+                                          onClick={() => handleUpdateFolga(globalFeriado, "")} 
+                                          style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "4px" }}
+                                          title="Remover data da folga"
+                                          disabled={saving}
+                                        >
+                                          <Icons.BsXCircleFill />
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span className="type-badge badge-advertencia" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Pendente</span>
+                                        <input 
+                                          type="date" 
+                                          className="frequencia-select" 
+                                          style={{ width: "auto", padding: "4px 8px", minHeight: "auto", fontSize: "1.1rem" }}
+                                          onChange={(e) => handleUpdateFolga(globalFeriado, e.target.value)}
+                                          title="Registrar data da folga"
+                                          disabled={saving}
+                                        />
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Annual Summary Section */}
             {employee?.controlar_frequencia !== false && (
               <div className="freq-section">
-                <div className="freq-section-header">
-                  <h2><Icons.BsCalendar3 style={{ marginRight: "8px" }} />Resumo Anual</h2>
-                  <div className="freq-selectors">
+                <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsAnnualExpanded(!isAnnualExpanded)}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <h2 style={{ margin: 0 }}><Icons.BsCalendar3 style={{ marginRight: "8px" }} />Resumo Anual</h2>
+                    <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
+                      {isAnnualExpanded ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
+                    </button>
+                  </div>
+                  <div className="freq-selectors" onClick={(e) => e.stopPropagation()}>
                     <select className="freq-select" value={freqYear} onChange={(e) => setFreqYear(parseInt(e.target.value))}>
                       {freqYearsList.map((y) => (
                         <option key={y} value={y}>{y}</option>
@@ -615,8 +812,9 @@ function HistoricoFuncionario() {
                   </div>
                 </div>
 
-                <div className="freq-annual-summary-wrapper">
-                  {loadingAnnual ? (
+                {isAnnualExpanded && (
+                  <div className="freq-annual-summary-wrapper">
+                    {loadingAnnual ? (
                     <div style={{ display: "flex", justifyContent: "center", padding: "20px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.5rem", color: "var(--primary-color)" }} />
                     </div>
@@ -663,16 +861,22 @@ function HistoricoFuncionario() {
                       </table>
                     </div>
                   )}
-                </div>
+                  </div>
+                )}
               </div>
             )}
 
             {/* Monthly Frequency Section */}
             {employee?.controlar_frequencia !== false && (
               <div className="freq-section">
-                <div className="freq-section-header">
-                  <h2><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência Mensal</h2>
-                  <div className="freq-selectors">
+                <div className="freq-section-header" style={{ cursor: "pointer" }} onClick={() => setIsMonthlyExpanded(!isMonthlyExpanded)}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                    <h2 style={{ margin: 0 }}><Icons.BsCalendarCheck style={{ marginRight: "8px" }} />Frequência Mensal</h2>
+                    <button type="button" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)", display: "flex", alignItems: "center", padding: "4px" }}>
+                      {isMonthlyExpanded ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />}
+                    </button>
+                  </div>
+                  <div className="freq-selectors" onClick={(e) => e.stopPropagation()}>
                     <select className="freq-select" value={freqMonth} onChange={(e) => setFreqMonth(parseInt(e.target.value))}>
                       {freqMonthsList.map((m) => (
                         <option key={m.value} value={m.value}>{m.label}</option>
@@ -686,7 +890,9 @@ function HistoricoFuncionario() {
                   </div>
                 </div>
 
-                {/* Summary badges */}
+                {isMonthlyExpanded && (
+                  <>
+                    {/* Summary badges */}
                 <div className="freq-summary-row">
                   <div className="freq-summary-badge freq-badge-absence">
                     <Icons.BsXCircleFill />
@@ -761,7 +967,9 @@ function HistoricoFuncionario() {
                       </tbody>
                     </table>
                   )}
-                </div>
+                  </div>
+                  </>
+                )}
               </div>
             )}
 

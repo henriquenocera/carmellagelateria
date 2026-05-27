@@ -44,6 +44,7 @@ function Frequencia() {
 
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [attendance, setAttendance] = useState<AttendanceMap>({});
+  const [globalHolidays, setGlobalHolidays] = useState<{ [date: string]: string }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -194,6 +195,22 @@ function Frequencia() {
       }
       setAttendance(attMap);
       setComments(commMap);
+      const { data: feriadosData, error: feriadosError } = await supabase
+        .from("feriados_globais")
+        .select("*")
+        .gte("date", startOfMonthStr)
+        .lte("date", endOfMonthStr);
+
+      if (feriadosError) throw feriadosError;
+
+      const hMap: { [date: string]: string } = {};
+      if (feriadosData) {
+        feriadosData.forEach((f: any) => {
+          hMap[f.date] = f.name;
+        });
+      }
+      setGlobalHolidays(hMap);
+
     } catch (err: any) {
       console.error("Erro ao buscar frequência:", err);
       setError("Erro ao carregar os dados de frequência.");
@@ -624,14 +641,23 @@ function Frequencia() {
                   const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6; // Sunday or Saturday
                   const isToday = dateStr === todayStr;
                   const isNearBottom = rowIndex > datesList.length - 8;
+                  const isHoliday = globalHolidays[dateStr];
 
                   return (
                     <tr
                       key={dateStr}
-                      className={`${isWeekend ? "weekend" : ""} ${isToday ? "today" : ""}`}
+                      className={`${isWeekend ? "weekend" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday-row" : ""}`}
                     >
                       {/* Sticky Date */}
-                      <td className="sticky-date">{displayDate}</td>
+                      <td className="sticky-date">
+                        {displayDate}
+                        {isHoliday && (
+                          <Icons.BsBriefcaseFill 
+                            title={isHoliday} 
+                            style={{ marginLeft: "8px", color: "var(--primary-color)", fontSize: "1.2rem", verticalAlign: "middle" }} 
+                          />
+                        )}
+                      </td>
                       {/* Sticky Weekday */}
                       <td className="sticky-day">{weekdayStr}</td>
 

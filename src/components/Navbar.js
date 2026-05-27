@@ -144,6 +144,14 @@ function NavBar() {
                   <span className="text">Logs</span>
                 </NavLink>
               </li>
+              <li className={activeMenu ? "list active" : "list"}>
+                <NavLink to="/feriados-globais">
+                  <span className="icon">
+                    <Icons.BsBriefcaseFill />
+                  </span>
+                  <span className="text">Feriados Globais</span>
+                </NavLink>
+              </li>
             </>
           )}
         </ul>
