@@ -39,6 +39,34 @@ const TYPE_OPTIONS = [
   { value: "Outro", label: "Outro", colorClass: "outro", icon: <Icons.BsThreeDots /> },
 ];
 
+const FolgaDateInput = ({ globalFeriado, onSave, saving }: { globalFeriado: any, onSave: (gf: any, val: string) => void, saving: boolean }) => {
+  const [val, setVal] = useState("");
+  return (
+    <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+      <input
+        type="date"
+        className="frequencia-select"
+        style={{ width: "auto", padding: "4px 8px", minHeight: "auto", fontSize: "1.1rem", margin: 0, border: "1px solid #cbd5e1", borderRadius: "6px" }}
+        value={val}
+        onChange={(e) => setVal(e.target.value)}
+        title="Registrar data da folga"
+        disabled={saving}
+      />
+      {val && (
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); onSave(globalFeriado, val); }}
+          style={{ padding: "4px 8px", fontSize: "1.1rem", margin: 0, background: "var(--primary-color)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: 600 }}
+          disabled={saving}
+          title="Salvar data escolhida"
+        >
+          OK
+        </button>
+      )}
+    </div>
+  );
+};
+
 function HistoricoFuncionario() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -80,7 +108,7 @@ function HistoricoFuncionario() {
 
   // Feriados state
   const [feriadosGlobais, setFeriadosGlobais] = useState<{ id: string; date: string; name: string }[]>([]);
-  const [feriadosTrabalhados, setFeriadosTrabalhados] = useState<{ id: string; data_feriado: string; nome_feriado: string; data_folga: string | null }[]>([]);
+  const [feriadosTrabalhados, setFeriadosTrabalhados] = useState<{ id: string; data_feriado: string; nome_feriado: string; data_folga: string | null; pago_em_dobro?: boolean | null }[]>([]);
   const [loadingFeriados, setLoadingFeriados] = useState(false);
   const [isFeriadosExpanded, setIsFeriadosExpanded] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -375,7 +403,7 @@ function HistoricoFuncionario() {
       setLoadingFeriados(true);
       const { data, error } = await supabase
         .from("feriados_trabalhados")
-        .select("id, data_feriado, nome_feriado, data_folga")
+        .select("id, data_feriado, nome_feriado, data_folga, pago_em_dobro")
         .eq("employee_id", empId)
         .order("data_feriado", { ascending: false });
 
@@ -413,7 +441,7 @@ function HistoricoFuncionario() {
       if (existing) {
         const { error } = await supabase
           .from("feriados_trabalhados")
-          .update({ data_folga: dataFolga || null })
+          .update({ data_folga: dataFolga || null, pago_em_dobro: false })
           .eq("id", existing.id);
         if (error) throw error;
       } else {
@@ -421,14 +449,45 @@ function HistoricoFuncionario() {
           employee_id: id,
           data_feriado: globalFeriado.date,
           nome_feriado: globalFeriado.name,
-          data_folga: dataFolga || null
+          data_folga: dataFolga || null,
+          pago_em_dobro: false
         }]);
         if (error) throw error;
       }
-      fetchFeriadosTrabalhados(id);
+      await fetchFeriadosTrabalhados(id);
     } catch (err: any) {
       console.error("Erro ao atualizar data da folga:", err);
       alert(err.message || "Erro ao atualizar data da folga");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleUpdatePagoEmDobro(globalFeriado: any, pago: boolean) {
+    if (!id) return;
+    try {
+      setSaving(true);
+      const existing = feriadosTrabalhados.find(f => f.data_feriado === globalFeriado.date);
+      if (existing) {
+        const { error } = await supabase
+          .from("feriados_trabalhados")
+          .update({ pago_em_dobro: pago, data_folga: null })
+          .eq("id", existing.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("feriados_trabalhados").insert([{
+          employee_id: id,
+          data_feriado: globalFeriado.date,
+          nome_feriado: globalFeriado.name,
+          pago_em_dobro: pago,
+          data_folga: null
+        }]);
+        if (error) throw error;
+      }
+      await fetchFeriadosTrabalhados(id);
+    } catch (err: any) {
+      console.error("Erro ao atualizar pagamento em dobro:", err);
+      alert(err.message || "Erro ao atualizar pagamento em dobro");
     } finally {
       setSaving(false);
     }
@@ -831,11 +890,25 @@ function HistoricoFuncionario() {
                                   <td>
                                     {!didWork ? (
                                       <span style={{ color: "var(--text-muted)", fontSize: "1.2rem" }}>-</span>
+                                    ) : trabalhadoRecord?.pago_em_dobro ? (
+                                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                        <span className="type-badge badge-pago-dobro" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Pago em Dobro</span>
+                                        <button
+                                          type="button"
+                                          onClick={async (e) => { e.preventDefault(); await handleUpdatePagoEmDobro(globalFeriado, false); }}
+                                          style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "4px" }}
+                                          title="Remover pagamento em dobro"
+                                          disabled={saving}
+                                        >
+                                          <Icons.BsXCircleFill />
+                                        </button>
+                                      </div>
                                     ) : trabalhadoRecord?.data_folga ? (
                                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                        <span className="type-badge badge-elogio" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Tirada em: {formatDisplayDate(trabalhadoRecord.data_folga)}</span>
+                                        <span className="type-badge badge-folga-tirada" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Tirada em: {formatDisplayDate(trabalhadoRecord.data_folga)}</span>
                                         <button
-                                          onClick={() => handleUpdateFolga(globalFeriado, "")}
+                                          type="button"
+                                          onClick={async (e) => { e.preventDefault(); await handleUpdateFolga(globalFeriado, ""); }}
                                           style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: "4px" }}
                                           title="Remover data da folga"
                                           disabled={saving}
@@ -845,15 +918,23 @@ function HistoricoFuncionario() {
                                       </div>
                                     ) : (
                                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                        <span className="type-badge badge-advertencia" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem" }}>Pendente</span>
-                                        <input
-                                          type="date"
-                                          className="frequencia-select"
-                                          style={{ width: "auto", padding: "4px 8px", minHeight: "auto", fontSize: "1.1rem" }}
-                                          onChange={(e) => handleUpdateFolga(globalFeriado, e.target.value)}
-                                          title="Registrar data da folga"
-                                          disabled={saving}
-                                        />
+                                        <span className="type-badge badge-advertencia" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem", whiteSpace: "nowrap" }}>Pendente</span>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f8fafc", padding: "4px", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
+                                          <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                            <span style={{ fontSize: "0.9rem", color: "var(--text-muted)", fontWeight: 600 }}>Dar Folga:</span>
+                                            <FolgaDateInput globalFeriado={globalFeriado} onSave={handleUpdateFolga} saving={saving} />
+                                          </div>
+                                          <span style={{ color: "#cbd5e1", fontSize: "1.2rem", fontWeight: 300 }}>|</span>
+                                          <button
+                                            type="button"
+                                            onClick={(e) => { e.preventDefault(); handleUpdatePagoEmDobro(globalFeriado, true); }}
+                                            className="primary-btn"
+                                            style={{ padding: "6px 10px", fontSize: "1.1rem", margin: 0, whiteSpace: "nowrap" }}
+                                            disabled={saving}
+                                          >
+                                            Pagar em Dobro
+                                          </button>
+                                        </div>
                                       </div>
                                     )}
                                   </td>
