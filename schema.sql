@@ -314,7 +314,8 @@ CREATE TABLE IF NOT EXISTS "public"."feriados_trabalhados" (
     "data_feriado" "date" NOT NULL,
     "nome_feriado" "text" NOT NULL,
     "data_folga" "date",
-    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "pago_em_dobro" boolean DEFAULT false
 );
 
 
