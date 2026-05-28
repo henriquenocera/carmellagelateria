@@ -359,9 +359,24 @@ function Home() {
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                 {notificacoes.map((notif) => {
                   return (
-                    <div key={notif.id} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: "1px solid #fef2f2" }}>
-                      <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0 }} />
-                      <span style={{ color: "#ef4444", fontSize: "1.4rem", fontWeight: "600" }}>{notif.titulo}</span>
+                    <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "12px 0", borderBottom: "1px solid #f8fafc" }}>
+                      {notif.tipo === 'info' ? (
+                        <Icons.BsInfoCircle style={{ fontSize: "1.8rem", color: "#3b82f6", flexShrink: 0, marginTop: "2px" }} />
+                      ) : notif.tipo === 'aviso' ? (
+                        <Icons.BsExclamationCircle style={{ fontSize: "1.8rem", color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
+                      ) : (
+                        <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
+                      )}
+                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                        <span style={{ 
+                          color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444", 
+                          fontSize: "1.4rem", 
+                          fontWeight: "600" 
+                        }}>
+                          {notif.titulo}
+                        </span>
+                        {notif.mensagem && <span style={{ color: "#64748b", fontSize: "1.3rem", lineHeight: "1.4" }}>{notif.mensagem}</span>}
+                      </div>
                     </div>
                   );
                 })}

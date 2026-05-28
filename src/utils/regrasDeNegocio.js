@@ -33,7 +33,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
     if (estoque.ahu.vitrine > regras.ahu.maxVitrine) {
       notificacoes.push({
         id: 'ahu-vitrine-alta',
-        tipo: 'erro',
+        tipo: 'aviso',
         titulo: 'Excesso na Vitrine - Ahú',
         mensagem: `A vitrine está com ${estoque.ahu.vitrine} cubas expostas. O limite máximo da loja Ahú é de ${regras.ahu.maxVitrine} cubas.`
       });
@@ -41,7 +41,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
       // Regra 2: Vitrine abaixo do máximo
       notificacoes.push({
         id: 'ahu-vitrine-baixa',
-        tipo: 'info',
+        tipo: 'aviso',
         titulo: 'Vitrine Baixa - Ahú',
         mensagem: `A vitrine está com ${estoque.ahu.vitrine} cubas expostas. Há espaço para mais ${regras.ahu.maxVitrine - estoque.ahu.vitrine} cubas (O limite é ${regras.ahu.maxVitrine}).`
       });
@@ -51,7 +51,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
     if (totalAhu < regras.ahu.minTotal) {
       notificacoes.push({
         id: 'ahu-estoque-baixo',
-        tipo: 'aviso',
+        tipo: 'erro',
         titulo: 'Estoque Baixo de Cubas - Ahú',
         mensagem: `Atenção: A loja Ahú está com apenas ${totalAhu} cubas no total (Vitrine + Freezer). O mínimo de segurança é ${regras.ahu.minTotal} cubas.`
       });
@@ -136,7 +136,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
     if (estoque.altoxv.vitrine > regras.altoxv.maxVitrine) {
       notificacoes.push({
         id: 'altoxv-vitrine-alta',
-        tipo: 'erro',
+        tipo: 'aviso',
         titulo: 'Excesso na Vitrine - Alto da XV',
         mensagem: `A vitrine está com ${estoque.altoxv.vitrine} cubas expostas. O limite máximo do Alto da XV é de ${regras.altoxv.maxVitrine} cubas.`
       });
@@ -144,7 +144,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
       // Regra 2: Vitrine abaixo do máximo
       notificacoes.push({
         id: 'altoxv-vitrine-baixa',
-        tipo: 'info',
+        tipo: 'aviso',
         titulo: 'Vitrine Baixa - Alto da XV',
         mensagem: `A vitrine está com ${estoque.altoxv.vitrine} cubas expostas. Há espaço para mais ${regras.altoxv.maxVitrine - estoque.altoxv.vitrine} cubas (O limite é ${regras.altoxv.maxVitrine}).`
       });
@@ -154,7 +154,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
     if (totalXv < regras.altoxv.minTotal) {
       notificacoes.push({
         id: 'altoxv-estoque-baixo',
-        tipo: 'aviso',
+        tipo: 'erro',
         titulo: 'Estoque Baixo de Cubas - Alto da XV',
         mensagem: `Atenção: A loja Alto da XV está com apenas ${totalXv} cubas no total (Vitrine + Freezer). O mínimo de segurança é ${regras.altoxv.minTotal} cubas.`
       });
