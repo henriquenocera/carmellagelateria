@@ -147,7 +147,7 @@
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
   overflow: auto;
-  max-height: calc(100vh - 280px);
+  max-height: calc(100vh - 180px);
   position: relative;
 }
 
@@ -164,8 +164,8 @@
   background-color: #f7f1eb;
   color: var(--secondary-color);
   font-weight: 700;
-  padding: 12px 14px;
-  font-size: 1.3rem;
+  padding: 4px 6px;
+  font-size: 1.2rem;
   border-bottom: 2px solid var(--border-color);
   border-right: 1px solid var(--border-color);
   position: sticky;
@@ -221,7 +221,7 @@
   /* Let dropdown select fill the cell */
   border-bottom: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
-  height: 30px;
+  height: 22px;
 }
 
 /* Row highlights */
@@ -252,13 +252,13 @@
   border: none;
   outline: none;
   font-family: inherit;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 600;
   text-align: center;
   text-align-last: center;
   cursor: pointer;
   background-color: transparent;
-  padding: 2px 8px;
+  padding: 0 4px;
   transition: var(--transition);
   appearance: none;
   /* Hide default arrow to look clean */
