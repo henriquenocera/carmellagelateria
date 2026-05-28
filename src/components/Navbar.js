@@ -15,11 +15,20 @@ const MENU_CONFIG = [
     icon: <Icons.BsBriefcase />,
     id: "operacoes",
     subItems: [
-      { title: "Lojas", path: "/lojas" },
-      { title: "Estoque Lojas", path: "/estoque-lojas" },
+      { title: "Lojas - Checklists", path: "/lojas-checklist" },
+      { title: "Lojas - Cubas", path: "/lojas-cubas-estoque" },
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },
+    ]
+  },
+  {
+    title: "RH",
+    icon: <Icons.BsPerson />,
+    id: "rh",
+    subItems: [
       { title: "Frequência", path: "/frequencia" },
+      { title: "Cálculo de Vales", path: "/calculo-vales" },
+
     ]
   },
   {
@@ -31,14 +40,13 @@ const MENU_CONFIG = [
     ]
   },
   {
-    title: "Administrativo",
-    icon: <Icons.BsShieldLock />,
+    title: "Configurações",
+    icon: <Icons.BsGear />,
     id: "admin",
     adminOnly: true,
     subItems: [
-      { title: "Pessoas", path: "/cadastro-pessoas" },
-      { title: "Cálculo de Vales", path: "/calculo-vales" },
-      { title: "Feriados Globais", path: "/feriados-globais" },
+      { title: "Cadastro Pessoas", path: "/cadastro-pessoas" },
+      { title: "Cadastro Feriados", path: "/feriados-globais" },
       { title: "Logs", path: "/logs" },
     ]
   }
@@ -83,7 +91,7 @@ function NavBar() {
     if (changed) {
       setOpenMenus(newOpenMenus);
     }
-    
+
     // Auto-close sidebar on page change
     setSidebar(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps

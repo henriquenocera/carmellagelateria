@@ -94,8 +94,8 @@ const router = createBrowserRouter(
       <Route element={<ProtectedLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/textos-e-links" element={<TextosELinks />} />
-        <Route path="/lojas" element={<Lojas />} />
-        <Route path="/estoque-lojas" element={<EstoqueLojas />} />
+        <Route path="/lojas-checklist" element={<Lojas />} />
+        <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
         <Route path="/manual" element={<Manual />} />
         <Route path="/vales" element={<Vales />} />
         <Route path="/inventario" element={<Inventario />} />

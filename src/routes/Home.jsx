@@ -328,7 +328,7 @@ function Home() {
 
             </div>
             
-            <Link to="/estoque-lojas" style={{ display: "block", textAlign: "center", marginTop: "32px", color: "#4f46e5", textDecoration: "none", fontWeight: "600", fontSize: "1.3rem" }}>
+            <Link to="/lojas-cubas-estoque" style={{ display: "block", textAlign: "center", marginTop: "32px", color: "#4f46e5", textDecoration: "none", fontWeight: "600", fontSize: "1.3rem" }}>
               Ver Estoque Completo &rarr;
             </Link>
           </div>
