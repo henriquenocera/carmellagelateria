@@ -56,6 +56,30 @@ export const avaliarRegrasDeNegocio = (dados) => {
         mensagem: `Atenção: A loja Ahú está com apenas ${totalAhu} cubas no total (Vitrine + Freezer). O mínimo de segurança é ${regras.ahu.minTotal} cubas.`
       });
     }
+
+    if (estoque.ahu.itensVitrine) {
+      // Regra 3: Sabor obrigatório (Chocolate)
+      const temChocolate = estoque.ahu.itensVitrine.some(item => item.includes('chocolate'));
+      if (!temChocolate) {
+        notificacoes.push({
+          id: 'ahu-falta-chocolate',
+          tipo: 'aviso',
+          titulo: 'Falta de Chocolate na Vitrine - Ahú',
+          mensagem: 'O sabor Chocolate é obrigatório e não está presente na vitrine da loja Ahú.'
+        });
+      }
+
+      // Regra 4: Sabor obrigatório (Baunilha)
+      const temBaunilha = estoque.ahu.itensVitrine.some(item => item.includes('baunilha'));
+      if (!temBaunilha) {
+        notificacoes.push({
+          id: 'ahu-falta-baunilha',
+          tipo: 'aviso',
+          titulo: 'Falta de Baunilha na Vitrine - Ahú',
+          mensagem: 'O sabor Baunilha é obrigatório e não está presente na vitrine da loja Ahú.'
+        });
+      }
+    }
   }
 
   // Regras de Checklist - Loja Ahú
@@ -110,6 +134,30 @@ export const avaliarRegrasDeNegocio = (dados) => {
         titulo: 'Estoque Baixo de Cubas - Alto da XV',
         mensagem: `Atenção: A loja Alto da XV está com apenas ${totalXv} cubas no total (Vitrine + Freezer). O mínimo de segurança é ${regras.altoxv.minTotal} cubas.`
       });
+    }
+
+    if (estoque.altoxv.itensVitrine) {
+      // Regra 3: Sabor obrigatório (Chocolate)
+      const temChocolate = estoque.altoxv.itensVitrine.some(item => item.includes('chocolate'));
+      if (!temChocolate) {
+        notificacoes.push({
+          id: 'altoxv-falta-chocolate',
+          tipo: 'aviso',
+          titulo: 'Falta de Chocolate na Vitrine - Alto da XV',
+          mensagem: 'O sabor Chocolate é obrigatório e não está presente na vitrine da loja Alto da XV.'
+        });
+      }
+
+      // Regra 4: Sabor obrigatório (Baunilha)
+      const temBaunilha = estoque.altoxv.itensVitrine.some(item => item.includes('baunilha'));
+      if (!temBaunilha) {
+        notificacoes.push({
+          id: 'altoxv-falta-baunilha',
+          tipo: 'aviso',
+          titulo: 'Falta de Baunilha na Vitrine - Alto da XV',
+          mensagem: 'O sabor Baunilha é obrigatório e não está presente na vitrine da loja Alto da XV.'
+        });
+      }
     }
   }
 

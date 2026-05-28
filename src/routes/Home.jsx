@@ -86,17 +86,20 @@ function Home() {
 
         // 2. Fetch Estoque
         const [ahuRes, altoxvRes] = await Promise.all([
-          supabase.from("cardsahu").select("status").in("status", ["vitrine-atual", "freezer-estoque"]),
-          supabase.from("cardsaltoxv").select("status").in("status", ["vitrine-atual", "freezer-estoque"])
+          supabase.from("cardsahu").select("status, title").in("status", ["vitrine-atual", "freezer-estoque"]),
+          supabase.from("cardsaltoxv").select("status, title").in("status", ["vitrine-atual", "freezer-estoque"])
         ]);
 
         const calcEstoque = (data) => {
-          if (!data) return { vitrine: 0, estoque: 0 };
+          if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [] };
           return data.reduce((acc, curr) => {
-            if (curr.status === "vitrine-atual") acc.vitrine++;
+            if (curr.status === "vitrine-atual") {
+              acc.vitrine++;
+              if (curr.title) acc.itensVitrine.push(curr.title.toLowerCase());
+            }
             else if (curr.status === "freezer-estoque") acc.estoque++;
             return acc;
-          }, { vitrine: 0, estoque: 0 });
+          }, { vitrine: 0, estoque: 0, itensVitrine: [] });
         };
 
         const ahuEstoque = calcEstoque(ahuRes.data);
