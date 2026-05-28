@@ -46,6 +46,7 @@ const MENU_CONFIG = [
     subItems: [
       { title: "Cadastro Pessoas", path: "/cadastro-pessoas" },
       { title: "Cadastro Feriados", path: "/feriados-globais" },
+      { title: "Cadastro de Insumos", path: "/cadastro-insumos" },
       { title: "Logs", path: "/logs" },
     ]
   }
@@ -145,10 +146,10 @@ function NavBar() {
             const submenuHeight = visibleSubItems.reduce((acc, sub) => {
               const hasBadge = sub.adminOnly || isItemAdminOnly;
               if (hasBadge) {
-                return acc + (sub.title.length > 12 ? 70 : 58);
+                return acc + 65;
               }
-              return acc + 48;
-            }, 20);
+              return acc + 55;
+            }, 30);
 
             return (
               <li key={index} className={`nav-item accordion ${isOpen ? 'open' : ''} ${isChildActive ? 'child-active' : ''}`}>

@@ -22,7 +22,6 @@ export function AuthProvider({ children }) {
 
       if (data && data.ativo === false) {
         await supabase.auth.signOut();
-        alert("Sua conta está inativa no sistema. Entre em contato com o administrador.");
         setIsAdmin(false);
         return;
       }

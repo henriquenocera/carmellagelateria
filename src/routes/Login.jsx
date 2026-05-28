@@ -12,9 +12,10 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { session, loading } = useAuth();
+  const hasAttemptedLogin = React.useRef(false);
 
   useEffect(() => {
-    if (!loading && session) {
+    if (!loading && session && !hasAttemptedLogin.current) {
       navigate("/", { replace: true });
     }
   }, [loading, session, navigate]);
@@ -23,6 +24,7 @@ function Login() {
     e.preventDefault();
     setError("");
     setSubmitting(true);
+    hasAttemptedLogin.current = true;
 
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
