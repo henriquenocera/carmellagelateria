@@ -59,7 +59,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
 
     if (estoque.ahu.itensVitrine) {
       // Regra 3: Sabor obrigatório (Chocolate)
-      const temChocolate = estoque.ahu.itensVitrine.some(item => item.includes('chocolate'));
+      const temChocolate = estoque.ahu.itensVitrine.includes('chocolate');
       if (!temChocolate) {
         notificacoes.push({
           id: 'ahu-falta-chocolate',
@@ -70,13 +70,37 @@ export const avaliarRegrasDeNegocio = (dados) => {
       }
 
       // Regra 4: Sabor obrigatório (Baunilha)
-      const temBaunilha = estoque.ahu.itensVitrine.some(item => item.includes('baunilha'));
+      const temBaunilha = estoque.ahu.itensVitrine.includes('baunilha');
       if (!temBaunilha) {
         notificacoes.push({
           id: 'ahu-falta-baunilha',
           tipo: 'aviso',
           titulo: 'Falta de Baunilha na Vitrine - Ahú',
           mensagem: 'O sabor Baunilha é obrigatório e não está presente na vitrine da loja Ahú.'
+        });
+      }
+    }
+
+    if (estoque.ahu.itensEstoque) {
+      // Regra 5: Reserva obrigatória no Freezer (Chocolate)
+      const temChocolateFreezer = estoque.ahu.itensEstoque.includes('chocolate');
+      if (!temChocolateFreezer) {
+        notificacoes.push({
+          id: 'ahu-falta-chocolate-freezer',
+          tipo: 'aviso',
+          titulo: 'Falta de Chocolate no Freezer - Ahú',
+          mensagem: 'O sabor Chocolate precisa ter pelo menos 1 cuba de reserva no freezer da loja Ahú.'
+        });
+      }
+
+      // Regra 6: Reserva obrigatória no Freezer (Baunilha)
+      const temBaunilhaFreezer = estoque.ahu.itensEstoque.includes('baunilha');
+      if (!temBaunilhaFreezer) {
+        notificacoes.push({
+          id: 'ahu-falta-baunilha-freezer',
+          tipo: 'aviso',
+          titulo: 'Falta de Baunilha no Freezer - Ahú',
+          mensagem: 'O sabor Baunilha precisa ter pelo menos 1 cuba de reserva no freezer da loja Ahú.'
         });
       }
     }
@@ -138,7 +162,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
 
     if (estoque.altoxv.itensVitrine) {
       // Regra 3: Sabor obrigatório (Chocolate)
-      const temChocolate = estoque.altoxv.itensVitrine.some(item => item.includes('chocolate'));
+      const temChocolate = estoque.altoxv.itensVitrine.includes('chocolate');
       if (!temChocolate) {
         notificacoes.push({
           id: 'altoxv-falta-chocolate',
@@ -149,13 +173,37 @@ export const avaliarRegrasDeNegocio = (dados) => {
       }
 
       // Regra 4: Sabor obrigatório (Baunilha)
-      const temBaunilha = estoque.altoxv.itensVitrine.some(item => item.includes('baunilha'));
+      const temBaunilha = estoque.altoxv.itensVitrine.includes('baunilha');
       if (!temBaunilha) {
         notificacoes.push({
           id: 'altoxv-falta-baunilha',
           tipo: 'aviso',
           titulo: 'Falta de Baunilha na Vitrine - Alto da XV',
           mensagem: 'O sabor Baunilha é obrigatório e não está presente na vitrine da loja Alto da XV.'
+        });
+      }
+    }
+
+    if (estoque.altoxv.itensEstoque) {
+      // Regra 5: Reserva obrigatória no Freezer (Chocolate)
+      const temChocolateFreezer = estoque.altoxv.itensEstoque.includes('chocolate');
+      if (!temChocolateFreezer) {
+        notificacoes.push({
+          id: 'altoxv-falta-chocolate-freezer',
+          tipo: 'aviso',
+          titulo: 'Falta de Chocolate no Freezer - Alto da XV',
+          mensagem: 'O sabor Chocolate precisa ter pelo menos 1 cuba de reserva no freezer da loja Alto da XV.'
+        });
+      }
+
+      // Regra 6: Reserva obrigatória no Freezer (Baunilha)
+      const temBaunilhaFreezer = estoque.altoxv.itensEstoque.includes('baunilha');
+      if (!temBaunilhaFreezer) {
+        notificacoes.push({
+          id: 'altoxv-falta-baunilha-freezer',
+          tipo: 'aviso',
+          titulo: 'Falta de Baunilha no Freezer - Alto da XV',
+          mensagem: 'O sabor Baunilha precisa ter pelo menos 1 cuba de reserva no freezer da loja Alto da XV.'
         });
       }
     }

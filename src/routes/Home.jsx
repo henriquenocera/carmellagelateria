@@ -91,15 +91,18 @@ function Home() {
         ]);
 
         const calcEstoque = (data) => {
-          if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [] };
+          if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [] };
           return data.reduce((acc, curr) => {
             if (curr.status === "vitrine-atual") {
               acc.vitrine++;
-              if (curr.title) acc.itensVitrine.push(curr.title.toLowerCase());
+              if (curr.title) acc.itensVitrine.push(curr.title.trim().toLowerCase());
             }
-            else if (curr.status === "freezer-estoque") acc.estoque++;
+            else if (curr.status === "freezer-estoque") {
+              acc.estoque++;
+              if (curr.title) acc.itensEstoque.push(curr.title.trim().toLowerCase());
+            }
             return acc;
-          }, { vitrine: 0, estoque: 0, itensVitrine: [] });
+          }, { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [] });
         };
 
         const ahuEstoque = calcEstoque(ahuRes.data);

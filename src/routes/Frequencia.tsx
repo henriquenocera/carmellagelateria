@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
+import { Link } from "react-router-dom";
 import "../css/Frequencia.css";
 import supabase from "../supabase-client";
 import { useAuth } from "../AuthProvider";
@@ -624,7 +625,9 @@ function Frequencia() {
                     const displayName = p.short_id ? `${firstName}` : firstName;
                     return (
                       <th key={p.id} title={p.email} style={{ whiteSpace: 'nowrap' }}>
-                        <span>{displayName}</span>
+                        <Link to={`/cadastro-pessoas/${p.id}`} style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }} title={`Ver perfil de ${displayName}`}>
+                          <span style={{ textDecoration: 'underline', textDecorationColor: 'rgba(0,0,0,0.2)' }}>{displayName}</span>
+                        </Link>
                         <span style={{ marginLeft: '8px', fontSize: '1.2rem', fontWeight: 700, color: '#ffffff', background: '#784e21', padding: '2px 8px', borderRadius: '20px', display: 'inline-block', verticalAlign: 'middle', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                           {workedCount}d
                         </span>
