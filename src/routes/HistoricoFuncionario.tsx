@@ -437,12 +437,19 @@ function HistoricoFuncionario() {
     if (!id) return;
     try {
       setSaving(true);
-      const existing = feriadosTrabalhados.find(f => f.data_feriado === globalFeriado.date);
-      if (existing) {
+      // Busca diretamente no banco de dados para evitar duplicação por cache de tela
+      const { data: dbExisting } = await supabase
+        .from("feriados_trabalhados")
+        .select("id")
+        .eq("employee_id", id)
+        .eq("data_feriado", globalFeriado.date)
+        .maybeSingle();
+
+      if (dbExisting) {
         const { error } = await supabase
           .from("feriados_trabalhados")
           .update({ data_folga: dataFolga || null, pago_em_dobro: false })
-          .eq("id", existing.id);
+          .eq("id", dbExisting.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("feriados_trabalhados").insert([{
@@ -467,12 +474,19 @@ function HistoricoFuncionario() {
     if (!id) return;
     try {
       setSaving(true);
-      const existing = feriadosTrabalhados.find(f => f.data_feriado === globalFeriado.date);
-      if (existing) {
+      // Busca diretamente no banco de dados para evitar duplicação por cache de tela
+      const { data: dbExisting } = await supabase
+        .from("feriados_trabalhados")
+        .select("id")
+        .eq("employee_id", id)
+        .eq("data_feriado", globalFeriado.date)
+        .maybeSingle();
+
+      if (dbExisting) {
         const { error } = await supabase
           .from("feriados_trabalhados")
           .update({ pago_em_dobro: pago, data_folga: null })
-          .eq("id", existing.id);
+          .eq("id", dbExisting.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("feriados_trabalhados").insert([{

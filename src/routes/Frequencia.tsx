@@ -53,6 +53,7 @@ function Frequencia() {
   const today = new Date();
   const [month, setMonth] = useState<number>(today.getMonth() + 1); // 1-12
   const [year, setYear] = useState<number>(today.getFullYear());
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
 
   // Save status indicator: 'idle' | 'saving' | 'saved' | 'error'
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -98,6 +99,18 @@ function Frequencia() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthorized, month, year]);
+
+  // Scroll to today's date once data is loaded
+  useEffect(() => {
+    if (!loading && profiles.length > 0) {
+      setTimeout(() => {
+        const todayRow = document.querySelector('.frequencia-table tr.today');
+        if (todayRow) {
+          todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+    }
+  }, [loading, month, year, profiles.length]);
 
   async function checkAccess() {
     if (!user) return;
@@ -165,10 +178,12 @@ function Frequencia() {
       setLoading(true);
       setError(null);
 
-      // Generate date range for selected month
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const startOfMonthStr = `${year}-${String(month).padStart(2, "0")}-01`;
-      const endOfMonthStr = `${year}-${String(month).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
+      // Generate date range for 3 months: prev, current, next
+      const startOfPrevMonth = new Date(year, month - 2, 1);
+      const endOfNextMonth = new Date(year, month + 1, 0);
+
+      const startOfMonthStr = `${startOfPrevMonth.getFullYear()}-${String(startOfPrevMonth.getMonth() + 1).padStart(2, "0")}-01`;
+      const endOfMonthStr = `${endOfNextMonth.getFullYear()}-${String(endOfNextMonth.getMonth() + 1).padStart(2, "0")}-${String(endOfNextMonth.getDate()).padStart(2, "0")}`;
 
       const { data, error: dbError } = await supabase
         .from("frequencia")
@@ -317,13 +332,28 @@ function Frequencia() {
     }
   };
 
-  // Generate days array for the selected month
+  // Generate days array for 3 months (prev, current, next)
   const getDaysArray = () => {
-    const daysInMonth = new Date(year, month, 0).getDate();
     const dates = [];
+    
+    // Previous Month
+    const prevMonthDays = new Date(year, month - 1, 0).getDate();
+    for (let d = 1; d <= prevMonthDays; d++) {
+      dates.push(new Date(year, month - 2, d));
+    }
+    
+    // Current Month
+    const daysInMonth = new Date(year, month, 0).getDate();
     for (let d = 1; d <= daysInMonth; d++) {
       dates.push(new Date(year, month - 1, d));
     }
+    
+    // Next Month
+    const nextMonthDays = new Date(year, month + 1, 0).getDate();
+    for (let d = 1; d <= nextMonthDays; d++) {
+      dates.push(new Date(year, month, d));
+    }
+    
     return dates;
   };
 
@@ -336,6 +366,11 @@ function Frequencia() {
     const regDate = profile?.data_registro;
 
     datesList.forEach((dateObj) => {
+      // Conta apenas para o mês selecionado no topo
+      if (dateObj.getMonth() !== month - 1) {
+        return;
+      }
+
       const dateStr = getLocalDateString(dateObj);
       
       // Se a data do dia for anterior à data de admissão, não conta como trabalhado
@@ -402,6 +437,23 @@ function Frequencia() {
     }
   };
 
+  const handleGoToToday = () => {
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
+    
+    if (month === currentMonth && year === currentYear) {
+      // Já está no mês atual, só faz o scroll
+      const todayRow = document.querySelector('.frequencia-table tr.today');
+      if (todayRow) {
+        todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    } else {
+      // Muda para o mês atual, e o useEffect vai cuidar de fazer o scroll quando carregar
+      setMonth(currentMonth);
+      setYear(currentYear);
+    }
+  };
+
   const handleStatusChange = async (employeeId: string, dateStr: string, newStatus: string) => {
     setSaveStatus("saving");
     const cacheKey = `${employeeId}_${dateStr}`;
@@ -441,13 +493,14 @@ function Frequencia() {
   };
 
   const handleExportCSV = () => {
-    if (profiles.length === 0) return;
+    const displayProfiles = selectedEmployee === "all" ? profiles : profiles.filter(p => p.id === selectedEmployee);
+    if (displayProfiles.length === 0) return;
 
     // Build CSV Headers
     const headers = [
       "Data",
       "Dia",
-      ...profiles.map((p) => `${p.short_id ? p.short_id + " - " : ""}${p.name}`),
+      ...displayProfiles.map((p) => `${p.short_id ? p.short_id + " - " : ""}${p.name}`),
     ];
 
     // Build CSV Rows
@@ -456,7 +509,7 @@ function Frequencia() {
       const displayDate = formatDisplayDate(dateStr);
       const weekday = getWeekdayAbbreviation(dateObj);
 
-      const empStatuses = profiles.map((p) => {
+      const empStatuses = displayProfiles.map((p) => {
         const key = `${p.id}_${dateStr}`;
         const weekdayVal = String(dateObj.getDay());
         const fixedOffDays = p.folgas_fixas ? p.folgas_fixas.split(",") : [];
@@ -509,6 +562,8 @@ function Frequencia() {
   }
 
   const todayStr = getLocalDateString(today);
+
+  const displayProfiles = selectedEmployee === "all" ? profiles : profiles.filter(p => p.id === selectedEmployee);
 
   return (
     <>
@@ -564,6 +619,21 @@ function Frequencia() {
             <button className="nav-btn" onClick={() => handleMonthNavigation("next")} title="Próximo Mês">
               <Icons.BsChevronRight />
             </button>
+            <button className="nav-btn" onClick={handleGoToToday} title="Ir para o dia de hoje" style={{ marginLeft: "8px", fontWeight: "bold" }}>
+              Hoje
+            </button>
+
+            <select
+              className="frequencia-select"
+              style={{ marginLeft: "16px", maxWidth: "200px" }}
+              value={selectedEmployee}
+              onChange={(e) => setSelectedEmployee(e.target.value)}
+            >
+              <option value="all">Todos os Funcionários</option>
+              {profiles.map(p => (
+                <option key={p.id} value={p.id}>{p.name.split(" ")[0]}</option>
+              ))}
+            </select>
           </div>
 
           <div className="actions-group">
@@ -619,12 +689,12 @@ function Frequencia() {
                 <tr>
                   <th className="sticky-date">Data</th>
                   <th className="sticky-day">Dia</th>
-                  {profiles.map((p) => {
+                  {displayProfiles.map((p) => {
                     const workedCount = getWorkedDaysCount(p.id);
                     const firstName = p.name.split(" ")[0] || p.name;
                     const displayName = p.short_id ? `${firstName}` : firstName;
                     return (
-                      <th key={p.id} title={p.email} style={{ whiteSpace: 'nowrap' }}>
+                      <th key={p.id} title={p.email} style={{ whiteSpace: 'nowrap', width: selectedEmployee !== "all" ? "250px" : "auto", minWidth: selectedEmployee !== "all" ? "250px" : "auto" }}>
                         <Link to={`/cadastro-pessoas/${p.id}`} style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }} title={`Ver perfil de ${displayName}`}>
                           <span style={{ textDecoration: 'underline', textDecorationColor: 'rgba(0,0,0,0.2)' }}>{displayName}</span>
                         </Link>
@@ -634,6 +704,7 @@ function Frequencia() {
                       </th>
                     );
                   })}
+                  {selectedEmployee !== "all" && <th style={{ width: "100%", background: "transparent", borderRight: "none" }}></th>}
                 </tr>
               </thead>
               <tbody>
@@ -645,11 +716,13 @@ function Frequencia() {
                   const isToday = dateStr === todayStr;
                   const isNearBottom = rowIndex > datesList.length - 8;
                   const isHoliday = globalHolidays[dateStr];
+                  const isCurrentMonth = dateObj.getMonth() === month - 1;
+                  const isFirstDay = dateObj.getDate() === 1;
 
                   return (
                     <tr
                       key={dateStr}
-                      className={`${isWeekend ? "weekend" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday-row" : ""}`}
+                      className={`${isWeekend ? "weekend" : ""} ${isToday ? "today" : ""} ${isHoliday ? "holiday-row" : ""} ${!isCurrentMonth ? "other-month-row" : ""} ${isFirstDay ? "first-day-row" : ""}`}
                     >
                       {/* Sticky Date */}
                       <td className="sticky-date">
@@ -665,7 +738,7 @@ function Frequencia() {
                       <td className="sticky-day">{weekdayStr}</td>
 
                       {/* Employee Dropdowns */}
-                      {profiles.map((p) => {
+                      {displayProfiles.map((p) => {
                         const cellKey = `${p.id}_${dateStr}`;
                         const weekdayVal = String(dateObj.getDay());
                         const fixedOffDays = p.folgas_fixas ? p.folgas_fixas.split(",") : [];
@@ -748,6 +821,7 @@ function Frequencia() {
                           </td>
                         );
                       })}
+                      {selectedEmployee !== "all" && <td style={{ width: "100%", borderRight: "none" }}></td>}
                     </tr>
                   );
                 })}
@@ -756,20 +830,6 @@ function Frequencia() {
           </div>
         )}
 
-        {/* Legend Panel */}
-        <div className="frequencia-legend-card">
-          <h3>Legenda e Atalhos de Cores</h3>
-          <div className="legend-items">
-            {STATUS_OPTIONS.map((opt) => (
-              <div
-                key={opt.value}
-                className={`legend-badge ${opt.className}`}
-              >
-                {opt.label}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Modal de Comentário */}

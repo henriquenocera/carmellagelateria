@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import * as Icons from "react-icons/bs";
 import "../css/CadastroPessoas.css";
 import supabase from "../supabase-client";
+import { useAuth } from "../AuthProvider";
 
 interface Profile {
   id: string;
@@ -16,6 +17,7 @@ interface Profile {
 }
 
 function Funcionarios() {
+  const { isAdmin } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -108,7 +110,14 @@ function Funcionarios() {
                   <th>Nome</th>
                   <th>E-mail</th>
                   <th>Data Registro</th>
-                  <th style={{ textAlign: "center" }}>Feriados em Aberto</th>
+                  {isAdmin && (
+                    <th style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                        <span style={{ background: "#fef3c7", color: "#d97706", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold", width: "fit-content" }}>Admin</span>
+                        <span>Feriados em Aberto</span>
+                      </div>
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -122,9 +131,11 @@ function Funcionarios() {
                     </td>
                     <td>{p.email || "-"}</td>
                     <td>{p.data_registro ? p.data_registro.split('-').reverse().join('/') : "-"}</td>
-                    <td style={{ textAlign: "center", fontWeight: "bold", color: (p.feriadosAbertos || 0) > 0 ? "#ef4444" : "inherit" }}>
-                      {p.feriadosAbertos || 0}
-                    </td>
+                    {isAdmin && (
+                      <td style={{ textAlign: "center", fontWeight: "bold", color: (p.feriadosAbertos || 0) > 0 ? "#ef4444" : "inherit" }}>
+                        {p.feriadosAbertos || 0}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
