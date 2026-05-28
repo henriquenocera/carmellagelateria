@@ -24,16 +24,21 @@ const getLocalDateString = (date) => {
 };
 
 const parseChecklistField = (fieldStr) => {
-  if (!fieldStr) return { main: "-", sub: null };
+  if (!fieldStr) return { main: "-", subItems: [] };
   const str = String(fieldStr).trim();
   const bracketIndex = str.indexOf('[');
   if (bracketIndex !== -1) {
     const main = str.substring(0, bracketIndex).trim();
-    let sub = str.substring(bracketIndex);
-    sub = sub.replace('venc. ', 'venc.\n');
-    return { main, sub };
+    const subStr = str.substring(bracketIndex).trim();
+    if (subStr.startsWith('[') && subStr.endsWith(']')) {
+      const content = subStr.slice(1, -1).trim();
+      if (content) {
+        const subItems = content.split(',').map(item => item.trim()).filter(Boolean);
+        return { main, subItems };
+      }
+    }
   }
-  return { main: str, sub: null };
+  return { main: str, subItems: [] };
 };
 
 const getFolgaStyle = (status) => {
@@ -181,27 +186,78 @@ function Home() {
           <div style={{ borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ fontSize: "1rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" }}>MASSAS</div>
             <div style={{ fontSize: "2.8rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", lineHeight: "1" }}>{massas.main}</div>
-            {massas.sub && <div style={{ fontSize: "1rem", background: "#fdf8f4", color: "#8c6b51", padding: "4px 8px", borderRadius: "6px", fontWeight: "600", display: "inline-block", whiteSpace: "pre-line" }}>{massas.sub}</div>}
+            {massas.subItems && massas.subItems.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", width: "100%" }}>
+                {massas.subItems.map((item, idx) => (
+                  <div key={idx} style={{ fontSize: "1rem", background: "#fdf8f4", color: "#8c6b51", padding: "4px 8px", borderRadius: "6px", fontWeight: "600", display: "inline-block", textAlign: "center", whiteSpace: "nowrap" }}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div style={{ borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ fontSize: "1rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" }}>BROWNIES</div>
             <div style={{ fontSize: "2.8rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", lineHeight: "1" }}>{brownies.main}</div>
-            {brownies.sub && <div style={{ fontSize: "1rem", background: "#fdf8f4", color: "#8c6b51", padding: "4px 8px", borderRadius: "6px", fontWeight: "600", display: "inline-block", whiteSpace: "pre-line" }}>{brownies.sub}</div>}
+            {brownies.subItems && brownies.subItems.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", width: "100%" }}>
+                {brownies.subItems.map((item, idx) => (
+                  <div key={idx} style={{ fontSize: "1rem", background: "#fdf8f4", color: "#8c6b51", padding: "4px 8px", borderRadius: "6px", fontWeight: "600", display: "inline-block", textAlign: "center", whiteSpace: "nowrap" }}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ fontSize: "1rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" }}>PANOS</div>
             <div style={{ fontSize: "2.8rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", lineHeight: "1" }}>{panos.main}</div>
-            {panos.sub && <div style={{ fontSize: "1rem", background: "#fdf8f4", color: "#8c6b51", padding: "4px 8px", borderRadius: "6px", fontWeight: "600", display: "inline-block", whiteSpace: "pre-line" }}>{panos.sub}</div>}
+            {panos.subItems && panos.subItems.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center", width: "100%" }}>
+                {panos.subItems.map((item, idx) => (
+                  <div key={idx} style={{ fontSize: "1rem", background: "#fdf8f4", color: "#8c6b51", padding: "4px 8px", borderRadius: "6px", fontWeight: "600", display: "inline-block", textAlign: "center", whiteSpace: "nowrap" }}>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
         </div>
 
         {/* Footer Row */}
-        <div style={{ borderTop: "1px solid #f1f5f9", paddingTop: "16px", display: "flex", justifyContent: "space-between", color: "#a68a71", fontSize: "1.2rem", fontWeight: "500", marginTop: "auto" }}>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Icons.BsPerson /> {data.person}</span>
-          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><Icons.BsClock /> {formatDateAndTime(data.created_at)}</span>
+        <div style={{ 
+          borderTop: "1px solid #f3ebe4", 
+          paddingTop: "16px", 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center", 
+          marginTop: "auto" 
+        }}>
+          <span style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "6px", 
+            color: "#6b503c", 
+            fontSize: "1.3rem", 
+            fontWeight: "600" 
+          }}>
+            <Icons.BsPerson style={{ color: "#a17550", fontSize: "1.5rem" }} /> 
+            {data.person}
+          </span>
+          <span style={{ 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "6px", 
+            color: "#8c7664", 
+            fontSize: "1.25rem", 
+            fontWeight: "500" 
+          }}>
+            <Icons.BsClock style={{ color: "#a17550", fontSize: "1.3rem" }} /> 
+            {formatDateAndTime(data.created_at)}
+          </span>
         </div>
       </div>
     );
