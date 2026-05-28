@@ -26,6 +26,7 @@ const MENU_CONFIG = [
     icon: <Icons.BsPerson />,
     id: "rh",
     subItems: [
+      { title: "Funcionários", path: "/funcionarios" },
       { title: "Frequência", path: "/frequencia" },
       { title: "Cálculo de Vales", path: "/calculo-vales", adminOnly: true },
     ]

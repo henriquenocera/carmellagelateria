@@ -34,6 +34,7 @@ import Logs from "./routes/Logs.tsx";
 import FeriadosGlobais from "./routes/FeriadosGlobais.tsx";
 import EstoqueLojas from "./routes/EstoqueLojas.jsx";
 import CadastroInsumos from "./routes/CadastroInsumos.tsx";
+import Funcionarios from "./routes/Funcionarios.tsx";
 import supabase from "./supabase-client";
 
 const ProtectedLayout = () => {
@@ -59,6 +60,7 @@ const ProtectedLayout = () => {
   }, [location.pathname, session]);
 
   if (loading) {
+    console.log("ProtectedLayout is rendering Carregando... session:", session, "supabaseUrl:", process.env.REACT_APP_SUPABASE_URL);
     return <div style={{ padding: "2rem", textAlign: "center" }}>Carregando...</div>;
   }
 
@@ -110,6 +112,7 @@ const router = createBrowserRouter(
         <Route path="/status" element={<Status />} />
         <Route path="/cadastro-pessoas" element={<CadastroPessoas />} />
         <Route path="/cadastro-pessoas/:id" element={<HistoricoFuncionario />} />
+        <Route path="/funcionarios" element={<Funcionarios />} />
         <Route path="/frequencia" element={<Frequencia />} />
         <Route path="/calculo-vales" element={<CalculoVales />} />
         <Route path="/logs" element={<Logs />} />
