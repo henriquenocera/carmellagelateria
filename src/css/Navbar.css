@@ -186,6 +186,8 @@ body {
   opacity: 1;
   pointer-events: auto;
   display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .nav-link.active .text,
@@ -238,8 +240,9 @@ body {
   display: flex;
   align-items: center;
   text-decoration: none;
-  height: 45px;
-  padding: 0 15px 0 20px;
+  min-height: 45px;
+  height: auto;
+  padding: 6px 15px 6px 20px;
   color: #666;
   font-size: 1.4rem;
   transition: 0.3s;
@@ -340,4 +343,36 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+}
+
+.submenu-link .text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  line-height: 1.25;
+  width: 100%;
+}
+
+.admin-badge-sub {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #ffe4e6;
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  margin-top: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }

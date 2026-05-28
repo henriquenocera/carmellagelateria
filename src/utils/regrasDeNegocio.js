@@ -42,7 +42,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
       notificacoes.push({
         id: 'ahu-vitrine-baixa',
         tipo: 'info',
-        titulo: 'Espaço na Vitrine - Ahú',
+        titulo: 'Vitrine Baixa - Ahú',
         mensagem: `A vitrine está com ${estoque.ahu.vitrine} cubas expostas. Há espaço para mais ${regras.ahu.maxVitrine - estoque.ahu.vitrine} cubas (O limite é ${regras.ahu.maxVitrine}).`
       });
     }
@@ -97,7 +97,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
       notificacoes.push({
         id: 'altoxv-vitrine-baixa',
         tipo: 'info',
-        titulo: 'Espaço na Vitrine - Alto da XV',
+        titulo: 'Vitrine Baixa - Alto da XV',
         mensagem: `A vitrine está com ${estoque.altoxv.vitrine} cubas expostas. Há espaço para mais ${regras.altoxv.maxVitrine - estoque.altoxv.vitrine} cubas (O limite é ${regras.altoxv.maxVitrine}).`
       });
     }
