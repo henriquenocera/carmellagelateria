@@ -6,6 +6,16 @@ import "../css/HistoricoFuncionario.css";
 import supabase from "../supabase-client";
 import { useAuth } from "../AuthProvider";
 
+const WEEKDAYS = [
+  { value: "1", label: "SEG" },
+  { value: "2", label: "TER" },
+  { value: "3", label: "QUA" },
+  { value: "4", label: "QUI" },
+  { value: "5", label: "SEX" },
+  { value: "6", label: "SÁB" },
+  { value: "0", label: "DOM" }
+];
+
 interface Profile {
   id: string;
   name: string;
@@ -16,6 +26,8 @@ interface Profile {
   data_registro?: string | null;
   controlar_frequencia?: boolean | null;
   ativo?: boolean | null;
+  passagens_urbs?: number | null;
+  passagens_metrocard?: number | null;
 }
 
 interface HistoricoRecord {
@@ -80,7 +92,12 @@ function HistoricoFuncionario() {
   const [loadingEmployee, setLoadingEmployee] = useState(true);
   const [loadingRecords, setLoadingRecords] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingEmployee, setSavingEmployee] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [employeeFormData, setEmployeeFormData] = useState({
+    name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true, data_registro: "", passagens_urbs: 0, passagens_metrocard: 0
+  });
 
   // Form state
   const todayStr = new Date().toISOString().split("T")[0];
@@ -192,12 +209,24 @@ function HistoricoFuncionario() {
       setLoadingEmployee(true);
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name, email, short_id, is_admin, folgas_fixas, data_registro, controlar_frequencia, ativo")
+        .select("id, name, email, short_id, is_admin, folgas_fixas, data_registro, controlar_frequencia, ativo, passagens_urbs, passagens_metrocard")
         .eq("id", empId)
         .single();
 
       if (error) throw error;
       setEmployee(data);
+      setEmployeeFormData({
+        name: data.name || "",
+        email: data.email || "",
+        short_id: data.short_id || "",
+        is_admin: data.is_admin || false,
+        controlar_frequencia: data.controlar_frequencia !== false,
+        folgas_fixas: data.folgas_fixas || "",
+        ativo: data.ativo !== false,
+        data_registro: data.data_registro || "",
+        passagens_urbs: data.passagens_urbs ?? 0,
+        passagens_metrocard: data.passagens_metrocard ?? 0
+      });
     } catch (err) {
       console.error("Erro ao buscar dados do funcionário:", err);
       setError("Não foi possível carregar os dados deste funcionário.");
@@ -205,6 +234,52 @@ function HistoricoFuncionario() {
       setLoadingEmployee(false);
     }
   }
+
+  const handleSaveEmployee = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!id) return;
+    if (!employeeFormData.name || !employeeFormData.email) {
+      alert("Preencha nome e e-mail.");
+      return;
+    }
+    try {
+      setSavingEmployee(true);
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({
+          name: employeeFormData.name,
+          email: employeeFormData.email,
+          short_id: employeeFormData.short_id,
+          is_admin: employeeFormData.is_admin,
+          controlar_frequencia: employeeFormData.controlar_frequencia,
+          folgas_fixas: employeeFormData.folgas_fixas,
+          ativo: employeeFormData.ativo,
+          data_registro: employeeFormData.data_registro || null,
+          passagens_urbs: employeeFormData.passagens_urbs,
+          passagens_metrocard: employeeFormData.passagens_metrocard,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", id);
+      if (updateError) throw updateError;
+      alert("Dados atualizados com sucesso!");
+      fetchEmployeeInfo(id);
+    } catch (err: any) {
+      console.error("Erro ao salvar perfil:", err);
+      alert(`Erro ao salvar: ${err.message}`);
+    } finally {
+      setSavingEmployee(false);
+    }
+  };
+
+  const handleWeekdayToggle = (dayVal: string) => {
+    let currentDays = employeeFormData.folgas_fixas ? employeeFormData.folgas_fixas.split(",") : [];
+    if (currentDays.includes(dayVal)) {
+      currentDays = currentDays.filter((d) => d !== dayVal);
+    } else {
+      currentDays.push(dayVal);
+    }
+    setEmployeeFormData({ ...employeeFormData, folgas_fixas: currentDays.join(",") });
+  };
 
   async function fetchHistoricoRecords(empId: string) {
     try {
@@ -319,7 +394,6 @@ function HistoricoFuncionario() {
       title: record.title,
       description: record.description,
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (recordId: number) => {
@@ -638,7 +712,7 @@ function HistoricoFuncionario() {
   return (
     <>
       <Helmet>
-        <title>Histórico de Ocorrências</title>
+        <title>Ficha Cadastral</title>
       </Helmet>
 
       <div className="historico-container">
@@ -672,6 +746,142 @@ function HistoricoFuncionario() {
           </div>
         ) : (
           <>
+            {/* Employee Edit Form Card */}
+            <div className="historico-form-card" style={{ marginBottom: '24px', maxWidth: '100%' }}>
+              <h2>Editar Pessoa</h2>
+              <form onSubmit={handleSaveEmployee} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
+                  {/* Left Column: Personal and Account Status */}
+                  <div style={{ flex: "1 1 400px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <div className="form-group" style={{ width: "100px" }}>
+                        <label>ID (MÁX 4)</label>
+                        <input
+                          type="text"
+                          maxLength={4}
+                          value={employeeFormData.short_id}
+                          onChange={(e) => setEmployeeFormData({ ...employeeFormData, short_id: e.target.value.replace(/\D/g, '') })}
+                          placeholder="Ex: 1234"
+                          style={{ padding: "8px 12px", border: "1px solid var(--border-color)", borderRadius: "8px", fontSize: "1.4rem" }}
+                        />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>NOME</label>
+                        <input
+                          type="text"
+                          required
+                          value={employeeFormData.name}
+                          onChange={(e) => setEmployeeFormData({ ...employeeFormData, name: e.target.value })}
+                          placeholder="Ex: João Silva"
+                          style={{ padding: "8px 12px", border: "1px solid var(--border-color)", borderRadius: "8px", fontSize: "1.4rem" }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>E-MAIL</label>
+                      <input
+                        type="email"
+                        required
+                        value={employeeFormData.email}
+                        onChange={(e) => setEmployeeFormData({ ...employeeFormData, email: e.target.value })}
+                        placeholder="joao@exemplo.com"
+                        style={{ padding: "8px 12px", border: "1px solid var(--border-color)", borderRadius: "8px", fontSize: "1.4rem" }}
+                      />
+                    </div>
+
+
+                  </div>
+
+                  {/* Vertical Divider */}
+                  <div style={{ width: "1px", backgroundColor: "var(--border-color)", alignSelf: "stretch" }} className="hide-on-mobile"></div>
+
+                  {/* Right Column: Admission date, tickets and fix offdays */}
+                  <div style={{ flex: "1 1 400px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                    <div className="form-group">
+                      <label>DATA DE ADMISSÃO / REGISTRO</label>
+                      <input
+                        type="date"
+                        value={employeeFormData.data_registro}
+                        onChange={(e) => setEmployeeFormData({ ...employeeFormData, data_registro: e.target.value })}
+                        style={{ padding: "8px 12px", border: "1px solid var(--border-color)", borderRadius: "8px", fontSize: "1.4rem", fontFamily: "inherit" }}
+                      />
+                    </div>
+
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label style={{ textTransform: "none" }}>Passagens URBS (Dia)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={employeeFormData.passagens_urbs}
+                          onChange={(e) => setEmployeeFormData({ ...employeeFormData, passagens_urbs: parseInt(e.target.value) || 0 })}
+                          placeholder="Ex: 2"
+                          style={{ padding: "8px 12px", border: "1px solid var(--border-color)", borderRadius: "8px", fontSize: "1.4rem" }}
+                        />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label style={{ textTransform: "none" }}>Passagens Metrocard (Dia)</label>
+                        <input
+                          type="number"
+                          min={0}
+                          value={employeeFormData.passagens_metrocard}
+                          onChange={(e) => setEmployeeFormData({ ...employeeFormData, passagens_metrocard: parseInt(e.target.value) || 0 })}
+                          placeholder="Ex: 2"
+                          style={{ padding: "8px 12px", border: "1px solid var(--border-color)", borderRadius: "8px", fontSize: "1.4rem" }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group" style={{ marginTop: "4px" }}>
+                      <label style={{ fontSize: "1.3rem", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "6px" }}>
+                        DIAS FIXOS DE FOLGA SEMANAL
+                      </label>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+                        {WEEKDAYS.map((day) => {
+                          const isChecked = (employeeFormData.folgas_fixas || "").split(",").includes(day.value);
+                          return (
+                            <label
+                              key={day.value}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                padding: "6px 12px",
+                                borderRadius: "20px",
+                                fontSize: "1.2rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                userSelect: "none",
+                                transition: "all 0.2s ease",
+                                background: isChecked ? "#f5ede4" : "#f8fafc",
+                                border: isChecked ? "1.5px solid #784e21" : "1.5px solid #cbd5e1",
+                                color: isChecked ? "#784e21" : "#475569"
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => handleWeekdayToggle(day.value)}
+                                style={{ display: "none" }}
+                              />
+                              {day.label}
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", borderTop: "1px solid var(--border-color)", paddingTop: "16px", marginTop: "8px" }}>
+                  <button type="submit" className="primary-btn" disabled={savingEmployee}>
+                    {savingEmployee ? <Icons.BsArrowClockwise className="spin" /> : <Icons.BsCheckLg />}
+                    Salvar Alterações
+                  </button>
+                </div>
+              </form>
+            </div>
+
             <div className="historico-layout">
               {/* Form Column */}
               <div className="historico-form-card">
