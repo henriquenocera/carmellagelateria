@@ -104,7 +104,7 @@ function altoxvCloseSubmit(geladeira, brownie, panos, user) {
     openDateFormat.getMinutes() +
     ":" +
     openDateFormat.getSeconds();
-  sendOpenMessage(openDateFormat, geladeira, brownie, panos, user);
+  // sendOpenMessage(openDateFormat, geladeira, brownie, panos, user);
 }
 
 function ChecklistFechamento() {

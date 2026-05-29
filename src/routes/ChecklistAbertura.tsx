@@ -73,20 +73,20 @@ function ChecklistAbertura() {
     altoxvOpenSubmit(user);
 
     // Send Telegram message with money counter data
-    const openDateFormat = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A %0D%0A Responsável: ${user}${moneyCounterMessage}`;
-
-    fetch(checkOpenComplete)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        window.alert("Erro na confirmação do Checklist, por gentileza tente novamente");
-      });
+    /*  const openDateFormat = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+     const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A %0D%0A Responsável: ${user}${moneyCounterMessage}`;
+ 
+     fetch(checkOpenComplete)
+       .then(response => {
+         if (!response.ok) {
+           throw new Error('Network response was not ok');
+         }
+         window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
+       })
+       .catch(error => {
+         console.error('Error:', error);
+         window.alert("Erro na confirmação do Checklist, por gentileza tente novamente");
+       }); */
   };
 
   const [timeComplete, setTimeComplete] = useState("");
