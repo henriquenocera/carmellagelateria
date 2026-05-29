@@ -13,13 +13,12 @@ function CadastroInsumos() {
   const [insumos, setInsumos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [novoNome, setNovoNome] = useState("");
-  const [novoAtivo, setNovoAtivo] = useState(true);
   const [novaQtdConversao, setNovaQtdConversao] = useState("");
   const [novaUnidadeConversao, setNovaUnidadeConversao] = useState("");
   const [novoCustoConsiderado, setNovoCustoConsiderado] = useState("");
-  const [novoCustoAtualizado, setNovoCustoAtualizado] = useState("");
   const [novoNomeSimples, setNovoNomeSimples] = useState("");
   const [novoTipo, setNovoTipo] = useState("");
   const [novoFornecedor, setNovoFornecedor] = useState("");
@@ -63,11 +62,10 @@ function CadastroInsumos() {
         .from("cadastro_insumos")
         .insert([{
           nome: novoNome.trim(),
-          ativo: novoAtivo,
+          ativo: true,
           quantidade_conversao: novaQtdConversao ? parseFloat(novaQtdConversao) : null,
           unidade_conversao: novaUnidadeConversao.trim(),
           custo_considerado: novoCustoConsiderado ? parseFloat(novoCustoConsiderado) : null,
-          custo_atualizado: novoCustoAtualizado ? parseFloat(novoCustoAtualizado) : null,
           nome_simples_unitario: novoNomeSimples.trim(),
           tipo: novoTipo.trim(),
           fornecedor_padrao: novoFornecedor.trim()
@@ -78,15 +76,14 @@ function CadastroInsumos() {
       }
 
       setNovoNome("");
-      setNovoAtivo(true);
       setNovaQtdConversao("");
       setNovaUnidadeConversao("");
       setNovoCustoConsiderado("");
-      setNovoCustoAtualizado("");
       setNovoNomeSimples("");
       setNovoTipo("");
       setNovoFornecedor("");
-      
+      setIsModalOpen(false);
+
       fetchInsumos();
     } catch (err: any) {
       console.error("Erro ao adicionar:", err);
@@ -111,6 +108,26 @@ function CadastroInsumos() {
     }
   }
 
+  const handleLocalChange = (id: string, field: string, value: any) => {
+    setInsumos((prev) =>
+      prev.map((ins) => (ins.id === id ? { ...ins, [field]: value } : ins))
+    );
+  };
+
+  async function handleUpdateField(id: string, field: string, value: any) {
+    try {
+      const { error } = await supabase
+        .from("cadastro_insumos")
+        .update({ [field]: value })
+        .eq("id", id);
+
+      if (error) throw error;
+    } catch (err) {
+      console.error("Erro ao atualizar:", err);
+      alert("Erro ao atualizar o campo.");
+    }
+  }
+
   return (
     <>
       <Helmet>
@@ -118,128 +135,18 @@ function CadastroInsumos() {
       </Helmet>
 
       <div className="frequencia-container">
-        <div className="frequencia-header">
+        <div className="frequencia-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div className="frequencia-title-group">
             <h1>Cadastro de Insumos</h1>
             <p>Gerencie os insumos da loja. Eles poderão ser utilizados em módulos de controle de estoque e receitas.</p>
           </div>
+          <button className="primary-btn" onClick={() => setIsModalOpen(true)}>
+            <Icons.BsPlusLg style={{ marginRight: "8px" }} />
+            Novo Insumo
+          </button>
         </div>
 
-        <div className="freq-annual-summary-wrapper" style={{ marginTop: "20px", maxWidth: "1200px" }}>
-          <div className="feriado-form-card" style={{ marginBottom: "20px", padding: "16px", backgroundColor: "#f9fafb", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
-            <h4 style={{ marginBottom: "12px", color: "var(--secondary-color)" }}>Cadastrar Novo Insumo</h4>
-            <form onSubmit={handleAddInsumo} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", alignItems: "end" }}>
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Nome do Insumo *</label>
-                <input
-                  type="text"
-                  required
-                  className="frequencia-select"
-                  placeholder="Ex: Leite Integral 1L"
-                  value={novoNome}
-                  onChange={(e) => setNovoNome(e.target.value)}
-                />
-              </div>
-              
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Nome Simples e Unitário</label>
-                <input
-                  type="text"
-                  className="frequencia-select"
-                  placeholder="Ex: Leite"
-                  value={novoNomeSimples}
-                  onChange={(e) => setNovoNomeSimples(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Tipo</label>
-                <input
-                  type="text"
-                  className="frequencia-select"
-                  placeholder="Ex: Laticínio"
-                  value={novoTipo}
-                  onChange={(e) => setNovoTipo(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Fornecedor Padrão</label>
-                <input
-                  type="text"
-                  className="frequencia-select"
-                  placeholder="Nome do fornecedor"
-                  value={novoFornecedor}
-                  onChange={(e) => setNovoFornecedor(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Qtd de Conversão</label>
-                <input
-                  type="number"
-                  step="0.0001"
-                  className="frequencia-select"
-                  placeholder="Ex: 1000"
-                  value={novaQtdConversao}
-                  onChange={(e) => setNovaQtdConversao(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Unidade de Conversão</label>
-                <input
-                  type="text"
-                  className="frequencia-select"
-                  placeholder="Ex: ml, g"
-                  value={novaUnidadeConversao}
-                  onChange={(e) => setNovaUnidadeConversao(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Custo Considerado</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="frequencia-select"
-                  placeholder="R$ 0,00"
-                  value={novoCustoConsiderado}
-                  onChange={(e) => setNovoCustoConsiderado(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label style={{ fontSize: "1.2rem" }}>Custo Atualizado</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  className="frequencia-select"
-                  placeholder="R$ 0,00"
-                  value={novoCustoAtualizado}
-                  onChange={(e) => setNovoCustoAtualizado(e.target.value)}
-                />
-              </div>
-
-              <div className="form-group" style={{ marginBottom: 0, display: "flex", alignItems: "center", gap: "8px", height: "38px" }}>
-                <input
-                  type="checkbox"
-                  id="ativo"
-                  checked={novoAtivo}
-                  onChange={(e) => setNovoAtivo(e.target.checked)}
-                  style={{ width: "16px", height: "16px" }}
-                />
-                <label htmlFor="ativo" style={{ fontSize: "1.2rem", margin: 0, cursor: "pointer" }}>Ativo no sistema</label>
-              </div>
-
-              <div style={{ display: "flex", gap: "8px", height: "38px" }}>
-                <button type="submit" disabled={saving} className="primary-btn" style={{ padding: "0 16px", height: "100%", width: "100%" }}>
-                  {saving ? "Salvando..." : "Salvar"}
-                </button>
-              </div>
-            </form>
-          </div>
-
+        <div className="freq-annual-summary-wrapper" style={{ marginTop: "20px", maxWidth: "1200px", margin: "20px auto" }}>
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
               <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
@@ -251,30 +158,108 @@ function CadastroInsumos() {
               <table className="freq-table" style={{ minWidth: "900px" }}>
                 <thead>
                   <tr>
+                    <th style={{ textAlign: "center", width: "60px" }}>Ativo</th>
                     <th>Nome</th>
                     <th>Nome Simples</th>
                     <th>Tipo</th>
                     <th>Fornecedor</th>
-                    <th>Qtd Conv.</th>
-                    <th>Unid. Conv.</th>
-                    <th>Custo Consid.</th>
-                    <th>Custo Atual.</th>
-                    <th>Ativo</th>
-                    <th style={{ textAlign: "center" }}>Ações</th>
+                    <th style={{ width: "90px" }}>Qtd Conv.</th>
+                    <th style={{ width: "90px" }}>Unid. Conv.</th>
+                    <th style={{ width: "100px" }}>Custo Consid.</th>
+                    <th style={{ width: "100px" }}>Custo Atual.</th>
+                    <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {insumos.map((insumo) => (
-                    <tr key={insumo.id} style={{ opacity: insumo.ativo ? 1 : 0.6 }}>
-                      <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
-                      <td>{insumo.nome_simples_unitario || "-"}</td>
-                      <td>{insumo.tipo || "-"}</td>
-                      <td>{insumo.fornecedor_padrao || "-"}</td>
-                      <td>{insumo.quantidade_conversao || "-"}</td>
-                      <td>{insumo.unidade_conversao || "-"}</td>
-                      <td>{insumo.custo_considerado ? `R$ ${insumo.custo_considerado.toFixed(2)}` : "-"}</td>
-                      <td>{insumo.custo_atualizado ? `R$ ${insumo.custo_atualizado.toFixed(2)}` : "-"}</td>
-                      <td>{insumo.ativo ? "Sim" : "Não"}</td>
+                    <tr key={insumo.id} style={{ opacity: insumo.ativo ? 1 : 0.6, transition: "opacity 0.2s" }}>
+                      <td style={{ textAlign: "center" }}>
+                        <input
+                          type="checkbox"
+                          checked={insumo.ativo || false}
+                          onChange={(e) => {
+                            handleLocalChange(insumo.id, "ativo", e.target.checked);
+                            handleUpdateField(insumo.id, "ativo", e.target.checked);
+                          }}
+                          style={{ cursor: "pointer", width: "16px", height: "16px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={insumo.nome || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "nome", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "nome", e.target.value)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", fontWeight: 500, color: "inherit", padding: "4px" }}
+                          title="Clique para editar"
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={insumo.nome_simples_unitario || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "nome_simples_unitario", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "nome_simples_unitario", e.target.value)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={insumo.tipo || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "tipo", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "tipo", e.target.value)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={insumo.fornecedor_padrao || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "fornecedor_padrao", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "fornecedor_padrao", e.target.value)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          step="0.0001"
+                          value={insumo.quantidade_conversao || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "quantidade_conversao", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "quantidade_conversao", e.target.value ? parseFloat(e.target.value) : null)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="text"
+                          value={insumo.unidade_conversao || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "unidade_conversao", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "unidade_conversao", e.target.value)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={insumo.custo_considerado || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "custo_considerado", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "custo_considerado", e.target.value ? parseFloat(e.target.value) : null)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          step="0.01"
+                          value={insumo.custo_atualizado || ""}
+                          onChange={(e) => handleLocalChange(insumo.id, "custo_atualizado", e.target.value)}
+                          onBlur={(e) => handleUpdateField(insumo.id, "custo_atualizado", e.target.value ? parseFloat(e.target.value) : null)}
+                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
+                        />
+                      </td>
                       <td style={{ textAlign: "center" }}>
                         <button
                           onClick={() => handleDeleteInsumo(insumo.id)}
@@ -293,6 +278,122 @@ function CadastroInsumos() {
           )}
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: "680px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>Cadastrar Novo Insumo</h2>
+              <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-muted)" }}>
+                <Icons.BsX />
+              </button>
+            </div>
+            <form onSubmit={handleAddInsumo} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Nome do Insumo *</label>
+                <input
+                  type="text"
+                  required
+                  className="frequencia-select"
+                  placeholder="Ex: Leite Integral UHT -  1L"
+                  value={novoNome}
+                  onChange={(e) => setNovoNome(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Nome Simples e Unitário</label>
+                <input
+                  type="text"
+                  className="frequencia-select"
+                  placeholder="Ex: Leite"
+                  value={novoNomeSimples}
+                  onChange={(e) => setNovoNomeSimples(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: "flex", gap: "16px" }}>
+                <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Tipo</label>
+                  <select
+                    className="frequencia-select"
+                    value={novoTipo}
+                    onChange={(e) => setNovoTipo(e.target.value)}
+                    style={{ background: "#fff" }}
+                  >
+                    <option value="">Selecione um tipo</option>
+                    <option value="Insumos">Insumos</option>
+                    <option value="Matéria Prima">Matéria Prima</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Material de Limpeza">Material de Limpeza</option>
+                    <option value="Salgados">Salgados</option>
+                    <option value="Outros">Outros</option>
+                  </select>
+                </div>
+                <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Fornecedor Padrão</label>
+                  <input
+                    type="text"
+                    className="frequencia-select"
+                    placeholder="Nome do fornecedor"
+                    value={novoFornecedor}
+                    onChange={(e) => setNovoFornecedor(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--border-color)" }}>
+                <h5 style={{ marginBottom: "12px", color: "var(--secondary-color)", fontSize: "1.4rem" }}>Cálculo de Custo</h5>
+                
+                <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Qtd de Conversão</label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      className="frequencia-select"
+                      placeholder="Ex: 1000"
+                      value={novaQtdConversao}
+                      onChange={(e) => setNovaQtdConversao(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Unidade de Conversão</label>
+                    <input
+                      type="text"
+                      className="frequencia-select"
+                      placeholder="Ex: ml, g"
+                      value={novaUnidadeConversao}
+                      onChange={(e) => setNovaUnidadeConversao(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Custo Considerado</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="frequencia-select"
+                    placeholder="R$ 0,00"
+                    value={novoCustoConsiderado}
+                    onChange={(e) => setNovoCustoConsiderado(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="modal-actions" style={{ marginTop: "12px", display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)} disabled={saving}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={saving} className="primary-btn">
+                  {saving ? "Salvando..." : "Salvar Insumo"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 }

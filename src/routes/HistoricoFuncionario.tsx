@@ -1093,14 +1093,19 @@ function HistoricoFuncionario() {
 
                               const didWork = freqStatus === "Trabalhado";
                               const trabalhadoRecord = feriadosTrabalhados.find(f => f.data_feriado === globalFeriado.date);
+                              const isFuture = globalFeriado.date > todayStr;
 
                               return (
                                 <tr key={globalFeriado.id}>
                                   <td style={{ fontWeight: 500 }}>{formatDisplayDate(globalFeriado.date)}</td>
                                   <td>{globalFeriado.name}</td>
                                   <td style={{ textAlign: "center" }}>
-                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }} title="Sincronizado automaticamente da tabela de Frequência">
-                                      {didWork ? (
+                                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }} title={isFuture ? "Aguardando a data do feriado" : "Sincronizado automaticamente da tabela de Frequência"}>
+                                      {isFuture ? (
+                                        <span className="type-badge" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "6px", backgroundColor: "#f8fafc", color: "#94a3b8", border: "1px solid #e2e8f0" }}>
+                                          <Icons.BsClockHistory /> Aguardando
+                                        </span>
+                                      ) : didWork ? (
                                         <span className="type-badge badge-elogio" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem", display: "flex", alignItems: "center", gap: "6px" }}>
                                           <Icons.BsCheckCircleFill /> Sim
                                         </span>
@@ -1112,7 +1117,9 @@ function HistoricoFuncionario() {
                                     </div>
                                   </td>
                                   <td>
-                                    {!didWork ? (
+                                    {isFuture ? (
+                                      <span className="type-badge" style={{ margin: 0, padding: "4px 8px", fontSize: "1.1rem", backgroundColor: "#f8fafc", color: "#94a3b8", border: "1px solid #e2e8f0" }}>AGUARDANDO</span>
+                                    ) : !didWork ? (
                                       <span style={{ color: "var(--text-muted)", fontSize: "1.2rem" }}>-</span>
                                     ) : trabalhadoRecord?.pago_em_dobro ? (
                                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
