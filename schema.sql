@@ -253,6 +253,24 @@ CREATE TABLE IF NOT EXISTS "public"."audit_logs" (
 ALTER TABLE "public"."audit_logs" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."cadastro_insumos" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "nome" "text" NOT NULL,
+    "nome_simples_unitario" "text",
+    "tipo" "text",
+    "fornecedor_padrao" "text",
+    "quantidade_conversao" numeric,
+    "unidade_conversao" "text",
+    "custo_considerado" numeric,
+    "custo_atualizado" numeric,
+    "ativo" boolean DEFAULT true,
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+);
+
+
+ALTER TABLE "public"."cadastro_insumos" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."cardsahu" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "title" "text" NOT NULL,
@@ -438,6 +456,11 @@ ALTER TABLE ONLY "public"."afericao_porcao"
 
 ALTER TABLE ONLY "public"."audit_logs"
     ADD CONSTRAINT "audit_logs_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."cadastro_insumos"
+    ADD CONSTRAINT "cadastro_insumos_pkey" PRIMARY KEY ("id");
 
 
 
@@ -664,6 +687,10 @@ CREATE POLICY "Enable read access for all users" ON "public"."rules_confirmation
 
 
 
+CREATE POLICY "Permitir acesso total a usuários autenticados" ON "public"."cadastro_insumos" USING (("auth"."role"() = 'authenticated'::"text"));
+
+
+
 CREATE POLICY "Permitir edição (UPDATE) para todos os usuários autenticados" ON "public"."profiles" FOR UPDATE TO "authenticated" USING (true) WITH CHECK (true);
 
 
@@ -693,6 +720,9 @@ CREATE POLICY "Usuários podem ver seus próprios feriados trabalhados" ON "publ
 
 
 ALTER TABLE "public"."audit_logs" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."cadastro_insumos" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."cardsahu" ENABLE ROW LEVEL SECURITY;
@@ -1028,6 +1058,12 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."audit_logs" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."audit_logs" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."audit_logs" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cadastro_insumos" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cadastro_insumos" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cadastro_insumos" TO "service_role";
 
 
 
