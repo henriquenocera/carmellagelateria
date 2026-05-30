@@ -81,6 +81,16 @@ function CadastroInsumos() {
       return;
     }
 
+    const nomeFormatado = novoNome.trim();
+    const nomeJaExiste = insumos.some(
+      (ins) => ins.nome.toLowerCase() === nomeFormatado.toLowerCase()
+    );
+
+    if (nomeJaExiste) {
+      alert("Já existe um insumo cadastrado com este nome!");
+      return;
+    }
+
     try {
       setSaving(true);
       
@@ -90,6 +100,8 @@ function CadastroInsumos() {
       if (qtd && custoEmb && qtd > 0) {
         custoUnit = parseFloat((custoEmb / qtd).toFixed(2));
       }
+
+      const maxOrdem = insumos.length > 0 ? Math.max(...insumos.map(i => i.ordem || 0)) : 0;
 
       const { error } = await supabase
         .from("cadastro_insumos")
@@ -102,7 +114,8 @@ function CadastroInsumos() {
           custo_considerado_unitario: custoUnit,
           nome_simples_unitario: novoNomeSimples.trim(),
           tipo: novoTipo.trim(),
-          fornecedor_padrao: novoFornecedor.trim()
+          fornecedor_padrao: novoFornecedor.trim(),
+          ordem: maxOrdem + 1
         }]);
 
       if (error) {
@@ -171,6 +184,19 @@ function CadastroInsumos() {
     try {
       setCellStatus((prev) => ({ ...prev, [key]: 'saving' }));
       
+      if (field === "nome") {
+        const nomeFormatado = typeof value === "string" ? value.trim() : value;
+        const nomeJaExiste = insumos.some(
+          (ins) => ins.id !== id && ins.nome.toLowerCase() === nomeFormatado.toLowerCase()
+        );
+        if (nomeJaExiste) {
+          alert("Já existe outro insumo cadastrado com este nome!");
+          setCellStatus((prev) => ({ ...prev, [key]: 'error' }));
+          fetchInsumos(); // Reverter alteração local na tela
+          return;
+        }
+      }
+
       let updatePayload: any = { [field]: value };
       
       if (field === "quantidade_conversao" || field === "custo_considerado") {

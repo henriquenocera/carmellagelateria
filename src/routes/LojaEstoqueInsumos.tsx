@@ -29,6 +29,8 @@ function LojaEstoqueInsumos() {
   const [insumos, setInsumos] = useState<any[]>([]);
   const [stockMap, setStockMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [showConfigCols, setShowConfigCols] = useState(false);
+  const [sortByStatus, setSortByStatus] = useState(false);
 
   useEffect(() => {
     fetchInsumos();
@@ -133,7 +135,27 @@ function LojaEstoqueInsumos() {
     }
   }
 
-  const visibleInsumos = insumos.filter(insumo => insumo.config_estoque?.[activeTab]?.ativo === true);
+  let visibleInsumos = insumos.filter(insumo => insumo.config_estoque?.[activeTab]?.ativo === true);
+
+  if (sortByStatus) {
+    visibleInsumos.sort((a, b) => {
+      const configA = a.config_estoque?.[activeTab] || {};
+      const configB = b.config_estoque?.[activeTab] || {};
+      const currentA = stockMap[a.id] || 0;
+      const currentB = stockMap[b.id] || 0;
+
+      const getStatusScore = (current: number, min: number | undefined | null, desired: number | undefined | null) => {
+        if (min != null && current < min) return 1; // Critical
+        if (desired != null && current < desired) return 2; // Warning
+        return 3; // OK
+      };
+
+      const scoreA = getStatusScore(currentA, configA.minimo, configA.desejado);
+      const scoreB = getStatusScore(currentB, configB.minimo, configB.desejado);
+
+      return scoreA - scoreB;
+    });
+  }
 
   const formatDateBR = (isoStr: string) => {
     if (!isoStr) return "";
@@ -195,10 +217,54 @@ function LojaEstoqueInsumos() {
               ))}
             </div>
 
-            {/* Last Inventory Badge */}
-            {lastInventoryDate ? (
-              <div style={{
-                backgroundColor: "#eef2ff",
+            {/* Options & Badges */}
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
+              <button
+                onClick={() => setSortByStatus(!sortByStatus)}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  border: "1px solid #cbd5e1",
+                  backgroundColor: sortByStatus ? "#f1f5f9" : "#fff",
+                  color: "#475569",
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  transition: "all 0.2s"
+                }}
+              >
+                <Icons.BsFilter />
+                {sortByStatus ? "Remover Ordenação de Status" : "Ordenar por Status Crítico"}
+              </button>
+
+              <button
+                onClick={() => setShowConfigCols(!showConfigCols)}
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "8px",
+                  border: "1px solid #cbd5e1",
+                  backgroundColor: showConfigCols ? "#f1f5f9" : "#fff",
+                  color: "#475569",
+                  fontWeight: 600,
+                  fontSize: "1.1rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  transition: "all 0.2s"
+                }}
+              >
+                {showConfigCols ? <Icons.BsEyeSlashFill /> : <Icons.BsEyeFill />}
+                {showConfigCols ? "Ocultar Config. de Estoque" : "Ver Config. de Estoque"}
+              </button>
+              
+              {/* Last Inventory Badge */}
+              {lastInventoryDate ? (
+                <div style={{
+                  backgroundColor: "#eef2ff",
                 color: "#4338ca",
                 padding: "12px 20px",
                 borderRadius: "8px",
@@ -230,7 +296,8 @@ function LojaEstoqueInsumos() {
                 <Icons.BsExclamationTriangleFill />
                 Nenhum inventário base encontrado
               </div>
-            )}
+              )}
+            </div>
           </div>
 
           {loading ? (
@@ -251,12 +318,13 @@ function LojaEstoqueInsumos() {
             <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
               <table className="freq-table" style={{ minWidth: "900px" }}>
                 <thead>
-                  <tr>
+                  <tr style={{ fontSize: "1.1rem" }}>
                     <th style={{ width: "250px" }}>Insumo</th>
                     <th style={{ width: "100px" }}>Tipo</th>
-                    <th style={{ textAlign: "center", width: "120px" }}>Estoque Mínimo</th>
-                    <th style={{ textAlign: "center", width: "120px" }}>Estoque Desejado</th>
+                    {showConfigCols && <th style={{ textAlign: "center", width: "120px" }}>Estoque Mínimo</th>}
+                    {showConfigCols && <th style={{ textAlign: "center", width: "120px" }}>Estoque Desejado</th>}
                     <th style={{ textAlign: "center", width: "150px", color: "var(--primary-color)" }}>Estoque Atual</th>
+                    <th style={{ width: "80px", textAlign: "center" }}>Status</th>
                     <th style={{ textAlign: "center", width: "150px" }}>Para Pedir</th>
                   </tr>
                 </thead>
@@ -275,9 +343,14 @@ function LojaEstoqueInsumos() {
                       if (toOrder < 0) toOrder = 0;
                     }
 
-                    let rowBg = "transparent";
+                    let rowBg = "#f0fdf4"; // light green
+                    let statusIcon = <Icons.BsCheckCircleFill style={{ color: "#16a34a", fontSize: "1.6rem" }} title="Estoque Ideal" />;
                     if (min != null && current < min) {
-                      rowBg = "#fff0f0"; // very light red
+                      rowBg = "#fef2f2"; // light red
+                      statusIcon = <Icons.BsXCircleFill style={{ color: "#dc2626", fontSize: "1.6rem" }} title="Estoque Crítico (Abaixo do Mínimo)" />;
+                    } else if (desired != null && current < desired) {
+                      rowBg = "#fefce8"; // light yellow
+                      statusIcon = <Icons.BsExclamationCircleFill style={{ color: "#eab308", fontSize: "1.6rem" }} title="Atenção (Abaixo do Desejado)" />;
                     }
 
                     const getTagStyles = (tipo: string) => {
@@ -294,13 +367,13 @@ function LojaEstoqueInsumos() {
 
                     return (
                       <tr key={insumo.id} style={{ backgroundColor: rowBg, transition: "background 0.2s" }}>
-                        <td style={{ fontWeight: 500, fontSize: "1.1rem" }}>{insumo.nome}</td>
+                        <td style={{ fontWeight: 600, fontSize: "1.3rem" }}>{insumo.nome}</td>
                         <td>
                             <span style={{
-                              padding: "6px 10px", 
+                              padding: "6px 12px", 
                               backgroundColor: tagStyle.bg, 
                               borderRadius: "6px", 
-                              fontSize: "1rem", 
+                              fontSize: "1.1rem", 
                               fontWeight: 600,
                               color: tagStyle.color,
                               border: `1px solid ${tagStyle.border}`
@@ -308,19 +381,26 @@ function LojaEstoqueInsumos() {
                               {insumo.tipo || "-"}
                             </span>
                         </td>
-                        <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 500 }}>
-                          {min != null ? min : "-"}
-                        </td>
-                        <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 500 }}>
-                          {desired != null ? desired : "-"}
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.3rem" }}>
+                        {showConfigCols && (
+                          <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.3rem", fontWeight: 500 }}>
+                            {min != null ? min : "-"}
+                          </td>
+                        )}
+                        {showConfigCols && (
+                          <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.3rem", fontWeight: 500 }}>
+                            {desired != null ? desired : "-"}
+                          </td>
+                        )}
+                        <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.5rem" }}>
                           {current}
+                        </td>
+                        <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                          {statusIcon}
                         </td>
                         <td style={{ 
                           textAlign: "center", 
                           fontWeight: 700, 
-                          fontSize: "1.2rem",
+                          fontSize: "1.4rem",
                           color: toOrder != null && toOrder > 0 ? "var(--primary-color)" : "var(--text-muted)" 
                         }}>
                           {toOrder != null ? toOrder : "-"}
