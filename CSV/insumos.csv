@@ -1,0 +1,134 @@
+nome,nome_simples_unitario,tipo,fornecedor_padrao,quantidade_conversao,unidade_conversao,custo_considerado,custo_atualizado,ativo
+Gelato - Kg,Gelato - Kg,Insumos,Fábrica,1,Kg,,,TRUE
+Pote Kraft 80ml - c/ 50un,Pote Kraft 80ml,Insumos,Nazapack,50,Unidade,,,TRUE
+Pote Kraft 120ml - c/ 50un,Pote Kraft 120ml,Insumos,Nazapack,50,Unidade,,,TRUE
+Ki-Cascão Conny - c/ 120un,Cascão,Insumos,Marmikok,120,Unidade,,,TRUE
+Ki-Casquinha Conny - c/ 240un,Casquinha,Insumos,Marmikok,240,Unidade,,,TRUE
+Pote Kraft 480ml - c/ 50un,Pote Kraft 480ml,Insumos,FNS Cups,50,Unidade,,,FALSE
+Pote Kraft 550ml - c/ 25un,Pote Kraft 550ml,Insumos,FNS Cups,25,Unidade,,,TRUE
+Tampa p/ Pote Kraft 550ml - c/ 25un,Tampa p/ Pote Kraft 550ml,Insumos,FNS Cups,25,Unidade,,,TRUE
+Tampa p/ Pote Kraft 480ml - c/ 50un,Tampa p/ Pote Kraft 480ml,Insumos,FNS Cups,50,Unidade,,,FALSE
+Pázinha Curta Branca - c/ 500un,Pázinha Curta Branca,Insumos,Marmikok,500,Unidade,,,TRUE
+Guardanapo 20x20 - c/ 100un,Guardanapo 20x20,Insumos,Marmikok,100,Unidade,,,TRUE
+Pote 200ml Descartável - c/ 50un,,Insumos,Marmikok,50,Unidade,,,TRUE
+Tampa p/ Pote 200ml - c/ 50un,,Insumos,Marmikok,50,Unidade,,,TRUE
+Copo 300ml Descartável - c/ 100un,,Insumos,Marmikok,100,Unidade,,,TRUE
+Copo Papel Preto Parede Simples 110ml - c/ 50un,Copo de Papel Preto Parede Simples 110ml,Insumos,Sete Embalagens,50,Unidade,,,TRUE
+Copo Papel Preto Parede Dupla 270ml - c/ 25un,Copo de Papel Preto Parede Dupla 270ml,Insumos,Sete Embalagens,25,Unidade,,,TRUE
+Embalagem Waffle Cama - c/ 50un,,Insumos,,50,Unidade,,,TRUE
+Embalagem Waffle Luva - c/ 50un,,Insumos,,50,Unidade,,,TRUE
+Sacola P - 26x25x12cm - c/ 20un,Sacola P - 26x25x12cm,Insumos,Nobelpack,20,Unidade,,,TRUE
+Sacola PP - 25x21x10cm - c/ 20un,Sacola PP - 25x21x10cm,Insumos,Nobelpack,20,Unidade,,,TRUE
+Café em Grão - 1kg,Café em Grão,Insumos,Astoria,1,Kg,,,TRUE
+Cappuccino em Pó - 1kg,Cappuccino em Pó,Insumos,Astoria,1,Kg,,,TRUE
+Chocolate Quente em Pó - 1kg,Chocolate Quente em Pó,Insumos,Net Coffe,1,Kg,,,TRUE
+"Cacau em pó 50% - 500gr (NESTLÉ) ""mocha""",,Insumos,,"0,5",Kg,,,TRUE
+Leite UHT Integral - 1kg,Leite UHT Integral,Insumos,Mercado,1,Kg,,,TRUE
+Nutella Pote - 650gr,Nutella,Insumos,Santo Antônio,"0,65",Kg,,,TRUE
+Doce de Leite - 350gr,Doce de Leite,Insumos,Condor,"0,35",Kg,,,TRUE
+Sanduíche de Carne - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Sanduíche de Frango - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Sanduíche de Pernil - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Sanduíche de Mortadela - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Sanduíche de Parma - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Quiche de Alho Poró - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Quiche Capresse - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Quiche Lorraine - 1un,,Salgados,Cassinele,1,Unidade,,,TRUE
+Guardanapo Interfolhado 10x20 ROSA - c/ 5.000un,,Insumos,Marmikok,5000,Unidade,,,TRUE
+Guardanapo Sache Delivery - c/ 1.000un,,Insumos,Mercado Livre,1000,Unidade,,,FALSE
+Papel Interfolhado 20x20 Branco 2 Dobras - c/ 1.000un,,Insumos,Marmikok,1000,Unidade,,,TRUE
+Pote 100ml Descartável - c/ 100un,,Insumos,Marmikok,100,Unidade,,,TRUE
+Pote de Isopor 120ml - c/ 20un,,Insumos,,20,Unidade,,,TRUE
+Tampa p/ Pote 120ml - c/ 100un,,Insumos,,100,Unidade,,,TRUE
+Pote p/ Molho 30ml Galvanotek G695 - c/ 10un,,Insumos,Armazem das Embalagens,10,Unidade,,,TRUE
+Pote p/ Molho 60ml Galvanotek G697 - c/ 20un,,Insumos,Armazem das Embalagens,20,Unidade,,,TRUE
+Tampa p/ Copo Papel 110ml - c/ 50un,,Insumos,Sete Embalagens,50,Unidade,,,TRUE
+Tampa  p/ Copo Papel 270ml - 62mm - c/ 50un,,Insumos,Sete Embalagens,50,Unidade,,,TRUE
+"Long Drink Transparente 325ml - ""Copo Soda Italiana""",Copo p/ Soda Italiana,Insumos,,1,Unidade,,,TRUE
+Canudo com Mexedor - c/ 100un,Canudo p/ Soda Italiana,Insumos,,100,Unidade,,,TRUE
+Canudo Biodegradável - c/ 100un,,Insumos,Marmikok,100,Unidade,,,TRUE
+Mechedor de Café Simples 11cm - c/ 500un,,Insumos,Marmikok,500,Unidade,,,TRUE
+Garfo Forte - c/ 50un (STRAWPLAST),,Insumos,,50,Unidade,,,TRUE
+Faca Forte - c/ 50un (STRAWPLAST),,Insumos,,50,Unidade,,,TRUE
+Colher Forte - c/ 50un (STRAWPLAST),,Insumos,,50,Unidade,,,TRUE
+Saco de Plástico p/ Talher 4cm x 23cm - c/ 1.000un,,Insumos,,1000,Unidade,,,TRUE
+Saco de Papel p/ Talher 6cm x 26cm - c/ 500un,,Insumos,,500,Unidade,,,TRUE
+Filtro de Papel p/ Café n102 - c/ 30un,,Insumos,,30,Unidade,,,TRUE
+Caixa Kraft p/ Porção Grande - c/ 25un,,Insumos,Comercial Barbante e Papel,25,Unidade,,,TRUE
+Embalagem de Cachorro Quente - c/ 100un,,Insumos,,100,Unidade,,,TRUE
+Papel Barreira 20x20 c/ 1.000 folhas,,Insumos,Mercado Livre,1000,Unidade,,,TRUE
+Saco Kraft Delivery Liso SOS 15kg - c/ 100un,,Insumos,Sete Embalagens,100,Unidade,,,TRUE
+Luva de vinil sem pó - Tamanho M - c/100un,,Insumos,Marmikok,100,Unidade,,,FALSE
+Luva de vinil sem pó - Tamanho G - c/ 100un,,Insumos,Marmikok,100,Unidade,,,FALSE
+Plástico Filme 28cm x 100m,Plástico Filme,Insumos,,1,Unidade,,,TRUE
+Touca Descartável - c/ 100un,,Insumos,Mercado Livre,100,Unidade,,,TRUE
+Máscara Descartável - c/ 100un,,Insumos,Mercado Livre,100,Unidade,,,TRUE
+Etiquetas Adesivas Brancas Grande - 50x30mm,,Insumos,Marmikok,1,Unidade,,,TRUE
+Etiqueta Adesivo Redonda TP19 Preta - (PIMACO) - c/ 200un,,Insumos,Kalunga,200,Unidade,,,TRUE
+Grampo p/ Grampeador,,Insumos,Papelaria,1,Unidade,,,TRUE
+Bobina Impressora - 80mm,,Insumos,Mercado Livre,1,Unidade,,,TRUE
+Bobina Maquininha,,Insumos,Mercado Livre,1,Unidade,,,TRUE
+Durex,,Insumos,,1,Unidade,,,TRUE
+Sachê de Açúcar,,Insumos,,1,Unidade,,,TRUE
+Sachê de Adoçante,,Insumos,,1,Unidade,,,TRUE
+Abaixador de Língua Madeira c/ 100un  (THEOTO),,Insumos,Orto Curitiba,100,Unidade,,,FALSE
+Xarope de Maça Verde - 250ml,Xarope Monin,Insumos,,"0,25",Kg,,,TRUE
+Xarope de Framboesa - 250ml,,Insumos,,"0,25",Kg,,,TRUE
+Xarope de Tangerina - 250ml,,Insumos,,"0,25",Kg,,,TRUE
+Xarope de Baunilha - 250ml,,Insumos,,"0,25",Kg,,,TRUE
+Xarope de Caramelo - 250ml,,Insumos,,"0,25",Kg,,,TRUE
+Xarope de Maça Verde - 750ml,,Insumos,,"0,75",Kg,,,TRUE
+Xarope de Framboesa - 750ml,,Insumos,,"0,75",Kg,,,TRUE
+Xarope de Tangerina - 750ml,,Insumos,,"0,75",Kg,,,TRUE
+Xarope de Baunilha - 750ml,,Insumos,,"0,75",Kg,,,TRUE
+Xarope de Caramelo - 750ml,,Insumos,,"0,75",Kg,,,TRUE
+Saco de Lixo 20 Litros Preto Micra 4 - c/ 100un,,Material de Limpeza,Super Brilho,100,Unidade,,,TRUE
+Saco de Lixo 40 Litros Preto Micra 4 - c/ 100un,,Material de Limpeza,Super Brilho,100,Unidade,,,TRUE
+Saco de Lixo 60 Litros Preto Micra 8 - c/ 100un,,Material de Limpeza,Super Brilho,100,Unidade,,,TRUE
+Desinfetante Pato,Desinfetante Pato,Material de Limpeza,Mercado,1,Unidade,,,TRUE
+Veja Multi Uso 500ml,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Papel Higiênico - FD - 12 Rolos/30mt,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Álcool Líquido 70% - 5 Litros,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Álcool em Gel 70% - 5 Litros,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Detergente Neutro - 5 Litros,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Esponja Multiuso Dupla Face AM/VD,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Pano Multiuso - 28cm x 25mt,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Detergente Neutro - 500ml,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Água Sanitária - 5 Litros,,Material de Limpeza,Super Brilho,1,Unidade,,,TRUE
+Sabão em Pó Omo - 2.2kg,,Material de Limpeza,Super Brilho,"2,2",kg,,,TRUE
+Álcool Líquido 70% - 1 Litro,,Material de Limpeza,,1,Unidade,,,TRUE
+Água Crystal - Garrafa - (500ml),Água Crystal - Garrafa - (500ml),Bebidas,Coca Cola,1,Unidade,,,TRUE
+Água Crystal Com Gás - Garrafa - (500ml),Água Crystal Com Gás - Garrafa - (500ml),Bebidas,Coca Cola,1,Unidade,,,TRUE
+Coca Cola - Lata - (350ml),Coca Cola - Lata - (350ml),Bebidas,Coca Cola,1,Unidade,,,TRUE
+Coca Cola Sem Açucar - Lata - (350ml),Coca Cola Sem Açucar - Lata - (350ml),Bebidas,Coca Cola,1,Unidade,,,TRUE
+Schweppes Citrus - Lata - (350ml),Schweppes Citrus - Lata - (350ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Schweppes Tônica - Lata - (350ml),Schweppes Tônica - Lata - (350ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,FALSE
+Fanta Laranja - Lata - (350ml),Fanta Laranja - Lata - (350ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Fanta Uva - Lata - (350ml),Fanta Uva - Lata - (350ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Fanta Guaraná - Lata - (350ml),Fanta Guaraná - Lata - (350ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Sprite - Lata - (350ml),Sprite - Lata - (350ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Chá Matte Leao - Copo - (300ml),Chá Matte Leao - Copo - (300ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Chá Matte Leao Limão - Copo - (300ml),Chá Matte Leao Limão - Copo - (300ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Chá Matte Leao Guaraná Power - Copo - (300ml),Chá Matte Leao Guaraná Power - Copo - (300ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Chá Matte Leao Guaraná Power Açai - Copo - (300ml),Chá Matte Leao Guaraná Power Açai - Copo - (300ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Suco Del Valle Pêssego - Lata - (290ml),Suco Del Valle Pêssego - Lata - (290ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Suco Del Valle Uva - Lata - (290ml),Suco Del Valle Uva - Lata - (290ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Suco Del Valle Goiaba - Lata - (290ml),Suco Del Valle Goiaba - Lata - (290ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Suco Del Valle Manga - Lata - (290ml),Suco Del Valle Manga - Lata - (290ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Suco Del Valle Maracujá - Lata - (290ml),Suco Del Valle Maracujá - Lata - (290ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Suco Del Valle Limonada Classic - Lata - (290ml),Suco Del Valle Limonada Classic - Lata - (290ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Suco Del Valle Limonada Pink - Lata - (290ml),Suco Del Valle Limonada Pink - Lata - (290ml),Bebidas,Distribuidor de Bebidas,1,Unidade,,,TRUE
+Sache Açucar - c/ 400un,,Insumos,,400,Unidade,,,TRUE
+Sache Adoçante - c/ 1.000un,,Insumos,,1000,Unidade,,,TRUE
+Lacre Ifood,,Insumos,,1,Unidade,,,TRUE
+Xarope de Maple Syrup - 816ml,Xarope de Maple Syrup,Insumos,Mercado Livre,"0,816",Kg,,,TRUE
+Leite Condensado - 395gr,,Insumos,,"0,395",Kg,,,TRUE
+Recheio de chocolate Branco Nestlé Galak - 1kg,Recheio de chocolate Branco Nestlé Galak,Insumos,Mercado Livre,1,Kg,,,TRUE
+Paçoquita Embalada - 1un,Paçoca Unidade,Insumos,,1,Unidade,,,TRUE
+Mini Óreo - 35gr,Mini Óreo - 35gr - Unidade,Insumos,,1,Unidade,,,TRUE
+Mini Disqueti - Chocolate ao Leite - 11gr,Mini Disqueti - 11gr - Unidade,Insumos,,1,Unidade,,,TRUE
+Morango Bandeja - c/ 250gr,Morango,Insumos,Kalunga,"0,25",kg,,,TRUE
+Banana,Banana,Insumos,,1,Kg,,,TRUE
+Massa de Waffle,Massa de Waffle,Insumos,Fábrica MH,1,Unidade,,,TRUE
+Brownie,Brownie,Insumos,Fábrica MH,1,Unidade,,,TRUE
+Geleia de Amora - 700gr,Geleia de Amora,Insumos,Fábrica MH,"0,7",Kg,,,TRUE

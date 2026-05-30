@@ -319,7 +319,7 @@ function MovimentacoesEstoque() {
             marginBottom: "24px",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.2rem", display: "flex", alignItems: "center", gap: "8px" }}>
+            <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
               <Icons.BsPlusCircleFill style={{ color: "var(--primary-color)" }} />
               Registrar Movimentação
             </h3>
@@ -330,7 +330,7 @@ function MovimentacoesEstoque() {
               alignItems: "flex-end"
             }}>
               <div style={{ flex: "2 1 250px" }}>
-                <label style={{ display: "block", fontSize: "0.9rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Insumo</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Insumo</label>
                 <Select
                   ref={selectRef}
                   autoFocus
@@ -343,22 +343,22 @@ function MovimentacoesEstoque() {
                   isClearable
                   noOptionsMessage={() => "Nenhum insumo encontrado"}
                   styles={{
-                    control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '38px', borderRadius: '4px' }),
-                    menuPortal: (base) => ({ ...base, zIndex: 9999 })
+                    control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '46px', borderRadius: '4px', fontSize: '1.2rem' }),
+                    menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.2rem' })
                   }}
                 />
               </div>
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "0.9rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data</label>
                 <input
                   type="date"
                   value={newRow.data_movimentacao}
                   onChange={(e) => setNewRow({ ...newRow, data_movimentacao: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "38px" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
                 />
               </div>
               <div style={{ flex: "1 1 100px" }}>
-                <label style={{ display: "block", fontSize: "0.9rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Quantidade</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Quantidade</label>
                 <input
                   type="number"
                   step="1"
@@ -370,30 +370,30 @@ function MovimentacoesEstoque() {
                       e.preventDefault();
                     }
                   }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "38px" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
                 />
               </div>
               <div style={{ flex: "1.5 1 150px" }}>
-                <label style={{ display: "block", fontSize: "0.9rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Origem</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Origem</label>
                 <select
                   value={newRow.origem}
                   onChange={(e) => setNewRow({ ...newRow, origem: e.target.value })}
                   style={{ 
                     width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid transparent",
-                    backgroundColor: getUnitBgColor(newRow.origem), color: getUnitColor(newRow.origem), fontWeight: 500, height: "38px"
+                    backgroundColor: getUnitBgColor(newRow.origem), color: getUnitColor(newRow.origem), fontWeight: 500, height: "46px", fontSize: "1.2rem"
                   }}
                 >
                   {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
               <div style={{ flex: "1.5 1 150px" }}>
-                <label style={{ display: "block", fontSize: "0.9rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Destino</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Destino</label>
                 <select
                   value={newRow.destino}
                   onChange={(e) => setNewRow({ ...newRow, destino: e.target.value })}
                   style={{ 
                     width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid transparent",
-                    backgroundColor: getUnitBgColor(newRow.destino), color: getUnitColor(newRow.destino), fontWeight: 500, height: "38px"
+                    backgroundColor: getUnitBgColor(newRow.destino), color: getUnitColor(newRow.destino), fontWeight: 500, height: "46px", fontSize: "1.2rem"
                   }}
                 >
                   {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
@@ -419,7 +419,7 @@ function MovimentacoesEstoque() {
                   onClick={handleAddRow}
                   disabled={savingRow}
                   style={{
-                    height: "38px",
+                    height: "46px",
                     padding: "0",
                     backgroundColor: "var(--primary-color)",
                     color: "white",
@@ -427,6 +427,7 @@ function MovimentacoesEstoque() {
                     borderRadius: "4px",
                     cursor: savingRow ? "not-allowed" : "pointer",
                     fontWeight: "bold",
+                    fontSize: "1.2rem",
                     width: "100%",
                     display: "flex",
                     alignItems: "center",
