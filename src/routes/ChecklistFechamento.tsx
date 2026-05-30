@@ -111,6 +111,10 @@ function ChecklistFechamento() {
     sendSupabase(user);
     event.preventDefault();
     altoxvCloseSubmit(geladeira, brownie, panos, user);
+    
+    // Limpar o progresso salvo
+    localStorage.removeItem("checklistEscritorio_checkedItems");
+    localStorage.removeItem("checklistEscritorio_currentStep");
   };
 
   const [timeComplete, setTimeComplete] = useState("");
@@ -143,13 +147,13 @@ function ChecklistFechamento() {
   return (
     <>
       <Helmet>
-        <title>Checklist</title>
+        <title>Checklist Escritório</title>
       </Helmet>
 
       <div className="checklistContainer">
         <div className="unitContainer">
           <div className="unitInfo">
-            <h1>Checklist</h1>
+            <h1>Checklist Escritório</h1>
 
             <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
           </div>

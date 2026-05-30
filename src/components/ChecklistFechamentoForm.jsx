@@ -71,16 +71,47 @@ function ChecklistFechamentoForm({ handleSubmit }) {
 
   ];
 
-  // Initialize checkedItems state with all items set to false
+  // Initialize checkedItems state with all items set to false or load from localStorage
   React.useEffect(() => {
+    const savedCheckedState = localStorage.getItem("checklistEscritorio_checkedItems");
+    const savedStep = localStorage.getItem("checklistEscritorio_currentStep");
+
     const initialCheckedState = {};
     steps.forEach(step => {
       step.items.forEach(item => {
         initialCheckedState[item.id] = false;
       });
     });
-    setCheckedItems(initialCheckedState);
+
+    if (savedCheckedState) {
+      try {
+        const parsed = JSON.parse(savedCheckedState);
+        setCheckedItems({ ...initialCheckedState, ...parsed });
+      } catch (e) {
+        setCheckedItems(initialCheckedState);
+      }
+    } else {
+      setCheckedItems(initialCheckedState);
+    }
+
+    if (savedStep) {
+       const p = parseInt(savedStep, 10);
+       if (!isNaN(p) && p >= 1 && p <= steps.length) {
+          setCurrentStep(p);
+       }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (Object.keys(checkedItems).length > 0) {
+      localStorage.setItem("checklistEscritorio_checkedItems", JSON.stringify(checkedItems));
+    }
+  }, [checkedItems]);
+
+  React.useEffect(() => {
+    localStorage.setItem("checklistEscritorio_currentStep", currentStep.toString());
+  }, [currentStep]);
 
   const handleCheckboxChange = (id) => {
     setCheckedItems(prevState => ({

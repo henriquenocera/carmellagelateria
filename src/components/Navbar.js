@@ -55,7 +55,7 @@ const MENU_CONFIG = [
     icon: <Icons.BsCardChecklist />,
     id: "checklists",
     subItems: [
-      { title: "Checklist", path: "/checklist-fechamento" }
+      { title: "Checklist Escritório", path: "/checklist-fechamento" }
     ]
   },
   {

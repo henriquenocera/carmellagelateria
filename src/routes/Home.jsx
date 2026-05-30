@@ -84,15 +84,20 @@ function Home() {
           latestAltoxv = checklistData.find(c => c.store === "altoxv");
         }
 
-        // 2. Fetch Estoque
+        // 2. Fetch Estoque (buscando também o histórico de 2 dias)
+        const twoDaysAgo = new Date();
+        twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+        const iso2d = twoDaysAgo.toISOString();
+
         const [ahuRes, altoxvRes] = await Promise.all([
-          supabase.from("cardsahu").select("id, status, title, production_date").in("status", ["vitrine-atual", "freezer-estoque"]),
-          supabase.from("cardsaltoxv").select("id, status, title, production_date").in("status", ["vitrine-atual", "freezer-estoque"])
+          supabase.from("cardsahu").select("id, status, title, production_date, history, updated_at").or(`status.in.(vitrine-atual,freezer-estoque),updated_at.gte.${iso2d}`),
+          supabase.from("cardsaltoxv").select("id, status, title, production_date, history, updated_at").or(`status.in.(vitrine-atual,freezer-estoque),updated_at.gte.${iso2d}`)
         ]);
 
         const calcEstoque = (data) => {
-          if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [] };
-          return data.reduce((acc, curr) => {
+          if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0 };
+          
+          const res = data.reduce((acc, curr) => {
             if (curr.status === "vitrine-atual") {
               acc.vitrine++;
               if (curr.title) acc.itensVitrine.push(curr.title.trim().toLowerCase());
@@ -102,8 +107,21 @@ function Home() {
               if (curr.title) acc.itensEstoque.push(curr.title.trim().toLowerCase());
               acc.itensEstoqueDetalhado.push(curr);
             }
+            
+            if (curr.history && Array.isArray(curr.history)) {
+               curr.history.forEach(h => {
+                  if (h.timestamp && new Date(h.timestamp) >= twoDaysAgo) {
+                     const act = (h.action || "").toLowerCase();
+                     if (act.includes("criado") && !act.includes("quebra")) acc.entradas2d++;
+                     if (act.includes("→ arquivo") || act.includes("→ histórico") || act.includes("lixo")) acc.saidas2d++;
+                  }
+               });
+            }
+
             return acc;
-          }, { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [] });
+          }, { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0 });
+          
+          return res;
         };
 
         const ahuEstoque = calcEstoque(ahuRes.data);
@@ -313,9 +331,19 @@ function Home() {
                     {estoque.ahu.vitrine + estoque.ahu.estoque} cubas totais
                   </span>
                 </div>
-                <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem" }}>
+                <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.ahu.vitrine}</span>
                   <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.ahu.estoque}</span>
+                  
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                     <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
+                     <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
+                        <Icons.BsArrowDownLeftCircleFill /> +{estoque.ahu.entradas2d}
+                     </span>
+                     <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
+                        <Icons.BsArrowUpRightCircleFill /> -{estoque.ahu.saidas2d}
+                     </span>
+                  </div>
                 </div>
               </div>
 
@@ -327,9 +355,19 @@ function Home() {
                     {estoque.altoxv.vitrine + estoque.altoxv.estoque} cubas totais
                   </span>
                 </div>
-                <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem" }}>
+                <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
                   <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.altoxv.vitrine}</span>
                   <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.altoxv.estoque}</span>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                     <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
+                     <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
+                        <Icons.BsArrowDownLeftCircleFill /> +{estoque.altoxv.entradas2d}
+                     </span>
+                     <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
+                        <Icons.BsArrowUpRightCircleFill /> -{estoque.altoxv.saidas2d}
+                     </span>
+                  </div>
                 </div>
               </div>
 
