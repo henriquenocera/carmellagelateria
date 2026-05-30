@@ -163,18 +163,15 @@ function LojaEstoqueInsumos() {
             alignItems: "center",
             flexWrap: "wrap",
             gap: "16px",
-            marginBottom: "24px" 
+            marginBottom: "24px",
+            borderBottom: "2px solid #e2e8f0",
+            paddingBottom: "16px"
           }}>
             {/* Tab Navigation */}
             <div style={{ 
               display: "flex", 
-              gap: "8px", 
-              overflowX: "auto",
-              padding: "6px",
-              backgroundColor: "#f1f5f9",
-              borderRadius: "12px",
-              width: "fit-content",
-              boxShadow: "inset 0 1px 3px rgba(0,0,0,0.05)"
+              gap: "12px", 
+              overflowX: "auto"
             }}>
               {STORES.map((store) => (
                 <button
@@ -182,15 +179,14 @@ function LojaEstoqueInsumos() {
                   onClick={() => setActiveTab(store.id)}
                   style={{
                     padding: "10px 24px",
-                    background: activeTab === store.id ? "#fff" : "transparent",
-                    border: "none",
+                    fontSize: "1.4rem",
+                    fontWeight: "bold",
                     borderRadius: "8px",
-                    boxShadow: activeTab === store.id ? "0 2px 6px rgba(0,0,0,0.08)" : "none",
-                    color: activeTab === store.id ? "var(--primary-color)" : "#64748b",
-                    fontWeight: activeTab === store.id ? 600 : 500,
+                    border: "none",
                     cursor: "pointer",
-                    fontSize: "1.05rem",
-                    transition: "all 0.3s ease",
+                    backgroundColor: activeTab === store.id ? "#a17550" : "#f1f5f9",
+                    color: activeTab === store.id ? "#fff" : "#64748b",
+                    transition: "all 0.2s",
                     whiteSpace: "nowrap"
                   }}
                 >
