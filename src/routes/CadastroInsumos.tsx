@@ -455,7 +455,6 @@ function CadastroInsumos() {
                     <th style={{ width: "90px" }}>Embalagem</th>
                     <th style={{ width: "100px" }}>Custo Emb.</th>
                     <th style={{ width: "100px" }}>Custo Unit.</th>
-                    <th style={{ width: "100px" }}>Custo Atual.</th>
                     <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
                   </tr>
                 </thead>
@@ -521,7 +520,6 @@ function CadastroInsumos() {
                       </td>
                       <td>{renderEditableInput(insumo, "custo_considerado", "number", "0.01", undefined, undefined, false, "R$")}</td>
                       <td>{renderEditableInput(insumo, "custo_considerado_unitario", "number", "0.0001", undefined, undefined, true, "R$")}</td>
-                      <td>{renderEditableInput(insumo, "custo_atualizado", "number", "0.01", undefined, undefined, true, "R$")}</td>
                       <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
                         <button
                           onClick={() => setEditingRowId(editingRowId === insumo.id ? null : insumo.id)}

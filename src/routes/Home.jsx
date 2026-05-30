@@ -188,7 +188,7 @@ function Home() {
         </div>
         
         {/* Data Columns */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", marginBottom: "32px", textAlign: "center" }}>
+        <div className="checklist-items-grid" style={{ gap: "8px", marginBottom: "32px", textAlign: "center" }}>
           
           <div style={{ borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ fontSize: "1rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" }}>MASSAS</div>
@@ -275,7 +275,7 @@ function Home() {
   }
 
   return (
-    <div style={{ paddingLeft: "115px", paddingRight: "40px", paddingTop: "40px", paddingBottom: "40px", width: "100%", maxWidth: "1800px", minHeight: "100vh", background: "#fdfbf7", margin: "0 auto", boxSizing: "border-box" }}>
+    <div className="dashboard-container">
       
       {/* Page Title */}
       <div style={{ marginBottom: "32px", textAlign: "left" }}>
@@ -283,14 +283,14 @@ function Home() {
         <p style={{ color: "#78716c", fontSize: "1.4rem", margin: 0 }}>Visão geral das operações da Carmella Gelateria.</p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr", gap: "32px", width: "100%" }}>
+      <div className="dashboard-grid">
         
         {/* Checklists Section (Row 1, Col 1) */}
         <section style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
             <Icons.BsCardChecklist style={{ color: "#a17550" }} /> Últimos Checklists de Fechamento
           </h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", flex: 1 }}>
+          <div className="checklists-grid">
             <ChecklistCard title="Alto da XV" data={checklists.altoxv} />
             <ChecklistCard title="Ahú" data={checklists.ahu} />
           </div>
@@ -413,6 +413,68 @@ function Home() {
       
       <style>{`
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .dashboard-container {
+           padding: 40px 40px 40px 115px;
+           width: 100%;
+           max-width: 1800px;
+           min-height: 100vh;
+           background: #fdfbf7;
+           margin: 0 auto;
+           box-sizing: border-box;
+        }
+        
+        .dashboard-grid {
+           display: grid;
+           grid-template-columns: 1.8fr 1fr;
+           gap: 32px;
+           width: 100%;
+        }
+        
+        .checklists-grid {
+           display: grid;
+           grid-template-columns: 1fr 1fr;
+           gap: 24px;
+           flex: 1;
+        }
+        
+        .checklist-items-grid {
+           display: grid;
+           grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        /* Responsividade para Tablets */
+        @media (max-width: 1100px) {
+           .dashboard-grid {
+              grid-template-columns: 1fr;
+           }
+           .checklists-grid {
+              grid-template-columns: 1fr 1fr;
+           }
+        }
+
+        /* Responsividade para Celulares */
+        @media (max-width: 768px) {
+           .dashboard-container {
+              padding: 85px 15px 80px 85px; /* Top 85px para topbar e Left 85px para o sidebar */
+           }
+           .checklists-grid {
+              grid-template-columns: 1fr;
+           }
+           .checklist-items-grid {
+              grid-template-columns: 1fr;
+              gap: 24px !important; /* Aumenta gap quando empilha */
+           }
+           .checklist-items-grid > div {
+              border-right: none !important;
+              border-bottom: 1px solid #f1f5f9;
+              padding-bottom: 16px;
+           }
+           .checklist-items-grid > div:last-child {
+              border-bottom: none;
+              padding-bottom: 0;
+           }
+        }
       `}</style>
     </div>
   );

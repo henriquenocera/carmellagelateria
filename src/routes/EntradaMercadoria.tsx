@@ -153,17 +153,6 @@ function EntradaMercadoria() {
 
       if (error) throw error;
 
-      // 2. Atualizar o custo do insumo
-      const { error: errUpdate } = await supabase
-        .from("cadastro_insumos")
-        .update({ custo_atualizado: Number(newRow.valor_unitario.replace(",", ".")) })
-        .eq("id", newRow.insumo_id);
-
-      if (errUpdate) {
-        console.error("Erro ao atualizar custo no insumo:", errUpdate);
-        alert("A entrada foi salva, mas houve um erro ao atualizar o custo_atualizado no insumo.");
-      }
-
       setCompras(prev => {
         const updated = [data, ...prev];
         return updated.sort((a, b) => {
