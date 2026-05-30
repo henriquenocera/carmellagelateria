@@ -7,10 +7,10 @@ import { useNavigate } from "react-router-dom";
 import "../css/Frequencia.css"; // Reuse the table styles
 
 const STORES = [
-  { id: "fabrica", name: "Fábrica", bgHeader: "#fff4e6" },
   { id: "mh", name: "Estoque MH", bgHeader: "#fce7e7" },
   { id: "ahu", name: "Loja Ahú", bgHeader: "#e6f5ea" },
   { id: "altoxv", name: "Loja Alto XV", bgHeader: "#efebff" },
+  { id: "fabrica", name: "Fábrica", bgHeader: "#fff4e6" },
 ];
 
 function ConfiguracaoEstoque() {

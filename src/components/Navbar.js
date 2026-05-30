@@ -17,16 +17,18 @@ const MENU_CONFIG = [
     subItems: [
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },
+      { title: "Checklists", path: "/lojas-checklist" },
     ]
   },
   {
-    title: "Lojas",
-    icon: <Icons.BsShop />,
-    id: "lojas",
+    title: "Estoque",
+    icon: <Icons.BsBoxSeam />,
+    id: "estoque",
     subItems: [
-      { title: "Checklists", path: "/lojas-checklist" },
       { title: "Estoque Cubas", path: "/lojas-cubas-estoque" },
       { title: "Estoque Insumos", path: "/loja-estoque-insumos" },
+      { title: "Movimentações", path: "/movimentacoes-estoque" },
+      { title: "Inventário", path: "/inventario" },
     ]
   },
   {
