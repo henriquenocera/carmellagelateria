@@ -45,6 +45,10 @@ function MovimentacoesEstoque() {
   const [editRowData, setEditRowData] = useState<any>({});
   const [savingEdit, setSavingEdit] = useState(false);
 
+  // Duplicate Warning State
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [pendingMovimentacao, setPendingMovimentacao] = useState<any>(null);
+
   // Pagination state
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -164,16 +168,45 @@ function MovimentacoesEstoque() {
       return;
     }
 
+    setSavingRow(true);
+
     try {
-      setSavingRow(true);
+      // Duplicate check
+      const { data: dups, error: dupErr } = await supabase
+        .from("movimentacoes_estoque")
+        .select("id")
+        .eq("insumo_id", newRow.insumo_id)
+        .eq("data_movimentacao", newRow.data_movimentacao)
+        .eq("quantidade", parseInt(newRow.quantidade, 10))
+        .eq("origem", newRow.origem)
+        .eq("destino", newRow.destino)
+        .limit(1);
+
+      if (!dupErr && dups && dups.length > 0) {
+        setPendingMovimentacao({ ...newRow });
+        setShowDuplicateModal(true);
+        setSavingRow(false);
+        return;
+      }
+
+      await executeSave(newRow);
+    } catch (err: any) {
+      console.error("Erro ao verificar duplicatas:", err);
+      setSavingRow(false);
+    }
+  };
+
+  const executeSave = async (rowToSave: any) => {
+    setSavingRow(true);
+    try {
       const { data, error } = await supabase
         .from("movimentacoes_estoque")
         .insert([{
-          insumo_id: newRow.insumo_id,
-          data_movimentacao: newRow.data_movimentacao,
-          quantidade: parseInt(newRow.quantidade, 10),
-          origem: newRow.origem,
-          destino: newRow.destino
+          insumo_id: rowToSave.insumo_id,
+          data_movimentacao: rowToSave.data_movimentacao,
+          quantidade: parseInt(rowToSave.quantidade, 10),
+          origem: rowToSave.origem,
+          destino: rowToSave.destino
         }])
         .select(`
           id,
@@ -555,8 +588,17 @@ function MovimentacoesEstoque() {
                     </td>
                   </tr>
                 ) : (
-                  movimentacoes.map((mov) => {
-                    const isEditing = editingRowId === mov.id;
+                  (() => {
+                    const duplicatesMap: Record<string, number> = {};
+                    movimentacoes.forEach(m => {
+                      const key = `${m.insumo_id}_${m.data_movimentacao}_${m.quantidade}_${m.origem}_${m.destino}`;
+                      duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
+                    });
+
+                    return movimentacoes.map((mov) => {
+                      const isEditing = editingRowId === mov.id;
+                      const key = `${mov.insumo_id}_${mov.data_movimentacao}_${mov.quantidade}_${mov.origem}_${mov.destino}`;
+                      const isDuplicate = duplicatesMap[key] > 1;
 
                     if (isEditing) {
                       return (
@@ -641,8 +683,15 @@ function MovimentacoesEstoque() {
                     const dataFormatada = new Date(mov.data_movimentacao + 'T00:00:00').toLocaleDateString('pt-BR');
                     
                     return (
-                      <tr key={mov.id} className={mov.id === newlyAddedId ? "new-row-animation" : ""}>
-                        <td>{mov.cadastro_insumos?.nome || "Insumo Excluído"}</td>
+                      <tr key={mov.id} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={isDuplicate ? { backgroundColor: "#fef08a" } : {}}>
+                        <td>
+                          {mov.cadastro_insumos?.nome || "Insumo Excluído"}
+                          {isDuplicate && (
+                            <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd, origem e destino)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
+                              <Icons.BsExclamationTriangleFill />
+                            </span>
+                          )}
+                        </td>
                         <td style={{ textAlign: "center" }}>{dataFormatada}</td>
                         <td style={{ textAlign: "center", fontWeight: "bold" }}>{mov.quantidade}</td>
                         <td style={{ 
@@ -690,7 +739,8 @@ function MovimentacoesEstoque() {
                         </td>
                       </tr>
                     );
-                  })
+                    });
+                  })()
                 )}
               </tbody>
             </table>
@@ -725,6 +775,68 @@ function MovimentacoesEstoque() {
 
         </div>
       </div>
+
+      {showDuplicateModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10000,
+          display: "flex", justifyContent: "center", alignItems: "center"
+        }}>
+          <div style={{
+            backgroundColor: "#fff", padding: "40px", borderRadius: "16px",
+            width: "90%", maxWidth: "650px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+          }}>
+            <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
+              <Icons.BsExclamationTriangleFill style={{ color: "#eab308" }} /> Lançamento Duplicado?
+            </h3>
+            
+            <div style={{
+              backgroundColor: "#fef2f2", color: "#dc2626", padding: "16px 20px",
+              borderRadius: "12px", marginBottom: "24px", border: "2px solid #fecaca",
+              fontSize: "1.4rem", lineHeight: "1.5"
+            }}>
+              <strong>Aviso:</strong> Já existe um lançamento idêntico para este insumo (mesma data, quantidade, origem e destino).
+            </div>
+
+            <p style={{ color: "#64748b", marginBottom: "32px", lineHeight: "1.6", fontSize: "1.5rem" }}>
+              Tem certeza que deseja registrar este lançamento novamente?
+            </p>
+
+            <div style={{ display: "flex", gap: "20px", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => {
+                  setShowDuplicateModal(false);
+                  setPendingMovimentacao(null);
+                }}
+                disabled={savingRow}
+                style={{
+                  padding: "16px 24px", backgroundColor: "#f1f5f9", color: "#475569",
+                  border: "2px solid #cbd5e1", borderRadius: "10px", cursor: "pointer",
+                  fontWeight: "bold", fontSize: "1.4rem"
+                }}
+              >
+                Não, cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  setShowDuplicateModal(false);
+                  if (pendingMovimentacao) {
+                    await executeSave(pendingMovimentacao);
+                  }
+                }}
+                disabled={savingRow}
+                style={{
+                  padding: "16px 24px", backgroundColor: "#ef4444", color: "white",
+                  border: "none", borderRadius: "10px", cursor: "pointer",
+                  fontWeight: "bold", display: "flex", alignItems: "center", gap: "10px", fontSize: "1.4rem"
+                }}
+              >
+                {savingRow ? <><Icons.BsArrowClockwise className="spin" /> Lançando...</> : "Sim, lançar mesmo assim"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

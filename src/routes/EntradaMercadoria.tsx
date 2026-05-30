@@ -13,6 +13,18 @@ function EntradaMercadoria() {
   const [showSavedMessage, setShowSavedMessage] = useState(false);
   const selectRef = useRef<any>(null);
 
+  // Edit state
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [editRowData, setEditRowData] = useState<any>({});
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // Modal de Lançamento de Estoque
+  const [showStockModal, setShowStockModal] = useState(false);
+  const [stockModalData, setStockModalData] = useState<any>(null);
+  const [stockDestino, setStockDestino] = useState("Estoque MH");
+  const [launchingStock, setLaunchingStock] = useState(false);
+  const [feedbackModal, setFeedbackModal] = useState<{type: 'success' | 'error', message: string} | null>(null);
+
   // Pagination state
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -171,6 +183,10 @@ function EntradaMercadoria() {
       setShowSavedMessage(true);
       setTimeout(() => setShowSavedMessage(false), 2000);
       
+      const insumoIdParaEstoque = newRow.insumo_id;
+      const dataCompraParaEstoque = newRow.data_compra;
+      const quantidadeParaEstoque = Number(newRow.quantidade_comprada);
+
       setNewRow({
         ...newRow,
         insumo_id: "",
@@ -185,6 +201,33 @@ function EntradaMercadoria() {
         }
       }, 100);
 
+      setTimeout(async () => {
+        let hasDuplicate = false;
+        try {
+          const { data: dups, error: dupErr } = await supabase
+            .from("movimentacoes_estoque")
+            .select("id")
+            .eq("insumo_id", insumoIdParaEstoque)
+            .eq("data_movimentacao", dataCompraParaEstoque)
+            .eq("quantidade", quantidadeParaEstoque)
+            .limit(1);
+            
+          if (!dupErr && dups && dups.length > 0) {
+            hasDuplicate = true;
+          }
+        } catch (err) {
+          console.error("Erro ao checar duplicatas:", err);
+        }
+
+        setStockModalData({
+          insumo_id: insumoIdParaEstoque,
+          data_movimentacao: dataCompraParaEstoque,
+          quantidade: quantidadeParaEstoque,
+          hasDuplicate
+        });
+        setShowStockModal(true);
+      }, 50);
+
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
       if (err.code === "42P01") {
@@ -194,6 +237,78 @@ function EntradaMercadoria() {
       }
     } finally {
       setSavingRow(false);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editRowData.insumo_id || !editRowData.data_compra || !editRowData.quantidade_comprada) {
+      alert("Por favor, preencha insumo, data e quantidade.");
+      return;
+    }
+
+    try {
+      setSavingEdit(true);
+      const { data, error } = await supabase
+        .from("entradas_mercadoria")
+        .update({
+          insumo_id: editRowData.insumo_id,
+          data_compra: editRowData.data_compra,
+          fornecedor: editRowData.fornecedor,
+          quantidade_comprada: parseFloat(editRowData.quantidade_comprada) || 0,
+          valor_unitario: parseFloat(editRowData.valor_unitario) || null
+        })
+        .eq("id", editingRowId)
+        .select(`
+          id,
+          data_compra,
+          fornecedor,
+          quantidade_comprada,
+          valor_unitario,
+          insumo_id,
+          created_at,
+          cadastro_insumos!inner(nome)
+        `)
+        .single();
+
+      if (error) throw error;
+
+      setCompras(compras.map(c => c.id === editingRowId ? data : c));
+      setEditingRowId(null);
+    } catch (err: any) {
+      console.error("Erro ao atualizar:", err);
+      alert("Erro ao atualizar o registro: " + (err.message || JSON.stringify(err)));
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleLaunchStock = async () => {
+    if (!stockModalData) return;
+    setLaunchingStock(true);
+    try {
+      const { error: movError } = await supabase
+        .from("movimentacoes_estoque")
+        .insert([{
+          insumo_id: stockModalData.insumo_id,
+          data_movimentacao: stockModalData.data_movimentacao,
+          quantidade: stockModalData.quantidade,
+          origem: "Compras",
+          destino: stockDestino
+        }]);
+        
+      if (movError) {
+        console.error("Erro ao lançar estoque:", movError);
+        setFeedbackModal({ type: 'error', message: "Erro ao lançar estoque: " + (movError.message || JSON.stringify(movError)) });
+      } else {
+        setFeedbackModal({ type: 'success', message: "Lançamento de estoque realizado com sucesso no destino: " + stockDestino });
+      }
+    } catch (err) {
+      console.error("Erro ao lançar estoque:", err);
+      setFeedbackModal({ type: 'error', message: "Erro inesperado ao lançar estoque." });
+    } finally {
+      setLaunchingStock(false);
+      setShowStockModal(false);
+      setStockModalData(null);
     }
   };
 
@@ -251,7 +366,7 @@ function EntradaMercadoria() {
             marginBottom: "24px",
             border: "1px solid #e2e8f0"
           }}>
-            <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
+            <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}>
               <Icons.BsPlusCircleFill style={{ color: "var(--primary-color)" }} />
               Registrar Compra
             </h3>
@@ -262,7 +377,7 @@ function EntradaMercadoria() {
               alignItems: "flex-end"
             }}>
               <div style={{ flex: "2 1 250px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Insumo</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Insumo</label>
                 <Select
                   ref={selectRef}
                   autoFocus
@@ -275,32 +390,32 @@ function EntradaMercadoria() {
                   isClearable
                   noOptionsMessage={() => "Nenhum insumo encontrado"}
                   styles={{
-                    control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '46px', borderRadius: '4px', fontSize: '1.2rem' }),
-                    menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.2rem' })
+                    control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '54px', borderRadius: '4px', fontSize: '1.4rem' }),
+                    menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.4rem' })
                   }}
                 />
               </div>
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data da Compra</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data da Compra</label>
                 <input
                   type="date"
                   value={newRow.data_compra}
                   onChange={(e) => setNewRow({ ...newRow, data_compra: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
                 />
               </div>
               <div style={{ flex: "1.5 1 150px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Fornecedor</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Fornecedor</label>
                 <input
                   type="text"
                   placeholder="Nome do Fornecedor"
                   value={newRow.fornecedor}
                   onChange={(e) => setNewRow({ ...newRow, fornecedor: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", height: "46px", fontSize: "1.2rem" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", height: "54px", fontSize: "1.4rem" }}
                 />
               </div>
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Qtd Comprada</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Qtd Comprada</label>
                 <input
                   type="number"
                   step="any"
@@ -312,11 +427,11 @@ function EntradaMercadoria() {
                       e.preventDefault();
                     }
                   }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
                 />
               </div>
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Valor Unt. (R$)</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Valor Unt. (R$)</label>
                 <input
                   type="number"
                   step="any"
@@ -328,7 +443,7 @@ function EntradaMercadoria() {
                       e.preventDefault();
                     }
                   }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
                 />
               </div>
               <div style={{ flex: "0 0 130px", position: "relative" }}>
@@ -351,7 +466,7 @@ function EntradaMercadoria() {
                   onClick={handleAddRow}
                   disabled={savingRow}
                   style={{
-                    height: "46px",
+                    height: "54px",
                     padding: "0",
                     backgroundColor: "var(--primary-color)",
                     color: "white",
@@ -359,7 +474,7 @@ function EntradaMercadoria() {
                     borderRadius: "4px",
                     cursor: savingRow ? "not-allowed" : "pointer",
                     fontWeight: "bold",
-                    fontSize: "1.2rem",
+                    fontSize: "1.4rem",
                     width: "100%",
                     display: "flex",
                     alignItems: "center",
@@ -477,35 +592,150 @@ function EntradaMercadoria() {
                     </td>
                   </tr>
                 ) : (
-                  compras.map((comp) => {
-                    const dataFormatada = new Date(comp.data_compra + 'T00:00:00').toLocaleDateString('pt-BR');
-                    const total = comp.quantidade_comprada * comp.valor_unitario;
+                  (() => {
+                    const duplicatesMap: Record<string, number> = {};
+                    compras.forEach(c => {
+                      const key = `${c.insumo_id}_${c.data_compra}_${c.quantidade_comprada}_${c.valor_unitario}`;
+                      duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
+                    });
                     
-                    return (
-                      <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""}>
-                        <td style={{ fontWeight: 600 }}>{comp.cadastro_insumos?.nome || "Insumo Excluído"}</td>
-                        <td style={{ textAlign: "center" }}>{dataFormatada}</td>
-                        <td style={{ textAlign: "center" }}>{comp.fornecedor || "-"}</td>
-                        <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.quantidade_comprada}</td>
-                        <td style={{ textAlign: "center", color: "var(--text-dark)" }}>
-                          {comp.valor_unitario ? `R$ ${comp.valor_unitario.toFixed(2)}` : "-"}
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
-                          {total ? `R$ ${total.toFixed(2)}` : "-"}
-                        </td>
-                        <td style={{ textAlign: "center" }}>
-                          <button
-                            onClick={() => handleDelete(comp.id)}
-                            className="delete-record-btn"
-                            title="Excluir"
-                            style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
-                          >
-                            <Icons.BsTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
+                    return compras.map((comp) => {
+                      const dataFormatada = new Date(comp.data_compra + 'T00:00:00').toLocaleDateString('pt-BR');
+                      const total = comp.quantidade_comprada * comp.valor_unitario;
+                      
+                      const key = `${comp.insumo_id}_${comp.data_compra}_${comp.quantidade_comprada}_${comp.valor_unitario}`;
+                      const isDuplicate = duplicatesMap[key] > 1;
+                      const isEditing = editingRowId === comp.id;
+
+                      if (isEditing) {
+                        return (
+                          <tr key={comp.id} style={{ backgroundColor: "#f8fafc" }}>
+                            <td style={{ padding: "8px" }}>
+                              <Select
+                                menuPortalTarget={document.body}
+                                maxMenuHeight={250}
+                                options={insumos.filter(ins => ins.ativo !== false || ins.id === editRowData.insumo_id).map(ins => ({ value: ins.id, label: ins.nome }))}
+                                value={editRowData.insumo_id ? { value: editRowData.insumo_id, label: insumos.find(i => i.id === editRowData.insumo_id)?.nome } : null}
+                                onChange={(sel) => setEditRowData({ ...editRowData, insumo_id: sel ? sel.value : "" })}
+                                styles={{
+                                  control: (base) => ({ ...base, minHeight: '38px', fontSize: '1.1rem' }),
+                                  menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.1rem' })
+                                }}
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                type="date"
+                                value={editRowData.data_compra}
+                                onChange={(e) => setEditRowData({ ...editRowData, data_compra: e.target.value })}
+                                style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                type="text"
+                                value={editRowData.fornecedor}
+                                onChange={(e) => setEditRowData({ ...editRowData, fornecedor: e.target.value })}
+                                style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                type="number"
+                                step="any"
+                                value={editRowData.quantidade_comprada}
+                                onChange={(e) => setEditRowData({ ...editRowData, quantidade_comprada: e.target.value })}
+                                style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px", textAlign: "center" }}
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                type="number"
+                                step="any"
+                                value={editRowData.valor_unitario}
+                                onChange={(e) => setEditRowData({ ...editRowData, valor_unitario: e.target.value })}
+                                style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px", textAlign: "center" }}
+                              />
+                            </td>
+                            <td style={{ textAlign: "center", color: "var(--text-dark)", fontWeight: "bold" }}>
+                              -
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+                                <button
+                                  onClick={handleSaveEdit}
+                                  disabled={savingEdit}
+                                  title="Salvar"
+                                  style={{ background: "#22c55e", color: "white", border: "none", borderRadius: "4px", padding: "4px 8px", cursor: "pointer", fontSize: "1.2rem", display: "flex", alignItems: "center" }}
+                                >
+                                  {savingEdit ? <Icons.BsArrowClockwise className="spin" /> : <Icons.BsCheck />}
+                                </button>
+                                <button
+                                  onClick={() => setEditingRowId(null)}
+                                  disabled={savingEdit}
+                                  title="Cancelar"
+                                  style={{ background: "#ef4444", color: "white", border: "none", borderRadius: "4px", padding: "4px 8px", cursor: "pointer", fontSize: "1.2rem", display: "flex", alignItems: "center" }}
+                                >
+                                  <Icons.BsX />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      }
+                      
+                      return (
+                        <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={isDuplicate ? { backgroundColor: "#fef08a" } : {}}>
+                          <td style={{ fontWeight: 600 }}>
+                            {comp.cadastro_insumos?.nome || "Insumo Excluído"}
+                            {isDuplicate && (
+                              <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
+                                <Icons.BsExclamationTriangleFill />
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ textAlign: "center" }}>{dataFormatada}</td>
+                          <td style={{ textAlign: "center" }}>{comp.fornecedor || "-"}</td>
+                          <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.quantidade_comprada}</td>
+                          <td style={{ textAlign: "center", color: "var(--text-dark)" }}>
+                            {comp.valor_unitario ? `R$ ${comp.valor_unitario.toFixed(2)}` : "-"}
+                          </td>
+                          <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
+                            {total ? `R$ ${total.toFixed(2)}` : "-"}
+                          </td>
+                          <td style={{ textAlign: "center" }}>
+                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                              <button
+                                onClick={() => {
+                                  setEditingRowId(comp.id);
+                                  setEditRowData({
+                                    insumo_id: comp.insumo_id,
+                                    data_compra: comp.data_compra,
+                                    fornecedor: comp.fornecedor || "",
+                                    quantidade_comprada: comp.quantidade_comprada,
+                                    valor_unitario: comp.valor_unitario || ""
+                                  });
+                                }}
+                                className="nav-btn"
+                                title="Editar"
+                                style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                              >
+                                <Icons.BsPencil />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(comp.id)}
+                                className="delete-record-btn"
+                                title="Excluir"
+                                style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                              >
+                                <Icons.BsTrash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    });
+                  })()
                 )}
               </tbody>
             </table>
@@ -540,6 +770,118 @@ function EntradaMercadoria() {
 
         </div>
       </div>
+
+      {showStockModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10000,
+          display: "flex", justifyContent: "center", alignItems: "center"
+        }}>
+          <div style={{
+            backgroundColor: "#fff", padding: "40px", borderRadius: "16px",
+            width: "90%", maxWidth: "650px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+          }}>
+            <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
+              <Icons.BsBoxSeam /> Lançar no Estoque?
+            </h3>
+            
+            {stockModalData?.hasDuplicate && (
+              <div style={{
+                backgroundColor: "#fef2f2", color: "#dc2626", padding: "16px 20px",
+                borderRadius: "12px", marginBottom: "24px", border: "2px solid #fecaca",
+                fontSize: "1.4rem", lineHeight: "1.5"
+              }}>
+                <strong style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                  <Icons.BsExclamationTriangleFill /> Atenção: Lançamento Duplicado!
+                </strong>
+                Já existe um lançamento de estoque para este insumo na mesma data e com esta exata quantidade. Tem certeza que deseja lançar novamente?
+              </div>
+            )}
+
+            <p style={{ color: "#64748b", marginBottom: "32px", lineHeight: "1.6", fontSize: "1.5rem" }}>
+              A entrada de mercadoria foi salva. Deseja fazer automaticamente o lançamento de estoque deste insumo considerando que a origem foi <strong>'Compras'</strong>?
+            </p>
+            
+            <label style={{ display: "block", fontSize: "1.5rem", color: "#64748b", marginBottom: "12px", fontWeight: "bold" }}>Destino do Estoque</label>
+            <select
+              value={stockDestino}
+              onChange={(e) => setStockDestino(e.target.value)}
+              style={{
+                width: "100%", padding: "16px", borderRadius: "10px", border: "2px solid #cbd5e1", 
+                fontSize: "1.5rem", marginBottom: "36px", backgroundColor: "#f8fafc", color: "#334155"
+              }}
+            >
+              <option value="Estoque MH">Estoque MH</option>
+              <option value="Fábrica">Fábrica</option>
+              <option value="Loja Ahú">Loja Ahú</option>
+              <option value="Loja Alto XV">Loja Alto XV</option>
+            </select>
+
+            <div style={{ display: "flex", gap: "20px", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => {
+                  setShowStockModal(false);
+                  setStockModalData(null);
+                }}
+                disabled={launchingStock}
+                style={{
+                  padding: "16px 24px", backgroundColor: "#f1f5f9", color: "#475569",
+                  border: "2px solid #cbd5e1", borderRadius: "10px", cursor: "pointer",
+                  fontWeight: "bold", fontSize: "1.4rem"
+                }}
+              >
+                Não, obrigado
+              </button>
+              <button
+                onClick={handleLaunchStock}
+                disabled={launchingStock}
+                style={{
+                  padding: "16px 24px", backgroundColor: "var(--primary-color)", color: "white",
+                  border: "none", borderRadius: "10px", cursor: "pointer",
+                  fontWeight: "bold", display: "flex", alignItems: "center", gap: "10px", fontSize: "1.4rem"
+                }}
+              >
+                {launchingStock ? <><Icons.BsArrowClockwise className="spin" /> Lançando...</> : "Lançar Estoque"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {feedbackModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10001,
+          display: "flex", justifyContent: "center", alignItems: "center"
+        }}>
+          <div style={{
+            backgroundColor: "#fff", padding: "40px", borderRadius: "16px",
+            width: "90%", maxWidth: "500px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+            textAlign: "center"
+          }}>
+            <div style={{ color: feedbackModal.type === 'success' ? "#22c55e" : "#ef4444", fontSize: "5rem", marginBottom: "20px" }}>
+              {feedbackModal.type === 'success' ? <Icons.BsCheckCircleFill /> : <Icons.BsExclamationCircleFill />}
+            </div>
+            <h3 style={{ margin: "0 0 20px 0", color: "#334155", fontSize: "2.2rem" }}>
+              {feedbackModal.type === 'success' ? "Sucesso!" : "Atenção"}
+            </h3>
+            <p style={{ color: "#64748b", marginBottom: "32px", lineHeight: "1.6", fontSize: "1.5rem" }}>
+              {feedbackModal.message}
+            </p>
+            
+            <button
+              onClick={() => setFeedbackModal(null)}
+              style={{
+                padding: "16px 32px", backgroundColor: feedbackModal.type === 'success' ? "var(--primary-color)" : "#ef4444", color: "white",
+                border: "none", borderRadius: "10px", cursor: "pointer",
+                fontWeight: "bold", fontSize: "1.4rem", width: "100%"
+              }}
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
