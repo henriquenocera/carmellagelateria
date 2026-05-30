@@ -36,7 +36,14 @@ function MovimentacoesEstoque() {
   const [insumos, setInsumos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingRow, setSavingRow] = useState(false);
+  const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
+  const [showSavedMessage, setShowSavedMessage] = useState(false);
   const selectRef = useRef<any>(null);
+
+  // Edit state
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [editRowData, setEditRowData] = useState<any>({});
+  const [savingEdit, setSavingEdit] = useState(false);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -87,7 +94,7 @@ function MovimentacoesEstoque() {
           // Fetch insumos only on initial load
           const { data: insumosData, error: insumosError } = await supabase
             .from("cadastro_insumos")
-            .select("id, nome")
+            .select("id, nome, ativo")
             .order("nome", { ascending: true });
             
           if (insumosError) throw insumosError;
@@ -164,7 +171,7 @@ function MovimentacoesEstoque() {
         .insert([{
           insumo_id: newRow.insumo_id,
           data_movimentacao: newRow.data_movimentacao,
-          quantidade: parseFloat(newRow.quantidade),
+          quantidade: parseInt(newRow.quantidade, 10),
           origem: newRow.origem,
           destino: newRow.destino
         }])
@@ -194,6 +201,14 @@ function MovimentacoesEstoque() {
         });
       });
       
+      setNewlyAddedId(data.id);
+      setTimeout(() => {
+        setNewlyAddedId(current => current === data.id ? null : current);
+      }, 5500);
+      
+      setShowSavedMessage(true);
+      setTimeout(() => setShowSavedMessage(false), 2000);
+      
       // Clear specific fields but keep date and maybe origins to speed up input
       setNewRow({
         ...newRow,
@@ -213,6 +228,53 @@ function MovimentacoesEstoque() {
       alert("Erro ao salvar a movimentação: " + (err.message || JSON.stringify(err)));
     } finally {
       setSavingRow(false);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editRowData.insumo_id || !editRowData.data_movimentacao || !editRowData.quantidade || !editRowData.origem || !editRowData.destino) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    if (editRowData.origem === editRowData.destino) {
+      alert("A Origem e o Destino não podem ser a mesma unidade!");
+      return;
+    }
+
+    try {
+      setSavingEdit(true);
+      const { data, error } = await supabase
+        .from("movimentacoes_estoque")
+        .update({
+          insumo_id: editRowData.insumo_id,
+          data_movimentacao: editRowData.data_movimentacao,
+          quantidade: parseInt(editRowData.quantidade, 10),
+          origem: editRowData.origem,
+          destino: editRowData.destino
+        })
+        .eq("id", editingRowId)
+        .select(`
+          id,
+          data_movimentacao,
+          quantidade,
+          origem,
+          destino,
+          insumo_id,
+          created_at,
+          cadastro_insumos(nome)
+        `)
+        .single();
+
+      if (error) throw error;
+
+      setMovimentacoes(prev => prev.map(m => m.id === editingRowId ? data : m));
+      setEditingRowId(null);
+    } catch (err: any) {
+      console.error("Erro ao salvar edição:", err);
+      alert("Erro ao salvar a movimentação: " + (err.message || JSON.stringify(err)));
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -274,7 +336,7 @@ function MovimentacoesEstoque() {
                   autoFocus
                   menuPortalTarget={document.body}
                   maxMenuHeight={350}
-                  options={insumos.map(ins => ({ value: ins.id, label: ins.nome }))}
+                  options={insumos.filter(ins => ins.ativo !== false).map(ins => ({ value: ins.id, label: ins.nome }))}
                   value={newRow.insumo_id ? { value: newRow.insumo_id, label: insumos.find(i => i.id === newRow.insumo_id)?.nome } : null}
                   onChange={(selectedOption) => setNewRow({ ...newRow, insumo_id: selectedOption ? selectedOption.value : "" })}
                   placeholder="Buscar Insumo..."
@@ -299,10 +361,15 @@ function MovimentacoesEstoque() {
                 <label style={{ display: "block", fontSize: "0.9rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Quantidade</label>
                 <input
                   type="number"
-                  step="0.001"
+                  step="1"
                   placeholder="Qtd"
                   value={newRow.quantidade}
                   onChange={(e) => setNewRow({ ...newRow, quantidade: e.target.value })}
+                  onKeyDown={(e) => {
+                    if (['.', ',', 'e', 'E', '+', '-'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "38px" }}
                 />
               </div>
@@ -332,13 +399,28 @@ function MovimentacoesEstoque() {
                   {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                 </select>
               </div>
-              <div style={{ flex: "0 1 auto" }}>
+              <div style={{ flex: "0 0 130px", position: "relative" }}>
+                {showSavedMessage && (
+                  <span className="saved-message-anim" style={{
+                    position: "absolute",
+                    top: "-24px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    color: "#22c55e",
+                    fontWeight: "bold",
+                    fontSize: "0.95rem",
+                    pointerEvents: "none",
+                    whiteSpace: "nowrap"
+                  }}>
+                    Salvo!
+                  </span>
+                )}
                 <button
                   onClick={handleAddRow}
                   disabled={savingRow}
                   style={{
                     height: "38px",
-                    padding: "0 24px",
+                    padding: "0",
                     backgroundColor: "var(--primary-color)",
                     color: "white",
                     border: "none",
@@ -348,10 +430,11 @@ function MovimentacoesEstoque() {
                     width: "100%",
                     display: "flex",
                     alignItems: "center",
+                    justifyContent: "center",
                     gap: "8px"
                   }}
                 >
-                  {savingRow ? <Icons.BsArrowClockwise className="spin" /> : <><Icons.BsCheckCircleFill /> Salvar</>}
+                  {savingRow ? <><Icons.BsArrowClockwise className="spin" /> Salvando...</> : <><Icons.BsCheckCircleFill /> Salvar</>}
                 </button>
               </div>
             </div>
@@ -472,10 +555,92 @@ function MovimentacoesEstoque() {
                   </tr>
                 ) : (
                   movimentacoes.map((mov) => {
+                    const isEditing = editingRowId === mov.id;
+
+                    if (isEditing) {
+                      return (
+                        <tr key={mov.id} style={{ backgroundColor: "#f8fafc" }}>
+                          <td style={{ padding: "8px" }}>
+                            <Select
+                              menuPortalTarget={document.body}
+                              maxMenuHeight={250}
+                              options={insumos.map(ins => ({ value: ins.id, label: ins.nome }))}
+                              value={editRowData.insumo_id ? { value: editRowData.insumo_id, label: insumos.find((i: any) => i.id === editRowData.insumo_id)?.nome } : null}
+                              onChange={(sel) => setEditRowData({ ...editRowData, insumo_id: sel ? sel.value : "" })}
+                              styles={{
+                                control: (base) => ({ ...base, minHeight: '38px', fontSize: '1.1rem' }),
+                                menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.1rem' })
+                              }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              type="date"
+                              value={editRowData.data_movimentacao}
+                              onChange={(e) => setEditRowData({ ...editRowData, data_movimentacao: e.target.value })}
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <input
+                              type="number"
+                              step="1"
+                              value={editRowData.quantidade}
+                              onChange={(e) => setEditRowData({ ...editRowData, quantidade: e.target.value })}
+                              onKeyDown={(e) => {
+                                if (['.', ',', 'e', 'E', '+', '-'].includes(e.key)) {
+                                  e.preventDefault();
+                                }
+                              }}
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px", textAlign: "center" }}
+                            />
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <select
+                              value={editRowData.origem}
+                              onChange={(e) => setEditRowData({ ...editRowData, origem: e.target.value })}
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            >
+                              {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                            </select>
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            <select
+                              value={editRowData.destino}
+                              onChange={(e) => setEditRowData({ ...editRowData, destino: e.target.value })}
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            >
+                              {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                            </select>
+                          </td>
+                          <td style={{ textAlign: "center" }}>
+                            <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+                              <button
+                                onClick={handleSaveEdit}
+                                disabled={savingEdit}
+                                title="Salvar"
+                                style={{ background: "#22c55e", color: "white", border: "none", borderRadius: "4px", padding: "4px 8px", cursor: "pointer", fontSize: "1.2rem", display: "flex", alignItems: "center" }}
+                              >
+                                {savingEdit ? <Icons.BsArrowClockwise className="spin" /> : <Icons.BsCheck />}
+                              </button>
+                              <button
+                                onClick={() => setEditingRowId(null)}
+                                disabled={savingEdit}
+                                title="Cancelar"
+                                style={{ background: "#ef4444", color: "white", border: "none", borderRadius: "4px", padding: "4px 8px", cursor: "pointer", fontSize: "1.2rem", display: "flex", alignItems: "center" }}
+                              >
+                                <Icons.BsX />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    }
+
                     const dataFormatada = new Date(mov.data_movimentacao + 'T00:00:00').toLocaleDateString('pt-BR');
                     
                     return (
-                      <tr key={mov.id}>
+                      <tr key={mov.id} className={mov.id === newlyAddedId ? "new-row-animation" : ""}>
                         <td>{mov.cadastro_insumos?.nome || "Insumo Excluído"}</td>
                         <td style={{ textAlign: "center" }}>{dataFormatada}</td>
                         <td style={{ textAlign: "center", fontWeight: "bold" }}>{mov.quantidade}</td>
@@ -494,14 +659,33 @@ function MovimentacoesEstoque() {
                           {mov.destino}
                         </td>
                         <td style={{ textAlign: "center" }}>
-                          <button
-                            onClick={() => handleDelete(mov.id)}
-                            className="delete-record-btn"
-                            title="Excluir Movimentação"
-                            style={{ margin: "0 auto" }}
-                          >
-                            <Icons.BsTrash />
-                          </button>
+                          <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                            <button
+                              onClick={() => {
+                                setEditingRowId(mov.id);
+                                setEditRowData({
+                                  insumo_id: mov.insumo_id,
+                                  data_movimentacao: mov.data_movimentacao,
+                                  quantidade: mov.quantidade,
+                                  origem: mov.origem,
+                                  destino: mov.destino
+                                });
+                              }}
+                              className="nav-btn"
+                              title="Editar"
+                              style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                            >
+                              <Icons.BsPencil />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(mov.id)}
+                              className="delete-record-btn"
+                              title="Excluir"
+                              style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                            >
+                              <Icons.BsTrash />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );

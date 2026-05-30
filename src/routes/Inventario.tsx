@@ -93,9 +93,11 @@ function Inventario() {
         setSelectedDate(uniqueDates[0]); // Seleciona o mais recente por padrão
       } else {
         setSelectedDate("");
+        setLoading(false);
       }
     } catch (err) {
       console.error("Erro ao buscar datas do inventário:", err);
+      setLoading(false);
     }
   }
 
@@ -305,12 +307,12 @@ function Inventario() {
           display: "flex", alignItems: "center", justifyContent: "center"
         }}>
           <div style={{
-            backgroundColor: "#fff", padding: "32px", borderRadius: "12px",
-            width: "400px", maxWidth: "90%", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+            backgroundColor: "#fff", padding: "40px", borderRadius: "12px",
+            width: "500px", maxWidth: "90%", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
           }}>
-            <h2 style={{ marginTop: 0, marginBottom: "8px", fontSize: "1.5rem" }}>Novo Inventário</h2>
-            <p style={{ color: "var(--text-muted)", marginBottom: "24px" }}>
-              Para qual data você está realizando esta contagem na unidade {STORES.find(s => s.id === activeTab)?.name}?
+            <h2 style={{ marginTop: 0, marginBottom: "12px", fontSize: "2rem", color: "var(--secondary-color)" }}>Novo Inventário</h2>
+            <p style={{ color: "var(--text-muted)", marginBottom: "32px", fontSize: "1.2rem", lineHeight: "1.5" }}>
+              Para qual data você está realizando esta contagem na unidade <strong>{STORES.find(s => s.id === activeTab)?.name}</strong>?
             </p>
             
             <input 
@@ -318,17 +320,18 @@ function Inventario() {
               value={newDate}
               onChange={e => setNewDate(e.target.value)}
               style={{
-                width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1",
-                fontSize: "1.1rem", marginBottom: "24px", boxSizing: "border-box"
+                width: "100%", padding: "16px", borderRadius: "8px", border: "1px solid #cbd5e1",
+                fontSize: "1.3rem", marginBottom: "32px", boxSizing: "border-box"
               }}
             />
 
-            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+            <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
               <button 
                 onClick={() => setIsModalOpen(false)}
                 style={{
-                  padding: "10px 20px", backgroundColor: "#f1f5f9", color: "#475569",
-                  border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer"
+                  padding: "12px 24px", backgroundColor: "#f1f5f9", color: "#475569",
+                  border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer",
+                  fontSize: "1.1rem"
                 }}
               >
                 Cancelar
@@ -336,8 +339,9 @@ function Inventario() {
               <button 
                 onClick={handleCreateNew}
                 style={{
-                  padding: "10px 20px", backgroundColor: "var(--primary-color)", color: "#fff",
-                  border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer"
+                  padding: "12px 24px", backgroundColor: "var(--primary-color)", color: "#fff",
+                  border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer",
+                  fontSize: "1.1rem"
                 }}
               >
                 Criar Inventário

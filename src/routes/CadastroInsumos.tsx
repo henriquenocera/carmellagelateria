@@ -83,14 +83,23 @@ function CadastroInsumos() {
 
     try {
       setSaving(true);
+      
+      const qtd = novaQtdConversao ? parseFloat(novaQtdConversao) : null;
+      const custoEmb = novoCustoConsiderado ? parseFloat(novoCustoConsiderado) : null;
+      let custoUnit = null;
+      if (qtd && custoEmb && qtd > 0) {
+        custoUnit = parseFloat((custoEmb / qtd).toFixed(2));
+      }
+
       const { error } = await supabase
         .from("cadastro_insumos")
         .insert([{
           nome: novoNome.trim(),
           ativo: true,
-          quantidade_conversao: novaQtdConversao ? parseFloat(novaQtdConversao) : null,
+          quantidade_conversao: qtd,
           unidade_conversao: novaUnidadeConversao.trim(),
-          custo_considerado: novoCustoConsiderado ? parseFloat(novoCustoConsiderado) : null,
+          custo_considerado: custoEmb,
+          custo_considerado_unitario: custoUnit,
           nome_simples_unitario: novoNomeSimples.trim(),
           tipo: novoTipo.trim(),
           fornecedor_padrao: novoFornecedor.trim()
@@ -135,7 +144,25 @@ function CadastroInsumos() {
 
   const handleLocalChange = (id: string, field: string, value: any) => {
     setInsumos((prev) =>
-      prev.map((ins) => (ins.id === id ? { ...ins, [field]: value } : ins))
+      prev.map((ins) => {
+        if (ins.id !== id) return ins;
+        
+        const updatedIns = { ...ins, [field]: value };
+        
+        // Calcular automaticamente o custo unitário se alterar Qtd ou Custo da Embalagem
+        if (field === "quantidade_conversao" || field === "custo_considerado") {
+          const qtd = field === "quantidade_conversao" ? (value ? parseFloat(value) : null) : ins.quantidade_conversao;
+          const custoEmb = field === "custo_considerado" ? (value ? parseFloat(value) : null) : ins.custo_considerado;
+          
+          if (qtd && custoEmb && qtd > 0) {
+            updatedIns.custo_considerado_unitario = parseFloat((custoEmb / qtd).toFixed(2));
+          } else {
+            updatedIns.custo_considerado_unitario = null;
+          }
+        }
+        
+        return updatedIns;
+      })
     );
   };
 
@@ -143,9 +170,26 @@ function CadastroInsumos() {
     const key = `${id}-${field}`;
     try {
       setCellStatus((prev) => ({ ...prev, [key]: 'saving' }));
+      
+      let updatePayload: any = { [field]: value };
+      
+      if (field === "quantidade_conversao" || field === "custo_considerado") {
+        const insumo = insumos.find(i => i.id === id);
+        if (insumo) {
+          const qtd = field === "quantidade_conversao" ? (value ? parseFloat(value) : null) : insumo.quantidade_conversao;
+          const custoEmb = field === "custo_considerado" ? (value ? parseFloat(value) : null) : insumo.custo_considerado;
+          
+          if (qtd && custoEmb && qtd > 0) {
+            updatePayload.custo_considerado_unitario = parseFloat((custoEmb / qtd).toFixed(2));
+          } else {
+            updatePayload.custo_considerado_unitario = null;
+          }
+        }
+      }
+
       const { error } = await supabase
         .from("cadastro_insumos")
-        .update({ [field]: value })
+        .update(updatePayload)
         .eq("id", id);
 
       if (error) throw error;
@@ -228,9 +272,14 @@ function CadastroInsumos() {
     step?: string,
     extraStyles?: React.CSSProperties,
     options?: { label: string, value: string }[],
-    forceReadOnly: boolean = false
+    forceReadOnly: boolean = false,
+    prefix?: string
   ) => {
     if (editingRowId !== insumo.id || forceReadOnly) {
+      let displayValue = insumo[field];
+      if (prefix === "R$" && typeof displayValue === "number") {
+        displayValue = displayValue.toFixed(2);
+      }
       return (
         <div style={{ 
           padding: "4px", 
@@ -242,7 +291,7 @@ function CadastroInsumos() {
           alignItems: "center", 
           ...extraStyles 
         }}>
-          {insumo[field] ?? ""}
+          {prefix ? `${prefix} ` : ""}{displayValue !== null && displayValue !== undefined ? displayValue : ""}
         </div>
       );
     }
@@ -279,12 +328,16 @@ function CadastroInsumos() {
       let val: any = e.target.value;
       if (type === "number") {
         val = val !== "" ? parseFloat(val) : null;
+        if (val !== null && prefix === "R$") {
+          val = parseFloat(val.toFixed(2));
+          handleLocalChange(insumo.id, field, val); // update locally to rounded format
+        }
       }
       handleUpdateField(insumo.id, field, val);
     };
 
     const commonProps = {
-      value: insumo[field] ?? "",
+      value: (prefix === "R$" && typeof insumo[field] === "number" && status !== 'editing') ? insumo[field].toFixed(2) : (insumo[field] ?? ""),
       onChange: handleChange,
       onBlur: handleBlur,
       onFocus: handleFocus,
@@ -307,6 +360,11 @@ function CadastroInsumos() {
 
     return (
       <div style={{ position: "relative", width: "100%", display: "flex", alignItems: "center" }}>
+        {prefix && (
+          <span style={{ position: "absolute", left: "6px", color: "#64748b", zIndex: 1, pointerEvents: "none" }}>
+            {prefix}
+          </span>
+        )}
         {options ? (
           <select {...commonProps}>
             {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
@@ -316,6 +374,7 @@ function CadastroInsumos() {
             type={type}
             step={step}
             {...commonProps}
+            style={{ ...commonProps.style, paddingLeft: prefix ? "28px" : commonProps.style.paddingLeft }}
           />
         )}
         {status === 'saving' && (
@@ -367,8 +426,9 @@ function CadastroInsumos() {
                     <th>Tipo</th>
                     <th>Fornecedor</th>
                     <th style={{ width: "90px" }}>Qtd Conv.</th>
-                    <th style={{ width: "90px" }}>Unid. Conv.</th>
-                    <th style={{ width: "100px" }}>Custo Consid.</th>
+                    <th style={{ width: "90px" }}>Embalagem</th>
+                    <th style={{ width: "100px" }}>Custo Emb.</th>
+                    <th style={{ width: "100px" }}>Custo Unit.</th>
                     <th style={{ width: "100px" }}>Custo Atual.</th>
                     <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
                   </tr>
@@ -423,9 +483,19 @@ function CadastroInsumos() {
                       </td>
                       <td>{renderEditableInput(insumo, "fornecedor_padrao")}</td>
                       <td>{renderEditableInput(insumo, "quantidade_conversao", "number", "0.0001")}</td>
-                      <td>{renderEditableInput(insumo, "unidade_conversao")}</td>
-                      <td>{renderEditableInput(insumo, "custo_considerado", "number", "0.01")}</td>
-                      <td>{renderEditableInput(insumo, "custo_atualizado", "number", "0.01", undefined, undefined, true)}</td>
+                      <td>
+                        {renderEditableInput(insumo, "unidade_conversao", "text", undefined, undefined, [
+                          { label: "Selecione", value: "" },
+                          { label: "Unidade", value: "Unidade" },
+                          { label: "Pacote", value: "Pacote" },
+                          { label: "Caixa", value: "Caixa" },
+                          { label: "Saco", value: "Saco" },
+                          { label: "Kg", value: "Kg" }
+                        ])}
+                      </td>
+                      <td>{renderEditableInput(insumo, "custo_considerado", "number", "0.01", undefined, undefined, false, "R$")}</td>
+                      <td>{renderEditableInput(insumo, "custo_considerado_unitario", "number", "0.0001", undefined, undefined, true, "R$")}</td>
+                      <td>{renderEditableInput(insumo, "custo_atualizado", "number", "0.01", undefined, undefined, true, "R$")}</td>
                       <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
                         <button
                           onClick={() => setEditingRowId(editingRowId === insumo.id ? null : insumo.id)}
@@ -493,7 +563,7 @@ function CadastroInsumos() {
                     className="frequencia-select"
                     value={novoTipo}
                     onChange={(e) => setNovoTipo(e.target.value)}
-                    style={{ background: "#fff" }}
+                    style={{ background: "#fff", fontSize: "1.1rem" }}
                   >
                     <option value="">Selecione um tipo</option>
                     <option value="Insumos">Insumos</option>
@@ -521,7 +591,25 @@ function CadastroInsumos() {
                 
                 <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Qtd de Conversão</label>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Embalagem</label>
+                    <select
+                      className="frequencia-select"
+                      value={novaUnidadeConversao}
+                      onChange={(e) => setNovaUnidadeConversao(e.target.value)}
+                      style={{ background: "#fff", fontSize: "1.1rem" }}
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="Unidade">Unidade</option>
+                      <option value="Pacote">Pacote</option>
+                      <option value="Caixa">Caixa</option>
+                      <option value="Saco">Saco</option>
+                      <option value="Kg">Kg</option>
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>
+                      {`Qtd que vem ${novaUnidadeConversao ? `no(a) ${novaUnidadeConversao}` : "na Embalagem"}`}
+                    </label>
                     <input
                       type="number"
                       step="0.0001"
@@ -531,28 +619,22 @@ function CadastroInsumos() {
                       onChange={(e) => setNovaQtdConversao(e.target.value)}
                     />
                   </div>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Unidade de Conversão</label>
-                    <input
-                      type="text"
-                      className="frequencia-select"
-                      placeholder="Ex: ml, g"
-                      value={novaUnidadeConversao}
-                      onChange={(e) => setNovaUnidadeConversao(e.target.value)}
-                    />
-                  </div>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Custo Considerado</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    className="frequencia-select"
-                    placeholder="R$ 0,00"
-                    value={novoCustoConsiderado}
-                    onChange={(e) => setNovoCustoConsiderado(e.target.value)}
-                  />
+                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Custo da Embalagem</label>
+                  <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                    <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>R$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="frequencia-select"
+                      placeholder="0,00"
+                      value={novoCustoConsiderado}
+                      onChange={(e) => setNovoCustoConsiderado(e.target.value)}
+                      style={{ paddingLeft: "36px" }}
+                    />
+                  </div>
                 </div>
               </div>
 

@@ -200,9 +200,9 @@ function LojaEstoqueInsumos() {
               <div style={{
                 backgroundColor: "#eef2ff",
                 color: "#4338ca",
-                padding: "8px 16px",
+                padding: "12px 20px",
                 borderRadius: "8px",
-                fontSize: "0.95rem",
+                fontSize: "1.2rem",
                 fontWeight: 600,
                 border: "1px solid #e0e7ff",
                 display: "flex",
@@ -217,9 +217,9 @@ function LojaEstoqueInsumos() {
               <div style={{
                 backgroundColor: "#fff7ed",
                 color: "#c2410c",
-                padding: "8px 16px",
+                padding: "12px 20px",
                 borderRadius: "8px",
-                fontSize: "0.95rem",
+                fontSize: "1.2rem",
                 fontWeight: 600,
                 border: "1px solid #ffedd5",
                 display: "flex",
@@ -280,33 +280,47 @@ function LojaEstoqueInsumos() {
                       rowBg = "#fff0f0"; // very light red
                     }
 
+                    const getTagStyles = (tipo: string) => {
+                      switch (tipo) {
+                        case "Insumos": return { bg: "#e0f2fe", color: "#0284c7", border: "#bae6fd" };
+                        case "Matéria Prima": return { bg: "#dcfce7", color: "#16a34a", border: "#bbf7d0" };
+                        case "Bebidas": return { bg: "#f3e8ff", color: "#9333ea", border: "#e9d5ff" };
+                        case "Material de Limpeza": return { bg: "#ccfbf1", color: "#0d9488", border: "#99f6e4" };
+                        case "Salgados": return { bg: "#ffedd5", color: "#ea580c", border: "#fed7aa" };
+                        default: return { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0" };
+                      }
+                    };
+                    const tagStyle = getTagStyles(insumo.tipo);
+
                     return (
                       <tr key={insumo.id} style={{ backgroundColor: rowBg, transition: "background 0.2s" }}>
-                        <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
+                        <td style={{ fontWeight: 500, fontSize: "1.1rem" }}>{insumo.nome}</td>
                         <td>
                             <span style={{
-                              padding: "4px 8px", 
-                              backgroundColor: "#f8fafc", 
+                              padding: "6px 10px", 
+                              backgroundColor: tagStyle.bg, 
                               borderRadius: "6px", 
-                              fontSize: "0.85rem", 
-                              color: "#64748b",
-                              border: "1px solid #e2e8f0"
+                              fontSize: "1rem", 
+                              fontWeight: 600,
+                              color: tagStyle.color,
+                              border: `1px solid ${tagStyle.border}`
                             }}>
                               {insumo.tipo || "-"}
                             </span>
                         </td>
-                        <td style={{ textAlign: "center", color: "var(--text-muted)" }}>
+                        <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 500 }}>
                           {min != null ? min : "-"}
                         </td>
-                        <td style={{ textAlign: "center", color: "var(--text-muted)" }}>
+                        <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 500 }}>
                           {desired != null ? desired : "-"}
                         </td>
-                        <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.1rem" }}>
+                        <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.3rem" }}>
                           {current}
                         </td>
                         <td style={{ 
                           textAlign: "center", 
-                          fontWeight: 600, 
+                          fontWeight: 700, 
+                          fontSize: "1.2rem",
                           color: toOrder != null && toOrder > 0 ? "var(--primary-color)" : "var(--text-muted)" 
                         }}>
                           {toOrder != null ? toOrder : "-"}

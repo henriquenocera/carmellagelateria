@@ -31,8 +31,8 @@ BEGIN
         -- Gerar uma data aleatória retroativa (nos últimos 365 dias)
         v_data := current_date - (floor(random() * 365) || ' days')::interval;
         
-        -- Gerar uma quantidade aleatória entre 0 e 50 (com até 3 casas decimais)
-        v_quantidade := round((random() * 50 + 1)::numeric, 3);
+        -- Gerar uma quantidade aleatória inteira entre 1 e 50
+        v_quantidade := floor(random() * 50 + 1);
 
         -- Inserir a movimentação na tabela
         INSERT INTO movimentacoes_estoque (insumo_id, data_movimentacao, quantidade, origem, destino)
