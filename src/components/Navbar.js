@@ -32,6 +32,15 @@ const MENU_CONFIG = [
     ]
   },
   {
+    title: "Compras",
+    icon: <Icons.BsCart3 />,
+    id: "compras",
+    subItems: [
+      { title: "Lista de Compras", path: "/lista-compras" },
+      { title: "Entrada de Mercadoria", path: "/entrada-mercadoria" },
+    ]
+  },
+  {
     title: "RH",
     icon: <Icons.BsPerson />,
     id: "rh",
