@@ -14,6 +14,11 @@ function CadastroInsumos() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cellStatus, setCellStatus] = useState<Record<string, 'editing' | 'saving' | 'saved' | 'error'>>({});
+
+  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+  const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(null);
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
 
   const [novoNome, setNovoNome] = useState("");
   const [novaQtdConversao, setNovaQtdConversao] = useState("");
@@ -31,12 +36,32 @@ function CadastroInsumos() {
     }
   }, [isAdmin, navigate]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (editingRowId === null) return;
+      const target = event.target as HTMLElement;
+      
+      if (target.closest('.modal-content')) return;
+
+      const editingRow = document.getElementById(`row-${editingRowId}`);
+      if (editingRow && editingRow.contains(target)) return;
+
+      setEditingRowId(null);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [editingRowId]);
+
   async function fetchInsumos() {
     try {
       setLoading(true);
       const { data, error } = await supabase
         .from("cadastro_insumos")
         .select("*")
+        .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
 
       if (error) throw error;
@@ -115,18 +140,196 @@ function CadastroInsumos() {
   };
 
   async function handleUpdateField(id: string, field: string, value: any) {
+    const key = `${id}-${field}`;
     try {
+      setCellStatus((prev) => ({ ...prev, [key]: 'saving' }));
       const { error } = await supabase
         .from("cadastro_insumos")
         .update({ [field]: value })
         .eq("id", id);
 
       if (error) throw error;
+
+      setCellStatus((prev) => ({ ...prev, [key]: 'saved' }));
+      setTimeout(() => {
+        setCellStatus((prev) => {
+          if (prev[key] === 'saved') {
+            const newState = { ...prev };
+            delete newState[key];
+            return newState;
+          }
+          return prev;
+        });
+      }, 2000);
     } catch (err) {
       console.error("Erro ao atualizar:", err);
+      setCellStatus((prev) => ({ ...prev, [key]: 'error' }));
       alert("Erro ao atualizar o campo.");
     }
   }
+
+  const handleDragStart = (index: number) => {
+    setDraggedItemIndex(index);
+  };
+
+  const handleDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (index !== dragOverItemIndex) {
+      setDragOverItemIndex(index);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemIndex(null);
+    setDragOverItemIndex(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+
+    const items = [...insumos];
+    const draggedItem = items[draggedItemIndex];
+    items.splice(draggedItemIndex, 1);
+    items.splice(targetIndex, 0, draggedItem);
+
+    const updatedItems = items.map((item, index) => ({
+      ...item,
+      ordem: index
+    }));
+    
+    setInsumos(updatedItems);
+    setDraggedItemIndex(null);
+    setDragOverItemIndex(null);
+
+    try {
+      setSaving(true);
+      const updates = updatedItems.map(item => 
+        supabase.from("cadastro_insumos").update({ ordem: item.ordem }).eq("id", item.id)
+      );
+      await Promise.all(updates);
+    } catch (err) {
+      console.error("Erro ao reordenar:", err);
+      alert("Erro ao salvar a nova ordem no banco de dados.");
+      fetchInsumos();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderEditableInput = (
+    insumo: any,
+    field: string,
+    type: string = "text",
+    step?: string,
+    extraStyles?: React.CSSProperties,
+    options?: { label: string, value: string }[],
+    forceReadOnly: boolean = false
+  ) => {
+    if (editingRowId !== insumo.id || forceReadOnly) {
+      return (
+        <div style={{ 
+          padding: "4px", 
+          border: "1px solid transparent", 
+          minHeight: "30px", 
+          boxSizing: "border-box",
+          width: "100%", 
+          display: "flex", 
+          alignItems: "center", 
+          ...extraStyles 
+        }}>
+          {insumo[field] ?? ""}
+        </div>
+      );
+    }
+
+    const status = cellStatus[`${insumo.id}-${field}`];
+    
+    let bg = "transparent";
+    let color = "inherit";
+    
+    if (status === 'editing') {
+      bg = "rgba(0, 0, 0, 0.03)";
+    } else if (status === 'saving') {
+      bg = "#fff3cd";
+      color = "#856404";
+    } else if (status === 'saved') {
+      bg = "#d4edda";
+      color = "#155724";
+    } else if (status === 'error') {
+      bg = "#f8d7da";
+      color = "#721c24";
+    } else {
+      bg = "#fff"; // White background to indicate it's an input
+    }
+
+    const handleFocus = () => {
+      setCellStatus(prev => ({ ...prev, [`${insumo.id}-${field}`]: 'editing' }));
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      handleLocalChange(insumo.id, field, e.target.value);
+    };
+
+    const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+      let val: any = e.target.value;
+      if (type === "number") {
+        val = val !== "" ? parseFloat(val) : null;
+      }
+      handleUpdateField(insumo.id, field, val);
+    };
+
+    const commonProps = {
+      value: insumo[field] ?? "",
+      onChange: handleChange,
+      onBlur: handleBlur,
+      onFocus: handleFocus,
+      style: {
+        border: status === 'editing' ? "1px solid var(--primary-color)" : "1px solid #cbd5e1",
+        background: bg,
+        width: "100%",
+        outline: "none",
+        color: color,
+        padding: "4px",
+        minHeight: "30px",
+        boxSizing: "border-box",
+        paddingRight: status === 'saving' || status === 'saved' || status === 'error' ? "24px" : "4px",
+        borderRadius: "4px",
+        transition: "all 0.3s ease",
+        ...extraStyles
+      },
+      title: "Clique para editar"
+    };
+
+    return (
+      <div style={{ position: "relative", width: "100%", display: "flex", alignItems: "center" }}>
+        {options ? (
+          <select {...commonProps}>
+            {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+          </select>
+        ) : (
+          <input
+            type={type}
+            step={step}
+            {...commonProps}
+          />
+        )}
+        {status === 'saving' && (
+          <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "6px", color: color, fontSize: "1rem" }} />
+        )}
+        {status === 'saved' && (
+          <Icons.BsCheck style={{ position: "absolute", right: "6px", color: color, fontSize: "1.3rem" }} />
+        )}
+        {status === 'error' && (
+          <Icons.BsX style={{ position: "absolute", right: "6px", color: color, fontSize: "1.3rem" }} />
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -146,7 +349,7 @@ function CadastroInsumos() {
           </button>
         </div>
 
-        <div className="freq-annual-summary-wrapper" style={{ marginTop: "20px", maxWidth: "1200px", margin: "20px auto" }}>
+        <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
               <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
@@ -155,11 +358,11 @@ function CadastroInsumos() {
             <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>Nenhum insumo registrado.</p>
           ) : (
             <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
-              <table className="freq-table" style={{ minWidth: "900px" }}>
+              <table className="freq-table" style={{ minWidth: "1100px" }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: "center", width: "60px" }}>Ativo</th>
-                    <th>Nome</th>
+                    <th style={{ width: "350px", minWidth: "250px" }}>Nome</th>
                     <th>Nome Simples</th>
                     <th>Tipo</th>
                     <th>Fornecedor</th>
@@ -171,101 +374,72 @@ function CadastroInsumos() {
                   </tr>
                 </thead>
                 <tbody>
-                  {insumos.map((insumo) => (
-                    <tr key={insumo.id} style={{ opacity: insumo.ativo ? 1 : 0.6, transition: "opacity 0.2s" }}>
+                  {insumos.map((insumo, index) => (
+                    <tr
+                      id={`row-${insumo.id}`}
+                      key={insumo.id}
+                      draggable
+                      onDragStart={() => handleDragStart(index)}
+                      onDragEnter={(e) => handleDragEnter(e, index)}
+                      onDragOver={handleDragOver}
+                      onDragEnd={handleDragEnd}
+                      onDrop={(e) => handleDrop(e, index)}
+                      style={{
+                        opacity: insumo.ativo ? 1 : 0.6,
+                        transition: "all 0.2s",
+                        cursor: "grab",
+                        backgroundColor: dragOverItemIndex === index ? "rgba(0,0,0,0.05)" : "transparent",
+                        borderTop: dragOverItemIndex === index && draggedItemIndex !== null && index < draggedItemIndex ? "2px solid var(--primary-color)" : "none",
+                        borderBottom: dragOverItemIndex === index && draggedItemIndex !== null && index > draggedItemIndex ? "2px solid var(--primary-color)" : "none"
+                      }}
+                    >
                       <td style={{ textAlign: "center" }}>
-                        <input
-                          type="checkbox"
-                          checked={insumo.ativo || false}
-                          onChange={(e) => {
-                            handleLocalChange(insumo.id, "ativo", e.target.checked);
-                            handleUpdateField(insumo.id, "ativo", e.target.checked);
-                          }}
-                          style={{ cursor: "pointer", width: "16px", height: "16px" }}
-                        />
+                        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          <input
+                            type="checkbox"
+                            disabled={editingRowId !== insumo.id}
+                            checked={insumo.ativo || false}
+                            onChange={(e) => {
+                              handleLocalChange(insumo.id, "ativo", e.target.checked);
+                              handleUpdateField(insumo.id, "ativo", e.target.checked);
+                            }}
+                            style={{ cursor: "pointer", width: "16px", height: "16px" }}
+                          />
+                          {cellStatus[`${insumo.id}-ativo`] === 'saving' && <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "-20px", color: "#856404", fontSize: "1rem" }} />}
+                          {cellStatus[`${insumo.id}-ativo`] === 'saved' && <Icons.BsCheck style={{ position: "absolute", right: "-22px", color: "#155724", fontSize: "1.3rem" }} />}
+                        </div>
                       </td>
+                      <td>{renderEditableInput(insumo, "nome", "text", undefined, { fontWeight: 500 })}</td>
+                      <td>{renderEditableInput(insumo, "nome_simples_unitario")}</td>
                       <td>
-                        <input
-                          type="text"
-                          value={insumo.nome || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "nome", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "nome", e.target.value)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", fontWeight: 500, color: "inherit", padding: "4px" }}
-                          title="Clique para editar"
-                        />
+                        {renderEditableInput(insumo, "tipo", "text", undefined, undefined, [
+                          { label: "Insumos", value: "Insumos" },
+                          { label: "Matéria Prima", value: "Matéria Prima" },
+                          { label: "Bebidas", value: "Bebidas" },
+                          { label: "Material de Limpeza", value: "Material de Limpeza" },
+                          { label: "Salgados", value: "Salgados" },
+                          { label: "Outros", value: "Outros" }
+                        ])}
                       </td>
-                      <td>
-                        <input
-                          type="text"
-                          value={insumo.nome_simples_unitario || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "nome_simples_unitario", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "nome_simples_unitario", e.target.value)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          value={insumo.tipo || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "tipo", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "tipo", e.target.value)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          value={insumo.fornecedor_padrao || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "fornecedor_padrao", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "fornecedor_padrao", e.target.value)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          step="0.0001"
-                          value={insumo.quantidade_conversao || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "quantidade_conversao", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "quantidade_conversao", e.target.value ? parseFloat(e.target.value) : null)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="text"
-                          value={insumo.unidade_conversao || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "unidade_conversao", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "unidade_conversao", e.target.value)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={insumo.custo_considerado || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "custo_considerado", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "custo_considerado", e.target.value ? parseFloat(e.target.value) : null)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={insumo.custo_atualizado || ""}
-                          onChange={(e) => handleLocalChange(insumo.id, "custo_atualizado", e.target.value)}
-                          onBlur={(e) => handleUpdateField(insumo.id, "custo_atualizado", e.target.value ? parseFloat(e.target.value) : null)}
-                          style={{ border: "1px solid transparent", background: "transparent", width: "100%", outline: "none", color: "inherit", padding: "4px" }}
-                        />
-                      </td>
-                      <td style={{ textAlign: "center" }}>
+                      <td>{renderEditableInput(insumo, "fornecedor_padrao")}</td>
+                      <td>{renderEditableInput(insumo, "quantidade_conversao", "number", "0.0001")}</td>
+                      <td>{renderEditableInput(insumo, "unidade_conversao")}</td>
+                      <td>{renderEditableInput(insumo, "custo_considerado", "number", "0.01")}</td>
+                      <td>{renderEditableInput(insumo, "custo_atualizado", "number", "0.01", undefined, undefined, true)}</td>
+                      <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
+                        <button
+                          onClick={() => setEditingRowId(editingRowId === insumo.id ? null : insumo.id)}
+                          className="delete-record-btn"
+                          title={editingRowId === insumo.id ? "Fechar Edição" : "Editar Insumo"}
+                          style={{ margin: 0, color: editingRowId === insumo.id ? "var(--primary-color)" : "inherit" }}
+                        >
+                          {editingRowId === insumo.id ? <Icons.BsCheckLg /> : <Icons.BsPencil />}
+                        </button>
                         <button
                           onClick={() => handleDeleteInsumo(insumo.id)}
                           className="delete-record-btn"
                           title="Excluir Insumo"
-                          style={{ margin: "0 auto" }}
+                          style={{ margin: 0 }}
                         >
                           <Icons.BsTrash />
                         </button>

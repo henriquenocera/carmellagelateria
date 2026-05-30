@@ -15,10 +15,18 @@ const MENU_CONFIG = [
     icon: <Icons.BsBriefcase />,
     id: "operacoes",
     subItems: [
-      { title: "Lojas - Checklists", path: "/lojas-checklist" },
-      { title: "Lojas - Cubas", path: "/lojas-cubas-estoque" },
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },
+    ]
+  },
+  {
+    title: "Lojas",
+    icon: <Icons.BsShop />,
+    id: "lojas",
+    subItems: [
+      { title: "Checklists", path: "/lojas-checklist" },
+      { title: "Estoque Cubas", path: "/lojas-cubas-estoque" },
+      { title: "Estoque Insumos", path: "/loja-estoque-insumos" },
     ]
   },
   {
@@ -48,6 +56,7 @@ const MENU_CONFIG = [
       { title: "Cadastro Pessoas", path: "/cadastro-pessoas" },
       { title: "Cadastro Feriados", path: "/feriados-globais" },
       { title: "Cadastro de Insumos", path: "/cadastro-insumos" },
+      { title: "Configuração de Estoque", path: "/configuracao-estoque" },
       { title: "Logs", path: "/logs" },
     ]
   }

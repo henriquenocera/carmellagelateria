@@ -34,7 +34,10 @@ import Logs from "./routes/Logs.tsx";
 import FeriadosGlobais from "./routes/FeriadosGlobais.tsx";
 import EstoqueLojas from "./routes/EstoqueLojas.jsx";
 import CadastroInsumos from "./routes/CadastroInsumos.tsx";
+import ConfiguracaoEstoque from "./routes/ConfiguracaoEstoque.tsx";
+import LojaEstoqueInsumos from "./routes/LojaEstoqueInsumos.tsx";
 import Funcionarios from "./routes/Funcionarios.tsx";
+import TesteWhatsApp from "./routes/TesteWhatsApp.tsx";
 import supabase from "./supabase-client";
 
 const ProtectedLayout = () => {
@@ -118,6 +121,9 @@ const router = createBrowserRouter(
         <Route path="/logs" element={<Logs />} />
         <Route path="/feriados-globais" element={<FeriadosGlobais />} />
         <Route path="/cadastro-insumos" element={<CadastroInsumos />} />
+        <Route path="/configuracao-estoque" element={<ConfiguracaoEstoque />} />
+        <Route path="/loja-estoque-insumos" element={<LojaEstoqueInsumos />} />
+        <Route path="/teste-whatsapp" element={<TesteWhatsApp />} />
       </Route>
     </>
   )

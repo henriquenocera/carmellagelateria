@@ -170,20 +170,20 @@
   border-right: 1px solid var(--border-color);
   position: sticky;
   top: 0;
-  z-index: 9;
+  z-index: 300;
 }
 
 /* Make headers stick to top-left when scrolling */
 .frequencia-table th.sticky-date {
   left: 0;
-  z-index: 11;
+  z-index: 310;
   width: 110px;
   min-width: 110px;
 }
 
 .frequencia-table th.sticky-day {
   left: 110px;
-  z-index: 11;
+  z-index: 310;
   width: 60px;
   min-width: 60px;
 }
