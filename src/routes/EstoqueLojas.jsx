@@ -93,6 +93,7 @@ const processData = (data) => {
 function EstoqueLojas() {
   const [data, setData] = useState({ ahu: { vitrine: [], estoque: [] }, altoxv: { vitrine: [], estoque: [] } });
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("ahu");
 
   useEffect(() => {
     let isMounted = true;
@@ -213,11 +214,45 @@ function EstoqueLojas() {
         </button>
       </div>
 
+      <div style={{ display: "flex", gap: "12px", marginBottom: "24px", borderBottom: "2px solid #e2e8f0", paddingBottom: "16px", overflowX: "auto" }}>
+        <button
+          onClick={() => setActiveTab("ahu")}
+          style={{
+            padding: "10px 24px",
+            fontSize: "1.4rem",
+            fontWeight: "bold",
+            borderRadius: "8px",
+            border: "none",
+            cursor: "pointer",
+            backgroundColor: activeTab === "ahu" ? "#a17550" : "#f1f5f9",
+            color: activeTab === "ahu" ? "#fff" : "#64748b",
+            transition: "all 0.2s",
+            whiteSpace: "nowrap"
+          }}
+        >
+          Loja Ahú
+        </button>
+        <button
+          onClick={() => setActiveTab("altoxv")}
+          style={{
+            padding: "10px 24px",
+            fontSize: "1.4rem",
+            fontWeight: "bold",
+            borderRadius: "8px",
+            border: "none",
+            cursor: "pointer",
+            backgroundColor: activeTab === "altoxv" ? "#a17550" : "#f1f5f9",
+            color: activeTab === "altoxv" ? "#fff" : "#64748b",
+            transition: "all 0.2s",
+            whiteSpace: "nowrap"
+          }}
+        >
+          Loja Alto XV
+        </button>
+      </div>
+
       <style>{`
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        @media (max-width: 1200px) {
-          .main-store-grid { grid-template-columns: 1fr !important; }
-        }
       `}</style>
 
       {loading && data.ahu.vitrine.length === 0 ? (
@@ -226,9 +261,13 @@ function EstoqueLojas() {
           <p style={{ color: "#64748b", fontSize: "1.4rem", marginTop: "16px" }}>Carregando informações...</p>
         </div>
       ) : (
-        <div className="main-store-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", width: "100%" }}>
-          <StoreSection title="Loja Ahú" storeData={data.ahu} maxVitrine={16} maxEstoque={18} />
-          <StoreSection title="Loja Alto XV" storeData={data.altoxv} maxVitrine={12} maxEstoque={18} />
+        <div style={{ width: "100%" }}>
+          {activeTab === "ahu" && (
+            <StoreSection title="Loja Ahú" storeData={data.ahu} maxVitrine={16} maxEstoque={18} />
+          )}
+          {activeTab === "altoxv" && (
+            <StoreSection title="Loja Alto XV" storeData={data.altoxv} maxVitrine={12} maxEstoque={18} />
+          )}
         </div>
       )}
     </div>

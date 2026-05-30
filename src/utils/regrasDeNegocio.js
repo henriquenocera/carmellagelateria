@@ -25,8 +25,41 @@ export const avaliarRegrasDeNegocio = (dados) => {
     }
   };
 
+  const checarCubasVelhas = (itensEstoqueDetalhado, idPrefix, lojaNome) => {
+    if (!itensEstoqueDetalhado) return;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    itensEstoqueDetalhado.forEach(item => {
+      if (item.production_date) {
+        let prodDateObj;
+        const parts = item.production_date.split('-');
+        if (parts.length === 3) {
+          prodDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+        } else {
+          prodDateObj = new Date(item.production_date);
+        }
+
+        const diffTime = hoje - prodDateObj;
+        const daysOld = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (daysOld > 45) {
+          const nomeSabor = item.title ? item.title.trim() : 'Desconhecido';
+          const formatData = (d) => `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+          notificacoes.push({
+            id: `${idPrefix}-cuba-velha-${item.id || Math.random()}`,
+            tipo: 'erro',
+            titulo: `Cuba Antiga no Freezer - ${lojaNome}`,
+            mensagem: `O sabor ${nomeSabor} está no freezer há ${daysOld} dias (Produção: ${formatData(prodDateObj)}).`
+          });
+        }
+      }
+    });
+  };
+
   // ---- Loja Ahú ----
   if (estoque.ahu) {
+    checarCubasVelhas(estoque.ahu.itensEstoqueDetalhado, 'ahu', regras.ahu.nome);
     const totalAhu = estoque.ahu.vitrine + estoque.ahu.estoque;
 
     // Regra 1: Vitrine acima do máximo
@@ -130,6 +163,7 @@ export const avaliarRegrasDeNegocio = (dados) => {
 
   // ---- Loja Alto da XV ----
   if (estoque.altoxv) {
+    checarCubasVelhas(estoque.altoxv.itensEstoqueDetalhado, 'altoxv', regras.altoxv.nome);
     const totalXv = estoque.altoxv.vitrine + estoque.altoxv.estoque;
 
     // Regra 1: Vitrine acima do máximo
