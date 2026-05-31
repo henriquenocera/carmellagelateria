@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../supabase-client";
@@ -14,11 +14,11 @@ function CadastroProdutos() {
   const [insumosList, setInsumosList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  
+
   // Form state
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
@@ -26,6 +26,10 @@ function CadastroProdutos() {
   const [unidadeVenda, setUnidadeVenda] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
+
+  // Drag and drop state
+  const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
+  const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(null);
 
   // Form temporary state for adding an item to the ficha
   const [selectedInsumo, setSelectedInsumo] = useState("");
@@ -44,7 +48,7 @@ function CadastroProdutos() {
   async function fetchData() {
     try {
       setLoading(true);
-      
+
       // Fetch the latest entradas_mercadoria for each insumo to get the updated cost
       const { data: latestEntradasData } = await supabase
         .from("entradas_mercadoria")
@@ -68,7 +72,7 @@ function CadastroProdutos() {
         .order("nome", { ascending: true });
 
       if (insumosError) throw insumosError;
-      
+
       const insumosWithUpdatedCosts = (insumosData || []).map((insumo: any) => {
         const latestValor = latestCostMap[insumo.id];
         let custoAtualizado = insumo.custo_considerado_unitario;
@@ -89,10 +93,11 @@ function CadastroProdutos() {
           id, nome, categoria, preco_venda, ativo, unidade_venda,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id,
-            cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao ),
+            cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
             cadastro_produtos!ficha_tecnica_produto_base_id_fkey ( id, nome )
           )
         `)
+        .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
 
       if (produtosError) {
@@ -113,8 +118,8 @@ function CadastroProdutos() {
               return {
                 ...item,
                 cadastro_insumos: {
-                   ...item.cadastro_insumos,
-                   custo_considerado_unitario: updatedCusto
+                  ...item.cadastro_insumos,
+                  custo_considerado_unitario: updatedCusto
                 }
               };
             }
@@ -138,7 +143,7 @@ function CadastroProdutos() {
       setPrecoVenda(produto.preco_venda?.toString() || "");
       setUnidadeVenda(produto.unidade_venda || "");
       setAtivo(produto.ativo);
-      
+
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
         id: item.id,
         insumo_id: item.insumo_id,
@@ -156,7 +161,7 @@ function CadastroProdutos() {
       setAtivo(true);
       setFichaTecnica([]);
     }
-    
+
     setSelectedInsumo("");
     setQuantidadeInsumo("");
     setSelectedProdutoBase("");
@@ -209,7 +214,8 @@ function CadastroProdutos() {
           nome: insumoFound.nome,
           nome_simples_unitario: insumoFound.nome_simples_unitario,
           custo_considerado_unitario: insumoFound.custo_considerado_unitario,
-          unidade_conversao: insumoFound.unidade_conversao
+          unidade_conversao: insumoFound.unidade_conversao,
+          fator_desperdicio: insumoFound.fator_desperdicio
         }
       }
     ]);
@@ -277,7 +283,7 @@ function CadastroProdutos() {
           .from("cadastro_produtos")
           .update(produtoPayload)
           .eq("id", editingId);
-        
+
         if (prodErr) throw prodErr;
 
         const { error: deleteErr } = await supabase
@@ -352,6 +358,133 @@ function CadastroProdutos() {
     }
   }
 
+  const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
+
+  const sortedProdutos = useMemo(() => {
+    let sortableItems = [...produtos];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        let aValue = a[sortConfig.key];
+        let bValue = b[sortConfig.key];
+        
+        if (sortConfig.key === 'custo') {
+           aValue = calculateCustoProduto(a.ficha_tecnica || []);
+           bValue = calculateCustoProduto(b.ficha_tecnica || []);
+        } else if (sortConfig.key === 'lucro') {
+           const aCusto = calculateCustoProduto(a.ficha_tecnica || []);
+           const bCusto = calculateCustoProduto(b.ficha_tecnica || []);
+           aValue = (a.preco_venda || 0) - aCusto;
+           bValue = (b.preco_venda || 0) - bCusto;
+        } else if (sortConfig.key === 'margem') {
+           const aCusto = calculateCustoProduto(a.ficha_tecnica || []);
+           const bCusto = calculateCustoProduto(b.ficha_tecnica || []);
+           const aLucro = (a.preco_venda || 0) - aCusto;
+           const bLucro = (b.preco_venda || 0) - bCusto;
+           aValue = a.preco_venda > 0 ? (aLucro / a.preco_venda) * 100 : 0;
+           bValue = b.preco_venda > 0 ? (bLucro / b.preco_venda) * 100 : 0;
+        } else if (typeof aValue === 'string') {
+           aValue = aValue.toLowerCase();
+           bValue = (bValue || '').toLowerCase();
+        }
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [produtos, sortConfig]);
+
+  const requestSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const clearSort = () => {
+    setSortConfig(null);
+  };
+
+  const handleDragStart = (index: number) => {
+    if (sortConfig !== null) return;
+    setDraggedItemIndex(index);
+  };
+
+  const handleDragEnter = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (sortConfig !== null) return;
+    if (index !== dragOverItemIndex) {
+      setDragOverItemIndex(index);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDragEnd = () => {
+    setDraggedItemIndex(null);
+    setDragOverItemIndex(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (sortConfig !== null || draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+
+    const items = [...produtos];
+    const draggedItem = items[draggedItemIndex];
+    items.splice(draggedItemIndex, 1);
+    items.splice(targetIndex, 0, draggedItem);
+
+    const updatedItems = items.map((item, index) => ({
+      ...item,
+      ordem: index
+    }));
+    
+    setProdutos(updatedItems);
+    setDraggedItemIndex(null);
+    setDragOverItemIndex(null);
+
+    try {
+      setSaving(true);
+      const updates = updatedItems.map(item => 
+        supabase.from("cadastro_produtos").update({ ordem: item.ordem }).eq("id", item.id)
+      );
+      await Promise.all(updates);
+    } catch (err) {
+      console.error("Erro ao reordenar:", err);
+      alert("Erro ao salvar a nova ordem no banco de dados.");
+      fetchData();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const renderSortableHeader = (label: string, key: string, align: 'left' | 'center' | 'right' = 'left', width?: string) => {
+    return (
+      <th 
+        style={{ textAlign: align, width: width, cursor: "pointer", userSelect: "none" }}
+        onClick={() => requestSort(key)}
+        title={`Ordenar por ${label}`}
+      >
+        <div style={{ display: "flex", alignItems: "center", justifyContent: align === 'right' ? 'flex-end' : align === 'center' ? 'center' : 'flex-start', gap: "4px" }}>
+          {label}
+          {sortConfig?.key === key ? (
+            sortConfig.direction === 'asc' ? <Icons.BsChevronUp /> : <Icons.BsChevronDown />
+          ) : (
+            <Icons.BsChevronExpand style={{ color: "#cbd5e1" }} />
+          )}
+        </div>
+      </th>
+    );
+  };
+
   return (
     <>
       <Helmet>
@@ -379,34 +512,61 @@ function CadastroProdutos() {
             <div style={{ textAlign: "center", padding: "40px", backgroundColor: "#fff", borderRadius: "12px", border: "1px dashed #cbd5e1" }}>
               <Icons.BsBoxSeam style={{ fontSize: "3rem", color: "#94a3b8", marginBottom: "16px" }} />
               <p style={{ color: "var(--text-muted)", fontSize: "1.4rem" }}>Nenhum produto cadastrado.</p>
-              <p style={{ color: "#94a3b8", marginTop: "8px" }}>Lembre-se de rodar o SQL no Supabase para criar as tabelas <br/><b>cadastro_produtos</b> e <b>ficha_tecnica</b>.</p>
+              <p style={{ color: "#94a3b8", marginTop: "8px" }}>Lembre-se de rodar o SQL no Supabase para criar as tabelas <br /><b>cadastro_produtos</b> e <b>ficha_tecnica</b>.</p>
             </div>
           ) : (
             <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
+              {sortConfig && (
+                <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
+                  <button onClick={clearSort} className="cancel-btn" style={{ fontSize: "12px", padding: "6px 12px" }}>
+                    Limpar Ordenação e Restaurar Ordem Original
+                  </button>
+                </div>
+              )}
               <table className="freq-table" style={{ minWidth: "1000px" }}>
                 <thead>
                   <tr>
-                    <th style={{ textAlign: "center", width: "60px" }}>Ativo</th>
-                    <th>Nome do Produto</th>
-                    <th>Categoria</th>
-                    <th style={{ width: "100px", textAlign: "center" }}>Unid. Venda</th>
-                    <th style={{ width: "120px", textAlign: "right" }}>Preço (Venda)</th>
-                    <th style={{ width: "120px", textAlign: "right" }}>Custo Total</th>
-                    <th style={{ width: "120px", textAlign: "right" }}>Lucro</th>
-                    <th style={{ width: "100px", textAlign: "center" }}>Margem</th>
+                    <th style={{ width: "30px" }}></th>
+                    {renderSortableHeader("Ativo", "ativo", "center", "60px")}
+                    {renderSortableHeader("Nome do Produto", "nome", "left")}
+                    {renderSortableHeader("Categoria", "categoria", "left")}
+                    {renderSortableHeader("Unid. Venda", "unidade_venda", "center", "100px")}
+                    {renderSortableHeader("Preço (Venda)", "preco_venda", "right", "120px")}
+                    {renderSortableHeader("Custo Total", "custo", "right", "120px")}
+                    {renderSortableHeader("Lucro", "lucro", "right", "120px")}
+                    {renderSortableHeader("Margem", "margem", "center", "100px")}
                     <th style={{ textAlign: "center", width: "100px" }}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {produtos.map((produto) => {
+                  {sortedProdutos.map((produto, index) => {
                     const custo = calculateCustoProduto(produto.ficha_tecnica || []);
                     const pv = produto.preco_venda || 0;
                     const lucro = pv - custo;
                     const margem = pv > 0 ? (lucro / pv) * 100 : 0;
+                    
+                    const isDragged = index === draggedItemIndex;
+                    const isDragOver = index === dragOverItemIndex;
 
                     return (
-                      <tr key={produto.id} style={{ opacity: produto.ativo ? 1 : 0.6 }}>
-                        <td 
+                      <tr 
+                        key={produto.id} 
+                        style={{ 
+                          opacity: produto.ativo ? (isDragged ? 0.5 : 1) : 0.6,
+                          borderTop: isDragOver && draggedItemIndex !== null && draggedItemIndex > index ? "2px solid var(--primary-color)" : "",
+                          borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < index ? "2px solid var(--primary-color)" : ""
+                        }}
+                        draggable={sortConfig === null}
+                        onDragStart={() => handleDragStart(index)}
+                        onDragEnter={(e) => handleDragEnter(e, index)}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                        onDrop={(e) => handleDrop(e, index)}
+                      >
+                        <td style={{ textAlign: "center", cursor: sortConfig === null ? "grab" : "not-allowed", color: "#cbd5e1" }} title={sortConfig === null ? "Arraste para reordenar" : "Limpe a ordenação para arrastar"}>
+                          <Icons.BsGripVertical />
+                        </td>
+                        <td
                           style={{ textAlign: "center", cursor: "pointer" }}
                           onClick={() => handleToggleAtivo(produto.id, produto.ativo)}
                           title={produto.ativo ? "Desativar produto" : "Ativar produto"}
@@ -430,7 +590,7 @@ function CadastroProdutos() {
                           R$ {lucro.toFixed(2)}
                         </td>
                         <td style={{ textAlign: "center" }}>
-                          <span style={{ 
+                          <span style={{
                             backgroundColor: margem >= 40 ? "#dcfce7" : margem > 10 ? "#fef9c3" : "#fee2e2",
                             color: margem >= 40 ? "#166534" : margem > 10 ? "#854d0e" : "#991b1b",
                             padding: "4px 8px",
@@ -480,14 +640,14 @@ function CadastroProdutos() {
                 <Icons.BsX />
               </button>
             </div>
-            
+
             <form onSubmit={handleSaveProduto} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-              
+
               <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                 <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
                   <Icons.BsBoxSeam /> Dados do Produto
                 </h3>
-                
+
                 <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Nome do Produto *</label>
@@ -554,7 +714,7 @@ function CadastroProdutos() {
                 <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
                   <Icons.BsCardList /> Ficha Técnica (Receita)
                 </h3>
-                
+
                 <div style={{ display: "flex", gap: "12px", marginBottom: "12px", alignItems: "flex-end" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Insumo</label>
@@ -574,21 +734,26 @@ function CadastroProdutos() {
                   </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
-                    <input
-                      type="number"
-                      step="0.00001"
-                      className="frequencia-select"
-                      placeholder="Qtd"
-                      value={quantidadeInsumo}
-                      onChange={(e) => setQuantidadeInsumo(e.target.value)}
-                      style={{ background: "#fff" }}
-                    />
+                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                      <input
+                        type="number"
+                        step="0.00001"
+                        className="frequencia-select"
+                        placeholder="Qtd"
+                        value={quantidadeInsumo}
+                        onChange={(e) => setQuantidadeInsumo(e.target.value)}
+                        style={{ background: "#fff" }}
+                      />
+                      <span style={{ position: "absolute", right: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "0.9rem", fontWeight: "bold" }}>
+                        {selectedInsumo ? insumosList.find(i => i.id === selectedInsumo)?.unidade_conversao || "un" : ""}
+                      </span>
+                    </div>
                   </div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleAddFichaItem}
-                    style={{ 
-                      padding: "10px 16px", backgroundColor: "#e2e8f0", color: "#475569", 
+                    style={{
+                      padding: "10px 16px", backgroundColor: "#e2e8f0", color: "#475569",
                       border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer",
                       height: "42px", display: "flex", alignItems: "center", gap: "6px"
                     }}
@@ -626,11 +791,11 @@ function CadastroProdutos() {
                       style={{ background: "#fff" }}
                     />
                   </div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={handleAddProdutoBaseItem}
-                    style={{ 
-                      padding: "10px 16px", backgroundColor: "#e2e8f0", color: "#475569", 
+                    style={{
+                      padding: "10px 16px", backgroundColor: "#e2e8f0", color: "#475569",
                       border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer",
                       height: "42px", display: "flex", alignItems: "center", gap: "6px"
                     }}
@@ -658,6 +823,7 @@ function CadastroProdutos() {
                           let nomeItem = "";
                           let unitario = 0;
                           let unidade = "un";
+                          let fatorDesperdicio = 0;
 
                           if (isProduto) {
                             const pBase = produtos.find(p => p.id === item.produto_base_id);
@@ -668,21 +834,29 @@ function CadastroProdutos() {
                             nomeItem = insumoData?.nome_simples_unitario || insumoData?.nome || "Insumo Desconhecido";
                             unitario = insumoData?.custo_considerado_unitario || 0;
                             unidade = insumoData?.unidade_conversao || "un";
+                            fatorDesperdicio = insumoData?.fator_desperdicio || 0;
                           }
 
                           const calc = parseFloat(item.quantidade) * unitario;
-                          
+
                           return (
                             <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
                               <td style={{ padding: "10px" }}>{nomeItem}</td>
                               <td style={{ padding: "10px", textAlign: "center" }}>
-                                {isProduto ? 
-                                  <span style={{ backgroundColor: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Produto</span> : 
+                                {isProduto ?
+                                  <span style={{ backgroundColor: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Produto</span> :
                                   <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Insumo</span>
                                 }
                               </td>
                               <td style={{ padding: "10px", textAlign: "center" }}>
-                                {item.quantidade} {unidade}
+                                {fatorDesperdicio > 0 ? (
+                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                                    <span style={{ fontSize: "1.1rem" }}>{item.quantidade} {unidade} <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>(Bruta)</span></span>
+                                    <span style={{ fontSize: "0.95rem", color: "#16a34a" }}>{(parseFloat(item.quantidade) * (1 - fatorDesperdicio / 100)).toFixed(4)} {unidade} <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: "normal" }}>(Líq.)</span></span>
+                                  </div>
+                                ) : (
+                                  <>{item.quantidade} {unidade}</>
+                                )}
                               </td>
                               <td style={{ padding: "10px", textAlign: "right" }}>R$ {unitario.toFixed(2)}</td>
                               <td style={{ padding: "10px", textAlign: "right", fontWeight: "bold" }}>R$ {calc.toFixed(2)}</td>

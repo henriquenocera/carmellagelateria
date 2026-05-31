@@ -54,7 +54,7 @@ function AnaliseProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda,
+          id, nome, categoria, preco_venda, ativo, unidade_venda, ordem,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             quantidade,
             insumo_id,
@@ -64,11 +64,12 @@ function AnaliseProdutos() {
               nome_simples_unitario,
               unidade_conversao,
               custo_considerado_unitario,
-              quantidade_conversao
+              quantidade_conversao,
+              fator_desperdicio
             )
           )
         `)
-        .order("categoria", { ascending: true })
+        .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
 
       if (produtosError) {
@@ -115,6 +116,7 @@ function AnaliseProdutos() {
                 nome: item.cadastro_insumos?.nome_simples_unitario || item.cadastro_insumos?.nome || "Insumo Desconhecido",
                 quantidade: item.quantidade,
                 unidade: item.cadastro_insumos?.unidade_conversao || "un",
+                fator_desperdicio: item.cadastro_insumos?.fator_desperdicio || 0,
                 custo_unit: custoUnit,
                 custo_calc: parseFloat(item.quantidade) * custoUnit
              };
@@ -155,8 +157,8 @@ function AnaliseProdutos() {
         };
       });
 
-      // Ordenar por margem decrescente como um padrão de análise
-      analiseList.sort((a, b) => b.margem - a.margem);
+      // Omitido: Ordenar por margem decrescente
+      // analiseList.sort((a, b) => b.margem - a.margem);
 
       setProdutosAnalise(analiseList);
 
@@ -327,7 +329,27 @@ function AnaliseProdutos() {
                             <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: "4px", fontSize: "0.9rem", fontWeight: "bold" }}>Insumo</span>
                           }
                         </td>
-                        <td style={{ padding: "12px", textAlign: "center" }}>{item.quantidade} {item.unidade}</td>
+                        <td style={{ padding: "12px", textAlign: "center" }}>
+                          {item.fator_desperdicio && item.fator_desperdicio > 0 ? (
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", padding: "4px 0" }}>
+                              <div style={{ fontSize: "1.05rem", fontWeight: "500", color: "#334155" }}>
+                                {item.quantidade} {item.unidade} 
+                                <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontWeight: "normal", marginLeft: "4px" }}>(Bruta)</span>
+                              </div>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", backgroundColor: "#f0fdf4", padding: "4px 8px", borderRadius: "6px", border: "1px solid #bbf7d0" }}>
+                                <Icons.BsArrowReturnRight style={{ color: "#16a34a", fontSize: "0.8rem" }} />
+                                <span style={{ fontSize: "0.95rem", color: "#16a34a", fontWeight: "bold" }}>
+                                  {(parseFloat(item.quantidade) * (1 - item.fator_desperdicio / 100)).toFixed(4)} {item.unidade}
+                                </span>
+                                <span style={{ fontSize: "0.75rem", color: "#155724", backgroundColor: "#dcfce7", padding: "2px 6px", borderRadius: "4px", fontWeight: "bold", border: "1px solid #bbf7d0" }}>
+                                  -{item.fator_desperdicio}%
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <>{item.quantidade} {item.unidade}</>
+                          )}
+                        </td>
                         <td style={{ padding: "12px", textAlign: "right" }}>{formatCurrency(item.custo_unit)}</td>
                         <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{formatCurrency(item.custo_calc)}</td>
                       </tr>
@@ -341,8 +363,15 @@ function AnaliseProdutos() {
               </div>
             )}
             
-            <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
-               <button className="cancel-btn" onClick={closeModal}>Fechar Consulta</button>
+            <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+               <button 
+                 className="primary-btn" 
+                 onClick={() => navigate("/cadastro-produtos")}
+                 style={{ display: "flex", alignItems: "center", gap: "8px", margin: 0 }}
+               >
+                 <Icons.BsPencil /> Editar Produto
+               </button>
+               <button className="cancel-btn" onClick={closeModal} style={{ margin: 0 }}>Fechar Consulta</button>
             </div>
           </div>
         </div>
