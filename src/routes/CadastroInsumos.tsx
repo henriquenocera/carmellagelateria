@@ -27,6 +27,7 @@ function CadastroInsumos() {
   const [novoNomeSimples, setNovoNomeSimples] = useState("");
   const [novoTipo, setNovoTipo] = useState("");
   const [novoFornecedor, setNovoFornecedor] = useState("");
+  const [novoFatorDesperdicio, setNovoFatorDesperdicio] = useState("0");
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -115,6 +116,7 @@ function CadastroInsumos() {
           nome_simples_unitario: novoNomeSimples.trim(),
           tipo: novoTipo.trim(),
           fornecedor_padrao: novoFornecedor.trim(),
+          fator_desperdicio: parseFloat(novoFatorDesperdicio) || 0,
           ordem: maxOrdem + 1
         }]);
 
@@ -129,6 +131,7 @@ function CadastroInsumos() {
       setNovoNomeSimples("");
       setNovoTipo("");
       setNovoFornecedor("");
+      setNovoFatorDesperdicio("0");
       setIsModalOpen(false);
 
       fetchInsumos();
@@ -453,6 +456,7 @@ function CadastroInsumos() {
                     <th>Fornecedor</th>
                     <th style={{ width: "90px" }}>Qtd Conv.</th>
                     <th style={{ width: "90px" }}>Embalagem</th>
+                    <th style={{ width: "90px", textAlign: "center" }}>Desperd. (%)</th>
                     <th style={{ width: "100px" }}>Custo Emb.</th>
                     <th style={{ width: "100px" }}>Custo Unit.</th>
                     <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
@@ -510,14 +514,15 @@ function CadastroInsumos() {
                       <td>{renderEditableInput(insumo, "quantidade_conversao", "number", "0.0001")}</td>
                       <td>
                         {renderEditableInput(insumo, "unidade_conversao", "text", undefined, undefined, [
-                          { label: "Selecione", value: "" },
                           { label: "Unidade", value: "Unidade" },
-                          { label: "Pacote", value: "Pacote" },
                           { label: "Caixa", value: "Caixa" },
+                          { label: "Pacote", value: "Pacote" },
+                          { label: "Kg", value: "Kg" },
                           { label: "Saco", value: "Saco" },
-                          { label: "Kg", value: "Kg" }
+                          { label: "Pote", value: "Pote" }
                         ])}
                       </td>
+                      <td style={{ textAlign: "center" }}>{renderEditableInput(insumo, "fator_desperdicio", "number", "0.01", { width: "70px", textAlign: "center" })}</td>
                       <td>{renderEditableInput(insumo, "custo_considerado", "number", "0.01", undefined, undefined, false, "R$")}</td>
                       <td>{renderEditableInput(insumo, "custo_considerado_unitario", "number", "0.0001", undefined, undefined, true, "R$")}</td>
                       <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
@@ -642,6 +647,21 @@ function CadastroInsumos() {
                       value={novaQtdConversao}
                       onChange={(e) => setNovaQtdConversao(e.target.value)}
                     />
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "16px" }}>
+                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Fator de Desperdício (%)</label>
+                  <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="frequencia-select"
+                      placeholder="0"
+                      value={novoFatorDesperdicio}
+                      onChange={(e) => setNovoFatorDesperdicio(e.target.value)}
+                    />
+                    <span style={{ position: "absolute", right: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>%</span>
                   </div>
                 </div>
 

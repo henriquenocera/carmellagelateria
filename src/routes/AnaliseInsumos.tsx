@@ -154,8 +154,8 @@ function AnaliseInsumos() {
                     <th style={{ textAlign: "center" }}>Nome Simples</th>
                     <th style={{ textAlign: "center" }}>Última Compra</th>
                     <th>Último Fornecedor</th>
-                    <th style={{ textAlign: "right" }}>Preço Anterior (Un)</th>
-                    <th style={{ textAlign: "right" }}>Preço Atual (Un)</th>
+                    <th style={{ textAlign: "left" }}>Preço Anterior (Un)</th>
+                    <th style={{ textAlign: "left" }}>Preço Atual (Un)</th>
                     <th style={{ textAlign: "center" }}>Variação</th>
                     <th style={{ textAlign: "center" }}>Qtd de Compras</th>
                   </tr>
@@ -179,11 +179,11 @@ function AnaliseInsumos() {
                           {formatDate(insumo.ultima_compra_data)}
                         </td>
                         <td style={{ color: "#64748b" }}>{insumo.ultima_compra_fornecedor}</td>
-                        <td style={{ textAlign: "right", color: "#64748b" }}>
-                          {formatCurrency(insumo.preco_anterior_unit)}
+                        <td style={{ textAlign: "left", color: "#64748b", whiteSpace: "nowrap" }}>
+                          {formatCurrency(insumo.preco_anterior_unit)} <span style={{ fontSize: "0.9em", color: "#94a3b8", marginLeft: "4px" }}>/ {insumo.unidade_conversao || "un"}</span>
                         </td>
-                        <td style={{ textAlign: "right", fontWeight: "bold", color: "var(--primary-color)" }}>
-                          {formatCurrency(insumo.preco_atual_unit)}
+                        <td style={{ textAlign: "left", fontWeight: "bold", color: "var(--primary-color)", whiteSpace: "nowrap" }}>
+                          {formatCurrency(insumo.preco_atual_unit)} <span style={{ fontSize: "0.9em", color: "#94a3b8", fontWeight: "normal", marginLeft: "4px" }}>/ {insumo.unidade_conversao || "un"}</span>
                         </td>
                         <td style={{ textAlign: "center" }}>
                           {insumo.variacao === 0 ? (

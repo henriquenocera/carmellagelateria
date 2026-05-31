@@ -54,7 +54,7 @@ function AnaliseProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo,
+          id, nome, categoria, preco_venda, ativo, unidade_venda,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             quantidade,
             insumo_id,
@@ -148,6 +148,7 @@ function AnaliseProdutos() {
           categoria: prod.categoria || "Sem Categoria",
           custo_total: custoTotal,
           preco_venda: pv,
+          unidade_venda: prod.unidade_venda,
           lucro: lucro,
           margem: margem,
           ficha_tecnica: resolvedFicha
@@ -228,8 +229,9 @@ function AnaliseProdutos() {
                         </td>
                         <td style={{ fontWeight: "bold" }}>{prod.nome}</td>
                         <td style={{ color: "#64748b" }}>{prod.categoria}</td>
-                        <td style={{ textAlign: "right", fontWeight: "bold", color: "var(--primary-color)" }}>
+                        <td style={{ textAlign: "right", fontWeight: "bold", color: "var(--primary-color)", whiteSpace: "nowrap" }}>
                           {prod.preco_venda > 0 ? formatCurrency(prod.preco_venda) : "-"}
+                          {prod.preco_venda > 0 && prod.unidade_venda && <span style={{ fontSize: "0.9em", color: "#94a3b8", fontWeight: "normal", marginLeft: "4px" }}>/ {prod.unidade_venda}</span>}
                         </td>
                         <td style={{ textAlign: "right", color: "#dc2626" }}>
                           {formatCurrency(prod.custo_total)}
@@ -274,8 +276,9 @@ function AnaliseProdutos() {
             <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
               <div style={{ flex: "1 1 200px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                 <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1rem" }}>Preço de Venda</p>
-                <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold", color: "var(--primary-color)" }}>
+                <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold", color: "var(--primary-color)", whiteSpace: "nowrap" }}>
                   {selectedProduto.preco_venda > 0 ? formatCurrency(selectedProduto.preco_venda) : "-"}
+                  {selectedProduto.preco_venda > 0 && selectedProduto.unidade_venda && <span style={{ fontSize: "0.7em", color: "#94a3b8", fontWeight: "normal", marginLeft: "4px" }}>/ {selectedProduto.unidade_venda}</span>}
                 </p>
               </div>
               <div style={{ flex: "1 1 200px", backgroundColor: "#fef2f2", padding: "16px", borderRadius: "12px", border: "1px solid #fecaca" }}>
@@ -339,7 +342,7 @@ function AnaliseProdutos() {
             )}
             
             <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
-               <button className="secondary-btn" onClick={closeModal}>Fechar Consulta</button>
+               <button className="cancel-btn" onClick={closeModal}>Fechar Consulta</button>
             </div>
           </div>
         </div>

@@ -23,6 +23,7 @@ function CadastroProdutos() {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
   const [precoVenda, setPrecoVenda] = useState("");
+  const [unidadeVenda, setUnidadeVenda] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
 
@@ -85,19 +86,11 @@ function CadastroProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          *,
+          id, nome, categoria, preco_venda, ativo, unidade_venda,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
-            id,
-            quantidade,
-            insumo_id,
-            produto_base_id,
-            cadastro_insumos (
-              nome,
-              nome_simples_unitario,
-              custo_considerado_unitario,
-              quantidade_conversao,
-              unidade_conversao
-            )
+            id, insumo_id, quantidade, produto_base_id,
+            cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao ),
+            cadastro_produtos!ficha_tecnica_produto_base_id_fkey ( id, nome )
           )
         `)
         .order("nome", { ascending: true });
@@ -143,6 +136,7 @@ function CadastroProdutos() {
       setNome(produto.nome);
       setCategoria(produto.categoria || "");
       setPrecoVenda(produto.preco_venda?.toString() || "");
+      setUnidadeVenda(produto.unidade_venda || "");
       setAtivo(produto.ativo);
       
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
@@ -158,6 +152,7 @@ function CadastroProdutos() {
       setNome("");
       setCategoria("");
       setPrecoVenda("");
+      setUnidadeVenda("");
       setAtivo(true);
       setFichaTecnica([]);
     }
@@ -266,12 +261,12 @@ function CadastroProdutos() {
 
     try {
       setSaving(true);
-      const pvParsed = precoVenda ? parseFloat(precoVenda) : null;
 
       const produtoPayload = {
         nome: nome.trim(),
         categoria: categoria.trim() || null,
-        preco_venda: pvParsed,
+        preco_venda: precoVenda ? parseFloat(precoVenda) : null,
+        unidade_venda: unidadeVenda.trim() || null,
         ativo: ativo
       };
 
@@ -394,6 +389,7 @@ function CadastroProdutos() {
                     <th style={{ textAlign: "center", width: "60px" }}>Ativo</th>
                     <th>Nome do Produto</th>
                     <th>Categoria</th>
+                    <th style={{ width: "100px", textAlign: "center" }}>Unid. Venda</th>
                     <th style={{ width: "120px", textAlign: "right" }}>Preço (Venda)</th>
                     <th style={{ width: "120px", textAlign: "right" }}>Custo Total</th>
                     <th style={{ width: "120px", textAlign: "right" }}>Lucro</th>
@@ -423,6 +419,7 @@ function CadastroProdutos() {
                         </td>
                         <td style={{ fontWeight: 500 }}>{produto.nome}</td>
                         <td>{produto.categoria || "-"}</td>
+                        <td style={{ textAlign: "center", color: "#64748b" }}>{produto.unidade_venda || "-"}</td>
                         <td style={{ textAlign: "right", color: "var(--primary-color)", fontWeight: "bold" }}>
                           {pv > 0 ? `R$ ${pv.toFixed(2)}` : "-"}
                         </td>
@@ -474,7 +471,7 @@ function CadastroProdutos() {
 
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: "800px" }}>
+          <div className="modal-content" style={{ maxWidth: "800px", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>
                 {editingId ? "Editar Produto" : "Cadastrar Novo Produto"}
@@ -518,6 +515,23 @@ function CadastroProdutos() {
                 </div>
 
                 <div style={{ display: "flex", gap: "16px", alignItems: "flex-end" }}>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Unidade de Venda</label>
+                    <select
+                      className="frequencia-select"
+                      value={unidadeVenda}
+                      onChange={(e) => setUnidadeVenda(e.target.value)}
+                      style={{ background: "#fff", fontSize: "1.1rem" }}
+                    >
+                      <option value="">Selecione...</option>
+                      <option value="Unidade">Unidade</option>
+                      <option value="Caixa">Caixa</option>
+                      <option value="Pacote">Pacote</option>
+                      <option value="Kg">Kg</option>
+                      <option value="Pote">Pote</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Preço de Venda</label>
                     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
