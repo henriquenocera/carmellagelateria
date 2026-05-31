@@ -13,6 +13,10 @@ function AnaliseInsumos() {
   const [insumosAnalise, setInsumosAnalise] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedInsumo, setSelectedInsumo] = useState<any>(null);
+
   useEffect(() => {
     fetchAnaliseData();
   }, []);
@@ -81,7 +85,8 @@ function AnaliseInsumos() {
            preco_atual_unit: precoAtualUnit,
            preco_anterior_unit: precoAnteriorUnit,
            variacao: variacao,
-           historico_compras: entradas.length
+           historico_compras: entradas.length,
+           entradas: entradas
         };
       });
 
@@ -123,7 +128,7 @@ function AnaliseInsumos() {
       </Helmet>
 
       <div className="frequencia-container">
-        <div className="frequencia-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div className="frequencia-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
           <div className="frequencia-title-group">
             <h1>Análise de Insumos</h1>
             <p>Monitore a variação de custos e histórico de compras dos seus insumos.</p>
@@ -145,28 +150,61 @@ function AnaliseInsumos() {
               <p style={{ color: "var(--text-muted)", fontSize: "1.4rem" }}>Nenhum insumo encontrado para análise.</p>
             </div>
           ) : (
-            <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
-              <table className="freq-table" style={{ minWidth: "1200px" }}>
-                <thead>
-                  <tr>
-                    <th>Nome do Insumo</th>
-                    <th style={{ textAlign: "center" }}>Tipo</th>
-                    <th style={{ textAlign: "center" }}>Nome Simples</th>
-                    <th style={{ textAlign: "center" }}>Última Compra</th>
-                    <th>Último Fornecedor</th>
-                    <th style={{ textAlign: "left" }}>Preço Anterior (Un)</th>
-                    <th style={{ textAlign: "left" }}>Preço Atual (Un)</th>
-                    <th style={{ textAlign: "center" }}>Variação</th>
-                    <th style={{ textAlign: "center" }}>Qtd de Compras</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {insumosAnalise.map((insumo) => {
-                    const tagStyle = getTagStyles(insumo.tipo);
-                    return (
-                      <tr key={insumo.id}>
-                        <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
-                        <td style={{ textAlign: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{ position: "relative", alignSelf: "flex-start" }}>
+                <Icons.BsSearch style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                <input
+                  type="text"
+                  placeholder="Buscar insumo..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  style={{
+                    padding: "10px 10px 10px 36px",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "1rem",
+                    width: "300px",
+                    outline: "none"
+                  }}
+                />
+              </div>
+              <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
+                <table className="freq-table" style={{ minWidth: "1200px" }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "center", width: "60px" }}>Ver</th>
+                      <th>Nome do Insumo</th>
+                      <th style={{ textAlign: "center" }}>Tipo</th>
+                      <th style={{ textAlign: "center" }}>Nome Simples</th>
+                      <th style={{ textAlign: "center" }}>Última Compra</th>
+                      <th>Último Fornecedor</th>
+                      <th style={{ textAlign: "left" }}>Preço Anterior (Un)</th>
+                      <th style={{ textAlign: "left" }}>Preço Atual (Un)</th>
+                      <th style={{ textAlign: "center" }}>Variação</th>
+                      <th style={{ textAlign: "center" }}>Qtd de Compras</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {insumosAnalise
+                      .filter(i => 
+                        i.nome.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                        (i.tipo && i.tipo.toLowerCase().includes(searchTerm.toLowerCase()))
+                      )
+                      .map((insumo) => {
+                      const tagStyle = getTagStyles(insumo.tipo);
+                      return (
+                        <tr key={insumo.id}>
+                          <td style={{ textAlign: "center" }}>
+                            <button 
+                              onClick={() => { setSelectedInsumo(insumo); setIsModalOpen(true); }}
+                              style={{ background: "none", border: "none", color: "var(--primary-color)", cursor: "pointer", fontSize: "1.3rem" }}
+                              title="Ver detalhes"
+                            >
+                              <Icons.BsEye />
+                            </button>
+                          </td>
+                          <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
+                          <td style={{ textAlign: "center" }}>
                           <span style={{
                             padding: "4px 8px", backgroundColor: tagStyle.bg, borderRadius: "6px", 
                             fontSize: "0.9rem", fontWeight: 600, color: tagStyle.color, border: `1px solid ${tagStyle.border}`, whiteSpace: "nowrap"
@@ -214,9 +252,78 @@ function AnaliseInsumos() {
                 </tbody>
               </table>
             </div>
+            </div>
           )}
         </div>
       </div>
+
+      {isModalOpen && selectedInsumo && (
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)} style={{ zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "800px", width: "95%", maxHeight: "90vh", overflowY: "auto", padding: "30px", borderRadius: "16px", position: "relative" }}>
+            <button className="modal-close-btn" onClick={() => setIsModalOpen(false)} style={{ position: "absolute", top: "20px", right: "20px", background: "none", border: "none", fontSize: "1.8rem", cursor: "pointer", color: "#64748b" }}>
+              <Icons.BsX />
+            </button>
+            <h2 style={{ margin: "0 0 12px 0", fontSize: "2rem", color: "#1e293b", fontWeight: "bold", flexShrink: 0 }}>{selectedInsumo.nome}</h2>
+            <div style={{ margin: "0 0 24px 0", flexShrink: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ fontSize: "1.1rem", color: "#64748b", fontWeight: 500 }}>Tipo:</span>
+              <span style={{ ...getTagStyles(selectedInsumo.tipo), padding: "4px 12px", borderRadius: "16px", fontSize: "1rem", fontWeight: "bold", border: `1px solid ${getTagStyles(selectedInsumo.tipo).border}` }}>
+                {selectedInsumo.tipo || "-"}
+              </span>
+            </div>
+
+            <div style={{ display: "flex", gap: "12px", marginBottom: "24px", flexWrap: "wrap", flexShrink: 0 }}>
+              <div style={{ flex: "1 1 120px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+                <p style={{ margin: "0 0 4px 0", color: "#94a3b8", fontSize: "1rem" }}>Preço Atual</p>
+                <p style={{ margin: 0, fontSize: "1.3rem", fontWeight: "bold", color: "var(--primary-color)" }}>
+                  {formatCurrency(selectedInsumo.preco_atual_unit)} <span style={{ fontSize: "0.8em", color: "#94a3b8", fontWeight: "normal" }}>/ {selectedInsumo.unidade_conversao || "un"}</span>
+                </p>
+              </div>
+              <div style={{ flex: "1 1 120px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+                <p style={{ margin: "0 0 4px 0", color: "#94a3b8", fontSize: "1rem" }}>Variação</p>
+                <p style={{ margin: 0, fontSize: "1.3rem", fontWeight: "bold", color: selectedInsumo.variacao > 0 ? "#dc2626" : selectedInsumo.variacao < 0 ? "#16a34a" : "#64748b" }}>
+                  {selectedInsumo.variacao > 0 ? "+" : ""}{selectedInsumo.variacao.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+
+            <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.3rem", display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+              <Icons.BsClockHistory /> Histórico de Compras
+            </h3>
+            
+            {selectedInsumo.entradas && selectedInsumo.entradas.length > 0 ? (
+              <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "20px", marginBottom: "24px", flexShrink: 0 }}>
+                {(() => {
+                  const maxValor = Math.max(...selectedInsumo.entradas.map((e: any) => e.valor_unitario / selectedInsumo.quantidade_conversao));
+                  
+                  return selectedInsumo.entradas.slice(0, 10).map((entrada: any, idx: number) => {
+                    const custoUnidade = entrada.valor_unitario / selectedInsumo.quantidade_conversao;
+                    const percent = maxValor > 0 ? (custoUnidade / maxValor) * 100 : 0;
+                    return (
+                      <div key={idx} style={{ marginBottom: "16px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.95rem", color: "#475569", marginBottom: "4px" }}>
+                          <span>{formatDate(entrada.data_compra)} <span style={{ color: "#94a3b8" }}>- {entrada.fornecedor}</span></span>
+                          <span style={{ fontWeight: "bold", color: "#1e293b" }}>{formatCurrency(custoUnidade)}</span>
+                        </div>
+                        <div style={{ width: "100%", height: "10px", backgroundColor: "#f1f5f9", borderRadius: "5px", overflow: "hidden" }}>
+                          <div style={{ width: `${percent}%`, height: "100%", backgroundColor: "var(--primary-color)", borderRadius: "5px", transition: "width 0.5s ease" }}></div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: "20px", color: "#94a3b8", fontStyle: "italic", backgroundColor: "#f8fafc", borderRadius: "10px", marginBottom: "24px", border: "1px dashed #cbd5e1", flexShrink: 0 }}>
+                Nenhuma compra registrada para este insumo.
+              </div>
+            )}
+
+            <div style={{ display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+              <button onClick={() => setIsModalOpen(false)} style={{ padding: "12px 24px", borderRadius: "8px", backgroundColor: "#e2e8f0", color: "#475569", border: "none", fontWeight: "bold", cursor: "pointer", fontSize: "1.1rem", flex: "1 1 auto", maxWidth: "200px" }}>Fechar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

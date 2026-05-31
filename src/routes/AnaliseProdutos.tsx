@@ -30,12 +30,9 @@ function AnaliseProdutos() {
   };
 
   useEffect(() => {
-    if (isAdmin === false) {
-      navigate("/");
-    } else if (isAdmin === true) {
-      fetchAnaliseData();
-    }
-  }, [isAdmin, navigate]);
+    fetchAnaliseData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function fetchAnaliseData() {
     try {
