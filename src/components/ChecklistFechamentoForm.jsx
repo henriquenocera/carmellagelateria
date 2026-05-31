@@ -95,10 +95,10 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     }
 
     if (savedStep) {
-       const p = parseInt(savedStep, 10);
-       if (!isNaN(p) && p >= 1 && p <= steps.length) {
-          setCurrentStep(p);
-       }
+      const p = parseInt(savedStep, 10);
+      if (!isNaN(p) && p >= 1 && p <= steps.length) {
+        setCurrentStep(p);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -338,7 +338,7 @@ Fico à disposição!`;
                   <button
                     type="button"
                     className="copy-sample-button"
-                    onClick={() => window.open("https://escritorio.carmellagelateria.com.br/frequencia", "_blank")}
+                    onClick={() => window.open("/frequencia")}
                   >
                     Relatório de Frequência
                   </button>
