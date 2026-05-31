@@ -24,7 +24,7 @@ function AnaliseInsumos() {
       // Fetch insumos ativos
       const { data: insumosData, error: insumosError } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, nome_simples_unitario, custo_considerado_unitario, quantidade_conversao, unidade_conversao")
+        .select("id, nome, tipo, nome_simples_unitario, custo_considerado_unitario, quantidade_conversao, unidade_conversao")
         .eq("ativo", true)
         .order("nome", { ascending: true });
 
@@ -98,6 +98,17 @@ function AnaliseInsumos() {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
   };
 
+  const getTagStyles = (tipo: string) => {
+    switch (tipo) {
+      case "Insumos": return { bg: "#e0f2fe", color: "#0284c7", border: "#bae6fd" };
+      case "Matéria Prima": return { bg: "#dcfce7", color: "#16a34a", border: "#bbf7d0" };
+      case "Bebidas": return { bg: "#f3e8ff", color: "#9333ea", border: "#e9d5ff" };
+      case "Material de Limpeza": return { bg: "#ccfbf1", color: "#0d9488", border: "#99f6e4" };
+      case "Salgados": return { bg: "#ffedd5", color: "#ea580c", border: "#fed7aa" };
+      default: return { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0" };
+    }
+  };
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "-";
     const [year, month, day] = dateStr.split('-');
@@ -139,6 +150,7 @@ function AnaliseInsumos() {
                 <thead>
                   <tr>
                     <th>Nome do Insumo</th>
+                    <th style={{ textAlign: "center" }}>Tipo</th>
                     <th style={{ textAlign: "center" }}>Nome Simples</th>
                     <th style={{ textAlign: "center" }}>Última Compra</th>
                     <th>Último Fornecedor</th>
@@ -150,9 +162,18 @@ function AnaliseInsumos() {
                 </thead>
                 <tbody>
                   {insumosAnalise.map((insumo) => {
+                    const tagStyle = getTagStyles(insumo.tipo);
                     return (
                       <tr key={insumo.id}>
                         <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
+                        <td style={{ textAlign: "center" }}>
+                          <span style={{
+                            padding: "4px 8px", backgroundColor: tagStyle.bg, borderRadius: "6px", 
+                            fontSize: "0.9rem", fontWeight: 600, color: tagStyle.color, border: `1px solid ${tagStyle.border}`, whiteSpace: "nowrap"
+                          }}>
+                            {insumo.tipo || "-"}
+                          </span>
+                        </td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{insumo.nome_simples_unitario || "-"}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>
                           {formatDate(insumo.ultima_compra_data)}

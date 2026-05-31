@@ -13,6 +13,20 @@ function AnaliseProdutos() {
   const [produtosAnalise, setProdutosAnalise] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduto, setSelectedProduto] = useState<any>(null);
+
+  const openModal = (produto: any) => {
+    setSelectedProduto(produto);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedProduto(null);
+    setIsModalOpen(false);
+  };
+
   useEffect(() => {
     fetchAnaliseData();
   }, []);
@@ -36,21 +50,24 @@ function AnaliseProdutos() {
         });
       }
 
-      // Fetch active produtos and ficha tecnica
+      // Fetch all produtos and ficha tecnica to resolve dependencies
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda,
-          ficha_tecnica (
+          id, nome, categoria, preco_venda, ativo,
+          ficha_tecnica!ficha_tecnica_produto_id_fkey (
             quantidade,
             insumo_id,
+            produto_base_id,
             cadastro_insumos (
+              nome,
+              nome_simples_unitario,
+              unidade_conversao,
               custo_considerado_unitario,
               quantidade_conversao
             )
           )
         `)
-        .eq("ativo", true)
         .order("categoria", { ascending: true })
         .order("nome", { ascending: true });
 
@@ -61,19 +78,65 @@ function AnaliseProdutos() {
         throw produtosError;
       }
 
-      const analiseList = (produtosData || []).map((prod: any) => {
-        let custoTotal = 0;
-
-        if (prod.ficha_tecnica) {
-          custoTotal = prod.ficha_tecnica.reduce((acc: number, item: any) => {
+      const calculateCusto = (ficha: any[], allProdutos: any[]): number => {
+        return ficha.reduce((acc: number, item: any) => {
+          if (item.insumo_id || item.cadastro_insumos) {
              const latestValor = latestCostMap[item.insumo_id];
              let custoUnit = item.cadastro_insumos?.custo_considerado_unitario || 0;
              if (latestValor !== undefined && item.cadastro_insumos?.quantidade_conversao > 0) {
                 custoUnit = latestValor / item.cadastro_insumos.quantidade_conversao;
              }
              return acc + (parseFloat(item.quantidade) * custoUnit);
-          }, 0);
-        }
+          } else if (item.produto_base_id) {
+             const pBase = allProdutos.find(p => p.id === item.produto_base_id);
+             if (pBase) {
+                const baseCusto = calculateCusto(pBase.ficha_tecnica || [], allProdutos);
+                return acc + (parseFloat(item.quantidade) * baseCusto);
+             }
+          }
+          return acc;
+        }, 0);
+      };
+
+      const analiseList = (produtosData || [])
+        .filter(prod => prod.ativo)
+        .map((prod: any) => {
+          let custoTotal = calculateCusto(prod.ficha_tecnica || [], produtosData || []);
+
+        const resolvedFicha = (prod.ficha_tecnica || []).map((item: any) => {
+           if (item.insumo_id || item.cadastro_insumos) {
+             const latestValor = latestCostMap[item.insumo_id];
+             let custoUnit = item.cadastro_insumos?.custo_considerado_unitario || 0;
+             if (latestValor !== undefined && item.cadastro_insumos?.quantidade_conversao > 0) {
+                custoUnit = latestValor / item.cadastro_insumos.quantidade_conversao;
+             }
+             return {
+                isProduto: false,
+                nome: item.cadastro_insumos?.nome_simples_unitario || item.cadastro_insumos?.nome || "Insumo Desconhecido",
+                quantidade: item.quantidade,
+                unidade: item.cadastro_insumos?.unidade_conversao || "un",
+                custo_unit: custoUnit,
+                custo_calc: parseFloat(item.quantidade) * custoUnit
+             };
+           } else if (item.produto_base_id) {
+             const pBase = (produtosData || []).find(p => p.id === item.produto_base_id);
+             let baseNome = "Produto Desconhecido";
+             let baseCusto = 0;
+             if (pBase) {
+                baseNome = pBase.nome;
+                baseCusto = calculateCusto(pBase.ficha_tecnica || [], produtosData || []);
+             }
+             return {
+                isProduto: true,
+                nome: baseNome,
+                quantidade: item.quantidade,
+                unidade: "un",
+                custo_unit: baseCusto,
+                custo_calc: parseFloat(item.quantidade) * baseCusto
+             };
+           }
+           return null;
+        }).filter(Boolean);
 
         const pv = prod.preco_venda || 0;
         const lucro = pv - custoTotal;
@@ -86,7 +149,8 @@ function AnaliseProdutos() {
           custo_total: custoTotal,
           preco_venda: pv,
           lucro: lucro,
-          margem: margem
+          margem: margem,
+          ficha_tecnica: resolvedFicha
         };
       });
 
@@ -139,6 +203,7 @@ function AnaliseProdutos() {
               <table className="freq-table" style={{ minWidth: "1000px" }}>
                 <thead>
                   <tr>
+                    <th style={{ width: "50px", textAlign: "center" }}>Ver</th>
                     <th>Nome do Produto</th>
                     <th>Categoria</th>
                     <th style={{ textAlign: "right" }}>Preço de Venda</th>
@@ -151,6 +216,16 @@ function AnaliseProdutos() {
                   {produtosAnalise.map((prod) => {
                     return (
                       <tr key={prod.id}>
+                        <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                          <button 
+                            type="button" 
+                            onClick={() => openModal(prod)} 
+                            style={{ background: "none", border: "none", color: "var(--primary-color)", cursor: "pointer", fontSize: "1.4rem" }}
+                            title="Ver Detalhes"
+                          >
+                            <Icons.BsEyeFill />
+                          </button>
+                        </td>
                         <td style={{ fontWeight: "bold" }}>{prod.nome}</td>
                         <td style={{ color: "#64748b" }}>{prod.categoria}</td>
                         <td style={{ textAlign: "right", fontWeight: "bold", color: "var(--primary-color)" }}>
@@ -185,6 +260,90 @@ function AnaliseProdutos() {
           )}
         </div>
       </div>
+
+      {isModalOpen && selectedProduto && (
+        <div className="modal-overlay" onClick={closeModal} style={{ zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "800px", width: "95%", maxHeight: "90vh", overflowY: "auto", padding: "30px", borderRadius: "16px", position: "relative" }}>
+            <button className="modal-close-btn" onClick={closeModal} style={{ position: "absolute", top: "20px", right: "20px", background: "none", border: "none", fontSize: "1.8rem", cursor: "pointer", color: "#64748b" }}>
+              <Icons.BsX />
+            </button>
+            
+            <h2 style={{ margin: "0 0 8px 0", fontSize: "1.8rem", color: "var(--text-color)" }}>{selectedProduto.nome}</h2>
+            <p style={{ margin: "0 0 24px 0", color: "#64748b", fontWeight: 500 }}>Categoria: {selectedProduto.categoria}</p>
+
+            <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
+              <div style={{ flex: "1 1 200px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1rem" }}>Preço de Venda</p>
+                <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold", color: "var(--primary-color)" }}>
+                  {selectedProduto.preco_venda > 0 ? formatCurrency(selectedProduto.preco_venda) : "-"}
+                </p>
+              </div>
+              <div style={{ flex: "1 1 200px", backgroundColor: "#fef2f2", padding: "16px", borderRadius: "12px", border: "1px solid #fecaca" }}>
+                <p style={{ margin: "0 0 4px 0", color: "#991b1b", fontSize: "1rem" }}>Custo Total</p>
+                <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold", color: "#dc2626" }}>
+                  {formatCurrency(selectedProduto.custo_total)}
+                </p>
+              </div>
+              <div style={{ flex: "1 1 200px", backgroundColor: selectedProduto.lucro > 0 ? "#f0fdf4" : "#fef2f2", padding: "16px", borderRadius: "12px", border: selectedProduto.lucro > 0 ? "1px solid #bbf7d0" : "1px solid #fecaca" }}>
+                <p style={{ margin: "0 0 4px 0", color: selectedProduto.lucro > 0 ? "#166534" : "#991b1b", fontSize: "1rem" }}>Lucro Bruto</p>
+                <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold", color: selectedProduto.lucro > 0 ? "#16a34a" : "#dc2626" }}>
+                  {formatCurrency(selectedProduto.lucro)}
+                </p>
+              </div>
+              <div style={{ flex: "1 1 200px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1rem" }}>Margem</p>
+                <p style={{ margin: 0, fontSize: "1.5rem", fontWeight: "bold", color: selectedProduto.margem >= 40 ? "#166534" : selectedProduto.margem > 10 ? "#854d0e" : "#991b1b" }}>
+                  {selectedProduto.margem.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+
+            <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
+              <Icons.BsCardList /> Composição (Ficha Técnica)
+            </h3>
+
+            {selectedProduto.ficha_tecnica && selectedProduto.ficha_tecnica.length > 0 ? (
+              <div style={{ backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #cbd5e1", overflow: "hidden" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "1.1rem" }}>
+                  <thead style={{ backgroundColor: "#f1f5f9", borderBottom: "1px solid #cbd5e1" }}>
+                    <tr>
+                      <th style={{ padding: "12px", textAlign: "left", color: "#475569" }}>Item</th>
+                      <th style={{ padding: "12px", textAlign: "center", color: "#475569" }}>Tipo</th>
+                      <th style={{ padding: "12px", textAlign: "center", color: "#475569" }}>Quantidade</th>
+                      <th style={{ padding: "12px", textAlign: "right", color: "#475569" }}>Custo Unit.</th>
+                      <th style={{ padding: "12px", textAlign: "right", color: "#475569" }}>Custo Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedProduto.ficha_tecnica.map((item: any, index: number) => (
+                      <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                        <td style={{ padding: "12px" }}>{item.nome}</td>
+                        <td style={{ padding: "12px", textAlign: "center" }}>
+                          {item.isProduto ? 
+                            <span style={{ backgroundColor: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", fontSize: "0.9rem", fontWeight: "bold" }}>Produto</span> : 
+                            <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: "4px", fontSize: "0.9rem", fontWeight: "bold" }}>Insumo</span>
+                          }
+                        </td>
+                        <td style={{ padding: "12px", textAlign: "center" }}>{item.quantidade} {item.unidade}</td>
+                        <td style={{ padding: "12px", textAlign: "right" }}>{formatCurrency(item.custo_unit)}</td>
+                        <td style={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>{formatCurrency(item.custo_calc)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: "20px", color: "#94a3b8", fontStyle: "italic", border: "1px dashed #cbd5e1", borderRadius: "8px", backgroundColor: "#f8fafc" }}>
+                Este produto não possui ficha técnica cadastrada.
+              </div>
+            )}
+            
+            <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
+               <button className="secondary-btn" onClick={closeModal}>Fechar Consulta</button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

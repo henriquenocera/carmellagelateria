@@ -29,6 +29,8 @@ function CadastroProdutos() {
   // Form temporary state for adding an item to the ficha
   const [selectedInsumo, setSelectedInsumo] = useState("");
   const [quantidadeInsumo, setQuantidadeInsumo] = useState("");
+  const [selectedProdutoBase, setSelectedProdutoBase] = useState("");
+  const [quantidadeProdutoBase, setQuantidadeProdutoBase] = useState("");
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -84,10 +86,11 @@ function CadastroProdutos() {
         .from("cadastro_produtos")
         .select(`
           *,
-          ficha_tecnica (
+          ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id,
             quantidade,
             insumo_id,
+            produto_base_id,
             cadastro_insumos (
               nome,
               nome_simples_unitario,
@@ -108,18 +111,21 @@ function CadastroProdutos() {
         const updatedProdutosData = (produtosData || []).map((prod: any) => ({
           ...prod,
           ficha_tecnica: (prod.ficha_tecnica || []).map((item: any) => {
-            const latestValor = latestCostMap[item.insumo_id];
-            let updatedCusto = item.cadastro_insumos?.custo_considerado_unitario || 0;
-            if (latestValor !== undefined && item.cadastro_insumos?.quantidade_conversao > 0) {
-              updatedCusto = latestValor / item.cadastro_insumos.quantidade_conversao;
-            }
-            return {
-              ...item,
-              cadastro_insumos: {
-                 ...item.cadastro_insumos,
-                 custo_considerado_unitario: updatedCusto
+            if (item.insumo_id) {
+              const latestValor = latestCostMap[item.insumo_id];
+              let updatedCusto = item.cadastro_insumos?.custo_considerado_unitario || 0;
+              if (latestValor !== undefined && item.cadastro_insumos?.quantidade_conversao > 0) {
+                updatedCusto = latestValor / item.cadastro_insumos.quantidade_conversao;
               }
-            };
+              return {
+                ...item,
+                cadastro_insumos: {
+                   ...item.cadastro_insumos,
+                   custo_considerado_unitario: updatedCusto
+                }
+              };
+            }
+            return item;
           })
         }));
         setProdutos(updatedProdutosData);
@@ -142,6 +148,7 @@ function CadastroProdutos() {
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
         id: item.id,
         insumo_id: item.insumo_id,
+        produto_base_id: item.produto_base_id,
         quantidade: item.quantidade,
         insumo: item.cadastro_insumos
       }));
@@ -157,14 +164,25 @@ function CadastroProdutos() {
     
     setSelectedInsumo("");
     setQuantidadeInsumo("");
+    setSelectedProdutoBase("");
+    setQuantidadeProdutoBase("");
     setIsModalOpen(true);
   };
 
-  const calculateCustoProduto = (ficha: any[]) => {
+  const calculateCustoProduto = (ficha: any[], allProdutos: any[] = produtos) => {
     return ficha.reduce((acc, item) => {
-      const insumoData = item.insumo || item.cadastro_insumos;
-      const custoUnitario = insumoData?.custo_considerado_unitario || 0;
-      return acc + (parseFloat(item.quantidade) * custoUnitario);
+      if (item.insumo_id || item.insumo || item.cadastro_insumos) {
+        const insumoData = item.insumo || item.cadastro_insumos;
+        const custoUnitario = insumoData?.custo_considerado_unitario || 0;
+        return acc + (parseFloat(item.quantidade) * custoUnitario);
+      } else if (item.produto_base_id) {
+        const baseProd = allProdutos.find(p => p.id === item.produto_base_id);
+        if (baseProd) {
+          const baseCusto = calculateCustoProduto(baseProd.ficha_tecnica || [], allProdutos);
+          return acc + (parseFloat(item.quantidade) * baseCusto);
+        }
+      }
+      return acc;
     }, 0);
   };
 
@@ -203,6 +221,34 @@ function CadastroProdutos() {
 
     setSelectedInsumo("");
     setQuantidadeInsumo("");
+  };
+
+  const handleAddProdutoBaseItem = () => {
+    if (!selectedProdutoBase || !quantidadeProdutoBase) {
+      alert("Selecione um produto base e digite a quantidade.");
+      return;
+    }
+
+    if (selectedProdutoBase === editingId) {
+      alert("Um produto não pode usar a si mesmo na ficha técnica!");
+      return;
+    }
+
+    if (fichaTecnica.some(item => item.produto_base_id === selectedProdutoBase)) {
+      alert("Este produto base já foi adicionado à ficha técnica.");
+      return;
+    }
+
+    setFichaTecnica([
+      ...fichaTecnica,
+      {
+        produto_base_id: selectedProdutoBase,
+        quantidade: parseFloat(quantidadeProdutoBase)
+      }
+    ]);
+
+    setSelectedProdutoBase("");
+    setQuantidadeProdutoBase("");
   };
 
   const handleRemoveFichaItem = (index: number) => {
@@ -260,7 +306,8 @@ function CadastroProdutos() {
       if (fichaTecnica.length > 0 && produtoId) {
         const insertFicha = fichaTecnica.map(item => ({
           produto_id: produtoId,
-          insumo_id: item.insumo_id,
+          insumo_id: item.insumo_id || null,
+          produto_base_id: item.produto_base_id || null,
           quantidade: item.quantidade
         }));
 
@@ -494,7 +541,7 @@ function CadastroProdutos() {
                   <Icons.BsCardList /> Ficha Técnica (Receita)
                 </h3>
                 
-                <div style={{ display: "flex", gap: "12px", marginBottom: "20px", alignItems: "flex-end" }}>
+                <div style={{ display: "flex", gap: "12px", marginBottom: "12px", alignItems: "flex-end" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Insumo</label>
                     <select
@@ -536,12 +583,55 @@ function CadastroProdutos() {
                   </button>
                 </div>
 
+                <div style={{ display: "flex", gap: "12px", marginBottom: "20px", alignItems: "flex-end" }}>
+                  <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Produto Base</label>
+                    <select
+                      className="frequencia-select"
+                      value={selectedProdutoBase}
+                      onChange={(e) => setSelectedProdutoBase(e.target.value)}
+                      style={{ background: "#fff" }}
+                    >
+                      <option value="">Selecione um produto base...</option>
+                      {produtos.filter(p => p.id !== editingId).map((prod) => (
+                        <option key={prod.id} value={prod.id}>
+                          {prod.nome}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
+                    <input
+                      type="number"
+                      step="0.00001"
+                      className="frequencia-select"
+                      placeholder="Qtd"
+                      value={quantidadeProdutoBase}
+                      onChange={(e) => setQuantidadeProdutoBase(e.target.value)}
+                      style={{ background: "#fff" }}
+                    />
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={handleAddProdutoBaseItem}
+                    style={{ 
+                      padding: "10px 16px", backgroundColor: "#e2e8f0", color: "#475569", 
+                      border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer",
+                      height: "42px", display: "flex", alignItems: "center", gap: "6px"
+                    }}
+                  >
+                    <Icons.BsPlusLg /> Adicionar
+                  </button>
+                </div>
+
                 {fichaTecnica.length > 0 ? (
                   <div style={{ backgroundColor: "#fff", borderRadius: "8px", border: "1px solid #cbd5e1", overflow: "hidden" }}>
                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "1.2rem" }}>
                       <thead style={{ backgroundColor: "#f1f5f9", borderBottom: "1px solid #cbd5e1" }}>
                         <tr>
-                          <th style={{ padding: "10px", textAlign: "left", color: "#475569" }}>Insumo</th>
+                          <th style={{ padding: "10px", textAlign: "left", color: "#475569" }}>Item</th>
+                          <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>Tipo</th>
                           <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>Quantidade</th>
                           <th style={{ padding: "10px", textAlign: "right", color: "#475569" }}>Custo Base</th>
                           <th style={{ padding: "10px", textAlign: "right", color: "#475569" }}>Custo Calc.</th>
@@ -550,14 +640,35 @@ function CadastroProdutos() {
                       </thead>
                       <tbody>
                         {fichaTecnica.map((item, index) => {
-                          const unitario = item.insumo?.custo_considerado_unitario || 0;
+                          let isProduto = !!item.produto_base_id;
+                          let nomeItem = "";
+                          let unitario = 0;
+                          let unidade = "un";
+
+                          if (isProduto) {
+                            const pBase = produtos.find(p => p.id === item.produto_base_id);
+                            nomeItem = pBase ? pBase.nome : "Produto Desconhecido";
+                            unitario = pBase ? calculateCustoProduto(pBase.ficha_tecnica || [], produtos) : 0;
+                          } else {
+                            const insumoData = item.insumo || item.cadastro_insumos;
+                            nomeItem = insumoData?.nome_simples_unitario || insumoData?.nome || "Insumo Desconhecido";
+                            unitario = insumoData?.custo_considerado_unitario || 0;
+                            unidade = insumoData?.unidade_conversao || "un";
+                          }
+
                           const calc = parseFloat(item.quantidade) * unitario;
                           
                           return (
                             <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                              <td style={{ padding: "10px" }}>{item.insumo?.nome_simples_unitario || item.insumo?.nome}</td>
+                              <td style={{ padding: "10px" }}>{nomeItem}</td>
                               <td style={{ padding: "10px", textAlign: "center" }}>
-                                {item.quantidade} {item.insumo?.unidade_conversao || "un"}
+                                {isProduto ? 
+                                  <span style={{ backgroundColor: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Produto</span> : 
+                                  <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Insumo</span>
+                                }
+                              </td>
+                              <td style={{ padding: "10px", textAlign: "center" }}>
+                                {item.quantidade} {unidade}
                               </td>
                               <td style={{ padding: "10px", textAlign: "right" }}>R$ {unitario.toFixed(2)}</td>
                               <td style={{ padding: "10px", textAlign: "right", fontWeight: "bold" }}>R$ {calc.toFixed(2)}</td>
