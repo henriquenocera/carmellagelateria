@@ -262,11 +262,11 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_insumos" (
     "quantidade_conversao" numeric,
     "unidade_conversao" "text",
     "custo_considerado" numeric,
-    "custo_atualizado" numeric,
     "ativo" boolean DEFAULT true,
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "config_estoque" "jsonb" DEFAULT '{}'::"jsonb",
-    "ordem" integer DEFAULT 0
+    "ordem" integer DEFAULT 0,
+    "custo_considerado_unitario" numeric
 );
 
 
@@ -315,6 +315,20 @@ CREATE TABLE IF NOT EXISTS "public"."cardsaltoxv" (
 
 
 ALTER TABLE "public"."cardsaltoxv" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."entradas_mercadoria" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "insumo_id" "uuid",
+    "data_compra" "date" NOT NULL,
+    "fornecedor" "text",
+    "quantidade_comprada" numeric NOT NULL,
+    "valor_unitario" numeric NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+);
+
+
+ALTER TABLE "public"."entradas_mercadoria" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."feriados_globais" (
@@ -503,6 +517,11 @@ ALTER TABLE ONLY "public"."cardsahu"
 
 
 
+ALTER TABLE ONLY "public"."entradas_mercadoria"
+    ADD CONSTRAINT "entradas_mercadoria_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."feriados_globais"
     ADD CONSTRAINT "feriados_globais_date_key" UNIQUE ("date");
 
@@ -602,6 +621,11 @@ CREATE OR REPLACE TRIGGER "trg_audit_vouchers" AFTER INSERT OR DELETE OR UPDATE 
 
 ALTER TABLE ONLY "public"."audit_logs"
     ADD CONSTRAINT "audit_logs_usuario_id_fkey" FOREIGN KEY ("usuario_id") REFERENCES "public"."profiles"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."entradas_mercadoria"
+    ADD CONSTRAINT "entradas_mercadoria_insumo_id_fkey" FOREIGN KEY ("insumo_id") REFERENCES "public"."cadastro_insumos"("id") ON DELETE CASCADE;
 
 
 
@@ -741,6 +765,10 @@ CREATE POLICY "Enable read access for all users" ON "public"."rules_confirmation
 
 
 
+CREATE POLICY "Permitir acesso total" ON "public"."entradas_mercadoria" USING (true) WITH CHECK (true);
+
+
+
 CREATE POLICY "Permitir acesso total a usuários autenticados" ON "public"."cadastro_insumos" USING (("auth"."role"() = 'authenticated'::"text"));
 
 
@@ -815,6 +843,9 @@ ALTER TABLE "public"."cardsahu" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."cardsaltoxv" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."entradas_mercadoria" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."feriados_globais" ENABLE ROW LEVEL SECURITY;
@@ -1168,6 +1199,12 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cardsaltoxv" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cardsaltoxv" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cardsaltoxv" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."entradas_mercadoria" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."entradas_mercadoria" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."entradas_mercadoria" TO "service_role";
 
 
 
