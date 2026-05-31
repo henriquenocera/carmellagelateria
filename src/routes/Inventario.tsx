@@ -61,7 +61,7 @@ function Inventario() {
     try {
       const { data: insumosData, error: insumosError } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, config_estoque, ordem")
+        .select("id, nome, config_estoque, ordem, tipo, unidade_conversao")
         .eq("ativo", true)
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
@@ -265,6 +265,7 @@ function Inventario() {
         <input
           type="number"
           step="0.001"
+          className="no-spinner"
           value={value}
           onChange={(e) => handleLocalChange(insumo.id, e.target.value)}
           style={{
@@ -508,17 +509,21 @@ function Inventario() {
               )}
 
               <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-                <table className="freq-table" style={{ minWidth: "600px", maxWidth: "800px", margin: "0 auto" }}>
+                <table className="freq-table" style={{ minWidth: "700px", maxWidth: "900px", margin: "0 auto" }}>
                   <thead>
                     <tr>
-                      <th>Insumo</th>
-                      <th style={{ textAlign: "center", width: "200px" }}>Quantidade Contada</th>
+                      <th style={{ width: "40%" }}>Insumo</th>
+                      <th style={{ textAlign: "center", width: "15%" }}>Tipo</th>
+                      <th style={{ textAlign: "center", width: "20%" }}>Embalagem</th>
+                      <th style={{ textAlign: "center", width: "25%" }}>Quantidade Contada</th>
                     </tr>
                   </thead>
                   <tbody>
                     {insumos.map((insumo) => (
                       <tr key={insumo.id} style={{ transition: "background 0.2s" }}>
                         <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
+                        <td style={{ textAlign: "center", color: "#64748b" }}>{insumo.tipo || "-"}</td>
+                        <td style={{ textAlign: "center", color: "#64748b" }}>{insumo.unidade_conversao || "-"}</td>
                         <td style={{ textAlign: "center", padding: "12px 8px" }}>
                           {renderEditableInput(insumo)}
                         </td>

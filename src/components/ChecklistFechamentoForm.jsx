@@ -1,9 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem.jsx";
 import { ListId } from '../id.ts';
 
 function ChecklistFechamentoForm({ handleSubmit }) {
+  const navigate = useNavigate();
   const [geladeira, setGeladeira] = useState("");
   const [brownie, setBrownie] = useState("");
   const [panos, setPanos] = useState("");
@@ -338,7 +340,7 @@ Fico à disposição!`;
                   <button
                     type="button"
                     className="copy-sample-button"
-                    onClick={() => window.open("/frequencia")}
+                    onClick={() => navigate("/frequencia")}
                   >
                     Relatório de Frequência
                   </button>
