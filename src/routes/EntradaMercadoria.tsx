@@ -18,13 +18,16 @@ function EntradaMercadoria() {
   const [editRowData, setEditRowData] = useState<any>({});
   const [savingEdit, setSavingEdit] = useState(false);
 
-  // Modal de Lançamento de Estoque
-  const [showStockModal, setShowStockModal] = useState(false);
-  const [stockModalData, setStockModalData] = useState<any>(null);
+  // Wizard de Lançamento
+  const [showWizard, setShowWizard] = useState(false);
+  const [wizardStep, setWizardStep] = useState(1);
+  const [wizardData, setWizardData] = useState({
+    hasMercadoriaDuplicate: false,
+    hasEstoqueDuplicate: false
+  });
+  
   const [stockDestino, setStockDestino] = useState("Estoque MH");
-  const [launchingStock, setLaunchingStock] = useState(false);
   const [feedbackModal, setFeedbackModal] = useState<{type: 'success' | 'error', message: string} | null>(null);
-  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -39,6 +42,9 @@ function EntradaMercadoria() {
   const [filterFornecedor, setFilterFornecedor] = useState("");
 
   const isFirstRender = useRef(true);
+
+  const [inputMode, setInputMode] = useState<'unit' | 'total'>('unit');
+  const [valorTotalInput, setValorTotalInput] = useState("");
 
   // New row state
   const getToday = () => {
@@ -133,35 +139,59 @@ function EntradaMercadoria() {
     }
   }
 
-  const handleAddRow = async (forceProceed: any = false) => {
-    const isForced = typeof forceProceed === 'boolean' && forceProceed === true;
-
+  const handleStartWizard = async () => {
     if (!newRow.insumo_id || !newRow.data_compra || !newRow.quantidade_comprada || !newRow.valor_unitario) {
       alert("Por favor, preencha insumo, data, quantidade e valor unitário.");
       return;
     }
 
+    setSavingRow(true);
     try {
-      setSavingRow(true);
-
-      if (!isForced) {
-        const { data: dups, error: dupErr } = await supabase
+      const [mercadoriaRes, estoqueRes] = await Promise.all([
+        supabase
           .from("entradas_mercadoria")
           .select("id")
           .eq("insumo_id", newRow.insumo_id)
           .eq("data_compra", newRow.data_compra)
           .eq("quantidade_comprada", Number(newRow.quantidade_comprada))
           .eq("valor_unitario", Number(newRow.valor_unitario.replace(",", ".")))
-          .limit(1);
+          .limit(1),
+        supabase
+          .from("movimentacoes_estoque")
+          .select("id")
+          .eq("insumo_id", newRow.insumo_id)
+          .eq("data_movimentacao", newRow.data_compra)
+          .eq("quantidade", Number(newRow.quantidade_comprada))
+          .limit(1)
+      ]);
 
-        if (!dupErr && dups && dups.length > 0) {
-          setSavingRow(false);
-          setShowDuplicateModal(true);
-          return;
-        }
+      const hasMercadoriaDuplicate = !mercadoriaRes.error && mercadoriaRes.data && mercadoriaRes.data.length > 0;
+      const hasEstoqueDuplicate = !estoqueRes.error && estoqueRes.data && estoqueRes.data.length > 0;
+
+      setWizardData({
+        hasMercadoriaDuplicate,
+        hasEstoqueDuplicate
+      });
+
+      if (hasMercadoriaDuplicate) {
+        setWizardStep(1);
+      } else {
+        setWizardStep(2);
       }
+      
+      setShowWizard(true);
+    } catch (err) {
+      console.error("Erro na verificação do wizard:", err);
+    } finally {
+      setSavingRow(false);
+    }
+  };
 
-      // 1. Inserir a compra na tabela
+  const handleWizardConfirm = async (shouldLaunchStock: boolean) => {
+    setShowWizard(false);
+    setSavingRow(true);
+
+    try {
       const { data, error } = await supabase
         .from("entradas_mercadoria")
         .insert([{
@@ -202,10 +232,25 @@ function EntradaMercadoria() {
       
       setShowSavedMessage(true);
       setTimeout(() => setShowSavedMessage(false), 2000);
-      
-      const insumoIdParaEstoque = newRow.insumo_id;
-      const dataCompraParaEstoque = newRow.data_compra;
-      const quantidadeParaEstoque = Number(newRow.quantidade_comprada);
+
+      if (shouldLaunchStock) {
+        const { error: movError } = await supabase
+          .from("movimentacoes_estoque")
+          .insert([{
+            insumo_id: newRow.insumo_id,
+            data_movimentacao: newRow.data_compra,
+            quantidade: Number(newRow.quantidade_comprada),
+            origem: "Compras",
+            destino: stockDestino
+          }]);
+          
+        if (movError) {
+          console.error("Erro ao lançar estoque:", movError);
+          setFeedbackModal({ type: 'error', message: "Erro ao lançar estoque: " + (movError.message || JSON.stringify(movError)) });
+        } else {
+          setFeedbackModal({ type: 'success', message: "Lançamento de estoque realizado com sucesso no destino: " + stockDestino });
+        }
+      }
 
       setNewRow({
         ...newRow,
@@ -220,33 +265,6 @@ function EntradaMercadoria() {
           selectRef.current.focus();
         }
       }, 100);
-
-      setTimeout(async () => {
-        let hasDuplicate = false;
-        try {
-          const { data: dups, error: dupErr } = await supabase
-            .from("movimentacoes_estoque")
-            .select("id")
-            .eq("insumo_id", insumoIdParaEstoque)
-            .eq("data_movimentacao", dataCompraParaEstoque)
-            .eq("quantidade", quantidadeParaEstoque)
-            .limit(1);
-            
-          if (!dupErr && dups && dups.length > 0) {
-            hasDuplicate = true;
-          }
-        } catch (err) {
-          console.error("Erro ao checar duplicatas:", err);
-        }
-
-        setStockModalData({
-          insumo_id: insumoIdParaEstoque,
-          data_movimentacao: dataCompraParaEstoque,
-          quantidade: quantidadeParaEstoque,
-          hasDuplicate
-        });
-        setShowStockModal(true);
-      }, 50);
 
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
@@ -302,35 +320,7 @@ function EntradaMercadoria() {
     }
   };
 
-  const handleLaunchStock = async () => {
-    if (!stockModalData) return;
-    setLaunchingStock(true);
-    try {
-      const { error: movError } = await supabase
-        .from("movimentacoes_estoque")
-        .insert([{
-          insumo_id: stockModalData.insumo_id,
-          data_movimentacao: stockModalData.data_movimentacao,
-          quantidade: stockModalData.quantidade,
-          origem: "Compras",
-          destino: stockDestino
-        }]);
-        
-      if (movError) {
-        console.error("Erro ao lançar estoque:", movError);
-        setFeedbackModal({ type: 'error', message: "Erro ao lançar estoque: " + (movError.message || JSON.stringify(movError)) });
-      } else {
-        setFeedbackModal({ type: 'success', message: "Lançamento de estoque realizado com sucesso no destino: " + stockDestino });
-      }
-    } catch (err) {
-      console.error("Erro ao lançar estoque:", err);
-      setFeedbackModal({ type: 'error', message: "Erro inesperado ao lançar estoque." });
-    } finally {
-      setLaunchingStock(false);
-      setShowStockModal(false);
-      setStockModalData(null);
-    }
-  };
+
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Deseja realmente excluir esta entrada de mercadoria?")) return;
@@ -441,7 +431,19 @@ function EntradaMercadoria() {
                   step="any"
                   placeholder="0"
                   value={newRow.quantidade_comprada}
-                  onChange={(e) => setNewRow({ ...newRow, quantidade_comprada: e.target.value })}
+                  onChange={(e) => {
+                    const q = e.target.value;
+                    setNewRow({ ...newRow, quantidade_comprada: q });
+                    if (inputMode === 'total') {
+                      const vt = parseFloat(valorTotalInput) || 0;
+                      const qf = parseFloat(q) || 0;
+                      if (qf > 0) {
+                        setNewRow(prev => ({ ...prev, quantidade_comprada: q, valor_unitario: (vt / qf).toFixed(2) }));
+                      } else {
+                        setNewRow(prev => ({ ...prev, quantidade_comprada: q, valor_unitario: "" }));
+                      }
+                    }
+                  }}
                   onKeyDown={(e) => {
                     if (['e', 'E', '+', '-'].includes(e.key)) {
                       e.preventDefault();
@@ -452,19 +454,62 @@ function EntradaMercadoria() {
               </div>
               <div style={{ flex: "1 1 120px" }}>
                 <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Valor Unt. (R$)</label>
-                <input
-                  type="number"
-                  step="any"
-                  placeholder="0.00"
-                  value={newRow.valor_unitario}
-                  onChange={(e) => setNewRow({ ...newRow, valor_unitario: e.target.value })}
-                  onKeyDown={(e) => {
-                    if (['e', 'E', '+', '-'].includes(e.key)) {
-                      e.preventDefault();
-                    }
-                  }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
-                />
+                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                  <span style={{ position: "absolute", left: "12px", color: "#94a3b8", zIndex: 1, pointerEvents: "none", fontSize: "1.2rem", fontWeight: "bold" }}>R$</span>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0.00"
+                    value={newRow.valor_unitario}
+                    onChange={(e) => setNewRow({ ...newRow, valor_unitario: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (['e', 'E', '+', '-'].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                    readOnly={inputMode === 'total'}
+                    onClick={() => {
+                      if (inputMode === 'total') setInputMode('unit');
+                      if (parseFloat(newRow.valor_unitario) === 0) {
+                        setNewRow({ ...newRow, valor_unitario: "" });
+                      }
+                    }}
+                    style={{ width: "100%", padding: "8px 8px 8px 36px", borderRadius: "4px", border: "1px solid #cbd5e1", backgroundColor: inputMode === 'total' ? "#f1f5f9" : "#fff", textAlign: "center", height: "54px", fontSize: "1.4rem", cursor: inputMode === 'total' ? "not-allowed" : "text" }}
+                  />
+                </div>
+              </div>
+              <div style={{ flex: "1 1 120px" }}>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Valor Total</label>
+                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                  <span style={{ position: "absolute", left: "12px", color: "#94a3b8", zIndex: 1, pointerEvents: "none", fontSize: "1.2rem", fontWeight: "bold" }}>R$</span>
+                  <input
+                    type="number"
+                    step="any"
+                    placeholder="0.00"
+                    value={inputMode === 'unit' ? (((parseFloat(newRow.quantidade_comprada) || 0) * (parseFloat(newRow.valor_unitario) || 0)) === 0 ? "" : ((parseFloat(newRow.quantidade_comprada) || 0) * (parseFloat(newRow.valor_unitario) || 0)).toFixed(2)) : valorTotalInput}
+                    onChange={(e) => {
+                      const vt = e.target.value;
+                      setValorTotalInput(vt);
+                      const qf = parseFloat(newRow.quantidade_comprada) || 0;
+                      if (qf > 0) {
+                        setNewRow({ ...newRow, valor_unitario: (parseFloat(vt) / qf).toFixed(2) });
+                      }
+                    }}
+                    readOnly={inputMode === 'unit'}
+                    onClick={() => {
+                      if (inputMode === 'unit') {
+                        setInputMode('total');
+                        const calc = ((parseFloat(newRow.quantidade_comprada) || 0) * (parseFloat(newRow.valor_unitario) || 0));
+                        setValorTotalInput(calc === 0 ? "" : calc.toFixed(2));
+                      } else {
+                        if (parseFloat(valorTotalInput) === 0) {
+                          setValorTotalInput("");
+                        }
+                      }
+                    }}
+                    style={{ width: "100%", padding: "8px 8px 8px 36px", borderRadius: "4px", border: "1px solid #cbd5e1", backgroundColor: inputMode === 'unit' ? "#f1f5f9" : "#fff", color: "#64748b", height: "54px", fontSize: "1.4rem", fontWeight: "bold", cursor: inputMode === 'unit' ? "not-allowed" : "text" }}
+                  />
+                </div>
               </div>
               <div style={{ flex: "0 0 130px", position: "relative" }}>
                 {showSavedMessage && (
@@ -483,7 +528,7 @@ function EntradaMercadoria() {
                   </span>
                 )}
                 <button
-                  onClick={handleAddRow}
+                  onClick={handleStartWizard}
                   disabled={savingRow}
                   style={{
                     height: "54px",
@@ -791,7 +836,7 @@ function EntradaMercadoria() {
         </div>
       </div>
 
-      {showDuplicateModal && (
+      {showWizard && (
         <div style={{
           position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
           backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10000,
@@ -799,136 +844,228 @@ function EntradaMercadoria() {
         }}>
           <div style={{
             backgroundColor: "#fff", padding: "40px", borderRadius: "16px",
-            width: "90%", maxWidth: "500px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+            width: "90%", maxWidth: "650px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+            maxHeight: "90vh", overflowY: "auto"
           }}>
-            <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
-              <Icons.BsExclamationTriangleFill style={{ color: "#eab308" }} /> Lançamento Duplicado
-            </h3>
-            
-            <p style={{ fontSize: "1.4rem", color: "#475569", lineHeight: "1.6", marginBottom: "32px" }}>
-              Já existe um lançamento de entrada de mercadoria idêntico (mesmo insumo, data, quantidade e valor). Tem certeza que deseja prosseguir com este lançamento?
-            </p>
+            <style>{`
+              .wizard-step-enter {
+                animation: wizardFadeInSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+              }
+              @keyframes wizardFadeInSlide {
+                0% { opacity: 0; transform: translateX(20px); }
+                100% { opacity: 1; transform: translateX(0); }
+              }
+            `}</style>
 
-            <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
-              <button
-                onClick={() => setShowDuplicateModal(false)}
-                style={{
-                  padding: "12px 24px",
-                  backgroundColor: "#f1f5f9",
-                  color: "#475569",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  fontSize: "1.2rem",
-                  transition: "background-color 0.2s"
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e2e8f0"}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f5f9"}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={() => {
-                  setShowDuplicateModal(false);
-                  handleAddRow(true);
-                }}
-                style={{
-                  padding: "12px 24px",
-                  backgroundColor: "#eab308",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  fontWeight: "bold",
-                  fontSize: "1.2rem",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  transition: "background-color 0.2s"
-                }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#ca8a04"}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#eab308"}
-              >
-                <Icons.BsCheckCircleFill /> Prosseguir
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showStockModal && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10000,
-          display: "flex", justifyContent: "center", alignItems: "center"
-        }}>
-          <div style={{
-            backgroundColor: "#fff", padding: "40px", borderRadius: "16px",
-            width: "90%", maxWidth: "650px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
-          }}>
-            <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
-              <Icons.BsBoxSeam /> Lançar no Estoque?
-            </h3>
-            
-            {stockModalData?.hasDuplicate && (
-              <div style={{
-                backgroundColor: "#fef2f2", color: "#dc2626", padding: "16px 20px",
-                borderRadius: "12px", marginBottom: "24px", border: "2px solid #fecaca",
-                fontSize: "1.4rem", lineHeight: "1.5"
-              }}>
-                <strong style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                  <Icons.BsExclamationTriangleFill /> Atenção: Lançamento Duplicado!
-                </strong>
-                Já existe um lançamento de estoque para este insumo na mesma data e com esta exata quantidade. Tem certeza que deseja lançar novamente?
+            {/* Stepper Visual */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "40px", position: "relative", width: "100%", maxWidth: "400px", margin: "0 auto 40px auto" }}>
+              {/* Linha base */}
+              <div style={{ position: "absolute", top: "20px", left: "25%", right: "25%", height: "3px", backgroundColor: "#e2e8f0", zIndex: 1 }}>
+                {/* Linha preenchida animada */}
+                <div style={{ height: "100%", backgroundColor: "var(--primary-color)", width: wizardStep === 2 ? "100%" : "0%", transition: "width 0.4s ease-in-out" }}></div>
               </div>
-            )}
 
-            <p style={{ color: "#64748b", marginBottom: "32px", lineHeight: "1.6", fontSize: "1.5rem" }}>
-              A entrada de mercadoria foi salva. Deseja fazer automaticamente o lançamento de estoque deste insumo considerando que a origem foi <strong>'Compras'</strong>?
-            </p>
-            
-            <label style={{ display: "block", fontSize: "1.5rem", color: "#64748b", marginBottom: "12px", fontWeight: "bold" }}>Destino do Estoque</label>
-            <select
-              value={stockDestino}
-              onChange={(e) => setStockDestino(e.target.value)}
-              style={{
-                width: "100%", padding: "16px", borderRadius: "10px", border: "2px solid #cbd5e1", 
-                fontSize: "1.5rem", marginBottom: "36px", backgroundColor: "#f8fafc", color: "#334155"
-              }}
-            >
-              <option value="Estoque MH">Estoque MH</option>
-              <option value="Fábrica">Fábrica</option>
-              <option value="Loja Ahú">Loja Ahú</option>
-              <option value="Loja Alto XV">Loja Alto XV</option>
-            </select>
+              {/* Passo 1 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", zIndex: 2, flex: 1 }}>
+                <div style={{
+                  width: "40px", height: "40px", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center",
+                  backgroundColor: wizardStep > 1 ? "#22c55e" : "var(--primary-color)", 
+                  color: "white", 
+                  fontWeight: "bold", fontSize: "1.6rem", transition: "all 0.3s ease",
+                  boxShadow: "0 0 0 4px #fff"
+                }}>
+                  {wizardStep > 1 ? "✓" : "1"}
+                </div>
+                <span style={{ marginTop: "12px", fontSize: "1.3rem", fontWeight: "bold", color: wizardStep > 1 ? "#22c55e" : "var(--primary-color)" }}>1ª - Mercadoria</span>
+              </div>
 
-            <div style={{ display: "flex", gap: "20px", justifyContent: "flex-end" }}>
-              <button
-                onClick={() => {
-                  setShowStockModal(false);
-                  setStockModalData(null);
-                }}
-                disabled={launchingStock}
-                style={{
-                  padding: "16px 24px", backgroundColor: "#f1f5f9", color: "#475569",
-                  border: "2px solid #cbd5e1", borderRadius: "10px", cursor: "pointer",
-                  fontWeight: "bold", fontSize: "1.4rem"
-                }}
-              >
-                Não, obrigado
-              </button>
-              <button
-                onClick={handleLaunchStock}
-                disabled={launchingStock}
-                style={{
-                  padding: "16px 24px", backgroundColor: "var(--primary-color)", color: "white",
-                  border: "none", borderRadius: "10px", cursor: "pointer",
-                  fontWeight: "bold", display: "flex", alignItems: "center", gap: "10px", fontSize: "1.4rem"
-                }}
-              >
-                {launchingStock ? <><Icons.BsArrowClockwise className="spin" /> Lançando...</> : "Lançar Estoque"}
-              </button>
+              {/* Passo 2 */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", zIndex: 2, flex: 1 }}>
+                <div style={{
+                  width: "40px", height: "40px", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center",
+                  backgroundColor: "#e2e8f0", 
+                  color: wizardStep === 2 ? "var(--primary-color)" : "#94a3b8", 
+                  border: "none",
+                  fontWeight: "bold", fontSize: "1.6rem", transition: "all 0.3s ease",
+                  boxShadow: "0 0 0 4px #fff"
+                }}>
+                  2
+                </div>
+                <span style={{ marginTop: "12px", fontSize: "1.3rem", fontWeight: wizardStep === 2 ? "bold" : "normal", color: wizardStep === 2 ? "var(--primary-color)" : "#94a3b8", transition: "all 0.3s ease" }}>2ª - Estoque</span>
+              </div>
+            </div>
+
+            <div key={`step-${wizardStep}`} className="wizard-step-enter">
+              {wizardStep === 1 && (
+                  <>
+                    <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
+                      <Icons.BsExclamationTriangleFill style={{ color: "#eab308" }} /> Lançamento Duplicado
+                    </h3>
+                    
+                    <div style={{
+                      backgroundColor: "#fef2f2", color: "#dc2626", padding: "16px 20px",
+                      borderRadius: "12px", marginBottom: "24px", border: "2px solid #fecaca",
+                      fontSize: "1.4rem", lineHeight: "1.5"
+                    }}>
+                      <strong style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                          <Icons.BsExclamationTriangleFill /> Atenção!
+                      </strong>
+                      Já existe um lançamento de entrada de mercadoria idêntico (mesmo insumo, data, quantidade e valor).
+                    </div>
+
+                    <p style={{ fontSize: "1.5rem", color: "#475569", marginBottom: "32px", lineHeight: "1.6" }}>
+                      Tem certeza que deseja prosseguir para o próximo passo com este lançamento duplicado?
+                    </p>
+
+                    <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
+                      <button 
+                        onClick={() => setShowWizard(false)}
+                        style={{
+                          padding: "14px 24px",
+                          backgroundColor: "#f1f5f9",
+                          color: "#475569",
+                          border: "none",
+                          borderRadius: "10px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "1.4rem"
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        onClick={() => setWizardStep(2)}
+                        style={{
+                          padding: "14px 24px",
+                          backgroundColor: "#eab308",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "10px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "1.4rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px"
+                        }}
+                      >
+                        Prosseguir <Icons.BsArrowRight />
+                      </button>
+                    </div>
+                  </>
+              )}
+
+              {wizardStep === 2 && (
+                  <>
+                    <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
+                      <Icons.BsBoxSeam style={{ color: "var(--primary-color)" }} /> Lançamento de Estoque
+                    </h3>
+                    
+                    {!wizardData.hasMercadoriaDuplicate && (
+                      <div style={{ marginBottom: "24px" }}>
+                        <div style={{ margin: "0 0 8px 0", color: "#64748b", fontSize: "1.3rem", fontWeight: "bold" }}>1ª - Mercadoria</div>
+                        <div style={{
+                          backgroundColor: "#f0fdf4", color: "#166534", padding: "16px 20px",
+                          borderRadius: "12px", border: "2px solid #bbf7d0",
+                          fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "10px"
+                        }}>
+                          <Icons.BsCheckCircleFill style={{ fontSize: "1.8rem" }} /> 
+                          <span><strong>Verificação concluída:</strong> Nenhuma duplicata encontrada na entrada de mercadoria.</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {wizardData.hasEstoqueDuplicate && (
+                      <div style={{ marginBottom: "24px" }}>
+                        <div style={{ margin: "0 0 8px 0", color: "#64748b", fontSize: "1.3rem", fontWeight: "bold" }}>2ª - Estoque</div>
+                        <div style={{
+                          backgroundColor: "#fef2f2", color: "#dc2626", padding: "16px 20px",
+                          borderRadius: "12px", border: "2px solid #fecaca",
+                          fontSize: "1.4rem", lineHeight: "1.5"
+                        }}>
+                          <strong style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
+                            <Icons.BsExclamationTriangleFill /> Atenção: Lançamento Duplicado no Estoque!
+                          </strong>
+                          Já existe um lançamento de estoque para este insumo na mesma data e com esta exata quantidade.
+                        </div>
+                      </div>
+                    )}
+
+                    <p style={{ color: "#64748b", marginBottom: "24px", lineHeight: "1.6", fontSize: "1.5rem" }}>
+                      Deseja fazer automaticamente o lançamento de estoque deste insumo considerando que a origem foi <strong>'Compras'</strong>?
+                    </p>
+
+                    <div style={{ marginBottom: "32px" }}>
+                      <label style={{ display: "block", fontSize: "1.5rem", color: "#64748b", marginBottom: "12px", fontWeight: "bold" }}>
+                        Destino do Estoque
+                      </label>
+                      <select
+                        value={stockDestino}
+                        onChange={(e) => setStockDestino(e.target.value)}
+                        style={{
+                          width: "100%", padding: "16px", borderRadius: "10px", border: "2px solid #cbd5e1",
+                          fontSize: "1.5rem", backgroundColor: "#f8fafc", color: "#334155", outline: "none"
+                        }}
+                      >
+                        <option value="Estoque MH">Estoque MH</option>
+                        <option value="Fábrica">Fábrica</option>
+                        <option value="Loja Ahú">Loja Ahú</option>
+                        <option value="Loja Alto XV">Loja Alto XV</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end", flexWrap: "wrap" }}>
+                      <button 
+                        onClick={() => setShowWizard(false)}
+                        style={{
+                          padding: "14px 20px",
+                          backgroundColor: "#f1f5f9",
+                          color: "#475569",
+                          border: "none",
+                          borderRadius: "10px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "1.4rem"
+                        }}
+                      >
+                        Cancelar
+                      </button>
+                      <button 
+                        onClick={() => handleWizardConfirm(false)}
+                        style={{
+                          padding: "14px 20px",
+                          backgroundColor: "#e2e8f0",
+                          color: "#334155",
+                          border: "2px solid #cbd5e1",
+                          borderRadius: "10px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "1.4rem"
+                        }}
+                      >
+                        Apenas Salvar Mercadoria
+                      </button>
+                      <button 
+                        onClick={() => handleWizardConfirm(true)}
+                        style={{
+                          padding: "14px 20px",
+                          backgroundColor: "var(--primary-color)",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "10px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "1.4rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px"
+                        }}
+                      >
+                        <Icons.BsCheckCircleFill /> Salvar & Lançar Estoque
+                      </button>
+                    </div>
+                  </>
+              )}
             </div>
           </div>
         </div>

@@ -11,6 +11,14 @@ const MENU_CONFIG = [
     path: "/",
   },
   {
+    title: "Checklists",
+    icon: <Icons.BsCardChecklist />,
+    id: "checklists",
+    subItems: [
+      { title: "Checklist Escritório", path: "/checklist-fechamento" }
+    ]
+  },
+  {
     title: "Operações",
     icon: <Icons.BsBriefcase />,
     id: "operacoes",
@@ -41,6 +49,15 @@ const MENU_CONFIG = [
     ]
   },
   {
+    title: "Análise",
+    icon: <Icons.BsGraphUp />,
+    id: "analise",
+    subItems: [
+      { title: "Análise de Insumos", path: "/analise-insumos" },
+      { title: "Análise de Produtos", path: "/analise-produtos" },
+    ]
+  },
+  {
     title: "RH",
     icon: <Icons.BsPerson />,
     id: "rh",
@@ -48,14 +65,6 @@ const MENU_CONFIG = [
       { title: "Funcionários", path: "/funcionarios" },
       { title: "Frequência", path: "/frequencia" },
       { title: "Cálculo de Vales", path: "/calculo-vales", adminOnly: true },
-    ]
-  },
-  {
-    title: "Checklists",
-    icon: <Icons.BsCardChecklist />,
-    id: "checklists",
-    subItems: [
-      { title: "Checklist Escritório", path: "/checklist-fechamento" }
     ]
   },
   {
@@ -67,6 +76,7 @@ const MENU_CONFIG = [
       { title: "Cadastro Pessoas", path: "/cadastro-pessoas" },
       { title: "Cadastro Feriados", path: "/feriados-globais" },
       { title: "Cadastro de Insumos", path: "/cadastro-insumos" },
+      { title: "Cadastro de Produtos", path: "/cadastro-produtos" },
       { title: "Configuração de Estoque", path: "/configuracao-estoque" },
       { title: "Logs", path: "/logs" },
     ]
