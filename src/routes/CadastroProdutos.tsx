@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import "../css/Frequencia.css";
 
 function CadastroProdutos() {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [produtos, setProdutos] = useState<any[]>([]);
@@ -25,6 +25,7 @@ function CadastroProdutos() {
   const [precoVenda, setPrecoVenda] = useState("");
   const [unidadeVenda, setUnidadeVenda] = useState("");
   const [ativo, setAtivo] = useState(true);
+  const [metodoPreparo, setMetodoPreparo] = useState("");
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
 
   // Drag and drop state
@@ -84,13 +85,48 @@ function CadastroProdutos() {
           custo_considerado_unitario: custoAtualizado
         };
       });
-      setInsumosList(insumosWithUpdatedCosts);
+
+      // Calcular média de custo por nome_simples_unitario
+      const groupedCostMap: Record<string, { total: number, count: number }> = {};
+      
+      insumosWithUpdatedCosts.forEach((insumo: any) => {
+        const groupKey = insumo.nome_simples_unitario || insumo.nome;
+        if (!groupedCostMap[groupKey]) {
+          groupedCostMap[groupKey] = { total: 0, count: 0 };
+        }
+        groupedCostMap[groupKey].total += insumo.custo_considerado_unitario || 0;
+        groupedCostMap[groupKey].count += 1;
+      });
+
+      const averageCostMap: Record<string, number> = {};
+      Object.keys(groupedCostMap).forEach(key => {
+        averageCostMap[key] = groupedCostMap[key].total / groupedCostMap[key].count;
+      });
+
+      // Criar lista agrupada para o dropdown
+      const groupedInsumosList: any[] = [];
+      const seenGroups = new Set<string>();
+      
+      insumosWithUpdatedCosts.forEach((insumo: any) => {
+        const groupKey = insumo.nome_simples_unitario || insumo.nome;
+        if (!seenGroups.has(groupKey)) {
+          seenGroups.add(groupKey);
+          groupedInsumosList.push({
+            ...insumo,
+            custo_considerado_unitario: averageCostMap[groupKey],
+            nome_original: insumo.nome,
+            nome: groupKey // Para exibir de forma limpa no dropdown
+          });
+        }
+      });
+      
+      setInsumosList(groupedInsumosList);
 
       // Fetch produtos and their ficha tecnica
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda,
+          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id,
             cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
@@ -110,11 +146,13 @@ function CadastroProdutos() {
           ...prod,
           ficha_tecnica: (prod.ficha_tecnica || []).map((item: any) => {
             if (item.insumo_id) {
-              const latestValor = latestCostMap[item.insumo_id];
+              const groupKey = item.cadastro_insumos?.nome_simples_unitario || item.cadastro_insumos?.nome || "Desconhecido";
               let updatedCusto = item.cadastro_insumos?.custo_considerado_unitario || 0;
-              if (latestValor !== undefined && item.cadastro_insumos?.quantidade_conversao > 0) {
-                updatedCusto = latestValor / item.cadastro_insumos.quantidade_conversao;
+              
+              if (averageCostMap[groupKey] !== undefined) {
+                updatedCusto = averageCostMap[groupKey];
               }
+
               return {
                 ...item,
                 cadastro_insumos: {
@@ -142,6 +180,7 @@ function CadastroProdutos() {
       setCategoria(produto.categoria || "");
       setPrecoVenda(produto.preco_venda?.toString() || "");
       setUnidadeVenda(produto.unidade_venda || "");
+      setMetodoPreparo(produto.metodo_preparo || "");
       setAtivo(produto.ativo);
 
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
@@ -158,6 +197,7 @@ function CadastroProdutos() {
       setCategoria("");
       setPrecoVenda("");
       setUnidadeVenda("");
+      setMetodoPreparo("");
       setAtivo(true);
       setFichaTecnica([]);
     }
@@ -169,7 +209,7 @@ function CadastroProdutos() {
     setIsModalOpen(true);
   };
 
-  const calculateCustoProduto = (ficha: any[], allProdutos: any[] = produtos) => {
+  const calculateCustoProduto = React.useCallback((ficha: any[], allProdutos: any[] = produtos) => {
     return ficha.reduce((acc, item) => {
       if (item.insumo_id || item.insumo || item.cadastro_insumos) {
         const insumoData = item.insumo || item.cadastro_insumos;
@@ -184,7 +224,7 @@ function CadastroProdutos() {
       }
       return acc;
     }, 0);
-  };
+  }, [produtos]);
 
   const currentCusto = calculateCustoProduto(fichaTecnica);
   const pv = precoVenda ? parseFloat(precoVenda) : 0;
@@ -273,6 +313,7 @@ function CadastroProdutos() {
         categoria: categoria.trim() || null,
         preco_venda: precoVenda ? parseFloat(precoVenda) : null,
         unidade_venda: unidadeVenda.trim() || null,
+        metodo_preparo: metodoPreparo.trim() || null,
         ativo: ativo
       };
 
@@ -397,7 +438,7 @@ function CadastroProdutos() {
       });
     }
     return sortableItems;
-  }, [produtos, sortConfig]);
+  }, [produtos, sortConfig, calculateCustoProduto]);
 
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -876,6 +917,21 @@ function CadastroProdutos() {
                     Nenhum insumo adicionado a esta ficha técnica.
                   </div>
                 )}
+              </div>
+
+              <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsListTask /> Método de Preparo
+                </h3>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <textarea
+                    className="frequencia-select"
+                    placeholder="Ex: 1. Adicione os ingredientes...&#10;2. Misture bem...&#10;3. Sirva frio..."
+                    value={metodoPreparo}
+                    onChange={(e) => setMetodoPreparo(e.target.value)}
+                    style={{ background: "#fff", minHeight: "100px", resize: "vertical", width: "100%" }}
+                  />
+                </div>
               </div>
 
               <div style={{ display: "flex", gap: "16px" }}>

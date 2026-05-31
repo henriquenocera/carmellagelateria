@@ -36,19 +36,32 @@ export function AuthProvider({ children }) {
     let isMounted = true;
 
     const initAuth = async () => {
+      console.log("initAuth started");
       try {
-        const {
-          data: { session: currentSession },
-          error,
-        } = await supabase.auth.getSession();
+        console.log("Calling getSession()...");
+        
+        // Timeout de 5 segundos para evitar que o app trave se a requisição do Supabase pendurar
+        const sessionPromise = supabase.auth.getSession();
+        const timeoutPromise = new Promise((resolve, reject) => 
+          setTimeout(() => reject(new Error("Supabase getSession timeout após 5 segundos")), 5000)
+        );
+
+        const response = await Promise.race([sessionPromise, timeoutPromise]);
+        
+        const currentSession = response?.data?.session;
+        const error = response?.error;
+
+        console.log("getSession() returned:", currentSession, "error:", error);
 
         if (error) {
           console.error("Error getting Supabase session", error);
         }
 
+        console.log("isMounted:", isMounted);
         if (isMounted) {
           setSession(currentSession ?? null);
           setLoading(false);
+          console.log("setLoading(false) called inside initAuth");
           if (currentSession?.user) {
             fetchAdminStatus(currentSession.user.id);
           }
