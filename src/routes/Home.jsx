@@ -331,9 +331,11 @@ function Home() {
                     {estoque.ahu.vitrine + estoque.ahu.estoque} cubas totais
                   </span>
                 </div>
-                <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.ahu.vitrine}</span>
-                  <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.ahu.estoque}</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.ahu.vitrine}</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.ahu.estoque}</span>
+                  </div>
                   
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                      <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
@@ -355,9 +357,11 @@ function Home() {
                     {estoque.altoxv.vitrine + estoque.altoxv.estoque} cubas totais
                   </span>
                 </div>
-                <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
-                  <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.altoxv.vitrine}</span>
-                  <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.altoxv.estoque}</span>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                  <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.altoxv.vitrine}</span>
+                    <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.altoxv.estoque}</span>
+                  </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                      <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
