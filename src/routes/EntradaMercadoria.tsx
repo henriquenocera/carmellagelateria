@@ -24,6 +24,7 @@ function EntradaMercadoria() {
   const [stockDestino, setStockDestino] = useState("Estoque MH");
   const [launchingStock, setLaunchingStock] = useState(false);
   const [feedbackModal, setFeedbackModal] = useState<{type: 'success' | 'error', message: string} | null>(null);
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -132,7 +133,9 @@ function EntradaMercadoria() {
     }
   }
 
-  const handleAddRow = async () => {
+  const handleAddRow = async (forceProceed: any = false) => {
+    const isForced = typeof forceProceed === 'boolean' && forceProceed === true;
+
     if (!newRow.insumo_id || !newRow.data_compra || !newRow.quantidade_comprada || !newRow.valor_unitario) {
       alert("Por favor, preencha insumo, data, quantidade e valor unitário.");
       return;
@@ -140,6 +143,23 @@ function EntradaMercadoria() {
 
     try {
       setSavingRow(true);
+
+      if (!isForced) {
+        const { data: dups, error: dupErr } = await supabase
+          .from("entradas_mercadoria")
+          .select("id")
+          .eq("insumo_id", newRow.insumo_id)
+          .eq("data_compra", newRow.data_compra)
+          .eq("quantidade_comprada", Number(newRow.quantidade_comprada))
+          .eq("valor_unitario", Number(newRow.valor_unitario.replace(",", ".")))
+          .limit(1);
+
+        if (!dupErr && dups && dups.length > 0) {
+          setSavingRow(false);
+          setShowDuplicateModal(true);
+          return;
+        }
+      }
 
       // 1. Inserir a compra na tabela
       const { data, error } = await supabase
@@ -770,6 +790,72 @@ function EntradaMercadoria() {
 
         </div>
       </div>
+
+      {showDuplicateModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10000,
+          display: "flex", justifyContent: "center", alignItems: "center"
+        }}>
+          <div style={{
+            backgroundColor: "#fff", padding: "40px", borderRadius: "16px",
+            width: "90%", maxWidth: "500px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+          }}>
+            <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
+              <Icons.BsExclamationTriangleFill style={{ color: "#eab308" }} /> Lançamento Duplicado
+            </h3>
+            
+            <p style={{ fontSize: "1.4rem", color: "#475569", lineHeight: "1.6", marginBottom: "32px" }}>
+              Já existe um lançamento de entrada de mercadoria idêntico (mesmo insumo, data, quantidade e valor). Tem certeza que deseja prosseguir com este lançamento?
+            </p>
+
+            <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setShowDuplicateModal(false)}
+                style={{
+                  padding: "12px 24px",
+                  backgroundColor: "#f1f5f9",
+                  color: "#475569",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                  transition: "background-color 0.2s"
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e2e8f0"}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f5f9"}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  setShowDuplicateModal(false);
+                  handleAddRow(true);
+                }}
+                style={{
+                  padding: "12px 24px",
+                  backgroundColor: "#eab308",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "8px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  transition: "background-color 0.2s"
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#ca8a04"}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#eab308"}
+              >
+                <Icons.BsCheckCircleFill /> Prosseguir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showStockModal && (
         <div style={{
