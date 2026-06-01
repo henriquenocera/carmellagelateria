@@ -46,6 +46,7 @@ const NovoInventario = () => {
       const { data, error } = await supabase
         .from('cadastro_insumos')
         .select('*')
+        .eq('ativo', true)
         .order('ordem', { ascending: true });
 
       if (error) throw error;
@@ -106,7 +107,7 @@ const NovoInventario = () => {
     try {
       const { error } = await supabase
         .from('inventario_insumos')
-        .insert(registros);
+        .upsert(registros, { onConflict: 'insumo_id,unidade,data_inventario' });
 
       if (error) throw error;
 
@@ -174,25 +175,23 @@ const NovoInventario = () => {
                   <tr>
                     <th className="align-left">INSUMO</th>
                     <th className="align-center">TIPO</th>
-                    <th className="align-center">EMBALAGEM</th>
                     <th className="align-center">QUANTIDADE CONTADA</th>
                   </tr>
                 </thead>
                 <tbody>
                   {insumos.length === 0 && (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: 'center', color: '#888' }}>
+                      <td colSpan="3" style={{ textAlign: 'center', color: '#888' }}>
                         Nenhum insumo configurado como ativo para esta unidade.
                       </td>
                     </tr>
                   )}
-                  {insumos.map(insumo => (
+                  {insumos.filter(i => i.tipo !== 'Bebidas').map(insumo => (
                     <tr key={insumo.id}>
                       <td className="align-left">
                         {insumo.nome}
                       </td>
                       <td className="align-center text-blue">{insumo.tipo}</td>
-                      <td className="align-center text-blue">{insumo.unidade_conversao}</td>
                       <td className="align-center">
                         <input 
                           type="number" 
@@ -206,6 +205,40 @@ const NovoInventario = () => {
                       </td>
                     </tr>
                   ))}
+
+                  {insumos.some(i => i.tipo === 'Bebidas') && (
+                    <>
+                      <tr>
+                        <td colSpan="3" style={{ backgroundColor: '#fff8f3', padding: '15px 20px', borderTop: '2px solid #efe5d9', borderBottom: '2px solid #efe5d9' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <strong style={{ color: '#8c6748', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Agrupamento: Bebidas</strong>
+                            <span style={{ color: '#d97706', fontSize: '13px', fontWeight: '500' }}>
+                              ⚠️ Aviso: Realizar contagem do Estoque Fechado + Geladeira Coca
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      {insumos.filter(i => i.tipo === 'Bebidas').map(insumo => (
+                        <tr key={insumo.id}>
+                          <td className="align-left">
+                            {insumo.nome}
+                          </td>
+                          <td className="align-center text-blue">{insumo.tipo}</td>
+                          <td className="align-center">
+                            <input 
+                              type="number" 
+                              min="0"
+                              step="0.01"
+                              placeholder="Qtd"
+                              className="novo-inv-qty-input"
+                              value={quantidades[insumo.id]}
+                              onChange={(e) => handleQtyChange(insumo.id, e.target.value)}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>

@@ -163,25 +163,23 @@ const VisualizarInventario = () => {
                   <tr>
                     <th className="align-left">INSUMO</th>
                     <th className="align-center">TIPO</th>
-                    <th className="align-center">EMBALAGEM</th>
                     <th className="align-center">QUANTIDADE CONTADA</th>
                   </tr>
                 </thead>
                 <tbody>
                   {itens.length === 0 && !errorMsg && (
                     <tr>
-                      <td colSpan="4" style={{ textAlign: 'center', color: '#888' }}>
+                      <td colSpan="3" style={{ textAlign: 'center', color: '#888' }}>
                         Nenhum insumo encontrado.
                       </td>
                     </tr>
                   )}
-                  {itens.map((item, index) => (
-                    <tr key={index}>
+                  {itens.filter(i => i.tipo !== 'Bebidas').map((item, index) => (
+                    <tr key={`non-bebidas-${index}`}>
                       <td className="align-left">
                         {item.nome}
                       </td>
                       <td className="align-center text-blue">{item.tipo}</td>
-                      <td className="align-center text-blue">{item.unidade_conversao}</td>
                       <td className="align-center">
                         <input 
                           type="text" 
@@ -193,6 +191,38 @@ const VisualizarInventario = () => {
                       </td>
                     </tr>
                   ))}
+
+                  {itens.some(i => i.tipo === 'Bebidas') && (
+                    <>
+                      <tr>
+                        <td colSpan="3" style={{ backgroundColor: '#fff8f3', padding: '15px 20px', borderTop: '2px solid #efe5d9', borderBottom: '2px solid #efe5d9' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <strong style={{ color: '#8c6748', fontSize: '14px', textTransform: 'uppercase', letterSpacing: '1px' }}>Agrupamento: Bebidas</strong>
+                            <span style={{ color: '#d97706', fontSize: '13px', fontWeight: '500' }}>
+                              ⚠️ Aviso: Realizar contagem do Estoque Fechado + Geladeira Coca
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      {itens.filter(i => i.tipo === 'Bebidas').map((item, index) => (
+                        <tr key={`bebidas-${index}`}>
+                          <td className="align-left">
+                            {item.nome}
+                          </td>
+                          <td className="align-center text-blue">{item.tipo}</td>
+                          <td className="align-center">
+                            <input 
+                              type="text" 
+                              className="novo-inv-qty-input"
+                              value={item.quantidade_salva}
+                              readOnly
+                              style={{ backgroundColor: '#f9fafb', cursor: 'default' }}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>
