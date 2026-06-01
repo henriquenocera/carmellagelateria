@@ -606,14 +606,36 @@ function MovimentacoesEstoque() {
                       duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
                     });
 
-                    return movimentacoes.map((mov) => {
+                    return movimentacoes.map((mov, index) => {
                       const isEditing = editingRowId === mov.id;
                       const key = `${mov.insumo_id}_${mov.data_movimentacao}_${mov.quantidade}_${mov.origem}_${mov.destino}`;
                       const isDuplicate = duplicatesMap[key] > 1;
 
+                      const isToday = mov.data_movimentacao === getToday();
+                      const prevMov = index > 0 ? movimentacoes[index - 1] : null;
+                      const prevIsToday = prevMov ? prevMov.data_movimentacao === getToday() : false;
+                      
+                      const showHojeHeader = isToday && index === 0;
+                      const showAnterioresHeader = !isToday && (index === 0 || prevIsToday);
+
+                      const headerRow = showHojeHeader ? (
+                        <tr key={`header-hoje-${mov.id}`} style={{ backgroundColor: "#f0fdf4" }}>
+                          <td colSpan={isAdmin ? 7 : 6} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#166534", borderTop: "2px solid #bbf7d0", borderBottom: "2px solid #bbf7d0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                            Lançamentos de Hoje
+                          </td>
+                        </tr>
+                      ) : showAnterioresHeader ? (
+                        <tr key={`header-ant-${mov.id}`} style={{ backgroundColor: "#f8fafc" }}>
+                          <td colSpan={isAdmin ? 7 : 6} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#64748b", borderTop: "2px solid #e2e8f0", borderBottom: "2px solid #e2e8f0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                            Lançamentos Anteriores
+                          </td>
+                        </tr>
+                      ) : null;
+
+                      let content;
                       if (isEditing) {
-                        return (
-                          <tr key={mov.id} style={{ backgroundColor: "#f8fafc" }}>
+                        content = (
+                          <tr key={`edit-${mov.id}`} style={{ backgroundColor: "#f8fafc" }}>
                             <td style={{ padding: "8px" }}>
                               <Select
                                 menuPortalTarget={document.body}
@@ -712,89 +734,96 @@ function MovimentacoesEstoque() {
                             </td>
                           </tr>
                         );
-                      }
+                      } else {
+                        const dataFormatada = new Date(mov.data_movimentacao + 'T00:00:00').toLocaleDateString('pt-BR');
 
-                      const dataFormatada = new Date(mov.data_movimentacao + 'T00:00:00').toLocaleDateString('pt-BR');
-
-                      return (
-                        <tr key={mov.id} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={isDuplicate ? { backgroundColor: "#fef08a" } : {}}>
-                          <td>
-                            {mov.cadastro_insumos?.nome || "Insumo Excluído"}
-                            {isDuplicate && (
-                              <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd, origem e destino)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
-                                <Icons.BsExclamationTriangleFill />
-                              </span>
+                        content = (
+                          <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={isDuplicate ? { backgroundColor: "#fef08a" } : {}}>
+                            <td>
+                              {mov.cadastro_insumos?.nome || "Insumo Excluído"}
+                              {isDuplicate && (
+                                <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd, origem e destino)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
+                                  <Icons.BsExclamationTriangleFill />
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: "center" }}>{dataFormatada}</td>
+                            <td style={{ textAlign: "center", fontWeight: "bold" }}>{mov.quantidade}</td>
+                            <td style={{
+                              textAlign: "center",
+                              backgroundColor: getUnitBgColor(mov.origem),
+                              color: getUnitColor(mov.origem)
+                            }}>
+                              {mov.origem}
+                            </td>
+                            <td style={{
+                              textAlign: "center",
+                              backgroundColor: getUnitBgColor(mov.destino),
+                              color: getUnitColor(mov.destino)
+                            }}>
+                              {mov.destino}
+                            </td>
+                            {isAdmin && (
+                              <td style={{ textAlign: "center" }}>
+                                <div 
+                                  title={mov.created_at ? `Registrado em: ${new Date(mov.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
+                                  style={{ 
+                                    color: "#334155", 
+                                    fontWeight: 600, 
+                                    display: "inline-flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "center", 
+                                    gap: "6px", 
+                                    cursor: "help",
+                                    backgroundColor: "#f8fafc",
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #e2e8f0"
+                                  }}
+                                >
+                                  <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
+                                  {mov.profiles?.name || "-"}
+                                </div>
+                              </td>
                             )}
-                          </td>
-                          <td style={{ textAlign: "center" }}>{dataFormatada}</td>
-                          <td style={{ textAlign: "center", fontWeight: "bold" }}>{mov.quantidade}</td>
-                          <td style={{
-                            textAlign: "center",
-                            backgroundColor: getUnitBgColor(mov.origem),
-                            color: getUnitColor(mov.origem)
-                          }}>
-                            {mov.origem}
-                          </td>
-                          <td style={{
-                            textAlign: "center",
-                            backgroundColor: getUnitBgColor(mov.destino),
-                            color: getUnitColor(mov.destino)
-                          }}>
-                            {mov.destino}
-                          </td>
-                          {isAdmin && (
                             <td style={{ textAlign: "center" }}>
-                              <div 
-                                title={mov.created_at ? `Registrado em: ${new Date(mov.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
-                                style={{ 
-                                  color: "#334155", 
-                                  fontWeight: 600, 
-                                  display: "inline-flex", 
-                                  alignItems: "center", 
-                                  justifyContent: "center", 
-                                  gap: "6px", 
-                                  cursor: "help",
-                                  backgroundColor: "#f8fafc",
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  border: "1px solid #e2e8f0"
-                                }}
-                              >
-                                <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
-                                {mov.profiles?.name || "-"}
+                              <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                                <button
+                                  onClick={() => {
+                                    setEditingRowId(mov.id);
+                                    setEditRowData({
+                                      insumo_id: mov.insumo_id,
+                                      data_movimentacao: mov.data_movimentacao,
+                                      quantidade: mov.quantidade,
+                                      origem: mov.origem,
+                                      destino: mov.destino
+                                    });
+                                  }}
+                                  className="nav-btn"
+                                  title="Editar"
+                                  style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsPencil />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(mov.id)}
+                                  className="delete-record-btn"
+                                  title="Excluir"
+                                  style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsTrash />
+                                </button>
                               </div>
                             </td>
-                          )}
-                          <td style={{ textAlign: "center" }}>
-                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                              <button
-                                onClick={() => {
-                                  setEditingRowId(mov.id);
-                                  setEditRowData({
-                                    insumo_id: mov.insumo_id,
-                                    data_movimentacao: mov.data_movimentacao,
-                                    quantidade: mov.quantidade,
-                                    origem: mov.origem,
-                                    destino: mov.destino
-                                  });
-                                }}
-                                className="nav-btn"
-                                title="Editar"
-                                style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                              >
-                                <Icons.BsPencil />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(mov.id)}
-                                className="delete-record-btn"
-                                title="Excluir"
-                                style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
-                              >
-                                <Icons.BsTrash />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                          </tr>
+                        );
+                      }
+
+                      return (
+                        <React.Fragment key={mov.id}>
+                          {headerRow}
+                          {content}
+                        </React.Fragment>
                       );
                     });
                   })()
