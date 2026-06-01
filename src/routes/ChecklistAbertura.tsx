@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import ChecklistAberturaForm from "../components/ChecklistAberturaForm";
+import { useAuth } from '../components/AuthProvider.tsx';
+import supabase from '../supabase-client';
+import { STORE_CONFIG } from '../config/store.js';
 import "../css/Checklist.css";
-import supabase from "../supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = STORE_CONFIG.textName;
+const unidade = STORE_CONFIG.key;
 
 // Function Get Local Storage
 function getLocalStorage() {

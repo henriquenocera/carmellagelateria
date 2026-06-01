@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import "../css/Afericao.css";
 import supabase from "../supabase-client";
 import { ListId } from "../id.ts";
+import { STORE_CONFIG } from '../config/store.js';
 
 // Tabela no Supabase: "afericao_porcao"
 // Colunas sugeridas:
@@ -13,7 +14,7 @@ import { ListId } from "../id.ts";
 // weight_grams (numeric)
 // created_at (timestamptz) - default now()
 
-const UNIT = process.env.REACT_APP_UNIT || "ahu";
+const UNIT = process.env.REACT_APP_UNIT || STORE_CONFIG.key;
 
 function Afericao() {
   const WEIGHT_LABELS = [

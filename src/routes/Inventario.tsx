@@ -4,17 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import * as Icons from 'react-icons/bs';
 import { useAuth } from '../components/AuthProvider.tsx';
 import supabase from '../supabase-client';
+import { STORE_CONFIG } from '../config/store.js';
 import '../css/InventarioDashboard.css';
 
 const Inventario = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('Loja Ahú');
+  const [activeTab, setActiveTab] = useState(STORE_CONFIG.name);
   const [inventories, setInventories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
-  const tabs = ['Loja Ahú'];
+  const tabs = [STORE_CONFIG.name];
 
   useEffect(() => {
     fetchInventories(activeTab);

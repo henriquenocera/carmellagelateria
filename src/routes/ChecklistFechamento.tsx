@@ -5,11 +5,12 @@ import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
 import supabase from "../supabase-client";
+import { STORE_CONFIG } from '../config/store.js';
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = STORE_CONFIG.textName;
+const unidade = STORE_CONFIG.key;
 
 async function sendOpenMessage(
   openDateFormat,

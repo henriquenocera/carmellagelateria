@@ -3,11 +3,12 @@ import { Helmet } from "react-helmet";
 
 import * as Icons from "react-icons/bs";
 import "../css/Inventario.css";
+import { STORE_CONFIG } from '../config/store.js';
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Ahu";
-const unidade = "ahu";
+const unidadeText = STORE_CONFIG.textName;
+const unidade = STORE_CONFIG.key;
 
 async function sendMessage(openDateFormat) {
   const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Inventário - Loja ${unidadeText} %0D%0A ${openDateFormat}`;

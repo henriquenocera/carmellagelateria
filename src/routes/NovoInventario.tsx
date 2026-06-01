@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import * as Icons from 'react-icons/bs';
 import { useAuth } from '../components/AuthProvider.tsx';
 import supabase from '../supabase-client';
+import { STORE_CONFIG } from '../config/store.js';
 import '../css/NovoInventario.css';
 
 const NovoInventario = () => {
@@ -11,7 +12,7 @@ const NovoInventario = () => {
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
   
-  const queryUnidade = searchParams.get('unidade') || 'Loja Ahú';
+  const queryUnidade = searchParams.get('unidade') || STORE_CONFIG.name;
   
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -26,11 +27,11 @@ const NovoInventario = () => {
 
   const getUnidadeConfig = (unidadeName) => {
     switch(unidadeName) {
-      case 'Loja Ahú': return { key: 'ahu', dbName: 'Loja Ahú' };
+      case STORE_CONFIG.name: return { key: STORE_CONFIG.key, dbName: STORE_CONFIG.name };
       case 'Loja Alto XV': return { key: 'altoxv', dbName: 'Loja Alto XV' };
       case 'Fábrica': return { key: 'fabrica', dbName: 'Fábrica' };
       case 'Estoque MH': return { key: 'mh', dbName: 'Estoque MH' };
-      default: return { key: 'ahu', dbName: 'Loja Ahú' };
+      default: return { key: STORE_CONFIG.key, dbName: STORE_CONFIG.name };
     }
   };
 

@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useRef, useState } from "react";
 import "../css/HomeCopy.css";
+import { STORE_CONFIG } from '../config/store.js';
 
 import supabase from "../supabase-client";
 import { Helmet } from "react-helmet";
@@ -15,7 +16,7 @@ type VoucherRow = {
 };
 
 function Voucher() {
-  const store = "Ahu";
+  const store = STORE_CONFIG.textName;
   const dateNow = new Date();
   const [vouchers, setVouchers] = useState<VoucherRow[]>([]);
   const [rowId, setRowId] = useState("");

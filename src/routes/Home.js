@@ -5,6 +5,7 @@ import moment from "moment";
 import "moment/locale/pt-br";
 import { Helmet } from "react-helmet";
 import { FaTimesCircle } from "react-icons/fa";
+import { STORE_CONFIG } from "../config/store.js";
 
 function Home() {
   const [vales, setVales] = useState([]);
@@ -23,7 +24,7 @@ function Home() {
     const { data, error } = await supabase
       .from("Checklist")
       .select("*")
-      .eq("store", "ahu")
+      .eq("store", STORE_CONFIG.key)
       .gte("created_at", fiveDaysAgo)
       .order("created_at", { ascending: false });
 
@@ -42,7 +43,7 @@ function Home() {
     const { data, error } = await supabase
       .from("Vales")
       .select("*")
-      .eq("Unidade", "Ahu")
+      .eq("Unidade", STORE_CONFIG.textName)
       .gte("created_at", fiveDaysAgo)
       .order("created_at", { ascending: false });
 
