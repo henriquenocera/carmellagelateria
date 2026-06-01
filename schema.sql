@@ -266,11 +266,28 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_insumos" (
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "config_estoque" "jsonb" DEFAULT '{}'::"jsonb",
     "ordem" integer DEFAULT 0,
-    "custo_considerado_unitario" numeric
+    "custo_considerado_unitario" numeric,
+    "fator_desperdicio" numeric DEFAULT 0
 );
 
 
 ALTER TABLE "public"."cadastro_insumos" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."cadastro_produtos" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "nome" "text" NOT NULL,
+    "categoria" "text",
+    "ativo" boolean DEFAULT true,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "preco_venda" numeric,
+    "unidade_venda" character varying(50),
+    "ordem" integer DEFAULT 0,
+    "metodo_preparo" "text"
+);
+
+
+ALTER TABLE "public"."cadastro_produtos" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."cardsahu" (
@@ -356,6 +373,19 @@ CREATE TABLE IF NOT EXISTS "public"."feriados_trabalhados" (
 ALTER TABLE "public"."feriados_trabalhados" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."ficha_tecnica" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "produto_id" "uuid",
+    "insumo_id" "uuid",
+    "quantidade" numeric NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "produto_base_id" "uuid"
+);
+
+
+ALTER TABLE "public"."ficha_tecnica" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."frequencia" (
     "id" bigint NOT NULL,
     "employee_id" "uuid" NOT NULL,
@@ -414,7 +444,9 @@ CREATE TABLE IF NOT EXISTS "public"."inventario_insumos" (
     "insumo_id" "uuid",
     "data_inventario" "date" NOT NULL,
     "unidade" "text" NOT NULL,
-    "quantidade" numeric NOT NULL
+    "quantidade" numeric NOT NULL,
+    "user_id" "uuid",
+    "updated_at" timestamp with time zone
 );
 
 
@@ -428,7 +460,8 @@ CREATE TABLE IF NOT EXISTS "public"."movimentacoes_estoque" (
     "data_movimentacao" "date" NOT NULL,
     "quantidade" numeric NOT NULL,
     "origem" "text" NOT NULL,
-    "destino" "text" NOT NULL
+    "destino" "text" NOT NULL,
+    "user_id" "uuid" DEFAULT "auth"."uid"()
 );
 
 
@@ -507,6 +540,11 @@ ALTER TABLE ONLY "public"."cadastro_insumos"
 
 
 
+ALTER TABLE ONLY "public"."cadastro_produtos"
+    ADD CONSTRAINT "cadastro_produtos_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."cardsaltoxv"
     ADD CONSTRAINT "cards_pkey" PRIMARY KEY ("id");
 
@@ -534,6 +572,11 @@ ALTER TABLE ONLY "public"."feriados_globais"
 
 ALTER TABLE ONLY "public"."feriados_trabalhados"
     ADD CONSTRAINT "feriados_trabalhados_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."ficha_tecnica"
+    ADD CONSTRAINT "ficha_tecnica_pkey" PRIMARY KEY ("id");
 
 
 
@@ -634,6 +677,21 @@ ALTER TABLE ONLY "public"."feriados_trabalhados"
 
 
 
+ALTER TABLE ONLY "public"."ficha_tecnica"
+    ADD CONSTRAINT "ficha_tecnica_insumo_id_fkey" FOREIGN KEY ("insumo_id") REFERENCES "public"."cadastro_insumos"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."ficha_tecnica"
+    ADD CONSTRAINT "ficha_tecnica_produto_base_id_fkey" FOREIGN KEY ("produto_base_id") REFERENCES "public"."cadastro_produtos"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."ficha_tecnica"
+    ADD CONSTRAINT "ficha_tecnica_produto_id_fkey" FOREIGN KEY ("produto_id") REFERENCES "public"."cadastro_produtos"("id") ON DELETE CASCADE;
+
+
+
 ALTER TABLE ONLY "public"."frequencia"
     ADD CONSTRAINT "frequencia_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
 
@@ -659,8 +717,18 @@ ALTER TABLE ONLY "public"."inventario_insumos"
 
 
 
+ALTER TABLE ONLY "public"."inventario_insumos"
+    ADD CONSTRAINT "inventario_insumos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id");
+
+
+
 ALTER TABLE ONLY "public"."movimentacoes_estoque"
     ADD CONSTRAINT "movimentacoes_estoque_insumo_id_fkey" FOREIGN KEY ("insumo_id") REFERENCES "public"."cadastro_insumos"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."movimentacoes_estoque"
+    ADD CONSTRAINT "movimentacoes_estoque_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id");
 
 
 
@@ -765,6 +833,22 @@ CREATE POLICY "Enable read access for all users" ON "public"."rules_confirmation
 
 
 
+CREATE POLICY "Permitir ALL em cadastro_produtos" ON "public"."cadastro_produtos" TO "authenticated" USING (true) WITH CHECK (true);
+
+
+
+CREATE POLICY "Permitir ALL em ficha_tecnica" ON "public"."ficha_tecnica" TO "authenticated" USING (true) WITH CHECK (true);
+
+
+
+CREATE POLICY "Permitir SELECT em cadastro_produtos" ON "public"."cadastro_produtos" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir SELECT em ficha_tecnica" ON "public"."ficha_tecnica" FOR SELECT TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Permitir acesso total" ON "public"."entradas_mercadoria" USING (true) WITH CHECK (true);
 
 
@@ -839,6 +923,9 @@ ALTER TABLE "public"."audit_logs" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."cadastro_insumos" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."cadastro_produtos" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."cardsahu" ENABLE ROW LEVEL SECURITY;
 
 
@@ -852,6 +939,9 @@ ALTER TABLE "public"."feriados_globais" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."feriados_trabalhados" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."ficha_tecnica" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."frequencia" ENABLE ROW LEVEL SECURITY;
@@ -1190,6 +1280,12 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 
 
 
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cadastro_produtos" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cadastro_produtos" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cadastro_produtos" TO "service_role";
+
+
+
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cardsahu" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cardsahu" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."cardsahu" TO "service_role";
@@ -1217,6 +1313,12 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."feriados_trabalhados" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."feriados_trabalhados" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."feriados_trabalhados" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ficha_tecnica" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ficha_tecnica" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ficha_tecnica" TO "service_role";
 
 
 
