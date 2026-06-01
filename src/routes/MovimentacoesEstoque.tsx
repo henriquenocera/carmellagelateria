@@ -136,6 +136,7 @@ function MovimentacoesEstoque() {
       const { data: movData, count, error: movError } = await query
         .order("data_movimentacao", { ascending: false })
         .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
         .range(from, to);
 
       if (movError) throw movError;
