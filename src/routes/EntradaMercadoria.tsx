@@ -3,8 +3,10 @@ import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
 import supabase from "../supabase-client";
+import { useAuth } from "../AuthProvider";
 
 function EntradaMercadoria() {
+  const { user, isAdmin } = useAuth();
   const [compras, setCompras] = useState<any[]>([]);
   const [insumos, setInsumos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -101,7 +103,9 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
-          cadastro_insumos!inner(nome)
+          user_id,
+          cadastro_insumos!inner(nome),
+          profiles(name)
         `, { count: 'exact' });
 
       if (fInsumoId) query = query.eq('insumo_id', fInsumoId);
@@ -199,7 +203,8 @@ function EntradaMercadoria() {
           data_compra: newRow.data_compra,
           fornecedor: newRow.fornecedor,
           quantidade_comprada: Number(newRow.quantidade_comprada),
-          valor_unitario: Number(newRow.valor_unitario.replace(",", "."))
+          valor_unitario: Number(newRow.valor_unitario.replace(",", ".")),
+          user_id: user?.id
         }])
         .select(`
           id,
@@ -209,7 +214,9 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
-          cadastro_insumos(nome)
+          user_id,
+          cadastro_insumos(nome),
+          profiles(name)
         `)
         .single();
 
@@ -304,7 +311,9 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
-          cadastro_insumos!inner(nome)
+          user_id,
+          cadastro_insumos!inner(nome),
+          profiles(name)
         `)
         .single();
 
@@ -563,6 +572,7 @@ function EntradaMercadoria() {
                   <th style={{ textAlign: "center", width: "120px" }}>Qtd Comprada</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Valor Unt.</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Total</th>
+                  {isAdmin && <th style={{ textAlign: "center", width: "110px" }}>Usuário</th>}
                   <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
                 </tr>
                 {/* Linha de Filtros */}
@@ -613,6 +623,7 @@ function EntradaMercadoria() {
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}></th>
+                  {isAdmin && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px", textAlign: "center" }}>
                     <button
                       onClick={() => {
@@ -646,25 +657,43 @@ function EntradaMercadoria() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
                 ) : compras.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhuma entrada registrada.
                     </td>
                   </tr>
                 ) : (
                   (() => {
                     const duplicatesMap: Record<string, number> = {};
+                    let hasAnyDuplicate = false;
                     compras.forEach(c => {
                       const key = `${c.insumo_id}_${c.data_compra}_${c.quantidade_comprada}_${c.valor_unitario}`;
                       duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
+                      if (duplicatesMap[key] > 1) {
+                        hasAnyDuplicate = true;
+                      }
                     });
                     
-                    return compras.map((comp) => {
+                    return (
+                      <>
+                        {hasAnyDuplicate && (
+                          <tr>
+                            <td colSpan={isAdmin ? 8 : 7} style={{ padding: "12px" }}>
+                              <div style={{ backgroundColor: "#fffbeb", borderLeft: "4px solid #f59e0b", padding: "12px 16px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "12px", color: "#b45309" }}>
+                                <Icons.BsExclamationTriangleFill style={{ fontSize: "1.5rem" }} />
+                                <div>
+                                  <strong>Atenção:</strong> Foram detectados lançamentos possivelmente duplicados nesta página (mesmo insumo, data, quantidade e valor). Eles estão destacados em amarelo abaixo.
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        {compras.map((comp) => {
                       const dataFormatada = new Date(comp.data_compra + 'T00:00:00').toLocaleDateString('pt-BR');
                       const total = comp.quantidade_comprada * comp.valor_unitario;
                       
@@ -725,6 +754,29 @@ function EntradaMercadoria() {
                             <td style={{ textAlign: "center", color: "var(--text-dark)", fontWeight: "bold" }}>
                               -
                             </td>
+                            {isAdmin && (
+                              <td style={{ textAlign: "center" }}>
+                                <div 
+                                  title={comp.created_at ? `Registrado em: ${new Date(comp.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
+                                  style={{ 
+                                    color: "#334155", 
+                                    fontWeight: 600, 
+                                    display: "inline-flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "center", 
+                                    gap: "6px", 
+                                    cursor: "help",
+                                    backgroundColor: "#f8fafc",
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #e2e8f0"
+                                  }}
+                                >
+                                  <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
+                                  {comp.profiles?.name || "-"}
+                                </div>
+                              </td>
+                            )}
                             <td style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
                                 <button
@@ -768,6 +820,29 @@ function EntradaMercadoria() {
                           <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
                             {total ? `R$ ${total.toFixed(2)}` : "-"}
                           </td>
+                          {isAdmin && (
+                            <td style={{ textAlign: "center" }}>
+                              <div 
+                                title={comp.created_at ? `Registrado em: ${new Date(comp.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
+                                style={{ 
+                                  color: "#334155", 
+                                  fontWeight: 600, 
+                                  display: "inline-flex", 
+                                  alignItems: "center", 
+                                  justifyContent: "center", 
+                                  gap: "6px", 
+                                  cursor: "help",
+                                  backgroundColor: "#f8fafc",
+                                  padding: "4px 8px",
+                                  borderRadius: "6px",
+                                  border: "1px solid #e2e8f0"
+                                }}
+                              >
+                                <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
+                                {comp.profiles?.name || "-"}
+                              </div>
+                            </td>
+                          )}
                           <td style={{ textAlign: "center" }}>
                             <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
                               <button
@@ -799,7 +874,9 @@ function EntradaMercadoria() {
                           </td>
                         </tr>
                       );
-                    });
+                    })}
+                      </>
+                    );
                   })()
                 )}
               </tbody>

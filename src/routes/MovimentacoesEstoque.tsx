@@ -600,12 +600,30 @@ function MovimentacoesEstoque() {
                 ) : (
                   (() => {
                     const duplicatesMap: Record<string, number> = {};
+                    let hasAnyDuplicate = false;
                     movimentacoes.forEach(m => {
                       const key = `${m.insumo_id}_${m.data_movimentacao}_${m.quantidade}_${m.origem}_${m.destino}`;
                       duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
+                      if (duplicatesMap[key] > 1) {
+                        hasAnyDuplicate = true;
+                      }
                     });
 
-                    return movimentacoes.map((mov) => {
+                    return (
+                      <>
+                        {hasAnyDuplicate && (
+                          <tr>
+                            <td colSpan={isAdmin ? 7 : 6} style={{ padding: "12px" }}>
+                              <div style={{ backgroundColor: "#fffbeb", borderLeft: "4px solid #f59e0b", padding: "12px 16px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "12px", color: "#b45309" }}>
+                                <Icons.BsExclamationTriangleFill style={{ fontSize: "1.5rem" }} />
+                                <div>
+                                  <strong>Atenção:</strong> Foram detectados lançamentos possivelmente duplicados nesta página (mesmo insumo, data, quantidade, origem e destino). Eles estão destacados em amarelo abaixo.
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        {movimentacoes.map((mov) => {
                       const isEditing = editingRowId === mov.id;
                       const key = `${mov.insumo_id}_${mov.data_movimentacao}_${mov.quantidade}_${mov.origem}_${mov.destino}`;
                       const isDuplicate = duplicatesMap[key] > 1;
@@ -795,7 +813,9 @@ function MovimentacoesEstoque() {
                           </td>
                         </tr>
                       );
-                    });
+                    })}
+                      </>
+                    );
                   })()
                 )}
               </tbody>
