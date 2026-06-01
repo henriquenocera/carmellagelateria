@@ -1,24 +1,31 @@
 import { useState, useEffect } from 'react';
 
 function ContadorNotasMoedas({ onTotalChange }) {
-  const [denominacoes, setDenominacoes] = useState({
-    hundred: "",
-    fifty: "",
-    twenty: "",
-    ten: "",
-    five: "",
-    two: "",
-    oneReal: "",
-    fiftyCents: "",
-    twentyFiveCents: "",
-    tenCents: "",
-    fiveCents: "",
-    oneCent: ""
+  const [denominacoes, setDenominacoes] = useState(() => {
+    const saved = localStorage.getItem('contador_notas_moedas');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return {
+      hundred: "",
+      fifty: "",
+      twenty: "",
+      ten: "",
+      five: "",
+      two: "",
+      oneReal: "",
+      fiftyCents: "",
+      twentyFiveCents: "",
+      tenCents: "",
+      fiveCents: "",
+      oneCent: ""
+    };
   });
 
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
+    localStorage.setItem('contador_notas_moedas', JSON.stringify(denominacoes));
     calculateTotal();
   }, [denominacoes]);
 

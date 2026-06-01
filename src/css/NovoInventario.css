@@ -1,0 +1,211 @@
+.novo-inv-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: transparent;
+  min-height: calc(100vh - 70px);
+  margin-left: 75px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.novo-inv-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.novo-inv-header-titles h1 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 32px;
+  color: #8c6748;
+  margin: 0 0 5px 0;
+}
+
+.novo-inv-header-titles p {
+  color: #888;
+  margin: 0;
+  font-size: 15px;
+}
+
+.novo-inv-controls {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #eaeaea;
+  margin-bottom: 30px;
+}
+
+.novo-inv-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.novo-inv-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+}
+
+.novo-inv-input-group input {
+  padding: 10px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  outline: none;
+  background-color: #f9f9f9;
+}
+
+.novo-inv-input-group input:read-only {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.novo-inv-card {
+  background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  margin-bottom: 30px;
+}
+
+.novo-inv-table-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.novo-inv-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.novo-inv-table th {
+  background-color: #efe5d9;
+  color: #916942;
+  padding: 15px 20px;
+  font-weight: bold;
+  font-size: 13px;
+  border-bottom: 1px solid #eaeaea;
+  letter-spacing: 0.5px;
+}
+
+.novo-inv-table td {
+  padding: 15px 20px;
+  border-bottom: 1px solid #f8f9fa;
+  color: #444;
+  vertical-align: middle;
+  font-size: 13px;
+}
+
+.align-left {
+  text-align: left;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.text-blue {
+  color: #89a5bb !important;
+}
+
+.novo-inv-qty-input {
+  width: 90px;
+  padding: 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s;
+  text-align: center;
+  color: #64748b;
+}
+
+.novo-inv-qty-input::placeholder {
+  color: #94a3b8;
+}
+
+.novo-inv-qty-input:focus {
+  border-color: #916942;
+  box-shadow: 0 0 0 2px rgba(145, 105, 66, 0.1);
+  color: #444;
+}
+
+.novo-inv-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+}
+
+.novo-inv-btn-cancel {
+  padding: 12px 25px;
+  border: 1px solid #ddd;
+  background-color: #fff;
+  color: #666;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.novo-inv-btn-cancel:hover {
+  background-color: #f5f5f5;
+}
+
+.novo-inv-btn-save {
+  padding: 12px 30px;
+  border: none;
+  background-color: #a37a57;
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.novo-inv-btn-save:hover {
+  background-color: #8c6748;
+}
+
+.novo-inv-btn-save:disabled {
+  background-color: #d2c0b0;
+  cursor: not-allowed;
+}
+
+.novo-inv-alert-success {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #c3e6cb;
+}
+
+.novo-inv-alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #f5c6cb;
+}
+
+/* Remover setinhas do input de número */
+.novo-inv-qty-input::-webkit-outer-spin-button,
+.novo-inv-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.novo-inv-qty-input[type=number] {
+  -moz-appearance: textfield;
+}

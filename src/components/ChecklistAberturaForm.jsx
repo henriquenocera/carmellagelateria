@@ -89,16 +89,38 @@ function ChecklistAberturaForm({ handleSubmit }) {
     }
   ];
 
-  // Initialize checkedItems state with all items set to false
+  // Initialize checkedItems and currentStep state from localStorage or default
   useEffect(() => {
-    const initialCheckedState = {};
-    steps.forEach(step => {
-      step.items.forEach(item => {
-        initialCheckedState[item.id] = false;
+    const savedItems = localStorage.getItem('check_abertura_items');
+    if (savedItems) {
+      setCheckedItems(JSON.parse(savedItems));
+    } else {
+      const initialCheckedState = {};
+      steps.forEach(step => {
+        step.items.forEach(item => {
+          initialCheckedState[item.id] = false;
+        });
       });
-    });
-    setCheckedItems(initialCheckedState);
+      setCheckedItems(initialCheckedState);
+    }
+
+    const savedStep = localStorage.getItem('check_abertura_step');
+    if (savedStep) {
+      setCurrentStep(parseInt(savedStep));
+    }
   }, []);
+
+  // Save checkedItems to localStorage whenever it changes
+  useEffect(() => {
+    if (Object.keys(checkedItems).length > 0) {
+      localStorage.setItem('check_abertura_items', JSON.stringify(checkedItems));
+    }
+  }, [checkedItems]);
+
+  // Save currentStep to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('check_abertura_step', currentStep.toString());
+  }, [currentStep]);
 
   const handleCheckboxChange = (id) => {
     setCheckedItems(prevState => ({
@@ -241,6 +263,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
     event.preventDefault();
     const moneyCounterMessage = formatMoneyCounterMessage();
     handleSubmit(event, user, moneyCounterMessage, moneyCounterData);
+
+    // Limpa o progresso do local storage ao enviar o formulário
+    localStorage.removeItem('check_abertura_items');
+    localStorage.removeItem('check_abertura_step');
+    localStorage.removeItem('contador_notas_moedas');
   };
 
   return (

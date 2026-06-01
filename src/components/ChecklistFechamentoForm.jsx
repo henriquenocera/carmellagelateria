@@ -112,16 +112,64 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     }
   ];
 
-  // Initialize checkedItems state with all items set to false
+  // Initialize states from localStorage or default
   React.useEffect(() => {
-    const initialCheckedState = {};
-    steps.forEach(step => {
-      step.items.forEach(item => {
-        initialCheckedState[item.id] = false;
+    const savedItems = localStorage.getItem('check_fechamento_items');
+    if (savedItems) {
+      setCheckedItems(JSON.parse(savedItems));
+    } else {
+      const initialCheckedState = {};
+      steps.forEach(step => {
+        step.items.forEach(item => {
+          initialCheckedState[item.id] = false;
+        });
       });
-    });
-    setCheckedItems(initialCheckedState);
+      setCheckedItems(initialCheckedState);
+    }
+
+    const savedStep = localStorage.getItem('check_fechamento_step');
+    if (savedStep) {
+      setCurrentStep(parseInt(savedStep));
+    }
+
+    const savedWaffles = localStorage.getItem('check_fechamento_waffles');
+    if (savedWaffles) {
+      setWaffleBatches(JSON.parse(savedWaffles));
+    }
+
+    const savedBrownies = localStorage.getItem('check_fechamento_brownies');
+    if (savedBrownies) {
+      setBrownieBatches(JSON.parse(savedBrownies));
+    }
+
+    const savedPanos = localStorage.getItem('check_fechamento_panos');
+    if (savedPanos) {
+      setPanos(savedPanos);
+    }
   }, []);
+
+  // Save states to localStorage whenever they change
+  React.useEffect(() => {
+    if (Object.keys(checkedItems).length > 0) {
+      localStorage.setItem('check_fechamento_items', JSON.stringify(checkedItems));
+    }
+  }, [checkedItems]);
+
+  React.useEffect(() => {
+    localStorage.setItem('check_fechamento_step', currentStep.toString());
+  }, [currentStep]);
+
+  React.useEffect(() => {
+    localStorage.setItem('check_fechamento_waffles', JSON.stringify(waffleBatches));
+  }, [waffleBatches]);
+
+  React.useEffect(() => {
+    localStorage.setItem('check_fechamento_brownies', JSON.stringify(brownieBatches));
+  }, [brownieBatches]);
+
+  React.useEffect(() => {
+    localStorage.setItem('check_fechamento_panos', panos);
+  }, [panos]);
 
   const handleCheckboxChange = (id) => {
     setCheckedItems(prevState => ({
@@ -212,6 +260,17 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     setWithExpiry("check", true, 10000);
   }
 
+  const handleFormSubmit = (event) => {
+    handleSubmit(event, getFormattedWaffles(), getFormattedBrownies(), panos, user, check);
+    
+    // Limpa o progresso do local storage ao enviar
+    localStorage.removeItem('check_fechamento_items');
+    localStorage.removeItem('check_fechamento_step');
+    localStorage.removeItem('check_fechamento_waffles');
+    localStorage.removeItem('check_fechamento_brownies');
+    localStorage.removeItem('check_fechamento_panos');
+  };
+
   return (
     <>
       {isModalErrorOpen && (
@@ -284,7 +343,7 @@ function ChecklistFechamentoForm({ handleSubmit }) {
         </div>
       )}
 
-      <form onSubmit={event => handleSubmit(event, getFormattedWaffles(), getFormattedBrownies(), panos, user, check)} className="fechamentoAltoxv" id="checklistClose">
+      <form onSubmit={handleFormSubmit} className="fechamentoAltoxv" id="checklistClose">
         <button className="hidebtn" onClick={Checked}>Check</button>
 
         <div className="step-indicator">
