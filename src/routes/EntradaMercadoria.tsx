@@ -44,8 +44,9 @@ function EntradaMercadoria() {
   const [filterInsumoId, setFilterInsumoId] = useState<string | null>(searchParams.get('insumo_id') || null);
   const [filterData, setFilterData] = useState(searchParams.get('data_compra') || "");
   const [filterFornecedor, setFilterFornecedor] = useState("");
-  const [filterNeedsReview, setFilterNeedsReview] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
+  const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
 
   const isFirstRender = useRef(true);
 
@@ -69,38 +70,41 @@ function EntradaMercadoria() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterNeedsReview);
+      fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterStatus);
       return;
     }
     setPage(0);
-    fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterNeedsReview);
-  }, [filterInsumoId, filterData, filterFornecedor, filterNeedsReview]);
+    fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterStatus);
+  }, [filterInsumoId, filterData, filterFornecedor, filterStatus]);
 
   useEffect(() => {
-    async function checkPendingReviews() {
+    async function checkPendingCounts() {
       try {
-        let query = supabase
-          .from('entradas_mercadoria')
-          .select('*', { count: 'exact', head: true });
-          
+        let revQuery = supabase.from('entradas_mercadoria').select('*', { count: 'exact', head: true });
         if (isAdmin) {
-          query = query.in('status_revisao', ['pending_user', 'pending_admin']);
+          revQuery = revQuery.in('status_revisao', ['pending_user', 'pending_admin']);
         } else {
-          query = query.eq('status_revisao', 'pending_user');
+          revQuery = revQuery.eq('status_revisao', 'pending_user');
         }
         
-        const { count, error } = await query;
-        if (!error) {
-          setPendingReviewCount(count || 0);
+        const { count: revCount, error: revError } = await revQuery;
+        if (!revError) setPendingReviewCount(revCount || 0);
+
+        if (isAdmin) {
+          const { count: delCount, error: delError } = await supabase
+            .from('entradas_mercadoria')
+            .select('*', { count: 'exact', head: true })
+            .eq('status_revisao', 'pending_delete');
+          if (!delError) setPendingDeleteCount(delCount || 0);
         }
       } catch (err) {
-        console.error("Erro ao checar revisões pendentes:", err);
+        console.error("Erro ao checar revisões/deletes:", err);
       }
     }
-    checkPendingReviews();
+    checkPendingCounts();
   }, [compras, isAdmin]);
 
-  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fFornecedor = filterFornecedor, fReview = filterNeedsReview) {
+  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fFornecedor = filterFornecedor, fStatus = filterStatus) {
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -141,11 +145,18 @@ function EntradaMercadoria() {
       if (fInsumoId) query = query.eq('insumo_id', fInsumoId);
       if (fData) query = query.eq('data_compra', fData);
       if (fFornecedor) query = query.ilike('fornecedor', `%${fFornecedor}%`);
-      if (fReview) {
+      
+      if (fStatus === 'review') {
         if (isAdmin) {
           query = query.in('status_revisao', ['pending_user', 'pending_admin']);
         } else {
           query = query.eq('status_revisao', 'pending_user');
+        }
+      } else if (fStatus === 'deleted') {
+        query = query.eq('status_revisao', 'pending_delete');
+      } else {
+        if (!isAdmin) {
+          query = query.or('status_revisao.is.null,status_revisao.neq.pending_delete');
         }
       }
 
@@ -409,13 +420,25 @@ function EntradaMercadoria() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Deseja realmente excluir esta entrada de mercadoria?")) return;
     try {
-      const { error } = await supabase
-        .from("entradas_mercadoria")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-      setCompras(compras.filter(m => m.id !== id));
+      if (isAdmin) {
+        const { error } = await supabase
+          .from("entradas_mercadoria")
+          .delete()
+          .eq("id", id);
+        if (error) throw error;
+        setCompras(compras.filter(m => m.id !== id));
+      } else {
+        const { error } = await supabase
+          .from("entradas_mercadoria")
+          .update({ status_revisao: 'pending_delete' })
+          .eq("id", id);
+        if (error) throw error;
+        if (filterStatus !== 'deleted') {
+          setCompras(compras.filter(m => m.id !== id));
+        } else {
+          setCompras(compras.map(c => c.id === id ? { ...c, status_revisao: 'pending_delete' } : c));
+        }
+      }
     } catch (err) {
       console.error("Erro ao deletar:", err);
       alert("Erro ao excluir o registro.");
@@ -722,39 +745,72 @@ function EntradaMercadoria() {
                       style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}></th>
-                  <th style={{ padding: "8px" }}></th>
-                  <th style={{ padding: "8px" }}></th>
-                  {isAdmin && <th style={{ padding: "8px" }}></th>}
-                  <th style={{ padding: "8px", textAlign: "center" }}>
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+                  <th colSpan={isAdmin ? 5 : 4} style={{ padding: "8px", textAlign: "right" }}>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
                       <button
-                        onClick={() => setFilterNeedsReview(!filterNeedsReview)}
+                        onClick={() => {
+                          const newStatus = filterStatus === 'review' ? 'all' : 'review';
+                          setFilterStatus(newStatus);
+                          if (newStatus === 'review') {
+                            setFilterInsumoId(null);
+                            setFilterData("");
+                            setFilterFornecedor("");
+                          }
+                        }}
                         style={{
                           padding: "6px 12px",
-                          backgroundColor: filterNeedsReview ? "#fca5a5" : (pendingReviewCount > 0 ? "#fee2e2" : "#e2e8f0"),
-                          color: filterNeedsReview ? "#7f1d1d" : (pendingReviewCount > 0 ? "#dc2626" : "#475569"),
-                          border: pendingReviewCount > 0 && !filterNeedsReview ? "1px solid #fca5a5" : "1px solid transparent",
+                          backgroundColor: filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fee2e2" : "#fff"),
+                          color: filterStatus === 'review' ? "#7f1d1d" : (pendingReviewCount > 0 ? "#dc2626" : "#64748b"),
+                          border: `1px solid ${filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
                           borderRadius: "4px",
                           cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
+                          fontWeight: filterStatus === 'review' ? "bold" : "normal",
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: "4px",
-                          transition: "0.2s",
-                          animation: pendingReviewCount > 0 && !filterNeedsReview ? "pulse-red 2s infinite" : "none"
+                          gap: "6px",
+                          fontSize: "0.85rem",
+                          animation: pendingReviewCount > 0 && filterStatus !== 'review' ? "pulse-red 2s infinite" : "none"
                         }}
-                        title="Filtrar por Revisão"
+                        title={filterStatus === 'review' ? "Ver Todos os Lançamentos" : "Ver Lançamentos com Revisão Pendente"}
                       >
                         <Icons.BsExclamationTriangleFill /> Revisão {pendingReviewCount > 0 ? `(${pendingReviewCount})` : ""}
                       </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
+                            setFilterStatus(newStatus);
+                            if (newStatus === 'deleted') {
+                              setFilterInsumoId(null);
+                              setFilterData("");
+                              setFilterFornecedor("");
+                            }
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"),
+                            color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"),
+                            border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: filterStatus === 'deleted' ? "bold" : "normal",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            fontSize: "0.85rem",
+                            animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none"
+                          }}
+                          title={filterStatus === 'deleted' ? "Ver Todos os Lançamentos" : "Ver Itens Aguardando Exclusão"}
+                        >
+                          <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setFilterInsumoId(null);
                           setFilterData("");
                           setFilterFornecedor("");
-                          setFilterNeedsReview(false);
+                          setFilterStatus('all');
                         }}
                         style={{
                           padding: "6px 12px",
@@ -913,9 +969,12 @@ function EntradaMercadoria() {
                         );
                       } else {
                         contentRow = (
-                          <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={comp.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : comp.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
-                            <td style={{ fontWeight: 600 }}>
+                          <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={comp.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : comp.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : comp.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
+                            <td style={{ fontWeight: 600, opacity: comp.status_revisao === 'pending_delete' ? 0.6 : 1 }}>
                               {comp.cadastro_insumos?.nome || "Insumo Excluído"}
+                              {comp.status_revisao === 'pending_delete' && (
+                                <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#ef4444", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Deletado</span>
+                              )}
                               {isDuplicate && (
                                 <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
                                   <Icons.BsExclamationTriangleFill />
@@ -1021,31 +1080,59 @@ function EntradaMercadoria() {
                                     </span>
                                   )
                                 )}
-                                <button
-                                  onClick={() => {
-                                    setEditingRowId(comp.id);
-                                    setEditRowData({
-                                      insumo_id: comp.insumo_id,
-                                      data_compra: comp.data_compra,
-                                      fornecedor: comp.fornecedor || "",
-                                      quantidade_comprada: comp.quantidade_comprada,
-                                      valor_unitario: comp.valor_unitario || ""
-                                    });
-                                  }}
-                                  className="nav-btn"
-                                  title="Editar"
-                                  style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                >
-                                  <Icons.BsPencil />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(comp.id)}
-                                  className="delete-record-btn"
-                                  title="Excluir"
-                                  style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
-                                >
-                                  <Icons.BsTrash />
-                                </button>
+                                {comp.status_revisao === 'pending_delete' && (
+                                  isAdmin ? (
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                      <button
+                                        onClick={() => handleDelete(comp.id)}
+                                        title="Aprovar Exclusão"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsCheckAll /> Excluir
+                                      </button>
+                                      <button
+                                        onClick={() => handleUpdateReviewStatus(comp.id, 'none')}
+                                        title="Restaurar Registro"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#9a3412", backgroundColor: "#fed7aa", border: "1px solid #9a3412", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsXCircle /> Restaurar
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span style={{ fontSize: "0.85rem", color: "#991b1b", backgroundColor: "#fecaca", border: "1px solid #991b1b", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }}>
+                                      <Icons.BsTrash /> Aguardando
+                                    </span>
+                                  )
+                                )}
+                                {comp.status_revisao !== 'pending_delete' && (
+                                  <button
+                                    onClick={() => {
+                                      setEditingRowId(comp.id);
+                                      setEditRowData({
+                                        insumo_id: comp.insumo_id,
+                                        data_compra: comp.data_compra,
+                                        fornecedor: comp.fornecedor || "",
+                                        quantidade_comprada: comp.quantidade_comprada,
+                                        valor_unitario: comp.valor_unitario || ""
+                                      });
+                                    }}
+                                    className="nav-btn"
+                                    title="Editar"
+                                    style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                  >
+                                    <Icons.BsPencil />
+                                  </button>
+                                )}
+                                {comp.status_revisao !== 'pending_delete' && (isAdmin || (!comp.status_revisao || comp.status_revisao === 'none')) && (
+                                  <button
+                                    onClick={() => handleDelete(comp.id)}
+                                    className="delete-record-btn"
+                                    title="Excluir"
+                                    style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                                  >
+                                    <Icons.BsTrash />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
