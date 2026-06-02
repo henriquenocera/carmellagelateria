@@ -341,7 +341,10 @@ CREATE TABLE IF NOT EXISTS "public"."entradas_mercadoria" (
     "fornecedor" "text",
     "quantidade_comprada" numeric NOT NULL,
     "valor_unitario" numeric NOT NULL,
-    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "user_id" "uuid",
+    "status_revisao" character varying(20) DEFAULT 'none'::character varying,
+    "revisao_observacao" "text"
 );
 
 
@@ -453,6 +456,34 @@ CREATE TABLE IF NOT EXISTS "public"."inventario_insumos" (
 ALTER TABLE "public"."inventario_insumos" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."lista_compras_manual" (
+    "id" integer NOT NULL,
+    "insumo_id" "uuid",
+    "quantidade" numeric DEFAULT 0 NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "comprado" boolean DEFAULT false
+);
+
+
+ALTER TABLE "public"."lista_compras_manual" OWNER TO "postgres";
+
+
+CREATE SEQUENCE IF NOT EXISTS "public"."lista_compras_manual_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE "public"."lista_compras_manual_id_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "public"."lista_compras_manual_id_seq" OWNED BY "public"."lista_compras_manual"."id";
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."movimentacoes_estoque" (
     "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"(),
@@ -461,7 +492,9 @@ CREATE TABLE IF NOT EXISTS "public"."movimentacoes_estoque" (
     "quantidade" numeric NOT NULL,
     "origem" "text" NOT NULL,
     "destino" "text" NOT NULL,
-    "user_id" "uuid" DEFAULT "auth"."uid"()
+    "user_id" "uuid" DEFAULT "auth"."uid"(),
+    "status_revisao" character varying(20) DEFAULT 'none'::character varying,
+    "revisao_observacao" "text"
 );
 
 
@@ -508,6 +541,10 @@ CREATE TABLE IF NOT EXISTS "public"."salgados_inventory" (
 
 
 ALTER TABLE "public"."salgados_inventory" OWNER TO "postgres";
+
+
+ALTER TABLE ONLY "public"."lista_compras_manual" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."lista_compras_manual_id_seq"'::"regclass");
+
 
 
 ALTER TABLE ONLY "public"."Checklist"
@@ -597,6 +634,11 @@ ALTER TABLE ONLY "public"."inventario_insumos"
 
 ALTER TABLE ONLY "public"."inventario_insumos"
     ADD CONSTRAINT "inventario_insumos_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."lista_compras_manual"
+    ADD CONSTRAINT "lista_compras_manual_pkey" PRIMARY KEY ("id");
 
 
 
@@ -692,6 +734,11 @@ ALTER TABLE ONLY "public"."ficha_tecnica"
 
 
 
+ALTER TABLE ONLY "public"."entradas_mercadoria"
+    ADD CONSTRAINT "fk_entradas_mercadoria_user_id" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE SET NULL;
+
+
+
 ALTER TABLE ONLY "public"."frequencia"
     ADD CONSTRAINT "frequencia_employee_id_fkey" FOREIGN KEY ("employee_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
 
@@ -719,6 +766,11 @@ ALTER TABLE ONLY "public"."inventario_insumos"
 
 ALTER TABLE ONLY "public"."inventario_insumos"
     ADD CONSTRAINT "inventario_insumos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id");
+
+
+
+ALTER TABLE ONLY "public"."lista_compras_manual"
+    ADD CONSTRAINT "lista_compras_manual_insumo_id_fkey" FOREIGN KEY ("insumo_id") REFERENCES "public"."cadastro_insumos"("id") ON DELETE CASCADE;
 
 
 
@@ -857,6 +909,10 @@ CREATE POLICY "Permitir acesso total a usuários autenticados" ON "public"."cada
 
 
 
+CREATE POLICY "Permitir acesso total na lista_compras_manual" ON "public"."lista_compras_manual" USING (true) WITH CHECK (true);
+
+
+
 CREATE POLICY "Permitir atualizacao para usuarios autenticados" ON "public"."inventario_insumos" FOR UPDATE TO "authenticated" USING (true);
 
 
@@ -951,6 +1007,9 @@ ALTER TABLE "public"."historico_colaborador" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."inventario_insumos" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."lista_compras_manual" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."movimentacoes_estoque" ENABLE ROW LEVEL SECURITY;
@@ -1349,6 +1408,18 @@ GRANT ALL ON SEQUENCE "public"."historico_colaborador_id_seq" TO "service_role";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."inventario_insumos" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."inventario_insumos" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."inventario_insumos" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."lista_compras_manual" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."lista_compras_manual" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."lista_compras_manual" TO "service_role";
+
+
+
+GRANT ALL ON SEQUENCE "public"."lista_compras_manual_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."lista_compras_manual_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."lista_compras_manual_id_seq" TO "service_role";
 
 
 

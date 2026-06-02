@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict BD5ejA6e14yhnctwACh9es3kqyyfigoQcg4atEcLW7Adq3jQcfd9bMIhiq1ieF0
+-- \restrict 3MAAreby5b9GQfsacUJuaImtJtjgqcxP8TUY76fOqp659bU4jD7VLfAyx1JPGAw
 
 -- Dumped from database version 15.14
 -- Dumped by pg_dump version 17.6
@@ -1592,6 +1592,107 @@ COPY "auth"."audit_log_entries" ("instance_id", "id", "payload", "created_at", "
 00000000-0000-0000-0000-000000000000	77c0bfe8-e916-461c-b913-26c56a522f70	{"action":"token_revoked","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 02:01:54.05841+00	
 00000000-0000-0000-0000-000000000000	9ea8ebac-76ed-4690-86fe-07d2e2393cb0	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 02:36:44.229381+00	
 00000000-0000-0000-0000-000000000000	8f6f895c-e505-4011-9e58-ca7b2fedc5dc	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 02:36:44.238137+00	
+00000000-0000-0000-0000-000000000000	a4a1c4ac-f4fb-4b95-97b6-8ac2ba316f12	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 12:12:23.353406+00	
+00000000-0000-0000-0000-000000000000	b84f3c95-b8bc-4dc3-98ea-b2f981e57890	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 12:12:23.377799+00	
+00000000-0000-0000-0000-000000000000	063d0078-4882-411a-adfc-a5f6e65ca372	{"action":"login","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 12:13:57.479554+00	
+00000000-0000-0000-0000-000000000000	c523577b-55f3-48e1-bcb4-3f864efd48e2	{"action":"login","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 12:14:06.379995+00	
+00000000-0000-0000-0000-000000000000	2c486346-3150-497e-8539-6200b7ce3a57	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 12:34:16.039202+00	
+00000000-0000-0000-0000-000000000000	ee6ce431-5567-4423-8560-fa69e05ef2e9	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 12:34:16.053494+00	
+00000000-0000-0000-0000-000000000000	bb00f071-ac10-454e-9282-483dd274a113	{"action":"token_refreshed","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 12:35:25.236317+00	
+00000000-0000-0000-0000-000000000000	d0d3312d-a0d6-4f6b-b2cf-1bc0ad48ed77	{"action":"token_revoked","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 12:35:25.237975+00	
+00000000-0000-0000-0000-000000000000	344d7943-289a-4db8-a6b3-63bad5f80677	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:04:00.840001+00	
+00000000-0000-0000-0000-000000000000	002c6fa5-bb8d-4761-af05-6a8816918204	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:04:00.856693+00	
+00000000-0000-0000-0000-000000000000	b797d749-ccbc-41bb-8dce-74f188c85e9d	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:10:27.978437+00	
+00000000-0000-0000-0000-000000000000	7c303532-57c7-4e59-98f2-c94f0c3774c5	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:10:27.985138+00	
+00000000-0000-0000-0000-000000000000	f985db0f-275e-478e-b7e3-85bfa077c853	{"action":"login","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 13:19:11.348193+00	
+00000000-0000-0000-0000-000000000000	e27a67bd-041f-4df9-af91-5293106b167d	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:19:12.968257+00	
+00000000-0000-0000-0000-000000000000	8b5debdd-a996-4277-85b2-3760f2b9e4d4	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:19:12.971559+00	
+00000000-0000-0000-0000-000000000000	367ea594-d7ca-4617-86a2-dcc7e8a72b14	{"action":"logout","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 13:19:13.038897+00	
+00000000-0000-0000-0000-000000000000	4519734c-db89-4597-bf4a-1b7feda49eec	{"action":"login","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 13:20:01.75787+00	
+00000000-0000-0000-0000-000000000000	b0b50d35-af5e-47e1-91a9-2f24458b72fe	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:34:59.526966+00	
+00000000-0000-0000-0000-000000000000	0e8c25a3-7f3a-4b02-8c98-677415225c40	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 13:34:59.548915+00	
+00000000-0000-0000-0000-000000000000	23910ab5-313c-4bc3-be52-09197f6be553	{"action":"login","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 14:26:02.871473+00	
+00000000-0000-0000-0000-000000000000	77c964c7-44e3-451d-9749-ffca2402fe3e	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 14:29:01.70871+00	
+00000000-0000-0000-0000-000000000000	6b49f62a-55e6-4378-8fb0-5e1f79e4e3d3	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 14:29:01.71615+00	
+00000000-0000-0000-0000-000000000000	8a550102-3ed6-46b4-a531-6bb8a0c0da41	{"action":"login","actor_id":"3e43c2e5-3604-48ad-807a-bfa38ebdbfff","actor_username":"sthefani.alves.def@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 14:42:12.613424+00	
+00000000-0000-0000-0000-000000000000	f5162ef1-1166-4ee8-83f1-f3f74a712eba	{"action":"login","actor_id":"3e43c2e5-3604-48ad-807a-bfa38ebdbfff","actor_username":"sthefani.alves.def@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 14:53:06.581809+00	
+00000000-0000-0000-0000-000000000000	06991397-9629-4347-a293-eebffc193dde	{"action":"login","actor_id":"16ddd940-9f73-4313-ba08-9ee96735181c","actor_username":"amandacorte053@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 14:57:10.037193+00	
+00000000-0000-0000-0000-000000000000	eec0bdea-c930-4052-aa11-5ea838c045d9	{"action":"logout","actor_id":"16ddd940-9f73-4313-ba08-9ee96735181c","actor_username":"amandacorte053@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 14:57:28.295606+00	
+00000000-0000-0000-0000-000000000000	381b191b-d3e4-4bc2-8562-89ba08ed74e1	{"action":"login","actor_id":"16ddd940-9f73-4313-ba08-9ee96735181c","actor_username":"amandacorte053@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 14:57:39.707097+00	
+00000000-0000-0000-0000-000000000000	a9b5aaa6-5f7f-42cf-9dae-0b46daa93c51	{"action":"logout","actor_id":"16ddd940-9f73-4313-ba08-9ee96735181c","actor_username":"amandacorte053@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 14:57:51.387579+00	
+00000000-0000-0000-0000-000000000000	681f68d9-3c79-41a4-991f-7a560e79b6d2	{"action":"logout","actor_id":"3e43c2e5-3604-48ad-807a-bfa38ebdbfff","actor_username":"sthefani.alves.def@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 15:00:28.062002+00	
+00000000-0000-0000-0000-000000000000	3fce5a9b-d03c-4626-9923-e485f0254a81	{"action":"login","actor_id":"054e1fc1-7d77-4ae0-addb-13e440f53d6b","actor_username":"cassiafernanda344@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 15:01:19.170164+00	
+00000000-0000-0000-0000-000000000000	05ffb9fe-85c4-477d-b99e-79016fd403a4	{"action":"logout","actor_id":"054e1fc1-7d77-4ae0-addb-13e440f53d6b","actor_username":"cassiafernanda344@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 15:27:19.075891+00	
+00000000-0000-0000-0000-000000000000	c79e744b-1514-48af-8919-fdee55c83396	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:37:21.406543+00	
+00000000-0000-0000-0000-000000000000	19fe1d59-89b1-4fad-9fb3-209516a043bc	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:37:21.412956+00	
+00000000-0000-0000-0000-000000000000	4cec3d0d-5cd6-482b-8bbf-07fc47b60e76	{"action":"login","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 15:38:17.50565+00	
+00000000-0000-0000-0000-000000000000	e50bfba5-2cb8-49ef-94cb-6ee4a2ed7e9b	{"action":"login","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 15:38:20.781965+00	
+00000000-0000-0000-0000-000000000000	58450089-f7cf-4389-868e-570c5a6ecfc8	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:45:14.233688+00	
+00000000-0000-0000-0000-000000000000	b3158988-457f-4568-a5e2-196dac59c39b	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:45:14.266891+00	
+00000000-0000-0000-0000-000000000000	2b128125-83cd-4761-be37-87498ff5d665	{"action":"token_refreshed","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:46:27.015157+00	
+00000000-0000-0000-0000-000000000000	f97bcfcb-44e2-4aa5-a9ca-d0a9dbdbbc2a	{"action":"token_revoked","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:46:27.020813+00	
+00000000-0000-0000-0000-000000000000	402e0c12-2f05-483c-97b2-cd41a2d68807	{"action":"token_refreshed","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:50:14.21727+00	
+00000000-0000-0000-0000-000000000000	39804c4f-83c9-4f84-b399-14e614c49a6c	{"action":"token_revoked","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 15:50:14.226422+00	
+00000000-0000-0000-0000-000000000000	533f61cc-03d5-4bbd-b3a2-783bf7888b2d	{"action":"login","actor_id":"16ddd940-9f73-4313-ba08-9ee96735181c","actor_username":"amandacorte053@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 15:52:25.052834+00	
+00000000-0000-0000-0000-000000000000	c1b9102b-185d-4582-a746-ed94c98fa6e8	{"action":"logout","actor_id":"16ddd940-9f73-4313-ba08-9ee96735181c","actor_username":"amandacorte053@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 15:56:02.915102+00	
+00000000-0000-0000-0000-000000000000	7206e5ff-0f35-4148-ae8c-1f4027829f82	{"action":"login","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 16:14:22.738188+00	
+00000000-0000-0000-0000-000000000000	07ce699e-53b7-40d1-b4e4-dd92c8680cf0	{"action":"login","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 16:22:29.041301+00	
+00000000-0000-0000-0000-000000000000	343bdd19-dffa-418b-b870-b81a504f104e	{"action":"login","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 16:23:20.329131+00	
+00000000-0000-0000-0000-000000000000	c2d2b329-4968-4cb8-b9c2-7beee1ccddbe	{"action":"login","actor_id":"054e1fc1-7d77-4ae0-addb-13e440f53d6b","actor_username":"cassiafernanda344@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 16:27:00.45842+00	
+00000000-0000-0000-0000-000000000000	65ce56a6-8f5c-499f-acb3-dbe3a4c90329	{"action":"login","actor_id":"3e43c2e5-3604-48ad-807a-bfa38ebdbfff","actor_username":"sthefani.alves.def@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 16:28:33.634094+00	
+00000000-0000-0000-0000-000000000000	2c1f763a-cd3c-428a-b105-99221ed89b7c	{"action":"logout","actor_id":"3e43c2e5-3604-48ad-807a-bfa38ebdbfff","actor_username":"sthefani.alves.def@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 16:33:56.003235+00	
+00000000-0000-0000-0000-000000000000	81e095e3-7e2b-4d61-b5de-f41eff359da1	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:34:46.239734+00	
+00000000-0000-0000-0000-000000000000	a1df3c5f-1ee5-4985-97f0-f96d115e0395	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:34:46.243481+00	
+00000000-0000-0000-0000-000000000000	83a3d927-4779-4cfa-b29d-e2987349e3a9	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:45:24.981214+00	
+00000000-0000-0000-0000-000000000000	88214ae0-2c01-4a50-b75e-e14315ad3dea	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:45:24.993637+00	
+00000000-0000-0000-0000-000000000000	7505920a-ef6b-4230-b91a-9323a8bf0ec1	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:55:10.599433+00	
+00000000-0000-0000-0000-000000000000	51550b62-afc8-4c90-a22b-321e6c2fef6b	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:55:10.615258+00	
+00000000-0000-0000-0000-000000000000	d8a27205-3d98-421b-b130-e479a2966c5f	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:55:11.206463+00	
+00000000-0000-0000-0000-000000000000	51dce40d-06c1-43f5-b962-8095c03d77c0	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:55:11.209705+00	
+00000000-0000-0000-0000-000000000000	07e8c76b-b132-4e0f-a1d6-9af2855183bf	{"action":"token_refreshed","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:58:34.424007+00	
+00000000-0000-0000-0000-000000000000	7a8ca98c-8798-49ec-8e22-0fbebbe1e042	{"action":"token_revoked","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 16:58:34.434261+00	
+00000000-0000-0000-0000-000000000000	d63f1df9-a1ac-4d68-80c7-6bbe51113702	{"action":"logout","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account"}	2026-06-01 17:07:12.415209+00	
+00000000-0000-0000-0000-000000000000	cddeaa16-2ee8-41d0-b795-a72110b33486	{"action":"token_refreshed","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 17:20:30.663544+00	
+00000000-0000-0000-0000-000000000000	efe9d3ca-9665-4a4c-95ef-b83d54033f5b	{"action":"token_revoked","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 17:20:30.675967+00	
+00000000-0000-0000-0000-000000000000	a7f30e47-3222-4ba5-9d2e-e59b7efe8aea	{"action":"token_refreshed","actor_id":"054e1fc1-7d77-4ae0-addb-13e440f53d6b","actor_username":"cassiafernanda344@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 17:32:52.017315+00	
+00000000-0000-0000-0000-000000000000	f3f8ac4c-eb9e-4922-8b2c-fe10dcf38c89	{"action":"token_revoked","actor_id":"054e1fc1-7d77-4ae0-addb-13e440f53d6b","actor_username":"cassiafernanda344@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 17:32:52.027525+00	
+00000000-0000-0000-0000-000000000000	f4ba2961-e965-4162-ab84-a5af3e9d28c9	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 17:33:24.811878+00	
+00000000-0000-0000-0000-000000000000	f9397f1f-d0ed-4c73-aa60-965c12b983fe	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 17:33:24.812898+00	
+00000000-0000-0000-0000-000000000000	b313b5d8-657f-482a-89b6-a451a4854f15	{"action":"login","actor_id":"1d621888-613a-4a15-b796-3c4120f51af2","actor_username":"mh.escritoriocarmella@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-01 17:38:04.003013+00	
+00000000-0000-0000-0000-000000000000	9aa695ee-936f-46e5-943d-18717dcc7891	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 18:16:37.731589+00	
+00000000-0000-0000-0000-000000000000	bc39c3d0-f286-4b52-b0a5-355d3424e71e	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 18:16:37.756579+00	
+00000000-0000-0000-0000-000000000000	226208f5-832d-4e85-ac5f-89bc49dc78a8	{"action":"token_refreshed","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 18:18:21.967205+00	
+00000000-0000-0000-0000-000000000000	73b78854-1a5c-4b98-b0aa-45345e7c3428	{"action":"token_revoked","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 18:18:21.971463+00	
+00000000-0000-0000-0000-000000000000	c5191683-5d07-4e8a-8ce3-a8e8641d982a	{"action":"token_refreshed","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 19:16:09.474547+00	
+00000000-0000-0000-0000-000000000000	613a358c-01b6-4b59-849b-0070630568b9	{"action":"token_revoked","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 19:16:09.486892+00	
+00000000-0000-0000-0000-000000000000	bb3f4182-9cf3-4d63-a3ed-59f654a47563	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:39:39.349726+00	
+00000000-0000-0000-0000-000000000000	5a105624-7f98-4309-abd2-3ff59fb92a9a	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:39:39.362815+00	
+00000000-0000-0000-0000-000000000000	3f18fa1d-6797-4a60-b959-3bb33679bb2f	{"action":"token_refreshed","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:47:33.91356+00	
+00000000-0000-0000-0000-000000000000	0cadc515-2902-46f3-b5d8-bc358002c2dc	{"action":"token_revoked","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:47:33.934956+00	
+00000000-0000-0000-0000-000000000000	a1c6cfbb-690b-4125-b71a-3e119e54c4e4	{"action":"token_refreshed","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:47:37.556508+00	
+00000000-0000-0000-0000-000000000000	7a01f0cc-0bbd-402d-9c56-30e2675d746e	{"action":"token_revoked","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:47:37.560039+00	
+00000000-0000-0000-0000-000000000000	311b9a00-df35-4dae-b2c6-791b8f8df1ff	{"action":"token_refreshed","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:51:47.057426+00	
+00000000-0000-0000-0000-000000000000	642def23-6582-4d71-b9e4-50f5be75a527	{"action":"token_revoked","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 20:51:47.060723+00	
+00000000-0000-0000-0000-000000000000	ef900a45-413d-4db8-b662-d557ecab600c	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 21:03:32.107066+00	
+00000000-0000-0000-0000-000000000000	903ac96a-1be1-4a46-9c06-4e92c18dedd0	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 21:03:32.127385+00	
+00000000-0000-0000-0000-000000000000	12e1dbae-5590-4421-b59d-95fddbcf02f1	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 21:39:39.836935+00	
+00000000-0000-0000-0000-000000000000	7318be31-9c47-476b-982e-3c7e95afc1de	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 21:39:39.86483+00	
+00000000-0000-0000-0000-000000000000	c702d834-acc3-4b3f-8056-42c3ca0fda7b	{"action":"token_refreshed","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 22:02:52.913871+00	
+00000000-0000-0000-0000-000000000000	edd70de8-e60f-4356-97d8-ed596cf0e55f	{"action":"token_revoked","actor_id":"b5668aed-dbb4-4d19-918e-c4e62e308487","actor_name":"Loja Ahu","actor_username":"mh.loja.ahu@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 22:02:52.941834+00	
+00000000-0000-0000-0000-000000000000	93725485-90cb-4535-bdfd-912cd81f1f4f	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 22:41:20.605372+00	
+00000000-0000-0000-0000-000000000000	aa3a9d62-3058-4824-ba6a-5a6869985026	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 22:41:20.615771+00	
+00000000-0000-0000-0000-000000000000	d4b2f254-451f-4002-b734-8551350e4d9c	{"action":"token_refreshed","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 23:24:51.703586+00	
+00000000-0000-0000-0000-000000000000	76ae6e54-7f54-41d3-9e1f-5d304441b9dd	{"action":"token_revoked","actor_id":"d956fdab-0d1c-463c-9cfc-63f42d3645a5","actor_username":"marina_nocera@yahoo.com.br","actor_via_sso":false,"log_type":"token"}	2026-06-01 23:24:51.735301+00	
+00000000-0000-0000-0000-000000000000	50bf6522-3985-43cd-b06d-882293880d8f	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 23:41:38.212987+00	
+00000000-0000-0000-0000-000000000000	cf603ba7-9b7e-467e-b89d-b9f14a301012	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-01 23:41:38.22425+00	
+00000000-0000-0000-0000-000000000000	0c0e4107-549a-4421-8cfe-47b5559db77f	{"action":"login","actor_id":"cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3","actor_name":"joao","actor_username":"joao@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-02 00:03:49.086636+00	
+00000000-0000-0000-0000-000000000000	812781b1-2150-4056-8666-93154b8f6796	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-02 00:39:43.741914+00	
+00000000-0000-0000-0000-000000000000	603423ef-522d-48c5-bb42-c309acb36915	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-02 00:39:43.762982+00	
+00000000-0000-0000-0000-000000000000	f20a8913-8250-435c-a8db-c7fe5e83f7f4	{"action":"login","actor_id":"cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3","actor_name":"joao","actor_username":"joao@gmail.com","actor_via_sso":false,"log_type":"account","traits":{"provider":"email"}}	2026-06-02 01:14:37.906565+00	
+00000000-0000-0000-0000-000000000000	723cbeeb-665b-4759-811b-8150ee29ef5e	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-02 01:39:34.921525+00	
+00000000-0000-0000-0000-000000000000	5d575913-996f-4225-b140-c6388a468e24	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-02 01:39:34.93417+00	
+00000000-0000-0000-0000-000000000000	7793a6d3-fb63-4195-88b5-de44111f5167	{"action":"token_refreshed","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-02 01:46:55.903562+00	
+00000000-0000-0000-0000-000000000000	3f21e7d2-4d07-4e1b-85d4-f39e97c70b39	{"action":"token_revoked","actor_id":"35cae5eb-f980-4be0-9998-ac8173ed2afc","actor_username":"henocera@gmail.com","actor_via_sso":false,"log_type":"token"}	2026-06-02 01:46:55.9268+00	
 \.
 
 
@@ -1617,15 +1718,15 @@ COPY "auth"."flow_state" ("id", "user_id", "auth_code", "code_challenge_method",
 
 COPY "auth"."users" ("instance_id", "id", "aud", "role", "email", "encrypted_password", "email_confirmed_at", "invited_at", "confirmation_token", "confirmation_sent_at", "recovery_token", "recovery_sent_at", "email_change_token_new", "email_change", "email_change_sent_at", "last_sign_in_at", "raw_app_meta_data", "raw_user_meta_data", "is_super_admin", "created_at", "updated_at", "phone", "phone_confirmed_at", "phone_change", "phone_change_token", "phone_change_sent_at", "email_change_token_current", "email_change_confirm_status", "banned_until", "reauthentication_token", "reauthentication_sent_at", "is_sso_user", "deleted_at", "is_anonymous") FROM stdin;
 00000000-0000-0000-0000-000000000000	c24dd627-7a1e-407e-9fe0-eefe4d5320c7	authenticated	authenticated	endrywgabrielx@gmail.com	$2a$10$qTV0MYuL7bFe2yuWmXZZxONBzI2QN1o1MXPBIUNoPE3kQo2Ptk/ea	2026-03-09 14:28:18.45909+00	\N		\N		\N			\N	2026-05-30 20:24:19.187596+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-03-09 14:28:18.45085+00	2026-05-30 20:24:19.261374+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	054e1fc1-7d77-4ae0-addb-13e440f53d6b	authenticated	authenticated	cassiafernanda344@gmail.com	$2a$10$sNM/k2lnM5z86Gzs3BcAqeQks9XvQfVXmfyxna4EnX53JU1FaJFti	2026-03-09 14:25:48.917968+00	\N		\N		\N			\N	2026-05-31 20:43:34.588203+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-03-09 14:25:48.914495+00	2026-05-31 20:43:34.67134+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	d956fdab-0d1c-463c-9cfc-63f42d3645a5	authenticated	authenticated	marina_nocera@yahoo.com.br	$2a$10$cVtT.MzkAieOYwWH8WzNw.h5whgnSThkeB9qTHH08dVcoXMwNF5nW	2026-02-26 18:29:52.887042+00	\N		\N		\N			\N	2026-05-31 16:24:32.478112+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-02-26 18:29:52.862737+00	2026-06-01 02:01:54.086101+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	1d621888-613a-4a15-b796-3c4120f51af2	authenticated	authenticated	mh.escritoriocarmella@gmail.com	$2a$10$1o604cOGIPZ6poFC/u7AXu6EhjJXmBAnSsgJijzF9NXidFMwESXSm	2026-04-29 15:56:53.664651+00	\N		\N		\N			\N	2026-06-01 17:38:04.017686+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-04-29 15:56:53.64283+00	2026-06-01 17:38:04.044028+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	3e43c2e5-3604-48ad-807a-bfa38ebdbfff	authenticated	authenticated	sthefani.alves.def@gmail.com	$2a$10$DoOD5ASwp.wuun38yWnFuuR9OAvluqQcdZMRvRnZQYkAo8ERHp0xW	2026-02-26 18:22:13.361012+00	\N		\N		\N			\N	2026-06-01 16:28:33.643111+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-02-26 18:22:13.334517+00	2026-06-01 16:28:33.644969+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	b5668aed-dbb4-4d19-918e-c4e62e308487	authenticated	authenticated	mh.loja.ahu@gmail.com	$2a$06$r8wksoL4x8M6cbjz.2oDeO/UBBnDN3LF3GM2yESW98vpDUPP9D1Em	2026-06-01 00:51:42.797067+00	\N		\N		\N			\N	2026-06-01 16:22:29.098258+00	{"provider": "email", "providers": ["email"]}	{"sub": "b5668aed-dbb4-4d19-918e-c4e62e308487", "email": "mh.loja.ahu@gmail.com", "full_name": "Loja Ahu", "email_verified": true, "phone_verified": false}	\N	2026-06-01 00:51:42.715596+00	2026-06-01 22:02:52.969856+00	\N	\N			\N		0	\N		\N	f	\N	f
 00000000-0000-0000-0000-000000000000	d68a59d3-2331-4ada-a377-60659501c047	authenticated	authenticated	mh.loja.altoxv@gmail.com	$2a$06$w0wSRvnIF9CKQLotC8Y2NOreCl/cX9nXs1cKVIbs6zxs2x5LPobjK	2026-06-01 00:52:00.1153+00	\N		\N		\N			\N	2026-06-01 00:52:00.12067+00	{"provider": "email", "providers": ["email"]}	{"sub": "d68a59d3-2331-4ada-a377-60659501c047", "email": "mh.loja.altoxv@gmail.com", "full_name": "Loja Alto XV", "email_verified": true, "phone_verified": false}	\N	2026-06-01 00:52:00.101036+00	2026-06-01 00:52:09.286263+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	b5668aed-dbb4-4d19-918e-c4e62e308487	authenticated	authenticated	mh.loja.ahu@gmail.com	$2a$06$r8wksoL4x8M6cbjz.2oDeO/UBBnDN3LF3GM2yESW98vpDUPP9D1Em	2026-06-01 00:51:42.797067+00	\N		\N		\N			\N	2026-06-01 01:06:12.588446+00	{"provider": "email", "providers": ["email"]}	{"sub": "b5668aed-dbb4-4d19-918e-c4e62e308487", "email": "mh.loja.ahu@gmail.com", "full_name": "Loja Ahu", "email_verified": true, "phone_verified": false}	\N	2026-06-01 00:51:42.715596+00	2026-06-01 01:06:12.638753+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	35cae5eb-f980-4be0-9998-ac8173ed2afc	authenticated	authenticated	henocera@gmail.com	$2a$10$K4uc/W0Rgsu9KDKHs3lbEueaX4Y6AO0Uv9EmRp4gMpVIxzyKf4zTW	2026-02-16 17:12:12.866708+00	\N		\N		\N			\N	2026-06-01 00:49:35.656047+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-02-16 17:12:12.854688+00	2026-06-01 02:36:44.254582+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	3e43c2e5-3604-48ad-807a-bfa38ebdbfff	authenticated	authenticated	sthefani.alves.def@gmail.com	$2a$10$DoOD5ASwp.wuun38yWnFuuR9OAvluqQcdZMRvRnZQYkAo8ERHp0xW	2026-02-26 18:22:13.361012+00	\N		\N		\N			\N	2026-05-31 17:39:15.785021+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-02-26 18:22:13.334517+00	2026-05-31 22:01:47.067941+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	16ddd940-9f73-4313-ba08-9ee96735181c	authenticated	authenticated	amandacorte053@gmail.com	$2a$10$DiZUEAb7ePIxIhUn/I/hv.guB8rywVnsr2EiQH3sX529igqPsDIli	2026-04-27 17:21:12.002925+00	\N		\N		\N			\N	2026-05-29 15:55:10.085137+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-04-27 17:21:11.949358+00	2026-05-29 20:45:16.515467+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	authenticated	authenticated	joao@gmail.com	$2a$06$ni20LAG2TXKgiZe5Yg4bmO8WBWQYxiQhVMRBv6eHji30xzYHRLBOG	2026-05-26 11:51:00.634764+00	\N		\N		\N			\N	2026-05-31 21:08:58.368002+00	{"provider": "email", "providers": ["email"]}	{"sub": "cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3", "email": "joao@gmail.com", "full_name": "joao", "email_verified": true, "phone_verified": false}	\N	2026-05-26 11:51:00.572536+00	2026-05-31 22:11:36.321053+00	\N	\N			\N		0	\N		\N	f	\N	f
-00000000-0000-0000-0000-000000000000	1d621888-613a-4a15-b796-3c4120f51af2	authenticated	authenticated	mh.escritoriocarmella@gmail.com	$2a$10$1o604cOGIPZ6poFC/u7AXu6EhjJXmBAnSsgJijzF9NXidFMwESXSm	2026-04-29 15:56:53.664651+00	\N		\N		\N			\N	2026-05-29 15:18:31.31935+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-04-29 15:56:53.64283+00	2026-05-29 16:00:37.829738+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	d956fdab-0d1c-463c-9cfc-63f42d3645a5	authenticated	authenticated	marina_nocera@yahoo.com.br	$2a$10$cVtT.MzkAieOYwWH8WzNw.h5whgnSThkeB9qTHH08dVcoXMwNF5nW	2026-02-26 18:29:52.887042+00	\N		\N		\N			\N	2026-05-31 16:24:32.478112+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-02-26 18:29:52.862737+00	2026-06-01 23:24:51.777418+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	16ddd940-9f73-4313-ba08-9ee96735181c	authenticated	authenticated	amandacorte053@gmail.com	$2a$10$DiZUEAb7ePIxIhUn/I/hv.guB8rywVnsr2EiQH3sX529igqPsDIli	2026-04-27 17:21:12.002925+00	\N		\N		\N			\N	2026-06-01 15:52:25.058704+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-04-27 17:21:11.949358+00	2026-06-01 15:52:25.068186+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	authenticated	authenticated	joao@gmail.com	$2a$06$ni20LAG2TXKgiZe5Yg4bmO8WBWQYxiQhVMRBv6eHji30xzYHRLBOG	2026-05-26 11:51:00.634764+00	\N		\N		\N			\N	2026-06-02 01:14:37.934162+00	{"provider": "email", "providers": ["email"]}	{"sub": "cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3", "email": "joao@gmail.com", "full_name": "joao", "email_verified": true, "phone_verified": false}	\N	2026-05-26 11:51:00.572536+00	2026-06-02 01:14:37.998322+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	054e1fc1-7d77-4ae0-addb-13e440f53d6b	authenticated	authenticated	cassiafernanda344@gmail.com	$2a$10$sNM/k2lnM5z86Gzs3BcAqeQks9XvQfVXmfyxna4EnX53JU1FaJFti	2026-03-09 14:25:48.917968+00	\N		\N		\N			\N	2026-06-01 16:27:00.461914+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-03-09 14:25:48.914495+00	2026-06-01 17:32:52.049046+00	\N	\N			\N		0	\N		\N	f	\N	f
+00000000-0000-0000-0000-000000000000	35cae5eb-f980-4be0-9998-ac8173ed2afc	authenticated	authenticated	henocera@gmail.com	$2a$10$K4uc/W0Rgsu9KDKHs3lbEueaX4Y6AO0Uv9EmRp4gMpVIxzyKf4zTW	2026-02-16 17:12:12.866708+00	\N		\N		\N			\N	2026-06-01 16:23:20.333727+00	{"provider": "email", "providers": ["email"]}	{"email_verified": true}	\N	2026-02-16 17:12:12.854688+00	2026-06-02 01:46:55.965329+00	\N	\N			\N		0	\N		\N	f	\N	f
 \.
 
 
@@ -1669,30 +1770,32 @@ COPY "auth"."oauth_clients" ("id", "client_secret_hash", "registration_type", "r
 
 COPY "auth"."sessions" ("id", "user_id", "created_at", "updated_at", "factor_id", "aal", "not_after", "refreshed_at", "user_agent", "ip", "tag", "oauth_client_id", "refresh_token_hmac_key", "refresh_token_counter", "scopes") FROM stdin;
 2b94c050-86b9-47e2-8cb9-5650856c3c7d	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-30 16:10:49.692034+00	2026-05-30 16:10:49.692034+00	\N	aal1	\N	\N	Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Mobile Safari/537.36	179.130.82.135	\N	\N	\N	\N	\N
-2295f059-3795-4deb-8084-af6532642d5b	16ddd940-9f73-4313-ba08-9ee96735181c	2026-05-29 15:55:10.087181+00	2026-05-29 20:45:16.526821+00	\N	aal1	\N	2026-05-29 20:45:16.526712	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.181.51.162	\N	\N	\N	\N	\N
+25838f14-79e8-4680-afca-879d10b02404	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 16:14:22.762548+00	2026-06-01 16:14:22.762548+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
 ddc31fbd-2952-4023-a531-d6023e58a775	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	2026-05-30 02:51:50.617592+00	2026-05-30 02:51:50.617592+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.181.49.193	\N	\N	\N	\N	\N
-fe2c4519-bcab-40e8-ad42-37c32c485f26	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-29 19:09:47.751629+00	2026-05-30 18:09:46.728253+00	\N	aal1	\N	2026-05-30 18:09:46.728151	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	168.181.51.162	\N	\N	\N	\N	\N
-5088a507-87e6-40c6-b4aa-17b85f4633c9	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-29 19:09:52.343064+00	2026-05-30 18:09:57.279146+00	\N	aal1	\N	2026-05-30 18:09:57.279046	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	168.181.51.162	\N	\N	\N	\N	\N
+fe2c4519-bcab-40e8-ad42-37c32c485f26	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-29 19:09:47.751629+00	2026-06-01 20:47:33.979477+00	\N	aal1	\N	2026-06-01 20:47:33.979355	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	179.130.82.135	\N	\N	\N	\N	\N
+5088a507-87e6-40c6-b4aa-17b85f4633c9	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-29 19:09:52.343064+00	2026-06-01 20:47:37.568335+00	\N	aal1	\N	2026-06-01 20:47:37.568243	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	179.130.82.135	\N	\N	\N	\N	\N
+96b93226-43d3-46c4-8b5f-f658bdd48fed	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	2026-06-02 00:03:49.107013+00	2026-06-02 00:03:49.107013+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
+7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 00:35:46.835486+00	2026-06-02 01:46:55.969801+00	\N	aal1	\N	2026-06-02 01:46:55.969699	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
 6cbe0e20-2641-4057-95c4-ba8c3f5f4a38	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-30 19:22:02.933932+00	2026-05-30 19:22:02.933932+00	\N	aal1	\N	\N	Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Safari/537.36	138.36.34.20	\N	\N	\N	\N	\N
-21cb8fc6-1c87-4b9d-aade-75666473f41c	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-31 20:09:39.751348+00	2026-05-31 22:08:26.387951+00	\N	aal1	\N	2026-05-31 22:08:26.387858	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
 ada74763-3efa-4a0c-b189-f5b998b2dc7d	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	2026-05-31 21:08:58.36975+00	2026-05-31 22:11:36.322517+00	\N	aal1	\N	2026-05-31 22:11:36.32241	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
 a4926327-3d12-4597-ad35-537363d9b4e0	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-31 16:23:08.374558+00	2026-05-31 16:23:08.374558+00	\N	aal1	\N	\N	Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Mobile Safari/537.36	138.36.34.20	\N	\N	\N	\N	\N
 77e8d0e4-0f6a-43c0-919c-0d287c4d1d68	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-31 16:24:32.47885+00	2026-05-31 16:24:32.47885+00	\N	aal1	\N	\N	Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Mobile Safari/537.36	138.36.34.20	\N	\N	\N	\N	\N
 7693ce60-76fd-4fb6-93c4-13a7bf32e93e	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 01:06:12.589515+00	2026-06-01 01:06:12.589515+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
-3d8e72b2-9870-4c64-a29f-6677ff230d97	1d621888-613a-4a15-b796-3c4120f51af2	2026-05-29 15:12:38.99101+00	2026-05-29 15:12:38.99101+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	168.181.51.162	\N	\N	\N	\N	\N
-7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 00:35:46.835486+00	2026-06-01 02:36:44.262293+00	\N	aal1	\N	2026-06-01 02:36:44.262193	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
+0dea8726-027e-4a8e-87dc-8b3a8b7b3ad6	054e1fc1-7d77-4ae0-addb-13e440f53d6b	2026-06-01 16:27:00.46201+00	2026-06-01 17:32:52.054496+00	\N	aal1	\N	2026-06-01 17:32:52.054388	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
 2c84ba70-aebf-4cdb-8e8f-42bd368fb819	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-31 19:36:13.086575+00	2026-05-31 19:36:13.086575+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
-efb7a22e-97dd-4b85-8a55-36b02016670a	1d621888-613a-4a15-b796-3c4120f51af2	2026-05-29 14:17:37.175668+00	2026-05-29 16:00:37.831108+00	\N	aal1	\N	2026-05-29 16:00:37.831013	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	168.181.51.162	\N	\N	\N	\N	\N
+21cb8fc6-1c87-4b9d-aade-75666473f41c	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-31 20:09:39.751348+00	2026-06-01 13:34:59.601165+00	\N	aal1	\N	2026-06-01 13:34:59.601065	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
 fc7564be-491e-4a50-8e01-54c91258a91f	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-30 16:13:15.908163+00	2026-05-30 16:13:15.908163+00	\N	aal1	\N	\N	Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Mobile Safari/537.36	179.130.82.135	\N	\N	\N	\N	\N
 f96f3c03-b421-459d-8c62-555e74e20d68	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-31 20:08:27.135475+00	2026-05-31 20:08:27.135475+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
-45457d85-0820-4e04-b161-0dfd55b30502	054e1fc1-7d77-4ae0-addb-13e440f53d6b	2026-05-31 20:43:34.589931+00	2026-05-31 20:43:34.589931+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
-d42dca1f-bd1b-46eb-b483-399ee1c2b766	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-31 21:35:00.795817+00	2026-05-31 21:35:00.795817+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
+82781b52-4fd4-4432-9874-07ac766607f0	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 16:22:29.101158+00	2026-06-01 22:02:52.980222+00	\N	aal1	\N	2026-06-01 22:02:52.980113	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	177.146.190.100	\N	\N	\N	\N	\N
+0a5cc700-0b9d-453a-b8fb-ad349265929b	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 16:23:20.334341+00	2026-06-01 16:23:20.334341+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	177.146.190.100	\N	\N	\N	\N	\N
+84f77e46-d507-4e73-bd21-77b2ad536f9b	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-30 03:01:21.228049+00	2026-06-01 23:24:51.795912+00	\N	aal1	\N	2026-06-01 23:24:51.794039	Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Mobile Safari/537.36	179.130.82.135	\N	\N	\N	\N	\N
+7b794bdc-ee63-4b7d-914d-7a2e1b5eec28	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	2026-06-02 01:14:37.93589+00	2026-06-02 01:14:37.93589+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
+1fdab246-ae0d-4e09-afa7-f0e87393308a	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 00:49:35.656149+00	2026-06-02 01:39:34.957504+00	\N	aal1	\N	2026-06-02 01:39:34.957399	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
 30cce33e-8e23-4c01-b3c8-dfcf417ab09a	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 00:51:42.808613+00	2026-06-01 00:51:42.808613+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
 0e17dd08-e043-4369-a964-e931bb4b04c9	d68a59d3-2331-4ada-a377-60659501c047	2026-06-01 00:52:00.120765+00	2026-06-01 00:52:00.120765+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
-1fdab246-ae0d-4e09-afa7-f0e87393308a	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 00:49:35.656149+00	2026-06-01 01:48:29.488881+00	\N	aal1	\N	2026-06-01 01:48:29.48878	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.194.163.36	\N	\N	\N	\N	\N
-43ddeca3-02d1-4cf6-8139-33334c2ec6e0	16ddd940-9f73-4313-ba08-9ee96735181c	2026-05-29 15:04:38.120224+00	2026-05-29 15:04:38.120224+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	168.181.51.162	\N	\N	\N	\N	\N
-883331c0-7448-4170-b060-2827d9802e4c	1d621888-613a-4a15-b796-3c4120f51af2	2026-05-29 15:18:31.320795+00	2026-05-29 15:18:31.320795+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	168.181.51.162	\N	\N	\N	\N	\N
-84f77e46-d507-4e73-bd21-77b2ad536f9b	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-05-30 03:01:21.228049+00	2026-06-01 02:01:54.092736+00	\N	aal1	\N	2026-06-01 02:01:54.092636	Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/30.0 Chrome/143.0.0.0 Mobile Safari/537.36	179.130.82.135	\N	\N	\N	\N	\N
+11327ba2-d5bd-48d7-965c-e994d2b9d68e	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 17:38:04.01779+00	2026-06-01 17:38:04.01779+00	\N	aal1	\N	\N	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36	138.36.34.20	\N	\N	\N	\N	\N
+9e8f5126-49ce-4437-a26f-43a03a2de92b	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 14:26:02.892968+00	2026-06-01 18:16:37.800728+00	\N	aal1	\N	2026-06-01 18:16:37.800631	Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Mobile Safari/537.36 EdgA/148.0.0.0	189.40.68.231	\N	\N	\N	\N	\N
+d42dca1f-bd1b-46eb-b483-399ee1c2b766	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-31 21:35:00.795817+00	2026-06-01 13:04:00.888869+00	\N	aal1	\N	2026-06-01 13:04:00.888761	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36 Edg/148.0.0.0	138.36.34.20	\N	\N	\N	\N	\N
 \.
 
 
@@ -1704,7 +1807,6 @@ COPY "auth"."mfa_amr_claims" ("session_id", "created_at", "updated_at", "authent
 2c84ba70-aebf-4cdb-8e8f-42bd368fb819	2026-05-31 19:36:13.13792+00	2026-05-31 19:36:13.13792+00	password	6240fdec-5630-413c-8a84-365d477e75db
 f96f3c03-b421-459d-8c62-555e74e20d68	2026-05-31 20:08:27.213682+00	2026-05-31 20:08:27.213682+00	password	f906f4c2-9a84-465e-9c71-2bdb1756bee6
 21cb8fc6-1c87-4b9d-aade-75666473f41c	2026-05-31 20:09:39.76301+00	2026-05-31 20:09:39.76301+00	password	9495e535-7e9c-421f-b558-e5ebfb89d1be
-45457d85-0820-4e04-b161-0dfd55b30502	2026-05-31 20:43:34.680958+00	2026-05-31 20:43:34.680958+00	password	a69c3af9-813c-4e78-95e2-f330a1280075
 ada74763-3efa-4a0c-b189-f5b998b2dc7d	2026-05-31 21:08:58.39287+00	2026-05-31 21:08:58.39287+00	password	86dd372d-0f61-459c-a653-85c00eefc9dc
 d42dca1f-bd1b-46eb-b483-399ee1c2b766	2026-05-31 21:35:00.86178+00	2026-05-31 21:35:00.86178+00	password	c3ade81a-0739-4710-ba4f-051d32c045ee
 7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e	2026-06-01 00:35:46.903303+00	2026-06-01 00:35:46.903303+00	password	1f84cc11-fc70-45e1-8520-2488e1a6b6ae
@@ -1712,11 +1814,14 @@ d42dca1f-bd1b-46eb-b483-399ee1c2b766	2026-05-31 21:35:00.86178+00	2026-05-31 21:
 30cce33e-8e23-4c01-b3c8-dfcf417ab09a	2026-06-01 00:51:42.813899+00	2026-06-01 00:51:42.813899+00	password	b3f89da6-4d53-46eb-a56b-4ce48cf4d869
 0e17dd08-e043-4369-a964-e931bb4b04c9	2026-06-01 00:52:00.122775+00	2026-06-01 00:52:00.122775+00	password	348b9c51-0338-4b2c-afa3-afeedac16f8b
 7693ce60-76fd-4fb6-93c4-13a7bf32e93e	2026-06-01 01:06:12.645593+00	2026-06-01 01:06:12.645593+00	password	807138e0-61b6-4579-87b7-40b0f998e64f
-efb7a22e-97dd-4b85-8a55-36b02016670a	2026-05-29 14:17:37.212574+00	2026-05-29 14:17:37.212574+00	password	d758da8c-48cc-42cf-8427-0274230f9454
-43ddeca3-02d1-4cf6-8139-33334c2ec6e0	2026-05-29 15:04:38.138299+00	2026-05-29 15:04:38.138299+00	password	c04f96bc-d0a5-4cb6-b2e4-a7d44a92a564
-3d8e72b2-9870-4c64-a29f-6677ff230d97	2026-05-29 15:12:39.017062+00	2026-05-29 15:12:39.017062+00	password	730a5cac-5edb-4ec3-be47-269c4fd6f27b
-883331c0-7448-4170-b060-2827d9802e4c	2026-05-29 15:18:31.354773+00	2026-05-29 15:18:31.354773+00	password	e6750eb0-7b4d-4b98-9115-719a71aa4f01
-2295f059-3795-4deb-8084-af6532642d5b	2026-05-29 15:55:10.133194+00	2026-05-29 15:55:10.133194+00	password	e37a5fe3-ea16-4065-9b93-e2c5f4253ce4
+9e8f5126-49ce-4437-a26f-43a03a2de92b	2026-06-01 14:26:02.950063+00	2026-06-01 14:26:02.950063+00	password	6bbd9e3c-dfdc-40f9-8f9a-3b16f03838d2
+25838f14-79e8-4680-afca-879d10b02404	2026-06-01 16:14:22.825728+00	2026-06-01 16:14:22.825728+00	password	6c2bbe9f-ac27-42b3-bd27-1ba5bc8fa53f
+82781b52-4fd4-4432-9874-07ac766607f0	2026-06-01 16:22:29.174445+00	2026-06-01 16:22:29.174445+00	password	9679fdab-b769-4ad7-ba48-7a3504536969
+0a5cc700-0b9d-453a-b8fb-ad349265929b	2026-06-01 16:23:20.343644+00	2026-06-01 16:23:20.343644+00	password	9e9b2e3b-f571-438f-a77a-440911f9b2dd
+0dea8726-027e-4a8e-87dc-8b3a8b7b3ad6	2026-06-01 16:27:00.467429+00	2026-06-01 16:27:00.467429+00	password	1c0240b8-15b8-4be8-a90e-86dd7587cf7a
+11327ba2-d5bd-48d7-965c-e994d2b9d68e	2026-06-01 17:38:04.04873+00	2026-06-01 17:38:04.04873+00	password	8980e7a3-f48f-41c0-8f38-419684bec681
+96b93226-43d3-46c4-8b5f-f658bdd48fed	2026-06-02 00:03:49.151039+00	2026-06-02 00:03:49.151039+00	password	adb8fa7c-3f8a-4de3-9020-21360727f7d7
+7b794bdc-ee63-4b7d-914d-7a2e1b5eec28	2026-06-02 01:14:38.007626+00	2026-06-02 01:14:38.007626+00	password	422f9046-1aeb-4b76-b667-3fa3be25a091
 fe2c4519-bcab-40e8-ad42-37c32c485f26	2026-05-29 19:09:47.766123+00	2026-05-29 19:09:47.766123+00	password	f2c60582-ad68-4111-96ad-b0f7ac24e320
 5088a507-87e6-40c6-b4aa-17b85f4633c9	2026-05-29 19:09:52.34501+00	2026-05-29 19:09:52.34501+00	password	a110b3ab-4135-4664-b8c2-1f627d5a061f
 ddc31fbd-2952-4023-a531-d6023e58a775	2026-05-30 02:51:50.690314+00	2026-05-30 02:51:50.690314+00	password	b006fde2-04e4-413e-9b88-35215756ed14
@@ -1782,45 +1887,73 @@ COPY "auth"."one_time_tokens" ("id", "user_id", "token_type", "token_hash", "rel
 --
 
 COPY "auth"."refresh_tokens" ("instance_id", "id", "token", "user_id", "revoked", "created_at", "updated_at", "parent", "session_id") FROM stdin;
-00000000-0000-0000-0000-000000000000	895	udyo44v3wvt2	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-05-31 21:35:00.820715+00	2026-05-31 21:35:00.820715+00	\N	d42dca1f-bd1b-46eb-b483-399ee1c2b766
-00000000-0000-0000-0000-000000000000	816	pktgp3mdhjfo	1d621888-613a-4a15-b796-3c4120f51af2	f	2026-05-29 15:18:31.334072+00	2026-05-29 15:18:31.334072+00	\N	883331c0-7448-4170-b060-2827d9802e4c
+00000000-0000-0000-0000-000000000000	944	m7qis52dfhsg	b5668aed-dbb4-4d19-918e-c4e62e308487	t	2026-06-01 17:20:30.689081+00	2026-06-01 18:18:21.973337+00	bzzdrbns3mhq	82781b52-4fd4-4432-9874-07ac766607f0
 00000000-0000-0000-0000-000000000000	855	bjjya25olbje	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-30 18:54:42.862521+00	2026-05-31 22:19:16.769257+00	do7cqkf4gx6p	84f77e46-d507-4e73-bd21-77b2ad536f9b
 00000000-0000-0000-0000-000000000000	904	cdufst5adwoy	b5668aed-dbb4-4d19-918e-c4e62e308487	f	2026-06-01 01:06:12.611881+00	2026-06-01 01:06:12.611881+00	\N	7693ce60-76fd-4fb6-93c4-13a7bf32e93e
 00000000-0000-0000-0000-000000000000	891	xq3rlrwqdihm	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-05-31 20:09:39.755727+00	2026-05-31 21:10:03.27819+00	\N	21cb8fc6-1c87-4b9d-aade-75666473f41c
+00000000-0000-0000-0000-000000000000	895	udyo44v3wvt2	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-05-31 21:35:00.820715+00	2026-06-01 13:04:00.859612+00	\N	d42dca1f-bd1b-46eb-b483-399ee1c2b766
+00000000-0000-0000-0000-000000000000	914	2ohjrgtbwlrg	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-01 13:04:00.869126+00	2026-06-01 13:04:00.869126+00	udyo44v3wvt2	d42dca1f-bd1b-46eb-b483-399ee1c2b766
 00000000-0000-0000-0000-000000000000	832	jso72ne5yxsr	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	f	2026-05-30 02:51:50.647065+00	2026-05-30 02:51:50.647065+00	\N	ddc31fbd-2952-4023-a531-d6023e58a775
+00000000-0000-0000-0000-000000000000	949	h333meh7z7pl	b5668aed-dbb4-4d19-918e-c4e62e308487	t	2026-06-01 18:18:21.976196+00	2026-06-01 19:16:09.488775+00	m7qis52dfhsg	82781b52-4fd4-4432-9874-07ac766607f0
+00000000-0000-0000-0000-000000000000	934	5otsf427mndj	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-01 16:14:22.78351+00	2026-06-01 16:14:22.78351+00	\N	25838f14-79e8-4680-afca-879d10b02404
+00000000-0000-0000-0000-000000000000	957	w3do6n6nlcnd	b5668aed-dbb4-4d19-918e-c4e62e308487	f	2026-06-01 22:02:52.956602+00	2026-06-01 22:02:52.956602+00	zuacphx2vqzd	82781b52-4fd4-4432-9874-07ac766607f0
+00000000-0000-0000-0000-000000000000	964	g4ivsbblxzoo	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-02 01:39:34.946225+00	2026-06-02 01:39:34.946225+00	rp2potls4ifr	1fdab246-ae0d-4e09-afa7-f0e87393308a
 00000000-0000-0000-0000-000000000000	878	kypxx464wh54	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-05-31 16:23:08.402758+00	2026-05-31 16:23:08.402758+00	\N	a4926327-3d12-4597-ad35-537363d9b4e0
 00000000-0000-0000-0000-000000000000	879	z54mtrlqmany	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-05-31 16:24:32.480438+00	2026-05-31 16:24:32.480438+00	\N	77e8d0e4-0f6a-43c0-919c-0d287c4d1d68
-00000000-0000-0000-0000-000000000000	810	chgyarvrn5hh	1d621888-613a-4a15-b796-3c4120f51af2	t	2026-05-29 14:17:37.191484+00	2026-05-29 16:00:37.825865+00	\N	efb7a22e-97dd-4b85-8a55-36b02016670a
+00000000-0000-0000-0000-000000000000	946	d4ehmdx3pgbf	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 17:33:24.814083+00	2026-06-01 20:39:39.365516+00	pgfm63btitpn	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	950	o5uu72tf6byw	b5668aed-dbb4-4d19-918e-c4e62e308487	t	2026-06-01 19:16:09.502302+00	2026-06-01 20:51:47.061528+00	h333meh7z7pl	82781b52-4fd4-4432-9874-07ac766607f0
 00000000-0000-0000-0000-000000000000	905	qfhy74i7bquk	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 01:35:19.750732+00	2026-06-01 02:36:44.241307+00	3d7uiycoli6q	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
-00000000-0000-0000-0000-000000000000	892	tyqg2bti4bvl	054e1fc1-7d77-4ae0-addb-13e440f53d6b	f	2026-05-31 20:43:34.627608+00	2026-05-31 20:43:34.627608+00	\N	45457d85-0820-4e04-b161-0dfd55b30502
+00000000-0000-0000-0000-000000000000	958	nnjuljm5qhvn	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 22:41:20.626706+00	2026-06-01 23:41:38.225008+00	y7usv2hkssqi	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	965	sr45v4z26cj3	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-02 01:46:55.946711+00	2026-06-02 01:46:55.946711+00	bhm57bq3uhdr	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
+00000000-0000-0000-0000-000000000000	936	ouv23sgau3w5	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-01 16:23:20.337355+00	2026-06-01 16:23:20.337355+00	\N	0a5cc700-0b9d-453a-b8fb-ad349265929b
 00000000-0000-0000-0000-000000000000	833	n4b4pdmugdza	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-30 03:01:21.229638+00	2026-05-30 04:54:39.772279+00	\N	84f77e46-d507-4e73-bd21-77b2ad536f9b
+00000000-0000-0000-0000-000000000000	935	bzzdrbns3mhq	b5668aed-dbb4-4d19-918e-c4e62e308487	t	2026-06-01 16:22:29.140323+00	2026-06-01 17:20:30.67911+00	\N	82781b52-4fd4-4432-9874-07ac766607f0
+00000000-0000-0000-0000-000000000000	945	jeq57b33q7ix	054e1fc1-7d77-4ae0-addb-13e440f53d6b	f	2026-06-01 17:32:52.038007+00	2026-06-01 17:32:52.038007+00	omovuaemx4vw	0dea8726-027e-4a8e-87dc-8b3a8b7b3ad6
 00000000-0000-0000-0000-000000000000	825	ltuorezg6a4e	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-29 19:09:47.763676+00	2026-05-30 18:09:46.711056+00	\N	fe2c4519-bcab-40e8-ad42-37c32c485f26
 00000000-0000-0000-0000-000000000000	826	fgu3wipjddzc	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-29 19:09:52.343831+00	2026-05-30 18:09:57.274131+00	\N	5088a507-87e6-40c6-b4aa-17b85f4633c9
+00000000-0000-0000-0000-000000000000	951	zll6vvzwfwmx	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 20:39:39.372874+00	2026-06-01 21:39:39.867131+00	d4ehmdx3pgbf	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	959	b57xtwyn4sa3	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-06-01 23:24:51.760075+00	2026-06-01 23:24:51.760075+00	gknwpb3jorga	84f77e46-d507-4e73-bd21-77b2ad536f9b
 00000000-0000-0000-0000-000000000000	894	hhvlqzpdbaev	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-05-31 21:10:03.278817+00	2026-05-31 22:08:26.375925+00	xq3rlrwqdihm	21cb8fc6-1c87-4b9d-aade-75666473f41c
-00000000-0000-0000-0000-000000000000	897	egjdx5ik45xk	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-05-31 22:08:26.383294+00	2026-05-31 22:08:26.383294+00	hhvlqzpdbaev	21cb8fc6-1c87-4b9d-aade-75666473f41c
 00000000-0000-0000-0000-000000000000	893	gryrfwp5x7p2	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	t	2026-05-31 21:08:58.379694+00	2026-05-31 22:11:36.316746+00	\N	ada74763-3efa-4a0c-b189-f5b998b2dc7d
-00000000-0000-0000-0000-000000000000	906	ciusia7j3tsa	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-01 01:48:29.47437+00	2026-06-01 01:48:29.47437+00	wjecggdvdh3f	1fdab246-ae0d-4e09-afa7-f0e87393308a
-00000000-0000-0000-0000-000000000000	818	tpyn2qb6w4lk	16ddd940-9f73-4313-ba08-9ee96735181c	t	2026-05-29 15:55:10.10989+00	2026-05-29 20:45:16.486624+00	\N	2295f059-3795-4deb-8084-af6532642d5b
+00000000-0000-0000-0000-000000000000	897	egjdx5ik45xk	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-05-31 22:08:26.383294+00	2026-06-01 12:34:16.056184+00	hhvlqzpdbaev	21cb8fc6-1c87-4b9d-aade-75666473f41c
 00000000-0000-0000-0000-000000000000	835	do7cqkf4gx6p	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-30 04:54:39.790416+00	2026-05-30 18:54:42.834774+00	n4b4pdmugdza	84f77e46-d507-4e73-bd21-77b2ad536f9b
 00000000-0000-0000-0000-000000000000	858	khft6v6jncm3	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-05-30 19:22:02.953056+00	2026-05-30 19:22:02.953056+00	\N	6cbe0e20-2641-4057-95c4-ba8c3f5f4a38
+00000000-0000-0000-0000-000000000000	906	ciusia7j3tsa	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 01:48:29.47437+00	2026-06-01 16:34:46.245711+00	wjecggdvdh3f	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	937	omovuaemx4vw	054e1fc1-7d77-4ae0-addb-13e440f53d6b	t	2026-06-01 16:27:00.463135+00	2026-06-01 17:32:52.030513+00	\N	0dea8726-027e-4a8e-87dc-8b3a8b7b3ad6
+00000000-0000-0000-0000-000000000000	947	ro6pe5hlo35y	1d621888-613a-4a15-b796-3c4120f51af2	f	2026-06-01 17:38:04.034297+00	2026-06-01 17:38:04.034297+00	\N	11327ba2-d5bd-48d7-965c-e994d2b9d68e
 00000000-0000-0000-0000-000000000000	898	tnnfqcqed7pp	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	f	2026-05-31 22:11:36.317526+00	2026-05-31 22:11:36.317526+00	gryrfwp5x7p2	ada74763-3efa-4a0c-b189-f5b998b2dc7d
-00000000-0000-0000-0000-000000000000	819	ohom2ticypeu	1d621888-613a-4a15-b796-3c4120f51af2	f	2026-05-29 16:00:37.827803+00	2026-05-29 16:00:37.827803+00	chgyarvrn5hh	efb7a22e-97dd-4b85-8a55-36b02016670a
-00000000-0000-0000-0000-000000000000	907	675zlt3bgqco	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-06-01 02:01:54.075434+00	2026-06-01 02:01:54.075434+00	l2aygrx3y4dt	84f77e46-d507-4e73-bd21-77b2ad536f9b
+00000000-0000-0000-0000-000000000000	952	hdq6b4m6xnbm	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-06-01 20:47:33.952791+00	2026-06-01 20:47:33.952791+00	iwow3jhhj47v	fe2c4519-bcab-40e8-ad42-37c32c485f26
+00000000-0000-0000-0000-000000000000	953	t7vidhylxjd4	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-06-01 20:47:37.562244+00	2026-06-01 20:47:37.562244+00	evf6mdw6aid7	5088a507-87e6-40c6-b4aa-17b85f4633c9
+00000000-0000-0000-0000-000000000000	907	675zlt3bgqco	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-06-01 02:01:54.075434+00	2026-06-01 12:35:25.239658+00	l2aygrx3y4dt	84f77e46-d507-4e73-bd21-77b2ad536f9b
+00000000-0000-0000-0000-000000000000	960	rn7ro2kxtkux	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 23:41:38.232178+00	2026-06-02 00:39:43.765441+00	nnjuljm5qhvn	1fdab246-ae0d-4e09-afa7-f0e87393308a
 00000000-0000-0000-0000-000000000000	843	4f3wu5ww62w6	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-05-30 16:10:49.721526+00	2026-05-30 16:10:49.721526+00	\N	2b94c050-86b9-47e2-8cb9-5650856c3c7d
+00000000-0000-0000-0000-000000000000	939	pgfm63btitpn	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 16:34:46.255635+00	2026-06-01 17:33:24.813725+00	ciusia7j3tsa	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	948	cya4iiuvdgap	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-01 18:16:37.777721+00	2026-06-01 18:16:37.777721+00	66wrcoktz37a	9e8f5126-49ce-4437-a26f-43a03a2de92b
 00000000-0000-0000-0000-000000000000	899	l2aygrx3y4dt	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-31 22:19:16.780518+00	2026-06-01 02:01:54.059187+00	bjjya25olbje	84f77e46-d507-4e73-bd21-77b2ad536f9b
-00000000-0000-0000-0000-000000000000	829	umscqbk3tvoo	16ddd940-9f73-4313-ba08-9ee96735181c	f	2026-05-29 20:45:16.501854+00	2026-05-29 20:45:16.501854+00	tpyn2qb6w4lk	2295f059-3795-4deb-8084-af6532642d5b
-00000000-0000-0000-0000-000000000000	908	7gl6knvjjmdm	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-01 02:36:44.248344+00	2026-06-01 02:36:44.248344+00	qfhy74i7bquk	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
+00000000-0000-0000-0000-000000000000	940	umyeqgamwbmz	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 16:45:25.00649+00	2026-06-01 21:03:32.129329+00	ouflgf3l64di	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
+00000000-0000-0000-0000-000000000000	954	zuacphx2vqzd	b5668aed-dbb4-4d19-918e-c4e62e308487	t	2026-06-01 20:51:47.067102+00	2026-06-01 22:02:52.946766+00	o5uu72tf6byw	82781b52-4fd4-4432-9874-07ac766607f0
+00000000-0000-0000-0000-000000000000	919	73ua6eqy6s7f	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-06-01 13:34:59.569785+00	2026-06-01 13:34:59.569785+00	i33522xjcirr	21cb8fc6-1c87-4b9d-aade-75666473f41c
+00000000-0000-0000-0000-000000000000	908	7gl6knvjjmdm	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 02:36:44.248344+00	2026-06-01 15:37:21.413613+00	qfhy74i7bquk	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
+00000000-0000-0000-0000-000000000000	961	yl6la2mqqwus	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	f	2026-06-02 00:03:49.118748+00	2026-06-02 00:03:49.118748+00	\N	96b93226-43d3-46c4-8b5f-f658bdd48fed
 00000000-0000-0000-0000-000000000000	844	wakvqdnqx4m6	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-05-30 16:13:15.914235+00	2026-05-30 16:13:15.914235+00	\N	fc7564be-491e-4a50-8e01-54c91258a91f
-00000000-0000-0000-0000-000000000000	851	4ht6pvv43ii5	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-05-30 18:09:46.717706+00	2026-05-30 18:09:46.717706+00	ltuorezg6a4e	fe2c4519-bcab-40e8-ad42-37c32c485f26
-00000000-0000-0000-0000-000000000000	852	ynv56fv2tsoy	d956fdab-0d1c-463c-9cfc-63f42d3645a5	f	2026-05-30 18:09:57.275936+00	2026-05-30 18:09:57.275936+00	fgu3wipjddzc	5088a507-87e6-40c6-b4aa-17b85f4633c9
-00000000-0000-0000-0000-000000000000	814	54vka5wevnco	16ddd940-9f73-4313-ba08-9ee96735181c	f	2026-05-29 15:04:38.125672+00	2026-05-29 15:04:38.125672+00	\N	43ddeca3-02d1-4cf6-8139-33334c2ec6e0
+00000000-0000-0000-0000-000000000000	851	4ht6pvv43ii5	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-30 18:09:46.717706+00	2026-06-01 15:46:27.023479+00	ltuorezg6a4e	fe2c4519-bcab-40e8-ad42-37c32c485f26
+00000000-0000-0000-0000-000000000000	852	ynv56fv2tsoy	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-05-30 18:09:57.275936+00	2026-06-01 15:50:14.229008+00	fgu3wipjddzc	5088a507-87e6-40c6-b4aa-17b85f4633c9
+00000000-0000-0000-0000-000000000000	927	ouflgf3l64di	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 15:37:21.427366+00	2026-06-01 16:45:24.994268+00	7gl6knvjjmdm	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
+00000000-0000-0000-0000-000000000000	931	iwow3jhhj47v	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-06-01 15:46:27.026469+00	2026-06-01 20:47:33.93734+00	4ht6pvv43ii5	fe2c4519-bcab-40e8-ad42-37c32c485f26
 00000000-0000-0000-0000-000000000000	889	y3geixmu3f2b	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-05-31 19:36:13.107056+00	2026-05-31 19:36:13.107056+00	\N	2c84ba70-aebf-4cdb-8e8f-42bd368fb819
 00000000-0000-0000-0000-000000000000	900	3d7uiycoli6q	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 00:35:46.866236+00	2026-06-01 01:35:19.737294+00	\N	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
-00000000-0000-0000-0000-000000000000	815	imzmexjykgye	1d621888-613a-4a15-b796-3c4120f51af2	f	2026-05-29 15:12:38.99744+00	2026-05-29 15:12:38.99744+00	\N	3d8e72b2-9870-4c64-a29f-6677ff230d97
+00000000-0000-0000-0000-000000000000	962	rp2potls4ifr	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-02 00:39:43.783395+00	2026-06-02 01:39:34.93765+00	rn7ro2kxtkux	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	955	bhm57bq3uhdr	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 21:03:32.13961+00	2026-06-02 01:46:55.929652+00	umyeqgamwbmz	7e2b8dca-0cb3-467f-a1bc-3eb576f1b82e
+00000000-0000-0000-0000-000000000000	920	66wrcoktz37a	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 14:26:02.91927+00	2026-06-01 18:16:37.761101+00	\N	9e8f5126-49ce-4437-a26f-43a03a2de92b
+00000000-0000-0000-0000-000000000000	932	evf6mdw6aid7	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-06-01 15:50:14.234528+00	2026-06-01 20:47:37.561914+00	ynv56fv2tsoy	5088a507-87e6-40c6-b4aa-17b85f4633c9
 00000000-0000-0000-0000-000000000000	890	okqdjlwai74z	35cae5eb-f980-4be0-9998-ac8173ed2afc	f	2026-05-31 20:08:27.162979+00	2026-05-31 20:08:27.162979+00	\N	f96f3c03-b421-459d-8c62-555e74e20d68
 00000000-0000-0000-0000-000000000000	902	eit7jth4cykq	b5668aed-dbb4-4d19-918e-c4e62e308487	f	2026-06-01 00:51:42.810743+00	2026-06-01 00:51:42.810743+00	\N	30cce33e-8e23-4c01-b3c8-dfcf417ab09a
 00000000-0000-0000-0000-000000000000	903	onso4e6ibsmk	d68a59d3-2331-4ada-a377-60659501c047	f	2026-06-01 00:52:00.12158+00	2026-06-01 00:52:00.12158+00	\N	0e17dd08-e043-4369-a964-e931bb4b04c9
 00000000-0000-0000-0000-000000000000	901	wjecggdvdh3f	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 00:49:35.669591+00	2026-06-01 01:48:29.465888+00	\N	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	956	y7usv2hkssqi	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 21:39:39.88357+00	2026-06-01 22:41:20.618051+00	zll6vvzwfwmx	1fdab246-ae0d-4e09-afa7-f0e87393308a
+00000000-0000-0000-0000-000000000000	912	i33522xjcirr	35cae5eb-f980-4be0-9998-ac8173ed2afc	t	2026-06-01 12:34:16.068208+00	2026-06-01 13:34:59.551301+00	egjdx5ik45xk	21cb8fc6-1c87-4b9d-aade-75666473f41c
+00000000-0000-0000-0000-000000000000	913	gknwpb3jorga	d956fdab-0d1c-463c-9cfc-63f42d3645a5	t	2026-06-01 12:35:25.240481+00	2026-06-01 23:24:51.738368+00	675zlt3bgqco	84f77e46-d507-4e73-bd21-77b2ad536f9b
+00000000-0000-0000-0000-000000000000	963	6vqrs5ie5ife	cb8fbe48-feb4-45e6-92bd-e43f55c3e8d3	f	2026-06-02 01:14:37.964155+00	2026-06-02 01:14:37.964155+00	\N	7b794bdc-ee63-4b7d-914d-7a2e1b5eec28
 \.
 
 
@@ -3759,6 +3892,11 @@ COPY "public"."Checklist" ("id", "created_at", "checklist", "person", "store", "
 1950	2026-05-31 15:13:05.688248+00	Checklist de Abertura	Cassia	altoxv	\N	\N	\N	{"total": 355.5, "denominacoes": {"ten": 8, "two": 5, "five": "", "fifty": "", "twenty": 13, "hundred": "", "oneCent": "", "oneReal": 4, "tenCents": 12, "fiveCents": 6, "fiftyCents": "", "twentyFiveCents": ""}}
 1951	2026-05-31 22:07:41.87814+00	Checklist de Fechamento	Cassia	altoxv	6 [6 (venc. 04/06/2026)]	7 [7 (venc. 30/06/2026)]	0	\N
 1952	2026-05-31 22:16:54.184487+00	Checklist de Fechamento	Sthefani	ahu	4 [4 (venc. 04/06/2026)]	1 [1 (venc. 17/06/2026)]	2	\N
+1953	2026-06-01 14:58:52.841351+00	Checklist de Abertura	Amanda	altoxv	\N	\N	\N	{"total": 0, "denominacoes": {"ten": "", "two": "", "five": "", "fifty": "", "twenty": "", "hundred": "", "oneCent": "", "oneReal": "", "tenCents": "", "fiveCents": "", "fiftyCents": "", "twentyFiveCents": ""}}
+1954	2026-06-01 15:31:14.314177+00	Checklist de Abertura	Sthefani	ahu	\N	\N	\N	{"total": 262.65, "denominacoes": {"ten": 8, "two": 12, "five": 9, "fifty": "", "twenty": "", "hundred": 1, "oneCent": "", "oneReal": 11, "tenCents": 4, "fiveCents": "", "fiftyCents": 4, "twentyFiveCents": 1}}
+1955	2026-06-01 15:45:29.53107+00	Checklist de Fechamento	Talita	escritorio	\N	\N	\N	\N
+1956	2026-06-01 22:02:53.336137+00	Checklist de Fechamento	Sthefani	ahu	3 [3 (venc. 04/06/2026)]	8 [8 (venc. 30/06/2026)]	2	\N
+1957	2026-06-01 22:03:07.601789+00	Checklist de Fechamento	Cassia	altoxv	2 [2 (venc. 04/07/2026)]	11 [11 (venc. 30/07/2026)]	3	\N
 \.
 
 
@@ -5061,6 +5199,16 @@ COPY "public"."Vales" ("id", "created_at", "Nome", "Unidade", "Item") FROM stdin
 1313	2026-05-31 22:17:03.50959+00	Sthefani	Ahu	Capuccino Brasileiro
 1314	2026-05-31 22:21:34.291322+00	Endryw	Ahu	Pote 480ml
 1315	2026-05-31 22:21:44.941414+00	Endryw	Ahu	Refri, Chá ou Suco
+1316	2026-06-01 15:27:06.620523+00	Cassia	Alto da XV	Médio ( até 2 Sabores )
+1317	2026-06-01 15:27:35.613721+00	Amanda	Alto da XV	Médio ( até 2 Sabores )
+1318	2026-06-01 15:31:41.857197+00	Sthefani	Ahu	Água
+1319	2026-06-01 15:35:45.04552+00	Sthefani	Ahu	Caramel - Latte
+1320	2026-06-01 16:14:35.559283+00	Talita	Alto da XV	Refri, Chá ou Suco
+1321	2026-06-01 17:33:17.492838+00	Cassia	Alto da XV	Refri, Chá ou Suco
+1322	2026-06-01 20:51:53.722382+00	Sthefani	Ahu	Latte
+1323	2026-06-01 20:59:46.891595+00	Sthefani	Ahu	Mocha
+1324	2026-06-01 21:44:41.353708+00	Sthefani	Ahu	COMBO SEGUNDA - Nutella e Morango
+1325	2026-06-01 21:44:50.066582+00	Sthefani	Ahu	Água
 \.
 
 
@@ -5432,6 +5580,7 @@ e00dad8e-9105-4026-b8ac-d830c9f58f77	frequencia	UPDATE	{"id": 193, "date": "2026
 dbd8a053-8d1a-4f65-838a-10c6fc97b972	frequencia	INSERT	\N	{"id": 196, "date": "2026-05-27", "status": "Atestado", "observacao": null, "updated_at": "2026-05-27T14:40:44.667+00:00", "employee_id": "054e1fc1-7d77-4ae0-addb-13e440f53d6b", "observacao_at": null, "observacao_by": null}	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-27 14:40:46.513287+00
 82a0691b-eeb5-4a48-a792-4c52cd804b3a	frequencia	INSERT	\N	{"id": 197, "date": "2026-05-27", "status": "Folga Compensatória", "observacao": null, "updated_at": "2026-05-27T14:40:49.406+00:00", "employee_id": "16ddd940-9f73-4313-ba08-9ee96735181c", "observacao_at": null, "observacao_by": null}	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-27 14:40:51.228661+00
 75a3d487-ba1c-4816-901e-f5e01d49b9ee	frequencia	UPDATE	{"id": 193, "date": "2026-05-27", "status": "Falta Não Justificada", "observacao": null, "updated_at": "2026-05-27T14:39:21.59+00:00", "employee_id": "c24dd627-7a1e-407e-9fe0-eefe4d5320c7", "observacao_at": null, "observacao_by": null}	{"id": 193, "date": "2026-05-27", "status": "Trabalhado", "observacao": null, "updated_at": "2026-05-27T14:41:03.845+00:00", "employee_id": "c24dd627-7a1e-407e-9fe0-eefe4d5320c7", "observacao_at": null, "observacao_by": null}	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-27 14:41:05.658928+00
+4f90565d-4416-41a5-a136-47227015286a	Vales	INSERT	\N	{"id": 1319, "Item": "Caramel - Latte", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-06-01T15:35:45.04552+00:00"}	3e43c2e5-3604-48ad-807a-bfa38ebdbfff	2026-06-01 15:35:45.04552+00
 96645cfc-658d-453e-bc90-31a756eea04a	frequencia	UPDATE	{"id": 196, "date": "2026-05-27", "status": "Atestado", "observacao": null, "updated_at": "2026-05-27T14:40:44.667+00:00", "employee_id": "054e1fc1-7d77-4ae0-addb-13e440f53d6b", "observacao_at": null, "observacao_by": null}	{"id": 196, "date": "2026-05-27", "status": "Trabalhado", "observacao": null, "updated_at": "2026-05-27T14:41:04.725+00:00", "employee_id": "054e1fc1-7d77-4ae0-addb-13e440f53d6b", "observacao_at": null, "observacao_by": null}	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-27 14:41:06.530696+00
 bafa510f-db6c-4264-9f3f-7f7caab27723	frequencia	UPDATE	{"id": 197, "date": "2026-05-27", "status": "Folga Compensatória", "observacao": null, "updated_at": "2026-05-27T14:40:49.406+00:00", "employee_id": "16ddd940-9f73-4313-ba08-9ee96735181c", "observacao_at": null, "observacao_by": null}	{"id": 197, "date": "2026-05-27", "status": "Trabalhado", "observacao": null, "updated_at": "2026-05-27T14:41:05.621+00:00", "employee_id": "16ddd940-9f73-4313-ba08-9ee96735181c", "observacao_at": null, "observacao_by": null}	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-05-27 14:41:07.428859+00
 954fe605-1feb-4549-a5d6-2b52e76c611e	Checklist	INSERT	\N	{"id": 1930, "panos": null, "store": "ahu", "massas": null, "person": "Endryw", "brownies": null, "checklist": "Checklist de Abertura", "created_at": "2026-05-27T15:01:41.624301+00:00", "money_data": {"total": 365.15, "denominacoes": {"ten": 10, "two": 2, "five": 15, "fifty": "", "twenty": 4, "hundred": 1, "oneCent": "", "oneReal": 4, "tenCents": 14, "fiveCents": "", "fiftyCents": "", "twentyFiveCents": 3}}}	\N	2026-05-27 15:01:41.624301+00
@@ -5525,6 +5674,7 @@ c55a216a-0e86-42e5-b86e-473246ab8509	profiles	UPDATE	{"id": "cb8fbe48-feb4-45e6-
 7adfa3bf-4c4a-409d-a869-4da967130c64	Checklist	INSERT	\N	{"id": 1946, "panos": null, "store": "altoxv", "massas": null, "person": "Cassia", "brownies": null, "checklist": "Checklist de Abertura", "created_at": "2026-05-30T15:04:27.698694+00:00", "money_data": {"total": 336.5, "denominacoes": {"ten": 8, "two": 5, "five": "", "fifty": "", "twenty": 12, "hundred": "", "oneCent": "", "oneReal": 5, "tenCents": 12, "fiveCents": 6, "fiftyCents": "", "twentyFiveCents": ""}}}	\N	2026-05-30 15:04:27.698694+00
 224f8bf4-5f51-49f6-9766-c46bde2a367d	Vales	INSERT	\N	{"id": 1305, "Item": "Mocha", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-05-30T15:08:03.21058+00:00"}	\N	2026-05-30 15:08:03.21058+00
 9e508517-4cd9-4ac9-bdd9-e05dbcbea494	Vales	INSERT	\N	{"id": 1306, "Item": "Refri, Chá ou Suco", "Nome": "Cassia", "Unidade": "Alto da XV", "created_at": "2026-05-30T18:34:14.349761+00:00"}	\N	2026-05-30 18:34:14.349761+00
+89517f2c-650b-4467-bdd8-ff4c5c8f4d53	Vales	INSERT	\N	{"id": 1318, "Item": "Água", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-06-01T15:31:41.857197+00:00"}	3e43c2e5-3604-48ad-807a-bfa38ebdbfff	2026-06-01 15:31:41.857197+00
 12b86658-4143-478b-b794-85127c9b5c4b	Checklist	INSERT	\N	{"id": 1948, "panos": "1", "store": "altoxv", "massas": "8 [8 (venc. 04/06/2026)]", "person": "Cassia", "brownies": "3 [3 (venc. 17/06/2026)]", "checklist": "Checklist de Fechamento", "created_at": "2026-05-30T22:03:04.594746+00:00", "money_data": null}	\N	2026-05-30 22:03:04.594746+00
 293c8bfb-4d57-4804-afc8-a354f13b0698	Vales	INSERT	\N	{"id": 1307, "Item": "Latte", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-05-31T14:56:16.386118+00:00"}	\N	2026-05-31 14:56:16.386118+00
 7e123884-4fd1-4905-83b5-b2d8e4743e0b	Checklist	INSERT	\N	{"id": 1949, "panos": null, "store": "ahu", "massas": null, "person": "Sthefani", "brownies": null, "checklist": "Checklist de Abertura", "created_at": "2026-05-31T15:02:15.298033+00:00", "money_data": {"total": 184.65, "denominacoes": {"ten": 12, "two": 7, "five": 8, "fifty": "", "twenty": "", "hundred": "", "oneCent": "", "oneReal": 9, "tenCents": 14, "fiveCents": "", "fiftyCents": "", "twentyFiveCents": 1}}}	\N	2026-05-31 15:02:15.298033+00
@@ -5543,6 +5693,19 @@ e8de1c2d-87d6-45db-abd9-27a1d5353a95	Vales	INSERT	\N	{"id": 1315, "Item": "Refri
 7d81ccb2-101a-4e07-a637-992f3e151836	profiles	UPDATE	{"id": "b5668aed-dbb4-4d19-918e-c4e62e308487", "name": "mh.loja.ahu", "ativo": true, "email": "mh.loja.ahu@gmail.com", "is_admin": false, "short_id": null, "updated_at": "2026-06-01T00:51:42.713235+00:00", "folgas_fixas": "", "data_registro": null, "passagens_urbs": 0, "passagens_metrocard": 0, "controlar_frequencia": true}	{"id": "b5668aed-dbb4-4d19-918e-c4e62e308487", "name": "Loja Ahu", "ativo": true, "email": "mh.loja.ahu@gmail.com", "is_admin": false, "short_id": "", "updated_at": "2026-06-01T00:51:42.697+00:00", "folgas_fixas": "", "data_registro": null, "passagens_urbs": 0, "passagens_metrocard": 0, "controlar_frequencia": false}	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 00:51:42.868684+00
 ebe8e285-5a9b-410e-98f8-003d9149557c	profiles	INSERT	\N	{"id": "d68a59d3-2331-4ada-a377-60659501c047", "name": "mh.loja.altoxv", "ativo": true, "email": "mh.loja.altoxv@gmail.com", "is_admin": false, "short_id": null, "updated_at": "2026-06-01T00:52:00.100717+00:00", "folgas_fixas": "", "data_registro": null, "passagens_urbs": 0, "passagens_metrocard": 0, "controlar_frequencia": true}	\N	2026-06-01 00:52:00.100717+00
 3d83b208-0265-4132-aa01-590b32983140	profiles	UPDATE	{"id": "d68a59d3-2331-4ada-a377-60659501c047", "name": "mh.loja.altoxv", "ativo": true, "email": "mh.loja.altoxv@gmail.com", "is_admin": false, "short_id": null, "updated_at": "2026-06-01T00:52:00.100717+00:00", "folgas_fixas": "", "data_registro": null, "passagens_urbs": 0, "passagens_metrocard": 0, "controlar_frequencia": true}	{"id": "d68a59d3-2331-4ada-a377-60659501c047", "name": "Loja Alto XV", "ativo": true, "email": "mh.loja.altoxv@gmail.com", "is_admin": false, "short_id": "", "updated_at": "2026-06-01T00:52:00.005+00:00", "folgas_fixas": "", "data_registro": null, "passagens_urbs": 0, "passagens_metrocard": 0, "controlar_frequencia": false}	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 00:52:00.26694+00
+e5f6578f-a4a5-4cb2-8d0f-dafff01f577a	Checklist	INSERT	\N	{"id": 1953, "panos": null, "store": "altoxv", "massas": null, "person": "Amanda", "brownies": null, "checklist": "Checklist de Abertura", "created_at": "2026-06-01T14:58:52.841351+00:00", "money_data": {"total": 0, "denominacoes": {"ten": "", "two": "", "five": "", "fifty": "", "twenty": "", "hundred": "", "oneCent": "", "oneReal": "", "tenCents": "", "fiveCents": "", "fiftyCents": "", "twentyFiveCents": ""}}}	\N	2026-06-01 14:58:52.841351+00
+e38b208b-d0c2-48b6-9147-ef4adf67ba47	Vales	INSERT	\N	{"id": 1316, "Item": "Médio ( até 2 Sabores )", "Nome": "Cassia", "Unidade": "Alto da XV", "created_at": "2026-06-01T15:27:06.620523+00:00"}	\N	2026-06-01 15:27:06.620523+00
+19c4baad-fb2f-4a88-a87a-bcb58de21db0	Vales	INSERT	\N	{"id": 1317, "Item": "Médio ( até 2 Sabores )", "Nome": "Amanda", "Unidade": "Alto da XV", "created_at": "2026-06-01T15:27:35.613721+00:00"}	\N	2026-06-01 15:27:35.613721+00
+7b92a29f-d9da-4bcb-b869-ddbc424a3853	Checklist	INSERT	\N	{"id": 1954, "panos": null, "store": "ahu", "massas": null, "person": "Sthefani", "brownies": null, "checklist": "Checklist de Abertura", "created_at": "2026-06-01T15:31:14.314177+00:00", "money_data": {"total": 262.65, "denominacoes": {"ten": 8, "two": 12, "five": 9, "fifty": "", "twenty": "", "hundred": 1, "oneCent": "", "oneReal": 11, "tenCents": 4, "fiveCents": "", "fiftyCents": 4, "twentyFiveCents": 1}}}	3e43c2e5-3604-48ad-807a-bfa38ebdbfff	2026-06-01 15:31:14.314177+00
+984b80f6-7eca-4ff3-a7a1-e3c703c69451	Checklist	INSERT	\N	{"id": 1955, "panos": null, "store": "escritorio", "massas": null, "person": "Talita", "brownies": null, "checklist": "Checklist de Fechamento", "created_at": "2026-06-01T15:45:29.53107+00:00", "money_data": null}	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:45:29.53107+00
+9a61df82-c7ef-4f05-8dfa-6bea6115baf5	Vales	INSERT	\N	{"id": 1320, "Item": "Refri, Chá ou Suco", "Nome": "Talita", "Unidade": "Alto da XV", "created_at": "2026-06-01T16:14:35.559283+00:00"}	\N	2026-06-01 16:14:35.559283+00
+b7216443-1d77-47b7-a4c6-e52b9be2230c	Vales	INSERT	\N	{"id": 1321, "Item": "Refri, Chá ou Suco", "Nome": "Cassia", "Unidade": "Alto da XV", "created_at": "2026-06-01T17:33:17.492838+00:00"}	\N	2026-06-01 17:33:17.492838+00
+3bc7e385-5dd5-487e-a2bf-a4f6d1022ac7	Vales	INSERT	\N	{"id": 1322, "Item": "Latte", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-06-01T20:51:53.722382+00:00"}	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 20:51:53.722382+00
+ae68a32c-6d30-4552-a58a-908d8bf03b93	Vales	INSERT	\N	{"id": 1323, "Item": "Mocha", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-06-01T20:59:46.891595+00:00"}	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 20:59:46.891595+00
+b5cce9b6-e06b-4353-9fab-2e58be72edd6	Vales	INSERT	\N	{"id": 1324, "Item": "COMBO SEGUNDA - Nutella e Morango", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-06-01T21:44:41.353708+00:00"}	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 21:44:41.353708+00
+21ba195d-ed7c-4a45-bbfa-d3779f03a985	Vales	INSERT	\N	{"id": 1325, "Item": "Água", "Nome": "Sthefani", "Unidade": "Ahu", "created_at": "2026-06-01T21:44:50.066582+00:00"}	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 21:44:50.066582+00
+70c73b3c-786d-4ae7-9797-bd8d250dc4a4	Checklist	INSERT	\N	{"id": 1956, "panos": "2", "store": "ahu", "massas": "3 [3 (venc. 04/06/2026)]", "person": "Sthefani", "brownies": "8 [8 (venc. 30/06/2026)]", "checklist": "Checklist de Fechamento", "created_at": "2026-06-01T22:02:53.336137+00:00", "money_data": null}	b5668aed-dbb4-4d19-918e-c4e62e308487	2026-06-01 22:02:53.336137+00
+ffc6fb06-b59b-4394-a448-955a4f406883	Checklist	INSERT	\N	{"id": 1957, "panos": "3", "store": "altoxv", "massas": "2 [2 (venc. 04/07/2026)]", "person": "Cassia", "brownies": "11 [11 (venc. 30/07/2026)]", "checklist": "Checklist de Fechamento", "created_at": "2026-06-01T22:03:07.601789+00:00", "money_data": null}	\N	2026-06-01 22:03:07.601789+00
 \.
 
 
@@ -5551,136 +5714,185 @@ ebe8e285-5a9b-410e-98f8-003d9149557c	profiles	INSERT	\N	{"id": "d68a59d3-2331-4a
 --
 
 COPY "public"."cadastro_insumos" ("id", "nome", "nome_simples_unitario", "tipo", "fornecedor_padrao", "quantidade_conversao", "unidade_conversao", "custo_considerado", "ativo", "created_at", "config_estoque", "ordem", "custo_considerado_unitario", "fator_desperdicio") FROM stdin;
-401a7884-fdcf-4e25-9491-fa69d4eafaa3	Copo Papel Preto Parede Dupla 270ml - c/ 25un	Copo de Papel Preto Parede Dupla 270ml	Insumos	Sete Embalagens	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	15	\N	0
-df300a01-1ac7-4d10-b0fc-a943418d9870	Embalagem Waffle Cama - c/ 50un		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	16	\N	0
-6e0e7651-b4a0-466f-9541-69d45b2ffdca	Gelato - Kg	Gelato - Kg	Insumos	Fábrica	1	Kg	14	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	0	14	0
-991d2a77-66a8-4811-9ba7-fc60329e3729	Sacola P - 26x25x12cm - c/ 20un	Sacola P - 26x25x12cm	Insumos	Nobelpack	20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	18	\N	0
-26aac066-5610-472e-a260-a57ba1f0c5df	Limão Tahiti - Kg	Limão Tahiti	Matéria Prima	Mercado	1	Kg	\N	t	2026-05-31 15:36:53.230497+00	{"fabrica": {"ativo": true}}	130	\N	10
-33ede6d7-bf58-4451-83ea-0266023a2403	Embalagem Waffle Luva - c/ 50un		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	17	\N	0
-e477c9c1-65f1-44b6-a4b1-3743e900407c	Sanduíche de Carne - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	27	\N	0
-0601ca6a-bb0b-41eb-abe0-a40319cca32b	Sacola PP - 25x21x10cm - c/ 20un	Sacola PP - 25x21x10cm	Insumos	Nobelpack	20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	19	\N	0
-25ceab99-154c-4cd1-b027-16263db22a03	Long Drink Transparente 325ml - "Copo Soda Italiana"	Copo p/ Soda Italiana	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": null}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	45	\N	0
-9be2a16a-0f99-4667-ac5a-88b73b27d0cd	Etiqueta Adesivo Redonda TP19 Preta - (PIMACO) - c/ 200un		Insumos	Kalunga	200	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	65	\N	0
-ad8f9a85-62de-4875-9cd6-b831d9ff8887	Bobina Impressora - 80mm		Insumos	Mercado Livre	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	67	\N	0
-893474b7-622b-4036-bb42-66ac53c54e07	Recheio de chocolate Branco Nestlé Galak - 1kg	Recheio de chocolate Branco Nestlé Galak	Insumos	Mercado Livre	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	124	\N	0
-7693fa82-65fc-4d1b-bbcb-73a0a34728a0	Xarope de Framboesa - 750ml	Xarope Monin Framboesa	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	80	\N	0
-481e2a7b-ca33-4d5d-901d-405f2321f624	Xarope de Baunilha - 750ml	Xarope Monin Baunilha	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	82	\N	0
-d7372dd2-15df-4cff-8767-51fecdba54c5	Tampa p/ Pote Kraft 480ml - c/ 50un	Tampa p/ Pote Kraft 480ml	Insumos	FNS Cups	50	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	6	\N	0
-e59a1f84-380b-4081-a901-a6ed946a6d69	Pote Kraft 480ml - c/ 50un	Pote Kraft 480ml	Insumos	FNS Cups	50	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	5	\N	0
-75efd75a-2265-49dc-8b10-ee0332a12025	Desinfetante Pato	Desinfetante Pato	Material de Limpeza	Mercado	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	87	\N	0
-cae71c5c-32f2-4882-8fbe-042c7ed421ff	Schweppes Tônica - Lata - (350ml)	Schweppes Tônica - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	104	\N	0
-9e029ad3-c02c-4887-bd60-d1bd5a417210	Mini Disqueti - Chocolate ao Leite - 11gr	Mini Disqueti - 11gr - Unidade	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	127	\N	0
-cad0f122-104f-4cdd-8da9-01ad147ecba8	Sanduíche de Frango - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	28	\N	0
-185e009c-0cb9-42dd-adeb-ebfd15e99e0f	Sanduíche de Pernil - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	29	\N	0
-73a8818d-24aa-4964-8af0-2f8b9cb17674	Xarope de Maça Verde - 750ml	Xarope Monin Maça Verde	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	79	\N	0
-2555e2a3-f854-4a02-8ee6-a67e6a97a409	Xarope de Tangerina - 250ml	Xarope Monin Tangerina	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	76	\N	0
-2bb85cf5-b71d-4cdf-ac7b-27256d21851d	Doce de Leite - 350gr	Doce de Leite	Insumos	Condor	0.35	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	26	\N	0
-a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	Quiche Capresse - 1un		Salgados	Cassinele	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	33	\N	0
-95d9f130-2433-4f3e-882b-e420e62254e4	Colher Forte - c/ 50un (STRAWPLAST)		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	51	\N	0
-a28e10c8-33ef-450b-b49e-6c337036c092	Papel Barreira 20x20 c/ 1.000 folhas		Insumos	Mercado Livre	1000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	57	\N	0
-1fc18535-6e74-4ac2-819c-40fe870a1cc8	Luva de vinil sem pó - Tamanho M - c/100un		Insumos	Marmikok	100	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	59	\N	0
-cb231406-2867-408c-a9e2-1d335ab8b08f	Açúcar Refinado - 5kg	Açúcar Refinado	Matéria Prima	Mercado	5	Kg	\N	t	2026-05-31 15:39:18.264013+00	{"fabrica": {"ativo": true}}	131	\N	0
-1da7ddfd-5b9f-4e51-9256-fa2bd0034ef3	Sachê de Adoçante		Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	71	\N	0
-e355760e-3631-4e40-9b0c-d710b1898d9d	Luva de vinil sem pó - Tamanho G - c/ 100un		Insumos	Marmikok	100	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	60	\N	0
-e128a46c-38f5-484f-8ee0-d78c6da749f5	Grampo p/ Grampeador		Insumos	Papelaria	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	66	\N	0
-cfda70c4-3730-4fad-8c5e-82ef55c4ee7f	Lacre Ifood		Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	72	\N	0
-3450202d-4b44-4aa7-83b9-d5648fb0c84a	Xarope de Tangerina - 750ml	Xarope Monin Tangerina	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false, "minimo": null}, "altoxv": {"ativo": false}}	81	\N	0
-ddd20374-7a63-46b5-90fa-8451a67aa1cf	Xarope de Caramelo - 250ml	Xarope Monin Caramelo	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	78	\N	0
-40805ae9-e353-42e2-a0ec-e633855c7342	Xarope de Caramelo - 750ml	Xarope Monin Caramelo	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	83	\N	0
-8b870df4-27c9-4443-a952-3dae37e3e963	Caixa Kraft p/ Porção Grande - c/ 25un		Insumos	Comercial Barbante e Papel	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	55	\N	0
-02cfebe2-4de3-4c77-a73e-903b185d54a6	Saco de Lixo 20 Litros Preto Micra 4 - c/ 100un		Material de Limpeza	Super Brilho	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	84	\N	0
-9be978f0-4961-40b6-b4eb-c75fe6798110	Papel Higiênico - FD - 12 Rolos/30mt		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	89	\N	0
-04a5a69c-bedb-495f-bf98-9faf1291b284	Álcool em Gel 70% - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	91	\N	0
-b053e306-2a07-4a66-a8c9-e091785f7df4	Coca Cola Sem Açucar - Lata - (350ml)	Coca Cola Sem Açucar - Lata - (350ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	102	\N	0
-8850838c-26df-4793-b742-75c6ae75a10f	Suco Del Valle Maracujá - Lata - (290ml)	Suco Del Valle Maracujá - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	117	\N	0
-cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	Quiche de Alho Poró - 1un		Salgados	Cassinele	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	32	\N	0
-1deec24f-5074-421e-b791-8df4fc7dbc5c	Ki-Cascão Conny - c/ 120un	Cascão	Insumos	Marmikok	120	Caixa	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 8}, "ahu": {"ativo": true, "minimo": 1, "desejado": 2}, "altoxv": {"ativo": true, "minimo": 1, "desejado": 2}}	3	\N	0
-b625208d-0946-407f-aabd-fc2b2c736105	Tampa  p/ Copo Papel 270ml - 62mm - c/ 50un		Insumos	Sete Embalagens	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	44	\N	0
-89608781-6cc9-4ee9-ac4f-cb2041a1cc68	Morango Bandeja - c/ 250gr	Morango	Insumos	Kalunga	0.25	kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	128	\N	0
-75f5aa3a-8c85-426e-a4b9-d3b64578519b	Quiche Lorraine - 1un		Salgados	Cassinele	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	34	\N	0
-81b9ed64-d226-44d7-810b-6f15b64535d8	Leite UHT Integral - 1kg	Leite UHT Integral	Insumos	Mercado	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	24	\N	0
-c8132e9b-d800-488a-ace2-790da252b525	Pote Kraft 550ml - c/ 25un	Pote Kraft 550ml	Insumos	FNS Cups	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	7	\N	0
-4dd5d67c-767c-42dc-abc9-9cd4539579c6	Pote Kraft 120ml - c/ 50un	Pote Kraft 120ml	Insumos	Nazapack	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 20, "desejado": 50}, "ahu": {"ativo": true, "minimo": 2, "desejado": 4}, "altoxv": {"ativo": true, "minimo": 2, "desejado": 4}}	2	\N	0
-2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	Pote 200ml Descartável - c/ 50un		Insumos	Marmikok	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	11	\N	0
-a40de54b-d141-412d-83f5-8e0f1fc7102d	Copo Papel Preto Parede Simples 110ml - c/ 50un	Copo de Papel Preto Parede Simples 110ml	Insumos	Sete Embalagens	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	14	\N	0
-bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	Pote Kraft 80ml - c/ 50un	Pote Kraft 80ml	Insumos	Nazapack	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 20, "desejado": 50}, "ahu": {"ativo": true, "minimo": 2, "desejado": 4}, "altoxv": {"ativo": true, "minimo": 2, "desejado": 4}}	1	\N	0
-bca30d7c-bcbe-49ca-8c4b-1c9d44908351	Tampa p/ Pote 200ml - c/ 50un		Insumos	Marmikok	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	12	\N	0
-3a1749e1-5b46-4f95-8ded-0a1d02608f09	Ki-Casquinha Conny - c/ 240un	Casquinha	Insumos	Marmikok	240	Caixa	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 8}, "ahu": {"ativo": true, "minimo": 0, "desejado": 1}, "altoxv": {"ativo": true, "minimo": 0, "desejado": 1}}	4	\N	0
-5bdb156e-ac02-4634-bf62-15455ab1eea3	Nutella Pote - 650gr	Nutella	Insumos	Santo Antônio	0.65	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	25	\N	0
-521f2d74-463c-4737-bb85-c47d39e96845	Pázinha Curta Branca - c/ 500un	Pázinha Curta Branca	Insumos	Marmikok	500	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	9	\N	0
-96abcb52-14df-4ad2-b433-2aee0669ee30	Saco de Lixo 40 Litros Preto Micra 4 - c/ 100un		Material de Limpeza	Super Brilho	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	85	\N	0
-cb69c0c7-76b7-4215-a8ad-dbdeac02117a	Copo 300ml Descartável - c/ 100un		Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	13	\N	0
-6079efab-6235-4c98-97aa-43417ea5e2d2	Xarope de Maça Verde - 250ml	Xarope Monin Maça Verde	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	74	\N	0
-82b1fb0f-7fce-4600-a9b0-14ccdc406a57	Tampa p/ Pote Kraft 550ml - c/ 25un	Tampa p/ Pote Kraft 550ml	Insumos	FNS Cups	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	8	\N	0
-3c6b8682-0043-4b02-b2da-6c4ed5af0324	Guardanapo 20x20 - c/ 100un	Guardanapo 20x20	Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	10	\N	0
-7bdea7fc-8203-48a3-83cd-7f8b2bf75004	Sanduíche de Parma - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	31	\N	0
-0475e15d-55ff-4030-afb5-1b5e68b585b0	Sanduíche de Mortadela - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	30	\N	0
-aeaef954-0c1f-4a0d-be7c-2013baecdf2d	Café em Grão - 1kg	Café em Grão	Insumos	Astoria	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	20	\N	0
-d53928a4-d748-4e75-a4a0-0f86a74b9571	Cacau em pó 50% - 500gr (NESTLÉ) "mocha"		Insumos		0.5	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false, "minimo": null}, "ahu": {"ativo": true, "minimo": null}, "altoxv": {"ativo": true}}	23	\N	0
-f1c79b09-1819-49b5-9a1f-8cd77b013be6	Chocolate Quente em Pó - 1kg	Chocolate Quente em Pó	Insumos	Net Coffe	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	22	\N	0
-2b9e407a-5d77-476f-ade9-cd0c4cbd2bb7	Guardanapo Sache Delivery - c/ 1.000un		Insumos	Mercado Livre	1000	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	36	\N	0
-9c4e5257-2455-43ff-aa09-0811390a02d2	Cappuccino em Pó - 1kg	Cappuccino em Pó	Insumos	Astoria	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	21	\N	0
-a3f83a8d-f611-4a1c-955b-1ac615348b94	Guardanapo Interfolhado 10x20 ROSA - c/ 5.000un		Insumos	Marmikok	5000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true, "desejado": null}, "altoxv": {"ativo": true}}	35	\N	0
-daa9968f-370b-4c09-bc1e-b0a170f3142c	Pote de Isopor 120ml - c/ 20un		Insumos		20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	39	\N	0
-5c61e89e-5c83-4782-a6e9-5b33f492bb9a	Tampa p/ Pote 120ml - c/ 100un		Insumos		100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	40	\N	0
-a7c7aecc-e360-4afa-a3d7-eeafffd9248b	Plástico Filme 28cm x 100m	Plástico Filme	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	61	\N	0
-1fca9f85-323c-4656-9b0a-a4e0cf74083e	Touca Descartável - c/ 100un		Insumos	Mercado Livre	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	62	\N	0
-65c3990f-be54-4b38-adbe-f19cc8950013	Máscara Descartável - c/ 100un		Insumos	Mercado Livre	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	63	\N	0
-0e526aad-5e3d-4d01-83c4-0cb754af9f33	Sachê de Açúcar		Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	70	\N	0
-96a03bd6-de22-4eda-99b0-68f2e7dd955c	Pote p/ Molho 60ml Galvanotek G697 - c/ 20un		Insumos	Armazem das Embalagens	20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	42	\N	0
-510e66ec-68bd-4c76-88dd-07537ad33418	Tampa p/ Copo Papel 110ml - c/ 50un		Insumos	Sete Embalagens	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	43	\N	0
-9033a7e0-470a-4c37-bda0-7df170946057	Pote p/ Molho 30ml Galvanotek G695 - c/ 10un		Insumos	Armazem das Embalagens	10	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	41	\N	0
-36f6247f-610f-4b12-b804-90b1eb419617	Canudo com Mexedor - c/ 100un	Canudo p/ Soda Italiana	Insumos		100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	46	\N	0
-eb9ed0b3-2065-4517-a827-7689183db366	Canudo Biodegradável - c/ 100un		Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	47	\N	0
-be9f5716-b9f1-4aa6-ba5d-547815f09e61	Mechedor de Café Simples 11cm - c/ 500un		Insumos	Marmikok	500	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	48	\N	0
-222d7863-b99f-4749-80fb-dd3f2bb7c28c	Faca Forte - c/ 50un (STRAWPLAST)		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	50	\N	0
-2a4a67f1-44b4-4970-b91f-e0cb757f3e71	Saco de Plástico p/ Talher 4cm x 23cm - c/ 1.000un		Insumos		1000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	52	\N	0
-80cdfb36-780a-46c8-854e-79ff04802ab2	Filtro de Papel p/ Café n102 - c/ 30un		Insumos		30	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	54	\N	0
-ccaf6063-e307-4137-bf5f-ada8bac2926e	Embalagem de Cachorro Quente - c/ 100un		Insumos		100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	56	\N	0
-1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	Pote 100ml Descartável - c/ 100un		Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	38	\N	0
-5daea43b-e00d-49ce-ace6-7bae2100ab9a	Álcool Líquido 70% - 1 Litro		Material de Limpeza		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	98	\N	0
-82fd5205-9fbf-4564-83df-6e16776c4718	Água Crystal Com Gás - Garrafa - (500ml)	Água Crystal Com Gás - Garrafa - (500ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	100	\N	0
-e20ce8ae-29ff-4672-881a-c066aa9369d1	Xarope de Framboesa - 250ml	Xarope Monin Framboesa	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	75	\N	0
-da8554d4-b72e-4e8f-86cb-ba8d1c17c452	Xarope de Baunilha - 250ml	Xarope Monin Baunilha	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	77	\N	0
-6e653ca6-0889-42d5-9b67-84e8565b67df	Schweppes Citrus - Lata - (350ml)	Schweppes Citrus - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	103	\N	0
-d6d28a8c-b6dd-435e-81df-5ba4c0b228db	Chá Matte Leao Guaraná Power Açai - Copo - (300ml)	Chá Matte Leao Guaraná Power Açai - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	112	\N	0
-55519e38-a952-4223-a0a9-4d36d53adb54	Bobina Maquininha		Insumos	Mercado Livre	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	68	\N	0
-ccec7143-7d35-4dc8-9a71-d0a7b7868eab	Suco Del Valle Pêssego - Lata - (290ml)	Suco Del Valle Pêssego - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	113	\N	0
-397d3931-4847-4f37-b9d5-561901a20aa0	Durex		Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	69	\N	0
-2980bb3d-2d48-4576-9994-f920221a2561	Água Sanitária - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	96	\N	0
-f048bde5-8f77-4969-9a21-658fc070c115	Abaixador de Língua Madeira c/ 100un  (THEOTO)		Insumos	Orto Curitiba	100	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	73	\N	0
-7a77e18f-94b7-4efd-8f6e-80964703a15f	Suco Del Valle Uva - Lata - (290ml)	Suco Del Valle Uva - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	114	\N	0
-09ce4212-faa0-4db9-9b46-66fc8fc9568b	Sprite - Lata - (350ml)	Sprite - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	108	\N	0
-ab0eb23d-9995-4851-a934-ec1a7a541551	Sabão em Pó Omo - 2.2kg		Material de Limpeza	Super Brilho	2.2	kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	97	\N	0
-9e53ddd5-2168-411d-8c7b-03a419c1e158	Etiquetas Adesivas Brancas Grande - 50x30mm		Insumos	Marmikok	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	64	\N	0
-67f01c59-ce5f-467e-8597-714719412b84	Coca Cola - Lata - (350ml)	Coca Cola - Lata - (350ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	101	\N	0
-21174f2c-7831-440d-9f5e-daa81d6b94c0	Fanta Uva - Lata - (350ml)	Fanta Uva - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	106	\N	0
-9cc01971-1ad8-4011-851b-6ca6a97d6284	Água Crystal - Garrafa - (500ml)	Água Crystal - Garrafa - (500ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	99	\N	0
-24807ae6-f46b-48a2-a8c7-def2e8f142fd	Chá Matte Leao - Copo - (300ml)	Chá Matte Leao - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	109	\N	0
-2a1e3e9d-662b-439e-a8a6-ee7243b479cb	Chá Matte Leao Limão - Copo - (300ml)	Chá Matte Leao Limão - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	110	\N	0
-03b764ae-765a-45cd-b897-da245f712055	Saco de Lixo 60 Litros Preto Micra 8 - c/ 100un		Material de Limpeza	Super Brilho	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	86	\N	0
-2cfc2c11-0a9a-477e-b284-cfea61d29148	Detergente Neutro - 500ml		Material de Limpeza	Super Brilho	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	93	\N	0
-9f923a19-b96c-4dc1-88a7-6241c9c2574b	Suco Del Valle Limonada Pink - Lata - (290ml)	Suco Del Valle Limonada Pink - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	119	\N	0
-57783cd8-cc42-42d0-bf7f-159ae6900038	Suco Del Valle Limonada Classic - Lata - (290ml)	Suco Del Valle Limonada Classic - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	118	\N	0
-f3c6a7c7-ef37-4e73-8627-760439e90be7	Xarope de Maple Syrup - 816ml	Xarope de Maple Syrup	Insumos	Mercado Livre	0.816	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	122	\N	0
-01659df6-43fe-4ced-90cd-25ab1f9b74cf	Leite Condensado - 395gr	Leite Condensado	Insumos		0.395	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	123	\N	0
-49438d71-d79a-4758-b5a8-d6a08dce32a4	Chá Matte Leao Guaraná Power - Copo - (300ml)	Chá Matte Leao Guaraná Power - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	111	\N	0
-a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	Veja Multi Uso 500ml		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	88	\N	0
-6c1388ea-5eda-4f92-804d-9dc6f4452579	Álcool Líquido 70% - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	90	\N	0
-57f021fd-13b0-4484-ab86-79782ef938c0	Suco Del Valle Goiaba - Lata - (290ml)	Suco Del Valle Goiaba - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	115	\N	0
-efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	Detergente Neutro - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	92	\N	0
-3e5869da-fdde-4b50-93b0-a04d2eb965dd	Esponja Multiuso Dupla Face AM/VD		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	94	\N	0
-2f3eba38-9e08-4fe3-b624-84170b7f5aa1	Papel Interfolhado 20x20 Branco 2 Dobras - c/ 1.000un		Insumos	Marmikok	1000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	37	\N	0
-a5f552f1-4392-4c53-977f-08739186fcb5	Pano Multiuso - 28cm x 25mt		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	95	\N	0
-47709673-7e0c-4620-9562-4d1ea2315217	Suco Del Valle Manga - Lata - (290ml)	Suco Del Valle Manga - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	116	\N	0
-dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	Garfo Forte - c/ 50un (STRAWPLAST)		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	49	\N	0
-11ef6eff-1063-4529-9c18-682b428908ed	Paçoquita Embalada - 1un	Paçoca Unidade	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	125	\N	0
-1b7ba191-0ef1-4f98-80e7-e29266fd64e2	Saco de Papel p/ Talher 6cm x 26cm - c/ 500un		Insumos		500	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	53	\N	0
-493d4e21-eaa5-4711-ae8b-b73fad3822de	Mini Óreo - 35gr	Mini Óreo - 35gr - Unidade	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	126	\N	0
-f8c8e834-9063-4a25-8925-12db6592d203	Banana	Banana	Insumos		1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	129	\N	0
-16f930db-011d-40e0-ac84-1949c29821fe	Saco Kraft Delivery Liso SOS 15kg - c/ 100un		Insumos	Sete Embalagens	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	58	\N	0
-5db6171c-d897-4894-af28-bbf63adad316	Fanta Laranja - Lata - (350ml)	Fanta Laranja - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	105	\N	0
-424d80dc-6975-4812-9571-b3baadd2db31	Fanta Guaraná - Lata - (350ml)	Fanta Guaraná - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	107	\N	0
+d7372dd2-15df-4cff-8767-51fecdba54c5	Tampa p/ Pote Kraft 480ml - c/ 50un	Tampa p/ Pote Kraft 480ml	Insumos	FNS Cups	50	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	51	\N	0
+991d2a77-66a8-4811-9ba7-fc60329e3729	Sacola P - 26x25x12cm - c/ 20un	Sacola P - 26x25x12cm	Insumos	Nobelpack	20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 10}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	63	\N	0
+1da7ddfd-5b9f-4e51-9256-fa2bd0034ef3	Sachê de Adoçante		Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	116	\N	0
+a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	Veja Multi Uso 500ml		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	133	\N	0
+e1272305-9a01-462b-ab24-9e545cf3b965	Variegato Banana Flambada - 2kg	Variegato Banana Flambada	Matéria Prima	Marmikok	2	Kg	\N	t	2026-06-01 16:08:45.13766+00	{"fabrica": {"ativo": true}}	174	\N	0
+df300a01-1ac7-4d10-b0fc-a943418d9870	Embalagem Waffle Cama - c/ 50un		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 10, "desejado": 40}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	61	\N	0
+25ceab99-154c-4cd1-b027-16263db22a03	Long Drink Transparente 325ml - "Copo Soda Italiana"	Copo p/ Soda Italiana	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 12, "desejado": 24}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	90	\N	0
+e477c9c1-65f1-44b6-a4b1-3743e900407c	Sanduíche de Carne - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	72	\N	0
+9be2a16a-0f99-4667-ac5a-88b73b27d0cd	Etiqueta Adesivo Redonda TP19 Preta - (PIMACO) - c/ 200un		Insumos	Kalunga	200	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	110	\N	0
+33ede6d7-bf58-4451-83ea-0266023a2403	Embalagem Waffle Luva - c/ 50un		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 10, "desejado": 40}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	62	\N	0
+3483c0c5-c7e2-4fd2-a59c-06e46068d43f	Morango Congelado - 1,02kg	Morango Congelado	Matéria Prima	De Marchi	1.02	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	11	\N	0
+7693fa82-65fc-4d1b-bbcb-73a0a34728a0	Xarope de Framboesa - 750ml	Xarope Monin Framboesa	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	125	\N	0
+57f021fd-13b0-4484-ab86-79782ef938c0	Suco Del Valle Goiaba - Lata - (290ml)	Suco Del Valle Goiaba - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	160	\N	0
+738c01d0-c937-4eff-a283-6a6cb2380378	Castanha do Pará Quebrada	Castanha do Pará Quebrada	Matéria Prima	Pop House	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	13	\N	0
+893474b7-622b-4036-bb42-66ac53c54e07	Recheio de chocolate Branco Nestlé Galak - 1kg	Recheio de chocolate Branco Nestlé Galak	Insumos	Mercado Livre	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	167	\N	0
+dfdc83b6-287b-45f2-ad77-152933dc274d	Açúcar Mascavo - 1kg	Açúcar Mascavo	Matéria Prima	Pop House	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	0	\N	0
+6e7d5fea-1219-4d50-a64b-050d9b3610a9	Goiabada Cremosa - 320g	Goiabada Cremosa	Matéria Prima	Pop House	0.32	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	27	\N	0
+daa9968f-370b-4c09-bc1e-b0a170f3142c	Pote de Isopor 120ml - c/ 20un		Insumos		20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	84	\N	0
+481e2a7b-ca33-4d5d-901d-405f2321f624	Xarope de Baunilha - 750ml	Xarope Monin Baunilha	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	127	\N	0
+ad8f9a85-62de-4875-9cd6-b831d9ff8887	Bobina Impressora - 80mm		Insumos	Mercado Livre	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 8}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	112	\N	0
+03b764ae-765a-45cd-b897-da245f712055	Saco de Lixo 60 Litros Preto Micra 8 - c/ 100un		Material de Limpeza	Super Brilho	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	131	\N	0
+ccec7143-7d35-4dc8-9a71-d0a7b7868eab	Suco Del Valle Pêssego - Lata - (290ml)	Suco Del Valle Pêssego - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	158	\N	0
+6e0e7651-b4a0-466f-9541-69d45b2ffdca	Gelato - Kg	Gelato - Kg	Insumos	Fábrica	1	Kg	14	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	45	14	0
+e59a1f84-380b-4081-a901-a6ed946a6d69	Pote Kraft 480ml - c/ 50un	Pote Kraft 480ml	Insumos	FNS Cups	50	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	50	\N	0
+ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	Brownie	Brownie [Insumo]	Insumos	Carmella	1	Unidade	\N	t	2026-06-01 16:19:45.563238+00	{}	177	\N	0
+04491582-8cf5-45ad-88e5-1d5cd5a14921	Açucar Refinado - 5kg	Açúcar Refinado (Sacarose)	Matéria Prima	Condor	5	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	1	\N	0
+cad0f122-104f-4cdd-8da9-01ad147ecba8	Sanduíche de Frango - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	73	\N	0
+a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	Quiche Capresse - 1un		Salgados	Cassinele	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	78	\N	0
+73a8818d-24aa-4964-8af0-2f8b9cb17674	Xarope de Maça Verde - 750ml	Xarope Monin Maça Verde	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	124	\N	0
+21174f2c-7831-440d-9f5e-daa81d6b94c0	Fanta Uva - Lata - (350ml)	Fanta Uva - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	151	\N	0
+a7c7aecc-e360-4afa-a3d7-eeafffd9248b	Plástico Filme 28cm x 100m	Plástico Filme	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	106	\N	0
+1fca9f85-323c-4656-9b0a-a4e0cf74083e	Touca Descartável - c/ 100un		Insumos	Mercado Livre	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	107	\N	0
+510e66ec-68bd-4c76-88dd-07537ad33418	Tampa p/ Copo Papel 110ml - c/ 50un		Insumos	Sete Embalagens	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	88	\N	0
+57783cd8-cc42-42d0-bf7f-159ae6900038	Suco Del Valle Limonada Classic - Lata - (290ml)	Suco Del Valle Limonada Classic - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	163	\N	0
+9e029ad3-c02c-4887-bd60-d1bd5a417210	Mini Disqueti - Chocolate ao Leite - 11gr	Mini Disqueti - 11gr - Unidade	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	170	\N	0
+9e53ddd5-2168-411d-8c7b-03a419c1e158	Etiquetas Adesivas Brancas Grande - 50x30mm		Insumos	Marmikok	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	109	\N	0
+95d9f130-2433-4f3e-882b-e420e62254e4	Colher Forte - c/ 50un (STRAWPLAST)		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	96	\N	0
+1dd03db1-fcb6-4c9d-8180-3229bdb194da	Filme PVC 30m x 28cm	Filme PVC	Insumos	Comercial Barbante e Papel	1	Un	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	22	\N	0
+2a4a67f1-44b4-4970-b91f-e0cb757f3e71	Saco de Plástico p/ Talher 4cm x 23cm - c/ 1.000un		Insumos		1000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	97	\N	0
+a28e10c8-33ef-450b-b49e-6c337036c092	Papel Barreira 20x20 c/ 1.000 folhas		Insumos	Mercado Livre	1000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	102	\N	0
+96abcb52-14df-4ad2-b433-2aee0669ee30	Saco de Lixo 40 Litros Preto Micra 4 - c/ 100un		Material de Limpeza	Super Brilho	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	130	\N	0
+c8132e9b-d800-488a-ace2-790da252b525	Pote Kraft 550ml - c/ 25un	Pote Kraft 550ml	Insumos	FNS Cups	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 20, "desejado": 40}, "ahu": {"ativo": true, "minimo": null}, "altoxv": {"ativo": true}}	52	\N	0
+4a0e0f79-f548-4d99-8f9c-18be76125a5d	Delipaste de Framboesa - 250gr	Delipaste Framboesa	Matéria Prima	A Casa do Confeiteiro	0.25	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	16	\N	0
+1fc18535-6e74-4ac2-819c-40fe870a1cc8	Luva de vinil sem pó - Tamanho M - c/100un		Insumos	Marmikok	100	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	104	\N	0
+2555e2a3-f854-4a02-8ee6-a67e6a97a409	Xarope de Tangerina - 250ml	Xarope Monin Tangerina	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	121	\N	0
+75efd75a-2265-49dc-8b10-ee0332a12025	Desinfetante Pato	Desinfetante Pato	Material de Limpeza	Mercado	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	132	\N	0
+cae71c5c-32f2-4882-8fbe-042c7ed421ff	Schweppes Tônica - Lata - (350ml)	Schweppes Tônica - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	149	\N	0
+a88a0bb6-cae0-459b-83ee-65935f6a77a2	Delipaste Morango - 250gr	Delipaste Morango	Matéria Prima	A Casa do Confeiteiro	0.25	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	17	\N	0
+f1c79b09-1819-49b5-9a1f-8cd77b013be6	Chocolate Quente em Pó - 1kg	Chocolate Quente em Pó	Insumos	Net Coffe	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	67	\N	0
+3450202d-4b44-4aa7-83b9-d5648fb0c84a	Xarope de Tangerina - 750ml	Xarope Monin Tangerina	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false, "minimo": null}, "altoxv": {"ativo": false}}	126	\N	0
+04a5a69c-bedb-495f-bf98-9faf1291b284	Álcool em Gel 70% - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 0, "desejado": 1}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	136	\N	0
+619ce278-2112-418d-847d-cb667dde1bca	Algemix Queijo em Pó - 1kg	Queijo em Pó	Matéria Prima	Marmikok	1	Saco	\N	t	2026-06-01 15:46:40.447044+00	{"fabrica": {"ativo": true}}	4	\N	0
+8850838c-26df-4793-b742-75c6ae75a10f	Suco Del Valle Maracujá - Lata - (290ml)	Suco Del Valle Maracujá - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	162	\N	0
+9c4e5257-2455-43ff-aa09-0811390a02d2	Cappuccino em Pó - 1kg	Cappuccino em Pó	Insumos	Astoria	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	66	\N	0
+d6d28a8c-b6dd-435e-81df-5ba4c0b228db	Chá Matte Leao Guaraná Power Açai - Copo - (300ml)	Chá Matte Leao Guaraná Power Açai - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	157	\N	0
+bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	Pote Kraft 80ml - c/ 50un	Pote Kraft 80ml	Insumos	Nazapack	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 20, "desejado": 60}, "ahu": {"ativo": true, "minimo": 2, "desejado": 4}, "altoxv": {"ativo": true, "minimo": 2, "desejado": 4}}	46	\N	0
+e128a46c-38f5-484f-8ee0-d78c6da749f5	Grampo p/ Grampeador		Insumos	Papelaria	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	111	\N	0
+cb69c0c7-76b7-4215-a8ad-dbdeac02117a	Copo 300ml Descartável - c/ 100un		Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	58	\N	0
+ddd20374-7a63-46b5-90fa-8451a67aa1cf	Xarope de Caramelo - 250ml	Xarope Monin Caramelo	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	123	\N	0
+185e009c-0cb9-42dd-adeb-ebfd15e99e0f	Sanduíche de Pernil - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	74	\N	0
+1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	Pote 100ml Descartável - c/ 100un		Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	83	\N	0
+02cfebe2-4de3-4c77-a73e-903b185d54a6	Saco de Lixo 20 Litros Preto Micra 4 - c/ 100un		Material de Limpeza	Super Brilho	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	129	\N	0
+a40de54b-d141-412d-83f5-8e0f1fc7102d	Copo Papel Preto Parede Simples 110ml - c/ 50un	Copo de Papel Preto Parede Simples 110ml	Insumos	Sete Embalagens	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	59	\N	0
+eb9ed0b3-2065-4517-a827-7689183db366	Canudo Biodegradável - c/ 100un		Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	92	\N	0
+b053e306-2a07-4a66-a8c9-e091785f7df4	Coca Cola Sem Açucar - Lata - (350ml)	Coca Cola Sem Açucar - Lata - (350ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	147	\N	0
+8b870df4-27c9-4443-a952-3dae37e3e963	Caixa Kraft p/ Porção Grande - c/ 25un		Insumos	Comercial Barbante e Papel	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	100	\N	0
+e355760e-3631-4e40-9b0c-d710b1898d9d	Luva de vinil sem pó - Tamanho G - c/ 100un		Insumos	Marmikok	100	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	105	\N	0
+9be978f0-4961-40b6-b4eb-c75fe6798110	Papel Higiênico - FD - 12 Rolos/30mt		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	134	\N	0
+2a1e3e9d-662b-439e-a8a6-ee7243b479cb	Chá Matte Leao Limão - Copo - (300ml)	Chá Matte Leao Limão - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	155	\N	0
+cfda70c4-3730-4fad-8c5e-82ef55c4ee7f	Lacre Ifood		Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 0, "desejado": 1}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	117	\N	0
+0601ca6a-bb0b-41eb-abe0-a40319cca32b	Sacola PP - 25x21x10cm - c/ 20un	Sacola PP - 25x21x10cm	Insumos	Nobelpack	20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 10}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	64	\N	0
+bd17593b-14ad-4b95-8914-1601c31b0ce7	Variegato Maracujá - 2kg	Variegato Maracujá	Matéria Prima	Marmikok	2	Kg	\N	t	2026-06-01 16:07:00.926196+00	{"fabrica": {"ativo": true}}	173	\N	0
+40805ae9-e353-42e2-a0ec-e633855c7342	Xarope de Caramelo - 750ml	Xarope Monin Caramelo	Insumos		0.75	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	128	\N	0
+9d3d714b-7376-4392-9794-8eba805b2900	Dextrose em Pó sem Sabor - 1kg	Dextrose em Pó sem Sabor	Matéria Prima		1	Kg	\N	t	2026-06-01 16:09:59.275463+00	{"fabrica": {"ativo": true}}	175	\N	0
+24807ae6-f46b-48a2-a8c7-def2e8f142fd	Chá Matte Leao - Copo - (300ml)	Chá Matte Leao - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	154	\N	0
+8c350207-0000-4272-9f04-3c4da6deebec	Waffle	Waffle [Insumo]	Insumos	Carmella	1	Unidade	\N	t	2026-06-01 16:21:00.26562+00	{}	178	\N	0
+0475e15d-55ff-4030-afb5-1b5e68b585b0	Sanduíche de Mortadela - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	75	\N	0
+82b1fb0f-7fce-4600-a9b0-14ccdc406a57	Tampa p/ Pote Kraft 550ml - c/ 25un	Tampa p/ Pote Kraft 550ml	Insumos	FNS Cups	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 20, "desejado": 40}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	53	\N	0
+7bdea7fc-8203-48a3-83cd-7f8b2bf75004	Sanduíche de Parma - 1un		Salgados	Cassinele	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true, "minimo": 6, "desejado": 12}, "altoxv": {"ativo": true, "minimo": 6, "desejado": 12}}	76	\N	0
+cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	Quiche de Alho Poró - 1un		Salgados	Cassinele	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	77	\N	0
+75f5aa3a-8c85-426e-a4b9-d3b64578519b	Quiche Lorraine - 1un		Salgados	Cassinele	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	79	\N	0
+2b9e407a-5d77-476f-ade9-cd0c4cbd2bb7	Guardanapo Sache Delivery - c/ 1.000un		Insumos	Mercado Livre	1000	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	81	\N	0
+521f2d74-463c-4737-bb85-c47d39e96845	Pázinha Curta Branca - c/ 500un	Pázinha Curta Branca	Insumos	Marmikok	500	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 8}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	54	\N	0
+3c6b8682-0043-4b02-b2da-6c4ed5af0324	Guardanapo 20x20 - c/ 100un	Guardanapo 20x20	Insumos	Marmikok	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 10, "desejado": 20}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	55	\N	0
+bca30d7c-bcbe-49ca-8c4b-1c9d44908351	Tampa p/ Pote 200ml - c/ 50un		Insumos	Marmikok	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	57	\N	0
+aeaef954-0c1f-4a0d-be7c-2013baecdf2d	Café em Grão - 1kg	Café em Grão	Insumos	Astoria	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	65	\N	0
+6b62bd1b-bb40-4ae8-9a4a-d8cd9554edce	Pistache Cru s/ Casca	Pistache S/ Casca	Matéria Prima	Pop House	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	38	\N	0
+6079efab-6235-4c98-97aa-43417ea5e2d2	Xarope de Maça Verde - 250ml	Xarope Monin Maça Verde	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	119	\N	0
+89608781-6cc9-4ee9-ac4f-cb2041a1cc68	Morango Bandeja - c/ 250gr	Morango	Insumos	Kalunga	0.25	kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	171	\N	0
+80fe88b5-e394-41de-8462-f862aa4db4ee	Suco de Maracuja Concentrado - 500ml	Suco de Maracujá Concentrado	Matéria Prima	Lacto Minas	0.5	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	42	\N	0
+4dd5d67c-767c-42dc-abc9-9cd4539579c6	Pote Kraft 120ml - c/ 50un	Pote Kraft 120ml	Insumos	Nazapack	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 20, "desejado": 60}, "ahu": {"ativo": true, "minimo": 2, "desejado": 4}, "altoxv": {"ativo": true, "minimo": 2, "desejado": 4}}	47	\N	0
+3a1749e1-5b46-4f95-8ded-0a1d02608f09	Ki-Casquinha Conny - c/ 240un	Casquinha	Insumos	Marmikok	240	Caixa	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 12}, "ahu": {"ativo": true, "minimo": 0, "desejado": 1}, "altoxv": {"ativo": true, "minimo": 0, "desejado": 1}}	49	\N	0
+d53928a4-d748-4e75-a4a0-0f86a74b9571	Cacau em pó 50% - 500gr (NESTLÉ) "mocha"		Insumos		0.5	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false, "minimo": null}, "ahu": {"ativo": true, "minimo": null}, "altoxv": {"ativo": true}}	68	\N	0
+81b9ed64-d226-44d7-810b-6f15b64535d8	Leite UHT Integral - 1kg	Leite UHT Integral	Insumos	Mercado	1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false, "minimo": null}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}, "fabrica": {"ativo": true}}	69	\N	0
+5bdb156e-ac02-4634-bf62-15455ab1eea3	Nutella Pote - 650gr	Nutella	Insumos	Santo Antônio	0.65	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	70	\N	0
+a9eb4b33-30da-4269-a8de-584b78606f14	Manteiga s/ Sal 200g Pote	Manteiga s/ Sal	Matéria Prima	Condor	0.2	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	31	\N	0
+8db1810d-14f9-4cd5-b218-f66262198e31	Pote Redondo com Lacre 1000ml - c/10un	Pote Redondo com Lacre 1000ml	Insumos	Comercial Barbante e Papel	1	Un	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	41	\N	0
+222d7863-b99f-4749-80fb-dd3f2bb7c28c	Faca Forte - c/ 50un (STRAWPLAST)		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	95	\N	0
+9033a7e0-470a-4c37-bda0-7df170946057	Pote p/ Molho 30ml Galvanotek G695 - c/ 10un		Insumos	Armazem das Embalagens	10	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	86	\N	0
+2e7f4fc8-fb43-4d5d-bae9-4d240d2d964a	Farinha de Trigo - 1kg	Farinha de Trigo	Matéria Prima	Condor	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	20	\N	0
+4549717a-872d-4049-bf8d-a78f457326e9	Hortelã	Hortelâ	Matéria Prima	Cia da Verdura	1	Mc	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	25	\N	0
+ccaf6063-e307-4137-bf5f-ada8bac2926e	Embalagem de Cachorro Quente - c/ 100un		Insumos		100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	101	\N	0
+5aca7a58-c3d4-467d-827d-57ce1b7b3879	Glucose em Pó - 25kg	Glucose em Pó	Matéria Prima	Marmikok	25	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	26	\N	0
+0e526aad-5e3d-4d01-83c4-0cb754af9f33	Sache Açucar - c/ 400un	Sache Açucar	Insumos		400	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	115	\N	0
+df419321-e78b-40c4-ae5f-4a7ae21098e2	Amora Congelada - 1,02kg	Amora Congelada	Matéria Prima	De Marchi	1.02	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	8	\N	0
+53f8ea75-c4fe-4f1e-9774-24454363220f	Manteiga s/ Sal 200g Tablet	Manteiga s/ Sal	Matéria Prima	Condor	0.2	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	32	\N	0
+36afe007-f851-444b-9929-0a357a3ef0ac	Emustab - 1kg	Emustab	Matéria Prima	Marmikok	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	19	\N	0
+fa4f80a3-a011-4a87-9fae-c338ad4bfa26	Blueberries Congelado - 1,02kg	Mirtilo Congelado	Matéria Prima	De Marchi	1.02	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	9	\N	0
+36f6247f-610f-4b12-b804-90b1eb419617	Canudo com Mexedor - c/ 100un	Canudo p/ Soda Italiana	Insumos		100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	91	\N	0
+be9f5716-b9f1-4aa6-ba5d-547815f09e61	Mechedor de Café Simples 11cm - c/ 500un		Insumos	Marmikok	500	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	93	\N	0
+80cdfb36-780a-46c8-854e-79ff04802ab2	Filtro de Papel p/ Café n102 - c/ 30un		Insumos		30	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	99	\N	0
+65c3990f-be54-4b38-adbe-f19cc8950013	Máscara Descartável - c/ 100un		Insumos	Mercado Livre	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	108	\N	0
+fef62601-76bf-45b5-be31-38fd7d9f2e08	Algemix Baunilha Branca - 1kg	Baunilha em Pó	Matéria Prima	Marmikok	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	2	\N	0
+756cd28d-7efa-45fc-9016-8db8a6cbf9ad	Algemix Leitinho Premium - 1kg	Leitinho Premium	Matéria Prima	Marmikok	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	6	\N	0
+1cee25a3-317b-4e51-a3b7-46ae8826e341	Nozes Macadâmia	Macadâmia	Matéria Prima	Pop House	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	34	\N	0
+3553cee0-cfaf-47c4-8a64-46a13a0f716f	Super Liga Neutra	Liga Neutra	Matéria Prima	Marmikok	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	43	\N	0
+a3f83a8d-f611-4a1c-955b-1ac615348b94	Guardanapo Interfolhado 10x20 ROSA - c/ 5.000un		Insumos	Marmikok	5000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true, "desejado": null}, "altoxv": {"ativo": true}}	80	\N	0
+b3e3f04e-78a1-465b-b8ce-cf9937cb7ba0	Polpa de Maracuja 500ml	Maracujá Polpa	Matéria Prima	Jullye Frutas	0.5	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	40	\N	0
+5c61e89e-5c83-4782-a6e9-5b33f492bb9a	Tampa p/ Pote 120ml - c/ 100un		Insumos		100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	85	\N	0
+d841c9ef-1c37-4b38-acbe-7faa57bbd2d4	Variegato Amarena - 2kg	Variegato de Amarena	Matéria Prima	Marmikok	2	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	44	\N	0
+96a03bd6-de22-4eda-99b0-68f2e7dd955c	Pote p/ Molho 60ml Galvanotek G697 - c/ 20un		Insumos	Armazem das Embalagens	20	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	87	\N	0
+d3bcde3a-0989-446d-b0cd-f7718e3548a2	Framboesa Congelada - 1,02kg	Framboesa Congelada	Matéria Prima	De Marchi	1.02	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	10	\N	0
+e9f30279-87f7-4924-9b0d-284f057a11ca	Algemix Iorgurte - 1kg	Iorgurte em Pó	Matéria Prima	Marmikok	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	3	\N	0
+3f593532-6c6e-424e-b0eb-f02f4f023da0	Fermento Bio Seco 125g "Fleischhmann"	Fermento Bio Seco	Matéria Prima	Condor	0.125	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	21	\N	0
+004f8cad-f303-4c60-a0a9-40a19536b8f6	Manga Congelada - 100g	Manga Congelada	Matéria Prima	De Marchi	0.1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	30	\N	0
+6e653ca6-0889-42d5-9b67-84e8565b67df	Schweppes Citrus - Lata - (350ml)	Schweppes Citrus - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	148	\N	0
+5daea43b-e00d-49ce-ace6-7bae2100ab9a	Álcool Líquido 70% - 1 Litro		Material de Limpeza		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": null}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	143	\N	0
+4c41931f-8fa1-480a-b722-cfac6d443c1e	Doce de Leite - 4,5kg	Doce de Leite - Balde	Matéria Prima	Marmikok	4.5	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	18	\N	0
+38db64e2-f6d1-414b-b4e6-e283fca505f5	Chocolate Branco em Gotas - 2,05kg	Chocolate Branco em Gotas	Matéria Prima		2.05	Kg	\N	t	2026-06-01 16:10:48.644711+00	{"fabrica": {"ativo": true}}	176	\N	0
+55519e38-a952-4223-a0a9-4d36d53adb54	Bobina Maquininha		Insumos	Mercado Livre	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	113	\N	0
+5563e136-bb31-47e0-a23f-1c0362696f26	Gengibre	Gengibre	Matéria Prima	Condor	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	24	\N	0
+702aaad1-2ce8-4f7b-a7fd-f11aed1f3fa7	Algemix Milho Verde - 1kg	Milho em Pó	Matéria Prima	Marmikok	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	7	\N	0
+bf6cd96b-a44f-4548-b845-156f6dc1a7c5	Ovo Médio/Grande	Ovo Médio/Grande	Matéria Prima	Condor	1	Un	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	35	\N	0
+dc278682-f9ec-4a8d-a4c3-3f73f3f3e035	Leite Integral em Pó - 400gr	Leite Integral em Pó	Matéria Prima	Sendas	0.4	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	28	\N	0
+397d3931-4847-4f37-b9d5-561901a20aa0	Durex		Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 0, "desejado": 1}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	114	\N	0
+f048bde5-8f77-4969-9a21-658fc070c115	Abaixador de Língua Madeira c/ 100un  (THEOTO)		Insumos	Orto Curitiba	100	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	118	\N	0
+e20ce8ae-29ff-4672-881a-c066aa9369d1	Xarope de Framboesa - 250ml	Xarope Monin Framboesa	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	120	\N	0
+da8554d4-b72e-4e8f-86cb-ba8d1c17c452	Xarope de Baunilha - 250ml	Xarope Monin Baunilha	Insumos		0.25	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	122	\N	0
+2cfc2c11-0a9a-477e-b284-cfea61d29148	Detergente Neutro - 500ml		Material de Limpeza	Super Brilho	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	138	\N	0
+9cc01971-1ad8-4011-851b-6ca6a97d6284	Água Crystal - Garrafa - (500ml)	Água Crystal - Garrafa - (500ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	144	\N	0
+2980bb3d-2d48-4576-9994-f920221a2561	Água Sanitária - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	141	\N	0
+82fd5205-9fbf-4564-83df-6e16776c4718	Água Crystal Com Gás - Garrafa - (500ml)	Água Crystal Com Gás - Garrafa - (500ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	145	\N	0
+ab0eb23d-9995-4851-a934-ec1a7a541551	Sabão em Pó Omo - 2.2kg		Material de Limpeza	Super Brilho	2.2	kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false, "desejado": 2}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	142	\N	0
+ff3ef1c4-199c-4884-a93a-3ad602abe9cf	Delipaste Baunilha - 250gr	Delipaste Baunilha	Matéria Prima	A Casa do Confeiteiro	0.25	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	15	\N	0
+7b1b14f9-b940-4d31-8309-552242d254da	Limão Tahiti	Limão Tahiti	Matéria Prima	Condor	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	29	\N	0
+67f01c59-ce5f-467e-8597-714719412b84	Coca Cola - Lata - (350ml)	Coca Cola - Lata - (350ml)	Bebidas	Coca Cola	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	146	\N	0
+09ce4212-faa0-4db9-9b46-66fc8fc9568b	Sprite - Lata - (350ml)	Sprite - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	153	\N	0
+7a77e18f-94b7-4efd-8f6e-80964703a15f	Suco Del Valle Uva - Lata - (290ml)	Suco Del Valle Uva - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	159	\N	0
+38091bae-17d2-47f4-bd8d-2258dd3c4b0a	Pasta Concentrada de Pistache - 160gr	Pasta de Pistache	Matéria Prima	A Casa do Confeiteiro	0.16	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	36	\N	0
+9e743401-ee64-4671-917a-5c29947e5ab9	Nata Balde - 3,5kg	Nata 45%	Matéria Prima	Fabrilac	3.5	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	33	\N	0
+9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	Pasta de Amendoim	Pasta de Amendoim	Matéria Prima	Pop House	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	37	\N	0
+aef9f7cf-49f1-40f9-a8c4-d5bf3e533158	Polpa de Abacaxi Congelado	Abacaxi Congelado	Matéria Prima	Cia da Verdura	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	39	\N	0
+2bb85cf5-b71d-4cdf-ac7b-27256d21851d	Doce de Leite - 350gr	Doce de Leite	Insumos	Condor	0.35	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}, "fabrica": {"ativo": true}}	71	\N	0
+493d4e21-eaa5-4711-ae8b-b73fad3822de	Mini Óreo - 35gr	Mini Óreo - 35gr - Unidade	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	169	\N	0
+efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	Detergente Neutro - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	137	\N	0
+2f3eba38-9e08-4fe3-b624-84170b7f5aa1	Papel Interfolhado 20x20 Branco 2 Dobras - c/ 1.000un		Insumos	Marmikok	1000	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 10}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	82	\N	0
+5db6171c-d897-4894-af28-bbf63adad316	Fanta Laranja - Lata - (350ml)	Fanta Laranja - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	150	\N	0
+47709673-7e0c-4620-9562-4d1ea2315217	Suco Del Valle Manga - Lata - (290ml)	Suco Del Valle Manga - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	161	\N	0
+9f923a19-b96c-4dc1-88a7-6241c9c2574b	Suco Del Valle Limonada Pink - Lata - (290ml)	Suco Del Valle Limonada Pink - Lata - (290ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	f	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	164	\N	0
+1b7ba191-0ef1-4f98-80e7-e29266fd64e2	Saco de Papel p/ Talher 6cm x 26cm - c/ 500un		Insumos		500	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	98	\N	0
+01659df6-43fe-4ced-90cd-25ab1f9b74cf	Leite Condensado - 395gr	Leite Condensado	Insumos		0.395	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	166	\N	0
+f8c8e834-9063-4a25-8925-12db6592d203	Banana	Banana	Insumos		1	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": false}, "altoxv": {"ativo": false}}	172	\N	0
+ae74f3f6-e06d-41f0-bfac-ab5fa36bed7f	Cacau em Pó 100% - 500gr	Cacau em Pó 100%	Matéria Prima	Feito Chocolate	0.5	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	12	\N	0
+3e5869da-fdde-4b50-93b0-a04d2eb965dd	Esponja Multiuso Dupla Face AM/VD		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 8, "desejado": 16}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	139	\N	0
+fcaa7c50-c48f-46e0-b8dd-4c77e2d31244	Chocolate Meio Amargo em Gotas - 2,05kg	Chocolate Meio Amargo em Gotas	Matéria Prima	Feito Chocolate	2.05	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	14	\N	0
+b625208d-0946-407f-aabd-fc2b2c736105	Tampa  p/ Copo Papel 270ml - 62mm - c/ 50un		Insumos	Sete Embalagens	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	89	\N	0
+16f930db-011d-40e0-ac84-1949c29821fe	Saco Kraft Delivery Liso SOS 15kg - c/ 100un		Insumos	Sete Embalagens	100	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	103	\N	0
+7aeeb33b-e45f-4fe7-9a43-58bc3ac5bb74	Forma de Aluminio 125ml	Forma de Aluminio 125ml	Matéria Prima	Comercial Barbante e Papel	10	Un	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	23	\N	0
+dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	Garfo Forte - c/ 50un (STRAWPLAST)		Insumos		50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	94	\N	0
+424d80dc-6975-4812-9571-b3baadd2db31	Fanta Guaraná - Lata - (350ml)	Fanta Guaraná - Lata - (350ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	152	\N	0
+2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	Pote 200ml Descartável - c/ 50un		Insumos	Marmikok	50	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	56	\N	0
+6c1388ea-5eda-4f92-804d-9dc6f4452579	Álcool Líquido 70% - 5 Litros		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 1, "desejado": 2}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	135	\N	0
+a5f552f1-4392-4c53-977f-08739186fcb5	Pano Multiuso - 28cm x 25mt		Material de Limpeza	Super Brilho	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	140	\N	0
+49438d71-d79a-4758-b5a8-d6a08dce32a4	Chá Matte Leao Guaraná Power - Copo - (300ml)	Chá Matte Leao Guaraná Power - Copo - (300ml)	Bebidas	Distribuidor de Bebidas	1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	156	\N	0
+11ef6eff-1063-4529-9c18-682b428908ed	Paçoquita Embalada - 1un	Paçoca Unidade	Insumos		1	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	168	\N	0
+f3c6a7c7-ef37-4e73-8627-760439e90be7	Xarope de Maple Syrup - 816ml	Xarope de Maple Syrup	Insumos	Mercado Livre	0.816	Kg	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": false}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	165	\N	0
+a14315e7-c874-4f9f-b87c-8dc26fcdcdeb	Algemix Leite Condensado - 1kg	Leite Condensado em Pó	Matéria Prima	Marmikok	1	Kg	\N	t	2026-06-01 13:59:13.841949+00	{"fabrica": {"ativo": true}}	5	\N	0
+1deec24f-5074-421e-b791-8df4fc7dbc5c	Ki-Cascão Conny - c/ 120un	Cascão	Insumos	Marmikok	120	Caixa	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 4, "desejado": 12}, "ahu": {"ativo": true, "minimo": 1, "desejado": 2}, "altoxv": {"ativo": true, "minimo": 1, "desejado": 2}}	48	\N	0
+401a7884-fdcf-4e25-9491-fa69d4eafaa3	Copo Papel Preto Parede Dupla 270ml - c/ 25un	Copo de Papel Preto Parede Dupla 270ml	Insumos	Sete Embalagens	25	Unidade	\N	t	2026-05-30 14:30:57.774522+00	{"mh": {"ativo": true, "minimo": 2, "desejado": 4}, "ahu": {"ativo": true}, "altoxv": {"ativo": true}}	60	\N	0
 \.
 
 
@@ -5689,10 +5901,11 @@ f8c8e834-9063-4a25-8925-12db6592d203	Banana	Banana	Insumos		1	Kg	\N	t	2026-05-30
 --
 
 COPY "public"."cadastro_produtos" ("id", "nome", "categoria", "ativo", "created_at", "preco_venda", "unidade_venda", "ordem", "metodo_preparo") FROM stdin;
+de6b07a4-0339-4f12-95de-d76430659fe1	Produto Teste	teste	t	2026-05-31 18:19:22.69862+00	120	Unidade	3	teste\n1. faça isso\n2, faça aquilo\nnunc se esquecer do item 3\n\nE sempre avisar\nsem mais
+15f536a3-d911-431e-b8ae-9a052340c1c4	soda	\N	t	2026-06-01 13:13:08.299567+00	9.99	Unidade	0	\N
 0a87d61a-0a52-43f6-9e63-bc7e9f1f719d	Pequeno ( 1 sabor )	Gelato	t	2026-05-31 14:25:53.234013+00	16	Unidade	0	\N
 6ed28a48-b705-4067-a6a9-d10be587f0a7	Grande ( até 3 sabores )	Gelato	t	2026-05-31 16:29:16.075485+00	23	Unidade	2	\N
 b890578d-894b-41ea-8aeb-3fa0b0d94fed	Médio ( até 2 sabores )	Gelato	t	2026-05-31 16:28:04.554471+00	19	Unidade	1	\N
-de6b07a4-0339-4f12-95de-d76430659fe1	Produto Teste	teste	t	2026-05-31 18:19:22.69862+00	120	Unidade	3	teste\n1. faça isso\n2, faça aquilo\nnunc se esquecer do item 3\n\nE sempre avisar\nsem mais
 d7add5c4-088c-47bb-8136-2b95c5b8249e	Produto Teste Pequeno	\N	t	2026-05-31 19:07:31.718763+00	14.99	Unidade	4	\N
 \.
 
@@ -5707,16 +5920,16 @@ dcb615df-01e4-424b-b9bb-4f5613dca1d0	Banoffe	excluidos	2026-04-22	2026-05-22	sth
 fa9cb759-63d2-4446-bb49-cdef4d02d598	Abacaxi com Hortelã e Gengibre	excluidos	2026-04-18	2026-05-22	sthefani.alves.def@gmail.com	endrywgabrielx@gmail.com	2	2026-05-22 16:55:47.442+00	2026-05-27	2026-05-28 12:54:29.995+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:55:47.442Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T16:59:53.550Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-27T19:19:39.764Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-28T12:54:29.995Z"}]
 3fb38d49-0d94-422d-91df-f592487ee9b8	Don Vitto	excluidos	2026-04-23	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	3	2026-05-22 16:56:00.523+00	2026-05-24	2026-05-26 22:06:23.903+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:56:00.523Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T16:59:56.477Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-24T19:36:41.257Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-26T22:06:23.903Z"}]
 df20554f-4f8a-4305-9618-f35433cbee78	Coco Diet	excluidos	2026-04-23	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	4	2026-05-22 16:56:37.376+00	2026-05-26	2026-05-26 22:06:23.903+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:56:37.376Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:12.235Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-26T21:44:52.955Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-26T22:06:23.903Z"}]
-5e8f3e88-5b0b-4608-8394-ecb1ce536ab1	Iogurte com Amarena	cubas-saidas-vitrine	2026-04-22	2026-05-27	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	16	2026-05-22 17:10:09.964+00	2026-05-31	2026-05-31 18:20:00.911+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:10:09.964Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T15:02:28.174Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T18:20:00.911Z"}]
+5e8f3e88-5b0b-4608-8394-ecb1ce536ab1	Iogurte com Amarena	excluidos	2026-04-22	2026-05-27	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	16	2026-05-22 17:10:09.964+00	2026-05-31	2026-06-01 15:53:07.479+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:10:09.964Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T15:02:28.174Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T18:20:00.911Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:53:07.479Z"}]
 c3d4a3d6-44eb-416a-ab37-5be78a846a69	Doce de Leite	excluidos	2026-04-29	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	5	2026-05-22 16:56:55.32+00	2026-05-23	2026-05-24 13:37:05.102+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:56:55.320Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:19.322Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-23T21:35:40.226Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-24T13:37:05.105Z"}]
 523fb24a-9da4-41fa-b850-d34d6519d382	Leite Condensado com Morango	excluidos	2026-04-24	2026-05-22	sthefani.alves.def@gmail.com	endrywgabrielx@gmail.com	6	2026-05-22 16:57:11.695+00	2026-05-27	2026-05-28 12:54:29.995+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:57:11.695Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:16.114Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-27T19:19:27.256Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-28T12:54:29.995Z"}]
-3e88bb78-2fc5-40d6-aaef-db20ce4a3c3b	Café	cubas-saidas-vitrine	2026-04-24	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	7	2026-05-22 16:57:23.652+00	2026-05-31	2026-05-31 17:52:00.531+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:57:23.652Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:17.182Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T17:52:00.531Z"}]
+3e88bb78-2fc5-40d6-aaef-db20ce4a3c3b	Café	excluidos	2026-04-24	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	7	2026-05-22 16:57:23.652+00	2026-05-31	2026-06-01 15:53:07.478+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:57:23.652Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:17.182Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T17:52:00.531Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:53:07.478Z"}]
 1862b43a-7ac5-43d3-a0d2-2c4c5492b7e1	Iogurte com Laranja	excluidos	2026-05-08	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	12	2026-05-22 16:59:07.626+00	2026-05-28	2026-05-29 17:10:11.681+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:59:07.626Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:22.022Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-28T22:01:22.240Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-29T17:10:11.685Z"}]
 63ab3634-36b5-4a30-b234-99c5d9ec9c19	Chocolate	excluidos	2026-05-08	2026-05-24	sthefani.alves.def@gmail.com	endrywgabrielx@gmail.com	17	2026-05-22 17:10:25.393+00	2026-05-27	2026-05-28 12:54:29.995+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:10:25.393Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-24T19:10:46.277Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-27T20:30:16.720Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-28T12:54:29.995Z"}]
 bca06fee-51a1-48b7-8b60-be6c351d7838	Cheesecake de Frutas Vermelhas	quebras	2026-05-12	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	28	2026-05-22 17:14:57.101+00	\N	2026-05-22 17:14:57.101+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:14:57.101Z"}]
 6cd071c1-361a-463f-8a24-7cf273d7be56	Maracujá	excluidos	2026-04-23	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	8	2026-05-22 16:57:46.486+00	2026-05-30	2026-05-31 16:25:16.269+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:57:46.486Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:13.544Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-30T20:34:49.870Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-31T16:25:16.269Z"}]
 8ba411c2-ef99-4ffd-b23d-c1d44967aa22	Baunilha	excluidos	2026-04-23	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	9	2026-05-22 16:58:21.195+00	2026-05-25	2026-05-26 22:06:23.903+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:58:21.195Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:14.817Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-25T21:48:21.808Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-26T22:06:23.903Z"}]
-85bddf3d-c9c1-4d9a-8017-fa164305b0e9	Frutas Vermelhas	cubas-saidas-vitrine	2026-04-25	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	10	2026-05-22 16:58:30.008+00	2026-05-31	2026-05-31 22:02:31.147+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:58:30.008Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:18.263Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:31.147Z"}]
+85bddf3d-c9c1-4d9a-8017-fa164305b0e9	Frutas Vermelhas	excluidos	2026-04-25	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	10	2026-05-22 16:58:30.008+00	2026-05-31	2026-06-01 15:53:07.478+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:58:30.008Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:18.263Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:31.147Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:53:07.479Z"}]
 bf79e58f-2b5c-4b15-9c56-e8c840f41e4c	Chocolate	excluidos	2026-05-29	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	11	2026-05-22 16:58:47.564+00	2026-05-24	2026-05-26 22:06:23.903+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:58:47.564Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:07.614Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-24T19:10:35.649Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-26T22:06:23.903Z"}]
 2418073c-5da4-42cf-95e8-8ab822ded183	Leite Ninho com Nutella	excluidos	2026-05-08	2026-05-22	sthefani.alves.def@gmail.com	endrywgabrielx@gmail.com	13	2026-05-22 16:59:18.271+00	2026-05-27	2026-05-28 12:54:29.995+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:59:18.271Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:23.081Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-27T21:57:33.364Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-28T12:54:29.995Z"}]
 1f83e873-063e-4da0-abd2-db712c65aa10	Romeu e Julieta	vitrine-atual	2026-05-30	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	14	2026-05-22 16:59:38.937+00	\N	2026-05-22 17:00:09.126+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:59:38.937Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:09.126Z"}]
@@ -5724,7 +5937,7 @@ bf79e58f-2b5c-4b15-9c56-e8c840f41e4c	Chocolate	excluidos	2026-05-29	2026-05-22	s
 375da387-834f-4075-a511-1509356f626d	Frutas Vermelhas	vitrine-atual	2026-05-07	2026-05-31	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	19	2026-05-22 17:10:55.27+00	\N	2026-05-31 22:03:07.621+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:10:55.270Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T22:03:07.621Z"}]
 c70e58f9-fec1-4420-bc73-2b76c00460ee	Maracujá	freezer-estoque	2026-04-23	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	20	2026-05-22 17:11:06.764+00	\N	2026-05-22 17:11:06.764+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:11:06.764Z"}]
 2993a02e-3582-43f9-b4f3-41c8ba8cfaf2	Torta Belga	excluidos	2026-05-08	2026-05-24	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	21	2026-05-22 17:11:31.263+00	2026-05-30	2026-05-31 16:25:16.269+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:11:31.263Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-24T19:38:18.359Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-30T21:50:48.641Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-31T16:25:16.269Z"}]
-dca457c4-90b0-48c7-bb7a-e5e8cfef499c	Baunilha	cubas-saidas-vitrine	2026-04-30	2026-05-25	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	22	2026-05-22 17:11:38.854+00	2026-05-31	2026-05-31 22:02:27.163+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:11:38.854Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-25T21:48:27.689Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:27.163Z"}]
+dca457c4-90b0-48c7-bb7a-e5e8cfef499c	Baunilha	excluidos	2026-04-30	2026-05-25	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	22	2026-05-22 17:11:38.854+00	2026-05-31	2026-06-01 15:53:07.479+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:11:38.854Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-25T21:48:27.689Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:27.163Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:53:07.479Z"}]
 6b7895c5-adb5-4636-8ba1-c4358d58856a	Stracciatella	vitrine-atual	2026-04-06	2026-05-25	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	23	2026-05-22 17:11:56.3+00	\N	2026-05-25 14:42:00.947+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:11:56.300Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-25T14:42:00.948Z"}]
 07ec5e9a-a4f6-47ca-858e-69bdc91ee217	Hortelã com Chocolate	vitrine-atual	2026-05-14	2026-05-29	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	24	2026-05-22 17:12:20.328+00	\N	2026-05-29 14:27:53.361+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:12:20.328Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-29T14:27:53.361Z"}]
 aeb08e86-1a68-4295-81ad-8eb39dd960e3	Banana Nevada	vitrine-atual	2026-04-29	2026-05-27	sthefani.alves.def@gmail.com	endrywgabrielx@gmail.com	25	2026-05-22 17:12:33.357+00	\N	2026-05-27 19:21:55.15+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:12:33.357Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T19:21:55.151Z"}]
@@ -5734,14 +5947,11 @@ abaa56af-6dde-4ddd-a469-2a6c1b25aa6e	Paçoca com Chocolate	quebras	2026-05-21	\N
 18938469-4670-4b15-b64a-9600954f605f	Kinder	quebras	2026-04-26	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	33	2026-05-22 17:26:03.552+00	\N	2026-05-22 17:26:03.552+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:26:03.552Z"}]
 b9929573-ba13-4d24-b989-f2c70ec7e6ec	Lemon Pie	quebras	2026-03-29	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	36	2026-05-22 17:30:41.678+00	\N	2026-05-22 17:30:41.678+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:30:41.678Z"}]
 618a7a3f-10ff-431f-9849-946f475a00cf	Lemon Pie	quebras	2026-03-07	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	38	2026-05-22 17:31:32.463+00	\N	2026-05-22 17:31:32.463+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:31:32.463Z"}]
-09afb921-a9cd-464e-ad46-deca86bb6ad1	Limão Tahiti	quebras	2026-05-07	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	39	2026-05-22 17:31:58.14+00	\N	2026-05-22 17:31:58.14+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:31:58.140Z"}]
 48f43935-964b-42c8-bf7c-10bacde50ca7	Macadâmia	quebras	2026-04-19	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	41	2026-05-22 17:32:37.702+00	\N	2026-05-22 17:32:37.703+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:32:37.703Z"}]
 6a8a65f7-8945-422e-83ab-410a9270fd8f	Doce de Leite	quebras	2026-05-23	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	42	2026-05-23 21:35:50.841+00	\N	2026-05-23 21:35:50.841+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-23T21:35:50.841Z"}]
 4c722b83-9059-4d8e-ac02-6e1a0f2001c1	Leite Condensado com Morango	vitrine-atual	2026-05-08	2026-05-29	endrywgabrielx@gmail.com	sthefani.alves.def@gmail.com	51	2026-05-24 20:03:44.493+00	\N	2026-05-29 14:27:08.257+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T20:03:44.493Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-29T14:27:08.257Z"}]
-ba788567-d949-4ffc-aaf2-17db46eaa54f	Torta Belga	quebras	2026-05-30	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	75	2026-05-30 21:50:49.691+00	\N	2026-05-30 21:50:49.691+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-30T21:50:49.691Z"}]
-f6a5201f-b573-4db9-9ef2-75a49a8ac39b	Hortelã com Chocolate	quebras	2026-04-25	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	31	2026-05-22 17:25:38.848+00	\N	2026-05-22 17:25:38.848+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:25:38.848Z"}]
+415aa9e2-7fb1-4530-b61b-dc77d02ede83	Pistache	excluidos	2026-05-29	2026-05-31	endrywgabrielx@gmail.com	sthefani.alves.def@gmail.com	71	2026-05-30 17:31:04.334+00	2026-05-31	2026-06-01 15:53:07.479+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:31:04.334Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T15:49:23.415Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:36.301Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:53:07.479Z"}]
 e7a4ec87-0dff-4bdc-a45e-e4a6f8066064	Kinder	quebras	2026-04-26	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	32	2026-05-22 17:25:52.766+00	\N	2026-05-22 17:25:52.766+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:25:52.766Z"}]
-9f296764-5078-4535-a3d3-01d9978fa5b3	Limão Tahiti	quebras	2026-05-07	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	40	2026-05-22 17:32:17.918+00	\N	2026-05-22 17:32:17.918+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:32:17.918Z"}]
 84f3ec80-3019-45d5-99f3-5340ee0d7787	Don Vitto	quebras	2026-05-24	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	43	2026-05-24 19:36:48.017+00	\N	2026-05-24 19:36:48.017+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-24T19:36:48.017Z"}]
 75766c79-8533-4959-b99a-6032382952ec	Don Vitto	freezer-estoque	2026-05-20	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	44	2026-05-24 19:40:12.976+00	\N	2026-05-24 19:40:12.976+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T19:40:12.976Z"}]
 64495f63-66c8-403e-be92-598975e0f085	Dolce Mocha	freezer-estoque	2026-05-20	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	45	2026-05-24 19:40:28.178+00	\N	2026-05-24 19:40:28.178+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T19:40:28.178Z"}]
@@ -5749,28 +5959,27 @@ a49797ae-9698-441c-9899-1731572a8fd6	Paçoca com Chocolate	freezer-estoque	2026-
 63839049-8d7e-41fe-91e2-8f6201b9e3b2	Danoninho	freezer-estoque	2026-05-21	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	47	2026-05-24 19:41:01.543+00	\N	2026-05-24 19:41:01.543+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T19:41:01.543Z"}]
 270f37ba-1863-4466-a7b3-f03103372b7d	Milho Verde	vitrine-atual	2026-04-24	2026-05-28	endrywgabrielx@gmail.com	sthefani.alves.def@gmail.com	48	2026-05-24 20:02:49.564+00	\N	2026-05-28 14:44:52.695+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T20:02:49.564Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-28T14:44:52.695Z"}]
 b7a45fb5-20c2-4de5-bf40-7e3ca3fb76c6	Baunilha	vitrine-atual	2026-04-30	2026-05-31	endrywgabrielx@gmail.com	sthefani.alves.def@gmail.com	49	2026-05-24 20:03:13.435+00	\N	2026-05-31 22:03:04.021+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T20:03:13.435Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T22:03:04.021Z"}]
-a3f5dc07-4a5c-41ac-8124-0522a7e88217	Chocolate	cubas-saidas-vitrine	2026-05-21	2026-05-27	endrywgabrielx@gmail.com	sthefani.alves.def@gmail.com	50	2026-05-24 20:03:26.838+00	2026-05-31	2026-05-31 22:02:18.137+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T20:03:26.838Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T20:30:27.154Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:18.137Z"}]
+a3f5dc07-4a5c-41ac-8124-0522a7e88217	Chocolate	excluidos	2026-05-21	2026-05-27	endrywgabrielx@gmail.com	sthefani.alves.def@gmail.com	50	2026-05-24 20:03:26.838+00	2026-05-31	2026-06-01 15:53:07.479+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-24T20:03:26.838Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T20:30:27.154Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:18.137Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:53:07.479Z"}]
 a27f0f84-60ce-4920-98e3-79af98351a1e	Caramelo Salgado	excluidos	2026-04-29	2026-05-22	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	15	2026-05-22 16:59:48.456+00	2026-05-28	2026-05-29 17:10:11.685+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T16:59:48.456Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T17:00:20.713Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-28T21:30:02.432Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-29T17:10:11.685Z"}]
 454b4de9-e178-4e30-93c4-4bba05a5c046	Coco Diet	vitrine-atual	2026-04-23	2026-05-30	sthefani.alves.def@gmail.com	endrywgabrielx@gmail.com	26	2026-05-22 17:12:58.082+00	\N	2026-05-30 20:25:46.136+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:12:58.082Z"}, {"user": "endrywgabrielx@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-30T20:25:46.136Z"}]
 d7baf466-fa3d-4361-b1e2-e7439e54557a	Lemon Pie	quebras	2026-04-25	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	34	2026-05-22 17:26:18.964+00	\N	2026-05-22 17:26:18.964+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:26:18.964Z"}]
 55e4baa9-abfc-418b-b91b-c660a9b393db	Danoninho	quebras	2026-03-28	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	35	2026-05-22 17:30:10.004+00	\N	2026-05-22 17:30:10.004+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:30:10.004Z"}]
 3fa11edf-2f5d-442e-a7f7-1f26b58e841f	Lemon Pie	quebras	2026-04-09	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	37	2026-05-22 17:30:57.049+00	\N	2026-05-22 17:30:57.049+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-22T17:30:57.049Z"}]
 b5767b6d-4d25-49bf-bcbb-f0dd1b5e8dec	Banoffe	quebras	2026-05-24	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	53	2026-05-24 21:41:02.971+00	\N	2026-05-24 21:41:02.971+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-24T21:41:02.971Z"}]
-956c64d0-bcf8-40e9-ba8e-1b1cadd31cf5	Coco Diet	quebras	2026-05-26	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	54	2026-05-26 21:44:54.779+00	\N	2026-05-26 21:44:54.779+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-26T21:44:54.779Z"}]
 4533dd54-550d-43fc-bd57-7a4b98d7ce4f	Leite Ninho com Nutella	quebras	2026-05-27	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	55	2026-05-27 21:57:34.361+00	\N	2026-05-27 21:57:34.361+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-27T21:57:34.361Z"}]
 67726240-0e90-4549-9f9d-86ad870137bd	Caramelo Salgado	quebras	2026-05-28	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	56	2026-05-28 21:30:03.545+00	\N	2026-05-28 21:30:03.545+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-28T21:30:03.545Z"}]
 c2aef91c-f928-4ccc-9205-fcdb151c3451	Caramelo Salgado	quebras	2026-05-28	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	57	2026-05-28 21:30:03.545+00	\N	2026-05-28 21:30:03.545+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-28T21:30:03.545Z"}]
 dad7652f-0fc5-4dd6-8c9a-2e6c950f1d31	Iogurte com Laranja	quebras	2026-05-28	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	58	2026-05-28 22:01:26.023+00	\N	2026-05-28 22:01:26.023+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-28T22:01:26.023Z"}]
 87521160-9658-4dee-bc61-89c72a73eb13	Torta Belga	vitrine-atual	2026-05-13	2026-05-31	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	59	2026-05-29 16:10:35.814+00	\N	2026-05-31 22:02:53.009+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:10:35.814Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T22:02:53.009Z"}]
 1c3d8d81-25b5-466a-9fb0-fd25342b13d4	Abacaxi com Hortelã e Gengibre	freezer-estoque	2026-05-07	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	63	2026-05-29 16:11:22.695+00	\N	2026-05-29 16:11:22.695+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:11:22.695Z"}]
-ccb3102b-8e00-4e54-ae91-0479de2e5347	Doce de Leite	freezer-estoque	2026-05-15	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	64	2026-05-29 16:11:36.189+00	\N	2026-05-29 16:11:36.19+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:11:36.190Z"}]
+ccb3102b-8e00-4e54-ae91-0479de2e5347	Doce de Leite	vitrine-atual	2026-05-15	2026-06-01	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	64	2026-05-29 16:11:36.189+00	\N	2026-06-01 14:55:51.582+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:11:36.190Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-06-01T14:55:51.583Z"}]
 32427316-3d4f-4a7b-bed1-b69815fafc03	Banoffe	freezer-estoque	2026-05-28	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	65	2026-05-29 16:11:44.427+00	\N	2026-05-29 16:11:44.427+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:11:44.427Z"}]
 645efc74-b447-4a41-bb09-e82f1ca1fd50	Cheesecake de Frutas Vermelhas	freezer-estoque	2026-04-30	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	66	2026-05-29 16:12:49.216+00	\N	2026-05-29 16:12:49.216+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:12:49.216Z"}]
-fe4c27de-21ac-41af-8f4a-81facc23d1d2	Chocolate	cubas-saidas-vitrine	2026-05-21	2026-05-31	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	67	2026-05-29 16:13:11.492+00	2026-05-31	2026-05-31 22:03:16.977+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:13:11.492Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T22:02:57.717Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:03:16.977Z"}]
+fe4c27de-21ac-41af-8f4a-81facc23d1d2	Chocolate	excluidos	2026-05-21	2026-05-31	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	67	2026-05-29 16:13:11.492+00	2026-05-31	2026-06-01 15:53:07.479+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:13:11.492Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T22:02:57.717Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:03:16.977Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:53:07.479Z"}]
 c81c7c89-14db-4b19-8cec-2f497a4d4614	Chocolate	vitrine-atual	2026-05-21	2026-05-31	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	68	2026-05-29 16:13:33.119+00	\N	2026-05-31 22:03:22.439+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:13:33.119Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T22:03:22.439Z"}]
 9801fb76-0242-45de-b4ce-62648e278832	Baunilha	freezer-estoque	2026-04-30	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	69	2026-05-29 16:13:42.866+00	\N	2026-05-29 16:13:42.866+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:13:42.866Z"}]
 a1e9f7bd-3da5-4578-bd17-d559b9b46b93	Coco com Doce de Leite	freezer-estoque	2026-03-25	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	70	2026-05-29 16:20:01.797+00	\N	2026-05-29 16:20:01.797+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:20:01.797Z"}]
-415aa9e2-7fb1-4530-b61b-dc77d02ede83	Pistache	cubas-saidas-vitrine	2026-05-29	2026-05-31	endrywgabrielx@gmail.com	sthefani.alves.def@gmail.com	71	2026-05-30 17:31:04.334+00	2026-05-31	2026-05-31 22:02:36.301+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:31:04.334Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T15:49:23.415Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T22:02:36.301Z"}]
+edbcca13-c9a2-40b5-9d26-b170b66c632a	Banoffe	quebras	2026-05-24	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	52	2026-05-24 21:41:02.971+00	\N	2026-05-24 21:41:02.971+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-24T21:41:02.971Z"}]
 d90cb759-322a-4c9c-86d9-355bc8eb6606	Iogurte com Amarena	freezer-estoque	2026-05-20	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	60	2026-05-29 16:10:54.744+00	\N	2026-05-29 16:10:54.744+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:10:54.744Z"}]
 e24ab876-4d54-4b05-9a6e-852d59c1e0f7	Leite Ninho com Nutella	vitrine-atual	2026-05-13	2026-05-31	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	61	2026-05-29 16:11:03.274+00	\N	2026-05-31 17:56:38.054+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:11:03.274Z"}, {"user": "sthefani.alves.def@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T17:56:38.054Z"}]
 77865def-96c5-4b54-beef-92e6c2ead8c5	Morango	freezer-estoque	2026-05-07	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	62	2026-05-29 16:11:16.95+00	\N	2026-05-29 16:11:16.95+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-29T16:11:16.950Z"}]
@@ -5779,7 +5988,6 @@ e24ab876-4d54-4b05-9a6e-852d59c1e0f7	Leite Ninho com Nutella	vitrine-atual	2026-
 2bf5ea4a-6bfb-4b51-8f96-6f6dc697a554	Maracujá	quebras	2026-05-30	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	74	2026-05-30 20:34:55.778+00	\N	2026-05-30 20:34:55.778+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-30T20:34:55.778Z"}]
 36ff63ef-2c14-4153-b921-85350120d837	Café	quebras	2026-05-31	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	76	2026-05-31 17:52:01.922+00	\N	2026-05-31 17:52:01.922+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-31T17:52:01.922Z"}]
 8cc9d597-5573-4c86-b7d1-42b5852b7873	Pistache	quebras	2026-05-31	\N	sthefani.alves.def@gmail.com	sthefani.alves.def@gmail.com	77	2026-05-31 22:02:38.048+00	\N	2026-05-31 22:02:38.048+00	[{"user": "sthefani.alves.def@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-31T22:02:38.048Z"}]
-edbcca13-c9a2-40b5-9d26-b170b66c632a	Banoffe	quebras	2026-05-24	\N	endrywgabrielx@gmail.com	endrywgabrielx@gmail.com	52	2026-05-24 21:41:02.971+00	\N	2026-05-24 21:41:02.971+00	[{"user": "endrywgabrielx@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-24T21:41:02.971Z"}]
 \.
 
 
@@ -5792,17 +6000,17 @@ COPY "public"."cardsaltoxv" ("id", "title", "status", "production_date", "entry_
 c430d1d3-6b32-4322-9c69-6502378a31b3	Iogurte com Laranja	excluidos	2026-04-30	2026-05-07	amandacorte053@gmail.com	amandacorte053@gmail.com	22	2026-05-01 16:30:41.028+00	2026-05-22	2026-05-25 20:11:03.429+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-01T16:30:41.028Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-07T21:08:52.458Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-22T20:35:53.546Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-25T20:11:03.429Z"}]
 62b4a497-7a79-41e4-997e-b8219526f240	Doce de Leite	excluidos	2026-04-29	2026-05-07	amandacorte053@gmail.com	cassiafernanda344@gmail.com	23	2026-05-01 16:30:55.522+00	2026-05-16	2026-05-17 15:33:01.176+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-01T16:30:55.522Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-07T21:08:59.037Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-16T20:35:11.996Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-17T15:33:01.176Z"}]
 7e24d33a-e289-4134-8ccd-992575dab014	Chocolate	excluidos	2026-04-29	2026-05-06	amandacorte053@gmail.com	cassiafernanda344@gmail.com	24	2026-05-01 16:31:35.468+00	2026-05-10	2026-05-11 00:25:57.207+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-01T16:31:35.468Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-06T14:52:18.056Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-10T14:47:54.391Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-11T00:25:57.207Z"}]
-5ea6048d-d957-4ae0-a475-03e812a7cad3	Café	quebras	2026-04-22	\N	henocera@gmail.com	henocera@gmail.com	56	2026-05-18 19:37:31.681+00	\N	2026-05-18 19:37:31.681+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T19:37:31.681Z"}]
 43e1bc98-fd92-4b7c-a97b-b0a0c7eff065	Leite Ninho com Nutella	excluidos	2026-04-22	2026-05-01	cassiafernanda344@gmail.com	amandacorte053@gmail.com	0	2026-04-29 16:20:26.438+00	2026-05-06	2026-05-08 12:34:27.805+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:20:26.438Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-01T19:55:18.970Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-01T21:07:32.416Z"}, {"user": "henocera@gmail.com", "action": "Arquivo → Vitrine Atual", "timestamp": "2026-05-01T21:07:36.704Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-06T14:54:41.976Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-08T12:34:27.808Z"}]
 7856c602-e739-4c59-b9ca-66f40cab64f3	Dolce Mocha	excluidos	2026-04-17	2026-05-01	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	1	2026-04-29 16:21:50.518+00	2026-05-07	2026-05-08 12:34:27.808+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:21:50.518Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-01T19:55:17.134Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-07T21:08:03.861Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-08T12:34:27.808Z"}]
 b7282868-f54c-4fb4-b0a4-8d665b3735d9	Morango	excluidos	2026-04-18	2026-05-06	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	2	2026-04-29 16:22:16.125+00	2026-05-06	2026-05-08 12:34:27.808+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:22:16.125Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-06T20:14:50.086Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-06T20:15:09.439Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-08T12:34:27.808Z"}]
 5bafa92b-57f3-40f8-a698-471bf8ca1453	Leite Condensado com Morango	excluidos	2026-04-22	2026-04-30	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	3	2026-04-29 16:23:02.338+00	2026-05-07	2026-05-08 12:34:27.808+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:23:02.338Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-04-30T15:24:45.713Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-07T21:08:14.111Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-08T12:34:27.808Z"}]
 90be1e00-fa81-4c4e-b0c3-2afea8926754	Abacaxi com Hortelã e Gengibre	excluidos	2026-04-23	2026-05-01	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	4	2026-04-29 16:26:20.926+00	2026-05-30	2026-05-30 18:09:55.554+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:26:20.926Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-01T20:23:07.505Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-30T14:55:55.037Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-30T18:09:55.558Z"}]
+5ea6048d-d957-4ae0-a475-03e812a7cad3	Café	quebras	2026-04-22	\N	henocera@gmail.com	henocera@gmail.com	56	2026-05-18 19:37:31.681+00	\N	2026-05-18 19:37:31.681+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T19:37:31.681Z"}]
 bc477f62-f546-421a-bcce-63251839aced	Chocolate	excluidos	2026-04-24	2026-04-30	cassiafernanda344@gmail.com	amandacorte053@gmail.com	7	2026-04-29 16:28:57.856+00	2026-05-06	2026-05-08 12:34:27.808+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:28:57.856Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-04-30T15:18:33.431Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-06T14:52:14.808Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-08T12:34:27.808Z"}]
 7f8382f5-bb92-4720-a55e-25d697ab7765	Morango	excluidos	2026-04-03	2026-04-19	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	8	2026-04-29 16:29:25.128+00	2026-05-31	2026-05-31 16:24:19.713+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:29:25.128Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:29:31.554Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T15:41:55.823Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-31T16:24:19.713Z"}]
 cf3f8ccb-8991-46ad-9cf5-ac9ba8095da9	Don Vitto	excluidos	2026-04-08	2026-04-21	cassiafernanda344@gmail.com	amandacorte053@gmail.com	9	2026-04-29 16:30:57.053+00	2026-04-30	2026-05-01 14:19:09.1+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:30:57.053Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:31:00.160Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-04-30T15:24:42.127Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-01T14:19:09.102Z"}]
 b3bca938-fa77-4864-bc4c-94ddbb79654b	Limão Tahiti	excluidos	2026-04-04	2026-04-19	cassiafernanda344@gmail.com	amandacorte053@gmail.com	10	2026-04-29 16:34:55.88+00	2026-05-01	2026-05-02 13:28:21.957+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:34:55.880Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:34:58.966Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-01T20:22:59.263Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-02T13:28:21.959Z"}]
-eac9c55f-39b5-455b-834f-14cba1501ed8	Pistache	cubas-saidas-vitrine	2026-05-17	2026-05-24	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	34	2026-05-16 15:15:50.158+00	2026-05-31	2026-05-31 18:52:52.27+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-16T15:15:50.158Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-24T17:40:59.086Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T18:52:52.270Z"}]
+eac9c55f-39b5-455b-834f-14cba1501ed8	Pistache	excluidos	2026-05-17	2026-05-24	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	34	2026-05-16 15:15:50.158+00	2026-05-31	2026-06-01 15:47:31.235+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-16T15:15:50.158Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-24T17:40:59.086Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T18:52:52.270Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:47:31.235Z"}]
 d0e3fc32-bdf8-4313-aefc-744046acc0b0	Doce de Leite	quebras	2026-05-16	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	44	2026-05-18 17:30:05.258+00	\N	2026-05-18 17:30:05.258+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:30:05.258Z"}]
 cbc8c299-1e55-43b3-9cf2-64010dc92089	Café	quebras	2026-04-22	\N	henocera@gmail.com	henocera@gmail.com	55	2026-05-18 19:37:25.513+00	\N	2026-05-18 19:37:25.513+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T19:37:25.513Z"}]
 622dedb8-6663-4a62-bcef-36ce5498f12c	Stracciatella	excluidos	2026-04-24	2026-05-04	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	6	2026-04-29 16:28:23.664+00	2026-05-16	2026-05-17 15:33:01.175+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:28:23.664Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-04T17:03:02.244Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-16T20:25:01.557Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-17T15:33:01.175Z"}]
@@ -5810,25 +6018,24 @@ ea116255-c5a8-459f-be56-2c1140abd1b0	Iogurte com Laranja	excluidos	2026-04-22	20
 806c6c94-a573-4cbb-850f-d47ac9f619f8	Coco Diet	excluidos	2026-04-23	2026-04-25	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	12	2026-04-29 16:35:53.816+00	2026-05-04	2026-05-05 21:55:30.148+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:35:53.816Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:35:57.652Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-04T17:02:35.548Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-05T21:55:30.148Z"}]
 85f1427e-8d6f-44a7-8943-08c97a68d996	Chocolate	excluidos	2026-04-22	2026-04-25	cassiafernanda344@gmail.com	amandacorte053@gmail.com	13	2026-04-29 16:36:13.873+00	2026-04-30	2026-05-01 14:19:09.102+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:36:13.873Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:36:15.904Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-04-30T15:18:30.235Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-01T14:19:09.102Z"}]
 6bb3781f-6a23-409b-a874-4a07cabbee89	Cheesecake de Frutas Vermelhas	excluidos	2026-04-16	2026-04-29	cassiafernanda344@gmail.com	amandacorte053@gmail.com	20	2026-04-29 19:11:35.112+00	2026-05-01	2026-05-02 13:28:21.96+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T19:11:35.112Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T19:11:42.794Z"}, {"user": "henocera@gmail.com", "action": "Movido para Arquivo", "timestamp": "2026-04-29T19:27:33.615Z"}, {"user": "henocera@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T19:27:50.458Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-01T19:46:47.493Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-02T13:28:21.960Z"}]
-2e69032f-1ff1-47dc-b3e2-fe782da51bc9	Leite Ninho com Nutella	quebras	2026-05-22	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	58	2026-05-22 16:18:22.752+00	\N	2026-05-22 16:18:22.752+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-22T16:18:22.752Z"}]
+9e4a123a-0e7a-4080-acae-e831bf57bef7	Stracciatella	quebras	2026-05-31	\N	henocera@gmail.com	henocera@gmail.com	83	2026-05-31 19:25:15.339+00	\N	2026-05-31 19:25:15.339+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-31T19:25:15.339Z"}]
 ce221229-2797-4406-b648-131971df0de0	Pistache	excluidos	2026-04-24	2026-04-26	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	14	2026-04-29 16:36:31.554+00	2026-05-02	2026-05-05 21:55:30.148+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:36:31.554Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T19:06:12.311Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-02T22:03:47.381Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-05T21:55:30.148Z"}]
 4790585a-5cd3-45d8-8845-67a9447817df	Baunilha	excluidos	2026-04-06	2026-04-26	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	15	2026-04-29 16:37:08.701+00	2026-05-10	2026-05-11 00:25:57.207+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:37:08.701Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:40:49.179Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-10T14:48:18.847Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-11T00:25:57.207Z"}]
 0171bff8-4c90-40fd-bb41-78737b45df42	Banana Nevada	excluidos	2026-04-06	2026-04-26	cassiafernanda344@gmail.com	amandacorte053@gmail.com	16	2026-04-29 16:39:08.105+00	2026-05-01	2026-05-02 13:28:21.96+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:39:08.105Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:39:11.136Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-01T19:46:56.346Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-02T13:28:21.960Z"}]
 b653a161-7998-43a4-829e-9616138b67cc	Maracujá	excluidos	2026-04-18	2026-04-26	cassiafernanda344@gmail.com	amandacorte053@gmail.com	17	2026-04-29 16:39:36.507+00	2026-05-13	2026-05-14 15:43:25.928+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:39:36.507Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Movido para Vitrine", "timestamp": "2026-04-29T16:39:38.832Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-13T20:36:29.414Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-14T15:43:25.934Z"}]
 231deff6-923c-46c0-a4f4-77dfcbd77205	Baunilha	excluidos	2026-04-22	2026-05-20	amandacorte053@gmail.com	henocera@gmail.com	26	2026-05-01 16:34:24.143+00	2026-05-20	2026-05-21 13:13:25.745+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-01T16:34:24.143Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-10T14:48:21.276Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-20T14:17:40.302Z"}, {"user": "henocera@gmail.com", "action": "Arquivo → Vitrine Atual", "timestamp": "2026-05-20T14:18:21.458Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-20T14:18:58.001Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-21T13:13:25.745Z"}]
-51164569-4d29-4ac3-88d5-958435d1482a	Torta Belga	quebras	2026-05-25	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	70	2026-05-25 21:11:09.548+00	\N	2026-05-25 21:11:09.548+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-25T21:11:09.548Z"}]
+51164569-4d29-4ac3-88d5-958435d1482a	Torta Belga	quebras	2026-05-25	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	69	2026-05-25 21:11:09.548+00	\N	2026-05-25 21:11:09.548+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-25T21:11:09.548Z"}]
+f367f3db-6701-40df-bd89-f91b8917d656	Chocolate Branco com Maracujá	excluidos	2026-04-14	2026-05-16	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	19	2026-04-29 19:07:46.34+00	2026-05-17	2026-05-17 15:33:01.176+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T19:07:46.340Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-04-29T20:24:16.895Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-04-29T20:24:26.561Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-01T21:17:22.760Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-01T21:17:39.424Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-03T19:54:51.736Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-09T14:50:57.717Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-16T18:20:49.971Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-17T14:51:56.206Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-17T15:33:01.176Z"}]
 9b8ede65-7d7c-43e6-a534-f50372c9bc52	Maracujá	excluidos	2026-04-23	2026-05-13	amandacorte053@gmail.com	cassiafernanda344@gmail.com	21	2026-05-01 16:30:08.904+00	2026-05-31	2026-05-31 16:24:19.713+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-01T16:30:08.904Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-13T20:36:31.921Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T15:41:48.883Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-31T16:24:19.713Z"}]
 65608bdf-0c7d-495f-b034-8f84405c3ab6	Don Vitto	excluidos	2026-04-24	2026-05-06	amandacorte053@gmail.com	cassiafernanda344@gmail.com	25	2026-05-01 16:31:47.941+00	2026-05-16	2026-05-17 15:33:01.176+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-01T16:31:47.941Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-06T14:52:27.831Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-16T18:19:01.743Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-17T15:33:01.176Z"}]
 ae8e2880-e489-4bab-b1d4-241b96845811	Pistache	excluidos	2026-05-02	2026-05-14	amandacorte053@gmail.com	cassiafernanda344@gmail.com	27	2026-05-03 20:23:58.31+00	2026-05-14	2026-05-14 17:14:52.222+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-03T20:23:58.310Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-03T20:37:37.633Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-10T14:45:51.613Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-14T16:30:07.362Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-14T16:30:09.555Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-14T17:14:52.222Z"}]
 ffacb333-f30c-4087-9f54-0b8393aa4361	Pistache	excluidos	2026-05-09	2026-05-10	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	28	2026-05-10 14:44:39.051+00	2026-05-21	2026-05-25 20:11:03.43+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-10T14:44:39.051Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-10T14:46:02.825Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-21T21:43:12.158Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-25T20:11:03.430Z"}]
-d29dc643-f764-4ff2-978f-2431ef93bf20	Cheesecake de Frutas Vermelhas	quebras	2026-05-31	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	86	2026-05-31 20:43:43.001+00	\N	2026-05-31 20:43:43.001+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-31T20:43:43.001Z"}]
 e915631b-c884-4f06-b19f-bdb4340414aa	Coco Diet	excluidos	2026-04-23	2026-05-09	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	5	2026-04-29 16:26:53.796+00	2026-05-27	2026-05-28 12:54:58.168+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T16:26:53.796Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-09T14:51:05.536Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-27T19:36:56.888Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-28T12:54:58.168Z"}]
-3a653fa0-6288-4454-86a1-f151963fe9e9	Cheesecake de Frutas Vermelhas	cubas-saidas-vitrine	2026-04-09	2026-05-25	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	29	2026-05-10 14:45:43.693+00	2026-05-31	2026-05-31 20:43:41.51+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-10T14:45:43.693Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-16T20:25:03.524Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-24T17:40:51.856Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-25T21:11:16.864Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T20:43:41.510Z"}]
+3a653fa0-6288-4454-86a1-f151963fe9e9	Cheesecake de Frutas Vermelhas	excluidos	2026-04-09	2026-05-25	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	29	2026-05-10 14:45:43.693+00	2026-05-31	2026-06-01 15:47:31.235+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-10T14:45:43.693Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-16T20:25:03.524Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-24T17:40:51.856Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-25T21:11:16.864Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T20:43:41.510Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:47:31.235Z"}]
 4af8bc33-9f87-4114-8391-e228d555235a	Leite Condensado com Morango	excluidos	2026-04-30	2026-05-18	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	30	2026-05-10 14:46:40.73+00	2026-05-30	2026-05-31 16:24:19.713+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-10T14:46:40.730Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-17T14:52:01.744Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-18T16:35:38.362Z"}, {"user": "henocera@gmail.com", "action": "Arquivo → Vitrine Atual", "timestamp": "2026-05-18T16:35:42.962Z"}, {"user": "henocera@gmail.com", "action": "Data de saída removida", "timestamp": "2026-05-18T16:35:47.122Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-30T21:48:35.178Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-31T16:24:19.713Z"}]
-066ab3cb-0f64-4d6a-8dce-3093a0f79673	Chocolate	vitrine-atual	2026-05-21	2026-05-29	amandacorte053@gmail.com	amandacorte053@gmail.com	71	2026-05-28 20:03:36.338+00	\N	2026-05-29 20:45:41.65+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-28T20:03:36.338Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-29T20:45:41.650Z"}]
-fed06106-dd12-4d54-8fc1-d42d1935b99f	Don Vitto	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	73	2026-05-30 14:53:35.568+00	\N	2026-05-30 14:53:35.568+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-30T14:53:35.568Z"}]
-d494f0ec-b2d8-4c5e-aecf-1b0ce5e995ad	Leite Ninho com Nutella	vitrine-atual	2026-05-28	2026-05-31	cassiafernanda344@gmail.com	henocera@gmail.com	77	2026-05-30 17:30:26.762+00	\N	2026-05-31 19:25:35.844+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:30:26.762Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T19:25:35.844Z"}]
-f561b93c-ec6a-4b5d-b9be-dcaac2adbb60	Chocolate	freezer-estoque	2026-05-29	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	79	2026-05-30 17:31:19.23+00	\N	2026-05-30 17:31:19.23+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:31:19.230Z"}]
+2d795157-7f5d-4be7-a206-5457c9128f84	Iogurte com Amarena	vitrine-atual	2026-04-30	2026-05-30	amandacorte053@gmail.com	cassiafernanda344@gmail.com	67	2026-05-22 17:38:23.423+00	\N	2026-05-30 21:48:42.068+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:38:23.423Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-30T21:48:42.068Z"}]
+066ab3cb-0f64-4d6a-8dce-3093a0f79673	Chocolate	vitrine-atual	2026-05-21	2026-05-29	amandacorte053@gmail.com	amandacorte053@gmail.com	70	2026-05-28 20:03:36.338+00	\N	2026-05-29 20:45:41.65+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-28T20:03:36.338Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-29T20:45:41.650Z"}]
+fed06106-dd12-4d54-8fc1-d42d1935b99f	Don Vitto	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	72	2026-05-30 14:53:35.568+00	\N	2026-05-30 14:53:35.568+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-30T14:53:35.568Z"}]
 664f2bfe-ce9f-47dc-9c67-774b1aa80871	Leite Ninho com Nutella	excluidos	2026-04-30	2026-05-16	cassiafernanda344@gmail.com	amandacorte053@gmail.com	31	2026-05-10 14:47:10.403+00	2026-05-22	2026-05-25 20:11:03.43+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-10T14:47:10.403Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-16T20:35:14.706Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-22T16:18:20.762Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-25T20:11:03.430Z"}]
 c1415787-3524-467d-968d-c91d11db539a	Chocolate	excluidos	2026-04-29	2026-05-10	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	32	2026-05-10 14:47:41.817+00	2026-05-16	2026-05-17 15:33:01.176+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-10T14:47:41.817Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-10T14:47:57.068Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-16T15:13:15.952Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-17T15:33:01.176Z"}]
 369037f0-6217-4032-acad-47ae9dfdec9f	Chocolate	excluidos	2026-05-08	2026-05-20	cassiafernanda344@gmail.com	henocera@gmail.com	33	2026-05-16 15:13:45.386+00	2026-05-20	2026-05-21 13:13:25.745+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-16T15:13:45.386Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-16T15:13:48.885Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-20T14:17:24.090Z"}, {"user": "henocera@gmail.com", "action": "Arquivo → Vitrine Atual", "timestamp": "2026-05-20T14:18:23.237Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-20T14:18:55.072Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-21T13:13:25.745Z"}]
@@ -5843,38 +6050,37 @@ b4d8700d-cf91-4bb7-b163-b99e67244a14	Milho Verde	quebras	2026-04-18	\N	amandacor
 c20dbe91-5941-45a8-80bb-1905ff6ba168	Chocolate Branco com Maracujá	quebras	2026-04-14	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	51	2026-05-18 17:33:11.178+00	\N	2026-05-18 17:33:11.178+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:33:11.178Z"}]
 65371443-99a7-4d14-a1ed-c0714c9863b7	Chocolate Branco com Maracujá	quebras	2026-05-17	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	52	2026-05-18 17:33:24.744+00	\N	2026-05-18 17:33:24.744+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:33:24.744Z"}]
 3b761a9b-b6b1-4ace-a22c-dae2bf9f27e5	Chocolate Branco com Maracujá	quebras	2026-05-17	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	53	2026-05-18 17:33:32.392+00	\N	2026-05-18 17:33:32.392+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:33:32.392Z"}]
-c749d0fd-9df2-47d3-97e2-9eee22c890b2	Leite Condensado com Morango	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	80	2026-05-30 21:48:39.449+00	\N	2026-05-30 21:48:39.449+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-30T21:48:39.449Z"}]
+d494f0ec-b2d8-4c5e-aecf-1b0ce5e995ad	Leite Ninho com Nutella	vitrine-atual	2026-05-28	2026-05-31	cassiafernanda344@gmail.com	henocera@gmail.com	76	2026-05-30 17:30:26.762+00	\N	2026-05-31 19:25:35.844+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:30:26.762Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T19:25:35.844Z"}]
 fc557a85-a803-49df-abfc-62a6412a29c6	Don Vitto	excluidos	2026-05-13	2026-05-22	amandacorte053@gmail.com	cassiafernanda344@gmail.com	37	2026-05-17 17:52:01.699+00	2026-05-30	2026-05-30 18:09:55.558+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-17T17:52:01.699Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T16:18:43.429Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-30T14:53:33.712Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-30T18:09:55.559Z"}]
-6f01a6cb-6fff-4e8e-a260-31b5cbfc34f4	Leite Condensado com Morango	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	81	2026-05-30 21:48:39.449+00	\N	2026-05-30 21:48:39.449+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-30T21:48:39.449Z"}]
-d0e85ec7-a635-46f0-b6fe-653bd04d5a6c	Pistache	vitrine-atual	2026-05-29	2026-05-31	marina_nocera@yahoo.com.br	cassiafernanda344@gmail.com	82	2026-05-31 16:31:32.46+00	\N	2026-05-31 18:53:07.974+00	[{"user": "marina_nocera@yahoo.com.br", "action": "Criado no Estoque", "timestamp": "2026-05-31T16:31:32.461Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T18:53:07.974Z"}]
 4551571d-a2b8-4c5c-9c24-4c5dd5d5fe7b	Paçoca com Chocolate	quebras	2026-04-25	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	40	2026-05-18 17:29:10.377+00	\N	2026-05-18 17:29:10.377+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:29:10.377Z"}]
 2ba28a4b-c3b3-40dd-95e0-44483b5bb49c	Paçoca com Chocolate	quebras	2026-04-25	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	41	2026-05-18 17:29:28.498+00	\N	2026-05-18 17:29:28.498+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:29:28.498Z"}]
 d18600d1-7cd9-4b80-8496-beb869f49378	Caramelo Salgado	quebras	2026-04-26	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	47	2026-05-18 17:30:51.671+00	\N	2026-05-18 17:30:51.671+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:30:51.671Z"}]
 ab9e3174-fa89-4f2b-9a21-9ae14f4049cc	Caramelo Salgado	quebras	2026-04-26	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	48	2026-05-18 17:31:07.981+00	\N	2026-05-18 17:31:07.981+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:31:07.981Z"}]
 67bf7740-a836-4472-bbac-9c05cac14b92	Chocolate Branco com Maracujá	quebras	2026-05-17	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	54	2026-05-18 17:33:41.387+00	\N	2026-05-18 17:33:41.387+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:33:41.387Z"}]
 96c1967d-b259-429c-b26f-a0f3afc4916a	Coco com Doce de Leite	quebras	2026-03-28	\N	henocera@gmail.com	henocera@gmail.com	57	2026-05-18 19:37:39.817+00	\N	2026-05-18 19:37:39.817+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T19:37:39.817Z"}]
-01956fd6-b660-424d-9e66-f63833e7f899	Dolce Mocha	freezer-estoque	2026-05-20	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	59	2026-05-22 17:35:57.986+00	\N	2026-05-22 17:35:57.986+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:35:57.986Z"}]
-d2020539-266e-4aa8-8363-1b4ba6fac589	Coco Diet	vitrine-atual	2026-04-23	2026-05-30	amandacorte053@gmail.com	cassiafernanda344@gmail.com	60	2026-05-22 17:36:16.587+00	\N	2026-05-30 14:53:43.532+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:36:16.587Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T19:36:38.834Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-27T19:36:42.326Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-30T14:53:43.532Z"}]
-f989aa9e-72b3-4771-af92-5c804b4f891a	Abacaxi com Hortelã e Gengibre	vitrine-atual	2026-05-07	2026-05-30	amandacorte053@gmail.com	cassiafernanda344@gmail.com	61	2026-05-22 17:36:35.235+00	\N	2026-05-30 14:55:58.469+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:36:35.235Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-30T14:55:58.469Z"}]
-3c6be3a2-c575-4493-b953-aec1d3600cc5	Morango	vitrine-atual	2026-04-25	2026-05-31	amandacorte053@gmail.com	cassiafernanda344@gmail.com	62	2026-05-22 17:36:50.633+00	\N	2026-05-31 15:42:09.249+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:36:50.633Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T15:42:09.249Z"}]
-97a30689-faa3-45bc-9ea9-ca86bb8f3988	Baunilha	freezer-estoque	2026-05-21	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	72	2026-05-28 20:03:58.767+00	\N	2026-05-28 20:03:58.767+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-28T20:03:58.767Z"}]
-990e34fa-a1c5-4327-b7c6-72add440249c	Pistache	quebras	2026-05-31	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	83	2026-05-31 18:52:54.053+00	\N	2026-05-31 18:52:54.053+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-31T18:52:54.053Z"}]
+01956fd6-b660-424d-9e66-f63833e7f899	Dolce Mocha	freezer-estoque	2026-05-20	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	58	2026-05-22 17:35:57.986+00	\N	2026-05-22 17:35:57.986+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:35:57.986Z"}]
+d2020539-266e-4aa8-8363-1b4ba6fac589	Coco Diet	vitrine-atual	2026-04-23	2026-05-30	amandacorte053@gmail.com	cassiafernanda344@gmail.com	59	2026-05-22 17:36:16.587+00	\N	2026-05-30 14:53:43.532+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:36:16.587Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T19:36:38.834Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-27T19:36:42.326Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-30T14:53:43.532Z"}]
+f989aa9e-72b3-4771-af92-5c804b4f891a	Abacaxi com Hortelã e Gengibre	vitrine-atual	2026-05-07	2026-05-30	amandacorte053@gmail.com	cassiafernanda344@gmail.com	60	2026-05-22 17:36:35.235+00	\N	2026-05-30 14:55:58.469+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:36:35.235Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-30T14:55:58.469Z"}]
+3c6be3a2-c575-4493-b953-aec1d3600cc5	Morango	vitrine-atual	2026-04-25	2026-05-31	amandacorte053@gmail.com	cassiafernanda344@gmail.com	61	2026-05-22 17:36:50.633+00	\N	2026-05-31 15:42:09.249+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:36:50.633Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T15:42:09.249Z"}]
+97a30689-faa3-45bc-9ea9-ca86bb8f3988	Baunilha	freezer-estoque	2026-05-21	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	71	2026-05-28 20:03:58.767+00	\N	2026-05-28 20:03:58.767+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-28T20:03:58.767Z"}]
 87d9d606-11d5-48fc-b15d-485101bb84cd	Torta Belga	excluidos	2026-05-08	2026-05-21	amandacorte053@gmail.com	cassiafernanda344@gmail.com	38	2026-05-17 17:53:04.075+00	2026-05-25	2026-05-26 22:07:50.43+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-17T17:53:04.075Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-21T21:46:58.465Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-25T21:11:07.634Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-26T22:07:50.430Z"}]
 659dcd42-4e7e-4611-8725-5d606dbb4225	Doce de Leite	quebras	2026-04-19	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	45	2026-05-18 17:30:14.708+00	\N	2026-05-18 17:30:14.708+00	[{"user": "amandacorte053@gmail.com", "action": "Criado em Quebras", "timestamp": "2026-05-18T17:30:14.708Z"}]
-7dc2e1db-d73b-4059-8a79-15abc5296104	Chocolate	excluidos	2026-05-08	2026-05-24	amandacorte053@gmail.com	amandacorte053@gmail.com	63	2026-05-22 17:37:10.185+00	2026-05-29	2026-05-30 18:09:55.559+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:10.185Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-24T21:06:56.413Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-29T20:45:34.009Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-30T18:09:55.559Z"}]
-38e0b403-e7f5-4275-8b6e-3df1bb536ddf	Baunilha	vitrine-atual	2026-04-30	2026-05-28	amandacorte053@gmail.com	henocera@gmail.com	64	2026-05-22 17:37:26.057+00	\N	2026-05-28 16:53:01.938+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:26.057Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T19:37:56.853Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-28T16:52:42.297Z"}, {"user": "henocera@gmail.com", "action": "Arquivo → Vitrine Atual", "timestamp": "2026-05-28T16:52:57.393Z"}, {"user": "henocera@gmail.com", "action": "Data de saída removida", "timestamp": "2026-05-28T16:53:01.937Z"}]
-7b824247-b0e4-43ed-9a4c-7d72ee93fbeb	Maracujá	vitrine-atual	2026-05-07	2026-05-31	amandacorte053@gmail.com	cassiafernanda344@gmail.com	65	2026-05-22 17:37:37.81+00	\N	2026-05-31 15:42:19.521+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:37.810Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T15:42:19.521Z"}]
-6e9b3740-6191-4458-ba22-65072080f402	Paçoca com Chocolate	freezer-estoque	2026-05-15	\N	amandacorte053@gmail.com	amandacorte053@gmail.com	66	2026-05-22 17:37:52.716+00	\N	2026-05-22 17:37:52.716+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:52.716Z"}]
-3ffd3808-3eef-44c4-82a6-4179947ec81a	Banoffe	vitrine-atual	2026-04-29	2026-05-27	amandacorte053@gmail.com	cassiafernanda344@gmail.com	67	2026-05-22 17:38:08.705+00	\N	2026-05-27 19:37:51.136+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:38:08.705Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T19:37:51.136Z"}]
-2d795157-7f5d-4be7-a206-5457c9128f84	Iogurte com Amarena	vitrine-atual	2026-04-30	2026-05-30	amandacorte053@gmail.com	cassiafernanda344@gmail.com	68	2026-05-22 17:38:23.423+00	\N	2026-05-30 21:48:42.068+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:38:23.423Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-30T21:48:42.068Z"}]
-f367f3db-6701-40df-bd89-f91b8917d656	Chocolate Branco com Maracujá	excluidos	2026-04-14	2026-05-16	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	19	2026-04-29 19:07:46.34+00	2026-05-17	2026-05-17 15:33:01.176+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-04-29T19:07:46.340Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-04-29T20:24:16.895Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-04-29T20:24:26.561Z"}, {"user": "henocera@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-01T21:17:22.760Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-01T21:17:39.424Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-03T19:54:51.736Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-05-09T14:50:57.717Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-16T18:20:49.971Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-17T14:51:56.206Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-17T15:33:01.176Z"}]
-0e440ad8-84a6-4f47-8f98-e2fa00beeb47	Stracciatella	cubas-saidas-vitrine	2026-04-06	2026-05-22	amandacorte053@gmail.com	henocera@gmail.com	69	2026-05-22 17:38:40.917+00	2026-05-31	2026-05-31 19:24:37.77+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:38:40.917Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T20:33:21.543Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T19:24:37.770Z"}]
-13ea1012-9022-42e7-b863-b327285439ad	Don Vitto	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	74	2026-05-30 14:53:35.568+00	\N	2026-05-30 14:53:35.568+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-30T14:53:35.568Z"}]
-f9633461-b8b6-4511-b0fb-5ce18abf8687	Danoninho	freezer-estoque	2026-05-21	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	75	2026-05-30 17:29:22.849+00	\N	2026-05-30 17:29:22.849+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:29:22.849Z"}]
-66899a4a-5bb1-4dbb-af1e-c45753bacd83	Milho Verde	freezer-estoque	2026-05-13	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	76	2026-05-30 17:30:09.003+00	\N	2026-05-30 17:30:09.003+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:30:09.003Z"}]
-66ce78a8-c523-4e6b-bae4-c69ba4c72d9f	Don Vitto	vitrine-atual	2026-05-13	2026-05-31	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	78	2026-05-30 17:30:44.639+00	\N	2026-05-31 20:43:51.078+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:30:44.639Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T20:43:51.078Z"}]
-eb528531-0605-4e5a-85ba-52bc1cdd67ff	Stracciatella	quebras	2026-05-31	\N	henocera@gmail.com	henocera@gmail.com	84	2026-05-31 19:25:15.339+00	\N	2026-05-31 19:25:15.339+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-31T19:25:15.339Z"}]
-9e4a123a-0e7a-4080-acae-e831bf57bef7	Stracciatella	quebras	2026-05-31	\N	henocera@gmail.com	henocera@gmail.com	85	2026-05-31 19:25:15.339+00	\N	2026-05-31 19:25:15.339+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-31T19:25:15.339Z"}]
+7dc2e1db-d73b-4059-8a79-15abc5296104	Chocolate	excluidos	2026-05-08	2026-05-24	amandacorte053@gmail.com	amandacorte053@gmail.com	62	2026-05-22 17:37:10.185+00	2026-05-29	2026-05-30 18:09:55.559+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:10.185Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-24T21:06:56.413Z"}, {"user": "amandacorte053@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-29T20:45:34.009Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-05-30T18:09:55.559Z"}]
+38e0b403-e7f5-4275-8b6e-3df1bb536ddf	Baunilha	vitrine-atual	2026-04-30	2026-05-28	amandacorte053@gmail.com	henocera@gmail.com	63	2026-05-22 17:37:26.057+00	\N	2026-05-28 16:53:01.938+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:26.057Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T19:37:56.853Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-28T16:52:42.297Z"}, {"user": "henocera@gmail.com", "action": "Arquivo → Vitrine Atual", "timestamp": "2026-05-28T16:52:57.393Z"}, {"user": "henocera@gmail.com", "action": "Data de saída removida", "timestamp": "2026-05-28T16:53:01.937Z"}]
+7b824247-b0e4-43ed-9a4c-7d72ee93fbeb	Maracujá	vitrine-atual	2026-05-07	2026-05-31	amandacorte053@gmail.com	cassiafernanda344@gmail.com	64	2026-05-22 17:37:37.81+00	\N	2026-05-31 15:42:19.521+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:37.810Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T15:42:19.521Z"}]
+6e9b3740-6191-4458-ba22-65072080f402	Paçoca com Chocolate	vitrine-atual	2026-05-15	2026-06-01	amandacorte053@gmail.com	cassiafernanda344@gmail.com	65	2026-05-22 17:37:52.716+00	\N	2026-06-01 16:27:10.622+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:37:52.716Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-06-01T16:27:10.622Z"}]
+3ffd3808-3eef-44c4-82a6-4179947ec81a	Banoffe	vitrine-atual	2026-04-29	2026-05-27	amandacorte053@gmail.com	cassiafernanda344@gmail.com	66	2026-05-22 17:38:08.705+00	\N	2026-05-27 19:37:51.136+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:38:08.705Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-27T19:37:51.136Z"}]
+0e440ad8-84a6-4f47-8f98-e2fa00beeb47	Stracciatella	excluidos	2026-04-06	2026-05-22	amandacorte053@gmail.com	henocera@gmail.com	68	2026-05-22 17:38:40.917+00	2026-05-31	2026-06-01 15:47:31.235+00	[{"user": "amandacorte053@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-22T17:38:40.917Z"}, {"user": "amandacorte053@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-22T20:33:21.543Z"}, {"user": "henocera@gmail.com", "action": "Vitrine Atual → Arquivo", "timestamp": "2026-05-31T19:24:37.770Z"}, {"user": "marina_nocera@yahoo.com.br", "action": "Arquivo → Histórico Excluídos (Massa)", "timestamp": "2026-06-01T15:47:31.235Z"}]
+13ea1012-9022-42e7-b863-b327285439ad	Don Vitto	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	73	2026-05-30 14:53:35.568+00	\N	2026-05-30 14:53:35.568+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-30T14:53:35.568Z"}]
+f9633461-b8b6-4511-b0fb-5ce18abf8687	Danoninho	freezer-estoque	2026-05-21	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	74	2026-05-30 17:29:22.849+00	\N	2026-05-30 17:29:22.849+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:29:22.849Z"}]
+66899a4a-5bb1-4dbb-af1e-c45753bacd83	Milho Verde	freezer-estoque	2026-05-13	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	75	2026-05-30 17:30:09.003+00	\N	2026-05-30 17:30:09.003+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:30:09.003Z"}]
+66ce78a8-c523-4e6b-bae4-c69ba4c72d9f	Don Vitto	vitrine-atual	2026-05-13	2026-05-31	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	77	2026-05-30 17:30:44.639+00	\N	2026-05-31 20:43:51.078+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:30:44.639Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T20:43:51.078Z"}]
+f561b93c-ec6a-4b5d-b9be-dcaac2adbb60	Chocolate	freezer-estoque	2026-05-29	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	78	2026-05-30 17:31:19.23+00	\N	2026-05-30 17:31:19.23+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado no Estoque", "timestamp": "2026-05-30T17:31:19.230Z"}]
+c749d0fd-9df2-47d3-97e2-9eee22c890b2	Leite Condensado com Morango	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	79	2026-05-30 21:48:39.449+00	\N	2026-05-30 21:48:39.449+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-30T21:48:39.449Z"}]
+6f01a6cb-6fff-4e8e-a260-31b5cbfc34f4	Leite Condensado com Morango	quebras	2026-05-30	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	80	2026-05-30 21:48:39.449+00	\N	2026-05-30 21:48:39.449+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 2 de 2)", "timestamp": "2026-05-30T21:48:39.449Z"}]
+d0e85ec7-a635-46f0-b6fe-653bd04d5a6c	Pistache	freezer-estoque	2026-05-29	2026-05-31	marina_nocera@yahoo.com.br	cassiafernanda344@gmail.com	81	2026-05-31 16:31:32.46+00	\N	2026-06-01 16:27:06.597+00	[{"user": "marina_nocera@yahoo.com.br", "action": "Criado no Estoque", "timestamp": "2026-05-31T16:31:32.461Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Freezer Estoque → Vitrine Atual", "timestamp": "2026-05-31T18:53:07.974Z"}, {"user": "cassiafernanda344@gmail.com", "action": "Vitrine Atual → Freezer Estoque", "timestamp": "2026-06-01T16:27:06.597Z"}]
+eb528531-0605-4e5a-85ba-52bc1cdd67ff	Stracciatella	quebras	2026-05-31	\N	henocera@gmail.com	henocera@gmail.com	82	2026-05-31 19:25:15.339+00	\N	2026-05-31 19:25:15.339+00	[{"user": "henocera@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine - Item 1 de 2)", "timestamp": "2026-05-31T19:25:15.339Z"}]
+d29dc643-f764-4ff2-978f-2431ef93bf20	Cheesecake de Frutas Vermelhas	quebras	2026-05-31	\N	cassiafernanda344@gmail.com	cassiafernanda344@gmail.com	84	2026-05-31 20:43:43.001+00	\N	2026-05-31 20:43:43.001+00	[{"user": "cassiafernanda344@gmail.com", "action": "Criado em Quebras (Auto via Saída da Vitrine)", "timestamp": "2026-05-31T20:43:43.001Z"}]
 \.
 
 
@@ -5882,7 +6088,1368 @@ eb528531-0605-4e5a-85ba-52bc1cdd67ff	Stracciatella	quebras	2026-05-31	\N	henocer
 -- Data for Name: entradas_mercadoria; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY "public"."entradas_mercadoria" ("id", "insumo_id", "data_compra", "fornecedor", "quantidade_comprada", "valor_unitario", "created_at") FROM stdin;
+COPY "public"."entradas_mercadoria" ("id", "insumo_id", "data_compra", "fornecedor", "quantidade_comprada", "valor_unitario", "created_at", "user_id", "status_revisao", "revisao_observacao") FROM stdin;
+48b476ef-bee4-4496-bdff-9453b5a12c58	8b870df4-27c9-4443-a952-3dae37e3e963	2023-08-14	Comercial Barbante	1	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+ec92ba39-853a-4dde-be50-64f54a0f85ff	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-10-15	Marmikok	2	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+0f30008a-68d7-4f35-b7b0-68a72b62b352	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2024-02-03	Marmikok	5	6.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+799afa6a-2489-4bb9-b500-2b382ccb3b5a	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2024-04-23	Spal	1	20.76	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+42f1af5f-1e18-41fc-a667-33069be7554a	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2024-07-29	Spal Industria	1	18.39	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+544b24fd-c34f-43f2-a921-72ca7cdaa477	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2024-03-01	Spal	1	20.65	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+0e1dec83-283e-4484-8a59-8bd279755f1b	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2024-01-17	Spal	1	20.26	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+8a26edce-324e-4e7d-ba9f-736435515d9b	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2024-03-01	Spal	1	18.39	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+caef96db-e670-4b87-906c-cd403c3fa2f4	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2024-04-23	Spal	1	18.39	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+f78237d5-1243-4edd-8ef3-9ffdb959fee8	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2024-11-19	Spal	2	21.03	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+b06dfac3-d35f-49dc-8554-8a8ff51c1dd5	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2024-11-19	Spal	2	21.14	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+79ad28c4-1451-4c2e-97bb-80dd45ff6759	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2025-02-18	Spal	12	19.49	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+f90447c9-9ba7-454e-b7b0-d53bac1cc4a0	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-08-07	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+a4b1aa43-b27d-445c-b143-b2af4c812b1c	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2023-02-18	marmikok	1	16.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3512a909-b3c3-4b2c-8a8f-f56d9851eb32	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-02-22	Jullye Frutas	6	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+e78e88b2-f996-45a7-b462-85e1a810810a	f8c8e834-9063-4a25-8925-12db6592d203	2023-02-22	Jullye Frutas	1.285	5.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+70263732-ba7b-4db5-8670-845ed8103d25	f8c8e834-9063-4a25-8925-12db6592d203	2023-02-28	condor	1.125	6.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+14895c0e-6469-4e6b-8e86-80277d65e30f	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-03-03	JUllye Frutas	6	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+359d6c0d-6354-4aa8-afca-5f930500c749	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-03-03	WHS	31	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+735a3f52-5d63-4d9b-afcf-29363de1182d	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2023-03-08	Condor	4	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+c43d50b3-9dc9-4dc1-b6c5-2d6e6ddcdb73	95d9f130-2433-4f3e-882b-e420e62254e4	2023-03-09	Lacto Minas	3	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d14b6d87-69ac-4549-bce7-e804fe815b2a	5bdb156e-ac02-4634-bf62-15455ab1eea3	2023-05-10	casa do confeiteiro	2	40.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+422144e5-9941-4bc0-9c2a-124520eee22e	f8c8e834-9063-4a25-8925-12db6592d203	2023-06-10	Condor	0.87	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+427e5dae-ae0f-45fd-9676-1cb0caead95d	8b870df4-27c9-4443-a952-3dae37e3e963	2023-07-12	comercial barbante	4	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+b871bdc4-beb8-47d1-8c04-8170015c7379	521f2d74-463c-4737-bb85-c47d39e96845	2023-07-12	Marmikok	6	18.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+27a15dbb-1bd8-4145-b01d-a8a3a691c5d1	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2023-07-12	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+5e4ff05a-fa15-4425-b199-a9a43a2fb90d	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2023-07-12	Marmikok	4	6.1	2026-06-01 22:50:07.293263+00	\N	none	\N
+001bd382-a1f6-4c23-baad-f51cef8d5792	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-07-18	Mufatto	1	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+da2e9596-6384-48b6-9dce-cbf30b413dce	1deec24f-5074-421e-b791-8df4fc7dbc5c	2023-07-22	Marmikok	2	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+ffff1808-9f12-4be0-8f0f-db62094df7ad	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-07-22	Condor	48	3.88	2026-06-01 22:50:07.293263+00	\N	none	\N
+c55b5a4b-9183-4f8c-9e17-c1462803f681	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-07-30	Muffato	1	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d86edd0e-e565-44d5-84b1-a14b5de55ae5	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-07-31	Condor	36	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+265b0b34-bce8-40de-bcc2-48d5e91ae2ff	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-07-31	Condor	12	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+837a2fdf-6694-4ae0-ab32-4eaf2dcb023f	f8c8e834-9063-4a25-8925-12db6592d203	2023-07-31	Condor	7	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+3efb3549-5135-4d7d-8513-bc030a587eee	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-08-01	Muffato	2	4.97	2026-06-01 22:50:07.293263+00	\N	none	\N
+ef4ac8fc-6649-4c33-9c83-23063e376050	1deec24f-5074-421e-b791-8df4fc7dbc5c	2023-08-02	Abilio	2	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+23234f10-dedb-41ac-8a70-bee962aa882c	521f2d74-463c-4737-bb85-c47d39e96845	2023-08-02	Abilio	4	18.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3e708c72-7f09-4980-9046-97cd47b222f4	82fd5205-9fbf-4564-83df-6e16776c4718	2023-08-03	Spal	48	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+2d56b4d2-cb1a-4e0c-9a6a-cf054b58fbb6	67f01c59-ce5f-467e-8597-714719412b84	2023-08-05	Muffato	34	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+b4b53111-3a2d-4b4f-9ad7-b3395bd90506	eb9ed0b3-2065-4517-a827-7689183db366	2023-08-07	Lacto Minas	2	7.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+f0450f25-a61b-4c87-ad2c-f8d95fcce5f4	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-08-07	Condor	12	4.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+38464f6c-83c6-4655-9c66-8c1f4732db47	493d4e21-eaa5-4711-ae8b-b73fad3822de	2023-08-08	Mercadoce	5	3.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+c699f6c5-3046-4b3c-ac3e-fa0298201a83	01659df6-43fe-4ced-90cd-25ab1f9b74cf	2023-08-09	Muffato	1	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+c17b45aa-cef0-4e60-bca8-ad372552075c	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-08-11	Frubana	24	4.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+a5f31b54-f16d-4e37-bfc9-1d20aec77eb7	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-08-12	Armazém Municipal	3	6.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+250cb4d6-337c-4d8c-9551-6c784f6a0bfa	16f930db-011d-40e0-ac84-1949c29821fe	2023-08-14	Comercial Barbante	1	58.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+9d2c677c-2673-4c1e-b9c2-bf28c4859f6d	f8c8e834-9063-4a25-8925-12db6592d203	2023-08-15	Muffato	0.445	7.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+0cd94eb7-fb34-4b3e-9e7d-353b6b5cdcfe	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-08-18	Condor	12	4.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+74eed2b5-1617-4f43-a541-b6502bd15db4	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2023-08-18	Condor	2	8.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+e5842587-d0a0-4c46-a5a4-986530b4b4ac	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-08-18	Frubana	144	4.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+06fa24f0-b598-4e51-b52c-448814b56953	02cfebe2-4de3-4c77-a73e-903b185d54a6	2023-08-21	Super Brilho	3	7.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+b5e68bad-3951-4239-b436-d7b2d4152370	96abcb52-14df-4ad2-b433-2aee0669ee30	2023-08-21	Super Brilho	2	12.87	2026-06-01 22:50:07.293263+00	\N	none	\N
+3d94244a-e946-4fb7-96f9-60d96c7b3da7	6c1388ea-5eda-4f92-804d-9dc6f4452579	2023-08-21	Super Brilho	2	29.17	2026-06-01 22:50:07.293263+00	\N	none	\N
+b757b663-28c3-4205-8fa5-cddaec355220	a5f552f1-4392-4c53-977f-08739186fcb5	2023-08-21	Super Brilho	2	12.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+c2241402-17d3-4045-a3e0-9c557867842e	03b764ae-765a-45cd-b897-da245f712055	2023-08-21	Super Brilho	1	18.81	2026-06-01 22:50:07.293263+00	\N	none	\N
+956bec85-09ee-47d7-a050-7bc58eab3c41	03b764ae-765a-45cd-b897-da245f712055	2023-08-21	Super Brilho	3	15.83	2026-06-01 22:50:07.293263+00	\N	none	\N
+a20cb6c8-4024-45ee-b9a0-e32267e5d80b	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2023-08-21	Marmikok	4	16.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+88af7001-53d8-4af3-b851-5c9505f4c6aa	1deec24f-5074-421e-b791-8df4fc7dbc5c	2023-08-21	Marmikok	6	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+8bceb9b8-d4b4-47ec-b9b7-a4a22fa41e00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2023-08-21	Marmikok	2	63	2026-06-01 22:50:07.293263+00	\N	none	\N
+55d1fbc3-d3fe-46d0-8d3b-c68b0f99b08a	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2023-08-21	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+9a6f6139-2b50-44e0-a645-917ec4056a40	521f2d74-463c-4737-bb85-c47d39e96845	2023-08-21	Marmikok	10	18.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+28874c01-e4ba-4050-a18a-ca93e45219d0	67f01c59-ce5f-467e-8597-714719412b84	2023-08-22	Spal	12	2.56	2026-06-01 22:50:07.293263+00	\N	none	\N
+f3cbb896-8cbc-4695-bdbd-feebecf4c103	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2023-08-24	Cassinelli	6	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+93dcd77a-65a7-468c-85e8-9074d712444e	e477c9c1-65f1-44b6-a4b1-3743e900407c	2023-08-24	Cassinelli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d43d5ace-2073-4f6d-86b5-357196392782	0475e15d-55ff-4030-afb5-1b5e68b585b0	2023-08-24	Cassinelli	6	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+e789cad5-695c-4aeb-842d-f0cf82083630	cad0f122-104f-4cdd-8da9-01ad147ecba8	2023-08-24	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+6c6a569e-07c2-427b-bf45-fe339c68e2ec	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2023-08-24	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+80371d4d-401c-4841-a855-32e188010b80	424d80dc-6975-4812-9571-b3baadd2db31	2023-08-28	Lacto Minas	2	3.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+601bb434-f6e0-440e-90b9-047e78f90831	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2023-08-28	Lacto Minas	2	2.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+e0bec0a7-1d08-4792-a66c-4208b758ed90	6e653ca6-0889-42d5-9b67-84e8565b67df	2023-08-28	Lacto Minas	1	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+d49fcf19-3523-4d9c-893c-012ee1c3f209	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2023-08-28	Lacto Minas	2	2.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+1026f703-b8b9-4b11-96b8-6afa5193624a	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2023-08-28	Condor	3	7.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+16526ca9-f700-45d6-b957-afd59283d747	daa9968f-370b-4c09-bc1e-b0a170f3142c	2023-08-29	Ricardo Abilio	1	3.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+8c7e6713-b575-4233-8458-7727e7e278ce	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2023-08-30	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+cb50a19a-2138-472a-b553-40d0d94c79a5	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2023-08-30	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+839a85b9-269d-402b-80fb-293a43bc9501	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2023-08-30	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c2fc7ec6-6547-4e2f-9ca4-1412a815f33a	ccaf6063-e307-4137-bf5f-ada8bac2926e	2023-09-02	Mercado Livre	2	50	2026-06-01 22:50:07.293263+00	\N	none	\N
+20fb92d1-b355-4697-be3c-677215416461	a28e10c8-33ef-450b-b49e-6c337036c092	2023-09-04	De Melo	2	78.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0aab0251-e4f1-4f49-876b-973829fdaad8	424d80dc-6975-4812-9571-b3baadd2db31	2023-09-05	Lacto Minas	2	3.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+6dfe3b01-6dc3-4b31-a2e4-f2a8cc412af4	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2023-09-05	Lacto Minas	4	2.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+064f047b-801e-4c2c-bed7-2726f8cb649a	49438d71-d79a-4758-b5a8-d6a08dce32a4	2023-09-05	Lacto Minas	2	2.45	2026-06-01 22:50:07.293263+00	\N	none	\N
+e6529a16-14a0-4be9-bdf0-fb8e11b7f69d	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2023-09-05	Lacto Minas	4	2.45	2026-06-01 22:50:07.293263+00	\N	none	\N
+8d94aa1a-9bcb-451b-9829-83548e750931	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2023-09-05	Lacto Minas	2	9.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+21a3c32e-74f5-42f3-be1a-16551d2121f4	f8c8e834-9063-4a25-8925-12db6592d203	2023-09-08	WHS	0.71	5.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+f1e1191b-05ad-4378-b24f-d3c9594ae0ce	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-09-08	WHS	3	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+8391fe07-c19f-497f-93fe-fd3517df3e7a	daa9968f-370b-4c09-bc1e-b0a170f3142c	2023-09-09	Distribuidora Povão	8	3.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+18392394-f660-45bf-b53a-3ae58d1532ed	1deec24f-5074-421e-b791-8df4fc7dbc5c	2023-09-14	Abilio	8	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+369a95f4-6ee1-4cae-8688-ed933a5d42d0	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2023-09-14	Abilio	2	63	2026-06-01 22:50:07.293263+00	\N	none	\N
+a4dfcdd6-db9b-4e3d-97eb-81717f403c2f	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2023-09-14	Abilio	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+998cab5c-eb12-401a-8964-d90e77313746	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2023-09-21	Cassinelli	6	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+1c6d4905-59a7-4927-80c4-41f6794809fa	e477c9c1-65f1-44b6-a4b1-3743e900407c	2023-09-21	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+894d6c26-ab76-42bc-be4d-decff808e751	0475e15d-55ff-4030-afb5-1b5e68b585b0	2023-09-21	Cassinelli	6	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+75cea715-1ce9-48b0-92dc-9c36f8aaae66	cad0f122-104f-4cdd-8da9-01ad147ecba8	2023-09-21	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d08fa0da-88db-434d-bdce-0fe2b9023418	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2023-09-21	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+543a979c-9529-44ed-a847-de0e444f1086	1deec24f-5074-421e-b791-8df4fc7dbc5c	2023-09-21	Franconny	20	38	2026-06-01 22:50:07.293263+00	\N	none	\N
+2313811b-bede-445f-a0a2-221bc4b94346	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2023-09-21	Franconny	2	49	2026-06-01 22:50:07.293263+00	\N	none	\N
+be1b2e97-6a01-491c-9106-528dd6185b02	1fc18535-6e74-4ac2-819c-40fe870a1cc8	2023-09-23	Real Limp	2	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+467b7cc6-793d-462d-8bbd-808fbcd59717	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2023-09-25	Condor	1	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+b49fd4f9-3d79-40dc-8785-ea38027a6cac	2cfc2c11-0a9a-477e-b284-cfea61d29148	2023-09-25	Condor	2	3.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+06a968a7-9d2e-490b-842b-0a0bc9c274b7	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-09-26	Condor	12	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+3fb4c6dc-b202-4f88-8720-ff53bad9f0db	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2023-09-27	Cassinelli	12	2.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+fa8296a2-7c99-4217-971c-402da00000b6	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2023-09-27	Cassinelli	12	2.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+c38d395f-8c8c-47e6-a009-dba4de18c96e	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2023-09-27	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c70189a4-9ae5-491f-a299-e337496b0283	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2023-09-27	Cassinelli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+2394e7e4-7f77-4494-9860-f9be9841381c	0475e15d-55ff-4030-afb5-1b5e68b585b0	2023-09-27	Cassinelli	6	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+1b03b37e-6c36-4c6a-b895-fc68d45fd74e	f8c8e834-9063-4a25-8925-12db6592d203	2023-09-28	Condor	0.79	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+d9c32527-bf75-47bf-8a82-f8a4a33539f2	6e653ca6-0889-42d5-9b67-84e8565b67df	2023-09-28	Lacto Minas	3	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+f38838b7-ab4c-4188-9d6e-0f404df07eba	49438d71-d79a-4758-b5a8-d6a08dce32a4	2023-09-28	Lacto Minas	3	2.45	2026-06-01 22:50:07.293263+00	\N	none	\N
+219333c9-b091-479f-a9ae-9a5fe120cece	6079efab-6235-4c98-97aa-43417ea5e2d2	2023-09-29	A Casa do Confeiteiro	1	27.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+7ff86d4f-80fd-43b8-805f-f1b55423da15	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-09-30	Muffato	24	2.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+bc3a5837-8600-461b-92e6-9398cded6dc3	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2023-10-16	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+9a5da074-e80e-4e62-b426-e69ae4c6ab60	e477c9c1-65f1-44b6-a4b1-3743e900407c	2023-10-16	Cassinelli	12	9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e1cc651f-4486-4e40-8f51-0582f236ff82	0475e15d-55ff-4030-afb5-1b5e68b585b0	2023-10-16	Cassinelli	6	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+1117e2ea-d1cd-42d2-be99-3f1b84af0505	cad0f122-104f-4cdd-8da9-01ad147ecba8	2023-10-16	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+f5c83d5a-2f57-46d4-868c-bc0e04e11fa1	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2023-10-16	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+e6fe73f0-520d-41dc-be16-4c6503396e11	521f2d74-463c-4737-bb85-c47d39e96845	2023-10-17	Abilio	10	18.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+dca60eb3-6d20-4910-8292-5d3478b2c179	67f01c59-ce5f-467e-8597-714719412b84	2023-10-18	Lacto Minas	4	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+db5a11e7-416c-4e9e-8705-3da264a76cd5	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-10-20	Muffato	12	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+371745c4-1255-472d-8bdd-14fa002f021a	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2023-10-20	Condor	4	4.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0dcfa553-d99c-4503-b13a-dd7f2f3b1557	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-10-21	Condor	72	2.85	2026-06-01 22:50:07.293263+00	\N	none	\N
+1622939e-9ae1-4762-ae51-7dd98057466e	8b870df4-27c9-4443-a952-3dae37e3e963	2023-10-25	Distribuidora Povão	4	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+85efe60e-8290-46e5-9b1f-33a151637ac8	f1c79b09-1819-49b5-9a1f-8cd77b013be6	2023-10-25	Netcoffee	3	47.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+7d23ba5f-4bbb-4deb-ac70-aff3e7419dd8	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2023-10-26	Nobelpack	400	0.63	2026-06-01 22:50:07.293263+00	\N	none	\N
+1b45b393-85b5-4d1c-b254-5a8a14572590	991d2a77-66a8-4811-9ba7-fc60329e3729	2023-10-26	Nobelpack	400	0.65	2026-06-01 22:50:07.293263+00	\N	none	\N
+a20c622f-c126-4aab-93f4-975f2af9b88f	11ef6eff-1063-4529-9c18-682b428908ed	2023-10-30	Mercadoce	50	2.23	2026-06-01 22:50:07.293263+00	\N	none	\N
+d5cd4508-7b38-4188-8105-e1cd79dd37cd	f8c8e834-9063-4a25-8925-12db6592d203	2023-11-02	Muffato	1005	3.87	2026-06-01 22:50:07.293263+00	\N	none	\N
+84d27193-5f77-4093-bd3d-aec7741e1a97	49438d71-d79a-4758-b5a8-d6a08dce32a4	2023-11-03	Adega	2	3.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b4454b14-7302-4213-9336-283dbe0959a5	49438d71-d79a-4758-b5a8-d6a08dce32a4	2023-11-03	Adega	3	0.83	2026-06-01 22:50:07.293263+00	\N	none	\N
+43faf6b5-826c-4f20-8e9e-903c67316873	09ce4212-faa0-4db9-9b46-66fc8fc9568b	2023-11-03	Adega	2	3.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+ee48d0a5-40ad-47a8-8ccc-2752f28562aa	6e653ca6-0889-42d5-9b67-84e8565b67df	2023-11-03	Adega	2	3.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+1e2a8dbf-c810-4416-ae00-947ac5ae1c66	5db6171c-d897-4894-af28-bbf63adad316	2023-11-03	Adega	2	3.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+2aa4f40e-d94f-41e3-b8d9-f3e6cf365727	21174f2c-7831-440d-9f5e-daa81d6b94c0	2023-11-03	Adega	2	3.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+486cb663-4bbe-40bb-9932-de6c7185b855	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2023-11-03	Adega	6	3.09	2026-06-01 22:50:07.293263+00	\N	none	\N
+f8c83dc2-0f6b-439c-99aa-27abc671d20c	57f021fd-13b0-4484-ab86-79782ef938c0	2023-11-03	Adega	6	3.09	2026-06-01 22:50:07.293263+00	\N	none	\N
+87c7ed62-48ce-4f4c-a077-ca158c8f5ca3	7a77e18f-94b7-4efd-8f6e-80964703a15f	2023-11-03	Adega	6	3.09	2026-06-01 22:50:07.293263+00	\N	none	\N
+91b2487b-fc49-4d4e-a199-0ee9d0f267f6	8850838c-26df-4793-b742-75c6ae75a10f	2023-11-03	Adega	6	3.09	2026-06-01 22:50:07.293263+00	\N	none	\N
+c0e1de96-7286-488d-9f16-4192216c5e63	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-11-05	Muffato	1	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+dfc5f77b-74f1-494c-951f-3b6c8ec47b1b	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2023-11-06	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+f9e9b126-51da-4217-b433-ce4e3b4813f1	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2023-11-06	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+794f1259-f4e7-4b7a-bbd7-9dd61ebaec40	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2023-11-06	Cassinelli	6	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+c6f3f54e-b058-4360-82e6-2f9b67f5f338	e59a1f84-380b-4081-a901-a6ed946a6d69	2023-11-07	FNS	6	50.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+7a5c9d72-28b3-4847-bbc6-c166cc27c007	d7372dd2-15df-4cff-8767-51fecdba54c5	2023-11-07	FNS	6	49.06	2026-06-01 22:50:07.293263+00	\N	none	\N
+745318bd-7aa8-4cc9-9812-9cb05497e688	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2023-11-07	FNS	20	21.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+98b859f4-9880-4ef1-948e-e27a0b887ab5	9cc01971-1ad8-4011-851b-6ca6a97d6284	2023-11-07	Spal	120	1.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+722549c9-ea0c-446c-bc60-27333f6f89b3	82fd5205-9fbf-4564-83df-6e16776c4718	2023-11-07	Spal	48	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+deb95e92-ad3e-46b0-9493-ec8ca90dcc8a	67f01c59-ce5f-467e-8597-714719412b84	2023-11-07	Spal	36	2.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+74b0aacc-d76d-4227-82d9-78a1c417bb3c	b053e306-2a07-4a66-a8c9-e091785f7df4	2023-11-07	Spal	6	2.06	2026-06-01 22:50:07.293263+00	\N	none	\N
+a06af0f1-23ba-42e9-b731-b4ec429bcf7b	521f2d74-463c-4737-bb85-c47d39e96845	2023-11-08	Abilio	6	20.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+9567b7f2-0287-4de8-bcc5-ae38992b124c	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2023-11-08	Abilio	2	6.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+b1420d40-b59d-4d40-bfea-da835e5fe44a	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2023-11-08	Abilio	6	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a6810338-ab60-432b-8ab0-f6e52febe7ce	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2023-11-08	Abilio	3	63	2026-06-01 22:50:07.293263+00	\N	none	\N
+5cf82021-d155-4a7d-832d-8aa5925da0b8	521f2d74-463c-4737-bb85-c47d39e96845	2023-11-08	Abilio	4	18.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c340b283-58e4-4bdb-a3fb-678bc1d77642	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2023-11-14	condor	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b009971-ab36-4c35-9e36-c76cc75dcb28	f8c8e834-9063-4a25-8925-12db6592d203	2023-11-14	condor	1.55	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+a9760f84-b689-4b3d-99b8-d35b74b3a7f0	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-11-15	Condor	12	2.88	2026-06-01 22:50:07.293263+00	\N	none	\N
+d9d987cc-7495-4b13-833d-5fd3661cb9b7	5bdb156e-ac02-4634-bf62-15455ab1eea3	2023-11-16	Confeitar	1	37.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+0487415b-7769-4af3-858b-a82161ea99eb	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-11-18	Condor	12	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+4df4eb90-e325-4ea3-8839-e701a44c841c	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2023-11-18	Cassinelli	6	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+cc0c5007-4025-4586-a095-4916bc40b0e4	e477c9c1-65f1-44b6-a4b1-3743e900407c	2023-11-18	Cassinelli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d13dd28f-0d59-48a5-a43a-cef0983dbdaa	cad0f122-104f-4cdd-8da9-01ad147ecba8	2023-11-18	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+0f0a7779-fb46-42b3-9d55-ca051eee9d66	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2023-11-18	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fc3e04b8-1d87-4332-aa71-3e12cb11eb31	0475e15d-55ff-4030-afb5-1b5e68b585b0	2023-11-18	Cassinelli	12	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+326d3810-ee4f-406e-8732-d15407a6ef09	1deec24f-5074-421e-b791-8df4fc7dbc5c	2023-11-20	Franconny	16	38	2026-06-01 22:50:07.293263+00	\N	none	\N
+24745433-17ae-49ca-ac7d-936294d4afc1	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2023-11-20	Franconny	4	49	2026-06-01 22:50:07.293263+00	\N	none	\N
+eb605775-57a2-4dbc-aa00-e194f31ed505	521f2d74-463c-4737-bb85-c47d39e96845	2023-11-21	Marmikok	6	20.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3cfae51f-b537-496f-aeca-564b3e937511	8b870df4-27c9-4443-a952-3dae37e3e963	2023-11-21	Armázem das embalgens	6	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+644fd03f-a7d2-4638-8bd1-15a4892e9628	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-11-22	jullye Frutas	1	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+49c9c623-f627-4c5f-b81e-c4efc95e4a66	521f2d74-463c-4737-bb85-c47d39e96845	2023-11-29	marmikok	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+2d00a8d6-74f7-4896-aca0-a1e7c277d948	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2023-11-29	marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+20a9e400-04bb-4afd-9612-6a7a6f9fda16	a3f83a8d-f611-4a1c-955b-1ac615348b94	2023-11-29	marmikok	2	42.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+da7f0ce1-ae1c-4bcf-99e6-d479d7173c53	9cc01971-1ad8-4011-851b-6ca6a97d6284	2023-11-30	Spal	84	1.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+77880245-c539-4f9e-a3ab-46e0aedd27e4	82fd5205-9fbf-4564-83df-6e16776c4718	2023-11-30	Spal	36	3.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e672c9a0-6342-4026-b0f9-14d2184ff0f7	b053e306-2a07-4a66-a8c9-e091785f7df4	2023-11-30	Spal	12	2.05	2026-06-01 22:50:07.293263+00	\N	none	\N
+3c5aa9d9-ca21-451d-bc34-5edc695f3821	67f01c59-ce5f-467e-8597-714719412b84	2023-11-30	Spal	24	2.06	2026-06-01 22:50:07.293263+00	\N	none	\N
+263dabd8-d405-45b6-94a0-0d24e350dcc8	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-12-02	Condor	12	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+2a7e5aad-eba4-4fa1-887e-d58016ba535e	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-12-02	Condor	13	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+30f5198e-1fa7-4104-a2f3-57179e704001	9cc01971-1ad8-4011-851b-6ca6a97d6284	2023-12-02	Condor	24	2.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+86e66a6f-f5b0-41b5-98c9-c00310db5d23	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-12-02	Condor	48	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+a3fc6390-8bc0-426f-a950-b7063efc5dc0	f8c8e834-9063-4a25-8925-12db6592d203	2023-12-02	Muffato	0.405	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+eb9f6d15-a73b-4a01-8a8e-3204d7822e35	82fd5205-9fbf-4564-83df-6e16776c4718	2023-12-03	Condor	6	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+be9792b6-b8f9-482c-b126-74a971c6b797	9cc01971-1ad8-4011-851b-6ca6a97d6284	2023-12-03	Condor	30	2.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+9d79699e-3650-46eb-9e7a-e585d5bc3fa4	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-12-04	condor	1	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+387ad608-5eb4-4cb0-98aa-0ff050934ee8	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-12-04	Condor	48	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+7b0e1508-940a-4479-9919-00c56e29e1ce	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2023-12-06	Cassinelli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+07167b96-7bf7-4ac4-8e17-1dc0f0b4da3e	e477c9c1-65f1-44b6-a4b1-3743e900407c	2023-12-06	Cassinelli	12	9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0d7e3c57-916e-4497-88ae-6b3702a2e0a5	0475e15d-55ff-4030-afb5-1b5e68b585b0	2023-12-06	Cassinelli	6	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+43d73bc1-e99c-4d2d-845d-0ae217b4752e	cad0f122-104f-4cdd-8da9-01ad147ecba8	2023-12-06	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+49b7e134-00b5-4b77-8f8d-ca6c06316d0d	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2023-12-06	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+add367e9-19c4-43b5-bd52-1be3f2b1f633	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-12-09	Jullye Frutas	4	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+e51d4998-98c2-493d-972c-48d247aded06	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2023-12-11	Armázem das embalgens	10	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+6e94b2b7-05fc-473d-8da9-1d89b51f09cf	82fd5205-9fbf-4564-83df-6e16776c4718	2023-12-11	Spal	48	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+8f7a4286-c2a0-4fc0-ae56-2bd11fa71485	b053e306-2a07-4a66-a8c9-e091785f7df4	2023-12-11	Spal	12	2.05	2026-06-01 22:50:07.293263+00	\N	none	\N
+e5d4eb8a-31a4-46ea-af4a-96ed7ee610d0	67f01c59-ce5f-467e-8597-714719412b84	2023-12-11	Spal	24	2.06	2026-06-01 22:50:07.293263+00	\N	none	\N
+c93d5bc5-fc85-4e65-a374-55ba75f541f8	09ce4212-faa0-4db9-9b46-66fc8fc9568b	2023-12-15	Adega	6	2.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+6ee5757f-6886-432f-b517-a92c0969fe73	9cc01971-1ad8-4011-851b-6ca6a97d6284	2023-12-15	Adega	96	0.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+a46189f9-a253-4f63-9643-aed35fcd6688	5db6171c-d897-4894-af28-bbf63adad316	2023-12-15	Adega	6	2.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+d70a9885-d879-4284-a592-9b80b967b625	21174f2c-7831-440d-9f5e-daa81d6b94c0	2023-12-15	Adega	6	2.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+df848070-0223-477d-b1fb-97ae29d290b1	6e653ca6-0889-42d5-9b67-84e8565b67df	2023-12-15	Adega	6	2.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+bb61f44c-959e-450e-b235-e00572d03468	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2023-12-16	marmikok	4	63	2026-06-01 22:50:07.293263+00	\N	none	\N
+ea313182-0279-46be-85c9-71903372ae48	521f2d74-463c-4737-bb85-c47d39e96845	2023-12-16	marmikok	12	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+b2092b80-7200-47c7-9dde-e2cd71dede4b	81b9ed64-d226-44d7-810b-6f15b64535d8	2023-12-19	Lacto Minas	52	3.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+fbcf3616-b784-4227-b1d6-1237ebe728f8	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2023-12-22	Muffato	1	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+14568985-77fe-4726-92f1-76e50eccb1a0	f8c8e834-9063-4a25-8925-12db6592d203	2023-12-22	Muffato	0.14	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+b6bb79f6-82de-42fc-b4d3-81af847be72b	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-01-02	Marmikok	2	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+8442c830-64d4-4f18-8d01-f70fc6351108	9be978f0-4961-40b6-b4eb-c75fe6798110	2024-01-02	Lacto Minas	3	11.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0da8ad87-d8c0-424a-addc-6a29e25efe1f	82fd5205-9fbf-4564-83df-6e16776c4718	2024-01-03	Spal	72	1.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+eb5d2fa6-f4c0-41f6-8ede-42c930c70578	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-01-03	Spal	12	2.05	2026-06-01 22:50:07.293263+00	\N	none	\N
+fbb33eae-6956-4d91-8d91-c2b516ca5299	67f01c59-ce5f-467e-8597-714719412b84	2024-01-03	Spal	24	2.06	2026-06-01 22:50:07.293263+00	\N	none	\N
+cd73c009-ddbe-4dae-9892-2f0e74693ce4	f8c8e834-9063-4a25-8925-12db6592d203	2024-01-04	Condor	2195	2.87	2026-06-01 22:50:07.293263+00	\N	none	\N
+515ba8f0-5c76-4f61-a9e8-7952af547407	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2024-01-04	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d53a16fe-25ba-4c7e-9f74-c5af2c068f0e	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2024-01-04	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+029adac9-0440-4451-8f09-88b231bb5e20	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2024-01-04	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8d1c3b54-ba11-4224-bdb6-4707c413a550	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-01-04	Cassinelli	6	9	2026-06-01 22:50:07.293263+00	\N	none	\N
+54d801e8-9389-4d9d-95bb-7d54fec96217	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-01-04	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+f62c1a4c-4f8a-46e7-bf1b-9f4099fe9388	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-01-04	Frubana	36	3.84	2026-06-01 22:50:07.293263+00	\N	none	\N
+d434975b-5af1-4711-af48-cb308517c3e1	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-01-05	Abilio	4	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+8480c0ca-9022-4d4b-8582-5f29fd50cbcc	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2024-01-05	Abilio	2	63	2026-06-01 22:50:07.293263+00	\N	none	\N
+7f3d8e7e-6e7a-4a2d-ba35-484e7efe9d7b	521f2d74-463c-4737-bb85-c47d39e96845	2024-01-05	Abilio	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e8dacec1-2417-45e5-aa2c-f8b7c7e4322f	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2024-01-05	Abilio	4	6.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+db4364b7-7a00-4bbd-beef-efff9dc12f6c	a3f83a8d-f611-4a1c-955b-1ac615348b94	2024-01-05	Abilio	3	42.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e6d0ef83-e4a7-4120-8a90-7ff0a76c09c4	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2024-01-05	Abilio	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+aa777208-025e-4ae0-9377-44c7d97bfe67	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-01-05	Abilio	4	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8c822b59-107b-49da-a279-d69d5f23c2c6	9e029ad3-c02c-4887-bd60-d1bd5a417210	2024-01-05	Abilio	1	23.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+36c91998-dcd7-4d2e-a637-336efda6bb1c	82fd5205-9fbf-4564-83df-6e16776c4718	2024-01-07	Condor	12	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+2e89ff82-2c8c-48cf-9129-bc64b485cb55	493d4e21-eaa5-4711-ae8b-b73fad3822de	2024-01-07	Condor	6	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+deb1cc9b-29f8-4b33-a279-aa5f036c8056	02cfebe2-4de3-4c77-a73e-903b185d54a6	2024-01-08	Super Brilho	4	7.88	2026-06-01 22:50:07.293263+00	\N	none	\N
+437ea3ac-9211-453a-87b9-fe17df4ed1f7	96abcb52-14df-4ad2-b433-2aee0669ee30	2024-01-08	Super Brilho	4	12.88	2026-06-01 22:50:07.293263+00	\N	none	\N
+f312195c-8804-4a9a-99e2-d74f0b40b0e9	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2024-01-08	Super Brilho	3	10.92	2026-06-01 22:50:07.293263+00	\N	none	\N
+31f1cea4-a045-4e23-b41e-224f7b35426a	03b764ae-765a-45cd-b897-da245f712055	2024-01-08	Super Brilho	4	23.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+1e6959c2-5da4-49a6-9339-fc4fe3974002	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2024-01-08	Nazapack	160	12.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+0705d0e6-5053-4cda-b357-ffcdc3df5047	e59a1f84-380b-4081-a901-a6ed946a6d69	2024-01-09	FNS	6	50.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+a70e40f8-6247-42dd-b72a-41e3d6882cac	d7372dd2-15df-4cff-8767-51fecdba54c5	2024-01-09	FNS	6	49.06	2026-06-01 22:50:07.293263+00	\N	none	\N
+614b96cb-3a50-4bbd-8e09-e8f15b40bf72	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-01-09	WHS	60	3.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+8b22c90f-aa2c-4ae1-b61b-ac45a1ec137d	67f01c59-ce5f-467e-8597-714719412b84	2024-01-09	WHS	12	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+71fb62e1-83c8-49af-ba0e-eed838e688c7	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-01-09	WHS	6	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+420deae0-8117-4825-8dce-309c394f4517	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-01-10	Franconny	20	38	2026-06-01 22:50:07.293263+00	\N	none	\N
+8c785e1b-8b8c-42d8-9ae9-a963ed1fbf33	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2024-01-10	Franconny	8	49	2026-06-01 22:50:07.293263+00	\N	none	\N
+3bb2e905-d0d5-41e6-9a56-4530a99db1b2	daa9968f-370b-4c09-bc1e-b0a170f3142c	2024-01-10	mercado das embalagens	1	5.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+986dac38-f78e-4c8a-b5f0-a4f7ac123158	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2024-01-15	Lacto Minas	2	7.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+0488b6b4-6fb0-4f11-a241-e0f3dee3d48e	a5f552f1-4392-4c53-977f-08739186fcb5	2024-01-15	Lacto Minas	5	12.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+ba944e91-e3ef-45de-88aa-19daa19e7491	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2024-01-15	Astoria	5	75	2026-06-01 22:50:07.293263+00	\N	none	\N
+9ba9285e-2743-477b-a44f-6b160c83e704	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-01-17	Spal	144	1.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+c04b4e6d-5cf4-4e79-914d-388b919ffe89	67f01c59-ce5f-467e-8597-714719412b84	2024-01-17	Spal	24	2.06	2026-06-01 22:50:07.293263+00	\N	none	\N
+8231a294-2e2c-433c-8887-ed9b533a25c3	49438d71-d79a-4758-b5a8-d6a08dce32a4	2024-01-17	Spal	1	18.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+e236c725-fd37-4bea-acf0-89f85520e996	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-01-17	Spal	6	2.05	2026-06-01 22:50:07.293263+00	\N	none	\N
+70c9761c-dd6f-4245-88a9-ed377b75a0d9	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-01-17	Frubana	24	3.83	2026-06-01 22:50:07.293263+00	\N	none	\N
+3b3fb1a8-3c8d-4871-b615-4dfaaa98a44c	521f2d74-463c-4737-bb85-c47d39e96845	2024-01-25	Abilio	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+1b33e024-9cb5-4025-a7bf-3ff81592bdfe	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2024-01-25	Abilio	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+570ed806-532a-4eae-a4bb-b73362eda1ee	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-01-25	Abilio	6	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fc0cf6a3-840d-4338-9d65-3f8aa2faf853	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-01-30	Condor	48	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+98d61914-26f2-47d5-9d8b-9cb55003f126	2980bb3d-2d48-4576-9994-f920221a2561	2024-01-30	Condor	1	15.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+9b4e3ce9-6cc3-4880-a7ff-dacff2cbf8a7	ab0eb23d-9995-4851-a934-ec1a7a541551	2024-01-30	Condor	2	22.57	2026-06-01 22:50:07.293263+00	\N	none	\N
+d7839524-7de4-462f-b473-5175f99e0e26	02cfebe2-4de3-4c77-a73e-903b185d54a6	2024-01-31	Super Brilho	5	7.88	2026-06-01 22:50:07.293263+00	\N	none	\N
+47359dfa-3f73-4ba8-87db-0c78362e2f47	96abcb52-14df-4ad2-b433-2aee0669ee30	2024-01-31	Super Brilho	3	12.87	2026-06-01 22:50:07.293263+00	\N	none	\N
+0e624812-87ea-4c9d-ae14-ffc8be9ea2ec	03b764ae-765a-45cd-b897-da245f712055	2024-01-31	Super Brilho	4	23.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+ba0038ff-c90d-4c90-a96a-7aadc4f94e8c	04a5a69c-bedb-495f-bf98-9faf1291b284	2024-01-31	Super Brilho	2	32.27	2026-06-01 22:50:07.293263+00	\N	none	\N
+9be14874-c328-4c12-b4e6-ae542c51fd98	6c1388ea-5eda-4f92-804d-9dc6f4452579	2024-01-31	Super Brilho	3	29.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+86d69fa0-2535-4437-9f3a-7fccb663d872	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-01-31	Cassinelli	6	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+7085a9e4-c3a9-4b95-b344-e8c798f8dea7	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-01-31	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+99a01526-cf85-4bad-b8c7-c3a845113d2a	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-01-31	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+eee4f226-eb58-4be5-a479-6c4803ad061e	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-01-31	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3100345a-461b-4cff-b882-e2804f2943d9	8b870df4-27c9-4443-a952-3dae37e3e963	2024-01-31	comercial barbante	8	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+a822044f-7271-4ae6-a787-90dee0f0886e	a40de54b-d141-412d-83f5-8e0f1fc7102d	2024-01-31	comercial barbante	20	2.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+78e08538-020d-4c7e-89ff-f93b6b8c6a58	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2024-01-31	Pereira Atacado	5	6.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+586d0c17-d389-41f8-bff3-5a9031995e5e	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-01-31	Condor	12	3.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+5e778b4c-6c80-42bc-a450-a3ceb4f1bc3d	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-01-31	Condor	11	3.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+907cf133-6f11-46f0-8c56-40b4d617dcbe	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-01-31	Condor	13	3.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+bb66fb50-bf68-4877-aaf9-de9c1a2680db	eb9ed0b3-2065-4517-a827-7689183db366	2024-01-31	Lacto Minas	3	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+da0a5000-b8e1-4f04-90c7-40ce0c74736e	95d9f130-2433-4f3e-882b-e420e62254e4	2024-01-31	Lacto Minas	4	9.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+f54d986f-26e0-4418-be35-7a49da4a4c79	9be978f0-4961-40b6-b4eb-c75fe6798110	2024-01-31	Lacto Minas	4	11.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+7c2ae71c-1478-4cd4-98db-2bac5f4dfa5d	521f2d74-463c-4737-bb85-c47d39e96845	2024-02-03	Abilio	12	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+772b992b-0f52-4bca-89d8-f37a95be2ba1	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2024-02-03	Abilio	8	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+4b606cfc-b152-4e7e-b591-57a0b4682568	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2024-02-03	Abilio	10	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+6be6cb0b-21b2-4c22-82a6-325b492ee56f	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-02-03	Abilio	10	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3fffc84e-5708-4d12-a195-75fc9f8604f6	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2024-02-03	Abilio	2	16.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d25ea75d-fe59-4c42-836c-42d6634dd2ea	1fca9f85-323c-4656-9b0a-a4e0cf74083e	2024-02-03	Abilio	1	7.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+461242f7-e7bc-445d-94e6-2dc0ea05c689	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-02-03	Condor	72	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+30e54520-7002-4735-86d1-3d21763fbc6e	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-02-07	Condor	72	3.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+615a3f31-235f-4b8d-b51a-67f088bc6f5c	e128a46c-38f5-484f-8ee0-d78c6da749f5	2024-02-08	Comercial Barbante	3	3.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+9736d160-aca7-49e7-869e-da3dfda5f257	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-02-09	Condor	36	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+60598c2d-328e-4472-bf8f-9075c814297d	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-02-13	Condor	10	2.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+1ffe58fa-eb03-4e42-b736-13c3a8dd9c8a	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-02-13	Condor	48	1.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+f94eb78f-75c3-4f61-ada5-48271715111f	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-02-13	Condor	12	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+d6f98963-1703-4b56-ad50-49bb77e18e00	521f2d74-463c-4737-bb85-c47d39e96845	2024-02-17	Marmikok	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+bc0ce387-5117-45e4-86af-d7125ace1d0b	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-02-17	Marmikok	4	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+574ba385-1229-4e1a-8359-96621a2be0b6	5bdb156e-ac02-4634-bf62-15455ab1eea3	2024-02-20	casa do confeiteiro	3	40.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+b1719b2b-9185-4608-91cb-3d32c64d1c8b	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2024-02-20	Condor	2	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+5a57fd44-32f0-4063-a7f4-79c87fad46bb	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-02-20	Condor	48	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+b696f455-e571-40c1-8775-70aa80c97780	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-02-20	Spal	120	1.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+8b64972d-1278-4176-a5a3-6956c5a0f963	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-02-20	Spal	6	2.05	2026-06-01 22:50:07.293263+00	\N	none	\N
+339509ca-f07c-4797-816a-4d0bcb4320c1	82fd5205-9fbf-4564-83df-6e16776c4718	2024-02-24	Condor	34	2.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+f109c64f-9cc9-405c-8776-577b09d47588	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-02-24	Condor	62	1.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+267a2391-247b-465e-abf9-1e64cf5a0f2b	49438d71-d79a-4758-b5a8-d6a08dce32a4	2024-03-01	Spal	1	18.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+1c4aab63-e6ff-4578-b0f8-621bf58752fd	8850838c-26df-4793-b742-75c6ae75a10f	2024-03-01	Spal	6	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+3e4d9f70-159c-4150-92ea-fa116e338093	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-03-01	Spal	72	1.24	2026-06-01 22:50:07.293263+00	\N	none	\N
+075216ac-cb7c-48e4-bbf4-a6671dacb3fd	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2024-03-01	Spal	6	2.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+92309921-5702-4d95-b7aa-c6b5f43b95e3	82fd5205-9fbf-4564-83df-6e16776c4718	2024-03-01	Spal	48	1.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+534060f2-e241-4d15-863f-2d2bca50811d	67f01c59-ce5f-467e-8597-714719412b84	2024-03-01	Spal	24	2.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+dce4c086-aefd-403d-b7d7-4c829a4802e6	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-03-01	Spal	12	2.17	2026-06-01 22:50:07.293263+00	\N	none	\N
+044f07f1-4f07-4dda-8d01-feb6b647febb	7a77e18f-94b7-4efd-8f6e-80964703a15f	2024-03-01	Spal	6	2.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+714af277-62c7-47b0-a92b-996704f59ffe	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2024-03-03	Garante Dist	3	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+c035c21b-4023-4697-97d8-dd32db6f0e2e	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-04	Condor	24	4.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+2231348b-cab3-4666-8e06-30d881e15e5c	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-04	Condor	24	4.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+d65d0505-4d36-4074-a083-3bb73291698c	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-04	condor	48	4.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+c9f29f64-9b6f-430e-9b80-f3b7d5354114	9be978f0-4961-40b6-b4eb-c75fe6798110	2024-03-04	condor	1	23.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+aa31f614-887d-4d01-8cb5-837e3d3e179b	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-03-05	Franconny	20	38	2026-06-01 22:50:07.293263+00	\N	none	\N
+24d9ad9d-242a-456d-a3d5-afcd1d617274	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2024-03-05	Franconny	8	49	2026-06-01 22:50:07.293263+00	\N	none	\N
+3bd6386c-3ac0-43c6-af05-bcaaf115098e	521f2d74-463c-4737-bb85-c47d39e96845	2024-03-07	Abilio	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+b691368e-1266-46d8-a60e-8747d46ccef4	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-03-07	Abilio	2	6.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+cd9b588d-0a8d-4fa5-bf89-c8388f3d30d7	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-08	WMS	100	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+252ae279-d709-4b09-b557-b29cea939b64	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-10	Circuito	24	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+5a1b923d-af68-4b38-8332-48763a6b0e5b	5bdb156e-ac02-4634-bf62-15455ab1eea3	2024-03-12	casa do confeiteiro	3	40.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+454d651c-3f7d-4e2e-9cf5-838b23c2f225	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-13	Frubana	108	4.12	2026-06-01 22:50:07.293263+00	\N	none	\N
+563d4ddc-0b6e-4609-929f-3135e8766626	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-13	Condor	12	3.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+9509821b-ac6d-428a-8d2f-919d22bf1e8c	82fd5205-9fbf-4564-83df-6e16776c4718	2024-03-14	Spal	48	1.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+31cd3b51-b364-434c-9595-202a760a5210	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-03-14	Spal	6	2.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+32e6c585-3a02-473a-9c7b-2d24ecc1b827	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-03-14	Spal	120	1.24	2026-06-01 22:50:07.293263+00	\N	none	\N
+6d01b69a-5e27-418f-8693-eb522b6ad92c	67f01c59-ce5f-467e-8597-714719412b84	2024-03-14	Spal	24	2.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+92e79c09-83c3-4cbc-be2d-14bfda0341de	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-03-14	Condor	31	1.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+25e8f064-bb7b-4084-b06a-f6e7ae92ecff	521f2d74-463c-4737-bb85-c47d39e96845	2024-03-16	Marmikok	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+119bf6b1-fe47-45dc-bc43-2b1eeae9d19f	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-03-16	Marmikok	4	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+97a29cb3-32f3-4173-ae28-ca5f54899544	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2024-03-01	Spal	1	20.76	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+59c917a8-8790-4ccb-b43c-579f0fdbe217	d7372dd2-15df-4cff-8767-51fecdba54c5	2024-03-21	FNS	20	24.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+f56e9a8c-caa4-4798-a252-47c54c23892b	a40de54b-d141-412d-83f5-8e0f1fc7102d	2024-03-21	FNS	20	8.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+777fb370-057b-49ce-9e03-1a2103055574	e59a1f84-380b-4081-a901-a6ed946a6d69	2024-03-21	FNS	20	21.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+e3c35143-b74d-4229-bb02-294c0126c6f9	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-03-22	Frubana	108	4.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+67dfaf0d-0c0e-4356-9f68-8688e92a1379	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-03-22	Muffato	2	7.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+a64b713f-3183-4b84-ac2e-0fc9b490049f	9be978f0-4961-40b6-b4eb-c75fe6798110	2024-03-25	Condor	3	24.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+acde35a8-435a-46f0-9a8c-e75dd9d23b99	5bdb156e-ac02-4634-bf62-15455ab1eea3	2024-03-25	casa do confeiteiro	3	40.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+47f9cd2b-e3cf-48ef-ada5-5d7071569413	8b870df4-27c9-4443-a952-3dae37e3e963	2024-03-25	Comercial embalgens	4	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+a6e9f3c0-a7d6-4681-b665-3282b5cd2b10	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2024-03-27	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+7b2fef23-055a-45c3-9959-ded07de13a99	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2024-03-27	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b22b98cc-fd6c-4954-bed1-6dfb5f0f66c5	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2024-03-27	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fd28152e-6733-4ff3-81b4-ca09ec67496b	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-03-27	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b79150b3-b816-43fc-b06b-d3a1cc6777a1	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-03-27	Cassinelli	12	9	2026-06-01 22:50:07.293263+00	\N	none	\N
+744bc517-72d7-4e41-bcf9-3095b9d916d0	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-03-27	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+1d6576e9-112e-4424-afc6-7a89b7263557	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-03-27	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c7d9ea3b-3244-4247-84d6-86fa9e42bf97	0475e15d-55ff-4030-afb5-1b5e68b585b0	2024-03-27	Cassinelli	12	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+aabeee81-6fed-43f9-a3b4-4819fc1f853f	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-03-28	Spal	108	1.24	2026-06-01 22:50:07.293263+00	\N	none	\N
+3c7c7616-2436-413d-a855-9b7c1156eb7e	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-03-28	Spal	12	2.17	2026-06-01 22:50:07.293263+00	\N	none	\N
+0e386fc9-7184-4f16-a4f5-3eee1fc2ec3d	82fd5205-9fbf-4564-83df-6e16776c4718	2024-03-28	Spal	60	1.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+45b2e6b1-804c-40e2-8e29-ca03bd4190fd	67f01c59-ce5f-467e-8597-714719412b84	2024-03-28	Spal	12	2.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+b64b0759-2d21-48b6-8d8d-5567bc093755	521f2d74-463c-4737-bb85-c47d39e96845	2024-03-28	Marmikok	12	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0c714f11-68dd-43b9-bba0-868ab1054af5	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-03-28	Marmikok	3	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a1bb6412-11d1-4992-b42b-c2a74ed4b47e	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2024-03-28	Marmikok	3	7	2026-06-01 22:50:07.293263+00	\N	none	\N
+74078c0a-6276-4335-b91a-7f469f4af734	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2024-04-01	Astoria	3	75	2026-06-01 22:50:07.293263+00	\N	none	\N
+0983f6bb-5257-4b9d-bbc6-c0c68a9a1a6a	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-04-05	Muffato	2	9.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+91908ca4-5adb-4f85-977b-0d1236f73e77	f8c8e834-9063-4a25-8925-12db6592d203	2024-04-05	Muffato	0.715	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d9bc2d69-b75e-4bbd-a743-e332121955fd	521f2d74-463c-4737-bb85-c47d39e96845	2024-04-13	Marmikok	3	19.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+c55a3ddf-e1d5-4402-8c19-c446d9f8b93e	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2024-04-13	Marmikok	50	1.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+f34ad6c1-7a05-493e-994c-784dd78bb7f2	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2024-04-13	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+d1cadbeb-f990-40ea-8366-84f015784724	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-04-13	Marmikok	4	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fc794c68-d31b-4cb7-8705-0eee600d9f7e	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2024-04-13	Marmikok	4	7	2026-06-01 22:50:07.293263+00	\N	none	\N
+12f50aac-5883-417b-9e64-d140ae9b87a2	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2024-04-13	Marmikok	3	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+ffce4843-548c-40f2-b837-c42e248de499	5bdb156e-ac02-4634-bf62-15455ab1eea3	2024-04-13	casa do confeiteiro	2	40.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+8c6a0503-fa30-44d3-924e-fbe42dee1bff	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-04-16	Muffato	2	14.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+7927a40b-e6f7-475f-bc41-7a114a432942	2980bb3d-2d48-4576-9994-f920221a2561	2024-04-17	Muffato	2	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+c80e9beb-6b0d-443f-9c00-66bb64a10995	5bdb156e-ac02-4634-bf62-15455ab1eea3	2024-04-20	casa do confeiteiro	2	40.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+41e0b300-2907-4fc9-94c2-0e5945dd8d02	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2024-04-20	Lacto Minas	1	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+87b60ba3-9806-494a-a700-292d09ed920f	9be978f0-4961-40b6-b4eb-c75fe6798110	2024-04-20	Lacto Minas	2	11.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+a74e2500-4079-4ffc-80ab-054a0a16807b	95d9f130-2433-4f3e-882b-e420e62254e4	2024-04-20	Lacto Minas	2	9.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+83154df2-1969-4988-bf1d-02b2277081e4	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2024-04-23	Spal	6	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+f0415134-3e69-4d57-8c92-4fc7733568ca	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-04-23	Spal	12	2.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+337750aa-d597-46fb-aac5-27a91c994111	82fd5205-9fbf-4564-83df-6e16776c4718	2024-04-23	Spal	48	1.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+6f9a9870-da65-42a2-a69d-182abc90e25c	8850838c-26df-4793-b742-75c6ae75a10f	2024-04-23	Spal	6	2.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+8efe13b4-81ea-4bca-a4e6-4e558c82e90d	67f01c59-ce5f-467e-8597-714719412b84	2024-04-23	Spal	24	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+5e8803d1-5a04-4056-abd0-6a9535d6d2fb	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-04-23	Spal	72	1.24	2026-06-01 22:50:07.293263+00	\N	none	\N
+27380b10-020f-48c8-a357-8303880cc480	7a77e18f-94b7-4efd-8f6e-80964703a15f	2024-04-23	Spal	6	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+245f0bf5-efcb-44d0-a7de-74e47004c5a9	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-04-23	Condor	3	4.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+fe99b31e-e573-44fb-8a59-5f0c92cec9cd	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-04-24	Cassinelli	12	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+7b99dfa5-8be4-46ed-8b3e-af9926938076	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-04-24	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+df9091df-97ff-4dbc-8af1-390f28c0c8c1	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-04-24	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+19b0e549-82aa-4e18-a854-a2cdefd8ba95	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-04-24	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b57f0f4-80e3-4480-b821-86a26a194411	0475e15d-55ff-4030-afb5-1b5e68b585b0	2024-04-24	Cassinelli	12	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8e31ac30-6eac-49a2-85b5-75aea49b5179	521f2d74-463c-4737-bb85-c47d39e96845	2024-04-24	Marmikok	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+36b4914a-ff98-4b2d-b823-cd07f4391ea8	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-05-06	Franconny	20	38	2026-06-01 22:50:07.293263+00	\N	none	\N
+ef5722a9-0407-419e-b259-fb22d2637604	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2024-05-06	Franconny	6	49	2026-06-01 22:50:07.293263+00	\N	none	\N
+c7b5b167-dce2-4e34-b60a-5bdad69e3b11	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2024-05-08	Nobelpack	400	0.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+201c23c7-1ad4-4e9e-9e9a-f58ece00d2da	991d2a77-66a8-4811-9ba7-fc60329e3729	2024-05-08	Nobelpack	200	0.66	2026-06-01 22:50:07.293263+00	\N	none	\N
+1145e8fe-8a20-4f04-b1f1-accab1dcc7e9	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2024-05-08	Nazapack	120	12.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+e390ca29-89c3-40ec-aa33-9abf0a862115	2980bb3d-2d48-4576-9994-f920221a2561	2024-05-08	Condor	2	7.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+2f5392cd-a81f-4d54-8663-305d8de9cc50	ab0eb23d-9995-4851-a934-ec1a7a541551	2024-05-08	Condor	1	29.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+74dbd9c5-2f54-4d2b-b530-39852311f369	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-05-08	Spal	18	2.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+f5504659-c3c5-44c0-a9e1-9381554ff1fa	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2024-05-08	Spal	6	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+66385f89-9c4d-4329-9427-0c07888e89dd	82fd5205-9fbf-4564-83df-6e16776c4718	2024-05-08	Spal	60	1.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+ce7fd711-ef83-4157-867a-300f9a67004d	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-05-08	Spal	96	1.24	2026-06-01 22:50:07.293263+00	\N	none	\N
+afeac46b-d00f-47cc-afd4-85d35313417e	7a77e18f-94b7-4efd-8f6e-80964703a15f	2024-05-08	Spal	6	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+6c948408-af82-4c1d-8341-19b3baf47b95	67f01c59-ce5f-467e-8597-714719412b84	2024-05-08	Spal	36	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+103f35a6-fb0e-47b2-9a30-3b36ab1fac72	8850838c-26df-4793-b742-75c6ae75a10f	2024-05-08	Spal	6	2.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+b39cc245-d50e-4ec1-baa1-a20561cb5bc7	521f2d74-463c-4737-bb85-c47d39e96845	2024-05-10	Marmikok	6	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+ee410764-bbe0-49dd-ab91-b2d17dfc5bd2	82fd5205-9fbf-4564-83df-6e16776c4718	2024-05-12	Spal Industria	240	1.24	2026-06-01 22:50:07.293263+00	\N	none	\N
+1103eb61-5d38-421a-8662-37b6d990f4c5	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-05-12	Spal Industria	96	1.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+1e3c0e28-5f7e-4bf1-af48-70fa0054c0a6	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-05-17	jullye Frutas	4	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+4337d6fe-55d2-4dc4-b6d7-5c4c8d17cc45	f8c8e834-9063-4a25-8925-12db6592d203	2024-05-17	Muffato	0.405	9.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+10822273-5ba2-4b14-bed7-0195ced7a445	8b870df4-27c9-4443-a952-3dae37e3e963	2024-05-24	Comercial embalgens	10	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+a986999f-cc09-45da-9a7f-9d73e74fdb9e	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-05-28	Jullye Frutas	3	7.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+8b548484-6652-4871-aa08-8b973eeebe15	67f01c59-ce5f-467e-8597-714719412b84	2024-05-30	Dinho	12	3.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+14f2b4cd-a1f8-42da-8b91-0aeeac926502	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-05-30	Dinho	6	3.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+31793df5-1d70-41c0-a519-443dce127050	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-06-08	Muffato	4	7.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+548fbda2-1be5-47a0-8710-25df507a2189	f8c8e834-9063-4a25-8925-12db6592d203	2024-06-08	Muffato	0.57	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d6f0d844-ca9e-4c24-a6d0-e12568a00679	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2024-06-11	Astoria Distribuidora	6	55	2026-06-01 22:50:07.293263+00	\N	none	\N
+10cac11d-135b-484b-8df9-3812f13f49a4	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2024-06-11	Astroria	5	75	2026-06-01 22:50:07.293263+00	\N	none	\N
+cb934106-d0f4-4e7e-8a27-5a3c64204852	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-06-13	Muffato	36	4.45	2026-06-01 22:50:07.293263+00	\N	none	\N
+0eeca487-20ce-40e2-85a9-1dc28771866e	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2024-04-23	Spal	1	20.65	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+5f80b14f-5cb0-4293-927a-f4d442deaa96	521f2d74-463c-4737-bb85-c47d39e96845	2024-06-15	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+978de7d7-2b6e-4ebf-9ee4-f89ce878d17d	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2024-06-15	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+c7852632-6ea2-43f9-87dc-b9e3f4f8e085	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-06-15	Marmikok	10	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8976399f-4cc7-4d5a-a39e-88669dcd71b9	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2024-06-15	Condor	6	7	2026-06-01 22:50:07.293263+00	\N	none	\N
+b0d7da9b-328f-47cf-86b2-8d851c6370bb	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-06-15	Condor	48	4.45	2026-06-01 22:50:07.293263+00	\N	none	\N
+ca811f06-10c3-4702-b890-5ada5b64c39f	e355760e-3631-4e40-9b0c-d710b1898d9d	2024-06-20	Condor	2	15.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+3cf67203-b9d7-41e5-a647-0dfa267ad2dd	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-06-20	Condor	48	4.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+570397da-967c-4c23-a0f6-353679fe64d3	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-06-20	Muffato	1	10.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+5fae9eee-739a-413b-8458-fd3609f5cbe3	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-06-27	Circuito	48	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+22fa6011-9e29-4b61-803d-8d9132282fd6	521f2d74-463c-4737-bb85-c47d39e96845	2024-06-28	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+60e1b5c2-7399-470a-86ab-6f349e9249b6	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-06-28	Muffato	2	10.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+5a67517c-a123-49db-90c9-63d64038473c	f8c8e834-9063-4a25-8925-12db6592d203	2024-06-28	Muffato	0.33	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d2e00e1d-9540-4357-ab4e-f506ed08a77b	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-06-29	Condor	12	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+10484b01-b789-4f0d-b44b-01a693f65b57	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-06-29	Condor	24	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+9a79406e-e62f-4356-86de-657feee61ff2	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-06-29	condor	12	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+f4344499-daf3-4bb4-a275-bf470d47e4a2	02cfebe2-4de3-4c77-a73e-903b185d54a6	2024-07-01	SB Distribuidora	6	7.88	2026-06-01 22:50:07.293263+00	\N	none	\N
+b9cd6042-d022-4d54-9770-41e7fed82e09	96abcb52-14df-4ad2-b433-2aee0669ee30	2024-07-01	SB Distribuidora	3	12.87	2026-06-01 22:50:07.293263+00	\N	none	\N
+b1e8ef8f-29f0-48ee-bbac-d64759060f3d	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2024-07-01	SB Distribuidora	2	10.92	2026-06-01 22:50:07.293263+00	\N	none	\N
+277bab8c-dbb5-4451-93fa-0f11f062e974	a5f552f1-4392-4c53-977f-08739186fcb5	2024-07-01	SB Distribuidora	1	13.36	2026-06-01 22:50:07.293263+00	\N	none	\N
+0b096405-c0d4-4c67-a216-92564a7cf6b2	6c1388ea-5eda-4f92-804d-9dc6f4452579	2024-07-01	SB Distribuidora	2	29.17	2026-06-01 22:50:07.293263+00	\N	none	\N
+fdce773b-b906-4ceb-9fa6-f0445e9a3320	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2024-07-02	Condor	1	6.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+ff8fb721-ff57-4f8a-8180-7acae8c7ddc2	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2024-07-02	Condor	2	7.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+ce411f9f-c7fc-4b9c-9d16-c4b3b2245dd6	1fc18535-6e74-4ac2-819c-40fe870a1cc8	2024-07-03	Casa Nova	2	14.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+5dd92523-b3e4-4458-8ea1-cf64e08c52a7	e355760e-3631-4e40-9b0c-d710b1898d9d	2024-07-03	Casa Nova	1	14.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+40c16118-6347-4951-8a32-e5494fd5e96c	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-07-16	Condor	24	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+05263cc3-1adf-4d9e-a309-e4d2bcaad273	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-07-16	WHS	1	5.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+f316979a-f30d-43b0-a966-2310fddd497d	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2024-07-17	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a1b2129a-a15e-44dc-aa7d-6bc747766da6	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2024-07-17	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+7d09b130-72cd-48b7-8b55-91e14f5293cd	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2024-07-17	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+203e6ca9-538d-4669-85f5-739fc033a495	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-07-17	Cassinelli	12	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+fdae78e1-bcb3-40f6-8ce6-dbe9c75df78f	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-07-17	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+ab2408e0-8a11-419d-9963-2b51c2098c00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-07-17	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8e98d097-6890-49a7-b101-2f96b6a5c6bd	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-07-17	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+77807bd9-5ef5-43dc-8abf-63b9bd433b3d	5bdb156e-ac02-4634-bf62-15455ab1eea3	2024-07-18	casa do confeiteiro	2	40.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+6dfb9b85-916a-4653-a6d5-6b8903bae46d	521f2d74-463c-4737-bb85-c47d39e96845	2024-07-18	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+ae69c17e-bac8-4b7b-8162-59033648666a	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-07-18	Marmikok	3	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+16d191cf-de0f-49e0-a658-d3cfbf1b4922	9be978f0-4961-40b6-b4eb-c75fe6798110	2024-07-18	Lacto Minas	3	11.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+95fb3a29-b4ee-4c37-af0f-c64b955eef08	95d9f130-2433-4f3e-882b-e420e62254e4	2024-07-18	Lacto Minas	2	9.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+285c7fcd-8e6e-4a11-8ee6-7c468a8f419a	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-07-21	WHS	1	10.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+2aa14b04-d3e4-42ac-9d50-aedf1b81cb50	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2024-07-23	Distribuidora Povão	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+3bd9da74-75c5-4414-83b0-0d07b2031e1a	95d9f130-2433-4f3e-882b-e420e62254e4	2024-07-23	Distribuidora Povão	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+02365dbf-2053-420f-8cf0-866ddf7d2e82	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2024-07-23	Distribuidora Povão	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+847c0481-2948-4512-b790-99b33a8dfa2e	36f6247f-610f-4b12-b804-90b1eb419617	2024-07-23	Armazem das embalagens	1	3.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a1b13e86-c98f-4693-8737-1687df4a612f	f8c8e834-9063-4a25-8925-12db6592d203	2024-07-23	Condor	0.245	3.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+f1db6b35-35d1-4117-ad26-2ffd3eaa3079	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-07-23	Jullye Frutas	2	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+2d67e437-e507-4ad8-b2bd-541b293b0f2c	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-07-27	Marmikok	4	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+593023dc-4df1-4b48-9e28-a1b5e976a235	521f2d74-463c-4737-bb85-c47d39e96845	2024-07-27	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fe977f4a-6f2c-43e6-ba9f-1d580486a6c7	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2024-07-29	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+29b487f8-0ce0-4341-8344-cc65fa5fc638	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2024-07-29	Cassinelli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+1bd8c974-7ed5-4295-a64e-0b691117823a	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-07-29	Cassinelli	12	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+adfbe130-c156-4ebc-beeb-f1abaecfb1d8	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-07-29	Cassinelli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+74de9705-0693-409b-98ab-922057129bb3	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-07-29	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+afd2b47b-0f2c-44e1-bd75-9c234190cca6	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-07-29	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+dbdb11b9-4a3f-4775-9cc8-b23fe9eb4a75	49438d71-d79a-4758-b5a8-d6a08dce32a4	2024-07-29	Spal Industria	1	18.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+abb0aa26-d473-4f2c-9804-ba08c9b90d0b	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-07-29	Spal Industria	24	2.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+ac3997e0-85bc-42b6-80e7-4ebc755b8c52	67f01c59-ce5f-467e-8597-714719412b84	2024-07-29	Spal Industria	48	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+edb3b10a-6516-4511-88a9-ee7ae91a3b33	82fd5205-9fbf-4564-83df-6e16776c4718	2024-07-29	Spal Industria	48	1.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+b0229cf8-8e03-49d4-8aaf-138e28ab40cd	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-07-29	Spal Industria	96	1.24	2026-06-01 22:50:07.293263+00	\N	none	\N
+37e012ee-782f-45f5-b8cc-4a4119dbfe32	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2024-07-29	Spal Industria	6	2.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+f50238a5-8f99-4d79-baad-5842fb1baffc	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2024-07-30	Condor	4	7.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+92a55d3d-ab8b-466f-9dc5-15587a5c4d53	9be978f0-4961-40b6-b4eb-c75fe6798110	2024-07-30	Condor	3	24.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+84435cf5-2e76-4efa-b9df-473b3ecbc649	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2024-07-30	Condor	3	5.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+2e4587d6-9077-46e4-80e2-b8079ef62f66	ab0eb23d-9995-4851-a934-ec1a7a541551	2024-07-30	Condor	2	25.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+ba8ad4bc-4a25-4e2d-9101-41e24302c3c3	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-07-30	Condor	60	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+e1c3000b-7913-466f-afc6-78892aba123e	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-07-30	JUllye Frutas	2	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+a2264ca6-09fc-46a6-869b-d8ea5a331115	f8c8e834-9063-4a25-8925-12db6592d203	2024-07-30	JUllye Frutas	0.195	5.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+7d6371c1-6d00-4f88-b08b-a99457ad9903	2980bb3d-2d48-4576-9994-f920221a2561	2024-08-02	Condor	1	13.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+0960879a-6e89-4b23-acee-c3cbca3f9dc9	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-08-02	Condor	60	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+8eec2b4a-4b12-4824-9aff-bbc4b604f857	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-08-02	Marmikok	5	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+2e9e3431-e1b7-475f-884b-d27885ea56fb	521f2d74-463c-4737-bb85-c47d39e96845	2024-08-02	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+0e2a0edb-3d2f-4e81-abe7-50609dabf3f1	1fc18535-6e74-4ac2-819c-40fe870a1cc8	2024-08-06	Casa Nova	2	14.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+00e36382-14b9-4da4-bfcd-b86e906b2677	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-08-06	Condor	72	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+3958a248-fc3c-4fe2-a3a8-8d06ea4ffdb9	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-08-06	Lacto Minas	4	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+01d84ac6-1c5f-49b4-8ab9-56c142b647fc	9e53ddd5-2168-411d-8c7b-03a419c1e158	2024-08-06	Marmikok	4	4.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b56069a-0633-49a2-a8f2-ac4dae4803f8	95d9f130-2433-4f3e-882b-e420e62254e4	2024-08-06	Marmikok	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+7bb541ed-d264-4aee-8768-a3c0aa5f9b3e	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2024-08-06	Marmikok	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+3ce94491-999a-436d-b023-eb8588619e6b	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2024-08-06	Marmikok	2	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+aed70b10-6e37-47cf-bddc-f2aded284ed0	8b870df4-27c9-4443-a952-3dae37e3e963	2024-08-06	Comercial embalgens	4	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+49f412a8-e6c1-4eef-b2df-4162b816a218	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-08-13	Lacto Minas	12	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+1466e846-c988-4583-918c-73cade73b7af	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-08-15	WHS	24	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+18819261-c281-4fd5-8ec9-535a26c04efe	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-08-16	Marmikok	4	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+58d0d3de-3926-4bfb-9e5a-64753ebcf5aa	521f2d74-463c-4737-bb85-c47d39e96845	2024-08-16	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+38ffa777-65a3-441a-8389-a52558981624	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2024-08-16	Marmikok	1	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+d59cdb60-ef4f-48b4-820c-b50e93f0fde2	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-08-16	Marmikok	2	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+2d3eca31-5337-4a0b-aa7a-cd81c0b0f4e0	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-08-17	Jullye Frutas	2	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+f5f08dc9-6b3f-4865-9e47-a941cfc1b071	67f01c59-ce5f-467e-8597-714719412b84	2024-08-22	Spal Industria	36	2.27	2026-06-01 22:50:07.293263+00	\N	none	\N
+004914a5-c3e6-4f57-98e4-0aa47b4badb1	82fd5205-9fbf-4564-83df-6e16776c4718	2024-08-22	Spal Industria	48	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+57869d5c-3198-400b-af49-a6cd96720f61	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-08-22	Spal Industria	72	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+c7cc4ba7-e66a-4dad-825c-135aa646dce9	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-08-22	Spal Industria	18	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+7215fcc7-cc4f-4522-9cb8-5272324ec7d6	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-08-27	Condor	48	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+0a459ec2-fae1-4d06-a855-136bbf00df52	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-08-27	Franconny	15	38	2026-06-01 22:50:07.293263+00	\N	none	\N
+8c26af5d-cc8b-43e2-af5a-7f0fe505727b	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2024-08-27	Franconny	5	49	2026-06-01 22:50:07.293263+00	\N	none	\N
+1ec1f2ef-a535-4d21-ac5f-de8d15afad75	1deec24f-5074-421e-b791-8df4fc7dbc5c	2024-08-27	Marmikok	2	44.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+640ce8a0-e205-4680-903c-b508a32bf7e3	521f2d74-463c-4737-bb85-c47d39e96845	2024-08-27	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+84129fa3-0bc1-479e-bdc0-7ca8b3dced71	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2024-08-27	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+976b2d2c-c567-4a46-8fce-b333a2041911	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2024-08-27	Marmikok	3	7	2026-06-01 22:50:07.293263+00	\N	none	\N
+dca1ae77-36d3-48ef-95bf-c2cf03de830d	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-08-27	Marmikok	6	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+54389aa8-5004-4c0c-9fb9-2db8ff9e401f	a3f83a8d-f611-4a1c-955b-1ac615348b94	2024-08-27	Marmikok	2	42.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+44659be6-7796-44a7-89ec-6c9965cdc9af	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2024-08-27	Lacto Minas	2	9.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+68d89744-13ee-40c8-b023-d44033cd4c4b	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-08-27	Lacto Minas	24	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+becaea7b-8762-4928-beac-163ad538a3d5	2980bb3d-2d48-4576-9994-f920221a2561	2024-09-01	Condor	1	14.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+a5e2897c-0e9f-4ad3-b903-1bbce5f9a695	ab0eb23d-9995-4851-a934-ec1a7a541551	2024-09-01	Condor	1	29.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0ae29e32-753a-4608-a70c-22a55e8095d8	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-09-02	Muffato	48	4	2026-06-01 22:50:07.293263+00	\N	none	\N
+3edb7a89-8e8b-4ee7-b7e9-2d0c7e216335	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-09-02	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+ae1187a4-eb71-4be5-ac6f-5c53226ae3ee	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-09-02	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+791e35b2-bf50-4918-a27a-b675fa01cca8	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-09-02	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+01dc1007-ef92-4a36-b554-07d7035a7544	521f2d74-463c-4737-bb85-c47d39e96845	2024-09-03	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+2fca7010-8ed0-4fb2-9df5-a947bc796792	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2024-09-03	Marmikok	50	1.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+e1abcb74-0af3-4d8b-b83d-a1610c732979	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-09-18	jullye Frutas	2	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+fdb31fcd-0877-4d2f-9571-7a5739f81116	f8c8e834-9063-4a25-8925-12db6592d203	2024-09-18	jullye Frutas	0.68	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+e667ecd8-dc39-4fe6-940c-4c7386c09c7f	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-09-23	Condor	36	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+a2d69ba9-34de-4cb1-a0c7-6746a736db1f	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2024-09-24	Jullye Frutas	2	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+de2ebe6e-8f59-403a-a37b-ff6c0f07ca0d	f8c8e834-9063-4a25-8925-12db6592d203	2024-09-24	Jullye Frutas	0.13	6.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+6e0f9909-7b57-49df-a4a7-4fce616459e5	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-09-28	Sendas	36	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+1d558234-fb21-4919-a179-d40566f91f79	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-09-28	Spal Industria	12	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+69c28043-26f0-4569-9ea1-febd6928f11d	67f01c59-ce5f-467e-8597-714719412b84	2024-09-28	Spal Industria	24	2.27	2026-06-01 22:50:07.293263+00	\N	none	\N
+fade6b5e-e394-45a4-9239-004e28169916	82fd5205-9fbf-4564-83df-6e16776c4718	2024-09-28	Spal Industria	48	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+681cf8d5-1508-42ca-8a1c-1e09e8dfa0d3	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-10-01	Condor	12	4.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+d49149c4-c191-4976-8fa9-5b0cdab67429	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-10-03	Muffato	36	4.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+ad06c30d-21d1-454c-b5f5-14afdf0c1613	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-10-07	Sendas	48	4.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b5b288f-3e79-4b31-a4d7-d4b0f1b84dc8	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-10-07	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+111e8672-b6b1-40ed-9b9a-d13efa250483	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-10-07	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+5df9f634-6dcf-4b80-95fe-097ba195ac51	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-10-07	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+5235e337-0eaf-4f91-808c-70169d411754	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2024-10-07	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a2eea77b-888d-4d03-bc59-6a29236034dc	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2024-10-07	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a1d0198e-6dc2-4241-8548-9b7bf7718ff9	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2024-10-07	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+29347c89-4859-4322-bef4-90e77e1a9cd0	424d80dc-6975-4812-9571-b3baadd2db31	2024-10-10	Spal Industria	6	2.17	2026-06-01 22:50:07.293263+00	\N	none	\N
+1e576ec5-4d4c-4f64-9246-b776ccc70585	21174f2c-7831-440d-9f5e-daa81d6b94c0	2024-10-10	Spal Industria	6	2.23	2026-06-01 22:50:07.293263+00	\N	none	\N
+0d9c5f4f-0a00-4c65-90fa-752e33b02fb4	82fd5205-9fbf-4564-83df-6e16776c4718	2024-10-10	Spal Industria	12	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+7684afec-ad7e-461d-80c4-942ea5f1ced0	5db6171c-d897-4894-af28-bbf63adad316	2024-10-10	Spal Industria	6	2.23	2026-06-01 22:50:07.293263+00	\N	none	\N
+5cdde731-7030-4add-a98c-7bc716caa2cd	67f01c59-ce5f-467e-8597-714719412b84	2024-10-10	Spal Industria	12	2.27	2026-06-01 22:50:07.293263+00	\N	none	\N
+db5f81c9-b904-4abe-a627-fa365e969edf	81b9ed64-d226-44d7-810b-6f15b64535d8	2024-10-14	Muffato	24	4.1	2026-06-01 22:50:07.293263+00	\N	none	\N
+06d2f739-c400-4491-8685-fc2b07324f60	96abcb52-14df-4ad2-b433-2aee0669ee30	2024-10-18	SB Distribuidora	2	10.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+997ec2b3-987a-4587-99a8-c18c6311582b	6c1388ea-5eda-4f92-804d-9dc6f4452579	2024-10-18	SB Distribuidora	3	32.23	2026-06-01 22:50:07.293263+00	\N	none	\N
+1ef8eb36-d17c-4dbe-883b-96bd0454c382	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2024-10-18	SB Distribuidora	3	10.92	2026-06-01 22:50:07.293263+00	\N	none	\N
+4fad51d3-f0df-46ba-9bcd-c69ac4a606da	a5f552f1-4392-4c53-977f-08739186fcb5	2024-10-18	SB Distribuidora	4	13.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+c4857504-eea8-46fb-b6ad-692e957fe54b	02cfebe2-4de3-4c77-a73e-903b185d54a6	2024-10-18	SB Distribuidora	4	7.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+7d4ff214-52cf-4b43-8a96-17eabbbfce5c	991d2a77-66a8-4811-9ba7-fc60329e3729	2024-10-18	Nobelpack	400	0.66	2026-06-01 22:50:07.293263+00	\N	none	\N
+e43fc54c-e47b-4a93-89c9-4b12fbc7a64d	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2024-10-18	Nobelpack	400	0.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+f4312aa2-a98f-4843-b356-be335014e23a	67f01c59-ce5f-467e-8597-714719412b84	2024-10-22	Spal	12	2.28	2026-06-01 22:50:07.293263+00	\N	none	\N
+8fc936b4-292c-4541-9ba8-597ef4aa8f01	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2024-10-22	Spal	6	2.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+46d1bf56-0079-4b48-9f8a-4b7790691c7d	82fd5205-9fbf-4564-83df-6e16776c4718	2024-10-22	Spal	48	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+5a849015-3484-4fbd-a04d-a8cc41c42187	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-10-22	Spal	72	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+6b2d4f33-51a2-4887-b716-3bf27ec84699	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-10-22	Spal	18	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+8de8deed-8130-4073-96cb-f6bd427899ba	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2024-11-04	Astoria	5	83	2026-06-01 22:50:07.293263+00	\N	none	\N
+6a7156e8-4f79-4280-91b5-5c88500d9e02	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-11-04	Cassineli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a8c7d499-ef90-470c-b6aa-9261a8acf973	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-11-04	Cassineli	12	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+a603f14e-d15f-4f39-8757-0bad3e98aa33	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-11-04	Cassineli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+362f687f-7f4b-449a-a92d-de0a97582efb	0475e15d-55ff-4030-afb5-1b5e68b585b0	2024-11-04	Cassineli	12	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c83b1124-a34a-47b3-aef4-de881c64cc91	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-11-04	Cassineli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+6d320ec6-06fd-4d14-ab9d-2c2a569476f9	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-11-12	Lacto Minas	3	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+a364fa5e-e682-483a-bbfa-f5f74aaab251	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2024-11-12	Lacto Minas	2	9.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+4ec3b974-d772-4655-9872-5771bb69d3e6	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2024-11-12	Lacto Minas	2	9.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+43fd42da-7260-410d-89e1-67174f740812	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2024-11-13	Lacto Minas	3	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d727d997-5450-4f0c-b3bf-4f1eca5533d0	521f2d74-463c-4737-bb85-c47d39e96845	2024-11-13	Marmikok	12	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+0cd0691b-7af2-4c63-a7d9-b9d00558f7e4	a3f83a8d-f611-4a1c-955b-1ac615348b94	2024-11-13	Marmikok	2	44.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+6ed297e7-1d61-448a-b4b0-b5ec6abeacf7	73a8818d-24aa-4964-8af0-2f8b9cb17674	2024-11-13	Casa do confeiteiro	1	56.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+549b9bf6-0bd8-48ad-8aeb-ab817d85d6eb	e59a1f84-380b-4081-a901-a6ed946a6d69	2024-11-13	FNS	20	22.84	2026-06-01 22:50:07.293263+00	\N	none	\N
+d4a571ed-310e-476a-bdea-32dd4a333552	d7372dd2-15df-4cff-8767-51fecdba54c5	2024-11-13	FNS	20	25.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+52befae9-2955-4d5c-a294-5520c148f6c8	82fd5205-9fbf-4564-83df-6e16776c4718	2024-11-13	Spal	48	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+cceb0f98-7428-4bd5-9ced-c9f53d2a8e99	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-11-13	Spal	72	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+836ac64b-cdb6-45fe-8b42-c2c4765d056e	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2024-10-22	Spal	1	21.14	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+430faf66-8e90-41c2-9c29-525c9d76267b	67f01c59-ce5f-467e-8597-714719412b84	2024-11-13	Spal	24	2.27	2026-06-01 22:50:07.293263+00	\N	none	\N
+e3b7ca4d-0f28-4630-abdc-6fe63220993e	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-11-13	Spal	18	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+15e0484c-8aac-42de-9f68-04defce22fca	8850838c-26df-4793-b742-75c6ae75a10f	2024-11-13	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b1a36cd-9489-4a97-ba24-1662fda94ba5	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2024-11-13	Spal	12	2.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+02664cbc-87c1-4ef2-a41a-e3879320b17b	8850838c-26df-4793-b742-75c6ae75a10f	2024-11-19	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+762c0389-718c-443c-9777-70b72b05af52	7a77e18f-94b7-4efd-8f6e-80964703a15f	2024-11-19	Spal	12	2.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+9b9d0030-b6f6-4494-8642-c7cd454cff80	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2024-11-19	Spal	24	1.57	2026-06-01 22:50:07.293263+00	\N	none	\N
+2ff01322-cc74-447d-b7b9-3edaddd8b38a	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-11-19	Spal	18	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+c7d76827-4a35-4cdc-a128-b1f348ef8d59	82fd5205-9fbf-4564-83df-6e16776c4718	2024-11-19	Spal	48	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b685f20-a6a2-4501-a506-f0078400d822	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-11-19	Spal	72	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+78b4beb3-6d96-441a-90de-c965f7a6d7d4	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2024-11-19	Spal	12	2.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+55fd089f-3fa2-4253-a34f-536ad7c31781	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2024-11-19	Spal	24	1.57	2026-06-01 22:50:07.293263+00	\N	none	\N
+1b06d34b-e8a8-4144-bf9d-5688352368af	67f01c59-ce5f-467e-8597-714719412b84	2024-11-19	Spal	24	2.27	2026-06-01 22:50:07.293263+00	\N	none	\N
+fbb7b234-23d9-49cf-8fe5-188b7e36f8e2	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2024-12-03	Nazapack	120	12.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+deba75c2-85d1-4ce1-9e32-f219bdeab9b9	9cc01971-1ad8-4011-851b-6ca6a97d6284	2024-12-12	Spal	96	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+b3638e91-cb0f-46de-8bcd-4967f325870b	b053e306-2a07-4a66-a8c9-e091785f7df4	2024-12-12	Spal	12	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+8f79f998-d503-4afb-aef4-56c8246fb525	82fd5205-9fbf-4564-83df-6e16776c4718	2024-12-12	Spal	24	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+3c6ca0b6-5509-4e49-ae80-5fab4fbb3aa3	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2024-12-12	Cassineli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+578fdfc3-70a2-4333-a5d0-ce1b2dd50a77	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2024-12-12	Cassineli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+2616a8a9-ecbe-4680-abfa-926fd35e1fae	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2024-12-12	Cassineli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+20936e2f-7bc3-48d5-a46e-c2e0c19a1146	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2024-12-12	Cassineli	12	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+3720010f-a1c2-44a8-9412-04249821711b	e477c9c1-65f1-44b6-a4b1-3743e900407c	2024-12-12	Cassineli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+86bb6523-64ef-44a9-bc33-004875b4d3eb	0475e15d-55ff-4030-afb5-1b5e68b585b0	2024-12-12	Cassineli	12	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3f006525-8c2d-4e0b-a087-1beb25f8efd2	cad0f122-104f-4cdd-8da9-01ad147ecba8	2024-12-12	Cassineli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+70991379-5ff0-4230-ba5c-cfa29f11aeae	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2024-12-12	Cassineli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+7b27de2b-79e4-43d4-80e3-415849720713	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2024-12-16	Astoria	5	90	2026-06-01 22:50:07.293263+00	\N	none	\N
+5720414b-7b22-420f-a6ab-28804aa5f626	9c4e5257-2455-43ff-aa09-0811390a02d2	2024-12-16	Astoria	6	65	2026-06-01 22:50:07.293263+00	\N	none	\N
+186f7f14-453a-4ce6-b107-b0830b8301a5	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-01-02	Spal	120	1.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+6d992cc7-24d4-4bb3-aea4-8b58834dae06	67f01c59-ce5f-467e-8597-714719412b84	2025-01-02	Spal	12	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+b3d8a6ea-7a5a-4a3b-8ee2-20352682b05a	82fd5205-9fbf-4564-83df-6e16776c4718	2025-01-02	Spal	24	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+dba34551-f444-42b7-bba0-14edeb23d6bb	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-01-02	Spal	12	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+65be1e12-1350-45d1-a3fb-81b65ed73dc1	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2025-01-06	FNS Comércio	20	15.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+b6c330bb-0b9f-40d1-83f7-c87fd827e843	991d2a77-66a8-4811-9ba7-fc60329e3729	2025-01-06	Nobelpack	200	0.65	2026-06-01 22:50:07.293263+00	\N	none	\N
+eccb78a1-1fe2-4bd2-adac-b77cd796d663	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2025-01-06	Nobelpack	400	0.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+a5b12eb6-79b3-4efb-ab84-e1be0c836147	521f2d74-463c-4737-bb85-c47d39e96845	2025-01-06	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+b701dae0-c8aa-451a-92bc-13c2fc91a73f	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-01-06	Marmikok	2	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+dd503293-4291-4faa-8213-412113751ba6	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-01-06	Marmikok	1	70	2026-06-01 22:50:07.293263+00	\N	none	\N
+9f2fb66a-3856-463a-b171-826ff26297a3	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-01-06	Marmikok	3	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+10c3881c-6ec7-4bfb-9e6b-5d454cf92b54	9033a7e0-470a-4c37-bda0-7df170946057	2025-01-06	Armazém das embalagens	8	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+df824025-60ad-4665-b409-f91a90a5b733	9e53ddd5-2168-411d-8c7b-03a419c1e158	2025-01-06	Armazém das embalagens	4	5.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+a49e2a47-ed10-42bc-9a1d-6545548ec437	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-01-06	Jullye Frutas	2	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+60c1061b-ed03-4e67-b3ea-54fa66d70160	f8c8e834-9063-4a25-8925-12db6592d203	2025-01-06	Jullye Frutas	0.215	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+fa2314c0-cebf-45b5-8272-111d422f7221	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-01-07	Franconny	16	40	2026-06-01 22:50:07.293263+00	\N	none	\N
+8c8ab372-2186-44a2-9813-6e8b2d779128	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-01-07	Franconny	5	52	2026-06-01 22:50:07.293263+00	\N	none	\N
+6f20cc72-f72d-4db5-b4d9-90e481d7f1bd	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-01-08	Jullye Frutas	1	12.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+9e12b427-0281-4f83-97b7-37fde2fe1bce	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-01-10	JUllye Frutas	1	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+88b0d1b0-6ca7-4ac6-9351-7b5961c02ffe	02cfebe2-4de3-4c77-a73e-903b185d54a6	2025-01-21	Super brilho	2	7.44	2026-06-01 22:50:07.293263+00	\N	none	\N
+27db17bb-c1b9-4942-bb1a-82e684a0fd98	96abcb52-14df-4ad2-b433-2aee0669ee30	2025-01-21	Super brilho	3	11.1	2026-06-01 22:50:07.293263+00	\N	none	\N
+48c23150-ef7b-45b6-ae96-ec9bc126bc59	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2025-01-21	Super brilho	4	5.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+51375b49-1688-45ba-aa1d-ba2d10a2d02e	6c1388ea-5eda-4f92-804d-9dc6f4452579	2025-01-21	Super brilho	2	32.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+cdacf64f-b2fe-45d4-84e9-b1aa9fab7037	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2025-01-21	Super brilho	2	10.17	2026-06-01 22:50:07.293263+00	\N	none	\N
+cdd2ffdb-a369-406c-8cf7-8a67d95e379b	82fd5205-9fbf-4564-83df-6e16776c4718	2025-01-21	Spal Industria	60	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+0d1657f3-bd9f-4925-af9e-29df06a1b926	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-01-21	Spal Industria	24	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+826f5a37-3069-4252-978b-9477818704ae	67f01c59-ce5f-467e-8597-714719412b84	2025-01-21	Spal Industria	24	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+bb8ec8a5-e95c-4fcd-a90c-56eaf7a3140d	e477c9c1-65f1-44b6-a4b1-3743e900407c	2025-01-22	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+bb934fc3-4fae-47ba-b372-84af7cdd611f	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2025-01-22	Cassinelli	12	10	2026-06-01 22:50:07.293263+00	\N	none	\N
+8035ab72-d686-482f-b59c-c6f2e932465b	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2025-01-22	Cassinelli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+e75a6c7d-431f-4205-b0fb-7a8ec2c16540	0475e15d-55ff-4030-afb5-1b5e68b585b0	2025-01-22	Cassinelli	12	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+4c00c10e-983e-4157-a29a-9e74079507a8	cad0f122-104f-4cdd-8da9-01ad147ecba8	2025-01-22	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+47f9888a-7bff-492f-bcd2-b229e931b165	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2025-01-22	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+2b9ab7b0-fddb-40ff-8dc4-2fba169f4ce4	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2025-01-22	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3ec80575-a092-452f-b557-16c5535dd76e	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2025-01-22	Cassinelli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c9683b34-3a13-4b8b-b2e2-8de972d0ae66	a3f83a8d-f611-4a1c-955b-1ac615348b94	2025-01-22	Marmikok	2	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+45ecc010-4421-4ea4-b5f9-02fd1754958c	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-01-22	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+f30d7433-435b-4857-a721-b4f725889349	521f2d74-463c-4737-bb85-c47d39e96845	2025-01-24	Marmikok	12	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c54202a3-9167-4ca9-9f85-e960297d4afa	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-01-24	Marmikok	3	5.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+d5f049af-f5f7-444d-bbd8-26e47bd0280b	82fd5205-9fbf-4564-83df-6e16776c4718	2025-02-04	Spal Industria	48	1.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+3b3bfa7b-768f-4a39-8ca5-d6986475461a	67f01c59-ce5f-467e-8597-714719412b84	2025-02-04	Spal Industria	12	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+411e68f2-ee62-4b89-9909-1dfe2253e3c9	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-02-04	Spal Industria	6	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+7049bf3c-389f-4d30-9d0b-6ed4c506b0aa	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-02-18	Spal	24	2.37	2026-06-01 22:50:07.293263+00	\N	none	\N
+4988e687-27fb-42fe-96e0-809947d3f7e1	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2025-02-18	Spal	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+7b6f7b7b-836f-4064-939e-43e25312de82	82fd5205-9fbf-4564-83df-6e16776c4718	2025-02-18	Spal	60	1.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+e00dcb54-e41a-4efa-912f-ef4038de6e10	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-02-18	Spal	84	1.37	2026-06-01 22:50:07.293263+00	\N	none	\N
+f056cabf-e0fe-465b-8793-bb2f87c459c2	7a77e18f-94b7-4efd-8f6e-80964703a15f	2025-02-18	Spal	6	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+3128f2c1-3614-48aa-964b-bf33b086c933	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2025-02-18	Spal	6	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+b4722677-7bb0-4065-b5c6-484d68acbb88	8850838c-26df-4793-b742-75c6ae75a10f	2025-02-18	Spal	6	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+7cc5b240-3fa1-4575-851b-d8c9ec88b346	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-02-19	Carrefour	48	4.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+54f574ce-752a-4dd7-9631-54c7e5d5307c	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2025-02-24	Cassineli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+1e4d67e6-f40d-41a0-aa99-994c9241280a	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2025-02-24	Cassineli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+6303a1e2-0447-4b70-a891-6c19d8f2f620	75f5aa3a-8c85-426e-a4b9-d3b64578519b	2025-02-24	Cassineli	12	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d863cb18-8cb5-4ee4-8c90-389b440034a4	e477c9c1-65f1-44b6-a4b1-3743e900407c	2025-02-24	Cassineli	6	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d8cbcc4f-797f-4f44-a2be-d55e0858655c	cad0f122-104f-4cdd-8da9-01ad147ecba8	2025-02-24	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c2d96f80-10f4-4fe5-b20f-0a7861efa0f7	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2025-02-24	Cassineli	12	11	2026-06-01 22:50:07.293263+00	\N	none	\N
+0baad397-086b-46ab-8334-9f21261526d8	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2025-02-24	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+27a8606a-3b47-4ec9-a8bb-706e308bf85c	0475e15d-55ff-4030-afb5-1b5e68b585b0	2025-02-24	Cassineli	12	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+542ac879-f4a4-4de3-b161-55ffb74a0a39	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-02-24	Franconny	20	40	2026-06-01 22:50:07.293263+00	\N	none	\N
+532e4305-eece-4f03-acae-0d7ad1f025a7	02cfebe2-4de3-4c77-a73e-903b185d54a6	2025-02-24	Super Brilho	6	6.58	2026-06-01 22:50:07.293263+00	\N	none	\N
+13b39f2d-fa3b-4739-8146-a7231b1a06fa	03b764ae-765a-45cd-b897-da245f712055	2025-02-24	Super Brilho	2	14.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+c88dbb8f-1804-42d2-b8ef-33241a06808f	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2025-02-24	Super Brilho	10	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+6c395325-b9d3-4588-ba0e-e0919d65c939	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2025-02-24	Super Brilho	2	25.83	2026-06-01 22:50:07.293263+00	\N	none	\N
+c148ca61-8ac3-4aa5-b848-c5640b1f7753	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2025-02-24	Super Brilho	12	0.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+c7728dee-f462-462d-ad98-47fa15f0d677	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2025-02-24	Super Brilho	6	5.86	2026-06-01 22:50:07.293263+00	\N	none	\N
+47484c85-04c0-49e3-b493-a2ad9f042159	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-03-02	Spal	6	2.37	2026-06-01 22:50:07.293263+00	\N	none	\N
+4bd575c2-11d9-43ed-af36-1f36d69bb444	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2025-03-02	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+491cd405-b831-4516-a837-6dd99402efb6	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-03-02	Spal	120	1.37	2026-06-01 22:50:07.293263+00	\N	none	\N
+42888c2f-915e-4d3e-9c0a-0740527a89d3	7a77e18f-94b7-4efd-8f6e-80964703a15f	2025-03-02	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+869a4460-278b-4e6b-a8e8-3c351b818f0e	8850838c-26df-4793-b742-75c6ae75a10f	2025-03-02	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+9887fefe-3b3b-49ea-8375-308f05fde759	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-03-02	Spal	36	2.37	2026-06-01 22:50:07.293263+00	\N	none	\N
+54940492-b6e4-4ac1-91ef-ffd03baae8be	67f01c59-ce5f-467e-8597-714719412b84	2025-03-02	Spal	48	2.37	2026-06-01 22:50:07.293263+00	\N	none	\N
+baf8842d-11b2-477f-ba90-aece014eb6c0	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-03-03	Condor	12	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+f597559c-55bb-4ee7-931f-6dcfb399bda5	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-03-03	Mercado	12	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+cadf64a3-c961-4b53-b02a-30ac872abb83	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-03-03	Cia da verdura	12	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+24901eaa-55f8-4609-bf11-4e4dbc285a15	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-03-03	Mercado	48	4.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+5071d9ae-f72d-4029-9ef5-dcd3e5b29d7f	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-03-05	Jullye Frutas	1	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+da470287-9fe8-4668-bdb2-d4040a1fd298	f8c8e834-9063-4a25-8925-12db6592d203	2025-03-05	Jullye Frutas	1	2.26	2026-06-01 22:50:07.293263+00	\N	none	\N
+ae49f2d5-864e-46b4-b2c8-b78397f9dea3	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2025-03-07	Nazapack	120	12.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+68dc6d26-50b3-41f5-b2aa-fb8b37127a8b	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2025-03-07	Nazapack	40	13.45	2026-06-01 22:50:07.293263+00	\N	none	\N
+c8b6dd2f-1687-400a-aeb7-2963e31ec9d7	cad0f122-104f-4cdd-8da9-01ad147ecba8	2025-03-10	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+f89a4eda-0326-4e86-8312-f3d6bb3ff790	e477c9c1-65f1-44b6-a4b1-3743e900407c	2025-03-10	Cassinelli	6	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+af52c834-b083-4708-b798-7a7b1a174f18	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2025-03-10	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+7854b2fc-cad0-4bcc-a47e-b3cbe60e782c	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2025-03-10	Cassinelli	6	11	2026-06-01 22:50:07.293263+00	\N	none	\N
+5a5ddf75-5d16-4960-b755-a8312390c690	0475e15d-55ff-4030-afb5-1b5e68b585b0	2025-03-10	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a646c342-a6ba-4d97-b7ab-7c8809c540da	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-03-18	Jullye Frutas	1	5.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+fb485510-7f16-4d51-9018-bac9d886fc70	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-03-18	Condor	72	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+a17e3f1e-d9b1-4862-90e5-bf8c053df829	521f2d74-463c-4737-bb85-c47d39e96845	2025-03-21	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+02ca5dbd-0bbf-47ef-a0b8-87c2b129d693	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-03-21	Jullye Frutas	1	5.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+76cc4b1e-29a6-463e-9244-4d3fde19ccba	f8c8e834-9063-4a25-8925-12db6592d203	2025-03-21	Jullye Frutas	0.45	6.65	2026-06-01 22:50:07.293263+00	\N	none	\N
+4609dae6-0ac5-4324-a98b-d6190442b47b	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-03-25	Marmikok	1	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+d7c024dc-8e66-447c-8bf9-f79c348c481d	5bdb156e-ac02-4634-bf62-15455ab1eea3	2025-03-25	A casa do confeiteiro	2	44.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+5ea4c580-229b-424c-805a-7ebcdea8fb48	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-03-25	WMS	120	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+693b4857-fcd5-4e10-8c43-614105c3b597	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-03-26	Jullye Frutas	1	6.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+d4fe34d1-4f6b-4af2-a77a-01368d4618b4	e477c9c1-65f1-44b6-a4b1-3743e900407c	2025-03-26	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+648a2713-9abc-4f38-a5ac-e1ec0af5f348	cad0f122-104f-4cdd-8da9-01ad147ecba8	2025-03-26	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+0f262dcb-2e9d-40cd-8958-f17ea6e22e29	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2025-03-26	Cassineli	12	9	2026-06-01 22:50:07.293263+00	\N	none	\N
+22b869ba-6166-4721-8598-adb2305d6c7f	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2025-03-26	Cassineli	12	11	2026-06-01 22:50:07.293263+00	\N	none	\N
+c9b1101e-c8d4-40c3-a063-6740c3801635	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-03-29	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+35aef1d3-7603-4b3c-8905-3505e10244a0	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-03-29	Marmikok	6	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+23b413f0-b7bb-41eb-8d09-e4e81f6e5fc2	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-03-29	Marmikok	4	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+e7663895-7233-4dcb-88a9-7a67e58d5cea	521f2d74-463c-4737-bb85-c47d39e96845	2025-03-29	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+cf283cdf-f8cc-4e56-b07b-04167a8338c5	9e029ad3-c02c-4887-bd60-d1bd5a417210	2025-03-31	Club Doces	3	1.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+69102ff8-2863-4581-9588-40ffe2e0c746	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-03-31	Jullye Frutas	1	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c2113802-adb3-490c-8a08-e6bc46e067c2	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2025-04-01	Astoria Distribuidora	5	120.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+da079a30-fe7f-4554-911c-ad5de03a379b	67f01c59-ce5f-467e-8597-714719412b84	2025-04-02	Spal Industria	48	2.36	2026-06-01 22:50:07.293263+00	\N	none	\N
+06ca05e5-f5aa-4704-b883-5f390b1d1d01	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-04-02	Spal Industria	12	2.36	2026-06-01 22:50:07.293263+00	\N	none	\N
+3dfdaca6-c43f-4979-a549-5476e074b954	9be978f0-4961-40b6-b4eb-c75fe6798110	2025-04-04	WHS	1	20.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+7fd40a53-55ab-418b-9952-3fa485912479	5bdb156e-ac02-4634-bf62-15455ab1eea3	2025-04-04	WHS	1	55.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+8d274e2b-2ab1-422e-8adf-f3ff01529064	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2025-04-07	Nobelpack	400	0.76	2026-06-01 22:50:07.293263+00	\N	none	\N
+cf20d598-7604-4e9e-9469-364b5178e68c	991d2a77-66a8-4811-9ba7-fc60329e3729	2025-04-07	Nobelpack	200	0.72	2026-06-01 22:50:07.293263+00	\N	none	\N
+10bea2e9-2382-45da-aab8-4fc7a6b91810	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-04-07	Jullye Frutas	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+dbb720ec-c519-47fa-964a-e52b1ee29bca	f8c8e834-9063-4a25-8925-12db6592d203	2025-04-07	Jullye Frutas	0.825	5.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+1dc5c2d2-084b-4f42-8489-acb427ebc546	e477c9c1-65f1-44b6-a4b1-3743e900407c	2025-04-09	Cassinelli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+5fda0798-e996-4fa1-b991-b7436926a610	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2025-04-09	Cassinelli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+96a8774c-ff48-4685-9ac2-95b0fd289f5c	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2025-04-09	Cassinelli	6	11	2026-06-01 22:50:07.293263+00	\N	none	\N
+dfa9861a-1a25-48a5-a3f5-704c812ef3a6	0475e15d-55ff-4030-afb5-1b5e68b585b0	2025-04-09	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+97d78ce6-17ed-45a6-9331-7c576ce8ce02	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-04-12	Jullye Frutas	1	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+33e52fe1-cf27-4371-ba78-b2522873fec1	82fd5205-9fbf-4564-83df-6e16776c4718	2025-04-12	Condor	24	2.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+44e6eec8-230c-4baa-9b50-a929a7a9b8b4	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-04-12	Condor	6	3.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+c985a608-4ee3-4826-9a92-fd68ebff5c20	67f01c59-ce5f-467e-8597-714719412b84	2025-04-12	Condor	12	3.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+1495b399-9e68-4767-a581-fe41391f4ade	82fd5205-9fbf-4564-83df-6e16776c4718	2025-04-12	Condor	12	2.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+e0efc07a-aabe-47cc-8914-a672b900f587	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-04-12	Marmikok	3	47.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+27524b93-1b82-428c-92d1-5d873acaebdc	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-04-16	Jullye Frutas	1	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+57cf1e5b-479a-4202-8103-236ea9b5604b	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-04-19	Fadaleal	4	9.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+7b514ad2-728a-4a23-9e31-3774f3ae87f4	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-04-22	Jullye Frutas	1	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d84b06ae-088d-451f-8d11-68282890cbff	f8c8e834-9063-4a25-8925-12db6592d203	2025-04-22	Jullye Frutas	0.225	5.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+441b374d-7172-410e-a5b8-ded1a3df21cb	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-04-26	Jullye Frutas	2	8.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+a7a09230-b114-4101-b01a-c78d7a311ded	521f2d74-463c-4737-bb85-c47d39e96845	2025-04-26	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+00344ed4-55e4-4457-ac78-2f2beac5b3d4	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-04-26	Marmikok	2	65.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+90ba09d7-aa46-4a85-880a-200540b37ae2	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-04-26	Marmikok	3	47.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+f8df0fa9-e5c1-45aa-9547-49b12ec32b25	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2025-04-26	Marmikok	2	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+4c1a1781-5218-4f34-89b1-76114c9ea5f4	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2025-04-26	comercial Embalagens	1	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+9bb9204c-b917-4103-8c3b-5035d1ba92d4	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2025-04-26	comercial Embalagens	3	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+873bc354-9cbb-4370-a3d4-277b8496e819	9033a7e0-470a-4c37-bda0-7df170946057	2025-04-26	comercial Embalagens	4	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+f2373800-dbc9-4f67-8772-bf984b4c256e	9be978f0-4961-40b6-b4eb-c75fe6798110	2025-05-04	Muffato	1	15.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+879d46c1-21f4-42fd-bed2-1f991494ae89	f8c8e834-9063-4a25-8925-12db6592d203	2025-05-04	Muffato	0.525	6.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+4502a57b-ea25-4e54-9088-7a17b26df1c6	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-05-05	Jullye Frutas	2	9.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0e55f798-6996-4d03-b7df-ee3605593ba7	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-05-06	Angeloni	120	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+c85b99d5-6506-4ec7-9706-cf80540ae114	5bdb156e-ac02-4634-bf62-15455ab1eea3	2025-05-08	Casa do Confeiteiro	2	44.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+d65c472a-602e-417d-8f46-699026d2367f	521f2d74-463c-4737-bb85-c47d39e96845	2025-05-08	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+93c1bb23-aef8-4c28-a405-aff7f9bf559e	95d9f130-2433-4f3e-882b-e420e62254e4	2025-05-08	Distribuidora Povão	8	7.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+0ae9cb72-9408-4333-9de9-556818134c81	397d3931-4847-4f37-b9d5-561901a20aa0	2025-05-08	Distribuidora Povão	3	1.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+ec83416a-0f43-4aee-99f9-be64977caea9	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-05-08	Marmikok	4	47.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+695d0d5b-0f44-414f-b75b-6541873c2094	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-05-08	Marmikok	2	65.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+fbbe6f56-761b-4b2b-8261-ced2baa25454	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-05-08	Marmikok	6	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+2408c627-5de1-4fc7-ac59-b8f1ae0fb103	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-05-08	Marmikok	4	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+9ba5691d-72e1-48ad-acba-a6130353e49f	a5f552f1-4392-4c53-977f-08739186fcb5	2025-05-08	Marmikok	4	12.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+949f1759-4bfc-4b1b-84cb-34abc58ddd27	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2025-05-12	Astoria Distribuidora	5	120.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+1a9dc524-6289-46a1-bd8d-ad0e4bdb4da1	82fd5205-9fbf-4564-83df-6e16776c4718	2025-05-14	Spal Industria	48	1.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+3a10040d-434a-4d35-9608-ef37d7989292	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2025-05-14	Spal Industria	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+4cbcca92-d639-4299-9f26-21e37f2cb088	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-05-14	Spal Industria	18	2.36	2026-06-01 22:50:07.293263+00	\N	none	\N
+68811dac-d509-4803-b3fc-63f4374a76a8	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-05-14	Spal Industria	24	1.37	2026-06-01 22:50:07.293263+00	\N	none	\N
+5508fd33-0e1e-4773-8bc9-f155e5c347a4	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2025-05-14	Spal Industria	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+685199c0-7a41-488a-960f-e724860a91fa	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-05-24	Distribuidora Povão	2	9.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+821f73cd-5fc9-4614-9d05-0e98e32a18b4	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-05-24	Marmikok	2	47.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+cdfa45b5-b1bc-49d6-b737-c9472cd4516f	521f2d74-463c-4737-bb85-c47d39e96845	2025-05-24	Marmikok	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b657c8cc-5eb8-4a60-b03b-e36d2f7758fa	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-05-24	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+3089a375-a627-43db-948d-a01d308b8369	a40de54b-d141-412d-83f5-8e0f1fc7102d	2025-05-26	NFS Comercio	20	9.23	2026-06-01 22:50:07.293263+00	\N	none	\N
+78fa38d9-bdc2-4db9-a7fc-5ebce0bbd5ac	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2025-05-26	NFS Comercio	20	15.16	2026-06-01 22:50:07.293263+00	\N	none	\N
+6787b34b-60a4-4f68-b927-f06cc113fd6e	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-05-26	Marmikok	2	47.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+33369f41-9c05-43aa-8e67-d30e81a64a87	a3f83a8d-f611-4a1c-955b-1ac615348b94	2025-05-26	Marmikok	2	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+26591dca-9389-46de-9c60-c38517dff284	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2025-05-26	Distribuidora Povão	3	7.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+2a23b8a5-73a9-4f4a-a230-232f0fa45c96	95d9f130-2433-4f3e-882b-e420e62254e4	2025-05-26	Distribuidora Povão	2	7.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+05a5ebc0-8d28-4048-9c4a-89bf71090e06	9033a7e0-470a-4c37-bda0-7df170946057	2025-05-26	Armazem das embalagens	2	5.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+ab8849ff-16e1-47f7-805b-3d51d4d95b2b	9033a7e0-470a-4c37-bda0-7df170946057	2025-05-26	comercial Embalagens	1	3.1	2026-06-01 22:50:07.293263+00	\N	none	\N
+1a74b217-bcb8-458f-abd1-249f7fdd5566	82fd5205-9fbf-4564-83df-6e16776c4718	2025-05-27	Spal Industria	48	1.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+ce3ebd0e-2d37-4325-8c91-5824f5e581c9	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-05-27	Spal Industria	24	2.36	2026-06-01 22:50:07.293263+00	\N	none	\N
+52bba05e-4436-4f29-a612-8865700038bb	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-06-16	Jullye Frutas	1	11.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+6b9e4087-c0a2-4c22-b66f-1c8b2c083b59	ddd20374-7a63-46b5-90fa-8451a67aa1cf	2025-06-18	Confeitar comercio	1	32.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+5e987333-33ac-45ea-ad5d-0aa945701d6e	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-06-20	Marmikok	3	47.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+362923df-eecc-4412-bde4-3e20957e2324	0e526aad-5e3d-4d01-83c4-0cb754af9f33	2025-06-21	Lacto Minas	1	23.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+10587355-1145-4d1c-8dd3-42e08eddad4e	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-07-16	Cia da verdura	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+4d50e340-2982-4416-aa1c-2228109f8d91	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-07-19	Condor	12	4.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+1d864b41-a043-4807-aba0-50d8af88685a	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-07-19	Condor	1	8.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+6e9755a3-e1c6-4f5a-9e65-1de96afd53b2	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-07-19	Condor	2	8.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+63d3cbc2-403f-4895-8473-58e33367a434	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-07-19	condor	12	4.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+c00f5be2-3884-45ef-99dc-3d37831bb475	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-07-19	JUllye Frutas	1	10.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+d3a14ac6-6198-42b9-a78f-ac47e1d21498	481e2a7b-ca33-4d5d-901d-405f2321f624	2025-07-21	Scopel	1	59.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0e7c910f-955d-487d-88ad-8196d2737bd8	521f2d74-463c-4737-bb85-c47d39e96845	2025-07-21	A Casa do Confeiteiro	6	19.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+26e23b44-f9f4-4182-ba73-73aa6227cf9c	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2025-07-22	Moka Clube	8	106	2026-06-01 22:50:07.293263+00	\N	none	\N
+c5006d7d-08e5-468e-8b15-5aacc103fba9	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-07-24	Cia da verdura	1	11.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+dca8a917-b97e-40e3-bc6b-985e96a87bf5	cad0f122-104f-4cdd-8da9-01ad147ecba8	2025-07-25	Cassinelli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+def4443a-b5ac-41f6-ad05-df720db3193b	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2025-07-25	Cassinelli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+59064f14-927d-46f0-9d92-c5427402b160	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2025-07-25	Cassinelli	6	11	2026-06-01 22:50:07.293263+00	\N	none	\N
+cd426ff3-f086-40d4-b760-416238d0d33c	0475e15d-55ff-4030-afb5-1b5e68b585b0	2025-07-25	Cassinelli	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d5fbffd9-841c-48c6-b49b-bd4a057fbe31	2555e2a3-f854-4a02-8ee6-a67e6a97a409	2025-07-25	Casa do Confeiteiro	1	30.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+708b6362-e8a2-4e61-9708-6579f15006a6	5bdb156e-ac02-4634-bf62-15455ab1eea3	2025-07-25	Casa do Confeiteiro	1	48.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+59822483-01e2-4330-9cbb-7f7acaaddac1	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-07-25	Marmikok	4	47.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+14e28d3a-8ba4-4cd3-bd66-344115775187	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-07-25	Marmikok	2	65.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+6cf54912-b4b8-4ccb-9669-1cb7d340ddd7	521f2d74-463c-4737-bb85-c47d39e96845	2025-07-25	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+353afedc-ba14-4af8-8d4a-2d67ce5f2f9f	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-07-25	Marmikok	6	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+baedc3c8-99a1-4831-9661-1171591b81d2	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-07-25	Marmikok	6	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+0560ebbb-20a9-4f57-9845-cac45a012463	82fd5205-9fbf-4564-83df-6e16776c4718	2025-07-28	Spal Industria	48	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+2099a752-bfe4-40db-82fc-027f4c659c48	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-07-28	Spal Industria	72	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+eb214007-6785-4c32-803a-f941f1efcf59	67f01c59-ce5f-467e-8597-714719412b84	2025-07-28	Spal Industria	24	2.47	2026-06-01 22:50:07.293263+00	\N	none	\N
+edd24f5a-3c6b-4398-997d-4668bdc6a20f	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-07-28	Spal Industria	24	2.47	2026-06-01 22:50:07.293263+00	\N	none	\N
+3a1b8861-3680-4acb-a0c6-7b30c638c9db	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2025-07-28	Spal Industria	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+50de1d98-bef6-44a0-802e-0240ce2f783e	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2025-07-28	Spal Industria	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+8db4d579-4271-4e6a-b2b5-ba397b93355a	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-08-06	Condor	1	4.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+a5eee97c-5de1-42a7-86ee-7e0ccf5b10dd	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-08-06	Condor	36	4.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+30c7fe97-c54b-4644-b42f-a1fad8e63319	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-08-07	Marmikok	3	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+9424ce07-87e5-472a-8f8a-da0b84ec268c	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-08-07	Marmikok	1	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+08f876c0-69f2-45cb-a3b4-f3647833b2d1	f8c8e834-9063-4a25-8925-12db6592d203	2025-08-07	Cia da verdura	0.475	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+85bcee42-4d5a-49e5-add6-6a2887de8f74	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-08-07	Cia da verdura	2	17.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+74fa7679-d2a2-41ea-ba6d-90bd3aff6483	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-08-07	Marmikok	1	65.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+6612d37e-c1fd-486c-b862-e64812068898	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-08-09	Jullye Frutas	1	8.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e5ef0fbd-e703-4475-899a-14c1a6e453eb	5bdb156e-ac02-4634-bf62-15455ab1eea3	2025-08-09	Confeitar comercio	4	47.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+12f6d87c-c7ca-4fba-91a4-2899ae4e6236	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-08-09	Marmikok	2	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+f14fef7d-92bb-40fb-8663-322565aa81c7	521f2d74-463c-4737-bb85-c47d39e96845	2025-08-09	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+2b52e76e-d741-407a-8e53-74f1d3fc5aa9	a3f83a8d-f611-4a1c-955b-1ac615348b94	2025-08-09	Marmikok	1	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+8c84d601-d8f7-42d8-9c5f-728edcc8a3ab	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-08-09	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+3b1e371c-c532-4bd6-8e70-b8e67313e0f0	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2025-08-09	Marmikok	20	0.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+6f37eb40-9002-493a-8138-5958eb1bf115	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2025-08-09	Marmikok	1	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+83d7abea-e98e-472b-bd4d-ed3dcaed2e08	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2025-05-14	Spal Industria	1	21.43	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+fa0acf88-b759-4386-bfc6-15aad411a434	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2025-08-09	Marmikok	1	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+e37c549b-fc94-4584-a5e1-22a6a9969fd0	9033a7e0-470a-4c37-bda0-7df170946057	2025-08-09	Armazem das embalagens	2	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fa621f90-ede6-418f-bc45-4e4e880e7ad7	2980bb3d-2d48-4576-9994-f920221a2561	2025-08-13	Condor	2	14.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+4b87437d-fc62-404c-b3f7-1bb4d0ec9ede	493d4e21-eaa5-4711-ae8b-b73fad3822de	2025-08-13	Condor	4	3.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+9eaf011a-5f62-4452-8697-966185e25858	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-08-13	Jullye Frutas	2	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+2e306eb9-fdc7-43c7-8eb9-2b7e08f31ac9	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-08-16	condor	12	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+9e599358-09e5-4ae1-b992-14228492b2ed	82fd5205-9fbf-4564-83df-6e16776c4718	2025-08-19	Spal Industria	36	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+ccc140ae-00e2-4d1e-826e-62cf9205e58f	67f01c59-ce5f-467e-8597-714719412b84	2025-08-19	Lacto Minas	6	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+df7108a5-d0be-43dd-8d7d-a56dbc1f8085	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-08-19	Marmikok	4	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+fc437f0c-a523-468a-bf3e-eb170937033c	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-08-19	Marmikok	2	70	2026-06-01 22:50:07.293263+00	\N	none	\N
+33cd4050-fb4d-45f6-93f1-3680f31522a7	521f2d74-463c-4737-bb85-c47d39e96845	2025-08-19	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+84f802be-e96a-449c-9fa0-c70deb3fe75c	9be978f0-4961-40b6-b4eb-c75fe6798110	2025-08-22	Condor	1	21.96	2026-06-01 22:50:07.293263+00	\N	none	\N
+35cbfbae-c9bf-4319-9122-0e94192b92a1	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-08-22	Jullye Frutas	1	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d049187c-8f38-44a5-a833-a111b8964975	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-08-24	Muffato	20	1.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+be07d8ec-1a05-4616-ae4b-06d807f56cfb	f8c8e834-9063-4a25-8925-12db6592d203	2025-08-24	Muffato	0.5	7.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+21af99e2-4dd3-41a9-b9fb-0468b30ac103	991d2a77-66a8-4811-9ba7-fc60329e3729	2025-08-25	Nobelpack	400	0.66	2026-06-01 22:50:07.293263+00	\N	none	\N
+a71e9a88-9fea-418a-9dfb-8e0dcd6e38ac	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2025-08-25	Nobelpack	400	0.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+635c5ec5-8ef3-4c72-b315-bca5b234de07	67f01c59-ce5f-467e-8597-714719412b84	2025-08-26	Muffato	6	3.42	2026-06-01 22:50:07.293263+00	\N	none	\N
+1c60e667-2f23-43cb-893d-ad82ad5e35ac	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-08-27	condor	2	9.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+f4059328-7559-4421-812a-3bbc709a7d27	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-08-30	Marmikok	2	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+f03d0b54-78ba-417a-885e-37b98f42261b	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-08-30	Marmikok	2	70	2026-06-01 22:50:07.293263+00	\N	none	\N
+b4701a62-a053-4e48-b9bf-89a201114074	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-08-30	Marmikok	6	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+0ad45248-2f29-4d2f-8680-b1ab4ff88213	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-08-30	Marmikok	4	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+87d5643f-e928-48a2-a779-68eee816e5cd	a3f83a8d-f611-4a1c-955b-1ac615348b94	2025-08-30	Marmikok	2	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+4af3c65e-bc67-465c-b521-9121e68b7972	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-08-30	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+1da4ae7b-c458-4cf3-8aba-e52b7206317b	7693fa82-65fc-4d1b-bbcb-73a0a34728a0	2025-09-01	Familia Scopel	1	49.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+d686ffab-6d34-4489-9d6b-0b5df0f8f25a	73a8818d-24aa-4964-8af0-2f8b9cb17674	2025-09-01	Familia Scopel	1	49.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+fc8d5ca9-2d67-4133-a39f-400d29e9428b	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2025-09-03	Condor	2	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+cfcdc1c7-3f70-4f2f-a2fd-5a8eddf4b01b	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2025-09-04	Nazapack	120	12.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+d0b50c88-64e3-40fb-9aa4-cd25572c2bb4	80cdfb36-780a-46c8-854e-79ff04802ab2	2025-09-05	Kalunga	4	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+805399ec-7951-4f55-94ec-8e142ef2f052	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-09-06	Marmikok	2	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+c2950854-6020-49de-abc9-1a55313e59ca	521f2d74-463c-4737-bb85-c47d39e96845	2025-09-06	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+efb7003c-a19d-4882-8583-927fda0a132f	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-09-06	Marmikok	6	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+8d2c45fb-e8d4-4dba-bfe4-8b383ad2fb55	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-09-06	Marmikok	4	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+5f3590b8-3ef7-49a3-a6da-231291b3f5f1	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-09-06	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+ef462f7d-68f4-4822-8c9e-204552ea830c	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-09-06	Marmikok	2	70	2026-06-01 22:50:07.293263+00	\N	none	\N
+19e1403f-b9bb-4a17-bc5b-ecd260d94087	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2025-09-06	Marmikok	3	9.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+088abe4c-f273-465a-bb87-11643d9f17a6	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2025-09-06	Distribuidora Povão	2	7.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+8e7ced5c-b563-4ee9-b9c1-6e71949ed7b7	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2025-09-06	Distribuidora Povão	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+5c85106c-0714-4adc-86ce-a210caf83e0b	493d4e21-eaa5-4711-ae8b-b73fad3822de	2025-09-06	Distribuidora Povão	6	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+281cf43b-8a69-49aa-9274-450a0a6f0f42	11ef6eff-1063-4529-9c18-682b428908ed	2025-09-06	Distribuidora Povão	12	0.92	2026-06-01 22:50:07.293263+00	\N	none	\N
+b525ad52-32d9-4b25-88c2-ab44d7b05e64	80cdfb36-780a-46c8-854e-79ff04802ab2	2025-09-06	Mirai utilidades	1	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+ea251d5f-bdca-464e-b53f-0235e3ad51ea	510e66ec-68bd-4c76-88dd-07537ad33418	2025-09-09	comercial Embalagens	1	19.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+18d01fc3-ea72-4790-a479-0145fca2014c	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-09-10	Condor	24	4.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+703317b4-40d8-44ab-a8c0-2c96459863f2	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-09-10	Condor	5	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+3378ed63-7b42-4d9f-8fd9-f4788f619d4c	82fd5205-9fbf-4564-83df-6e16776c4718	2025-09-12	Spal Industria	12	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+626cb207-5025-47f3-a3d4-32c1be7ac439	67f01c59-ce5f-467e-8597-714719412b84	2025-09-12	Spal Industria	12	2.47	2026-06-01 22:50:07.293263+00	\N	none	\N
+cc692a9f-ca28-4d96-9e75-52c88a7667d8	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-09-13	Marmikok	2	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+a660e9f7-f664-46ee-abfa-f28909f4b104	521f2d74-463c-4737-bb85-c47d39e96845	2025-09-13	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+11dd8d8c-aaa7-4daa-899a-dd8464b8e7f5	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-09-15	jullye Frutas	1	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+99530d9f-e6e8-4b11-92a1-feb68be6b612	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2025-09-18	Crystalina Plus	1	10.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+34e9d394-3cbc-4aff-96bd-fd2d709f170d	521f2d74-463c-4737-bb85-c47d39e96845	2025-09-19	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+24bc62e8-a782-4879-9063-2e320a49fbf2	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-09-20	Jullye Frutas	1	2.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+9b4113d8-12eb-49be-bc88-e3ed76d1f33c	f8c8e834-9063-4a25-8925-12db6592d203	2025-09-20	Jullye Frutas	0.115	5.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+05ec01a2-4f2b-4152-ba91-2095d1a359c8	67f01c59-ce5f-467e-8597-714719412b84	2025-09-23	Spal Industria	12	2.47	2026-06-01 22:50:07.293263+00	\N	none	\N
+078be8a3-1058-481e-b7b5-a8c51d96a7ba	82fd5205-9fbf-4564-83df-6e16776c4718	2025-09-23	Spal Industria	12	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+a81daae2-ebae-4fd3-bc86-302239a5abc9	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-09-25	Condor	12	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+69746534-20fd-4198-aa30-77ff53651205	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2025-09-25	Condor	1	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+598bcae3-97cd-46e9-b9ae-2f1ff017a12f	9be978f0-4961-40b6-b4eb-c75fe6798110	2025-09-25	Condor	1	23.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+31555d7d-f83f-4f42-afa5-e63b5e02fd22	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-09-25	Condor	2	8.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+302339a6-cac3-47dd-bb5a-972c70fbf3e8	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2025-09-30	Moka Clube	10	106	2026-06-01 22:50:07.293263+00	\N	none	\N
+f4531d83-8a99-4119-bdd1-51aad3bfb79c	f8c8e834-9063-4a25-8925-12db6592d203	2025-10-05	Muffato	0.178	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+3a53379e-9b8d-4470-81e0-31ce2acae954	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-10-10	Condor	2	8.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+4d2794ad-2f01-45d5-86d8-05ff92ccba40	521f2d74-463c-4737-bb85-c47d39e96845	2025-10-11	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+d466e8ad-ac2d-4fd2-bc4c-f7da5ed94c23	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-10-11	Condor	12	3.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+9f782674-4965-4497-b410-27ff5641ab12	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-10-11	Angeloni	120	3.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+a85966ca-ea22-42e9-b1db-53e16dbdc42c	02cfebe2-4de3-4c77-a73e-903b185d54a6	2025-10-13	Condor	1	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+0a1d3f7e-3698-4135-a169-725092c370ee	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-10-13	Marmikok	2	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e0feafaa-fc5d-4783-b6ea-cacf0777d537	f1c79b09-1819-49b5-9a1f-8cd77b013be6	2025-10-16	Netcofee	5	52.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+6694efd6-768c-4ab1-8197-621acad8e77a	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2025-11-03	Condor	2	6.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+d53db762-566e-48fe-85e9-84f0dc6612b1	9be978f0-4961-40b6-b4eb-c75fe6798110	2025-11-03	Condor	3	22.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+25c4171f-7c59-42b0-a5fa-5e94f5e07f63	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2025-11-07	Jullye Frutas	5	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+087d01c5-a39e-41e3-985d-dcc158b56dc9	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-11-07	Cia da verdura	2	11.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+238ef4bd-2d4e-4855-b18e-5067bb19a083	67f01c59-ce5f-467e-8597-714719412b84	2025-11-09	Muffato	12	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+19a465c8-3f4c-4ba2-ba10-b0bb13ce43ef	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-11-11	JUllye Frutas	1	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+e2c1817b-792f-4d3e-a93e-d531e1437282	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-11-14	Moranga	1	11.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+94e45af2-0ccb-4bf2-b79e-bf11dd83c452	67f01c59-ce5f-467e-8597-714719412b84	2025-11-16	Mufatto	12	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+411ea89b-c7a4-4f2f-85f3-85c63b1b2f2e	f8c8e834-9063-4a25-8925-12db6592d203	2025-11-16	Mufatto	0.295	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d064fae8-7471-4566-9df9-b2c8b7b7224a	f8c8e834-9063-4a25-8925-12db6592d203	2025-11-19	Condor	2.355	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+7364b92d-e9e5-4937-ba20-0c27366635eb	f8c8e834-9063-4a25-8925-12db6592d203	2025-11-19	Condor	2.135	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+62752aea-a082-447d-8c46-4801f8a4e796	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-11-19	Moranga	1	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+cd43f91f-e01a-40f4-9040-4d894bb6f2d1	03b764ae-765a-45cd-b897-da245f712055	2025-11-21	Distribuidora Povão	2	27.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+cc2ba50c-863c-4dbb-b476-f0ba1c24800c	96abcb52-14df-4ad2-b433-2aee0669ee30	2025-11-21	Distribuidora Povão	2	14.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+649f59d7-1e7d-4bd0-ae02-27ca5c629c29	b625208d-0946-407f-aabd-fc2b2c736105	2025-11-21	comercial Embalagens	3	13.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+9852d4fa-0161-495e-a982-cfd4d129a5c3	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2025-11-21	Lacto Minas	2	20.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+e20d3151-008f-417f-ba52-985deee816d9	5bdb156e-ac02-4634-bf62-15455ab1eea3	2025-11-21	Confeitar comercio	10	37.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+0d59e2f6-a0cb-4a32-81d7-678e1bfe44ad	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-11-21	Spal	48	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+c505d84b-ad1d-47f6-8a0c-bfbdfc5a05df	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-11-21	Spal	18	2.47	2026-06-01 22:50:07.293263+00	\N	none	\N
+c3ddcd5c-93a2-4029-b1a3-4e71747c222a	82fd5205-9fbf-4564-83df-6e16776c4718	2025-11-21	Spal	48	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+cb2606e3-5c98-4f8d-8fe9-e099af23957c	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-11-22	Muffato	12	3.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+09ce8ed7-c4a0-4eb3-a2d8-874d27bdff1d	67f01c59-ce5f-467e-8597-714719412b84	2025-11-22	Muffato	1	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+2c51a59b-725d-4377-95ac-4e2688d3d50e	67f01c59-ce5f-467e-8597-714719412b84	2025-11-22	Muffato	9	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+de94aeae-575f-45ec-adaf-99968b4136d0	67f01c59-ce5f-467e-8597-714719412b84	2025-11-22	Muffato	2	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+a0a4b335-c40e-4f2d-8858-fbacb1457e84	67f01c59-ce5f-467e-8597-714719412b84	2025-11-22	Muffato	6	3.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+d8dba47d-e0c8-4943-8c53-3b5480d586db	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-11-22	JUllye Frutas	2	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+f650188c-ef88-4399-a11b-6ef49dd4c872	f8c8e834-9063-4a25-8925-12db6592d203	2025-11-22	JUllye Frutas	0.18	6.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+0ee2b5f6-74eb-4f68-bd77-a9af3c67125c	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-11-24	Condor	2	8.09	2026-06-01 22:50:07.293263+00	\N	none	\N
+1b904098-f2a4-4b66-a1f9-cd444fc286b8	67f01c59-ce5f-467e-8597-714719412b84	2025-11-25	Spal	24	2.47	2026-06-01 22:50:07.293263+00	\N	none	\N
+79511c01-c1e6-40ab-9748-f541b1954a3a	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2025-11-25	Spal	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+0201d030-183d-471a-aa57-422c572f0fdd	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-11-25	Spal	48	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+b931e68b-cd90-44da-8bc1-5db7f8e0c711	82fd5205-9fbf-4564-83df-6e16776c4718	2025-11-25	Spal	24	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+02435e74-0d6f-43cd-a392-9a212d5a6c90	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2025-11-25	Spal	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+af1a9ac5-5c70-448c-a2b2-f7ebb524ccf0	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-11-25	Spal	24	2.47	2026-06-01 22:50:07.293263+00	\N	none	\N
+20d2a849-4fb2-4fcf-b9e1-065bcc9f54b2	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-11-26	JUllye Frutas	1	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+ee3abb48-4450-40d1-8181-88635ac33969	f8c8e834-9063-4a25-8925-12db6592d203	2025-11-26	Moranga	1.696	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+06eb5bc0-959e-47b2-a8cf-6200fef8eb13	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-11-27	Franconny	16	43	2026-06-01 22:50:07.293263+00	\N	none	\N
+cd5cee64-77ac-415c-ab98-0bc042302f0c	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2025-11-27	Franconny	4	56	2026-06-01 22:50:07.293263+00	\N	none	\N
+e0885639-fc54-4098-97cb-440433d495eb	1deec24f-5074-421e-b791-8df4fc7dbc5c	2025-11-27	Franconny	4	56	2026-06-01 22:50:07.293263+00	\N	none	\N
+06206eb5-8a02-4df3-bb30-2f161b6f56e7	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2025-11-27	Cassineli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+91895e66-4525-4f42-b211-ed057105fbc7	e477c9c1-65f1-44b6-a4b1-3743e900407c	2025-11-27	Cassineli	6	11.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3969ad63-f93b-4887-b4dc-5e27f694ad47	cad0f122-104f-4cdd-8da9-01ad147ecba8	2025-11-27	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a53637cd-27f2-4e32-91d5-dfeae9522767	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2025-11-27	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8ea2d896-c968-4847-9178-77dda75c76ef	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2025-11-27	Cassineli	12	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+cff0d6a3-6c14-48d9-ba0c-e3f5963a7327	0475e15d-55ff-4030-afb5-1b5e68b585b0	2025-11-27	Cassineli	6	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d79c37f9-8646-4b6e-b099-2e7a31e2d51e	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-11-27	Condor	24	3.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+83ca3840-53ec-46e2-a7ac-5f532f575aeb	9be978f0-4961-40b6-b4eb-c75fe6798110	2025-11-27	Condor	3	18.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+fb925790-19dd-4a34-8461-815762786a45	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-11-27	Condor	5	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+68b128ef-bcf6-47e9-8b6d-a7a8b71a3124	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-11-30	Muffato	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+c53ad8c9-ad06-4bca-bd14-9733b4ca0633	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-12-01	Condor	37	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+83c0cc04-f3fe-4494-8cad-c9571d8b1dd4	521f2d74-463c-4737-bb85-c47d39e96845	2025-12-04	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+6001860f-1ffc-4f2d-bf09-0188e9c84b9d	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-12-04	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+b70e3379-358d-4397-9469-800973e44c66	a3f83a8d-f611-4a1c-955b-1ac615348b94	2025-12-04	Marmikok	1	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+7ec9d242-03ea-4476-a9d1-f4e1f5988fa6	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2025-12-04	Distribuidora Povão	2	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+769f1771-af7c-44f6-8285-e9654a0c65fe	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2025-12-04	Distribuidora Povão	2	7.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+0fbb596b-e0e1-42c4-9cba-ce0b25426e02	95d9f130-2433-4f3e-882b-e420e62254e4	2025-12-04	Distribuidora Povão	2	7.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+d4eec2c9-f6a1-4ce5-8c82-a775ce9af2bc	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-12-06	WHS	120	3.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+39d6d20b-42ec-4e25-a31a-a0645a3fb114	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-12-07	Muffato	1	5.97	2026-06-01 22:50:07.293263+00	\N	none	\N
+d37f85fc-c632-413e-bc99-ab2857135796	f8c8e834-9063-4a25-8925-12db6592d203	2025-12-07	Muffato	0.175	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+6f504941-3fd1-447b-bda1-518791ca44f5	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-12-07	Muffato	32	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+7c3987d5-d48e-4d42-ac81-f3a64e7c9cad	521f2d74-463c-4737-bb85-c47d39e96845	2025-12-11	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+13da1dc9-2bcf-4a3c-8c18-45aa69d734b2	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-12-11	Marmikok	5	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+d8eba9e4-0e35-414d-b87b-eda60027b764	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2025-12-11	Marmikok	4	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+4657b76a-a709-4a8d-af02-aac969812d13	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2025-12-11	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+b10702bc-8ef2-47db-ab80-be9792aeefa2	02cfebe2-4de3-4c77-a73e-903b185d54a6	2025-12-11	Marmikok	2	9.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+b9347dfe-43ae-49c1-8ac1-c1660123cca9	b625208d-0946-407f-aabd-fc2b2c736105	2025-12-11	Comercial embalagens	2	19.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+f78a3798-266a-4c31-b302-35adec1bc023	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2025-12-12	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+560fca78-9776-439e-9374-b3dc282b3e19	47709673-7e0c-4620-9562-4d1ea2315217	2025-12-12	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+ee89bde3-be59-4691-b797-0d1ba2153979	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-12-12	Spal	60	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+e9f39d40-b2aa-4331-9618-5857cf269a51	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-12-12	Spal	18	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+2945acd5-d9c2-423b-ab2f-13e8217f1615	7a77e18f-94b7-4efd-8f6e-80964703a15f	2025-12-12	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+86b295cc-ede7-4ac5-89d3-fa3f50f2cfd4	67f01c59-ce5f-467e-8597-714719412b84	2025-12-12	Spal	24	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+e67b4482-947f-41cc-bada-69d25ad0f796	57f021fd-13b0-4484-ab86-79782ef938c0	2025-12-12	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+f1735134-9d23-4ab6-a077-9cb18df46a69	8850838c-26df-4793-b742-75c6ae75a10f	2025-12-12	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+d4cbf0a8-3c1a-4de4-8de3-b1b043120dae	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-12-12	Spal	24	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+1277a8c9-7116-43dd-912f-43bc39060bed	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2025-12-12	Lacto Minas	2	7.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+254321fb-048f-4b58-b342-3a85304ed729	b053e306-2a07-4a66-a8c9-e091785f7df4	2025-12-12	Lacto Minas	12	3.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+ed35aee9-8895-4488-a435-821b55c700f6	67f01c59-ce5f-467e-8597-714719412b84	2025-12-12	Lacto Minas	13	3.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+e4a554a0-9547-45ee-8b08-7bf4a319dec6	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-12-15	Jullye Frutas	3	2.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+f5ca99a7-8163-4f8f-ae8e-d20542bf7dca	f8c8e834-9063-4a25-8925-12db6592d203	2025-12-15	Jullye Frutas	0.13	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a28646e7-82cf-4037-b422-fb82a05af9e8	521f2d74-463c-4737-bb85-c47d39e96845	2025-12-16	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+fec48c8c-6b84-4d0d-8b20-b243fd6d515e	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2025-12-16	Marmikok	3	9.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+a43fb7b6-9acc-472e-9deb-7f28538fcaac	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2025-12-16	Marmikok	3	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+34701cbe-70b0-477e-bad7-feeb8234b3c1	96abcb52-14df-4ad2-b433-2aee0669ee30	2025-12-17	Super Brilho	3	10.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+fd5344b4-8a67-4024-ae41-169fbefb660b	02cfebe2-4de3-4c77-a73e-903b185d54a6	2025-12-17	Super Brilho	2	6.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+668a712a-37d4-47dc-a25e-78274a8352ed	03b764ae-765a-45cd-b897-da245f712055	2025-12-17	Super Brilho	2	14.04	2026-06-01 22:50:07.293263+00	\N	none	\N
+8ecf2112-16ef-4e45-b457-7c1acb1b3c53	6c1388ea-5eda-4f92-804d-9dc6f4452579	2025-12-17	Super Brilho	4	35.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+46376e7f-b609-48c7-9933-dedf21c1e692	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2025-12-17	Super Brilho	3	10.01	2026-06-01 22:50:07.293263+00	\N	none	\N
+0a91b2b7-497a-4634-90fe-ff5aa4d5defe	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2025-12-17	Super Brilho	4	1.18	2026-06-01 22:50:07.293263+00	\N	none	\N
+4cbea7ae-9cd7-4e75-8d0f-0dbcc9437cb6	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-12-17	Sendas distribuidora	60	3.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+f285c6d2-8a87-4da1-bbcd-13e6b1d9d5ec	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-12-17	Spal	36	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+e6d2fb53-e8b9-410c-8c87-7471bf5a3aaa	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2025-12-17	Spal	12	1.62	2026-06-01 22:50:07.293263+00	\N	none	\N
+ff64b6e4-7cfd-485e-aeb0-cd50fe882c3a	82fd5205-9fbf-4564-83df-6e16776c4718	2025-12-17	Spal	24	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+dd0ca7f4-1a56-4a00-a15d-20d1beee86e1	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2025-12-20	Jullye Frutas	2	2.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+318e3706-e4ac-4060-94e0-d8296117093d	f8c8e834-9063-4a25-8925-12db6592d203	2025-12-20	Jullye Frutas	0.115	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+edb03e73-e422-4f06-9054-77439d5ad1e4	9cc01971-1ad8-4011-851b-6ca6a97d6284	2025-12-22	Muffato	36	1.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+66266650-237a-4f89-a29a-b4dad3ca0402	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2025-12-30	Condor	2	8.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+ee94fa6f-0dac-4fd2-a78b-d55b338ae862	81b9ed64-d226-44d7-810b-6f15b64535d8	2025-12-30	Condor	12	3.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+3e18e89a-b9c7-499e-99bd-2b0f570303ed	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2025-12-30	Marmikok	1	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+6c3979a1-01f2-4201-abaf-879ffe47f152	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-01-02	Jullye Frutas	1	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+2c1e00a1-6be8-4b47-b88a-6593eca76bd2	f8c8e834-9063-4a25-8925-12db6592d203	2026-01-02	Jullye Frutas	0.275	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+91cd186f-8b48-4907-8aae-9af8807627c6	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-03	Muffato	36	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+71284300-3c5f-4ae8-8c34-3231934be0e8	67f01c59-ce5f-467e-8597-714719412b84	2026-01-03	Muffato	10	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+a3b73af1-2118-48be-b01a-0cf852ac2645	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-04	Muffato	12	3.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+83ec88a5-0c44-4c31-b51d-d0cab5abf95f	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-04	Muffato	9	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+21a216bf-7c05-4022-9178-d25da361b921	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-04	Muffato	2	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+0f2deb44-d3fb-4158-b764-6e09ad50548f	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-04	Muffato	1	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+b03d1d12-6150-403d-9ccb-998011c62b78	67f01c59-ce5f-467e-8597-714719412b84	2026-01-05	Spal	12	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+3afd2d10-c055-47f1-b4ae-e49504448fe8	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-05	Spal	6	0.41	2026-06-01 22:50:07.293263+00	\N	none	\N
+859f489a-9b4b-4134-b752-44cacfd5e0db	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2026-01-05	Cassineli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8b1411e3-c914-475e-878b-8c4a8c035930	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-01-05	Cassineli	12	11.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+163ccece-636e-437b-96a0-11cffcf0e50c	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-01-05	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+eb47262b-3b34-49e4-ba13-6974deec83b7	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-01-05	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+ad6ab170-8959-4391-b7ce-8b83c10cb3ec	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-01-05	Cassineli	12	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+a2767186-0694-4f36-b366-cab6b7c87a8d	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-01-05	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+cbaa412b-161e-47f0-8714-ddba0de4c5f1	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2026-01-05	Cassineli	6	4.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+beae2423-68a6-424b-82a0-c0d71c5e699c	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-05	Spal	6	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+1a34d335-f134-4f83-89ff-38f444641641	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-01-07	Jullye Frutas	12	2.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+c1eff16e-21d3-485c-8ec0-28a0dbaa69d4	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-01-07	Casa do Confeiteiro	2	49.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+bb69a630-c01c-4ac5-8dc0-e8d33bf89149	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-01-08	WHS	3	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+16ba5829-c75f-4b86-a162-84db2db04dc7	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-01-08	WHS	3	21.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+43eb8cc4-e5af-46b9-9c4d-eda7512767ff	82fd5205-9fbf-4564-83df-6e16776c4718	2026-01-08	WHS	36	1.09	2026-06-01 22:50:07.293263+00	\N	none	\N
+cf891af2-b2bf-4eb2-8814-1df27ed48210	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-09	Nazapack	120	12.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+ad83f1af-5c74-448b-b474-bc40f62c9a51	67f01c59-ce5f-467e-8597-714719412b84	2026-01-09	Spal	12	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+5762dc70-d7e0-4ded-b8b7-96433f26955f	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-09	Spal	72	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+62c7ac93-b599-4606-9a88-44673f372c0b	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-09	Condor	24	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+e41ac621-a663-4187-9668-639483ca4766	67f01c59-ce5f-467e-8597-714719412b84	2026-01-09	Condor	24	4.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+24884a7b-2a97-40b0-be3e-0e07624360c8	67f01c59-ce5f-467e-8597-714719412b84	2026-01-09	Spal	12	3.05	2026-06-01 22:50:07.293263+00	\N	none	\N
+978742ae-3ec8-43c0-8c49-5fe8e0e5812c	f8c8e834-9063-4a25-8925-12db6592d203	2026-01-10	Cia da Verdura	1.255	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+e92da77f-41c4-4da4-95e3-d534a8b42242	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-14	Condor	6	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+51d4ae27-58c6-4c69-87ac-a9063c33c647	67f01c59-ce5f-467e-8597-714719412b84	2026-01-14	Condor	12	4.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+39baff52-8104-4c96-821f-d7fe5c4059f9	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-01-16	Condor	5	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+0dcd0903-e01a-4b69-849d-6e8de620d762	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-16	Condor	24	3.89	2026-06-01 22:50:07.293263+00	\N	none	\N
+90ab60e7-3773-4c76-8a21-4fcf47021550	67f01c59-ce5f-467e-8597-714719412b84	2026-01-16	Condor	24	4.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+0a553fb6-e721-4da9-91ba-c9df0afca615	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-20	Carrefour	48	3.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+8cf447a5-6fdd-44f5-b181-893b989fdd06	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-01-20	Moka Clube	12	102	2026-06-01 22:50:07.293263+00	\N	none	\N
+3e7ead7c-f2e2-48f5-b24e-bf7b356e77f1	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-21	Carrefour	48	3.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+195eba64-6af4-4871-b470-e2ee92f81a8b	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-01-21	Sete embalagens	1	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fc76d4f7-8caf-42a9-a84e-951c2f6699f1	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-01-22	Feira	5	6.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+de9d347c-f2b7-4865-928b-f3c6bf54439f	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-23	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+1aae5927-c633-4a39-b7ee-62b45a955607	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-23	Marmikok	2	54.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+404a1ab3-9232-4838-87ec-b0dfddb31062	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-23	Marmikok	1	74.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+06085da3-2938-4b32-932d-1a16d61f6aa3	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-01-23	Marmikok	4	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+d7a15a53-f4ca-40dc-b7d2-d2b01f86fc32	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-01-23	Marmikok	2	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+7d18ba62-6d0a-4181-ac68-7fd1505a3f94	a5f552f1-4392-4c53-977f-08739186fcb5	2026-01-23	Marmikok	2	12.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b0ce501d-668c-41eb-a7e1-bc713d7d5894	67f01c59-ce5f-467e-8597-714719412b84	2026-01-23	Magalhães Comercial	30	2.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+bcaf6c13-7f08-458a-9e59-14662df97b93	82fd5205-9fbf-4564-83df-6e16776c4718	2026-01-25	Spal industria	24	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+c3816d9c-31c3-4231-a9cc-bdc88e3c2df5	5db6171c-d897-4894-af28-bbf63adad316	2026-01-25	Spal industria	6	2.28	2026-06-01 22:50:07.293263+00	\N	none	\N
+f7a6de62-f6d1-4656-b91b-698960765195	8850838c-26df-4793-b742-75c6ae75a10f	2026-01-25	Spal industria	6	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+ed825407-6995-4a79-b555-edef2be3c0ef	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-01-25	Spal industria	6	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+cd5c2967-d738-4e0a-9941-f6842b253ac0	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-01-25	Spal industria	6	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+0d253d90-232e-4625-a60c-cd4085674c9d	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-25	Spal industria	12	1.21	2026-06-01 22:50:07.293263+00	\N	none	\N
+9757ec0b-fdef-46a2-95a6-ca7530f0929c	424d80dc-6975-4812-9571-b3baadd2db31	2026-01-25	Spal industria	6	2.22	2026-06-01 22:50:07.293263+00	\N	none	\N
+ecb8d046-e18b-493a-a6ed-589475015ff2	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-25	Spal industria	24	0.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+2a32005d-e3bb-4ab7-bf62-b5d43b44a8a7	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-01-27	Comercial barbante	3	25	2026-06-01 22:50:07.293263+00	\N	none	\N
+0c66517d-a75d-4387-8273-8f1d9b10d4ba	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-01-27	Sendas distribuidora	2	49.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+ed0d3dd2-3eff-45b6-bf88-64a42d485ed7	2980bb3d-2d48-4576-9994-f920221a2561	2026-01-27	Sendas distribuidora	1	10.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+7ec39d52-d849-4382-997d-30436a7c7e3c	f8c8e834-9063-4a25-8925-12db6592d203	2026-01-29	Jullye Frutas	0.335	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b9bf9de-3c4f-4501-bb83-bd59c61dcd6d	f8c8e834-9063-4a25-8925-12db6592d203	2026-01-31	Mufatto	0.26	6.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+4cccb9e3-092b-4e6c-a9c1-8212015f8ed7	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-31	Mufatto	12	3.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+404a30c7-509f-47d6-823f-f18de9efe7d8	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-31	Muffato	12	3.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+34e53636-8192-4bdf-b029-2cd7d7ebffc1	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-31	Muffato	12	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+4c96cf81-9170-4562-9d1e-50216dbddf48	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-31	Muffato	24	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+708c4be1-7f92-460c-b494-23402bc0cb05	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-01	Muffato	24	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+b56ff84e-5ef1-480c-8e04-70ab3d306346	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-02-01	Mufatto	12	3.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+d3e29e49-a6b6-459e-b808-789e1b17c109	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-01	Mufatto	1	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+5ab778d3-0905-42e0-8d4b-f5d87f22cdbc	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-01	Mufatto	2	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+9552563f-ca9c-47ae-a10d-3e133d3c43f0	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-01	Mufatto	3	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+a76f90b0-626a-47e8-8ab0-22524268d6c1	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-02-02	SPAL	24	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+09616f62-f526-472a-9c99-b71492a48fad	82fd5205-9fbf-4564-83df-6e16776c4718	2026-02-02	SPAL	48	1.55	2026-06-01 22:50:07.293263+00	\N	none	\N
+c09247b8-c650-46f3-89d0-9d545b8a2925	67f01c59-ce5f-467e-8597-714719412b84	2026-02-02	SPAL	24	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+f4889fe9-9010-4da8-a7c7-897cc712803a	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-02	SPAL	72	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b2a093e-f37d-41fa-b6da-608da3cdc23b	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-02-04	Cassineli	12	11.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b8947dd4-7fa0-41d8-99ca-7211661fdd6e	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-02-02	SPAL	2	21.42	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+ba6e554e-d844-4ab7-b243-d34418377944	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-01-08	WHS	3	4.69	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+e8872c14-bc6a-4ed3-9aa4-32bb01deb498	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-02-04	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8988516c-6671-429b-80e4-b137f96d707d	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-02-04	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+eef58a1b-f69e-415e-a60b-e04d2cf712c5	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-02-04	Cassineli	12	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+70c1d4dd-900d-4c99-b348-18c9f33918db	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-02-04	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+dd4cc85e-24a6-4f08-a4d6-7048d21b3c3c	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-05	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+26b2d261-a606-4098-990a-966dc70c420e	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-05	Marmikok	2	54.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+a7ff0acf-e3d8-4b53-963f-a8cb95030e05	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-02-05	Marmikok	1	74.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+77a3652d-9bf1-4c8e-b94b-baa243d5d9da	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-05	Marmikok	4	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+52c0f6b4-524d-4ad0-bd04-220ba59c31f2	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-05	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+ad38dbce-a2ed-41c9-a285-aa31a64b7648	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-02-05	Casa do Confeiteiro	2	49.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+e4d95ec6-25ee-410c-8d49-c5571b034eb0	f8c8e834-9063-4a25-8925-12db6592d203	2026-02-07	Jullye Frutas	2.79	2.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+65d3affd-8e6b-44e5-843f-9a0b63a58b4b	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-02-10	Franconny	4	59	2026-06-01 22:50:07.293263+00	\N	none	\N
+d3a07e8a-1f16-424d-9b6a-ed13a1d98ec7	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-10	Franconny	16	45	2026-06-01 22:50:07.293263+00	\N	none	\N
+82400c9c-71af-4fdc-a5c5-9bb80001da4b	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-11	Franconny	16	45	2026-06-01 22:50:07.293263+00	\N	none	\N
+408a8a63-4fcb-48e9-a968-760e12061fd2	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-02-11	Franconny	4	59	2026-06-01 22:50:07.293263+00	\N	none	\N
+7f2e180d-77e2-4626-9db3-baf74139f716	f8c8e834-9063-4a25-8925-12db6592d203	2026-02-11	Cia da Verdura	1.835	3.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+de1d8335-434a-49e9-89d0-2a4c9cb65bbd	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-02-11	Jullye Frutas	2	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d0c61e47-31eb-49fe-862e-003583826656	f8c8e834-9063-4a25-8925-12db6592d203	2026-02-11	Jullye Frutas	0.165	2.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+f9dfa584-bd55-4e8d-988b-edfedc8834f8	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-02-12	Comercial Barbante	2	25	2026-06-01 22:50:07.293263+00	\N	none	\N
+aef2e730-341c-4557-8fc8-147c871a9a05	b625208d-0946-407f-aabd-fc2b2c736105	2026-02-12	Comercial Barbante	2	19.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+1cacb44e-ba05-457e-8766-7d88a8f43967	9033a7e0-470a-4c37-bda0-7df170946057	2026-02-12	Armazém das embalagens	4	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b0dabf0e-9c12-4f88-b0c6-1952f036c102	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-12	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+8f7edaab-1af8-4cb5-a2d4-3f6a64e4e0b5	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-02-12	Marmikok	1	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+0275d5f4-e9e8-4f1e-b883-3dba9aadc048	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-02-17	Assaí	96	3.66	2026-06-01 22:50:07.293263+00	\N	none	\N
+1646358a-77f3-45a7-a257-935fe2837373	67f01c59-ce5f-467e-8597-714719412b84	2026-02-17	Condor	2	21.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+0f828d02-4769-4336-87dd-ba792c2c9435	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-17	Condor	24	1.15	2026-06-01 22:50:07.293263+00	\N	none	\N
+010bd652-67cb-4bf5-b9bf-367932c02bc4	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-17	Condor	24	2.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+b09d047c-b77e-47ce-98f3-4e842693d423	82fd5205-9fbf-4564-83df-6e16776c4718	2026-02-17	Condor	12	2.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+54b551f0-959e-4eb0-a9df-a124b0b5a962	f8c8e834-9063-4a25-8925-12db6592d203	2026-02-17	Jullye Frutas	0.63	6.65	2026-06-01 22:50:07.293263+00	\N	none	\N
+45bee4b6-fa7a-4e7d-a46d-d4914c28a5e2	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-18	Lacto Minas	2	5.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+7626a1f4-fd45-4176-8e9b-3461d93ddc8a	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-02-18	Lacto Minas	1	5.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+fa053c53-2d46-43e4-a5d0-2040aa739e56	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-02-18	Spal	24	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+29761ed3-f101-4673-835f-f295966d7084	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-02-18	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+2a6f84e5-6ba3-47af-9c47-428d6ace3e3f	47709673-7e0c-4620-9562-4d1ea2315217	2026-02-18	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+3cc94368-2a72-4394-b857-d5eb5ff1dfe0	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-02-18	Spal	2	21.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+043832ca-5c98-4ad8-83d7-6303c475ec0f	67f01c59-ce5f-467e-8597-714719412b84	2026-02-18	Spal	24	2.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+8d7ab389-2979-44f5-83d8-7fd4b66d3b28	57f021fd-13b0-4484-ab86-79782ef938c0	2026-02-18	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+33cf7220-8a7c-4421-824e-b762b82c9a34	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-18	Spal	72	1.38	2026-06-01 22:50:07.293263+00	\N	none	\N
+452ede04-528b-400b-8cfb-b4729a2567e3	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-02-18	Spal	12	2.4	2026-06-01 22:50:07.293263+00	\N	none	\N
+0c0d8fe9-dce6-4f1f-ac8a-c6cab0c66e57	8850838c-26df-4793-b742-75c6ae75a10f	2026-02-18	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+d6d36da2-eac8-444e-b376-e20eeef40a19	67f01c59-ce5f-467e-8597-714719412b84	2026-02-18	Muffato	12	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+64180d79-2ef4-40c1-8903-e694429a48b5	f8c8e834-9063-4a25-8925-12db6592d203	2026-02-18	Muffato	0.29	7.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+972f408c-475e-4c17-99d0-2af067d18173	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-02-18	Condor	1	9.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+ed1d1320-3230-40db-b30d-c592ff19051d	f8c8e834-9063-4a25-8925-12db6592d203	2026-02-18	Condor	2.35	2.97	2026-06-01 22:50:07.293263+00	\N	none	\N
+a1b4a8a7-bcb5-4e5b-a1e7-272478d94c8c	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-19	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+27578168-3cc9-4fdb-b479-4bac0ad3cc27	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-19	Marmikok	4	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b2fc970-2b51-4c2d-b3fb-28bc10becca8	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-02-19	Marmikok	4	7.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+decca1b8-7d5d-41cc-8677-cbbf977e3b8e	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-19	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+c935c2b8-50e4-45ce-a114-11d8c95b141a	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2026-02-23	Cassineli	6	27	2026-06-01 22:50:07.293263+00	\N	none	\N
+a5850fb8-2049-4356-8fb0-db0635b6f778	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-02-23	Cassineli	12	11.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c7a93fed-9d09-4125-80d9-19f736d5f467	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-02-23	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+c66c87c0-e4c4-4a40-954c-9a23ce5b7c11	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-02-23	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+46638ab9-487b-4ce9-bd59-394c138b7e45	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-02-23	Cassineli	6	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+b66bea7d-0a2a-4d82-a8f3-50048a968179	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-02-23	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b2245c39-d55c-42ed-9faa-04a469eea5fb	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-02-23	Ifood	106	3.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+15569713-6aea-4bb7-a005-c60cb7b3284f	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-02-23	Ifood	2	2.97	2026-06-01 22:50:07.293263+00	\N	none	\N
+7deb7a6d-02c0-4ac6-8735-c2368f04f6ac	f8c8e834-9063-4a25-8925-12db6592d203	2026-02-23	Jullye Frutas	0.22	6.65	2026-06-01 22:50:07.293263+00	\N	none	\N
+e104babc-4177-40f0-ba2b-5b857ee70fb5	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-02-23	Jullye Frutas	1	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+696ede32-b636-4ad3-8874-33d9f4eb639d	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-02-23	Muffato	108	3.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+fe3413ce-666b-4118-9863-307864e3062b	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-01	Cicuito	6	4.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+14d8b70e-1ada-47c1-93fc-fc4d82ce84e1	3483c0c5-c7e2-4fd2-a59c-06e46068d43f	2026-03-03	De Marchi	10	15.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+d0b0c322-18fe-4303-bbd1-3079de456dbb	df419321-e78b-40c4-ae5f-4a7ae21098e2	2026-03-03	De Marchi	4	16.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+ba214a40-454b-4a58-a742-3f72baeea941	d3bcde3a-0989-446d-b0cd-f7718e3548a2	2026-03-03	De Marchi	4	44.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+fac639b3-5a84-41e3-9027-a93bb4de57dd	fa4f80a3-a011-4a87-9fae-c338ad4bfa26	2026-03-03	De Marchi	2	39.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+b8bbfa5c-4af0-4497-9c57-595856c4584f	004f8cad-f303-4c60-a0a9-40a19536b8f6	2026-03-03	De Marchi	6	2.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+43ecb640-1a54-4f0d-97f7-322d021b8e49	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-04	Spal	24	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+0f770b3b-f140-48cf-8b63-1b5b90014577	82fd5205-9fbf-4564-83df-6e16776c4718	2026-03-04	Spal	60	1.64	2026-06-01 22:50:07.293263+00	\N	none	\N
+37d3a0bf-5ccf-438c-b8a5-14c2708ffc6e	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-04	Spal	12	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+f7d67222-efec-4ec7-b2d0-6472369d390e	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-04	Spal	12	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+6120c0b2-2a31-4605-abef-4d9078a1c4ea	82fd5205-9fbf-4564-83df-6e16776c4718	2026-03-04	Spal	36	1.64	2026-06-01 22:50:07.293263+00	\N	none	\N
+2bc9b323-00ae-4858-9f3a-235ba64c0dea	67f01c59-ce5f-467e-8597-714719412b84	2026-03-04	Spal	12	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+19a18b9d-e14d-4868-8a5f-69ab42438d38	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-04	Spal	48	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+10e5ccf9-2a9e-42a7-b70f-b3998fdd25fe	6e7d5fea-1219-4d50-a64b-050d9b3610a9	2026-03-06	Pop House	3	8.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+6dd7ba92-3d70-4080-a5d7-d17e487e843a	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-03-06	Pop House	0.998	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+bcae35aa-552f-40dc-868a-32d0db922dd1	6b62bd1b-bb40-4ae8-9a4a-d8cd9554edce	2026-03-06	Pop House	1	220	2026-06-01 22:50:07.293263+00	\N	none	\N
+1d56312f-f493-49e4-a617-cb5fb316e180	fef62601-76bf-45b5-be31-38fd7d9f2e08	2026-03-06	Marmikok	1	31.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+268c34dc-5322-4359-8288-39e59042fb9e	e9f30279-87f7-4924-9b0d-284f057a11ca	2026-03-06	Marmikok	1	31.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+25e468ae-d25a-4c78-ab8f-afb85d853c63	756cd28d-7efa-45fc-9016-8db8a6cbf9ad	2026-03-06	Marmikok	1	31.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+008f0d74-614f-4d42-85cf-45a9368ff72f	36afe007-f851-444b-9929-0a357a3ef0ac	2026-03-06	Marmikok	1	42.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+466e8dfc-272e-4da7-a374-38d210f9ec08	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-06	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+bc270fab-1caa-4772-93bd-a91f12ab085d	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-06	Marmikok	4	4.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+00fcab7f-3e5c-4eaf-926a-cbcabb4350ad	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-03-06	Marmikok	2	29.1	2026-06-01 22:50:07.293263+00	\N	none	\N
+a2fd854d-8589-43c9-8aa9-fa59fbb20dab	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-12	Marmikok	50	1.43	2026-06-01 22:50:07.293263+00	\N	none	\N
+b778589c-7b5f-4bf1-a137-d70684303d28	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-03-06	Cia da Verdura	2	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+45c9bbbd-5de3-4ae1-97a1-83d57cc32ddc	f8c8e834-9063-4a25-8925-12db6592d203	2026-03-06	Cia da Verdura	0.23	6.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d0b56a89-6b6b-42a6-b373-2ee4b5b58805	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-03-06	Lacto Minas	2	18.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+34531a0d-f16d-4d7a-a71e-1f9ff8d0ac56	eb9ed0b3-2065-4517-a827-7689183db366	2026-03-06	Lacto Minas	2	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+8f48eb77-ca89-4a6b-a544-d902b7bd866d	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-03-06	Distribuidora Povão	2	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d5c50ae3-680e-4ef6-b737-48fedf13a69e	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-03-09	Muffato	120	3.91	2026-06-01 22:50:07.293263+00	\N	none	\N
+b0ddd508-18fe-4f57-aae8-a34174565835	3553cee0-cfaf-47c4-8a64-46a13a0f716f	2026-03-10	Marmikok	6	25.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+4416f350-ee5d-4560-810c-5d81b8db473c	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-03-13	Marmikok	2	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+15f125cf-9a8b-4f2f-a980-a9c2fd47c2f0	4549717a-872d-4049-bf8d-a78f457326e9	2026-03-13	Cia da Verdura	1	5.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+69db5c35-6238-48da-b0cc-6f79fd5362cb	8850838c-26df-4793-b742-75c6ae75a10f	2026-03-14	Spal	6	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+e3d8a58a-7423-4fc3-a3e2-1fdb596bec2f	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-14	Spal	18	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+2f9fbbf7-fc29-4685-bc0b-6f413d0f89b1	21174f2c-7831-440d-9f5e-daa81d6b94c0	2026-03-14	Spal	6	2.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+4aba23c9-5039-4e76-aa3a-2938c2bc228f	67f01c59-ce5f-467e-8597-714719412b84	2026-03-14	Spal	12	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+a881849c-b115-458a-a141-28941f724daf	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-03-14	Spal	6	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+4cbc6ab1-9f98-427b-92da-6122ea721f12	424d80dc-6975-4812-9571-b3baadd2db31	2026-03-14	Spal	6	2.28	2026-06-01 22:50:07.293263+00	\N	none	\N
+290eafad-3f20-4710-b9c7-99ba715d6021	5db6171c-d897-4894-af28-bbf63adad316	2026-03-14	Spal	6	2.34	2026-06-01 22:50:07.293263+00	\N	none	\N
+dd4b3852-30c6-400b-b964-b36ef52a4b78	67f01c59-ce5f-467e-8597-714719412b84	2026-03-16	Spal	24	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+5681ae39-65eb-432c-b367-469d91a60a45	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-16	Spal	72	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+18c266f4-eb57-4b57-b4ed-9c29bd7abcf3	8850838c-26df-4793-b742-75c6ae75a10f	2026-03-16	Spal	6	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+f2b88098-0ca6-43ef-aea7-5e30ab208df0	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-16	Spal	12	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+d8968cc3-5922-42b4-8af9-6c3121fb4ded	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-03-16	Spal	6	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+875c921b-f8d7-4462-b109-e83ecc8f3406	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-03-16	Spal	6	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+29ad9f93-3962-4c75-8eba-79707b86ab16	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-03-16	Jullye Frutas	2	11.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+becb1fc0-a1e1-42ff-913f-31ce6dcf01ba	f8c8e834-9063-4a25-8925-12db6592d203	2026-03-16	Jullye Frutas	0.12	6.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+afda2219-1fdf-439a-8455-23a608598a97	6b62bd1b-bb40-4ae8-9a4a-d8cd9554edce	2026-03-17	Pop House	1.006	220	2026-06-01 22:50:07.293263+00	\N	none	\N
+8dfd344f-08b7-4c64-b3a7-dd16e596654a	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-03-17	Pop House	1.024	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+d6969a4a-78d4-4eb8-91cf-12e4e03b881e	1dd03db1-fcb6-4c9d-8180-3229bdb194da	2026-03-17	Comercial Barbante	1	42.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+9d6dc95a-cb9e-4b96-a10a-bdfa943e2b25	80fe88b5-e394-41de-8462-f862aa4db4ee	2026-03-17	Lacto Minas	12	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+4be9155d-4d61-49c3-9915-ad67b7f88c90	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-03-17	Condor	36	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+8e400042-22f4-4f99-863c-6447c0c01032	04491582-8cf5-45ad-88e5-1d5cd5a14921	2026-03-17	Condor	3	16.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+099d8e9c-107c-4203-84a9-cfd2132105d1	a9eb4b33-30da-4269-a8de-584b78606f14	2026-03-17	Condor	5	9.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+97e65b3b-8d13-4d31-a057-176fc355acc9	4549717a-872d-4049-bf8d-a78f457326e9	2026-03-17	Cia da Verdura	4	5.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+af594e43-1e22-4d39-88ca-72c15aaad355	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-17	Spal	18	2.68	2026-06-01 22:50:07.293263+00	\N	none	\N
+44ce966f-b726-4d7c-b4f1-477edf2cb800	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-17	Spal	36	1.45	2026-06-01 22:50:07.293263+00	\N	none	\N
+f92e714d-42d8-4aac-8a3f-4914ab5e0311	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-03-17	Spal	12	1.85	2026-06-01 22:50:07.293263+00	\N	none	\N
+3438cebd-1fd8-40aa-a867-a2d94983e119	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-03-17	Spal	6	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b019c2b4-96ee-4955-8e65-67cadcfa7d6f	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-03-17	Spal	12	1.86	2026-06-01 22:50:07.293263+00	\N	none	\N
+93d9ddd4-9fd0-4068-b2a5-2b8636685716	67f01c59-ce5f-467e-8597-714719412b84	2026-03-17	Spal	12	2.71	2026-06-01 22:50:07.293263+00	\N	none	\N
+fe5aef68-844a-49fc-9298-231a5442608a	40805ae9-e353-42e2-a0ec-e633855c7342	2026-03-18	Produtos Alimenticios	1	59.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+f9a1bba7-0f0c-4673-b014-f26b9eccb1b4	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-18	Marmikok	12	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+d4d849db-e13c-480b-a3b8-9fd4a083172d	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-03-18	Marmikok	2	45.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+aa9c1955-4b0a-46af-9061-cda1d860df0e	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-18	Marmikok	5	14.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+823ede05-1574-437d-a264-bed8e9ddcf99	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-18	Marmikok	4	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+ae8f0857-e78e-42fe-93e6-28991f17cde2	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-03-18	Marmikok	1	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fd04159b-9b0c-436d-9938-311baf788f56	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-18	Nobelpack	200	0.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+ce69d361-b206-4ef3-946b-f1a18749c925	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-03-18	Nobelpack	400	0.63	2026-06-01 22:50:07.293263+00	\N	none	\N
+343ac33d-d7b8-40ef-b9e0-5a56dcad356d	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-03-19	Super Brilho	2	6.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+ad7b156e-0ad3-419f-8769-312cbe37414b	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-03-19	Super Brilho	2	10.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+a6d3270d-1b9d-43fb-a7e1-d7192761c1db	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-19	Super Brilho	5	5.23	2026-06-01 22:50:07.293263+00	\N	none	\N
+a5fe59e7-ff5a-4f83-aeee-b05e50cb92df	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-03-19	Super Brilho	4	35.48	2026-06-01 22:50:07.293263+00	\N	none	\N
+0cacdf5f-19bb-444f-b8d0-8260fa863c6f	04a5a69c-bedb-495f-bf98-9faf1291b284	2026-03-19	Super Brilho	1	44.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+848d6c5a-613a-4e33-a4c9-6e7c9061fed4	a5f552f1-4392-4c53-977f-08739186fcb5	2026-03-19	Super Brilho	4	11.63	2026-06-01 22:50:07.293263+00	\N	none	\N
+76f5b6f1-8aae-4dbb-be9a-e512c8285e4f	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-03-20	Jullye Frutas	2	5.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+cb57b7dc-a951-473b-8b95-8fcd93345ddd	04491582-8cf5-45ad-88e5-1d5cd5a14921	2026-03-23	Condor	3	16.68	2026-06-01 22:50:07.293263+00	\N	none	\N
+5bbd8c82-a29b-47e5-b678-42ffe2d940a2	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-03-23	Condor	36	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+e0554e69-cdd4-447b-b031-92420563530f	a9eb4b33-30da-4269-a8de-584b78606f14	2026-03-23	Condor	3	9.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+aee0dd20-32b2-4fcc-b3d2-e31ec643c5f8	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-03-25	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fedb8ac0-f724-43f6-bc5e-096d5bf18c03	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-03-25	Cassineli	12	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+7d780ec3-88ef-4485-87c6-296b2091e505	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-03-25	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+b6dfe0c2-0152-4670-920e-93265c7fbe1e	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2026-03-25	Cassineli	6	3.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+e259486f-7b72-4c06-ad64-12c480bca25d	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-03-25	Jullye Frutas	2	12.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+3e669c2a-48fc-4b7c-bdeb-25d5d879b829	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-03-26	A Casa do Confeiteiro	2	57.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+37e4fdc7-fe7f-469c-912e-87612c138e16	aef9f7cf-49f1-40f9-a8c4-d5bf3e533158	2026-03-26	Cia da Verdura	2.675	19.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+74ec4655-b67f-45bd-80e7-c998f2bb97f7	5db6171c-d897-4894-af28-bbf63adad316	2026-03-27	Spal	6	2.33	2026-06-01 22:50:07.293263+00	\N	none	\N
+d0b1c4d1-e0a6-4b52-bf50-7eb92fd67510	09ce4212-faa0-4db9-9b46-66fc8fc9568b	2026-03-27	Spal	6	2.33	2026-06-01 22:50:07.293263+00	\N	none	\N
+4d09a955-b7a9-42db-aa89-833320c24653	21174f2c-7831-440d-9f5e-daa81d6b94c0	2026-03-27	Spal	6	2.33	2026-06-01 22:50:07.293263+00	\N	none	\N
+31f63480-2d2f-40b0-bd33-f90193cbb0b3	82fd5205-9fbf-4564-83df-6e16776c4718	2026-03-27	Spal	36	1.64	2026-06-01 22:50:07.293263+00	\N	none	\N
+40cb8de7-da47-42d6-a70b-e2e9a10cdafe	424d80dc-6975-4812-9571-b3baadd2db31	2026-03-27	Spal	6	2.28	2026-06-01 22:50:07.293263+00	\N	none	\N
+c91112f8-a700-4601-a4e2-8854cabcf2d2	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-27	Spal	60	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+83a52432-d03a-46fe-9938-bc55a623e2e8	d841c9ef-1c37-4b38-acbe-7faa57bbd2d4	2026-03-31	Marmikok	1	113.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+78f0a3c2-d725-4700-b224-1c56b1bde027	4c41931f-8fa1-480a-b722-cfac6d443c1e	2026-03-31	Marmikok	1	115.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e5ff1ef3-6ca9-463a-857a-8d4a36982502	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-03-31	Condor	5	7.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+41e7d73e-a7c0-4e18-9423-ace42e4496f4	04491582-8cf5-45ad-88e5-1d5cd5a14921	2026-03-31	Condor	9	16.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+eb541213-ebab-4031-84b9-5c1733254dc1	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-03-31	Condor	2	44.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+95eee3f2-7ef5-412e-b49e-15cbfde46c84	6b62bd1b-bb40-4ae8-9a4a-d8cd9554edce	2026-03-31	Pop House	1	220	2026-06-01 22:50:07.293263+00	\N	none	\N
+01fd2cd5-0075-4c52-b70b-c82e8c723d17	1cee25a3-317b-4e51-a3b7-46ae8826e341	2026-03-31	Pop House	0.51	150	2026-06-01 22:50:07.293263+00	\N	none	\N
+fcb31f97-eb64-4cb8-8589-b1d1176ef88b	80fe88b5-e394-41de-8462-f862aa4db4ee	2026-04-02	Condor	12	9.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+7914b91e-e420-4f16-8149-be3ff3ebe8ff	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-04-02	Jullye Frutas	2	5.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+9d5c61e3-4a15-4d09-8627-a8ea89811496	f8c8e834-9063-4a25-8925-12db6592d203	2026-04-02	Jullye Frutas	0.485	6.65	2026-06-01 22:50:07.293263+00	\N	none	\N
+c3809db1-24be-4b71-a038-09c7f77349a4	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-02	Marmikok	4	54.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+756415f7-45d5-4006-ad8b-f9a656592b60	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-04-02	Marmikok	1	74.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+77eb9edb-98e4-4bd9-8e2b-89acf0ea0e7e	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-03-06	Lacto Minas	4	4.69	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+2b66b768-f237-4289-af30-6f61a6cbe6c0	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-02	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+a696e369-86d4-4191-a2d0-470c43d37bb8	67f01c59-ce5f-467e-8597-714719412b84	2026-04-06	Spal	24	2.68	2026-06-01 22:50:07.293263+00	\N	none	\N
+fdd68074-39dc-44ef-baf8-80cc6a632bac	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-04-06	Spal	84	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+77819083-80d3-4cdb-b815-cec4be9d2bdb	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-04-06	Spal	24	2.68	2026-06-01 22:50:07.293263+00	\N	none	\N
+7bfb7962-864f-4357-8a31-48cd0bfb40d9	82fd5205-9fbf-4564-83df-6e16776c4718	2026-04-06	Spal	48	1.64	2026-06-01 22:50:07.293263+00	\N	none	\N
+33c3ad0f-41eb-4dba-8e7e-af836284854c	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-04-06	Condor	60	5.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+77737aa8-6952-4530-a71e-3791298345a5	2e7f4fc8-fb43-4d5d-bae9-4d240d2d964a	2026-04-07	Condor	2	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+b94f5623-f2fe-47c9-9981-4a772b6d0423	bf6cd96b-a44f-4548-b845-156f6dc1a7c5	2026-04-07	Condor	30	0.73	2026-06-01 22:50:07.293263+00	\N	none	\N
+87aa6234-9927-42f8-8925-1aa8fd51f1b5	04491582-8cf5-45ad-88e5-1d5cd5a14921	2026-04-07	Condor	5	15.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+41fc7cf2-7f2d-414b-9849-93f6592d7c0f	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-04-07	Sete embalagens	2	6.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+50357e29-9593-425a-af52-4f38b636035d	11ef6eff-1063-4529-9c18-682b428908ed	2026-04-07	Povão	15	0.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+722c6984-5cf3-40e9-80b9-3b62a58c4346	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-04-07	Povão	4	3.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+ec42c474-646c-42ad-ae07-7610489a49bc	eb9ed0b3-2065-4517-a827-7689183db366	2026-04-07	Povão	3	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+71892a47-0e5d-45e5-ae8d-3be145ec6df2	9033a7e0-470a-4c37-bda0-7df170946057	2026-04-07	Povão	2	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+97bf3246-cb0c-496e-8351-69caef23e9a5	38091bae-17d2-47f4-bd8d-2258dd3c4b0a	2026-04-07	A Casa do Confeiteiro	1	69.95	2026-06-01 22:50:07.293263+00	\N	none	\N
+2396fa41-db95-4005-9324-56ce6897d87c	3553cee0-cfaf-47c4-8a64-46a13a0f716f	2026-04-07	Marmikok	8	25.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+a76c1a7e-0020-4059-9eb1-3633848158ea	4c41931f-8fa1-480a-b722-cfac6d443c1e	2026-04-07	Marmikok	1	115.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e2269e34-90ed-42c0-afc1-ac9f453d5073	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-07	Marmikok	5	13.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+57420289-81f4-492b-baf3-8b997f8cc503	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-04-07	Marmikok	2	5.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+696e8871-8c49-416b-bbf6-be3e36e4f7b0	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-07	Marmikok	4	5.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+1411a785-a172-43fe-ba8c-e5498a6259bd	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-04-07	Marmikok	2	8.1	2026-06-01 22:50:07.293263+00	\N	none	\N
+1d5af50d-010c-417f-9a8e-276006cc73fa	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-04-07	Marmikok	2	12.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+6d5d7998-92b2-4ed2-bbf7-8d7aaec4144c	738c01d0-c937-4eff-a283-6a6cb2380378	2026-04-07	Pop House	0.518	100	2026-06-01 22:50:07.293263+00	\N	none	\N
+399fdf7e-9461-4c1a-a13b-af51b74c5345	9c4e5257-2455-43ff-aa09-0811390a02d2	2026-04-07	Astoria	6	85.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e7196fb6-a8c4-4b48-9290-ad48769bb889	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-04-07	Jullye Frutas	2	5.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+e1be879e-0ac5-4817-9365-b981d024ce4f	f8c8e834-9063-4a25-8925-12db6592d203	2026-04-07	Jullye Frutas	0.235	6.65	2026-06-01 22:50:07.293263+00	\N	none	\N
+fcdec39f-52bc-4952-8791-1abce75ce45a	f8c8e834-9063-4a25-8925-12db6592d203	2026-04-07	Condor	1.905	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+f1e46bf2-b450-45b8-ae9f-54d0f06494ae	f8c8e834-9063-4a25-8925-12db6592d203	2026-04-07	Condor	2.135	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+9dc07dce-e6f6-4890-bf3e-7c5dac66710e	f8c8e834-9063-4a25-8925-12db6592d203	2026-04-07	Condor	1.735	3.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+286857a7-9b07-4828-aaea-9555b226b830	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-04-07	Condor	1	20.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+02a0dbb2-8d04-43f5-84c7-31999c4db763	5563e136-bb31-47e0-a23f-1c0362696f26	2026-04-07	Condor	0.76	19.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+efa949d3-f4a0-48e5-b496-3b3cbd0191b5	7b1b14f9-b940-4d31-8309-552242d254da	2026-04-07	Condor	2.52	2.97	2026-06-01 22:50:07.293263+00	\N	none	\N
+a69f40c2-d33a-43a0-b440-e44b4e162948	7b1b14f9-b940-4d31-8309-552242d254da	2026-04-07	Condor	1.935	2.97	2026-06-01 22:50:07.293263+00	\N	none	\N
+706f8a60-3052-42b5-8480-62955b3c851a	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-04-09	Spal	12	1.85	2026-06-01 22:50:07.293263+00	\N	none	\N
+f4d1fbe0-6aa7-4381-bf1b-41a931134de1	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-04-09	Spal	6	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+252a6a7e-d254-4de3-bdad-e3cc0663d18c	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-04-09	Spal	12	1.25	2026-06-01 22:50:07.293263+00	\N	none	\N
+79c5db17-d42e-4aaf-a88d-a0ac4614891f	8850838c-26df-4793-b742-75c6ae75a10f	2026-04-09	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+a8650bdc-2801-4ac0-9bfc-14da7d757c7a	47709673-7e0c-4620-9562-4d1ea2315217	2026-04-09	Spal	6	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+694ae5cc-6e04-49c6-95ad-dc0efb95e465	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-04-09	Spal	12	1.86	2026-06-01 22:50:07.293263+00	\N	none	\N
+bb7b135c-1f8e-4282-a6cf-33410d89c633	9e743401-ee64-4671-917a-5c29947e5ab9	2026-04-13	Fabrilac	10	79.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+656bf645-ea96-4de9-9047-177758dafc7e	f8c8e834-9063-4a25-8925-12db6592d203	2026-04-13	Jullye Frutas	0.515	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+d80fb5ed-c235-495c-829d-ef5d19303371	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-04-13	Cia da Verdura	2	11.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+dd6798a1-ca5c-48d6-a24a-348b748c0854	4549717a-872d-4049-bf8d-a78f457326e9	2026-04-13	Cia da Verdura	4	5.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+f06d3777-d53c-402b-8646-c877bced3a98	df419321-e78b-40c4-ae5f-4a7ae21098e2	2026-04-14	De Marchi	5	16.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+071e6c40-5e26-4f5b-8d9b-7f51551f5306	fa4f80a3-a011-4a87-9fae-c338ad4bfa26	2026-04-14	De Marchi	3	39.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+401e585d-872c-48e4-9b34-666aea8368e5	d3bcde3a-0989-446d-b0cd-f7718e3548a2	2026-04-14	De Marchi	5	44.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+c945c92a-2a2f-4345-b136-edda431b014c	3483c0c5-c7e2-4fd2-a59c-06e46068d43f	2026-04-14	De Marchi	13	15.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+3c3a785f-59f7-48ae-a855-2d7fdb5cfffe	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-14	Franconny	16	45	2026-06-01 22:50:07.293263+00	\N	none	\N
+e109a1cb-023e-47ef-94ac-cb44e61518e5	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-04-14	Franconny	4	59	2026-06-01 22:50:07.293263+00	\N	none	\N
+06975422-1d1c-4ad1-abb1-1043e5cf0489	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-04-14	Condor	60	5.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+64edd73e-d720-441a-a26f-a371b8fe552d	2e7f4fc8-fb43-4d5d-bae9-4d240d2d964a	2026-04-14	Condor	4	4.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+543d20f9-de09-4d4d-9083-4aa14d78161f	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-04-14	Condor	2	23.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+0371d5ee-c42d-40bf-b414-cb8b619d5f42	80fe88b5-e394-41de-8462-f862aa4db4ee	2026-04-14	Condor	6	9.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+8da5ece9-547a-49d7-8587-e0ac682fce8c	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-04-14	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3cf1ad84-b321-4db7-90b3-474c7ea99811	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-04-14	Cassineli	18	11.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+e82dcec3-e2a2-4589-b5e3-9ae0a240cfe4	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-04-14	Cassineli	12	10.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+d27d77e5-53fe-47e1-b8d4-67fcbe2ab3ab	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-04-14	Cassineli	12	12	2026-06-01 22:50:07.293263+00	\N	none	\N
+5eabaea2-4c3a-4c06-a00b-84c47d02997d	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-04-14	Cassineli	12	9.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+9d463d4d-c942-4ebe-95a4-9a8647006fd7	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-04-15	FNS	10	28.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+413116d9-9ab0-4f6e-bbd1-be461b24982b	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-04-15	FNS	10	39.09	2026-06-01 22:50:07.293263+00	\N	none	\N
+b62aa300-4c40-4f3d-8e68-2891e3f7a46d	738c01d0-c937-4eff-a283-6a6cb2380378	2026-04-15	Pop House	0.248	100	2026-06-01 22:50:07.293263+00	\N	none	\N
+8249982c-dd90-4b66-b677-854ab3a7f27b	8db1810d-14f9-4cd5-b218-f66262198e31	2026-04-16	comercial Barbante	3	29.75	2026-06-01 22:50:07.293263+00	\N	none	\N
+3b48a524-b0de-40bd-89d4-62462f194353	8850838c-26df-4793-b742-75c6ae75a10f	2026-04-17	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+67c055b2-a5d5-441c-aab6-525df2f9741d	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-04-17	Spal	24	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+f15bc8e2-8591-4ccb-96c5-98f5b40ebd47	47709673-7e0c-4620-9562-4d1ea2315217	2026-04-17	Spal	12	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+30dce827-27ee-41de-8e31-850fc9c6ce56	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-04-17	Spal	12	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+459779bb-0cd4-4957-8a5b-b1edb0f98c1f	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-04-18	Spal	6	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+a9d49496-8e76-4d70-bdbf-983a05c75040	47709673-7e0c-4620-9562-4d1ea2315217	2026-04-18	Spal	12	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+3d3ab8e3-2fcc-4e43-8127-7d26729e8663	8850838c-26df-4793-b742-75c6ae75a10f	2026-04-18	Spal	12	2.6	2026-06-01 22:50:07.293263+00	\N	none	\N
+eddcbd19-b63a-4f6b-989f-0dc3d49bcc25	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-04-18	Spal	24	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+317f1261-c9fd-4062-b2c9-1f6c9e0de7aa	82fd5205-9fbf-4564-83df-6e16776c4718	2026-04-18	Spal	24	1.64	2026-06-01 22:50:07.293263+00	\N	none	\N
+a82b0eb4-2ac7-4d3a-b2d6-538fe6282f4b	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-04-18	Spal	6	2.68	2026-06-01 22:50:07.293263+00	\N	none	\N
+802be7ba-d2b6-4fb0-a642-42c2095c24b7	4549717a-872d-4049-bf8d-a78f457326e9	2026-04-18	Condor	3	5.79	2026-06-01 22:50:07.293263+00	\N	none	\N
+a81b9f60-b6ea-4263-a144-67e16a78b5c4	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-04-18	Muffato	36	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+9b4a2d7d-cab8-4192-9071-91b5a8c5827c	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-04-18	Muffato	24	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+953cf95b-7082-4092-9ce5-d056e2066690	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-04-20	Jullye Frutas	1	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+45cb2d3c-c2a0-4799-93c4-b6e4eef6682f	4c41931f-8fa1-480a-b722-cfac6d443c1e	2026-04-20	Marmikok	2	115.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+044b1752-266b-41ff-9248-6c5bdb93944e	5aca7a58-c3d4-467d-827d-57ce1b7b3879	2026-04-20	Marmikok	1	265.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+9c976640-2f18-400c-91f8-651faeab1ff5	702aaad1-2ce8-4f7b-a7fd-f11aed1f3fa7	2026-04-20	Marmikok	1	31.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+47ad4d0b-0601-4337-b24f-dc8d26f821a5	6b62bd1b-bb40-4ae8-9a4a-d8cd9554edce	2026-04-20	Pop House	1.5	220	2026-06-01 22:50:07.293263+00	\N	none	\N
+72550b83-1b58-4b38-b17b-c5a2bb780873	6e7d5fea-1219-4d50-a64b-050d9b3610a9	2026-04-20	Pop House	4	9	2026-06-01 22:50:07.293263+00	\N	none	\N
+7276cbcd-d22c-4e77-bdc8-eb3517a9171e	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-22	Nazapack	120	12.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+50ec25c0-6e59-4330-a9a7-67860fdd1179	eb9ed0b3-2065-4517-a827-7689183db366	2026-04-22	Lacto Minas	3	4.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+49e1f3ee-f842-416d-b7de-145beab1aeee	80fe88b5-e394-41de-8462-f862aa4db4ee	2026-04-22	Lacto Minas	18	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+a0db8f2d-54c3-4b3f-999a-edd56982f6c2	dc278682-f9ec-4a8d-a4c3-3f73f3f3e035	2026-04-22	Sendas	25	13.49	2026-06-01 22:50:07.293263+00	\N	none	\N
+ebe9d21e-36ae-483c-9d18-452fee881876	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-04-22	comercial Barbante	2	14.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+058f2539-77b0-4a8c-ba9d-cff4a12f6293	04491582-8cf5-45ad-88e5-1d5cd5a14921	2026-04-22	Condor	7	15.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+be737d19-4866-4657-9b00-d7b0567d7258	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-04-22	Condor	6	3.69	2026-06-01 22:50:07.293263+00	\N	none	\N
+d94acb49-e10d-4d41-bfed-2ecdce8f814a	4549717a-872d-4049-bf8d-a78f457326e9	2026-04-22	Cia da Verdura	2	5.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+1497b1ba-6de1-4612-b950-14d574d6004f	c8132e9b-d800-488a-ace2-790da252b525	2026-04-22	Lacto Minas	2	14.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+25bf2aae-7e0c-4484-933a-7a270aea533e	75efd75a-2265-49dc-8b10-ee0332a12025	2026-04-22	Condor	3	20.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+00207d8e-b797-4d07-aab8-0dd6aabff4a9	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-04-27	Super Brilho	4	10.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+98759242-be0c-49b8-b0a1-8029087acd50	03b764ae-765a-45cd-b897-da245f712055	2026-04-27	Super Brilho	3	22.19	2026-06-01 22:50:07.293263+00	\N	none	\N
+57c0c1c8-5d70-4a24-a4a1-6337090dc4fc	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-27	Super Brilho	6	5.36	2026-06-01 22:50:07.293263+00	\N	none	\N
+95c7289b-4be3-4944-9560-ec7c5ed3879d	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-04-27	Super Brilho	12	0.93	2026-06-01 22:50:07.293263+00	\N	none	\N
+23d9a187-4eb3-4a91-aaa1-6e07c63c2fb8	a5f552f1-4392-4c53-977f-08739186fcb5	2026-04-27	Super Brilho	4	11.05	2026-06-01 22:50:07.293263+00	\N	none	\N
+d605f571-e893-4d82-8b8a-ad0466931336	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-04-27	Super Brilho	4	6.07	2026-06-01 22:50:07.293263+00	\N	none	\N
+aaf6cb6f-1d24-483c-a3a1-af8b7d28c364	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-04-27	Jullye Frutas	1	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+b07fae54-6cf4-4c46-953e-e08eb28f1334	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-28	Marmikok	6	18	2026-06-01 22:50:07.293263+00	\N	none	\N
+263665f0-356e-4603-9091-05f5a6ea33fb	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-28	Marmikok	50	1.52	2026-06-01 22:50:07.293263+00	\N	none	\N
+a0fa29f3-8c6d-415d-b5e3-5c7724932123	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-28	Marmikok	6	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+dc801f16-1c0e-44cb-a61e-e7d2a3be148a	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-04-28	Marmikok	6	8.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+cef492b0-d50a-4195-820c-b32967ea5b9a	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-28	Marmikok	5	15.8	2026-06-01 22:50:07.293263+00	\N	none	\N
+ce1fea2b-35a2-4d68-a09e-f6342d5f6261	3553cee0-cfaf-47c4-8a64-46a13a0f716f	2026-04-28	Marmikok	4	25.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+54e04f8e-7cae-4233-9196-546ec6f29f4c	9e743401-ee64-4671-917a-5c29947e5ab9	2026-04-29	Fabrilac	10	79.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e3a630d3-747c-4547-a1e8-0c52c4ffe826	6b62bd1b-bb40-4ae8-9a4a-d8cd9554edce	2026-04-29	Pop House	1	220	2026-06-01 22:50:07.293263+00	\N	none	\N
+c5fbda4a-3edf-4499-bd05-6ff7ee4fca90	a88a0bb6-cae0-459b-83ee-65935f6a77a2	2026-04-29	A Casa do Confeiteiro	2	27.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+ac083bd7-b58f-4de0-9918-4827eda8caab	ff3ef1c4-199c-4884-a93a-3ad602abe9cf	2026-04-29	A Casa do Confeiteiro	3	22.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+b2a453d7-a1e8-48e5-8206-89b2c3f37f50	04491582-8cf5-45ad-88e5-1d5cd5a14921	2026-04-30	Condor	3	15.98	2026-06-01 22:50:07.293263+00	\N	none	\N
+94a87171-57cb-43fc-8038-5505d4ea39e7	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-04-30	Condor	72	5.39	2026-06-01 22:50:07.293263+00	\N	none	\N
+c3c24633-c3fa-49af-9bc0-2496392b9d5e	bf6cd96b-a44f-4548-b845-156f6dc1a7c5	2026-04-30	Condor	30	0.63	2026-06-01 22:50:07.293263+00	\N	none	\N
+7a1b5825-52fe-4f93-a318-ccb507460afd	01659df6-43fe-4ced-90cd-25ab1f9b74cf	2026-05-04	Condor	2	6.59	2026-06-01 22:50:07.293263+00	\N	none	\N
+02c4e1ed-a987-4e45-bbee-f3f711f07fe0	fcaa7c50-c48f-46e0-b8dd-4c77e2d31244	2026-05-06	Feito Chocolate	2	204.7	2026-06-01 22:50:07.293263+00	\N	none	\N
+ee13b5aa-ff54-48dc-9d54-513dfd3e6795	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-05-07	Spal	18	2.68	2026-06-01 22:50:07.293263+00	\N	none	\N
+d773ebe8-ba08-47a1-8aea-e78a7afb5142	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-05-07	Spal	36	1.46	2026-06-01 22:50:07.293263+00	\N	none	\N
+fa3a4b97-ddec-46ac-8643-e30959de53b4	82fd5205-9fbf-4564-83df-6e16776c4718	2026-05-07	Spal	36	1.64	2026-06-01 22:50:07.293263+00	\N	none	\N
+77ef2773-7e1b-415f-92f2-9f8d7d629c22	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-05-07	Spal	12	2.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+fa7fdb17-22d4-410e-8bd5-ac167f8a30bd	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-05-07	Spal	12	1.86	2026-06-01 22:50:07.293263+00	\N	none	\N
+736dfa2a-8692-4fa0-bf06-3f4428cb40b1	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-05-07	Spal	12	1.85	2026-06-01 22:50:07.293263+00	\N	none	\N
+684172ec-0ea7-4279-9f69-41acf47094fd	f8c8e834-9063-4a25-8925-12db6592d203	2026-05-07	Jullye Frutas	0.48	6.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+aad0a748-5b29-4caa-b5e0-aecf3aa9e2ff	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-05-07	Jullye Frutas	2	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+8ad1f1a2-1f71-4713-969b-47df504bc203	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-05-12	Jullye Frutas	1	5.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+43cfbbc0-b372-494d-8506-eb0bff09b344	f8c8e834-9063-4a25-8925-12db6592d203	2026-05-12	Jullye Frutas	0.245	6.35	2026-06-01 22:50:07.293263+00	\N	none	\N
+31626ca9-8b0b-4c75-aa2f-987d4ee9563d	2980bb3d-2d48-4576-9994-f920221a2561	2026-05-12	Condor	2	14.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+c47b1054-3e1b-454b-b33a-06f546b1219d	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-05-12	Condor	72	5.29	2026-06-01 22:50:07.293263+00	\N	none	\N
+95883254-d7bd-4bbf-89ad-30d53894e3a3	80fe88b5-e394-41de-8462-f862aa4db4ee	2026-05-13	Lacto Minas	8	8.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+61c0f00a-84b9-4390-b77b-f043b4c8b2ba	a14315e7-c874-4f9f-b87c-8dc26fcdcdeb	2026-05-13	Marmikok	1	31.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+a472f321-2be3-4044-943b-f578c5218d04	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-05-13	Pop House	0.384	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+2e0c8923-8aad-4330-871c-e909e3e86525	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-05-13	Pop House	0.372	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+25b2392c-8d95-47f2-8360-8948d3ca2ac5	2e7f4fc8-fb43-4d5d-bae9-4d240d2d964a	2026-05-13	Condor	6	4.99	2026-06-01 22:50:07.293263+00	\N	none	\N
+5fdcdf80-8e6b-4591-8b9e-51dddd813ecd	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-05-15	Jullye Frutas	1	7.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+5b2854a7-5bba-45a7-990d-c4bbd6f03a73	3553cee0-cfaf-47c4-8a64-46a13a0f716f	2026-05-07	Marmikok	4	25.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+203652d6-b9bd-4bd1-954c-0f7537968b99	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-05-07	Pop House	0.4	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+84dae274-2609-4d37-88ac-11b17a37d11b	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2023-11-08	Marmikok	6	6.3	2026-06-01 22:50:07.293263+00	\N	none	\N
+f20127ff-fe69-45ea-9790-cf8ac977026d	4549717a-872d-4049-bf8d-a78f457326e9	2026-05-13	Cia da Verdura	3	5.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+e084c59f-b205-47cc-97bb-647dd76e54b8	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-05-13	Marmikok	2	6.5	2026-06-01 22:50:07.293263+00	\N	none	\N
+962aaab0-70a7-4958-b5a2-9aeb6b7d512b	8850838c-26df-4793-b742-75c6ae75a10f	2026-05-07	Spal	6	3.7	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+8ae5900d-fd3e-4257-bfeb-01e39478170f	ae74f3f6-e06d-41f0-bfac-ab5fa36bed7f	2026-05-25	Feito Chocolate	7	47.2	2026-06-01 22:50:07.293263+00	\N	none	\N
+a363cefd-b844-4447-bd9c-f0eb38b60bd6	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-05-13	Pop House	0.388	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+e35fb38d-60b2-4fe1-95bd-e7bf5a267394	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-05-07	Pop House	0.408	15	2026-06-01 22:50:07.293263+00	\N	none	\N
+8db35958-3b05-4498-808e-1fd612583fc0	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-05-07	Feito Chocolate	2	51.9	2026-06-01 22:50:07.293263+00	\N	none	\N
+b8157f07-414d-4203-9e24-3f673a41fcdd	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2025-02-18	Spal	1	21.43	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+65ff337d-a43d-4cff-be9b-b0ae15a828fa	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2024-01-17	Spal	1	20.37	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
+a964cc54-4b28-4e22-9822-8f34c31d9d73	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2025-07-28	Spal Industria	1	21.31	2026-06-01 22:50:07.293263+00	\N	pending_user	\N
 \.
 
 
@@ -5923,14 +7490,6 @@ c2bde6c3-4c5d-4818-9b76-b4b822a6f71e	16ddd940-9f73-4313-ba08-9ee96735181c	2026-0
 --
 
 COPY "public"."ficha_tecnica" ("id", "produto_id", "insumo_id", "quantidade", "created_at", "produto_base_id") FROM stdin;
-549c1d1a-92d1-482a-ab60-69488815c309	de6b07a4-0339-4f12-95de-d76430659fe1	55519e38-a952-4223-a0a9-4d36d53adb54	1	2026-05-31 18:53:56.669435+00	\N
-8fa019e4-5e08-4f1a-92bc-5b9a2ea9895d	de6b07a4-0339-4f12-95de-d76430659fe1	b053e306-2a07-4a66-a8c9-e091785f7df4	1	2026-05-31 18:53:56.669435+00	\N
-fb7782a4-7bb1-40ca-a9e4-a96097d949de	de6b07a4-0339-4f12-95de-d76430659fe1	a5f552f1-4392-4c53-977f-08739186fcb5	1	2026-05-31 18:53:56.669435+00	\N
-6a741152-d89c-4f77-ae6c-93fb42f48bf8	de6b07a4-0339-4f12-95de-d76430659fe1	8850838c-26df-4793-b742-75c6ae75a10f	1	2026-05-31 18:53:56.669435+00	\N
-7d71ab30-80a9-4f96-b7b3-cfc51352e93b	de6b07a4-0339-4f12-95de-d76430659fe1	424d80dc-6975-4812-9571-b3baadd2db31	1	2026-05-31 18:53:56.669435+00	\N
-2fd26ba2-b9c5-4019-9f40-85a4ca20968e	de6b07a4-0339-4f12-95de-d76430659fe1	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	1	2026-05-31 18:53:56.669435+00	\N
-2472e6f6-2897-4ba9-a3a7-748aa8390149	de6b07a4-0339-4f12-95de-d76430659fe1	7a77e18f-94b7-4efd-8f6e-80964703a15f	2	2026-05-31 18:53:56.669435+00	\N
-d0bca40e-d42b-4b01-8482-7bed66155713	de6b07a4-0339-4f12-95de-d76430659fe1	6079efab-6235-4c98-97aa-43417ea5e2d2	1	2026-05-31 18:53:56.669435+00	\N
 5bc982da-8a26-4670-8be7-baf953559408	0a87d61a-0a52-43f6-9e63-bc7e9f1f719d	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	1	2026-05-31 19:04:35.063715+00	\N
 4ef541e7-0892-4e9b-b5d4-d174f1c16ba0	0a87d61a-0a52-43f6-9e63-bc7e9f1f719d	521f2d74-463c-4737-bb85-c47d39e96845	1	2026-05-31 19:04:35.063715+00	\N
 3773322b-8ec6-473e-b50a-776f8f9b9de4	0a87d61a-0a52-43f6-9e63-bc7e9f1f719d	6e0e7651-b4a0-466f-9541-69d45b2ffdca	0.12	2026-05-31 19:04:35.063715+00	\N
@@ -5941,6 +7500,15 @@ d4c69ae2-a44e-40b9-b4ac-612daf78d7be	b890578d-894b-41ea-8aeb-3fa0b0d94fed	6e0e76
 9a527aa0-2b86-4c16-b618-33c9edac6b16	6ed28a48-b705-4067-a6a9-d10be587f0a7	4dd5d67c-767c-42dc-abc9-9cd4539579c6	1	2026-05-31 16:29:16.171675+00	\N
 8cd75585-6ec7-4e15-8382-333e82998bac	6ed28a48-b705-4067-a6a9-d10be587f0a7	6e0e7651-b4a0-466f-9541-69d45b2ffdca	0.23	2026-05-31 16:29:16.171675+00	\N
 b54afcb2-5a5d-4a83-98bc-e72a6c7bbcee	6ed28a48-b705-4067-a6a9-d10be587f0a7	521f2d74-463c-4737-bb85-c47d39e96845	1	2026-05-31 16:29:16.171675+00	\N
+a332bfc1-d8f7-4a0d-9b39-2a1ce6c36912	de6b07a4-0339-4f12-95de-d76430659fe1	55519e38-a952-4223-a0a9-4d36d53adb54	1	2026-06-01 13:03:49.726596+00	\N
+f1f70c11-b274-4918-a857-cc3dac63095b	de6b07a4-0339-4f12-95de-d76430659fe1	b053e306-2a07-4a66-a8c9-e091785f7df4	1	2026-06-01 13:03:49.726596+00	\N
+48dc3fea-42f3-42b2-8ff9-46605f457862	de6b07a4-0339-4f12-95de-d76430659fe1	a5f552f1-4392-4c53-977f-08739186fcb5	1	2026-06-01 13:03:49.726596+00	\N
+135d8c29-3acc-43c9-b37a-da3b89d1092a	de6b07a4-0339-4f12-95de-d76430659fe1	8850838c-26df-4793-b742-75c6ae75a10f	1	2026-06-01 13:03:49.726596+00	\N
+4f934dd6-6746-4b18-96f7-2b1a9644aba9	de6b07a4-0339-4f12-95de-d76430659fe1	424d80dc-6975-4812-9571-b3baadd2db31	1	2026-06-01 13:03:49.726596+00	\N
+2fc927f5-8662-4c35-aef7-f6f7d0c64adf	de6b07a4-0339-4f12-95de-d76430659fe1	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	1	2026-06-01 13:03:49.726596+00	\N
+faf63932-ace7-4350-aef4-32a9cd869139	de6b07a4-0339-4f12-95de-d76430659fe1	7a77e18f-94b7-4efd-8f6e-80964703a15f	2	2026-06-01 13:03:49.726596+00	\N
+9d88d64a-6054-4a4a-92cb-ed6b873f4984	de6b07a4-0339-4f12-95de-d76430659fe1	6079efab-6235-4c98-97aa-43417ea5e2d2	1	2026-06-01 13:03:49.726596+00	\N
+2a85ea67-5838-40d9-9ef7-a14e116251be	15f536a3-d911-431e-b8ae-9a052340c1c4	6079efab-6235-4c98-97aa-43417ea5e2d2	0.08	2026-06-01 13:13:08.414981+00	\N
 \.
 
 
@@ -6050,8 +7618,333 @@ COPY "public"."historico_colaborador" ("id", "employee_id", "created_by", "type"
 --
 
 COPY "public"."inventario_insumos" ("id", "created_at", "insumo_id", "data_inventario", "unidade", "quantidade", "user_id", "updated_at") FROM stdin;
-4a3b5a4f-0f86-4d40-977f-68921db387a7	2026-06-01 02:36:50.11103+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-05-31	Loja Alto XV	1	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-06-01 02:36:49.791+00
-bd461c07-3af0-4600-8062-15f2bb1da7e4	2026-06-01 02:41:11.456303+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-05-31	Loja Ahú	1	35cae5eb-f980-4be0-9998-ac8173ed2afc	\N
+e461d001-103d-46be-9191-0165c92337a3	2026-06-01 14:53:25.153142+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-06-01	Loja Alto XV	5	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+b913c2df-1ce0-4dc3-b14d-215ee1fba118	2026-06-01 14:53:25.153142+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-06-01	Loja Alto XV	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+204b1874-2074-4c7f-94a1-2491109640b2	2026-06-01 14:53:25.153142+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+c13c7fe1-1a2e-4484-b06f-54251a4c04e8	2026-06-01 14:53:25.153142+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+ab15c42c-b7a1-478e-af9c-4f0b6a798053	2026-06-01 14:53:25.153142+00	c8132e9b-d800-488a-ace2-790da252b525	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+9cfd7efb-fa01-42db-8339-730e116cd9b9	2026-06-01 14:53:25.153142+00	82b1fb0f-7fce-4600-a9b0-14ccdc406a57	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+ad173631-0019-4d3f-a943-19f5269356c5	2026-06-01 14:53:25.153142+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+8a8b9493-ccc8-4a88-9a33-86794cccee61	2026-06-01 14:53:25.153142+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-06-01	Loja Alto XV	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+82f92162-29dd-46cc-9cca-9b0f60872b5e	2026-06-01 14:53:25.153142+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+d771c07e-591c-4638-87d5-b3d49281b37e	2026-06-01 14:53:25.153142+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-06-01	Loja Alto XV	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+278fc83e-283d-4db6-8b8d-641321dddd61	2026-06-01 14:53:25.153142+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+2ddabee6-a297-40e2-8ac8-23ddc3fc3a26	2026-06-01 14:53:25.153142+00	a40de54b-d141-412d-83f5-8e0f1fc7102d	2026-06-01	Loja Alto XV	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+630d646b-a6cf-47ab-b84c-bb7cfd59940e	2026-06-01 14:53:25.153142+00	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+f57f587a-0591-404c-a827-55db4460ca28	2026-06-01 14:53:25.153142+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+958b19d8-4133-44a2-b785-7fe77c0042bd	2026-06-01 14:53:25.153142+00	33ede6d7-bf58-4451-83ea-0266023a2403	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+55224c82-bb3d-455b-9f79-ef3d0a3a20a4	2026-06-01 14:53:25.153142+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+6bb2df39-df39-4a75-bf35-0f459a489140	2026-06-01 14:53:25.153142+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+13bbf5ec-d59b-4090-b0bb-86eec3da0f3f	2026-06-01 14:53:25.153142+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+3d3a0d7a-b395-4923-bcd4-98b357622d99	2026-06-01 14:53:25.153142+00	9c4e5257-2455-43ff-aa09-0811390a02d2	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+25f2660d-dd43-45bc-be30-14b50e0e20bc	2026-06-01 14:53:25.153142+00	f1c79b09-1819-49b5-9a1f-8cd77b013be6	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+88bff3c1-0e92-43e0-8789-ab7b605a54f1	2026-06-01 14:53:25.153142+00	d53928a4-d748-4e75-a4a0-0f86a74b9571	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+cfb5c9bb-58dd-4d5e-adc2-cfbf705319a3	2026-06-01 14:53:25.153142+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+51b833a9-e588-43ff-828c-e8b47a489bdd	2026-06-01 14:53:25.153142+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+102e0245-77ab-4b96-8e32-36331e5f2a56	2026-06-01 14:53:25.153142+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+4d4c2d84-cb20-4708-b0ee-2594d6e521ae	2026-06-01 14:53:25.153142+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+77c80a64-2e30-4a00-a4c2-f8dd0eb51932	2026-06-01 14:53:25.153142+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+44ee795f-4156-47e6-9858-e398ed1e9604	2026-06-01 14:53:25.153142+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+a290dd81-871b-4723-a9bb-5b22cb31202a	2026-06-01 14:53:25.153142+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+886aac2b-4e63-4cbe-b3b2-17db386b18a6	2026-06-01 14:53:25.153142+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+6a46fc25-f6ae-4346-bca5-d14dbbfec0aa	2026-06-01 14:53:25.153142+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+e072831b-7d0c-4a4a-a63f-31ef824aae26	2026-06-01 14:53:25.153142+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+3eda5e6a-3583-4390-9c78-80a5a26fae74	2026-06-01 14:53:25.153142+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+936110d2-3d3b-45b1-9bb3-2b1e080fbdfb	2026-06-01 14:53:25.153142+00	daa9968f-370b-4c09-bc1e-b0a170f3142c	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+eb7e4894-dba6-49a5-9ee0-4b368c21db86	2026-06-01 14:53:25.153142+00	5c61e89e-5c83-4782-a6e9-5b33f492bb9a	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+916e8032-4eba-4e61-aaa0-8cf9aebd3034	2026-06-01 14:53:25.153142+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+35562634-0791-46b1-8824-247f5125d8cb	2026-06-01 14:53:25.153142+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+e66ec39c-9290-41c4-8fce-db9c2f71c3b8	2026-06-01 14:53:25.153142+00	510e66ec-68bd-4c76-88dd-07537ad33418	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+9dd75efc-1f53-46b5-9853-a6fa29a4f2ae	2026-06-01 14:53:25.153142+00	b625208d-0946-407f-aabd-fc2b2c736105	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+46c4e9c3-b974-4e78-ba3f-03725e75c3f9	2026-06-01 14:53:25.153142+00	25ceab99-154c-4cd1-b027-16263db22a03	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+01451834-bd74-4c78-8aa9-cde5a6d400ae	2026-06-01 14:53:25.153142+00	36f6247f-610f-4b12-b804-90b1eb419617	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+06428d0b-7e2b-45ea-8508-8fd8977ea9e9	2026-06-01 14:53:25.153142+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+09e57673-52db-48fa-a5a1-e660b90cf49f	2026-06-01 14:53:25.153142+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+5b5a6627-a874-4fe6-b011-f380b31da6e0	2026-06-01 14:53:25.153142+00	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+9b04a5d3-4e8e-49e6-91c4-ad0bbf17e911	2026-06-01 14:53:25.153142+00	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+51c0bd4f-5ded-4591-b23b-af457bc6e7f9	2026-06-01 14:53:25.153142+00	95d9f130-2433-4f3e-882b-e420e62254e4	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+c063fc98-f5cb-4a22-831e-3dda9c1028b3	2026-06-01 14:53:25.153142+00	2a4a67f1-44b4-4970-b91f-e0cb757f3e71	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+8230e6c4-7dc3-4ea4-982c-d64012b1c600	2026-06-01 14:53:25.153142+00	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.492+00
+a3e03586-0bb4-440c-b797-2b510313bc9d	2026-06-01 14:53:25.153142+00	80cdfb36-780a-46c8-854e-79ff04802ab2	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+e008173d-0dd9-43fd-af6f-e8c1bef19381	2026-06-01 14:53:25.153142+00	a28e10c8-33ef-450b-b49e-6c337036c092	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+8d004bfc-6e51-412b-bc69-da26667ff9b6	2026-06-01 14:53:25.153142+00	16f930db-011d-40e0-ac84-1949c29821fe	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+ae89bca2-c038-4686-842a-591ec0c98ea4	2026-06-01 14:53:25.153142+00	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+c71a89c5-7828-4651-82a7-2722c79b1648	2026-06-01 14:53:25.153142+00	1fca9f85-323c-4656-9b0a-a4e0cf74083e	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+aa5bceb9-882a-4630-9883-7cf9a80eb561	2026-06-01 14:53:25.153142+00	65c3990f-be54-4b38-adbe-f19cc8950013	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+4e421b6a-d97e-4466-9141-4b21f324aeae	2026-06-01 14:53:25.153142+00	9e53ddd5-2168-411d-8c7b-03a419c1e158	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+6233591d-4504-4883-8767-c3f022cc5ca7	2026-06-01 14:53:25.153142+00	9be2a16a-0f99-4667-ac5a-88b73b27d0cd	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+f6bd2ef2-20cc-41bb-a2a9-1cf4281c8a8c	2026-06-01 14:53:25.153142+00	e128a46c-38f5-484f-8ee0-d78c6da749f5	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+aab71c67-5eac-4d4c-ba2a-a03d7f1f152b	2026-06-01 14:53:25.153142+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+2aa2622e-d2dd-435a-9425-414b49622ca7	2026-06-01 14:53:25.153142+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+87b0858d-71de-41c0-aebb-5c7c02e580af	2026-06-01 14:53:25.153142+00	397d3931-4847-4f37-b9d5-561901a20aa0	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+6d745f14-3a7d-46c7-ad8b-0f84c4a24078	2026-06-01 14:53:25.153142+00	0e526aad-5e3d-4d01-83c4-0cb754af9f33	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+f6ee4ff7-7ad8-4f06-b7db-c5d935560903	2026-06-01 14:53:25.153142+00	1da7ddfd-5b9f-4e51-9256-fa2bd0034ef3	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+97e9082d-14a4-493c-8a89-939f9c9fbf89	2026-06-01 14:53:25.153142+00	6079efab-6235-4c98-97aa-43417ea5e2d2	2026-06-01	Loja Alto XV	75	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+3fd8ecd2-7975-408b-bbdc-a96acd925e95	2026-06-01 14:53:25.153142+00	e20ce8ae-29ff-4672-881a-c066aa9369d1	2026-06-01	Loja Alto XV	25	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+9f736160-f0d9-4fd8-82eb-d66af373667a	2026-06-01 14:53:25.153142+00	2555e2a3-f854-4a02-8ee6-a67e6a97a409	2026-06-01	Loja Alto XV	75	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+9a91557b-e22c-407c-adbc-b99f9b84b563	2026-06-01 14:53:25.153142+00	481e2a7b-ca33-4d5d-901d-405f2321f624	2026-06-01	Loja Alto XV	50	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+0cb2ca8b-9cbc-44f7-b217-b360b9a16210	2026-06-01 14:53:25.153142+00	40805ae9-e353-42e2-a0ec-e633855c7342	2026-06-01	Loja Alto XV	100	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+8929a5b7-7925-4213-b920-d01763a22db1	2026-06-01 14:53:25.153142+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+9086d546-e4aa-4163-a13d-12d6af32d0c2	2026-06-01 14:53:25.153142+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-06-01	Loja Alto XV	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+552d2195-f3b2-4aad-afb6-0ac5f684b84e	2026-06-01 14:53:25.153142+00	03b764ae-765a-45cd-b897-da245f712055	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+b0c21d6a-4581-48c1-bd8a-a32f98fa3fd8	2026-06-01 14:53:25.153142+00	75efd75a-2265-49dc-8b10-ee0332a12025	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+c416777c-d939-4655-9081-521763a39ca9	2026-06-01 14:53:25.153142+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+58450b8a-c7cd-4293-981b-9d188b4490e7	2026-06-01 14:53:25.153142+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-06-01	Loja Alto XV	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+ace8efe3-2d34-4952-b1ab-6c02df517584	2026-06-01 14:53:25.153142+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+270c3dc0-c50e-4102-bbc1-31eb8041b204	2026-06-01 14:53:25.153142+00	04a5a69c-bedb-495f-bf98-9faf1291b284	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+452cdf32-2b98-4cb2-9828-398427d84bdb	2026-06-01 14:53:25.153142+00	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+5218b27e-45bb-470b-8abc-e2781366c4a7	2026-06-01 14:53:25.153142+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-06-01	Loja Alto XV	7	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+f5f58864-d541-4891-88fc-c7bdd793dd43	2026-06-01 14:53:25.153142+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-06-01	Loja Alto XV	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+eff7a13c-f456-4540-adcb-b1e7030ff69b	2026-06-01 14:53:25.153142+00	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+d83e4ec5-f57f-4fc9-9b6e-9874837cfab8	2026-06-01 14:53:25.153142+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-06-01	Loja Alto XV	30	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+d0fb5d30-b627-4461-96ee-c2037af4c170	2026-06-01 14:53:25.153142+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-06-01	Loja Alto XV	13	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+16a4ed81-8e98-4e2d-a2a1-525fad3d7ede	2026-06-01 14:53:25.153142+00	67f01c59-ce5f-467e-8597-714719412b84	2026-06-01	Loja Alto XV	15	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+ff75f6b7-e49b-4be9-80bd-6a0309f1a430	2026-06-01 14:53:25.153142+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-06-01	Loja Alto XV	15	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+3a30e29f-38b5-4151-8ec2-6fb128b88e15	2026-06-01 14:53:25.153142+00	6e653ca6-0889-42d5-9b67-84e8565b67df	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+5a32f067-f8de-40bc-b567-253e02422550	2026-06-01 14:53:25.153142+00	5db6171c-d897-4894-af28-bbf63adad316	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+bfd8ffc9-29d0-4e6e-9fb3-4fdbde3a10cc	2026-06-01 14:53:25.153142+00	21174f2c-7831-440d-9f5e-daa81d6b94c0	2026-06-01	Loja Alto XV	5	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+5f0d7381-4db2-478d-9b72-559a21dceb8b	2026-06-01 14:53:25.153142+00	424d80dc-6975-4812-9571-b3baadd2db31	2026-06-01	Loja Alto XV	5	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+4d870ef7-4703-4e73-89dc-6e017db5e506	2026-06-01 14:53:25.153142+00	09ce4212-faa0-4db9-9b46-66fc8fc9568b	2026-06-01	Loja Alto XV	5	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+b7773c6b-e41b-47a9-a302-657740a98508	2026-06-01 14:53:25.153142+00	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-06-01	Loja Alto XV	11	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+733b0914-8d9d-4e25-b669-7ca22a85ef8a	2026-06-01 14:53:25.153142+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-06-01	Loja Alto XV	8	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+4c010d11-0fa2-4e53-a0c6-3c810985977e	2026-06-01 14:53:25.153142+00	49438d71-d79a-4758-b5a8-d6a08dce32a4	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+4b3fe542-55b7-4f51-9cea-9c24ede3132c	2026-06-01 14:53:25.153142+00	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+43377a9e-6827-4a37-95f5-6fdd87be89b0	2026-06-01 14:53:25.153142+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-06-01	Loja Alto XV	14	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+18d370a5-86b5-4585-8eb0-b31690a99057	2026-06-01 14:53:25.153142+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-06-01	Loja Alto XV	13	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+7f5ecb9e-4767-4efc-8934-e83435dadd9f	2026-06-01 14:53:25.153142+00	57f021fd-13b0-4484-ab86-79782ef938c0	2026-06-01	Loja Alto XV	14	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+b0874961-3db0-4bc9-9d94-f304f2259307	2026-06-01 14:53:25.153142+00	47709673-7e0c-4620-9562-4d1ea2315217	2026-06-01	Loja Alto XV	19	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+0cc0cd75-212f-47c2-977c-406a1123a932	2026-06-01 14:53:25.153142+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-06-01	Loja Alto XV	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+c942c7be-2557-44d1-a4d7-1d1ef167ada7	2026-06-01 14:53:25.153142+00	11ef6eff-1063-4529-9c18-682b428908ed	2026-06-01	Loja Alto XV	10	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+9b48ef97-1bf1-4b0f-849c-0868459c9c6a	2026-06-01 14:53:25.153142+00	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-06-01	Loja Alto XV	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+44b4ccd3-e32c-447a-9b4d-3ed7a4c79e98	2026-06-01 14:53:25.153142+00	9e029ad3-c02c-4887-bd60-d1bd5a417210	2026-06-01	Loja Alto XV	8	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 14:53:25.493+00
+a92de459-1fb7-4d66-ab17-dbd7fca2f553	2026-06-01 15:12:43.887268+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-06-01	Estoque MH	97	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+75a5a159-d069-4db2-b788-f5207d276c97	2026-06-01 15:12:43.887268+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-06-01	Estoque MH	17	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+ab4c7ce5-2e93-4dba-b8c9-fa40e031a0f2	2026-06-01 15:12:43.887268+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+149fd6f8-b88d-425c-a159-6015c090ee20	2026-06-01 15:12:43.887268+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+2f174613-d9c3-41c0-8c2f-28665637e65c	2026-06-01 15:12:43.887268+00	c8132e9b-d800-488a-ace2-790da252b525	2026-06-01	Estoque MH	12	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+58003077-a7ae-4a02-85a4-f8f7a87bf31b	2026-06-01 15:12:43.887268+00	82b1fb0f-7fce-4600-a9b0-14ccdc406a57	2026-06-01	Estoque MH	11	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+2f63115e-3686-47da-9081-f68a51206601	2026-06-01 15:12:43.887268+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+91d1cbec-00c0-46c1-85d5-9582188e467e	2026-06-01 15:12:43.887268+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-06-01	Estoque MH	41	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+cefa3b80-4722-4a71-b425-53b94523ea59	2026-06-01 15:12:43.887268+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-06-01	Estoque MH	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+12a55c68-65b7-4786-9630-622085f4280d	2026-06-01 15:12:43.887268+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-06-01	Estoque MH	6	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+1532f832-18ea-430f-9fff-306734e01d53	2026-06-01 15:12:43.887268+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+1ee81d5a-47ff-431d-9241-e2402db0b253	2026-06-01 15:12:43.887268+00	a40de54b-d141-412d-83f5-8e0f1fc7102d	2026-06-01	Estoque MH	7	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+a7628c11-9adb-4803-a2b8-5a7d644454f3	2026-06-01 15:12:43.887268+00	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+39c03e8a-4df1-4b50-9310-e738a483bd95	2026-06-01 15:12:43.887268+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-06-01	Estoque MH	23	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+cb84c1aa-4f2b-4c34-8735-834996f2fd03	2026-06-01 15:12:43.887268+00	33ede6d7-bf58-4451-83ea-0266023a2403	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+c6fcdc48-fc5c-472f-8942-fbf3f1207322	2026-06-01 15:12:43.887268+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+7c91afc4-b36c-498c-82ab-a4c0aa333329	2026-06-01 15:12:43.887268+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-06-01	Estoque MH	8	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+3a05fd96-2173-4eb7-ace8-a20ad8f27b6f	2026-06-01 15:12:43.887268+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+1b09083e-96cb-4e35-81af-ed9503d6d96d	2026-06-01 15:12:43.887268+00	9c4e5257-2455-43ff-aa09-0811390a02d2	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+202bc9cb-353f-4d5f-8715-4e65f40d0468	2026-06-01 15:12:43.887268+00	f1c79b09-1819-49b5-9a1f-8cd77b013be6	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+d9e258bf-51ba-4b9d-a8c5-4e17984ff74a	2026-06-01 15:12:43.887268+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+58cf9e11-804c-4a61-8a20-50b312fe636e	2026-06-01 15:12:43.887268+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+94cc8318-a912-4372-a4de-90fc4b7e1901	2026-06-01 15:12:43.887268+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+36c9fc7b-2eec-4c6d-82a4-6ba32bafd2f7	2026-06-01 15:12:43.887268+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+c33feaf9-76f5-4de6-b7f1-335bf7305225	2026-06-01 15:12:43.887268+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+8a9d0e8e-d573-4433-aedc-3a746d876928	2026-06-01 15:12:43.887268+00	daa9968f-370b-4c09-bc1e-b0a170f3142c	2026-06-01	Estoque MH	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+9ab55c24-9403-483c-84ba-911a1777b678	2026-06-01 15:12:43.887268+00	5c61e89e-5c83-4782-a6e9-5b33f492bb9a	2026-06-01	Estoque MH	13	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+a3d86336-db72-4cc2-9d16-b39004169e50	2026-06-01 15:12:43.887268+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+fe6a3f5a-298d-4534-816c-a5673233f9ae	2026-06-01 15:12:43.887268+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-06-01	Estoque MH	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+5124cd70-23ef-49fe-bef2-8a6fa0ae61df	2026-06-01 15:12:43.887268+00	510e66ec-68bd-4c76-88dd-07537ad33418	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+a19f2c6b-4191-40db-a518-7a09bcdf80b8	2026-06-01 15:12:43.887268+00	b625208d-0946-407f-aabd-fc2b2c736105	2026-06-01	Estoque MH	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+81691dea-badd-4f75-8673-03eb6d69bf10	2026-06-01 15:12:43.887268+00	25ceab99-154c-4cd1-b027-16263db22a03	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+d97df1d1-964d-48aa-a705-0bff6c542af4	2026-06-01 15:12:43.887268+00	36f6247f-610f-4b12-b804-90b1eb419617	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+dbe174d0-1e44-4339-8965-9bf84f27f2b2	2026-06-01 15:12:43.887268+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+a1d0b0f6-5541-4fee-8497-542897cfe3db	2026-06-01 15:12:43.887268+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+53561dad-6095-4587-911b-98baa135a57d	2026-06-01 15:12:43.887268+00	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+cc5cf0fb-f655-4f68-894f-e1470fd44697	2026-06-01 15:12:43.887268+00	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2026-06-01	Estoque MH	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+8b080265-fe42-4023-9710-1d1de2235614	2026-06-01 15:12:43.887268+00	95d9f130-2433-4f3e-882b-e420e62254e4	2026-06-01	Estoque MH	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+068035dd-4c59-42ac-b57d-7fc7d8a203c2	2026-06-01 15:12:43.887268+00	2a4a67f1-44b4-4970-b91f-e0cb757f3e71	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+2f7ae65f-af14-444e-b4a9-87f56e9c1c89	2026-06-01 15:12:43.887268+00	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+88d9f847-5c3a-4521-bc72-67ff515d8fbf	2026-06-01 15:12:43.887268+00	80cdfb36-780a-46c8-854e-79ff04802ab2	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+0f405222-d442-4035-bb28-c0367ee00b7a	2026-06-01 15:12:43.887268+00	8b870df4-27c9-4443-a952-3dae37e3e963	2026-06-01	Estoque MH	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+b1c35856-72ba-42cf-8627-30878eee61bf	2026-06-01 15:12:43.887268+00	a28e10c8-33ef-450b-b49e-6c337036c092	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+016c5ae0-8672-4f61-9554-2fd4e7c789cb	2026-06-01 15:12:43.887268+00	16f930db-011d-40e0-ac84-1949c29821fe	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+8339f0e6-16bb-48bd-92cd-ee74c4b90644	2026-06-01 15:12:43.887268+00	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.848+00
+86459619-c004-49af-b68f-c1c041ff5e6a	2026-06-01 15:12:43.887268+00	1fca9f85-323c-4656-9b0a-a4e0cf74083e	2026-06-01	Estoque MH	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+b7af6763-8052-4bb4-a8ab-dbcb5311c97b	2026-06-01 15:12:43.887268+00	65c3990f-be54-4b38-adbe-f19cc8950013	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+d5ed7e8e-f283-4873-b567-4dddab0f5f94	2026-06-01 15:12:43.887268+00	9e53ddd5-2168-411d-8c7b-03a419c1e158	2026-06-01	Estoque MH	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+5ce815aa-0f51-4093-be68-4090c0fc4126	2026-06-01 15:12:43.887268+00	9be2a16a-0f99-4667-ac5a-88b73b27d0cd	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+31e99c75-e8e4-4464-a2a8-8518b5b8d306	2026-06-01 15:12:43.887268+00	e128a46c-38f5-484f-8ee0-d78c6da749f5	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+2eb10991-d976-44b8-acad-e3df5a82ac51	2026-06-01 15:12:43.887268+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-06-01	Estoque MH	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+6e1fffc8-95f9-4482-8bcd-400985ee7c13	2026-06-01 15:12:43.887268+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+8082e91f-9155-4396-b618-a9a6774d1f77	2026-06-01 15:12:43.887268+00	397d3931-4847-4f37-b9d5-561901a20aa0	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+4ca693a7-b810-4f00-905c-1240028840f7	2026-06-01 15:12:43.887268+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+1e14a926-b839-4e4b-84e1-12514ffa4aa9	2026-06-01 15:12:43.887268+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-06-01	Estoque MH	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+78701b8b-8563-4fc7-b5e0-26a6c1c435f9	2026-06-01 15:12:43.887268+00	03b764ae-765a-45cd-b897-da245f712055	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+09db6a26-7fc6-41ef-ac9c-5618c3901034	2026-06-01 15:12:43.887268+00	75efd75a-2265-49dc-8b10-ee0332a12025	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+db1997d9-a7bf-4954-bc41-653648cb167a	2026-06-01 15:12:43.887268+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+1d2e1a51-f07b-4cc1-b1d5-63b92bf1d8f5	2026-06-01 15:12:43.887268+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+992806f9-182c-45dd-beb2-699cb643e2c9	2026-06-01 15:12:43.887268+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+5a75c01c-5979-49fb-a06f-01a09dd17d0a	2026-06-01 15:12:43.887268+00	04a5a69c-bedb-495f-bf98-9faf1291b284	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+53e924a3-ef39-448e-8722-fa0b0cf9858b	2026-06-01 15:12:43.887268+00	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+bb0c4b0e-7665-46f6-a961-cf3c70e37492	2026-06-01 15:12:43.887268+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-06-01	Estoque MH	12	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+edc799ea-0b66-441f-9598-ab51bcbf3631	2026-06-01 15:12:43.887268+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-06-01	Estoque MH	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+6d6db4bf-b67f-4f4c-9099-1358bb33c8e0	2026-06-01 15:12:43.887268+00	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2026-06-01	Estoque MH	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 15:12:43.849+00
+825265fe-b46f-4567-b779-7fd45b18c675	2026-06-01 18:02:34.814039+00	dfdc83b6-287b-45f2-ad77-152933dc274d	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+7f588bb2-4809-4980-973a-6af6b8f2e83c	2026-06-01 18:02:34.814039+00	04491582-8cf5-45ad-88e5-1d5cd5a14921	2026-06-01	Fábrica	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+0bb05c63-75a1-4ca9-82d0-c708118bd1d6	2026-06-01 18:02:34.814039+00	fef62601-76bf-45b5-be31-38fd7d9f2e08	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+446045f7-da85-4d65-9203-46761249e2a0	2026-06-01 18:02:34.814039+00	e9f30279-87f7-4924-9b0d-284f057a11ca	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+580f4184-c5de-4b01-a5d0-610c2890c524	2026-06-01 18:02:34.814039+00	619ce278-2112-418d-847d-cb667dde1bca	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+a30565e2-7989-4121-be08-e6c708fb930d	2026-06-01 18:02:34.814039+00	a14315e7-c874-4f9f-b87c-8dc26fcdcdeb	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+a1f40101-5317-4281-ac8a-34a77bbfdcd8	2026-06-01 18:02:34.814039+00	756cd28d-7efa-45fc-9016-8db8a6cbf9ad	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+a6d22e74-43f8-448f-ba31-6977ae40fdf4	2026-06-01 18:02:34.814039+00	702aaad1-2ce8-4f7b-a7fd-f11aed1f3fa7	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+469b1d10-783e-477b-a7f2-cd9a0392226c	2026-06-01 18:02:34.814039+00	df419321-e78b-40c4-ae5f-4a7ae21098e2	2026-06-01	Fábrica	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+942984fc-1d89-4fef-8ff9-b6042be20849	2026-06-01 18:02:34.814039+00	fa4f80a3-a011-4a87-9fae-c338ad4bfa26	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+a9eab099-be72-4ee1-a413-69d2f2b8589b	2026-06-01 18:02:34.814039+00	d3bcde3a-0989-446d-b0cd-f7718e3548a2	2026-06-01	Fábrica	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+53f5cb5b-4961-4289-b4e1-9f217ba065e1	2026-06-01 18:02:34.814039+00	3483c0c5-c7e2-4fd2-a59c-06e46068d43f	2026-06-01	Fábrica	5	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+62985ad8-e2a5-4a55-93c6-21a0aa6e4e90	2026-06-01 18:02:34.814039+00	ae74f3f6-e06d-41f0-bfac-ab5fa36bed7f	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+d2f96c75-8005-4722-87af-a35244f4923e	2026-06-01 18:02:34.814039+00	738c01d0-c937-4eff-a283-6a6cb2380378	2026-06-01	Fábrica	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+91fa0228-03c4-44ed-a5ae-ba5585517dae	2026-06-01 18:02:34.814039+00	fcaa7c50-c48f-46e0-b8dd-4c77e2d31244	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+66e4896e-5daf-4148-a459-0bf4594b8760	2026-06-01 18:02:34.814039+00	ff3ef1c4-199c-4884-a93a-3ad602abe9cf	2026-06-01	Fábrica	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+b65b8506-f3dc-4a1e-aa24-e9fd1bffd484	2026-06-01 18:02:34.814039+00	4a0e0f79-f548-4d99-8f9c-18be76125a5d	2026-06-01	Fábrica	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+5307ad52-60be-4bd6-9b35-987d51f92a26	2026-06-01 18:02:34.814039+00	a88a0bb6-cae0-459b-83ee-65935f6a77a2	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+8b0f400f-2a91-4ec0-80df-de1897baf276	2026-06-01 18:02:34.814039+00	4c41931f-8fa1-480a-b722-cfac6d443c1e	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+ab724e94-1f88-477f-bdae-7a65a98e3e5b	2026-06-01 18:02:34.814039+00	36afe007-f851-444b-9929-0a357a3ef0ac	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+7fae17f1-fa7d-4e66-aed3-d7242c749f2b	2026-06-01 18:02:34.814039+00	2e7f4fc8-fb43-4d5d-bae9-4d240d2d964a	2026-06-01	Fábrica	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+5b5be79d-4feb-4583-8aa8-727f2f1fef76	2026-06-01 18:02:34.814039+00	3f593532-6c6e-424e-b0eb-f02f4f023da0	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+17531b3b-50f9-4a2e-9a41-7bd71f70209c	2026-06-01 18:02:34.814039+00	1dd03db1-fcb6-4c9d-8180-3229bdb194da	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+326be9c6-6c0d-4cb3-88d9-3020205e49ae	2026-06-01 18:02:34.814039+00	7aeeb33b-e45f-4fe7-9a43-58bc3ac5bb74	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+2d6ba19a-9bc2-43c3-bb86-eec2d8c62b31	2026-06-01 18:02:34.814039+00	5563e136-bb31-47e0-a23f-1c0362696f26	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+f7007200-909b-4ffc-b2b9-fa2e0dfaca05	2026-06-01 18:02:34.814039+00	4549717a-872d-4049-bf8d-a78f457326e9	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+215f9cb4-ef7a-4c05-b52b-8a8c5c37bc4a	2026-06-01 18:02:34.814039+00	5aca7a58-c3d4-467d-827d-57ce1b7b3879	2026-06-01	Fábrica	9	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+e7beda6c-e4ff-4c65-8bde-9f9511096c2d	2026-06-01 18:02:34.814039+00	6e7d5fea-1219-4d50-a64b-050d9b3610a9	2026-06-01	Fábrica	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+8a9aff07-93b2-4423-887e-03c495c0b85e	2026-06-01 18:02:34.814039+00	dc278682-f9ec-4a8d-a4c3-3f73f3f3e035	2026-06-01	Fábrica	6	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+51941c32-fd59-4a1a-8b54-9fdf04629f36	2026-06-01 18:02:34.814039+00	7b1b14f9-b940-4d31-8309-552242d254da	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+cba29881-2744-4057-b5f8-6350eebd83b7	2026-06-01 18:02:34.814039+00	004f8cad-f303-4c60-a0a9-40a19536b8f6	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+501fe34d-480d-4d87-bda1-d836957f644e	2026-06-01 18:02:34.814039+00	a9eb4b33-30da-4269-a8de-584b78606f14	2026-06-01	Fábrica	8	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+6808b81c-1fa0-458e-88cd-afd8f02f858f	2026-06-01 18:02:34.814039+00	53f8ea75-c4fe-4f1e-9774-24454363220f	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+4fcb7b2c-d4a5-4014-9cde-d82435deed23	2026-06-01 18:02:34.814039+00	9e743401-ee64-4671-917a-5c29947e5ab9	2026-06-01	Fábrica	2	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+c20fc306-7b4a-4e79-a1a1-b875b2fc3390	2026-06-01 18:02:34.814039+00	1cee25a3-317b-4e51-a3b7-46ae8826e341	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+128942b3-8a9d-4e5a-b995-63f56a7a4412	2026-06-01 18:02:34.814039+00	bf6cd96b-a44f-4548-b845-156f6dc1a7c5	2026-06-01	Fábrica	22	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+fe948d5f-5d36-4544-828f-49e6b373f59a	2026-06-01 18:02:34.814039+00	38091bae-17d2-47f4-bd8d-2258dd3c4b0a	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+d8d75beb-118f-4e3f-b061-bdb0ef33a748	2026-06-01 18:02:34.814039+00	9a3cc9fb-b139-4156-8e2f-2ab39b2188d3	2026-06-01	Fábrica	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+eb439630-f612-4cb6-badb-a986af9a2c16	2026-06-01 18:02:34.814039+00	6b62bd1b-bb40-4ae8-9a4a-d8cd9554edce	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+ca352f88-52b7-4056-a90f-fdaaf54f7c6e	2026-06-01 18:02:34.814039+00	aef9f7cf-49f1-40f9-a8c4-d5bf3e533158	2026-06-01	Fábrica	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+67f20ab1-e869-44c7-9579-8d441be7ff04	2026-06-01 18:02:34.814039+00	b3e3f04e-78a1-465b-b8ce-cf9937cb7ba0	2026-06-01	Fábrica	9	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+79d34ad8-77f9-4f10-bd1a-28e7e959632a	2026-06-01 18:02:34.814039+00	80fe88b5-e394-41de-8462-f862aa4db4ee	2026-06-01	Fábrica	12	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+1a2604df-d262-4a72-b3ec-4470e60a33d0	2026-06-01 18:02:34.814039+00	3553cee0-cfaf-47c4-8a64-46a13a0f716f	2026-06-01	Fábrica	3	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+7179e805-29cf-4b49-b08a-d60b9f27d113	2026-06-01 18:02:34.814039+00	d841c9ef-1c37-4b38-acbe-7faa57bbd2d4	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+44bf5ac1-7826-4dc8-add2-4c0b33320bbd	2026-06-01 18:02:34.814039+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-06-01	Fábrica	6	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+d73735d4-8172-4d58-ae4d-8e738dc4a49f	2026-06-01 18:02:34.814039+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+be559ece-1abd-4b58-9b8f-5b76a7832f3c	2026-06-01 18:02:34.814039+00	bd17593b-14ad-4b95-8914-1601c31b0ce7	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+c628bf7c-31d3-4c03-9471-525fcb8ccebf	2026-06-01 18:02:34.814039+00	e1272305-9a01-462b-ab24-9e545cf3b965	2026-06-01	Fábrica	1	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+98f76c6b-449e-43bf-863a-2f2515434a06	2026-06-01 18:02:34.814039+00	9d3d714b-7376-4392-9794-8eba805b2900	2026-06-01	Fábrica	4	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+8d19bf2c-2e21-4417-a112-c3fa4efec38c	2026-06-01 18:02:34.814039+00	38db64e2-f6d1-414b-b4e6-e283fca505f5	2026-06-01	Fábrica	0	1d621888-613a-4a15-b796-3c4120f51af2	2026-06-01 18:02:34.718+00
+ba1efc8d-dcc2-42d4-a3ee-c39b81f5d1d9	2026-06-01 18:15:56.738873+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-06-01	Loja Ahú	4	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+5cc1ee3a-1ccf-4b85-9342-ffa4c8154cd4	2026-06-01 18:15:56.738873+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+6da2b110-ba78-4d68-b241-18677faefa60	2026-06-01 18:15:56.738873+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+296f7248-dc8e-4349-9317-893add355b3e	2026-06-01 18:15:56.738873+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+04a71fe6-a50d-4c77-b2b0-962c039cffa3	2026-06-01 18:15:56.738873+00	c8132e9b-d800-488a-ace2-790da252b525	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+7b22e276-2a8c-4f72-b6d5-630d42409617	2026-06-01 18:15:56.738873+00	82b1fb0f-7fce-4600-a9b0-14ccdc406a57	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+feef51a4-a00b-48ec-b234-eff796003eac	2026-06-01 18:15:56.738873+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+15b0dfe3-e55a-4e7b-881c-2f4239c6ad3e	2026-06-01 18:15:56.738873+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-06-01	Loja Ahú	3	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+fc203873-79e2-46b1-b3a8-df890908a128	2026-06-01 18:15:56.738873+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+eab28d3d-23cf-4c1e-a22a-f95920b202da	2026-06-01 18:15:56.738873+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+f2dfbf04-c3e4-4a98-a12f-58fc64c4c11b	2026-06-01 18:15:56.738873+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+9fc23515-42d1-427d-82b4-062b9e13a7bb	2026-06-01 18:15:56.738873+00	a40de54b-d141-412d-83f5-8e0f1fc7102d	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+d4413a54-6f38-4094-9834-3e2229f58563	2026-06-01 18:15:56.738873+00	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+b8e77763-d8ea-4390-9948-9823b2928bd2	2026-06-01 18:15:56.738873+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+b703be44-e4f2-4d94-845a-21f5083b995f	2026-06-01 18:15:56.738873+00	33ede6d7-bf58-4451-83ea-0266023a2403	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+ca250f1a-ab56-411f-9d8c-1e3ed266655c	2026-06-01 18:15:56.738873+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+7c0bb3e6-998f-4881-b3d8-ff86fc918c37	2026-06-01 18:15:56.738873+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+06965306-a04d-44ab-ae2f-51861590b1cb	2026-06-01 18:15:56.738873+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+a8084ee9-4522-4440-8a48-f3f8e817b92d	2026-06-01 18:15:56.738873+00	9c4e5257-2455-43ff-aa09-0811390a02d2	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+e1726514-147a-4d98-8adc-7bb103264685	2026-06-01 18:15:56.738873+00	f1c79b09-1819-49b5-9a1f-8cd77b013be6	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+b4f47c20-f57c-4d65-817a-8e9391fcb922	2026-06-01 18:15:56.738873+00	d53928a4-d748-4e75-a4a0-0f86a74b9571	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+9c5141a6-ed87-40ec-8134-3b84778636a1	2026-06-01 18:15:56.738873+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+6e9ca6ad-9010-4c5b-8901-1fdddfee7a11	2026-06-01 18:15:56.738873+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+9ecc4605-fd5e-40f3-afdd-419da8c16ee3	2026-06-01 18:15:56.738873+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+1be7d581-2766-49ab-ae6e-710f570c438e	2026-06-01 18:15:56.738873+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-06-01	Loja Ahú	7	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+61fe34a3-c652-4c72-b6c2-40c4873bf4d5	2026-06-01 18:15:56.738873+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-06-01	Loja Ahú	12	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+6b7e64db-1680-4b2c-bdf3-5eff87d3b945	2026-06-01 18:15:56.738873+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+5b6466d0-88f1-41af-8c73-a09fa0819c53	2026-06-01 18:15:56.738873+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-06-01	Loja Ahú	5	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+6abec3cb-3a23-4b2f-b885-418c69dccebe	2026-06-01 18:15:56.738873+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-06-01	Loja Ahú	6	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+d28acbf4-55f9-4203-af9f-4f81a51b0caf	2026-06-01 18:15:56.738873+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+1a8ee966-7dc2-49c3-b74f-663618e319cc	2026-06-01 18:15:56.738873+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+1d5fa84f-2fc5-497d-99e6-268f539b29df	2026-06-01 18:15:56.738873+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+68044182-2b7a-4dd8-a380-d40eb10b747d	2026-06-01 18:15:56.738873+00	daa9968f-370b-4c09-bc1e-b0a170f3142c	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+46a77aa8-6cc1-4443-8486-ca1742f57ffd	2026-06-01 18:15:56.738873+00	5c61e89e-5c83-4782-a6e9-5b33f492bb9a	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+b5bbdde3-4d9b-49d4-8941-ab06faf27b6a	2026-06-01 18:15:56.738873+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-06-01	Loja Ahú	3	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+c5bc87b6-08b2-4110-a165-fc560c976415	2026-06-01 18:15:56.738873+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-06-01	Loja Ahú	3	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+0d29617a-b5e0-4d4a-a4a8-eb8a2d06ca98	2026-06-01 18:15:56.738873+00	510e66ec-68bd-4c76-88dd-07537ad33418	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+e52e5caf-7ca2-421e-8181-6222a0b97276	2026-06-01 18:15:56.738873+00	b625208d-0946-407f-aabd-fc2b2c736105	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+876bc4ae-cb5e-458b-a5bd-f47c61d04521	2026-06-01 18:15:56.738873+00	25ceab99-154c-4cd1-b027-16263db22a03	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+5644d6d7-1072-46dd-9631-8cebfbba4d63	2026-06-01 18:15:56.738873+00	36f6247f-610f-4b12-b804-90b1eb419617	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+50c47e03-72ab-4a00-afc7-47646b786837	2026-06-01 18:15:56.738873+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+21c4927a-36f3-4521-8199-93b60b59669e	2026-06-01 18:15:56.738873+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+a3352c0a-4c31-4385-bd1b-f64d1074ed11	2026-06-01 18:15:56.738873+00	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+b5f15c85-f8d2-4a22-8c2d-e224ce3abf08	2026-06-01 18:15:56.738873+00	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+970da652-fec5-4494-b9c9-0542c58dbb72	2026-06-01 18:15:56.738873+00	95d9f130-2433-4f3e-882b-e420e62254e4	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+20b39366-84a2-47d5-b560-8dc343bde81d	2026-06-01 18:15:56.738873+00	2a4a67f1-44b4-4970-b91f-e0cb757f3e71	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+480f3a3f-dae6-4c48-8321-9cd20850de6d	2026-06-01 18:15:56.738873+00	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+a0b2120d-1591-4900-b3b3-ac3d3bad95e8	2026-06-01 18:15:56.738873+00	80cdfb36-780a-46c8-854e-79ff04802ab2	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+6e894d6e-9033-431a-891d-8f711255128b	2026-06-01 18:15:56.738873+00	8b870df4-27c9-4443-a952-3dae37e3e963	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+c624a9f3-4452-4c79-9fd4-c0424f4e83ae	2026-06-01 18:15:56.738873+00	ccaf6063-e307-4137-bf5f-ada8bac2926e	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+0875aee3-8531-4030-8559-7b7bcd8bd002	2026-06-01 18:15:56.738873+00	a28e10c8-33ef-450b-b49e-6c337036c092	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+75245962-f1e2-4671-8677-c63433948198	2026-06-01 18:15:56.738873+00	16f930db-011d-40e0-ac84-1949c29821fe	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+09b7834d-6fc3-4dda-9267-c3e2b998bad1	2026-06-01 18:15:56.738873+00	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+7d358d75-6fe9-42ea-b0c2-d9b48222f08f	2026-06-01 18:15:56.738873+00	1fca9f85-323c-4656-9b0a-a4e0cf74083e	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+991d7a37-dfc1-42ea-8c22-55072c24b7c6	2026-06-01 18:15:56.738873+00	65c3990f-be54-4b38-adbe-f19cc8950013	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+f555fe32-1dcf-4835-8a1d-67f646c2bd85	2026-06-01 18:15:56.738873+00	9e53ddd5-2168-411d-8c7b-03a419c1e158	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+93c9c41a-8dfa-4c5d-83cc-0ad3b4965ca6	2026-06-01 18:15:56.738873+00	9be2a16a-0f99-4667-ac5a-88b73b27d0cd	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+162d06ce-bb1a-4743-9170-3f957b4f871b	2026-06-01 18:15:56.738873+00	e128a46c-38f5-484f-8ee0-d78c6da749f5	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+39a1252e-286b-4f97-a60c-4ef100dfe3e5	2026-06-01 18:15:56.738873+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+453b348e-a2b4-41f5-9d3c-c85871733e72	2026-06-01 18:15:56.738873+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+3f169735-1bbc-4cfe-a364-8bad4a67dc63	2026-06-01 18:15:56.738873+00	397d3931-4847-4f37-b9d5-561901a20aa0	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+b8d6128d-b495-4ed1-8c2b-46d7b7ca7ac7	2026-06-01 18:15:56.738873+00	0e526aad-5e3d-4d01-83c4-0cb754af9f33	2026-06-01	Loja Ahú	80	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+3aa71bc2-d6e4-40eb-b1d2-a62ae907af59	2026-06-01 18:15:56.738873+00	1da7ddfd-5b9f-4e51-9256-fa2bd0034ef3	2026-06-01	Loja Ahú	60	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+f751bcd3-2fdc-4d2b-b1ab-befe8df4fa0b	2026-06-01 18:15:56.738873+00	cfda70c4-3730-4fad-8c5e-82ef55c4ee7f	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+32eb5d48-3aa9-4a90-b42f-1da052e8875c	2026-06-01 18:15:56.738873+00	6079efab-6235-4c98-97aa-43417ea5e2d2	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+33344fb5-45bc-4064-8212-2c819352656c	2026-06-01 18:15:56.738873+00	e20ce8ae-29ff-4672-881a-c066aa9369d1	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+cd6a0afa-b289-489a-918a-9112e255a27f	2026-06-01 18:15:56.738873+00	2555e2a3-f854-4a02-8ee6-a67e6a97a409	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+b042082f-99b5-4441-b7a6-475de0a4c74d	2026-06-01 18:15:56.738873+00	481e2a7b-ca33-4d5d-901d-405f2321f624	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+951db07f-c59f-4545-9484-8bceaad6b3c9	2026-06-01 18:15:56.738873+00	40805ae9-e353-42e2-a0ec-e633855c7342	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+fb8a96bb-b9a2-4150-b045-483b02eaea6f	2026-06-01 18:15:56.738873+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-06-01	Loja Ahú	3	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+9c03c6b8-316a-41e3-a037-bd82eb32ec4f	2026-06-01 18:15:56.738873+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+e220219a-cf9d-47b2-b194-79381e596ec2	2026-06-01 18:15:56.738873+00	03b764ae-765a-45cd-b897-da245f712055	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+c9abb0a7-87e6-4e1f-ae6f-12ddd4aa401f	2026-06-01 18:15:56.738873+00	75efd75a-2265-49dc-8b10-ee0332a12025	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+0065bd2a-c861-490b-b954-b3a02d64877f	2026-06-01 18:15:56.738873+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+c163f564-66b7-41be-a013-80cb36f4569d	2026-06-01 18:15:56.738873+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+1fb2c899-a471-4e17-a5ca-0e5c5217bc46	2026-06-01 18:15:56.738873+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+a115d49b-e77d-4ada-9789-60e525092dfb	2026-06-01 18:15:56.738873+00	04a5a69c-bedb-495f-bf98-9faf1291b284	2026-06-01	Loja Ahú	1	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+54900c3b-c231-4cda-a7de-5896a9765db8	2026-06-01 18:15:56.738873+00	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+c6c74b27-c326-475f-96f1-d8e11930683d	2026-06-01 18:15:56.738873+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-06-01	Loja Ahú	6	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+fd6adaca-b2bf-4231-8157-9160a1ad8ff2	2026-06-01 18:15:56.738873+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+af024e75-71ec-4209-9a78-a0a192e49a9a	2026-06-01 18:15:56.738873+00	5daea43b-e00d-49ce-ace6-7bae2100ab9a	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+17ced236-1f6b-4da9-ab30-400477cc3939	2026-06-01 18:15:56.738873+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-06-01	Loja Ahú	64	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+204c5212-85ef-463d-bdb3-55536f7bd297	2026-06-01 18:15:56.738873+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-06-01	Loja Ahú	54	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+8989ca25-ee05-4b88-9878-a6b1b167d4e1	2026-06-01 18:15:56.738873+00	67f01c59-ce5f-467e-8597-714719412b84	2026-06-01	Loja Ahú	11	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+7beee955-e204-4351-817e-df2b495a3edb	2026-06-01 18:15:56.738873+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-06-01	Loja Ahú	13	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+ce43dda6-61b7-470c-b785-37d83a29e395	2026-06-01 18:15:56.738873+00	6e653ca6-0889-42d5-9b67-84e8565b67df	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+69a05ba7-6795-4993-9d8b-b08a5165445e	2026-06-01 18:15:56.738873+00	5db6171c-d897-4894-af28-bbf63adad316	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+f60774e1-ba26-40d8-97d7-e66bd3d7f45b	2026-06-01 18:15:56.738873+00	21174f2c-7831-440d-9f5e-daa81d6b94c0	2026-06-01	Loja Ahú	12	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+f2605985-8ff0-4a70-a6a1-763e67172531	2026-06-01 18:15:56.738873+00	424d80dc-6975-4812-9571-b3baadd2db31	2026-06-01	Loja Ahú	3	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+966508c5-eab2-43c4-9313-80c3cad259a1	2026-06-01 18:15:56.738873+00	09ce4212-faa0-4db9-9b46-66fc8fc9568b	2026-06-01	Loja Ahú	4	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+ebde5671-95cf-472b-a4b1-a430b7a7e143	2026-06-01 18:15:56.738873+00	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-06-01	Loja Ahú	9	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+644e226e-47a8-4579-ab9e-70dc6b868ab7	2026-06-01 18:15:56.738873+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-06-01	Loja Ahú	9	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+afc5148e-23f3-4573-9bb5-74ad657b157c	2026-06-01 18:15:56.738873+00	49438d71-d79a-4758-b5a8-d6a08dce32a4	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+c54c1dfc-4aea-4357-8ad2-c4d04dcb9317	2026-06-01 18:15:56.738873+00	d6d28a8c-b6dd-435e-81df-5ba4c0b228db	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+f6187ddd-6b98-4db8-8af7-f798eb7547bc	2026-06-01 18:15:56.738873+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-06-01	Loja Ahú	5	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+3eae3fe1-fd30-4cea-91a9-bceaaea3407e	2026-06-01 18:15:56.738873+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-06-01	Loja Ahú	6	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+9b71eeb7-ec0f-407f-a81f-4b94819d5cb8	2026-06-01 18:15:56.738873+00	57f021fd-13b0-4484-ab86-79782ef938c0	2026-06-01	Loja Ahú	4	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+c75a06c6-a35d-4808-a16e-868341f346f9	2026-06-01 18:15:56.738873+00	47709673-7e0c-4620-9562-4d1ea2315217	2026-06-01	Loja Ahú	4	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+e9393265-2927-484e-8ea2-d04d953aa198	2026-06-01 18:15:56.738873+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-06-01	Loja Ahú	13	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+9c9c0d9f-6920-4214-b03a-56992a9bcfde	2026-06-01 18:15:56.738873+00	f3c6a7c7-ef37-4e73-8627-760439e90be7	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+e1311b83-ef33-4559-aa2d-21ba1277f952	2026-06-01 18:15:56.738873+00	01659df6-43fe-4ced-90cd-25ab1f9b74cf	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+d4bf79c7-7050-4907-b04c-22829f63e43b	2026-06-01 18:15:56.738873+00	893474b7-622b-4036-bb42-66ac53c54e07	2026-06-01	Loja Ahú	0	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+190021bd-991f-40d6-8ab2-9c7c68b366ae	2026-06-01 18:15:56.738873+00	11ef6eff-1063-4529-9c18-682b428908ed	2026-06-01	Loja Ahú	22	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+df5bceab-d22b-4549-9199-bab67e7a8988	2026-06-01 18:15:56.738873+00	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-06-01	Loja Ahú	4	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+8ad8e0b0-f1cb-4c5b-af45-8464963f6417	2026-06-01 18:15:56.738873+00	9e029ad3-c02c-4887-bd60-d1bd5a417210	2026-06-01	Loja Ahú	2	b5668aed-dbb4-4d19-918e-c4e62e308487	\N
+\.
+
+
+--
+-- Data for Name: lista_compras_manual; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY "public"."lista_compras_manual" ("id", "insumo_id", "quantidade", "created_at", "comprado") FROM stdin;
 \.
 
 
@@ -6059,7 +7952,943 @@ bd461c07-3af0-4600-8062-15f2bb1da7e4	2026-06-01 02:41:11.456303+00	bf54025c-d11a
 -- Data for Name: movimentacoes_estoque; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY "public"."movimentacoes_estoque" ("id", "created_at", "insumo_id", "data_movimentacao", "quantidade", "origem", "destino", "user_id") FROM stdin;
+COPY "public"."movimentacoes_estoque" ("id", "created_at", "insumo_id", "data_movimentacao", "quantidade", "origem", "destino", "user_id", "status_revisao", "revisao_observacao") FROM stdin;
+b2be48a1-14e2-46ac-9108-97485b12b514	2026-06-01 18:09:04.985364+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-05-30	2	Compras	Estoque MH	1d621888-613a-4a15-b796-3c4120f51af2	pending_user	\N
+4142abb9-34d3-4b35-9018-7143402debff	2026-06-01 16:23:21.171516+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-06-01	4	Fábrica	Loja Alto XV	1d621888-613a-4a15-b796-3c4120f51af2	none	\N
+8892705c-d13c-4522-9c05-6ef61b48e9d6	2026-06-01 16:23:02.860207+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-06-01	8	Fábrica	Loja Ahú	1d621888-613a-4a15-b796-3c4120f51af2	none	\N
+4d08853d-3bff-478c-b5d2-b5fc3d0aacb5	2026-06-01 18:09:50.311593+00	67f01c59-ce5f-467e-8597-714719412b84	2026-05-30	1	Compras	Estoque MH	1d621888-613a-4a15-b796-3c4120f51af2	pending_user	\N
+e8a9f795-53cb-4d95-8265-ca5d12283340	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-01-16	2	Compras	Unidade - Batel	\N	none	\N
+8a9de297-b50f-4954-80b6-0e82615e4115	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-01-16	12	Compras	Unidade - Batel	\N	none	\N
+da0936ce-0821-4180-a005-463262c80b6e	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-16	18	Compras	Unidade - Batel	\N	none	\N
+4e1b5719-36fb-48f0-934c-3a6f7621ae85	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-01-21	1	Compras	Unidade - Batel	\N	none	\N
+32fc3151-1632-4fa2-bd78-fdb86b9dab69	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-01-25	24	Compras	Unidade - Batel	\N	none	\N
+2c6261e8-24d8-4949-8327-6972ad938a04	2026-06-01 17:40:00.612106+00	5db6171c-d897-4894-af28-bbf63adad316	2026-01-25	6	Compras	Unidade - Batel	\N	none	\N
+8ef5eecc-3508-4a03-936d-17d735cb4b95	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-01-25	6	Compras	Unidade - Batel	\N	none	\N
+c90462a4-a718-44f8-8204-4631efcdbf42	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-01-25	6	Compras	Unidade - Batel	\N	none	\N
+0e724294-941e-408d-a3a9-2c835b29c51e	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-01-25	6	Compras	Unidade - Batel	\N	none	\N
+824d518a-9888-4684-8734-77099e00576e	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-25	12	Compras	Unidade - Batel	\N	none	\N
+dd6e9f87-b727-4ab0-aa8e-e1be2cc048f0	2026-06-01 17:40:00.612106+00	424d80dc-6975-4812-9571-b3baadd2db31	2026-01-25	6	Compras	Unidade - Batel	\N	none	\N
+aa224a13-c336-4a62-adf4-7969bf406f8d	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-25	24	Compras	Unidade - Batel	\N	none	\N
+51c1caae-2dfe-43ca-878e-64aae06c092e	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-02-03	8	Compras	Fábrica	\N	none	\N
+3d512022-818c-46a9-8e78-23249a5186a7	2026-06-01 16:57:10.606551+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-05-31	8	Fábrica	Loja Alto XV	1d621888-613a-4a15-b796-3c4120f51af2	none	\N
+f55837a1-0ddd-4d4b-960c-0afddd23b5f7	2026-06-01 16:56:00.627414+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-05-31	1	Compras	Loja Alto XV	1d621888-613a-4a15-b796-3c4120f51af2	none	\N
+4247b74b-9702-421f-8907-62aeddc46979	2026-06-01 16:36:57.784842+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-05-31	1	Compras	Loja Ahú	1d621888-613a-4a15-b796-3c4120f51af2	none	\N
+090b78fa-3095-42ed-aca3-aa095732ea76	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-16	1	Estoque MH	Unidade - Batel	\N	none	\N
+60c204c4-8bbb-4ba0-9242-fcecffcc239d	2026-06-01 17:40:00.612106+00	04a5a69c-bedb-495f-bf98-9faf1291b284	2026-01-16	1	Estoque MH	Unidade - Batel	\N	none	\N
+612428fa-ff68-42ba-be37-e868689ed543	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-01-16	1	Estoque MH	Unidade - Batel	\N	none	\N
+0c84e1cf-a155-4937-bcf2-a44350a54381	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-01-16	1	Estoque MH	Unidade - Batel	\N	none	\N
+b1c864e1-8bc7-4b9a-8912-39fcad1ee28b	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-01-17	1	Estoque MH	Unidade - Batel	\N	none	\N
+72ac7dc0-bb5f-4c96-95b6-c7a87c24b5be	2026-06-01 17:40:00.612106+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-20	2	Estoque MH	Unidade - Batel	\N	none	\N
+6debec03-542c-4e32-b955-8a8919de288c	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-20	1	Estoque MH	Unidade - Batel	\N	none	\N
+1c970340-8495-4477-8fd7-ff8bb456b94d	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-20	1	Estoque MH	Unidade - Batel	\N	none	\N
+8b8307a4-45ae-47ef-8d53-f29a37db4e9e	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-01-20	4	Estoque MH	Unidade - Batel	\N	none	\N
+061a4b15-31ac-4e12-9e14-56c762535566	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-02-06	1	Estoque MH	Unidade - Batel	\N	none	\N
+c57be5bd-9ceb-4e74-853d-cf68119840d2	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-06	1	Estoque MH	Unidade - Batel	\N	none	\N
+b1c0624f-e2d2-4e0d-83e0-88a3011f6978	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-06	1	Estoque MH	Unidade - Batel	\N	none	\N
+f749db99-e009-4e4d-b874-f62cbf3b3d28	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-02-06	1	Estoque MH	Unidade - Batel	\N	none	\N
+f272a630-6e70-45a8-9e27-5be4767ec0b7	2026-06-01 17:40:00.612106+00	04a5a69c-bedb-495f-bf98-9faf1291b284	2026-03-20	1	Estoque MH	Fábrica	\N	none	\N
+8a80c033-b6b3-4b19-94d1-4b46a8856571	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-03-20	1	Estoque MH	Fábrica	\N	none	\N
+7bc09045-9474-43d8-a921-7a9f5b5a591d	2026-06-01 17:40:00.612106+00	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2026-04-29	1	Estoque MH	Fábrica	\N	none	\N
+6c19a44e-0b1e-45a5-92a8-03143387561c	2026-06-01 17:40:00.612106+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-01-09	3	Compras	Estoque MH	\N	none	\N
+5745c645-2462-4634-9e07-86345ead2cd0	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-01-09	3	Compras	Estoque MH	\N	none	\N
+9c62fc09-2c03-43ae-80c7-739c60c683aa	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-01-09	12	Compras	Estoque MH	\N	none	\N
+535abf81-237a-42d7-ada9-bb6e779899e5	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-16	4	Compras	Estoque MH	\N	none	\N
+a193a43e-0f69-4783-aafa-039629500cf7	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-16	2	Compras	Estoque MH	\N	none	\N
+3b6d06cd-dd8a-489d-8eb5-def1038004e2	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-01-16	2	Compras	Estoque MH	\N	none	\N
+6b964185-28aa-4fea-bc47-23b175ee4339	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-16	6	Compras	Estoque MH	\N	none	\N
+fd83fa52-5169-40b0-a29f-bedf4a682307	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-16	5	Compras	Estoque MH	\N	none	\N
+795e0a45-d949-45cf-add8-350ecf828c85	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-16	8	Compras	Estoque MH	\N	none	\N
+49703597-8ed4-49e3-be04-f2fd95d08b6f	2026-06-01 17:40:00.612106+00	1fca9f85-323c-4656-9b0a-a4e0cf74083e	2026-01-19	1	Compras	Estoque MH	\N	none	\N
+1656322c-84cd-4294-81c1-f8e845df8136	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-01-19	2	Compras	Estoque MH	\N	none	\N
+3785accf-5fde-47f1-9ffd-51c250b113f1	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-01-23	4	Compras	Estoque MH	\N	none	\N
+90c218e7-f985-43ef-b9d0-1ac21594ec21	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-01-23	2	Compras	Estoque MH	\N	none	\N
+ed7e3418-2081-49c0-aa5c-2f930a86c781	2026-06-01 17:40:00.612106+00	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2026-01-23	2	Compras	Estoque MH	\N	none	\N
+af5f0f95-7861-4bf7-a341-ae292f3ff510	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-01-23	1	Compras	Estoque MH	\N	none	\N
+b34aca82-5f53-485c-aae2-f3405dbe602a	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-01-23	12	Compras	Estoque MH	\N	none	\N
+0af85e23-95f2-476f-9a99-d0c800b67e93	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-01-23	12	Compras	Estoque MH	\N	none	\N
+6841c237-9c65-452c-b354-ecd6854863e9	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-23	1	Compras	Estoque MH	\N	none	\N
+f4c760df-e39e-4f61-8f33-357954333f37	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-23	2	Compras	Estoque MH	\N	none	\N
+4aeb5215-b026-4197-9998-29f1127489d9	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-23	6	Compras	Estoque MH	\N	none	\N
+75333d33-f31f-44d3-abf0-a535ed258a8a	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-01-23	2	Compras	Estoque MH	\N	none	\N
+46f6bcec-878a-4257-92a8-cc78964e977c	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-01-23	2	Compras	Estoque MH	\N	none	\N
+f095d0da-017a-4cf5-af44-06eb27bff6fd	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-01-23	4	Compras	Estoque MH	\N	none	\N
+2c6e317b-c505-4715-910c-b72c8fb3b747	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-01-28	2	Compras	Estoque MH	\N	none	\N
+120f00fe-9437-477c-85c0-01a1eab0bb33	2026-06-01 17:40:00.612106+00	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-01-28	3	Compras	Estoque MH	\N	none	\N
+9eda5264-c37f-4730-83ad-1f695d628786	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-05	2	Compras	Estoque MH	\N	none	\N
+7ca7ae4d-d420-444c-a9ac-f2f2988ca89f	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-02-05	1	Compras	Estoque MH	\N	none	\N
+2a1768e0-9b4a-4f6b-b98e-25e5e08cac6d	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-05	5	Compras	Estoque MH	\N	none	\N
+85adc614-5ea8-4a50-9c40-3a066ba3e70e	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-05	4	Compras	Estoque MH	\N	none	\N
+56d02292-4133-414a-89ae-a0e061da4cd4	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-05	6	Compras	Estoque MH	\N	none	\N
+d372b874-4f79-4a78-8080-b66f0807a341	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-02-06	6	Compras	Estoque MH	\N	none	\N
+4b2d9322-2680-4c48-80e6-f129539beec9	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-11	16	Compras	Estoque MH	\N	none	\N
+8033f29c-764f-43c6-ba63-d2e132c70662	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-02-11	4	Compras	Estoque MH	\N	none	\N
+0f688dc0-1963-47c5-aeb9-e1106f5ab3b9	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-12	50	Compras	Estoque MH	\N	none	\N
+6aaf543a-95bc-49c4-915e-0aa9bb7f5e95	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-12	6	Compras	Estoque MH	\N	none	\N
+06963ef6-b989-4edc-b3b0-eaeb1af8b418	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-02-12	1	Compras	Estoque MH	\N	none	\N
+748ca926-e83d-400c-840a-3a1e5a6e9535	2026-06-01 17:40:00.612106+00	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-02-12	2	Compras	Estoque MH	\N	none	\N
+7ade2fc4-c383-45e2-b8a8-95ecdce62602	2026-06-01 17:40:00.612106+00	b625208d-0946-407f-aabd-fc2b2c736105	2026-02-12	2	Compras	Estoque MH	\N	none	\N
+040a7d95-78b5-4f90-8f0a-a880be86bd58	2026-06-01 17:40:00.612106+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-02-12	2	Compras	Estoque MH	\N	none	\N
+ccdd245c-e1e8-4ce3-922d-ee85b9c2c010	2026-06-01 17:40:00.612106+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-02-12	2	Compras	Estoque MH	\N	none	\N
+c1efd789-eca0-4077-8d7a-874937ac22f9	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-19	6	Compras	Estoque MH	\N	none	\N
+8fbe6917-6359-4a1e-9a65-ef79a34cef41	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-19	4	Compras	Estoque MH	\N	none	\N
+ebe6a17e-bb44-4e3a-a792-f0ad0abd44fe	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-02-19	4	Compras	Estoque MH	\N	none	\N
+9f3599c6-789e-4e88-98d1-0c2bbb5baeb5	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-19	5	Compras	Estoque MH	\N	none	\N
+1c2ad701-1013-4051-919f-8ecee5e1268f	2026-06-01 17:40:00.612106+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-02-23	2	Compras	Estoque MH	\N	none	\N
+bcabe938-941b-49be-872c-0d251da2f242	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-01	5	Compras	Estoque MH	\N	none	\N
+cb629fda-dc07-4e8f-acd9-85000ee4e547	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-03-01	1	Unidade - Batel	Estoque MH	\N	none	\N
+d10c82d3-f6f4-4f1b-9d28-bc60b2bc4905	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-03	2	Unidade - Batel	Estoque MH	\N	none	\N
+742cce5e-ac67-4c78-b8fa-9ed06659a501	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-03	2	Unidade - Batel	Estoque MH	\N	none	\N
+56d7ceff-ce04-4cc7-b460-7fa05d28f8e6	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-03-03	1	Unidade - Batel	Estoque MH	\N	none	\N
+530497bc-f391-4bfa-94cb-426af6a0117a	2026-06-01 17:40:00.612106+00	1fca9f85-323c-4656-9b0a-a4e0cf74083e	2026-03-03	1	Unidade - Batel	Estoque MH	\N	none	\N
+05184837-9606-418b-aee5-e4a6004bdc8a	2026-06-01 17:40:00.612106+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-03-03	5	Unidade - Batel	Estoque MH	\N	none	\N
+99700d6f-13d6-47d3-9edf-7636b96cce1c	2026-06-01 17:40:00.612106+00	1da7ddfd-5b9f-4e51-9256-fa2bd0034ef3	2026-03-03	50	Unidade - Batel	Estoque MH	\N	none	\N
+bcaa25f8-d947-49cc-ba5f-991e994caad5	2026-06-01 17:40:00.612106+00	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-03-06	2	Compras	Estoque MH	\N	none	\N
+1c8b82fa-6e45-4e3b-8772-50c9aa646c30	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-06	4	Compras	Estoque MH	\N	none	\N
+b2eeced3-040f-4d59-bea8-65dd21a9db2f	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-06	6	Compras	Estoque MH	\N	none	\N
+ba79be15-e0d5-496b-9dba-3f4d6a8f0431	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-03-06	2	Compras	Estoque MH	\N	none	\N
+67259fde-391b-4b2e-80db-91337afbb80f	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-03-06	16	Compras	Estoque MH	\N	none	\N
+b435ad02-fec0-4bc6-858e-5f9a5be64922	2026-06-01 17:40:00.612106+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-03-06	2	Compras	Estoque MH	\N	none	\N
+ad36a025-7a58-40e0-ac9a-783a70e60b57	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-03-13	1	Unidade - Batel	Estoque MH	\N	none	\N
+8af31926-3485-493a-98cf-259e734e3534	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-13	1	Compras	Estoque MH	\N	none	\N
+aca82fda-82af-436a-9f4c-578eb89be9c2	2026-06-01 17:40:00.612106+00	b625208d-0946-407f-aabd-fc2b2c736105	2026-03-13	1	Unidade - Batel	Estoque MH	\N	none	\N
+4578bb3e-abe5-4ba9-b59b-c6b1428503f5	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-18	12	Compras	Estoque MH	\N	none	\N
+2da22f9c-3ba9-46a6-acb5-54e8e00e75c2	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-03-18	2	Compras	Estoque MH	\N	none	\N
+585adc54-88b8-45be-ac98-60b77700f721	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-18	5	Compras	Estoque MH	\N	none	\N
+5cc15b92-23da-4bda-94bc-95ab69fec88a	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-18	4	Compras	Estoque MH	\N	none	\N
+765bdbd2-4663-4ffd-9060-5452de0aa75b	2026-06-01 17:40:00.612106+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-03-18	1	Compras	Estoque MH	\N	none	\N
+98c87a34-82f8-4ed3-8be3-779f0728f697	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-03-20	400	Compras	Estoque MH	\N	none	\N
+09cd3548-2469-4442-a6ab-f6dbe6fbbce4	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-20	200	Compras	Estoque MH	\N	none	\N
+512c80cd-d093-4f5d-b48c-d37806c328c3	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-20	5	Compras	Estoque MH	\N	none	\N
+1e54fd9b-a881-4f04-ae38-085d3a74f646	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-03-20	2	Compras	Estoque MH	\N	none	\N
+084b1d08-d9bc-4d86-b25c-fd552109e15a	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-03-20	2	Compras	Estoque MH	\N	none	\N
+ea861dcd-ca18-4c10-bc54-1f8f69fedba3	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-03-20	4	Compras	Estoque MH	\N	none	\N
+a3917190-6d7b-4bbc-a781-4dfc0b6feb16	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-03-20	4	Compras	Estoque MH	\N	none	\N
+c3766db8-0ec5-420d-88d1-a73a90c9e9b6	2026-06-01 17:40:00.612106+00	04a5a69c-bedb-495f-bf98-9faf1291b284	2026-03-20	1	Compras	Estoque MH	\N	none	\N
+5743a1f2-90f1-467a-936e-01ce87643504	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-30	4	Compras	Estoque MH	\N	none	\N
+0643ca6b-d32c-41bf-9f4e-e4d6bf1d3845	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-03-30	4	Compras	Estoque MH	\N	none	\N
+fbdab5e4-89ef-4f0c-8f76-d15bb7c54bea	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-30	2	Compras	Estoque MH	\N	none	\N
+84a5fcac-b51b-4fd5-a073-0427b588d4ae	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-06	2	Compras	Estoque MH	\N	none	\N
+e13c4020-c7b0-4f0f-9c0f-65c4232a39a8	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-04-06	1	Compras	Estoque MH	\N	none	\N
+ad486099-50ff-42f1-8692-71dcd759bff5	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-06	6	Compras	Estoque MH	\N	none	\N
+4b8f81e7-b583-4e00-a7e7-1a28a77a2f11	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-06	2	Compras	Estoque MH	\N	none	\N
+df536e98-b27b-4f9b-b51d-d0da69bffd4d	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-04-06	2	Compras	Estoque MH	\N	none	\N
+47d94a91-a745-4364-a152-bd2735798299	2026-06-01 17:40:00.612106+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-04-07	2	Compras	Estoque MH	\N	none	\N
+0186af07-0f39-44bf-afab-2006bc184891	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-07	5	Compras	Estoque MH	\N	none	\N
+93d67a1b-c0c3-465d-97c8-49524db6afcf	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-04-07	3	Compras	Estoque MH	\N	none	\N
+b3fbd4d7-946d-4ee8-85e1-16bc0c3ffd63	2026-06-01 17:40:00.612106+00	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-04-07	4	Compras	Estoque MH	\N	none	\N
+daf16deb-7b5e-4af2-917a-5b5dbece2dad	2026-06-01 17:40:00.612106+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-04-07	2	Compras	Estoque MH	\N	none	\N
+a16b5031-c9e8-4515-a4bc-6a6cddf496ca	2026-06-01 17:40:00.612106+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-04-07	2	Compras	Estoque MH	\N	none	\N
+537c97af-7ac0-46d9-86e6-fdd453bdb37c	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-07	4	Compras	Estoque MH	\N	none	\N
+af4e9edd-f710-4e75-a06a-22656450940a	2026-06-01 17:40:00.612106+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-04-07	2	Compras	Estoque MH	\N	none	\N
+c8053d70-829e-43af-bf1c-acc5fc2e3830	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-04-07	2	Compras	Estoque MH	\N	none	\N
+c2ca488f-9a99-4890-9adb-f547795ec619	2026-06-01 17:40:00.612106+00	9c4e5257-2455-43ff-aa09-0811390a02d2	2026-04-13	5	Compras	Estoque MH	\N	none	\N
+90b85842-29c2-4e13-b819-b13a90b64e2c	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-13	6	Compras	Estoque MH	\N	none	\N
+d101c95b-5121-4f9b-8ab6-89e6c81fca15	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-14	16	Compras	Estoque MH	\N	none	\N
+f4cd5132-365b-496e-aec3-c20c03f8cc0c	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-04-14	4	Compras	Estoque MH	\N	none	\N
+43cbffd2-7f02-4cc6-8492-de0c128bc4a4	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-21	3	Compras	Estoque MH	\N	none	\N
+337d14b9-4fba-417c-8e7d-7b40d3b4cf96	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-22	120	Compras	Estoque MH	\N	none	\N
+09be3195-8b6f-4eb2-9ce8-6badb92a89b4	2026-06-01 17:40:00.612106+00	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-04-22	6	Compras	Estoque MH	\N	none	\N
+1002d14e-5dc1-41c6-bba7-83d438b920e6	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-04-22	2	Compras	Estoque MH	\N	none	\N
+38a86dd3-2e60-43ca-a640-31b56b038748	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-04-22	3	Compras	Estoque MH	\N	none	\N
+988eebaf-e079-4f69-b8bd-6c639be4b4c6	2026-06-01 17:40:00.612106+00	75efd75a-2265-49dc-8b10-ee0332a12025	2026-04-22	3	Compras	Estoque MH	\N	none	\N
+259d4729-34ac-415a-b47f-aec3ce76cbaa	2026-06-01 17:40:00.612106+00	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-04-22	2	Compras	Estoque MH	\N	none	\N
+169e2109-8bae-4af3-a6ba-0303a0920f8a	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-28	6	Compras	Estoque MH	\N	none	\N
+c8bd9473-ca6b-45c3-98c8-9b2cb2edf9d4	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-28	50	Compras	Estoque MH	\N	none	\N
+ceb2feb7-4b7d-4409-acb3-3f1570352d1d	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-28	6	Compras	Estoque MH	\N	none	\N
+df2ec5e3-2ea7-48ae-bf72-bb8ad1e65ac3	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-04-28	6	Compras	Estoque MH	\N	none	\N
+6c378952-ade6-42fd-9c86-e60fdcebbde2	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-28	5	Compras	Estoque MH	\N	none	\N
+75785a2b-002d-42d1-afc6-cb18de04f4be	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-04-29	4	Compras	Estoque MH	\N	none	\N
+43ff09d4-e750-4ea8-a6c7-a983b0382199	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-04-29	3	Compras	Estoque MH	\N	none	\N
+2ad2c174-924f-430e-8c56-7736bc75ba9a	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-29	6	Compras	Estoque MH	\N	none	\N
+ca53fda8-9ae8-42de-975f-d865e2913d30	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-04-29	12	Compras	Estoque MH	\N	none	\N
+d86ef57c-7691-47f2-adb5-c01b01fd474c	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-04-29	4	Compras	Estoque MH	\N	none	\N
+10ab621a-292b-4794-a53b-5816c4856fec	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-04-29	4	Compras	Estoque MH	\N	none	\N
+216fda00-4465-4d55-833b-a54776ae772d	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-05-07	2	Compras	Estoque MH	\N	none	\N
+852ffc36-3cd7-4abf-b3c4-bb524dbee2e1	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-05-29	2	Compras	Estoque MH	\N	none	\N
+53f10ac2-4970-4014-b713-795105b1b949	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-05-29	1	Compras	Estoque MH	\N	none	\N
+9cddac01-9a0e-403a-a726-5936a5509511	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-05-29	4	Compras	Estoque MH	\N	none	\N
+8d58a73c-51cf-4a42-be4c-d0418f474b01	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-05-29	1	Compras	Estoque MH	\N	none	\N
+c3479a4a-f3c0-4281-b7f5-fe8188e03680	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-05-29	4	Compras	Estoque MH	\N	none	\N
+1e366c84-0ecd-4eb8-9db2-76acb78a931a	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-16	2	Loja Ahú	Unidade - Batel	\N	none	\N
+0ff66fc3-a7be-4497-b735-2d8ca7b17ed5	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-02-06	12	Loja Ahú	Unidade - Batel	\N	none	\N
+06406e0b-6dc1-49cb-9f30-2df01c9e7547	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-02-06	3	Loja Ahú	Unidade - Batel	\N	none	\N
+17c1a39f-1c3a-4d65-bc5c-1e91f6b2dc61	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-02-06	3	Loja Ahú	Unidade - Batel	\N	none	\N
+f6d1c7b1-1d7d-4b49-81b3-9f72c8743bf9	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-02-06	3	Loja Ahú	Unidade - Batel	\N	none	\N
+1d6204f0-bebe-4d6c-b03c-b739760a4620	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-19	40	Loja Ahú	Estoque MH	\N	none	\N
+e3ba00b4-5aa1-487a-814c-8fc34a05dec2	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-19	34	Loja Ahú	Estoque MH	\N	none	\N
+0a7bb42d-724a-4f33-9c5e-03e9df0ff017	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-19	35	Loja Ahú	Estoque MH	\N	none	\N
+506f8da9-db01-4c53-bc94-c3b91e4b592b	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-02	10	Fábrica	Loja Ahú	\N	none	\N
+2434597d-6b3f-4c0a-9a21-1b183aeafa77	2026-06-01 17:40:00.612106+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-01-02	1	Compras	Loja Ahú	\N	none	\N
+030cb47e-905f-4bbb-af51-9880a77d5656	2026-06-01 17:40:00.612106+00	f8c8e834-9063-4a25-8925-12db6592d203	2026-01-02	2	Compras	Loja Ahú	\N	none	\N
+36bb6dc5-b09f-4a44-a03f-8c3ea8f97a5e	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-03	24	Compras	Loja Ahú	\N	none	\N
+b783f293-55b0-45a8-bea1-e9c430b5972d	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-03	6	Compras	Loja Ahú	\N	none	\N
+d945d907-5ef5-46d2-99af-187bae6c7265	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-03	8	Fábrica	Loja Ahú	\N	none	\N
+a67ec693-651e-42ea-895a-a9d041c4cd93	2026-06-01 17:40:00.612106+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-01-03	1	Compras	Loja Ahú	\N	none	\N
+b600eeaf-3a4e-4186-9706-0c40fdff2e13	2026-06-01 17:40:00.612106+00	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2026-01-05	6	Compras	Loja Ahú	\N	none	\N
+7fe4180b-9a5f-4954-b804-d29a4f0a7174	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-01-05	12	Compras	Loja Ahú	\N	none	\N
+45dbc6f5-8923-4524-8a86-1bea961a21c7	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-01-05	12	Compras	Loja Ahú	\N	none	\N
+fc79aebd-4a46-472f-bca2-25173d169c9b	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-01-05	12	Compras	Loja Ahú	\N	none	\N
+31d4eaba-f24b-4fd4-a1f2-f2d9b9820420	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-01-05	12	Compras	Loja Ahú	\N	none	\N
+cb5e7027-2dbe-4350-9605-34a62ba4e824	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-01-05	12	Compras	Loja Ahú	\N	none	\N
+e1ed7d1e-f4f7-4749-976e-71ea6a5804d0	2026-06-01 17:40:00.612106+00	cb1ea2a9-cabd-4354-9f27-4c87b93a23bd	2026-01-05	6	Compras	Loja Ahú	\N	none	\N
+329ed8c8-c3c7-4bf4-82d6-758d5b733961	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-01-05	12	Compras	Loja Ahú	\N	none	\N
+2841a3dc-7cdd-4e79-abd8-966b3579895c	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-05	6	Compras	Loja Ahú	\N	none	\N
+5066906d-4e62-476b-a943-7aad8701c250	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-07	10	Fábrica	Loja Ahú	\N	none	\N
+9b003a70-1b96-4a84-96a7-7c240ac26345	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-08	12	Compras	Loja Ahú	\N	none	\N
+6b42932b-1201-4301-8a97-c8e398d88612	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-01-08	12	Compras	Loja Ahú	\N	none	\N
+8e5af37d-78da-40d3-a838-d37e18757851	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-01-09	12	Compras	Loja Ahú	\N	none	\N
+c5e1bafd-1c79-4df2-a133-13bbc5a9a281	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-09	12	Compras	Loja Ahú	\N	none	\N
+eb04bb05-f664-4237-be6d-7e3f19155346	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-09	12	Compras	Loja Ahú	\N	none	\N
+da8cc462-8b6b-464b-9f37-9d3fc8796d08	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-09	6	Compras	Loja Ahú	\N	none	\N
+1e68a520-6b97-4512-a7d2-4694b07f9041	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-02	1	Estoque MH	Loja Ahú	\N	none	\N
+a88cfa3d-47f2-4323-9c70-908c3f100bb8	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-16	10	Fábrica	Loja Ahú	\N	none	\N
+023c6333-a4f0-425b-9539-0e20c205a723	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-18	120	Compras	Loja Ahú	\N	none	\N
+894c2c70-c2d2-4712-89d3-4579a5864cda	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-19	10	Fábrica	Loja Ahú	\N	none	\N
+74a94e71-4c70-4b85-84b9-f26706338bdf	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-23	10	Fábrica	Loja Ahú	\N	none	\N
+3a91b3ae-4def-4200-a9c7-922329f69b3b	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-01-23	6	Fábrica	Loja Ahú	\N	none	\N
+f88c5a2e-37f6-4380-b1de-cfac6159b4e1	2026-06-01 17:40:00.612106+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-01-23	1	Compras	Loja Ahú	\N	none	\N
+b25d4490-b189-4d44-b1d9-be88748158fa	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-29	6	Fábrica	Loja Ahú	\N	none	\N
+6918824c-c7e1-4c1a-8f6a-f8dbf946de49	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-31	10	Fábrica	Loja Ahú	\N	none	\N
+318e88c6-5d83-4098-a1d9-cb5feb9e1473	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-02-02	24	Compras	Loja Ahú	\N	none	\N
+ee6a3c55-31fd-4b37-b23a-36b21990777c	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-02-02	48	Compras	Loja Ahú	\N	none	\N
+7e958b8f-7588-44b6-a9c6-28eb4b03d6d8	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-02-02	24	Compras	Loja Ahú	\N	none	\N
+c1b08da7-73e9-4500-a0cd-b583c6b156b1	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-02	72	Compras	Loja Ahú	\N	none	\N
+6bedbf03-530f-4fc8-9594-1508103e08c0	2026-06-01 17:40:00.612106+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-02-02	2	Compras	Loja Ahú	\N	none	\N
+bf07c03e-a348-4a8e-961d-11e28065e66f	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-02	31	Compras	Loja Ahú	\N	none	\N
+dfb43f37-d51d-4d7b-b695-3188f9ba1d3b	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-02-04	12	Compras	Loja Ahú	\N	none	\N
+51dc226d-2ad7-401e-bce4-5428ede85c66	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-02-04	12	Compras	Loja Ahú	\N	none	\N
+4bcd87df-f3bf-432e-9666-96793f0c8ddf	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-02-04	12	Compras	Loja Ahú	\N	none	\N
+d1d8404b-f5f3-49c1-8a38-86b0b637912d	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-02-04	12	Compras	Loja Ahú	\N	none	\N
+9b979772-4515-4bad-baa3-4c48a6dd4ca8	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-02-04	12	Compras	Loja Ahú	\N	none	\N
+d210daf6-b821-4edf-af78-0a82ab3e115f	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-05	7	Fábrica	Loja Ahú	\N	none	\N
+c30d9b99-2e49-450d-9113-9783aac0271e	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-02-05	12	Fábrica	Loja Ahú	\N	none	\N
+a7fa2e3d-4f90-4213-a111-35b0958bb6ed	2026-06-01 17:40:00.612106+00	5c61e89e-5c83-4782-a6e9-5b33f492bb9a	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+81523bf1-d400-4cf6-b71f-040eafe037d1	2026-06-01 17:40:00.612106+00	b625208d-0946-407f-aabd-fc2b2c736105	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+970edd21-aac7-4bca-a7a5-ebcf56b1f218	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+f0e3d392-f4c7-4d5f-a898-2f59dcd19411	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-07	10	Fábrica	Loja Ahú	\N	none	\N
+a9bcbc96-8783-4ab5-bb9f-68a5e6c2843d	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-02-18	24	Compras	Loja Ahú	\N	none	\N
+37035903-1c21-4b21-a179-e6b8fd691aeb	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-02-18	12	Compras	Loja Ahú	\N	none	\N
+5c1d781f-dc47-4116-a06a-12581bd368b6	2026-06-01 17:40:00.612106+00	47709673-7e0c-4620-9562-4d1ea2315217	2026-02-18	12	Compras	Loja Ahú	\N	none	\N
+3d22a8c9-3c5b-46e6-832e-6d516ff17180	2026-06-01 17:40:00.612106+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-02-18	2	Compras	Loja Ahú	\N	none	\N
+5b82df54-7c62-43f5-8a1b-55f8d928fc08	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-02-18	24	Compras	Loja Ahú	\N	none	\N
+5e7a8d9b-86ae-45de-84cf-3987d26cbee5	2026-06-01 17:40:00.612106+00	57f021fd-13b0-4484-ab86-79782ef938c0	2026-02-18	12	Compras	Loja Ahú	\N	none	\N
+adbb9221-8f78-4611-b2c7-4dd57efd4489	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-02-18	72	Compras	Loja Ahú	\N	none	\N
+6be7c213-bfe4-47bc-8a11-b37b2fc3be9c	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-02-18	12	Compras	Loja Ahú	\N	none	\N
+94168542-257e-407e-8e3b-3525f86e66aa	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-02-18	12	Compras	Loja Ahú	\N	none	\N
+5a170e2f-a62a-4db5-9d85-9e57c221aefe	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-19	10	Fábrica	Loja Ahú	\N	none	\N
+63771c0d-9fae-4992-b975-2a1a54d6da7b	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-02-19	4	Fábrica	Loja Ahú	\N	none	\N
+03db8340-fba5-49b8-a9ea-c018c5e81600	2026-06-01 17:40:00.612106+00	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2026-02-24	6	Compras	Loja Ahú	\N	none	\N
+b394a361-cd1a-41e9-9ab1-9e233a8fe105	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-02-24	12	Compras	Loja Ahú	\N	none	\N
+3a6f84ee-f7a7-4e77-8c2e-0d69dfd31af7	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-02-24	12	Compras	Loja Ahú	\N	none	\N
+143ca723-de28-4faa-9760-c2428ca288c9	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-02-24	12	Compras	Loja Ahú	\N	none	\N
+465b6546-26ea-4201-b818-fb1bdaad94e5	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-02-24	6	Compras	Loja Ahú	\N	none	\N
+41844d17-1a88-45ae-b445-3a4ad5e04c3b	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-02-24	12	Compras	Loja Ahú	\N	none	\N
+1bf7f81b-5703-4d9c-bdaf-a6217cad0a76	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-27	10	Fábrica	Loja Ahú	\N	none	\N
+41897a7c-dcc5-447d-b6a5-0ee6ef70f0b4	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-02	10	Fábrica	Loja Ahú	\N	none	\N
+f4026ec2-5a23-4e10-80e2-fbb5aab6f0e5	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-04	10	Fábrica	Loja Ahú	\N	none	\N
+05d115dd-eb2c-43c5-bdb2-0da8f0f7d47f	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-04	24	Compras	Loja Ahú	\N	none	\N
+47432143-b1f9-4842-b3e1-19995bf028db	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-03-04	60	Compras	Loja Ahú	\N	none	\N
+9fc3f6f0-4067-4e60-a442-8dbf3fedb618	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-04	12	Compras	Loja Ahú	\N	none	\N
+c3d74c50-8527-4e28-9b66-2f3f51e9e9bb	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-14	10	Fábrica	Loja Ahú	\N	none	\N
+27e55d8c-b6c5-4f11-8d68-d6fef07a9cbd	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-03-14	6	Fábrica	Loja Ahú	\N	none	\N
+29facf25-f23d-4535-9311-9977ef0c1e84	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-03-15	7	Fábrica	Loja Ahú	\N	none	\N
+28501d42-b77f-4cfe-8036-039db24dede5	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-03-16	24	Compras	Loja Ahú	\N	none	\N
+1246f421-978d-4835-943d-deacca7c6c00	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-16	72	Compras	Loja Ahú	\N	none	\N
+10747870-08a9-4bb6-838a-99d6450e0e43	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-03-16	6	Compras	Loja Ahú	\N	none	\N
+89fdb0a8-6f38-460f-ae94-984571e9abf1	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-16	12	Compras	Loja Ahú	\N	none	\N
+e643bed8-fa31-4de4-b4bb-051a90391234	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-03-16	6	Compras	Loja Ahú	\N	none	\N
+897a1a3e-f44d-4c1d-8f8f-be3fd826502f	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-03-16	6	Compras	Loja Ahú	\N	none	\N
+db8d48d1-4374-4b60-b441-98823638ad06	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-17	10	Fábrica	Loja Ahú	\N	none	\N
+a27a8d62-e649-471d-8128-19061b82d695	2026-06-01 17:40:00.612106+00	40805ae9-e353-42e2-a0ec-e633855c7342	2026-03-18	1	Compras	Loja Ahú	\N	none	\N
+7d10c1ee-cfe9-4536-86e0-1431d9111877	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-03-24	6	Fábrica	Loja Ahú	\N	none	\N
+f06ba90d-b3df-43b3-b960-b3fb4c95ca2b	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-26	7	Fábrica	Loja Ahú	\N	none	\N
+533a572e-6e7f-45fe-8879-6999111a4145	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-03-26	12	Compras	Loja Ahú	\N	none	\N
+f391d9e9-b479-43a8-ab06-2e94d54a21f6	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-03-26	12	Compras	Loja Ahú	\N	none	\N
+623f21c3-1a81-4cec-ba7a-ec34078c2e97	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-03-26	12	Compras	Loja Ahú	\N	none	\N
+04ab67af-a7d5-4f6d-82ef-aa6e525e2395	2026-06-01 17:40:00.612106+00	a6e2564d-a560-4ff2-81a5-6f4f32d93ac2	2026-03-26	6	Compras	Loja Ahú	\N	none	\N
+ddedacfc-074e-4099-9339-b8949874d450	2026-06-01 17:40:00.612106+00	5db6171c-d897-4894-af28-bbf63adad316	2026-03-27	6	Compras	Loja Ahú	\N	none	\N
+d10eb81a-3610-4165-b4c4-ff6b60826a88	2026-06-01 17:40:00.612106+00	09ce4212-faa0-4db9-9b46-66fc8fc9568b	2026-03-27	6	Compras	Loja Ahú	\N	none	\N
+8466aec9-0c9d-4b6b-9c49-52122aab54ca	2026-06-01 17:40:00.612106+00	21174f2c-7831-440d-9f5e-daa81d6b94c0	2026-03-27	6	Compras	Loja Ahú	\N	none	\N
+d502139d-176a-4e99-ad02-9dc9bbf67e7f	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-03-27	36	Compras	Loja Ahú	\N	none	\N
+07f0962c-5ded-4c6c-a646-a0960e64de73	2026-06-01 17:40:00.612106+00	424d80dc-6975-4812-9571-b3baadd2db31	2026-03-27	6	Compras	Loja Ahú	\N	none	\N
+ab0e1e36-cd31-494a-bae9-332a71d9ad85	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-27	60	Compras	Loja Ahú	\N	none	\N
+6ab00d06-1829-4de4-a7ec-4e4675cfabc4	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-02	10	Fábrica	Loja Ahú	\N	none	\N
+d835628c-45ea-4469-8b04-a7a6bb819813	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-04-06	24	Compras	Loja Ahú	\N	none	\N
+a722a398-411e-4a54-97a6-53a47d570ce5	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-04-06	84	Compras	Loja Ahú	\N	none	\N
+b2f9a060-427f-4080-b30b-0aabdb4c216e	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-04-06	24	Compras	Loja Ahú	\N	none	\N
+edcfbc47-2345-44fb-ad61-a021f7d628e7	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-04-06	48	Compras	Loja Ahú	\N	none	\N
+111eeffe-d40c-4785-9084-f02c1c3fc4cb	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-04-15	12	Compras	Loja Ahú	\N	none	\N
+812b4626-3ffe-4a93-8506-2dab858c9a6b	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-04-15	18	Compras	Loja Ahú	\N	none	\N
+b5c7d1ee-e82e-4f80-80b4-af71c7a97799	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-04-15	12	Compras	Loja Ahú	\N	none	\N
+03a786c0-26dc-4df9-b517-048c4647953b	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-04-15	12	Compras	Loja Ahú	\N	none	\N
+956ab996-6d86-4390-a3f4-8233b9ef4c17	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-04-15	12	Compras	Loja Ahú	\N	none	\N
+b372664e-ee13-43fb-8702-68eaf464570a	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-04-17	12	Compras	Loja Ahú	\N	none	\N
+3ddbc69e-1a47-483e-a212-c583e0223ecb	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-04-17	24	Compras	Loja Ahú	\N	none	\N
+6d921970-3cbc-42ec-b420-262c84938379	2026-06-01 17:40:00.612106+00	47709673-7e0c-4620-9562-4d1ea2315217	2026-04-17	12	Compras	Loja Ahú	\N	none	\N
+25f3ac85-6ab7-4b65-b93b-80b8a983970b	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-04-17	12	Compras	Loja Ahú	\N	none	\N
+9af998b0-8d2c-48aa-a5b3-1fe903dfd503	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-18	10	Fábrica	Loja Ahú	\N	none	\N
+89f3fed1-1b7c-44e6-b55a-7881d478af1b	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-19	7	Fábrica	Loja Ahú	\N	none	\N
+84358ade-37cc-44df-9fcf-31de3786f933	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-22	10	Fábrica	Loja Ahú	\N	none	\N
+d1e91112-e59d-4d62-8feb-9a43348728df	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-26	10	Fábrica	Loja Ahú	\N	none	\N
+b2c50e74-591c-4b05-ba24-50aca10a356f	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-05-02	5	Fábrica	Loja Ahú	\N	none	\N
+3cba5a23-8747-4eec-a449-4d998b23ec6f	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-02	10	Fábrica	Loja Ahú	\N	none	\N
+a1cb3526-d7e9-4d0a-a7b9-928e29280b45	2026-06-01 17:40:00.612106+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-05-07	1	Compras	Loja Ahú	\N	none	\N
+01141fe3-782a-4cc6-8018-c97b81436edd	2026-06-01 17:40:00.612106+00	f8c8e834-9063-4a25-8925-12db6592d203	2026-05-07	2	Compras	Loja Ahú	\N	none	\N
+d8112b2c-eba3-40d9-a8ab-1086bde25027	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-07	9	Fábrica	Loja Ahú	\N	none	\N
+7860264a-2103-40d9-8136-54b7d755e282	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-22	10	Fábrica	Loja Ahú	\N	none	\N
+7b342104-976a-447a-bfb1-f90b19660a49	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-25	9	Fábrica	Loja Ahú	\N	none	\N
+cb124a12-8284-4a0f-8347-dcfa410ea2ce	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-29	10	Fábrica	Loja Ahú	\N	none	\N
+d06443bb-3f10-47b0-8124-4a13db02d4fd	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-03	4	Estoque MH	Loja Ahú	\N	none	\N
+3f32892c-51f1-4e02-86ae-5619aa17a369	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-03	2	Estoque MH	Loja Ahú	\N	none	\N
+6e43f0cb-5439-407b-8888-1154418c5194	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-03	1	Estoque MH	Loja Ahú	\N	none	\N
+68f37d18-abdb-4f01-ba91-966f4da9238d	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-03	1	Estoque MH	Loja Ahú	\N	none	\N
+4e7c8226-1656-4a25-b354-b9e86f4ac313	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-06	4	Estoque MH	Loja Ahú	\N	none	\N
+52b9c7c5-7d2d-49e4-8cb0-2d55ad7c0419	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-01-06	2	Estoque MH	Loja Ahú	\N	none	\N
+57fb9257-151c-4930-b1fe-5b8b51659544	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-06	3	Estoque MH	Loja Ahú	\N	none	\N
+611bfbba-f390-47c6-9d0e-7b3f7e46b6bb	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-06	2	Estoque MH	Loja Ahú	\N	none	\N
+8af22687-65a6-4bd5-a3d0-722a9328f34f	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-06	1	Estoque MH	Loja Ahú	\N	none	\N
+231e013e-8203-4370-af60-772186959a17	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-01-06	4	Estoque MH	Loja Ahú	\N	none	\N
+2a15ca59-c24c-4682-b83e-4510871afc46	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-06	2	Estoque MH	Loja Ahú	\N	none	\N
+f0c727e3-a239-4207-9f32-e132c2e58641	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-01-06	1	Estoque MH	Loja Ahú	\N	none	\N
+01e5aae1-1222-4b99-bc76-4dfdb118f220	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-01-06	2	Estoque MH	Loja Ahú	\N	none	\N
+1943ed1f-8a6c-4d3f-8f0e-905e0f7504ad	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-06	1	Estoque MH	Loja Ahú	\N	none	\N
+993702b6-3242-4206-83b4-94261d6c1bc9	2026-06-01 17:40:00.612106+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-01-06	2	Estoque MH	Loja Ahú	\N	none	\N
+ace38614-fe29-4aee-9727-edcb838b552d	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-01-06	1	Estoque MH	Loja Ahú	\N	none	\N
+50716774-5ddb-48f0-8be8-8904830f5305	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+7089e147-453b-4006-9be3-0a7c3957a725	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-12	2	Estoque MH	Loja Ahú	\N	none	\N
+3e127aed-8bc8-40ff-9d58-577175ec1a4e	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+d3afc4b8-b5b9-49fe-88b3-781bbae74666	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+6ff1299e-e28b-42e3-b415-5f5a71208c8a	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-12	2	Estoque MH	Loja Ahú	\N	none	\N
+c83d5a64-e226-4442-ac92-a77fcfd1c473	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-01-12	5	Estoque MH	Loja Ahú	\N	none	\N
+5de060af-3d62-4cac-86d8-ec489d917344	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+7faa59bc-e5ed-4bf9-b539-7edb5212aab2	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-01-12	2	Estoque MH	Loja Ahú	\N	none	\N
+b1cc9b64-d6e0-4014-92ba-1e2f3310b72f	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+5fef2017-8ac2-483d-8203-5774d0219ead	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+87a27ab0-b855-4458-b564-2b1f3dfa8980	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+fc090c76-5375-403a-8992-890bbc7a99a7	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+80f1ff0f-9e47-452b-9df0-18e87b108a5d	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+6315f73e-faba-40a6-9ced-7236c56d8fa8	2026-06-01 17:40:00.612106+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-01-12	2	Estoque MH	Loja Ahú	\N	none	\N
+6b53c96f-727a-4cb4-8a70-88f9c57c56e5	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-01-12	4	Estoque MH	Loja Ahú	\N	none	\N
+32511a0f-5597-430b-a610-c1064f3244e8	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+86c9136e-b12b-4b76-8b91-217c197e64c0	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+cbdef063-11f8-421d-bf01-b386c1f2ffcc	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+b63d2be4-2548-4c6b-9017-c9e0ffe9a9e8	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+3391d2b7-e712-4e8b-8231-b6fcd0b1ebd9	2026-06-01 17:40:00.612106+00	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2026-01-12	1	Estoque MH	Loja Ahú	\N	none	\N
+f71bc2da-6576-401e-bdff-24338ad3bc29	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-01-12	5	Estoque MH	Loja Ahú	\N	none	\N
+f11f9496-b2a1-4ecb-bec9-1169b6f3a73d	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-16	2	Estoque MH	Loja Ahú	\N	none	\N
+298c241e-4740-4c5b-89d8-4844a8869f0e	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-22	6	Estoque MH	Loja Ahú	\N	none	\N
+16f25589-26df-4148-baab-d4e6ad1ba3c2	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-01-22	2	Estoque MH	Loja Ahú	\N	none	\N
+b1a14878-433e-43c4-98b2-ee4402fc8ea2	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-22	2	Estoque MH	Loja Ahú	\N	none	\N
+f21bbef7-da3f-4997-8a14-d54308426805	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-01-22	1	Estoque MH	Loja Ahú	\N	none	\N
+f0c05e95-4d7d-4cf2-bbf6-2feffe3f11cb	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-01-22	1	Estoque MH	Loja Ahú	\N	none	\N
+9565c15e-5513-4fab-a96c-0f96143ae573	2026-06-01 17:40:00.612106+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-22	2	Estoque MH	Loja Ahú	\N	none	\N
+1d981577-e16d-40ee-add2-38f5205f71e3	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-22	1	Estoque MH	Loja Ahú	\N	none	\N
+afa004ab-de3d-44a8-bcb0-1c6afa15b2fe	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-22	1	Estoque MH	Loja Ahú	\N	none	\N
+36fe8c45-a01c-43cc-a7e1-eb6d65b0dbd1	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-22	1	Estoque MH	Loja Ahú	\N	none	\N
+cf1f6e38-37ca-4195-b971-ca794935e8c2	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-28	3	Estoque MH	Loja Ahú	\N	none	\N
+81d5a396-3616-494e-a735-af896fa4a5ed	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+02d9140f-f1d5-4ca3-a0ee-bd49675843b3	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+8d3ecd92-fc4c-44e0-a5cd-603e51d252d7	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+04d34b3d-db5d-42cf-92ec-7756af4dd70e	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-28	2	Estoque MH	Loja Ahú	\N	none	\N
+9d7ea887-3631-475f-8395-32415b805a19	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-01-28	6	Estoque MH	Loja Ahú	\N	none	\N
+b72f0eda-fd8a-4918-aafb-68d840b1d682	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-28	2	Estoque MH	Loja Ahú	\N	none	\N
+374f0d01-18f0-45a3-b87c-fc6775f56568	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+764011cb-4ab4-4128-8564-a5722e2e7fa1	2026-06-01 17:40:00.612106+00	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+e290ac82-8fa1-4964-84ff-18d60f1ec127	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+c902de4b-06ef-4641-aa0c-2f059a25ffcd	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+3d446196-1cbb-441a-b607-cba3d64679df	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-28	2	Estoque MH	Loja Ahú	\N	none	\N
+4bccd611-6522-432c-b4b5-6aa9b17d9507	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+97837583-e552-483d-9cf9-4a11fdba1ea5	2026-06-01 17:40:00.612106+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+1707a42b-830e-4454-b056-8b6dabbe108f	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-01-28	1	Estoque MH	Loja Ahú	\N	none	\N
+070ab039-358f-4632-ba8d-15bc33523be3	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-02	1	Estoque MH	Loja Ahú	\N	none	\N
+4940a63c-7848-4363-b564-0e62acc4fb12	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-02	2	Estoque MH	Loja Ahú	\N	none	\N
+bc6acbea-8d9c-4cee-8828-7c0ea3befb47	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-02	4	Estoque MH	Loja Ahú	\N	none	\N
+b2d419ef-80c8-4099-b39f-715c0349bf17	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-02-02	1	Estoque MH	Loja Ahú	\N	none	\N
+18244c36-799b-4ab9-b85f-771bb4725651	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-02-02	1	Estoque MH	Loja Ahú	\N	none	\N
+984c1f29-72e5-417d-b857-b94924457e67	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-02	1	Estoque MH	Loja Ahú	\N	none	\N
+d25e5a79-035f-40b3-a0ba-1c1e41e4320c	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-06	1	Estoque MH	Loja Ahú	\N	none	\N
+a6ffca75-dae6-4b3e-ab49-2f58d924a76c	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-02-06	20	Estoque MH	Loja Ahú	\N	none	\N
+36aa064e-3e03-4dac-adab-a89e359d3281	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-06	1	Estoque MH	Loja Ahú	\N	none	\N
+7a57e530-5abd-461a-9856-2b4615f6501a	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-07	7	Estoque MH	Loja Ahú	\N	none	\N
+d72b5570-474e-4624-b2d5-28b6441fdba2	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-11	1	Estoque MH	Loja Ahú	\N	none	\N
+0cfad5b3-b720-4786-9e1b-517e000b6368	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-12	6	Estoque MH	Loja Ahú	\N	none	\N
+09f23b5a-eb9a-4e8a-8895-5e3ef876ee78	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-12	2	Estoque MH	Loja Ahú	\N	none	\N
+2c0a2906-2213-456c-b965-9e376db565c9	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+98b0fdac-356d-47fe-8824-274e5e76e216	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+dafe2b8b-bd2e-4964-8fb0-3ebf9b3e345e	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-12	2	Estoque MH	Loja Ahú	\N	none	\N
+c3949c9e-07d1-465f-b97b-0602c4037754	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-12	4	Estoque MH	Loja Ahú	\N	none	\N
+e0161c20-b706-41fd-a9ae-a2d1afb73ef8	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-12	2	Estoque MH	Loja Ahú	\N	none	\N
+18792144-76dd-4325-95d6-204b11d8bf55	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+ef596aa6-b71b-4e73-bbd8-1462ab3a2713	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+ff170a5c-7c5b-4946-9097-c730356651b8	2026-06-01 17:40:00.612106+00	f1c79b09-1819-49b5-9a1f-8cd77b013be6	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+66d15983-9edd-4409-9217-740b3b3c1d45	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+6f3db268-903d-4da3-88de-a7eac434d91b	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+a5e09460-7a86-445c-965c-1d97163f0688	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+e420ccf0-ba05-4fd0-967b-2fb6799822e8	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-12	1	Estoque MH	Loja Ahú	\N	none	\N
+4d0d435d-3b4b-4fa9-bf34-1e6a1e6ab66f	2026-06-01 17:40:00.612106+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-02-12	2	Estoque MH	Loja Ahú	\N	none	\N
+085a3089-230d-438a-9f16-eab2f95456b3	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-02-12	2	Estoque MH	Loja Ahú	\N	none	\N
+d36cc94c-f650-4380-8992-71fc913f5621	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-19	2	Estoque MH	Loja Ahú	\N	none	\N
+6469eaf4-c2f0-4212-96c5-71bb8550b5d9	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+790173f3-38f7-4898-8962-beaf5a7d0d62	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-19	3	Estoque MH	Loja Ahú	\N	none	\N
+4343d7eb-dbc1-4b39-bd84-bc018b458d1c	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-19	2	Estoque MH	Loja Ahú	\N	none	\N
+656ed6fa-cc17-4abc-a1e5-31d805f647ca	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+b152c80d-5a75-4995-a460-68a7e4f73893	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+3bd56782-d05f-4168-a8be-8e9c623f4912	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-19	6	Estoque MH	Loja Ahú	\N	none	\N
+e256d559-d8f5-4bb0-8fb4-62346aab780c	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-19	2	Estoque MH	Loja Ahú	\N	none	\N
+fc85e0e7-0414-4380-a0b9-3b3c62326317	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+785a7e11-0f39-4242-875e-0bc8ce5ab6fe	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+ee59b808-92f8-41f0-93bd-2f345d23229d	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+7014c36f-86e4-4926-8895-4b58bd420ff1	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+b09bae4a-8fa8-4710-a1ec-1f301b6cbb2d	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-19	2	Estoque MH	Loja Ahú	\N	none	\N
+8073efdd-1da4-4f7e-b3b1-e0e5209b181b	2026-06-01 17:40:00.612106+00	1fca9f85-323c-4656-9b0a-a4e0cf74083e	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+ffe20661-9d08-491f-b5d2-e5c69732a05e	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-02-19	1	Estoque MH	Loja Ahú	\N	none	\N
+4c863718-78ce-4a0b-8573-bf4d85ef8373	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-23	4	Estoque MH	Loja Ahú	\N	none	\N
+8669cb2a-089b-4d61-a655-796b3673ad36	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-23	1	Estoque MH	Loja Ahú	\N	none	\N
+16b2dd8c-b9d2-45b2-8e59-4fae9c47a6d4	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-23	2	Estoque MH	Loja Ahú	\N	none	\N
+80afdc97-0e15-41b1-a917-701ad8b97922	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-02-23	1	Estoque MH	Loja Ahú	\N	none	\N
+7a9ddd68-b476-43b4-88a4-67526f4b3c1f	2026-06-01 17:40:00.612106+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-02-23	1	Estoque MH	Loja Ahú	\N	none	\N
+e856a799-5fd0-4cdf-8bc7-7c2b6581cf39	2026-06-01 17:40:00.612106+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-02-23	1	Estoque MH	Loja Ahú	\N	none	\N
+e29c0643-8d2c-4f72-886e-4cc4fd33c4a5	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-02	4	Estoque MH	Loja Ahú	\N	none	\N
+1d7cdb04-a21a-43a2-bc69-4b481d2db7fb	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+d29eaed7-4ad3-49cb-abc4-96965cc87694	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+c5420b68-1899-4ed4-a66e-86631ed8a55c	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+cb4e0e67-8a5d-4944-a88a-3f578cb328c6	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-02	2	Estoque MH	Loja Ahú	\N	none	\N
+b3a6fd15-a9af-4082-a023-8b7a27e353fa	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-02	3	Estoque MH	Loja Ahú	\N	none	\N
+1aec8e2b-1085-45fa-9da9-7df74dd5a49f	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+f46ff41a-82f6-46f3-a4bd-7ca3f52d710a	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+95d5a0ae-6118-404f-a820-80034764c9d2	2026-06-01 17:40:00.612106+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+eb1de596-6fba-4792-8507-cd74a318d151	2026-06-01 17:40:00.612106+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+50b4655a-95a1-4255-b331-baf8df4f0a94	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+e8b553c0-edf3-4ae6-8dd8-2698493cb4ae	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-03-02	3	Estoque MH	Loja Ahú	\N	none	\N
+ff9abdea-21d2-4113-8d9d-d0642ee1509a	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-03-02	1	Estoque MH	Loja Ahú	\N	none	\N
+800bb711-6ead-4172-b59f-2548324fdf79	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-09	6	Estoque MH	Loja Ahú	\N	none	\N
+b5d392dc-aaf5-4c1b-bd26-6a59ff1239ca	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-09	2	Estoque MH	Loja Ahú	\N	none	\N
+c687618a-26a0-4ce1-adc1-14c703f37752	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+b6a24482-7445-4cbe-98cd-7e1f9605a3b4	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+d77e60c8-e7b4-4961-b827-b7c93382e71c	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-09	2	Estoque MH	Loja Ahú	\N	none	\N
+ca13ced4-1128-4ac3-b4d0-6c19135cdd42	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-09	2	Estoque MH	Loja Ahú	\N	none	\N
+e47bb4d7-0b6c-4d8d-bc6a-a40246cab9f9	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+df517ac2-9b84-4c91-b85c-46d59804efa8	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+7e17bafd-91fd-4e2b-b09a-fed9b0595df9	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+856f5d29-8011-4652-85c9-304aee3b2758	2026-06-01 17:40:00.612106+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+bff78a10-ecee-49b5-b7c9-daac2ead559e	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+95e9b78c-6f9c-4463-87c6-6d3f3d86f22c	2026-06-01 17:40:00.612106+00	95d9f130-2433-4f3e-882b-e420e62254e4	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+b5cdb1f9-4c61-42bd-83f2-d6c8afe47110	2026-06-01 17:40:00.612106+00	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+42f6d6f1-9580-4061-a1fd-ffe551f6434e	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+edc21808-c43c-4e3e-8b3b-79b2ecc19b7f	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+2734ffd7-1be3-431b-85dc-c04bf0955c75	2026-06-01 17:40:00.612106+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-03-09	1	Estoque MH	Loja Ahú	\N	none	\N
+666dc5b2-e47a-4018-9ab7-6e7adba68de2	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-10	1	Estoque MH	Loja Ahú	\N	none	\N
+b51e645f-9089-4363-9f13-34e7e26c474a	2026-06-01 17:40:00.612106+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-03-10	2	Estoque MH	Loja Ahú	\N	none	\N
+3435adea-1ec5-40cc-b38f-f56e85920b0e	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-16	4	Estoque MH	Loja Ahú	\N	none	\N
+114cdf45-7ab1-4a59-a83c-0f7ad6176ee9	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-03-16	1	Estoque MH	Loja Ahú	\N	none	\N
+8cf0b14b-4a66-4d3c-bac5-033e92c456a0	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-16	1	Estoque MH	Loja Ahú	\N	none	\N
+b01c26b0-748c-4d04-90a2-93b5b373446e	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-03-16	1	Estoque MH	Loja Ahú	\N	none	\N
+dbf61175-bf71-4af6-b77c-548eabf54d8c	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-16	1	Estoque MH	Loja Ahú	\N	none	\N
+e35500d4-e8ad-46e0-9202-21a895ee4013	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-16	5	Estoque MH	Loja Ahú	\N	none	\N
+934b5dcf-509f-4564-807c-c5761616bda2	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-16	2	Estoque MH	Loja Ahú	\N	none	\N
+bb92b2ea-56fe-4834-8191-00b229690881	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-03-16	1	Estoque MH	Loja Ahú	\N	none	\N
+258a3275-336b-4148-8f10-543019b12412	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-16	1	Estoque MH	Loja Ahú	\N	none	\N
+ac1624aa-6a03-45b2-91b5-2c6878d55274	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-16	2	Estoque MH	Loja Ahú	\N	none	\N
+74fb6f29-cd4c-4591-9e20-611af08d189d	2026-06-01 17:40:00.612106+00	daa9968f-370b-4c09-bc1e-b0a170f3142c	2026-03-16	1	Estoque MH	Loja Ahú	\N	none	\N
+ef62bdda-d28b-4dfa-bc0d-d0cdba13bcb7	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-23	6	Estoque MH	Loja Ahú	\N	none	\N
+e910f77c-36f9-4ecb-af8a-cf6af55df889	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+2a770751-7173-4eb5-aa3f-7df045086345	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+f1c33033-490a-4f4c-8f6e-6cb9588a33ca	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+2545d77c-ec64-4d85-ab53-2a91294ec7a4	2026-06-01 17:40:00.612106+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-03-23	3	Estoque MH	Loja Ahú	\N	none	\N
+c36f2f6d-1ef7-49d1-81be-e52716056865	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-23	2	Estoque MH	Loja Ahú	\N	none	\N
+5ecf54a9-1494-4f63-a974-8126bc86a97e	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-23	2	Estoque MH	Loja Ahú	\N	none	\N
+f8df7cbe-782b-4f16-9385-89abe27e5d6e	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-23	4	Estoque MH	Loja Ahú	\N	none	\N
+6d313c82-6c55-4dd9-b0e3-b31e13c236b3	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+5b41191f-cc7c-40c1-be39-f7b05dab91ea	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+cdc8f476-fe61-456a-8566-685d622052b2	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+b035e2bf-ec4d-4ee2-a50b-fa449e17a31f	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+8b1aaaa2-b208-4337-a698-30146d84bd37	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-03-23	1	Estoque MH	Loja Ahú	\N	none	\N
+25dce7c4-dd8e-4bb0-99db-703426eb5738	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-30	5	Estoque MH	Loja Ahú	\N	none	\N
+fb1a1e3f-6ace-477f-a9e1-809e65da43ba	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-30	2	Estoque MH	Loja Ahú	\N	none	\N
+52b386a7-911b-43f0-b76c-de04724f6898	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-30	3	Estoque MH	Loja Ahú	\N	none	\N
+fc9f408c-a1cd-4263-936d-a0d704316df1	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-30	1	Estoque MH	Loja Ahú	\N	none	\N
+812ad399-fcd6-47b3-9203-57d9f65a1df9	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-03-30	1	Estoque MH	Loja Ahú	\N	none	\N
+bc67733c-0485-4369-bf30-d8cfc5cb113f	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-30	1	Estoque MH	Loja Ahú	\N	none	\N
+887ec40b-8d8e-48e1-ba19-aa36c21c8dcc	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-03-30	1	Estoque MH	Loja Ahú	\N	none	\N
+adf09a4f-8352-4dd1-afbc-1e95757e5f92	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-03-30	1	Estoque MH	Loja Ahú	\N	none	\N
+1eecb287-753d-4f84-86e6-5f9037b77a6b	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-07	3	Estoque MH	Loja Ahú	\N	none	\N
+e53b0b4e-8ba4-4af4-bbdf-a6821c8ae2fc	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-04-07	1	Estoque MH	Loja Ahú	\N	none	\N
+4b069fdc-dc03-477e-b61e-5c154d4ec14a	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-04-07	1	Estoque MH	Loja Ahú	\N	none	\N
+aed07e6c-f9a6-4d74-ac9a-5c18e3afcabe	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-07	2	Estoque MH	Loja Ahú	\N	none	\N
+464a7483-ca3a-4de2-ac4e-5be391addea6	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-07	2	Estoque MH	Loja Ahú	\N	none	\N
+f75bc7ad-7945-4b63-9af5-a06ebe7d1694	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-07	1	Estoque MH	Loja Ahú	\N	none	\N
+0cfc5e8b-73c3-48bf-91a8-d48b6da60cb0	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-04-07	1	Estoque MH	Loja Ahú	\N	none	\N
+de058fc0-437b-42c7-8ae1-af1827095557	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-04-07	1	Estoque MH	Loja Ahú	\N	none	\N
+3581ac8a-c224-4c02-bf61-69f9a6738b73	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-07	2	Estoque MH	Loja Ahú	\N	none	\N
+6e2d51d4-40c5-4544-8654-5b4de75c22ef	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-04-07	1	Estoque MH	Loja Ahú	\N	none	\N
+a6bc212d-3a58-4364-b938-fc650e6fd30c	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-07	1	Estoque MH	Loja Ahú	\N	none	\N
+2b3a1f68-b891-4955-b68e-701b1d2dd184	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-13	4	Estoque MH	Loja Ahú	\N	none	\N
+11032d98-d7fe-467a-bfcf-307227d42a3e	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-13	2	Estoque MH	Loja Ahú	\N	none	\N
+bab370f3-de43-4878-a6b1-d9edaa01ca5a	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-13	3	Estoque MH	Loja Ahú	\N	none	\N
+05c2049c-6bfd-4e9b-8568-808cdfc00ae5	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-04-13	1	Estoque MH	Loja Ahú	\N	none	\N
+594e9fc0-ed2e-49d9-82ae-44dc95de06f2	2026-06-01 17:40:00.612106+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-04-13	1	Estoque MH	Loja Ahú	\N	none	\N
+6c165a9f-320c-44c0-9f09-8f84c43d86bc	2026-06-01 17:40:00.612106+00	9c4e5257-2455-43ff-aa09-0811390a02d2	2026-04-13	1	Estoque MH	Loja Ahú	\N	none	\N
+09a2679e-5980-4c14-8fcf-8ac77fc19ec4	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-13	2	Estoque MH	Loja Ahú	\N	none	\N
+b64d5484-91cb-4d5a-b17d-3e6581a22700	2026-06-01 17:40:00.612106+00	222d7863-b99f-4749-80fb-dd3f2bb7c28c	2026-04-13	1	Estoque MH	Loja Ahú	\N	none	\N
+9d525a5d-7949-424b-9a74-9ba1dda1e765	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-04-13	1	Estoque MH	Loja Ahú	\N	none	\N
+b097e401-f2a0-467d-a6f5-610a1d54966a	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-15	2	Estoque MH	Loja Ahú	\N	none	\N
+c63f99d9-98d8-4768-9dfc-0d39a15a41a5	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-21	2	Estoque MH	Loja Ahú	\N	none	\N
+a0d8ce23-1cd9-49d4-99c5-88ce172d059e	2026-06-01 17:40:00.612106+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-04-21	4	Estoque MH	Loja Ahú	\N	none	\N
+a9fcb2db-5054-4724-88f2-4eb2b8d49fdb	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-21	5	Estoque MH	Loja Ahú	\N	none	\N
+83daf6c6-eb2d-4d07-bc6d-c6c57f92e5f4	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+39cbda11-9acd-465a-9591-26589c20476c	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+164b1b8d-abcf-46ee-8c03-e03bf92348a7	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-21	4	Estoque MH	Loja Ahú	\N	none	\N
+5e50075b-3f30-4b6e-a206-5379cb6b1b10	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+0418fda4-e491-4226-9ad1-99002e7e9a39	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+29809350-952e-4fd3-8467-12c0ea0e149f	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+2a46c38c-5f58-4442-832d-477d0e962fa0	2026-06-01 17:40:00.612106+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-04-21	2	Estoque MH	Loja Ahú	\N	none	\N
+cb9a5fb5-723d-4b94-a400-94f71458d759	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-04-21	4	Estoque MH	Loja Ahú	\N	none	\N
+6518e043-9364-48b3-9428-982485eea7a4	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+5a281d62-d104-4ad1-a383-db5db1d3e41c	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+c4c7efb5-6d5f-4261-9376-230b00599299	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-04-21	1	Estoque MH	Loja Ahú	\N	none	\N
+80874290-cbb0-4df1-a647-4c2fb617307e	2026-06-01 17:40:00.612106+00	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+b299c54f-c92c-4b28-8adf-96c25b6ba1c6	2026-06-01 17:40:00.612106+00	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-04-27	4	Estoque MH	Loja Ahú	\N	none	\N
+20a73194-f8c8-4fde-badd-55228d88e058	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-27	4	Estoque MH	Loja Ahú	\N	none	\N
+bf52a85b-78e6-474c-bedf-f383cdbdadb9	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+f3b94fcf-49b0-4707-bbba-7d5195957c34	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-27	2	Estoque MH	Loja Ahú	\N	none	\N
+34f999d5-63f9-4115-b9ae-d3799e57cefb	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+2c7cf585-0e58-4b14-9db3-d875c1de7406	2026-06-01 17:40:00.612106+00	c8132e9b-d800-488a-ace2-790da252b525	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+c1d8d2bf-2ed7-4ef1-b74f-32bd6409e912	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-27	2	Estoque MH	Loja Ahú	\N	none	\N
+4eaf45e0-b720-46c9-b09e-acc610c23047	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-27	3	Estoque MH	Loja Ahú	\N	none	\N
+8d6fbd7f-87e6-4533-a8af-68f4d67083e9	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-27	2	Estoque MH	Loja Ahú	\N	none	\N
+d2daf62e-af14-490f-bf2e-d1e48cdc3168	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-04-27	2	Estoque MH	Loja Ahú	\N	none	\N
+6ed29d58-8192-488f-b447-791c605ff0f1	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+0d1e92fe-d925-4241-9179-a64b400ae6bc	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-27	2	Estoque MH	Loja Ahú	\N	none	\N
+9d399ec4-26ef-4908-82cf-68d5b6ee3dc5	2026-06-01 17:40:00.612106+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-04-27	2	Estoque MH	Loja Ahú	\N	none	\N
+faa8914d-3b77-43fb-9f64-2e91d101d982	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+ed2b40a8-71ee-42fb-96b4-a38a7f871724	2026-06-01 17:40:00.612106+00	1da7ddfd-5b9f-4e51-9256-fa2bd0034ef3	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+662c58d0-3ffa-4853-8985-504eda497e97	2026-06-01 17:40:00.612106+00	75efd75a-2265-49dc-8b10-ee0332a12025	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+f34c38a5-386b-4526-b122-1fa1164f7bed	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-27	1	Estoque MH	Loja Ahú	\N	none	\N
+9b172a51-6a95-4dde-8852-da553ec7cd8c	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-05-04	2	Estoque MH	Loja Ahú	\N	none	\N
+7437ec4f-10c9-49e5-9ce3-783038ff7369	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-05-04	1	Estoque MH	Loja Ahú	\N	none	\N
+f9bebccb-f001-4a6c-ab26-e13a59031cf6	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-05-04	1	Estoque MH	Loja Ahú	\N	none	\N
+27c37a54-e4c7-4d36-811f-62b992329583	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-05-04	1	Estoque MH	Loja Ahú	\N	none	\N
+24ae8887-1c2c-4960-8420-a3ba5558bee3	2026-06-01 17:40:00.612106+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-05-04	1	Estoque MH	Loja Ahú	\N	none	\N
+80995429-f7f1-4a4d-bc40-ed855cf01fce	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-05-04	1	Estoque MH	Loja Ahú	\N	none	\N
+5a3a5f37-6ae4-44c3-9d86-ce0dfb0415be	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-05-12	2	Estoque MH	Loja Ahú	\N	none	\N
+f4b249c9-f68f-40df-92a6-9a0dc38594e7	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-05-12	1	Estoque MH	Loja Ahú	\N	none	\N
+21a42731-1de1-405b-8948-d1b269a51271	2026-06-01 17:40:00.612106+00	82b1fb0f-7fce-4600-a9b0-14ccdc406a57	2026-05-12	1	Estoque MH	Loja Ahú	\N	none	\N
+462e5999-e3b1-45d7-b1ab-6bc299b2efed	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-05-12	1	Estoque MH	Loja Ahú	\N	none	\N
+9f5a64e4-6466-4eec-b78e-35ee8f4b7caa	2026-06-01 17:40:00.612106+00	9c4e5257-2455-43ff-aa09-0811390a02d2	2026-05-12	1	Estoque MH	Loja Ahú	\N	none	\N
+2562901f-2704-476e-b6bf-439ed83f2ecc	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-05-12	1	Estoque MH	Loja Ahú	\N	none	\N
+792bc000-9fab-4526-ac6e-2c9643cf619f	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-05-12	1	Estoque MH	Loja Ahú	\N	none	\N
+cef3d163-3947-4436-b297-666e2c5d9e68	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-05-18	1	Estoque MH	Loja Ahú	\N	none	\N
+12ef24ae-fff3-4e4c-8cb0-2949b2723423	2026-06-01 17:40:00.612106+00	c8132e9b-d800-488a-ace2-790da252b525	2026-05-18	1	Estoque MH	Loja Ahú	\N	none	\N
+8d935c45-2599-4be6-ac77-55f09a1f9a9f	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-05-18	2	Estoque MH	Loja Ahú	\N	none	\N
+95cf926b-d6e6-4d69-a8c4-78ecb5d98526	2026-06-01 17:40:00.612106+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-05-18	1	Estoque MH	Loja Ahú	\N	none	\N
+333f30cc-3491-4dc9-822f-1c7853fa1c12	2026-06-01 17:40:00.612106+00	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2026-05-18	1	Estoque MH	Loja Ahú	\N	none	\N
+94c24e05-d4ca-4949-b43d-ea26870ac9db	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-05-18	1	Estoque MH	Loja Ahú	\N	none	\N
+813d7fa0-c058-44f8-affa-875d94dee9e3	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-05-25	2	Estoque MH	Loja Ahú	\N	none	\N
+148a3491-312c-4d71-bdfb-fad9acf6a07a	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-05-25	1	Estoque MH	Loja Ahú	\N	none	\N
+518dd4d2-420e-44b6-a259-07866862f050	2026-06-01 17:40:00.612106+00	c8132e9b-d800-488a-ace2-790da252b525	2026-05-25	1	Estoque MH	Loja Ahú	\N	none	\N
+b2b3f4da-3aac-466a-b782-b128ead44490	2026-06-01 17:40:00.612106+00	82b1fb0f-7fce-4600-a9b0-14ccdc406a57	2026-05-25	1	Estoque MH	Loja Ahú	\N	none	\N
+f0021b96-abaf-4416-9a3a-240a8752d9ee	2026-06-01 17:40:00.612106+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-05-25	1	Estoque MH	Loja Ahú	\N	none	\N
+b5222e49-a2a5-4b4d-a9c7-15f2c4c9fb00	2026-06-01 17:40:00.612106+00	dd0a3e04-c365-45f3-b6a8-f7fb08de6e4f	2026-05-25	1	Estoque MH	Loja Ahú	\N	none	\N
+4124735c-749f-428f-9d4e-7827642160cc	2026-06-01 17:40:00.612106+00	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-05-25	5	Estoque MH	Loja Ahú	\N	none	\N
+7d10d419-61fe-4cf9-b01c-9f3b4afa4e54	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-05-29	1	Estoque MH	Loja Ahú	\N	none	\N
+6646532a-eccb-427d-85a0-c7e81df429fc	2026-06-01 17:40:00.612106+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-01-03	4	Loja Alto XV	Loja Ahú	\N	none	\N
+fb713b79-e143-4380-bf65-cc3ad7930ad5	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-23	5	Loja Alto XV	Loja Ahú	\N	none	\N
+c7bdc6d9-b4ad-4636-b6fb-4af063de50d0	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-18	1	Loja Alto XV	Loja Ahú	\N	none	\N
+7aeeecf4-cd22-4453-b246-fc9b96251ef5	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-20	7	Loja Alto XV	Loja Ahú	\N	none	\N
+2844c3df-164d-4772-a628-0bb831c423cb	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-23	1	Loja Alto XV	Loja Ahú	\N	none	\N
+e6c5ef3e-41d9-4d66-9cf8-1dc08ab3fdd2	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-23	1	Loja Alto XV	Loja Ahú	\N	none	\N
+60b667bd-00f5-4284-a31e-42c40b292f4e	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-15	5	Loja Alto XV	Loja Ahú	\N	none	\N
+01424894-4606-4fa1-ac86-d51c82e23306	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-04-26	4	Loja Alto XV	Loja Ahú	\N	none	\N
+e1829458-99d3-4083-a181-d22e637c8776	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-02	10	Fábrica	Loja Alto XV	\N	none	\N
+49445817-1087-49c5-b266-e3ed3f18c28e	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-03	12	Compras	Loja Alto XV	\N	none	\N
+5383a6bd-ffe4-4286-b442-ba271c369fec	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-03	6	Compras	Loja Alto XV	\N	none	\N
+3b42cd71-292e-4f03-ad0e-035e4124c99c	2026-06-01 17:40:00.612106+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-01-03	1	Compras	Loja Alto XV	\N	none	\N
+1c8da226-ca66-4b65-834a-92cbbace8500	2026-06-01 17:40:00.612106+00	f8c8e834-9063-4a25-8925-12db6592d203	2026-01-03	2	Compras	Loja Alto XV	\N	none	\N
+b22d8d25-b01a-4e41-b574-d478ffc198c2	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-01-04	12	Compras	Loja Alto XV	\N	none	\N
+9724167e-029d-4345-807b-5b23735940b4	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-06	10	Fábrica	Loja Alto XV	\N	none	\N
+e6d47917-9163-4d11-b8f5-4dac6ee69a77	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-01-06	1	Fábrica	Loja Alto XV	\N	none	\N
+702ffbf5-125c-4c59-831b-7b5b15173b87	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-01-06	2	Fábrica	Loja Alto XV	\N	none	\N
+8ad4bf6c-8325-4841-8268-1aa4fb04b319	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-01-06	3	Fábrica	Loja Alto XV	\N	none	\N
+390136b4-c749-47c4-b573-dc993c801844	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-09	10	Fábrica	Loja Alto XV	\N	none	\N
+5910f745-5b34-4a1c-b664-98ebbd430e2c	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-12	10	Fábrica	Loja Alto XV	\N	none	\N
+221c9f97-0e47-43e8-8b1e-7062b6cf9876	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-16	6	Fábrica	Loja Alto XV	\N	none	\N
+5334a680-9b46-4669-89c0-b4109b1c6cf4	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-01-16	1	Compras	Loja Alto XV	\N	none	\N
+7e282e72-2e18-4fa3-b6f2-181ca8567b45	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-01-16	12	Compras	Loja Alto XV	\N	none	\N
+044149ac-2b38-49dd-bc5a-629cdd2d7fac	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-01-16	6	Compras	Loja Alto XV	\N	none	\N
+98e89448-ec62-4f74-9f1a-1f8c958ab088	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-01-16	12	Compras	Loja Alto XV	\N	none	\N
+83a689fb-dbc7-4766-a834-94b834de1625	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-01-16	12	Compras	Loja Alto XV	\N	none	\N
+39b38132-965a-42c2-b770-fed05678df95	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-10	1	Estoque MH	Loja Alto XV	\N	none	\N
+f4d6af14-3338-4348-b3cf-6e6705e211b2	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-01-29	4	Fábrica	Loja Alto XV	\N	none	\N
+71239205-43e0-4ddb-af6e-6c43f13a9cfa	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-02	10	Fábrica	Loja Alto XV	\N	none	\N
+b89cc186-fe38-49ae-990d-fd102e18e866	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-07	10	Fábrica	Loja Alto XV	\N	none	\N
+6479b1d6-2dfb-4abb-927a-01fbcf73e842	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-19	14	Fábrica	Loja Alto XV	\N	none	\N
+7e6451d1-f1ae-4aeb-9e16-d8ac2461ff25	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-02-19	8	Fábrica	Loja Alto XV	\N	none	\N
+4c869920-8874-4122-b1da-20ddc3791b34	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-22	10	Fábrica	Loja Alto XV	\N	none	\N
+4bae6233-56d1-4bae-af09-22537fce3528	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-02-22	4	Fábrica	Loja Alto XV	\N	none	\N
+1418ffb2-5ba8-4e5e-b632-bb60e1e5ec51	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-02-25	1	Unidade - Batel	Loja Alto XV	\N	none	\N
+2b73d54b-f880-4194-9e72-0c863f940abb	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-02-25	4	Unidade - Batel	Loja Alto XV	\N	none	\N
+32b2fa52-012a-4e3c-b8b8-85d2f269061d	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-02-25	2	Unidade - Batel	Loja Alto XV	\N	none	\N
+34812f9d-760e-44b7-bad5-32df9858b765	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-02-25	2	Unidade - Batel	Loja Alto XV	\N	none	\N
+7e8c67f0-7f3f-49b4-9ff1-dd40e45ee1c4	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-02-25	1	Unidade - Batel	Loja Alto XV	\N	none	\N
+9b86002c-29a9-4510-a98a-650571f7f666	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-02-27	10	Fábrica	Loja Alto XV	\N	none	\N
+ad1f0ba4-26ed-4167-90fc-3fe672090756	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-02-27	8	Fábrica	Loja Alto XV	\N	none	\N
+dfad2025-2495-45f4-b473-17f88e6dd91a	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-04	12	Compras	Loja Alto XV	\N	none	\N
+45367c94-f06f-42bb-b3f6-c110af691c60	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-03-04	36	Compras	Loja Alto XV	\N	none	\N
+4f56095f-636c-47b9-8b1e-34d62808779d	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-03-04	12	Compras	Loja Alto XV	\N	none	\N
+401a0f2a-d640-44c8-9575-5ebe99f38fa1	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-04	48	Compras	Loja Alto XV	\N	none	\N
+e20caad4-1e69-4ec8-bca7-5eac94998b56	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-05	10	Fábrica	Loja Alto XV	\N	none	\N
+61858178-ab9f-47e6-86e5-db3ac53126ce	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-08	10	Fábrica	Loja Alto XV	\N	none	\N
+07608944-2251-42ee-af70-f926b358e7b9	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-09	10	Fábrica	Loja Alto XV	\N	none	\N
+e4c342e3-63fd-4bef-bc26-c35b5cde69f5	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-03-09	1	Fábrica	Loja Alto XV	\N	none	\N
+8a8c7f37-2cf5-4ffe-9c32-9c1d54ddb5f2	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-14	10	Fábrica	Loja Alto XV	\N	none	\N
+f713527d-4c1c-44de-928d-64e05e7fbdf3	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-03-14	6	Fábrica	Loja Alto XV	\N	none	\N
+1c11bcca-2aa6-4a00-9eb6-c065f83b9b1e	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-03-14	6	Compras	Loja Alto XV	\N	none	\N
+28048b6f-79da-43c1-b21a-c91ba8690e01	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-14	18	Compras	Loja Alto XV	\N	none	\N
+5ca0cc13-2472-41db-866e-140415346e64	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-03-14	6	Compras	Loja Alto XV	\N	none	\N
+3d7a009a-393b-4ea1-9fb8-61ebaed7931a	2026-06-01 17:40:00.612106+00	21174f2c-7831-440d-9f5e-daa81d6b94c0	2026-03-14	6	Compras	Loja Alto XV	\N	none	\N
+56b20441-02b3-44b9-be14-039507a25a17	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-03-14	12	Compras	Loja Alto XV	\N	none	\N
+b5e013e2-0ed8-487e-8e41-7a126214bbe2	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-03-14	6	Compras	Loja Alto XV	\N	none	\N
+fea4fee5-0364-4aa8-92bf-34fd40ef8080	2026-06-01 17:40:00.612106+00	424d80dc-6975-4812-9571-b3baadd2db31	2026-03-14	6	Compras	Loja Alto XV	\N	none	\N
+a61c0dd3-d16b-4ff1-a9c6-4dd5f8f95e4a	2026-06-01 17:40:00.612106+00	5db6171c-d897-4894-af28-bbf63adad316	2026-03-14	6	Compras	Loja Alto XV	\N	none	\N
+da00d687-5017-41a1-bc50-973a7c0cf47d	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-15	10	Fábrica	Loja Alto XV	\N	none	\N
+27bcf998-d657-4aee-b786-f9bdcee64889	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-03-15	5	Fábrica	Loja Alto XV	\N	none	\N
+bb0bd41c-dcd6-4d16-a815-9914627a8b88	2026-06-01 17:40:00.612106+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-03-16	2	Fábrica	Loja Alto XV	\N	none	\N
+c956889d-e9b7-4cec-b4b2-7c8dd4597259	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-17	10	Fábrica	Loja Alto XV	\N	none	\N
+2aff4c9a-dfd6-4542-a5eb-81be8de553f1	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-03-17	18	Compras	Loja Alto XV	\N	none	\N
+a3f04142-507b-406b-9e2c-46653086dcf8	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-03-17	36	Compras	Loja Alto XV	\N	none	\N
+350c172e-1387-4d33-baba-6a05346d3f95	2026-06-01 17:40:00.612106+00	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-03-17	12	Compras	Loja Alto XV	\N	none	\N
+4e2c0f8b-1b23-4d27-9fca-ec4137a102fb	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-03-17	6	Compras	Loja Alto XV	\N	none	\N
+c7b77720-3b61-4fa7-a317-f8a0c9f06c4b	2026-06-01 17:40:00.612106+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-03-17	12	Compras	Loja Alto XV	\N	none	\N
+3687c7f6-630a-4a05-ab17-99b8b2e50d2f	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-03-17	12	Compras	Loja Alto XV	\N	none	\N
+88467499-e150-44e1-9737-ba6790687623	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-03-24	6	Fábrica	Loja Alto XV	\N	none	\N
+c8def39e-6608-45b9-aa10-37b60f57a103	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-03-26	3	Fábrica	Loja Alto XV	\N	none	\N
+5aaa819f-1a93-4f6d-9783-0f2551ee4c60	2026-06-01 17:40:00.612106+00	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-04-10	12	Compras	Loja Alto XV	\N	none	\N
+39f32a3b-33a6-4c43-8e7c-fcce2f3ecd37	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-04-10	6	Compras	Loja Alto XV	\N	none	\N
+6448d2d9-c5f2-4454-9019-1cc02ea2c000	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-04-10	12	Compras	Loja Alto XV	\N	none	\N
+040a5232-a3d7-40f4-bf5a-fba3db05856b	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-04-10	12	Compras	Loja Alto XV	\N	none	\N
+af5d527c-7c03-4f5a-a590-fc5d8ab35050	2026-06-01 17:40:00.612106+00	47709673-7e0c-4620-9562-4d1ea2315217	2026-04-10	6	Compras	Loja Alto XV	\N	none	\N
+30ac35ca-0d52-4130-9ae9-76020ef29ad5	2026-06-01 17:40:00.612106+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-04-10	12	Compras	Loja Alto XV	\N	none	\N
+5434b366-f1b6-42cb-a502-6c4aceea1387	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-04-18	6	Compras	Loja Alto XV	\N	none	\N
+b8aaf606-c483-48e1-969c-ccc5b5cf0afd	2026-06-01 17:40:00.612106+00	47709673-7e0c-4620-9562-4d1ea2315217	2026-04-18	12	Compras	Loja Alto XV	\N	none	\N
+fca64543-5a7e-4567-bebc-eedfc9ffb5d6	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-04-18	12	Compras	Loja Alto XV	\N	none	\N
+c67b6050-8c7a-4f71-9932-b462f418656b	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-04-18	24	Compras	Loja Alto XV	\N	none	\N
+f1ab61dd-928a-442b-a454-0377156817e5	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-04-18	24	Compras	Loja Alto XV	\N	none	\N
+d627c844-1c4b-4a60-bf53-43a8d6cbc5fd	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-04-18	6	Compras	Loja Alto XV	\N	none	\N
+23198787-a7c9-4df7-8388-d502a35d44a4	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-18	10	Fábrica	Loja Alto XV	\N	none	\N
+a77859b8-947e-45f8-b1f7-79263e5ec969	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-21	13	Fábrica	Loja Alto XV	\N	none	\N
+f38ffb39-0dbf-4c44-b37c-9f95357428a2	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-04-23	6	Fábrica	Loja Alto XV	\N	none	\N
+21b972a1-f6f3-41ba-bd2e-7b21a8a6e24d	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-23	10	Fábrica	Loja Alto XV	\N	none	\N
+0b672735-8578-41af-b345-4bfcb65195d1	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-04-26	10	Fábrica	Loja Alto XV	\N	none	\N
+0d0d8fcb-ccf8-4bd5-a1f8-fd5d65179c0e	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-04-26	5	Fábrica	Loja Alto XV	\N	none	\N
+b9e4d58e-06d8-4e23-8ff8-bc578e821bff	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-05-02	2	Fábrica	Loja Alto XV	\N	none	\N
+c2a32e2c-87f7-4949-bb87-6be57d6e075b	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-02	10	Fábrica	Loja Alto XV	\N	none	\N
+7f54ebfa-c372-4b51-8660-0ebeba2a9803	2026-06-01 17:40:00.612106+00	89608781-6cc9-4ee9-ac4f-cb2041a1cc68	2026-05-07	1	Compras	Loja Alto XV	\N	none	\N
+1b67e687-0ff2-4300-878f-f5d444ca29dd	2026-06-01 17:40:00.612106+00	f8c8e834-9063-4a25-8925-12db6592d203	2026-05-07	2	Compras	Loja Alto XV	\N	none	\N
+4024bf95-ac09-4d29-8b85-4b829c4942a8	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-07	10	Fábrica	Loja Alto XV	\N	none	\N
+09292d2e-e456-4bb8-af61-518127d1582b	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-05-07	18	Compras	Loja Alto XV	\N	none	\N
+8b7d2534-9b93-457b-9fa1-683bfc86537d	2026-06-01 17:40:00.612106+00	9cc01971-1ad8-4011-851b-6ca6a97d6284	2026-05-07	36	Compras	Loja Alto XV	\N	none	\N
+738a8c95-0637-48e2-85a6-05448f22b796	2026-06-01 17:40:00.612106+00	82fd5205-9fbf-4564-83df-6e16776c4718	2026-05-07	36	Compras	Loja Alto XV	\N	none	\N
+1cb02c94-0633-41a6-bc61-355da22938c0	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-05-07	6	Compras	Loja Alto XV	\N	none	\N
+ae430872-8cc3-4bf0-aaa2-94bfac4d6318	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-05-07	12	Compras	Loja Alto XV	\N	none	\N
+a35c91ba-3947-4057-bb1f-f3d74448442f	2026-06-01 17:40:00.612106+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-05-07	12	Compras	Loja Alto XV	\N	none	\N
+7549d653-d539-4875-80bf-0cf8d4ce7edb	2026-06-01 17:40:00.612106+00	24807ae6-f46b-48a2-a8c7-def2e8f142fd	2026-05-07	12	Compras	Loja Alto XV	\N	none	\N
+d66dcc04-bcee-42e2-9093-004eb8739e24	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-09	10	Fábrica	Loja Alto XV	\N	none	\N
+31c7191e-5adf-4db5-9b54-2c0f9ec9dd12	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-05-09	1	Fábrica	Loja Alto XV	\N	none	\N
+f30df7ee-5fb8-4102-9d82-6713be6cc8ba	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-12	10	Fábrica	Loja Alto XV	\N	none	\N
+3ac91b30-387c-482a-9973-14a4dac75424	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-24	10	Fábrica	Loja Alto XV	\N	none	\N
+cb48d04c-8f6c-466d-bfba-9c614fcd875c	2026-06-01 17:40:00.612106+00	8c350207-0000-4272-9f04-3c4da6deebec	2026-05-29	9	Fábrica	Loja Alto XV	\N	none	\N
+c233ed4b-35f3-4999-838a-1d7e61af9dd2	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-03	1	Estoque MH	Loja Alto XV	\N	none	\N
+c4b8fc26-5a3c-47c1-955a-324cbb0ba4a8	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-03	1	Estoque MH	Loja Alto XV	\N	none	\N
+e932fb3d-c5a2-4ecd-8dc7-3b1aa6eefcd8	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-01-03	1	Estoque MH	Loja Alto XV	\N	none	\N
+caa70951-b9d9-45ed-9bba-0e6dbc38da59	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-01-03	1	Estoque MH	Loja Alto XV	\N	none	\N
+f24b818d-4701-42d8-a56a-ae3325dc3f39	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-01-03	1	Estoque MH	Loja Alto XV	\N	none	\N
+de21568d-a604-4a7b-b358-db6960273d1b	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-04	100	Estoque MH	Loja Alto XV	\N	none	\N
+ba6868cc-25ea-416d-aee3-3eeea597ca74	2026-06-01 17:40:00.612106+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-01-06	1	Estoque MH	Loja Alto XV	\N	none	\N
+82b55a00-5026-486f-8e77-d0d1d934d729	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-01-06	1	Estoque MH	Loja Alto XV	\N	none	\N
+c1de826e-7c5f-4bc7-8112-51aeac6e942a	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-01-06	4	Estoque MH	Loja Alto XV	\N	none	\N
+e7766120-d6be-4fe0-a122-c3428499b0ee	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-06	6	Estoque MH	Loja Alto XV	\N	none	\N
+2b67abbb-be88-4237-82ad-f5aaa2343f93	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-06	2	Estoque MH	Loja Alto XV	\N	none	\N
+a901476e-7119-4198-bc55-fbe6e915da19	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-01-06	1	Estoque MH	Loja Alto XV	\N	none	\N
+45ed27f2-5297-4111-a7df-fcc47d2efd5b	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-06	3	Estoque MH	Loja Alto XV	\N	none	\N
+5745758c-7b59-420f-8f17-5776667bede9	2026-06-01 17:40:00.612106+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-01-06	8	Estoque MH	Loja Alto XV	\N	none	\N
+5eacad25-ea37-401b-adab-80151fb827e7	2026-06-01 17:40:00.612106+00	9e53ddd5-2168-411d-8c7b-03a419c1e158	2026-01-06	4	Estoque MH	Loja Alto XV	\N	none	\N
+b09f6e81-c842-4c8b-9642-01b3de3e70db	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-08	1	Estoque MH	Loja Alto XV	\N	none	\N
+83e4cd45-05e3-4f8b-9629-89728105070b	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-10	1	Estoque MH	Loja Alto XV	\N	none	\N
+5d7c76d5-e9fe-43fa-bf5e-471414ab6103	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-01-10	2	Estoque MH	Loja Alto XV	\N	none	\N
+467ad11e-f6c8-4966-a43c-2f99b042e5fe	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-10	1	Estoque MH	Loja Alto XV	\N	none	\N
+d81f63ae-4e5e-419c-a0ab-3017090d4f27	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-12	1	Estoque MH	Loja Alto XV	\N	none	\N
+e3351696-bdba-4ab0-a77b-3b8992cae826	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-12	1	Estoque MH	Loja Alto XV	\N	none	\N
+a0f78e64-921e-4640-ab93-326dfed2185c	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-01-12	4	Estoque MH	Loja Alto XV	\N	none	\N
+f68d4583-ab49-4013-a4fe-0617c0caf69f	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-12	1	Estoque MH	Loja Alto XV	\N	none	\N
+c1ede8ec-5e50-451d-a140-7f17ac81b465	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-01-12	1	Estoque MH	Loja Alto XV	\N	none	\N
+3e134691-223b-4f7c-bbab-bb99b5fbe7c6	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-12	1	Estoque MH	Loja Alto XV	\N	none	\N
+e6430c8b-6149-4fc3-a31a-fb2f523a31e7	2026-06-01 17:40:00.612106+00	9033a7e0-470a-4c37-bda0-7df170946057	2026-01-12	2	Estoque MH	Loja Alto XV	\N	none	\N
+b49f23a4-a978-4285-8234-f346e8e0e7d9	2026-06-01 17:40:00.612106+00	96a03bd6-de22-4eda-99b0-68f2e7dd955c	2026-01-12	2	Estoque MH	Loja Alto XV	\N	none	\N
+5897a6cf-4001-4d96-9aba-d6ce585a066b	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-01-12	2	Estoque MH	Loja Alto XV	\N	none	\N
+508ab59c-ca4d-4b9f-bee4-8a8b15f5f3ad	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-01-12	1	Estoque MH	Loja Alto XV	\N	none	\N
+a69d2481-573b-4fba-8874-1a3ff3279d67	2026-06-01 17:40:00.612106+00	efdfb241-7bdb-4f6d-ad11-9fdd26aade7c	2026-01-12	1	Estoque MH	Loja Alto XV	\N	none	\N
+39de83b1-b8b0-481f-8bc7-2faf5ada5913	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-01-12	8	Estoque MH	Loja Alto XV	\N	none	\N
+da8f5256-5bfb-4936-b20c-73b18696ec8d	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-01-16	2	Estoque MH	Loja Alto XV	\N	none	\N
+44eb9696-e25e-4257-b4c7-9af53dbd251c	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-20	1	Estoque MH	Loja Alto XV	\N	none	\N
+79add0fd-3671-465c-82a6-74250694aaca	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-22	4	Estoque MH	Loja Alto XV	\N	none	\N
+35c78e97-79be-4ec4-9b72-7af1c89ddaa4	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-01-22	1	Estoque MH	Loja Alto XV	\N	none	\N
+1ac20a6f-0b77-4a7d-90dd-ac316b39c0e0	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-01-22	2	Estoque MH	Loja Alto XV	\N	none	\N
+28d8eefa-a27e-4e34-a669-4e5eabd13c15	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-01-22	4	Estoque MH	Loja Alto XV	\N	none	\N
+5553d76d-b566-4c2d-bedf-2e1eb4c591e8	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-01-22	1	Estoque MH	Loja Alto XV	\N	none	\N
+47691991-e5ed-4960-86f5-0a8267ac7f18	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-22	1	Estoque MH	Loja Alto XV	\N	none	\N
+b2014dc9-d78c-43ce-859f-e6e77b1533aa	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-01-22	1	Estoque MH	Loja Alto XV	\N	none	\N
+2b30e0eb-8b75-4820-be3e-8692e4ed863e	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-01-22	1	Estoque MH	Loja Alto XV	\N	none	\N
+bd2ff37e-a35f-43a7-a3fd-64431dd67fd5	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-26	2	Estoque MH	Loja Alto XV	\N	none	\N
+01f93d9a-51c8-41a4-ad64-ae507ecfb848	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+0d8b14f9-7312-4f79-aa9a-710214b277ba	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+2da8b85b-e2ec-4340-b12e-7f5066450282	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+9e6346d4-5faa-44cf-9c17-b1bcc5109307	2026-06-01 17:40:00.612106+00	401a7884-fdcf-4e25-9491-fa69d4eafaa3	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+260c635a-4c64-4158-a8aa-d09341599639	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+f8b02d44-6c04-4617-a57d-3ebb6620530a	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-01-26	2	Estoque MH	Loja Alto XV	\N	none	\N
+ed0e7e2c-b37c-44de-bc37-7e3b0ec5873b	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+dcbe5a70-f1bf-4dec-80ff-09e1301eea50	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+3658eeda-1038-4b4c-9688-7bcc2ab0eae6	2026-06-01 17:40:00.612106+00	1a038e1e-65e5-4fa8-80ca-7fd2aa31b56f	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+486a22e0-ac82-4c2e-9249-0f2a41cd89b3	2026-06-01 17:40:00.612106+00	b625208d-0946-407f-aabd-fc2b2c736105	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+7673753b-9bc8-4981-ba53-8c1243b94be7	2026-06-01 17:40:00.612106+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+0ce5401a-29d9-4497-b996-6f7cdd0b0e77	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+80b68d2f-dc9c-4f70-9e23-1b1e424a9adc	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+d3758856-cc82-4eb7-b044-299dd1a7dce5	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-01-26	2	Estoque MH	Loja Alto XV	\N	none	\N
+4173b22a-d133-4b28-bd96-f561bc711a9c	2026-06-01 17:40:00.612106+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+e3941c9d-26c2-43ed-8884-c334ac648199	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-01-26	1	Estoque MH	Loja Alto XV	\N	none	\N
+b7e42470-0ae3-4a84-ada2-2712a2b6d524	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-02	4	Estoque MH	Loja Alto XV	\N	none	\N
+3e960285-73c3-4756-b71d-518477a57105	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-02	2	Estoque MH	Loja Alto XV	\N	none	\N
+6fe29bdf-f504-4b23-a5fd-96f869917fc9	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+f490244e-73d1-434e-bfdf-41a895a668ea	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+0d8c7804-eb2b-4919-a90f-7c8a0820ca82	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-02	2	Estoque MH	Loja Alto XV	\N	none	\N
+6398470d-38af-44b7-9dd4-27276f6f6d7b	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-02	2	Estoque MH	Loja Alto XV	\N	none	\N
+271e8708-6c8d-4a9b-a72f-da5d92815e54	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+4c3b9692-fefc-4318-9f16-55a80ed3af65	2026-06-01 17:40:00.612106+00	33ede6d7-bf58-4451-83ea-0266023a2403	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+76039e50-905a-4694-a41c-d39812eeb5f3	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+9e4150b5-3732-4acb-b10b-06924b6a75b4	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+58e00028-7612-46d7-ac16-87b92ea80e04	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-02	2	Estoque MH	Loja Alto XV	\N	none	\N
+f30ab5b7-8727-4033-a024-1a55b30ebc55	2026-06-01 17:40:00.612106+00	daa9968f-370b-4c09-bc1e-b0a170f3142c	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+1f8ddc7d-0fb8-4fa6-9370-fe9abaabc26c	2026-06-01 17:40:00.612106+00	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+9ae9184f-0ab0-42b3-9b67-f686d51852d8	2026-06-01 17:40:00.612106+00	16f930db-011d-40e0-ac84-1949c29821fe	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+05f44615-f8df-4860-adde-1ad1e2bb12ea	2026-06-01 17:40:00.612106+00	9be2a16a-0f99-4667-ac5a-88b73b27d0cd	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+e381be85-73be-4b85-b02a-f75c88454df5	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+b9fd08cb-6048-445c-930f-43f5206fbdbb	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+8036963f-2e91-4625-9252-dc8fdd810be4	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-02-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+f52ebc6f-1a2d-485e-89e1-787c93e62a43	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-07	1	Estoque MH	Loja Alto XV	\N	none	\N
+5df1f8df-4d67-4eb2-af4d-1fff151c1671	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-08	1	Estoque MH	Loja Alto XV	\N	none	\N
+e0502905-ec91-4de8-8c2d-240640f5cb00	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-08	1	Estoque MH	Loja Alto XV	\N	none	\N
+ab5bdbc3-28b1-4623-8640-d0e3588f99c3	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-11	6	Estoque MH	Loja Alto XV	\N	none	\N
+949426af-afb2-4665-a282-5f6bed443683	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-11	2	Estoque MH	Loja Alto XV	\N	none	\N
+a50f10a3-a324-4b18-9f57-ea53a37392ba	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+06e2ea1c-655e-49bc-ba36-92cfc4e000f7	2026-06-01 17:40:00.612106+00	e59a1f84-380b-4081-a901-a6ed946a6d69	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+6caa908d-7e13-486a-8c21-86c562a5258b	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+5ab50f72-33c1-441e-a870-4079e9de16ea	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+e31f3971-c34e-4d64-acb3-a758e81328e7	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-11	4	Estoque MH	Loja Alto XV	\N	none	\N
+d6eb58c3-08e6-42ca-b0c4-f6a7185043ea	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-11	2	Estoque MH	Loja Alto XV	\N	none	\N
+dc7fd635-b91a-476d-9247-50aed04a0718	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+59d1e931-61ad-4d9e-a519-ccbdaf600ebe	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+f8ea4c4e-42a7-4abc-a3a9-106272bcac2c	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+9545e3da-6393-4bf1-9ad4-6ba2f9a5793a	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+7a618d0b-1b3f-4e78-84f6-7f8aa732c221	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+340e2839-9029-499b-bbec-ed23788472f6	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-11	2	Estoque MH	Loja Alto XV	\N	none	\N
+fd2ed226-95e5-4356-a340-b1e1da4c89fe	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+e203250a-37dc-48ae-bef0-1bdb256f5ee7	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-02-11	4	Estoque MH	Loja Alto XV	\N	none	\N
+b01559ff-83ef-49ab-aee0-f4db0bc0a3ce	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-02-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+f1f5ffbc-1bd6-4d09-965d-1ee776464ef1	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-18	3	Estoque MH	Loja Alto XV	\N	none	\N
+e4f3bafd-40aa-44c3-adeb-ee03213e16bc	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-02-18	2	Estoque MH	Loja Alto XV	\N	none	\N
+1d24f87b-06f4-40a4-91b0-cd0596a73fda	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-18	2	Estoque MH	Loja Alto XV	\N	none	\N
+9fa10aad-6da4-419b-8586-12b9bf34baab	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-18	3	Estoque MH	Loja Alto XV	\N	none	\N
+97a789f7-f5ad-4372-8d46-1f1ce69bbaf1	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-02-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+31bd4d63-a0fe-46e7-932b-0216d31e057a	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-02-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+9babbc7e-1a8d-4e1e-8243-3de5dfe5830e	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-02-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+fcc919d7-abbc-4069-be63-fe3c7b1d3eab	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-02-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+8a23032f-f603-469d-a8ac-30040176d486	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-02-18	4	Estoque MH	Loja Alto XV	\N	none	\N
+7e9cbd86-76ab-4a27-9c74-68a1ae76b32e	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-02-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+13e84716-7582-4a2a-aa35-b19e573311a2	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-02-23	3	Estoque MH	Loja Alto XV	\N	none	\N
+e89254ad-90d2-4ee4-ac6b-bfc29fc60fc0	2026-06-01 17:40:00.612106+00	d7372dd2-15df-4cff-8767-51fecdba54c5	2026-02-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+aa00c77f-838c-4c85-a9ec-9a32ec2fa1d4	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-02-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+9841a130-21d9-4bde-9dc2-845c59f8521c	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-02-23	2	Estoque MH	Loja Alto XV	\N	none	\N
+afca8be5-3aa3-492e-ba92-e69434312621	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-02-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+d77ad6d5-a7eb-4d33-9a4a-d45fb250e300	2026-06-01 17:40:00.612106+00	80cdfb36-780a-46c8-854e-79ff04802ab2	2026-02-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+c6269d1f-765a-4e22-85a8-868a6d9ebe38	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-02-23	4	Estoque MH	Loja Alto XV	\N	none	\N
+27a60bb3-a421-41e1-b0b6-b65b25d568ae	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+9729c776-ed95-4a37-b823-4d405346da86	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+1284047e-a8b5-4ba8-b582-fbd224a54be5	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+c95c2bf4-8afa-4507-9a25-8745cc931661	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+c7f14897-a3c6-4336-a619-55075301f2e9	2026-06-01 17:40:00.612106+00	a40de54b-d141-412d-83f5-8e0f1fc7102d	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+9696a0c3-0f25-4e77-b46b-76d5914a8c56	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+f970bc8b-0a44-407c-bdf0-359e81b34548	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+16812635-0ea4-4b26-a9cb-ee8e1191c936	2026-06-01 17:40:00.612106+00	1da7ddfd-5b9f-4e51-9256-fa2bd0034ef3	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+c5594b37-deff-47b7-9bba-7812746be396	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-02	2	Estoque MH	Loja Alto XV	\N	none	\N
+041b7eb3-272b-46b1-90dd-5f4492c3d03d	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-03-02	1	Estoque MH	Loja Alto XV	\N	none	\N
+2a85252a-964f-43e2-9a03-4933b234353a	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-09	3	Estoque MH	Loja Alto XV	\N	none	\N
+f30bee88-e80f-4305-8e41-edaa71dcd429	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-09	1	Estoque MH	Loja Alto XV	\N	none	\N
+ca292a83-4ecf-4445-9c65-01618dd74cbb	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-09	2	Estoque MH	Loja Alto XV	\N	none	\N
+73449ffe-8271-404b-a40f-05e041827a1e	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-09	2	Estoque MH	Loja Alto XV	\N	none	\N
+45daa1b9-e5fe-4ff2-9cf3-842547c01489	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-09	1	Estoque MH	Loja Alto XV	\N	none	\N
+f8c892bb-6bd5-479c-ae82-c277dd6e78aa	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-03-09	1	Estoque MH	Loja Alto XV	\N	none	\N
+250fdb0c-8978-4100-bb87-fc9cc930ce83	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-03-09	1	Estoque MH	Loja Alto XV	\N	none	\N
+4a918fb5-6f48-4634-8fe5-acbfc6937ac5	2026-06-01 17:40:00.612106+00	1b7ba191-0ef1-4f98-80e7-e29266fd64e2	2026-03-09	1	Estoque MH	Loja Alto XV	\N	none	\N
+5c48afc7-0e3f-4efd-be8e-14ccad14f045	2026-06-01 17:40:00.612106+00	9e53ddd5-2168-411d-8c7b-03a419c1e158	2026-03-09	1	Estoque MH	Loja Alto XV	\N	none	\N
+6510859a-3832-4c1c-9f6f-6c7e79165409	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-09	2	Estoque MH	Loja Alto XV	\N	none	\N
+0829fbbb-fffa-4e5a-bb4a-fca14fec4b0a	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-03-09	2	Estoque MH	Loja Alto XV	\N	none	\N
+b57dd060-7d66-4268-bfaf-b84ea56c44cc	2026-06-01 17:40:00.612106+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-03-09	1	Estoque MH	Loja Alto XV	\N	none	\N
+060fcdff-a67c-4e51-afbe-3d6c720fb758	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-03-09	4	Estoque MH	Loja Alto XV	\N	none	\N
+11190084-9d9b-42dd-999f-3ff1c5f1a028	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-16	2	Estoque MH	Loja Alto XV	\N	none	\N
+c9c16d52-69c6-41e4-ad74-64fd2bc23c78	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-16	1	Estoque MH	Loja Alto XV	\N	none	\N
+d6f804d8-9109-482f-8c3a-a01b0ac08b42	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-16	1	Estoque MH	Loja Alto XV	\N	none	\N
+07b47544-fcb9-4066-aa98-84e9a360e9ca	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-16	2	Estoque MH	Loja Alto XV	\N	none	\N
+9f343fbc-e2e1-4241-b9f0-80ecd59b8232	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-16	1	Estoque MH	Loja Alto XV	\N	none	\N
+78d368a4-8e25-4d7a-a6f3-3bfc4faca0e0	2026-06-01 17:40:00.612106+00	daa9968f-370b-4c09-bc1e-b0a170f3142c	2026-03-16	1	Estoque MH	Loja Alto XV	\N	none	\N
+2c0127e9-3df4-42d1-b04f-ee5d0f09f056	2026-06-01 17:40:00.612106+00	a28e10c8-33ef-450b-b49e-6c337036c092	2026-03-16	1	Estoque MH	Loja Alto XV	\N	none	\N
+09f23142-260f-47e4-9c8b-c67bde282c8e	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+257474c7-d387-48b9-95df-fd4184de95b1	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-23	4	Estoque MH	Loja Alto XV	\N	none	\N
+8d4cd423-b1c7-4604-86f4-b8bbef047287	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+a4acd377-dae6-4bd1-8aa0-457ad3fbde0e	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-23	2	Estoque MH	Loja Alto XV	\N	none	\N
+db9fb924-64a3-45ca-ba50-bb0bdee5d7f9	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-23	2	Estoque MH	Loja Alto XV	\N	none	\N
+81cdd1cf-a8fb-4444-a0c7-5e91c8942985	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+fce52ff3-53f6-4e1b-be9f-67cad90ea960	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+bf83b960-54c5-44b8-a71e-e8985c30dc72	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+0d27d05c-a87d-4a2f-b3a5-bf68b49952d8	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-03-23	2	Estoque MH	Loja Alto XV	\N	none	\N
+491094e6-b747-49b3-b4c6-d967554bd077	2026-06-01 17:40:00.612106+00	81b9ed64-d226-44d7-810b-6f15b64535d8	2026-03-23	3	Estoque MH	Loja Alto XV	\N	none	\N
+140b8e30-9a01-4f08-9016-8cf395299e46	2026-06-01 17:40:00.612106+00	a3f83a8d-f611-4a1c-955b-1ac615348b94	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+613cc9a9-e676-4971-ac57-be7a1ee8745b	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+d06d5903-4421-4314-8cba-3b463eab7942	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-23	2	Estoque MH	Loja Alto XV	\N	none	\N
+e2c1f92e-2d4b-4494-bfdd-7ae35e0f8485	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+829d191d-c9a3-45a7-ac1d-b71bd8009bc4	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+98370203-3d94-4884-8a4f-0a61b1e73abd	2026-06-01 17:40:00.612106+00	3e5869da-fdde-4b50-93b0-a04d2eb965dd	2026-03-23	8	Estoque MH	Loja Alto XV	\N	none	\N
+d3a51e14-c12f-4977-b579-babab786aa21	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+124f4597-5ccc-42af-b54c-cc679bd71d3b	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+6dbfde9b-0f1f-4953-bb42-19c88d6c863a	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-03-23	1	Estoque MH	Loja Alto XV	\N	none	\N
+aa650cf1-fd7a-4331-8661-6d82a9825ec1	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-03-30	4	Estoque MH	Loja Alto XV	\N	none	\N
+1e2cb55b-f8ee-45f0-b620-75935e42b7d8	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+01f0d591-3b5a-4bb1-af60-fec457184b7b	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-03-30	2	Estoque MH	Loja Alto XV	\N	none	\N
+4668ebc5-7c57-4ab6-a3fe-ef30dcee2dbd	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-03-30	4	Estoque MH	Loja Alto XV	\N	none	\N
+d382a9bf-3910-45a7-974c-0584087554e7	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+edfca20e-6788-4dd3-b65e-4507c1630ef8	2026-06-01 17:40:00.612106+00	cb69c0c7-76b7-4215-a8ad-dbdeac02117a	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+e9d155d4-5a2d-4f17-ab65-55516d75b1f9	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+c284a12b-1da6-42f6-813a-776557e00062	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+3f5a772d-ce21-4cbd-a563-1f3ac3833013	2026-06-01 17:40:00.612106+00	ad8f9a85-62de-4875-9cd6-b831d9ff8887	2026-03-30	2	Estoque MH	Loja Alto XV	\N	none	\N
+e27877bc-d9f4-4b3d-82e0-fea91865387a	2026-06-01 17:40:00.612106+00	55519e38-a952-4223-a0a9-4d36d53adb54	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+9fa6a4ac-fbd1-4b51-9536-03a54c498dc1	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+eb912e09-1f01-4121-9f10-db6cace1e2d8	2026-06-01 17:40:00.612106+00	9be978f0-4961-40b6-b4eb-c75fe6798110	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+e6a0c9c2-ff77-4b03-b120-5510a5b3319d	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-03-30	1	Estoque MH	Loja Alto XV	\N	none	\N
+c8a55659-607c-44d0-9b5c-a73583cd5c59	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-06	2	Estoque MH	Loja Alto XV	\N	none	\N
+8fe1d3b6-2495-4942-8eb5-d82f22d85488	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-06	2	Estoque MH	Loja Alto XV	\N	none	\N
+add60d5c-19f3-45e3-a872-97b3adbb2c38	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-06	1	Estoque MH	Loja Alto XV	\N	none	\N
+8fcee151-634b-4a23-b335-1db598ece883	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-06	1	Estoque MH	Loja Alto XV	\N	none	\N
+3e90d0a6-ed78-49b3-9926-32fbc64f2bf1	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-04-06	1	Estoque MH	Loja Alto XV	\N	none	\N
+ee7d6ed2-e510-4bb3-bd1b-4e5c1d25d6ac	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-04-06	1	Estoque MH	Loja Alto XV	\N	none	\N
+d7ccbe64-88a1-453e-8cd1-2561e64bdc85	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-06	2	Estoque MH	Loja Alto XV	\N	none	\N
+6f0fcea0-4301-4bd9-a9f7-e7ad0712f7a6	2026-06-01 17:40:00.612106+00	2bb85cf5-b71d-4cdf-ac7b-27256d21851d	2026-04-06	2	Estoque MH	Loja Alto XV	\N	none	\N
+acc7d83a-432e-4565-ad21-32e4b53a7297	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-13	1	Estoque MH	Loja Alto XV	\N	none	\N
+ad0f1995-1070-4084-ad50-b025e93cb8a9	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-13	2	Estoque MH	Loja Alto XV	\N	none	\N
+c7d28d25-61b2-475b-9dd7-fea9b9b7ae45	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-04-13	1	Estoque MH	Loja Alto XV	\N	none	\N
+e150b640-d126-4914-aa1f-4544d70c9767	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-13	2	Estoque MH	Loja Alto XV	\N	none	\N
+25935b16-f398-464c-bda6-ba8b9db7ed94	2026-06-01 17:40:00.612106+00	be9f5716-b9f1-4aa6-ba5d-547815f09e61	2026-04-13	1	Estoque MH	Loja Alto XV	\N	none	\N
+45ea1db6-706f-40d2-85b0-54ad5d647dca	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-13	1	Estoque MH	Loja Alto XV	\N	none	\N
+9f626f49-1ac6-4c91-8ffc-253b9795a7ef	2026-06-01 17:40:00.612106+00	3a1749e1-5b46-4f95-8ded-0a1d02608f09	2026-04-13	1	Estoque MH	Loja Alto XV	\N	none	\N
+9caa8def-56ee-459b-8d15-2f6680e197b6	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-15	2	Estoque MH	Loja Alto XV	\N	none	\N
+92cf56e1-9c9a-45ed-929b-aaaf245b052a	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-21	5	Estoque MH	Loja Alto XV	\N	none	\N
+4766d521-1190-4c2d-be04-6136e63db77a	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+c346c3b5-4f20-49d7-995d-dd0c642e63e8	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+d7040d5c-e511-4377-921e-05236099d7e4	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-21	2	Estoque MH	Loja Alto XV	\N	none	\N
+a04224ea-cd3a-4601-a0f1-8c454fe071e3	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-21	4	Estoque MH	Loja Alto XV	\N	none	\N
+c6957c7b-0032-4655-87b3-7afc974b829b	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+08cac052-0f3e-48af-9558-2aa02c28f02a	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+d5cf44fe-0314-4d31-9a2e-25df503de41b	2026-06-01 17:40:00.612106+00	aeaef954-0c1f-4a0d-be7c-2013baecdf2d	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+ee1ab49a-a006-4c7c-8b67-8ef06ed4c756	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+b5db0b21-dd23-48a9-bc2d-990c59d546b1	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+26a371df-3fa5-4247-bf95-1109e97c53a2	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+7e01bbb4-8fcb-4802-9bf8-dd477a327b9c	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+e0a3bc65-a7b4-42f7-a58e-6aeceadfe1bb	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-04-21	1	Estoque MH	Loja Alto XV	\N	none	\N
+bc2972ce-fa7c-4f69-b759-30d9a14a8edf	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-04-27	3	Estoque MH	Loja Alto XV	\N	none	\N
+b70b46ac-851b-4345-9f56-fb85e759fa5e	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+6b5dbee5-cb22-4e7e-b200-1846ccaa2d9d	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+02869fdc-4d5d-4a99-81e3-1e724c35b5f5	2026-06-01 17:40:00.612106+00	0601ca6a-bb0b-41eb-abe0-a40319cca32b	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+fd46034c-0280-4fd1-8849-826e1715d8d4	2026-06-01 17:40:00.612106+00	5bdb156e-ac02-4634-bf62-15455ab1eea3	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+0c76661f-7a5f-4a64-89cc-b959c63d3a81	2026-06-01 17:40:00.612106+00	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+83368baf-8a04-46cb-9bf7-7b4748dfc18d	2026-06-01 17:40:00.612106+00	c8132e9b-d800-488a-ace2-790da252b525	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+931f856b-16f8-4c3e-9347-4fdde124d91d	2026-06-01 17:40:00.612106+00	82b1fb0f-7fce-4600-a9b0-14ccdc406a57	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+6752847f-651b-4203-86c5-057312367e67	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-04-27	2	Estoque MH	Loja Alto XV	\N	none	\N
+de0d75f8-c737-40fe-bd68-8b94a6044c3d	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-04-27	2	Estoque MH	Loja Alto XV	\N	none	\N
+56de31d0-a1bd-4b3c-bdd9-cc58715cd3b5	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+35edabba-3902-498f-896d-6596b593c9a1	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-04-27	2	Estoque MH	Loja Alto XV	\N	none	\N
+b7938c71-141b-48d5-bfab-821721232eea	2026-06-01 17:40:00.612106+00	75efd75a-2265-49dc-8b10-ee0332a12025	2026-04-27	1	Estoque MH	Loja Alto XV	\N	none	\N
+74bd6210-48b1-49be-837d-5a48581d9cde	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-05-04	1	Estoque MH	Loja Alto XV	\N	none	\N
+988695a2-d0b1-49ec-89f9-83dbf35e8b6d	2026-06-01 17:40:00.612106+00	521f2d74-463c-4737-bb85-c47d39e96845	2026-05-04	1	Estoque MH	Loja Alto XV	\N	none	\N
+fe5fa982-d1a1-42d8-9074-1e09e3fce6ea	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-05-04	2	Estoque MH	Loja Alto XV	\N	none	\N
+155e979a-3073-4860-a9aa-47a3bdaa79f7	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-05-04	1	Estoque MH	Loja Alto XV	\N	none	\N
+23c4612b-9686-4db4-b4a6-0f42ba762b40	2026-06-01 17:40:00.612106+00	a7c7aecc-e360-4afa-a3d7-eeafffd9248b	2026-05-04	1	Estoque MH	Loja Alto XV	\N	none	\N
+55a48bf6-9a97-4951-b380-7b33d028ef6b	2026-06-01 17:40:00.612106+00	02cfebe2-4de3-4c77-a73e-903b185d54a6	2026-05-04	1	Estoque MH	Loja Alto XV	\N	none	\N
+6bc91a6f-4edc-4205-a74a-20bac3833c73	2026-06-01 17:40:00.612106+00	96abcb52-14df-4ad2-b433-2aee0669ee30	2026-05-04	1	Estoque MH	Loja Alto XV	\N	none	\N
+0c16a89e-213c-447d-b278-f32f5f36f3a8	2026-06-01 17:40:00.612106+00	a5f552f1-4392-4c53-977f-08739186fcb5	2026-05-04	2	Estoque MH	Loja Alto XV	\N	none	\N
+efd0b73f-7e3f-4ad2-997a-3de9460b8af5	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-05-11	2	Estoque MH	Loja Alto XV	\N	none	\N
+afbadd51-dffc-4390-b8c5-c8024f50c083	2026-06-01 17:40:00.612106+00	2b89ed2e-7e42-4dbc-89ea-4e972e43f3fa	2026-05-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+eb84b70e-7bb8-4695-bf45-bb4192ac364f	2026-06-01 17:40:00.612106+00	df300a01-1ac7-4d10-b0fc-a943418d9870	2026-05-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+5f373fef-572c-4d96-9c84-6520d59cf5a9	2026-06-01 17:40:00.612106+00	991d2a77-66a8-4811-9ba7-fc60329e3729	2026-05-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+1f9cc5e5-a3e0-492c-86b8-e93f809c0d7f	2026-06-01 17:40:00.612106+00	03b764ae-765a-45cd-b897-da245f712055	2026-05-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+d75af3db-c1b6-4a52-a3a4-626c8e5a57a4	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-05-11	1	Estoque MH	Loja Alto XV	\N	none	\N
+d6b1ccd7-1e85-42ff-b30e-52482a59b078	2026-06-01 17:40:00.612106+00	4dd5d67c-767c-42dc-abc9-9cd4539579c6	2026-05-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+decae18d-4c26-4855-9c38-270cddbeed17	2026-06-01 17:40:00.612106+00	1deec24f-5074-421e-b791-8df4fc7dbc5c	2026-05-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+a9e3245f-7bda-494b-bfb1-d6c813c79632	2026-06-01 17:40:00.612106+00	3c6b8682-0043-4b02-b2da-6c4ed5af0324	2026-05-18	2	Estoque MH	Loja Alto XV	\N	none	\N
+54191231-1e16-49d4-a57e-114405e81dd4	2026-06-01 17:40:00.612106+00	bca30d7c-bcbe-49ca-8c4b-1c9d44908351	2026-05-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+bffec6d5-3282-4b02-b4ef-67efc241a059	2026-06-01 17:40:00.612106+00	eb9ed0b3-2065-4517-a827-7689183db366	2026-05-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+0652a79c-f7d7-4d39-8aa9-5e7839f32b1b	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-05-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+66869c38-05cb-42f2-8e54-7bfe73cfb12f	2026-06-01 17:40:00.612106+00	6c1388ea-5eda-4f92-804d-9dc6f4452579	2026-05-18	1	Estoque MH	Loja Alto XV	\N	none	\N
+087296e3-6949-417b-b92a-64d5cdcefe0e	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-05-25	2	Estoque MH	Loja Alto XV	\N	none	\N
+c83cc5dc-226b-4460-b56b-719d4a236294	2026-06-01 17:40:00.612106+00	9e53ddd5-2168-411d-8c7b-03a419c1e158	2026-05-25	1	Estoque MH	Loja Alto XV	\N	none	\N
+44e2bfb7-e68d-4dca-ba1b-a0b86dd1727c	2026-06-01 17:40:00.612106+00	a1b5529d-9572-4c4f-a2bd-b1b2b79bb7f7	2026-05-25	1	Estoque MH	Loja Alto XV	\N	none	\N
+2db90a50-72e9-4c1f-92aa-65a49c447830	2026-06-01 17:40:00.612106+00	82b1fb0f-7fce-4600-a9b0-14ccdc406a57	2026-05-25	1	Estoque MH	Loja Alto XV	\N	none	\N
+11db4c70-1c36-44a0-b0d3-545749e974ff	2026-06-01 17:40:00.612106+00	493d4e21-eaa5-4711-ae8b-b73fad3822de	2026-05-25	5	Estoque MH	Loja Alto XV	\N	none	\N
+cc2295bb-1285-4bb1-9b96-e260f31db06a	2026-06-01 17:40:00.612106+00	2f3eba38-9e08-4fe3-b624-84170b7f5aa1	2026-05-29	1	Estoque MH	Loja Alto XV	\N	none	\N
+52b0e9ed-c736-40ad-9553-cc1c2cd0afb2	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-01-10	4	Loja Ahú	Loja Alto XV	\N	none	\N
+a2c86a2a-f85b-4a7c-97a2-7a639e2c29b5	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-01-10	2	Loja Ahú	Loja Alto XV	\N	none	\N
+e5ecb76f-6819-4bcf-8ede-006dbbefe7a2	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-01-10	2	Loja Ahú	Loja Alto XV	\N	none	\N
+670bdbe7-13ca-4650-8a4b-38dde615a34c	2026-06-01 17:40:00.612106+00	bf54025c-d11a-4598-8a1e-ed2e8a5a17a8	2026-01-16	2	Loja Ahú	Loja Alto XV	\N	none	\N
+60c7e9db-7938-41a5-ba7f-d86d79d3508c	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-02-04	5	Loja Ahú	Loja Alto XV	\N	none	\N
+478ea179-77e7-4ddf-860c-d085df03bb1b	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-02-04	5	Loja Ahú	Loja Alto XV	\N	none	\N
+fbc7a9ef-4c4e-4ac6-b6ed-2629d94b4fdb	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-02-04	5	Loja Ahú	Loja Alto XV	\N	none	\N
+462f02a8-bcbf-4277-a3f6-0a326cf7777e	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-02-04	5	Loja Ahú	Loja Alto XV	\N	none	\N
+3c3aad9d-8113-4116-8b6b-aa806682d959	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-02-04	12	Loja Ahú	Loja Alto XV	\N	none	\N
+23536af1-4a23-4679-b427-0526677e83ab	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-02-04	6	Loja Ahú	Loja Alto XV	\N	none	\N
+f773be9c-1e13-4189-8282-a1cb5cd033cd	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-02-09	12	Loja Ahú	Loja Alto XV	\N	none	\N
+eb2f97ab-e0b5-4f04-82e9-b9f1ef5ff82c	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-02-09	12	Loja Ahú	Loja Alto XV	\N	none	\N
+93ac13fb-bc48-4694-83a9-a2f6dd1aa19c	2026-06-01 17:40:00.612106+00	67f01c59-ce5f-467e-8597-714719412b84	2026-02-19	12	Loja Ahú	Loja Alto XV	\N	none	\N
+d168f24b-b028-42d4-80c0-3cbded37c119	2026-06-01 17:40:00.612106+00	b053e306-2a07-4a66-a8c9-e091785f7df4	2026-02-19	6	Loja Ahú	Loja Alto XV	\N	none	\N
+238ddf29-bd99-444a-8000-cb9bee5afc6b	2026-06-01 17:40:00.612106+00	8850838c-26df-4793-b742-75c6ae75a10f	2026-02-19	6	Loja Ahú	Loja Alto XV	\N	none	\N
+f0c705eb-19ad-44b5-9678-117d22975b72	2026-06-01 17:40:00.612106+00	47709673-7e0c-4620-9562-4d1ea2315217	2026-02-19	6	Loja Ahú	Loja Alto XV	\N	none	\N
+a95c91c0-2a9d-4873-bd52-3ae772c0c3c8	2026-06-01 17:40:00.612106+00	ccec7143-7d35-4dc8-9a71-d0a7b7868eab	2026-02-19	6	Loja Ahú	Loja Alto XV	\N	none	\N
+ec720422-75c5-47c8-91bf-be55cf90f996	2026-06-01 17:40:00.612106+00	57f021fd-13b0-4484-ab86-79782ef938c0	2026-02-19	6	Loja Ahú	Loja Alto XV	\N	none	\N
+57a88088-df2b-4888-9a92-cd34d1660356	2026-06-01 17:40:00.612106+00	7a77e18f-94b7-4efd-8f6e-80964703a15f	2026-02-19	6	Loja Ahú	Loja Alto XV	\N	none	\N
+ba257ddb-e6f5-4a08-a4f7-f0245f3a780c	2026-06-01 17:40:00.612106+00	2a1e3e9d-662b-439e-a8a6-ee7243b479cb	2026-02-19	12	Loja Ahú	Loja Alto XV	\N	none	\N
+765f72a1-ba5b-4769-b3a4-932b7434de28	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-03-02	4	Loja Ahú	Loja Alto XV	\N	none	\N
+7b89c83e-87af-41c0-9eb3-640762dddb24	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-03-02	2	Loja Ahú	Loja Alto XV	\N	none	\N
+0e7d4fd7-7db0-4868-9339-cae82986b1f4	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-03-02	3	Loja Ahú	Loja Alto XV	\N	none	\N
+ee9b3013-37a1-421e-b660-8be388b55d94	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-03-02	3	Loja Ahú	Loja Alto XV	\N	none	\N
+113b1ce0-16b3-4375-9ca6-c3a98823f110	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-03-17	4	Loja Ahú	Loja Alto XV	\N	none	\N
+5f27f13a-b20a-4dd7-8d07-6e9c42fef357	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-03-17	4	Loja Ahú	Loja Alto XV	\N	none	\N
+19bb2951-967d-48fa-a361-f6ab08238baa	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-03-17	2	Loja Ahú	Loja Alto XV	\N	none	\N
+82c8b11b-8c82-47ee-bf19-495c6479388e	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-03-17	4	Loja Ahú	Loja Alto XV	\N	none	\N
+98414762-07ed-4be8-81c1-aa8d1a30c01e	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-03-17	4	Loja Ahú	Loja Alto XV	\N	none	\N
+ce67832e-4835-4513-897e-56808b49058a	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-04-15	4	Loja Ahú	Loja Alto XV	\N	none	\N
+16c7c76b-9ada-4a16-a523-eb236396fea7	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-04-15	4	Loja Ahú	Loja Alto XV	\N	none	\N
+3176b047-79f0-4653-8a14-da39e91550e1	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-04-15	4	Loja Ahú	Loja Alto XV	\N	none	\N
+a7613332-bf83-48e0-93e4-f89a3ad2ca2d	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-04-15	4	Loja Ahú	Loja Alto XV	\N	none	\N
+9c232209-154f-4743-9d3a-86bde5dd6839	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-04-15	4	Loja Ahú	Loja Alto XV	\N	none	\N
+8e714c2d-6c9c-490d-9510-58faa0f82840	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-04-23	3	Loja Ahú	Loja Alto XV	\N	none	\N
+c87f81ad-ae91-4ec4-896f-ddafb296d857	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-04-23	3	Loja Ahú	Loja Alto XV	\N	none	\N
+89b99f07-244c-4a33-a824-9c90d9e701ab	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-04-23	4	Loja Ahú	Loja Alto XV	\N	none	\N
+cba7061e-5c94-4fd9-bf9e-66bc38b82ecc	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-04-23	3	Loja Ahú	Loja Alto XV	\N	none	\N
+2e338253-e8f5-4710-a2d2-7ae80cc149c2	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-05-07	4	Loja Ahú	Loja Alto XV	\N	none	\N
+e420bb45-4982-4179-a9e2-e897738358a9	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-05-07	4	Loja Ahú	Loja Alto XV	\N	none	\N
+70bd0388-9b78-4b05-9821-5a2154d9b5c3	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-05-07	4	Loja Ahú	Loja Alto XV	\N	none	\N
+e5c93518-1bba-4e96-a3a0-80f188488b36	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-05-07	4	Loja Ahú	Loja Alto XV	\N	none	\N
+538ec7ea-7f55-4aba-8237-df795bb10331	2026-06-01 17:40:00.612106+00	185e009c-0cb9-42dd-adeb-ebfd15e99e0f	2026-05-20	3	Loja Ahú	Loja Alto XV	\N	none	\N
+585789cd-2246-4dd7-8f1a-94a0fc174f3f	2026-06-01 17:40:00.612106+00	cad0f122-104f-4cdd-8da9-01ad147ecba8	2026-05-20	4	Loja Ahú	Loja Alto XV	\N	none	\N
+95d7c156-ef01-47a0-bcde-1fdea78a0f02	2026-06-01 17:40:00.612106+00	e477c9c1-65f1-44b6-a4b1-3743e900407c	2026-05-20	4	Loja Ahú	Loja Alto XV	\N	none	\N
+756e9be9-c9e3-41a6-9804-0cec4ea14e31	2026-06-01 17:40:00.612106+00	7bdea7fc-8203-48a3-83cd-7f8b2bf75004	2026-05-20	4	Loja Ahú	Loja Alto XV	\N	none	\N
+7f6b5561-a651-42ee-bacf-d0077108e30b	2026-06-01 17:40:00.612106+00	0475e15d-55ff-4030-afb5-1b5e68b585b0	2026-05-20	3	Loja Ahú	Loja Alto XV	\N	none	\N
+26c57390-9a92-479a-ad3d-cffe4ba33850	2026-06-01 17:40:00.612106+00	ea78afa7-74c3-47bf-ac7f-f8f94cb35d9b	2026-05-24	2	Loja Ahú	Loja Alto XV	\N	none	\N
 \.
 
 
@@ -6079,24 +8908,24 @@ ee99b71d-8fd5-4e8f-b6d0-66cea05aff7b	c24dd627-7a1e-407e-9fe0-eefe4d5320c7	2026-0
 --
 
 COPY "public"."salgados_inventory" ("id", "unit", "collection", "item_name", "quantity", "updated_at") FROM stdin;
-6289817b-5956-4a0c-a62e-b260a5d36446	altoxv	sandwich	Carne	3	2026-05-24 14:29:00.352+00
 a9df6570-b1bd-46f7-b018-4a64164a620a	ahu	sandwich	Carne	14	2026-05-25 14:44:00.496+00
 38c1f2ef-aa69-4194-9da8-d4cb4a13cf64	ahu	sandwich	Parma	13	2026-05-25 14:44:00.724+00
 c5ce6ff6-3542-489f-b51c-1a83fe5fcca6	ahu	sandwich	Frango	19	2026-04-22 16:58:35.719+00
 88e8d374-cbc2-4d48-83aa-ade0d3c81b81	ahu	quiche	Lorraine	0	2026-05-25 14:44:24.112+00
 65cb369e-7ba0-4834-859f-9e99d7c61686	ahu	quiche	Caprese	7	2026-05-25 14:44:57.15+00
-f3f0b1b7-1b1b-437c-982c-56b87394e4ce	altoxv	sandwich	Parma	2	2026-05-28 14:32:23.754+00
-c2669277-edb8-420a-8773-8c5b2b081391	altoxv	sandwich	Frango	2	2026-05-28 14:32:25.758+00
 21b582db-fd13-450d-b014-455c9f24f729	altoxv	sandwich	Pernil	0	2026-05-28 14:32:28.404+00
-85826a42-a656-4c1a-a641-29c93f588216	altoxv	sandwich	Mortadela	0	2026-05-30 14:31:03.568+00
 f3af45f8-0f63-43be-ad8a-3d3f9e4a1e7b	altoxv	quiche	Caprese	0	2026-01-02 18:01:41.572+00
 5f13a2c7-8423-46c6-bdb4-b3f346a12367	ahu	sandwich	Mortadela	12	2026-05-13 21:27:41.713+00
 fb01f82a-7f66-487a-b86e-bb0cc5070a8b	altoxv	quiche	Lorraine	0	2026-01-02 18:01:42.01+00
 288b53a4-7a81-47f6-80db-ed05e3359867	altoxv	quiche	Alho Poro	0	2026-02-17 14:52:24.783+00
 9c118a6e-9d22-4429-a9b7-92a17dee0ed8	ahu	sandwich	Pernil	0	2026-05-30 14:54:37.167+00
 74b36c97-4c18-42c8-a4f3-5dcc7a0ad9f7	batel	sandwich	Parma	3	2026-02-06 17:16:20.073+00
+f3f0b1b7-1b1b-437c-982c-56b87394e4ce	altoxv	sandwich	Parma	4	2026-06-01 21:17:29.064+00
+6289817b-5956-4a0c-a62e-b260a5d36446	altoxv	sandwich	Carne	4	2026-06-01 21:17:32.286+00
+85826a42-a656-4c1a-a641-29c93f588216	altoxv	sandwich	Mortadela	2	2026-06-01 21:17:38.044+00
 0b1d9ba6-bd74-4af9-bdab-5ae75d04b6c2	ahu	quiche	Alho Poro	0	2026-04-28 17:49:52.331+00
 71d11c1c-a11e-4943-9c9a-ec6cf4cb5af8	batel	sandwich	Frango	5	2026-02-06 17:16:24.08+00
+c2669277-edb8-420a-8773-8c5b2b081391	altoxv	sandwich	Frango	3	2026-06-01 21:17:46.448+00
 96c5ad13-7638-4677-bd20-9238ed8d4929	batel	sandwich	Carne	3	2026-02-06 20:02:16.146+00
 2679a5ba-ee41-4e7a-8904-9087451e0b46	batel	sandwich	Pernil	3	2026-02-06 20:02:17.163+00
 fa5e3908-9841-499d-9fea-bf5b6225e338	batel	sandwich	Mortadela	3	2026-02-06 20:02:17.92+00
@@ -6163,21 +8992,21 @@ COPY "storage"."vector_indexes" ("id", "name", "bucket_id", "data_type", "dimens
 -- Name: refresh_tokens_id_seq; Type: SEQUENCE SET; Schema: auth; Owner: supabase_auth_admin
 --
 
-SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 908, true);
+SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 965, true);
 
 
 --
 -- Name: Checklist_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."Checklist_id_seq"', 1952, true);
+SELECT pg_catalog.setval('"public"."Checklist_id_seq"', 1957, true);
 
 
 --
 -- Name: Vales_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."Vales_id_seq"', 1315, true);
+SELECT pg_catalog.setval('"public"."Vales_id_seq"', 1325, true);
 
 
 --
@@ -6202,9 +9031,16 @@ SELECT pg_catalog.setval('"public"."historico_colaborador_id_seq"', 15, true);
 
 
 --
+-- Name: lista_compras_manual_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('"public"."lista_compras_manual_id_seq"', 3, true);
+
+
+--
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict BD5ejA6e14yhnctwACh9es3kqyyfigoQcg4atEcLW7Adq3jQcfd9bMIhiq1ieF0
+-- \unrestrict 3MAAreby5b9GQfsacUJuaImtJtjgqcxP8TUY76fOqp659bU4jD7VLfAyx1JPGAw
 
 RESET ALL;
