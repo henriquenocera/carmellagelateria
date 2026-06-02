@@ -2,9 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
+import { useSearchParams } from "react-router-dom";
+import { useAuth } from "../AuthProvider";
 import supabase from "../supabase-client";
 
 function EntradaMercadoria() {
+  const { isAdmin, user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [compras, setCompras] = useState<any[]>([]);
   const [insumos, setInsumos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,8 +41,8 @@ function EntradaMercadoria() {
   const PAGE_SIZE = 100;
 
   // Filters state
-  const [filterInsumoId, setFilterInsumoId] = useState<string | null>(null);
-  const [filterData, setFilterData] = useState("");
+  const [filterInsumoId, setFilterInsumoId] = useState<string | null>(searchParams.get('insumo_id') || null);
+  const [filterData, setFilterData] = useState(searchParams.get('data_compra') || "");
   const [filterFornecedor, setFilterFornecedor] = useState("");
 
   const isFirstRender = useRef(true);
@@ -101,7 +105,10 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
-          cadastro_insumos!inner(nome)
+          user_id,
+          needs_review,
+          cadastro_insumos!inner(nome),
+          profiles(name)
         `, { count: 'exact' });
 
       if (fInsumoId) query = query.eq('insumo_id', fInsumoId);
@@ -200,7 +207,8 @@ function EntradaMercadoria() {
           data_compra: newRow.data_compra,
           fornecedor: newRow.fornecedor,
           quantidade_comprada: Number(newRow.quantidade_comprada),
-          valor_unitario: Number(newRow.valor_unitario.replace(",", "."))
+          valor_unitario: Number(newRow.valor_unitario.replace(",", ".")),
+          user_id: user?.id
         }])
         .select(`
           id,
@@ -210,7 +218,10 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
-          cadastro_insumos(nome)
+          user_id,
+          needs_review,
+          cadastro_insumos(nome),
+          profiles(name)
         `)
         .single();
 
@@ -336,6 +347,21 @@ function EntradaMercadoria() {
     } catch (err) {
       console.error("Erro ao deletar:", err);
       alert("Erro ao excluir o registro.");
+    }
+  };
+
+  const handleToggleReview = async (id: number, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("entradas_mercadoria")
+        .update({ needs_review: !currentStatus })
+        .eq("id", id);
+      
+      if (error) throw error;
+      setCompras(compras.map(c => c.id === id ? { ...c, needs_review: !currentStatus } : c));
+    } catch (err) {
+      console.error("Erro ao alterar status de revisão:", err);
+      alert("Erro ao alterar o status de revisão da linha.");
     }
   };
 
@@ -564,6 +590,7 @@ function EntradaMercadoria() {
                   <th style={{ textAlign: "center", width: "120px" }}>Qtd Comprada</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Valor Unt.</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Total</th>
+                  {isAdmin && <th style={{ textAlign: "center", width: "110px" }}>Usuário</th>}
                   <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
                 </tr>
                 {/* Linha de Filtros */}
@@ -614,6 +641,7 @@ function EntradaMercadoria() {
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}></th>
+                  {isAdmin && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px", textAlign: "center" }}>
                     <button
                       onClick={() => {
@@ -647,13 +675,13 @@ function EntradaMercadoria() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
                 ) : compras.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhuma entrada registrada.
                     </td>
                   </tr>
@@ -665,7 +693,7 @@ function EntradaMercadoria() {
                       duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
                     });
                     
-                    return compras.map((comp) => {
+                    return compras.map((comp, index) => {
                       const dataFormatada = new Date(comp.data_compra + 'T00:00:00').toLocaleDateString('pt-BR');
                       const total = comp.quantidade_comprada * comp.valor_unitario;
                       
@@ -673,8 +701,30 @@ function EntradaMercadoria() {
                       const isDuplicate = duplicatesMap[key] > 1;
                       const isEditing = editingRowId === comp.id;
 
+                      const isToday = comp.data_compra === getToday();
+                      const prevComp = index > 0 ? compras[index - 1] : null;
+                      const prevIsToday = prevComp ? prevComp.data_compra === getToday() : false;
+                      
+                      const showHojeHeader = isToday && index === 0;
+                      const showAnterioresHeader = !isToday && (index === 0 || prevIsToday);
+
+                      const headerRow = showHojeHeader ? (
+                        <tr key={`header-hoje-${comp.id}`} style={{ backgroundColor: "#f0fdf4" }}>
+                          <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#166534", borderTop: "2px solid #bbf7d0", borderBottom: "2px solid #bbf7d0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                            Lançamentos de Hoje
+                          </td>
+                        </tr>
+                      ) : showAnterioresHeader ? (
+                        <tr key={`header-ant-${comp.id}`} style={{ backgroundColor: "#f8fafc" }}>
+                          <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#64748b", borderTop: "2px solid #e2e8f0", borderBottom: "2px solid #e2e8f0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                            Lançamentos Anteriores
+                          </td>
+                        </tr>
+                      ) : null;
+
+                      let contentRow;
                       if (isEditing) {
-                        return (
+                        contentRow = (
                           <tr key={comp.id} style={{ backgroundColor: "#f8fafc" }}>
                             <td style={{ padding: "8px" }}>
                               <Select
@@ -726,6 +776,11 @@ function EntradaMercadoria() {
                             <td style={{ textAlign: "center", color: "var(--text-dark)", fontWeight: "bold" }}>
                               -
                             </td>
+                            {isAdmin && (
+                              <td style={{ textAlign: "center", color: "var(--text-dark)", fontWeight: "bold" }}>
+                                -
+                              </td>
+                            )}
                             <td style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
                                 <button
@@ -748,57 +803,105 @@ function EntradaMercadoria() {
                             </td>
                           </tr>
                         );
-                      }
-                      
-                      return (
-                        <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={isDuplicate ? { backgroundColor: "#fef08a" } : {}}>
-                          <td style={{ fontWeight: 600 }}>
-                            {comp.cadastro_insumos?.nome || "Insumo Excluído"}
-                            {isDuplicate && (
-                              <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
-                                <Icons.BsExclamationTriangleFill />
-                              </span>
+                      } else {
+                        contentRow = (
+                          <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={comp.needs_review ? { backgroundColor: "#fca5a5" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
+                            <td style={{ fontWeight: 600 }}>
+                              {comp.cadastro_insumos?.nome || "Insumo Excluído"}
+                              {isDuplicate && (
+                                <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
+                                  <Icons.BsExclamationTriangleFill />
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: "center" }}>{dataFormatada}</td>
+                            <td style={{ textAlign: "center" }}>{comp.fornecedor || "-"}</td>
+                            <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.quantidade_comprada}</td>
+                            <td style={{ textAlign: "center", color: "var(--text-dark)" }}>
+                              {comp.valor_unitario ? `R$ ${comp.valor_unitario.toFixed(2)}` : "-"}
+                            </td>
+                            <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
+                              {total ? `R$ ${total.toFixed(2)}` : "-"}
+                            </td>
+                            {isAdmin && (
+                              <td style={{ textAlign: "center" }}>
+                                <div 
+                                  title={comp.created_at ? `Registrado em: ${new Date(comp.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
+                                  style={{ 
+                                    color: "#334155", 
+                                    fontWeight: 600, 
+                                    display: "inline-flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "center", 
+                                    gap: "6px", 
+                                    cursor: "help",
+                                    backgroundColor: "#f8fafc",
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #e2e8f0"
+                                  }}
+                                >
+                                  <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
+                                  {comp.profiles?.name || "-"}
+                                </div>
+                              </td>
                             )}
-                          </td>
-                          <td style={{ textAlign: "center" }}>{dataFormatada}</td>
-                          <td style={{ textAlign: "center" }}>{comp.fornecedor || "-"}</td>
-                          <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.quantidade_comprada}</td>
-                          <td style={{ textAlign: "center", color: "var(--text-dark)" }}>
-                            {comp.valor_unitario ? `R$ ${comp.valor_unitario.toFixed(2)}` : "-"}
-                          </td>
-                          <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
-                            {total ? `R$ ${total.toFixed(2)}` : "-"}
-                          </td>
-                          <td style={{ textAlign: "center" }}>
-                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                              <button
-                                onClick={() => {
-                                  setEditingRowId(comp.id);
-                                  setEditRowData({
-                                    insumo_id: comp.insumo_id,
-                                    data_compra: comp.data_compra,
-                                    fornecedor: comp.fornecedor || "",
-                                    quantidade_comprada: comp.quantidade_comprada,
-                                    valor_unitario: comp.valor_unitario || ""
-                                  });
-                                }}
-                                className="nav-btn"
-                                title="Editar"
-                                style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                              >
-                                <Icons.BsPencil />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(comp.id)}
-                                className="delete-record-btn"
-                                title="Excluir"
-                                style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
-                              >
-                                <Icons.BsTrash />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                            <td style={{ textAlign: "center" }}>
+                              <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                                {isAdmin && !comp.needs_review && (
+                                  <button
+                                    onClick={() => handleToggleReview(comp.id, comp.needs_review)}
+                                    title="Marcar para Revisão"
+                                    style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#ef4444", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                  >
+                                    <Icons.BsExclamationCircleFill />
+                                  </button>
+                                )}
+                                {comp.needs_review && (
+                                  <button
+                                    onClick={() => handleToggleReview(comp.id, comp.needs_review)}
+                                    title={isAdmin ? "Desmarcar Revisão" : "Marcar como Revisado"}
+                                    style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                  >
+                                    <Icons.BsCheckCircle /> OK
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() => {
+                                    setEditingRowId(comp.id);
+                                    setEditRowData({
+                                      insumo_id: comp.insumo_id,
+                                      data_compra: comp.data_compra,
+                                      fornecedor: comp.fornecedor || "",
+                                      quantidade_comprada: comp.quantidade_comprada,
+                                      valor_unitario: comp.valor_unitario || ""
+                                    });
+                                  }}
+                                  className="nav-btn"
+                                  title="Editar"
+                                  style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsPencil />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(comp.id)}
+                                  className="delete-record-btn"
+                                  title="Excluir"
+                                  style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsTrash />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      }
+
+                      return (
+                        <React.Fragment key={`frag-${comp.id}`}>
+                          {headerRow}
+                          {contentRow}
+                        </React.Fragment>
                       );
                     });
                   })()

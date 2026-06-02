@@ -195,13 +195,13 @@ function ListaCompras() {
   return (
     <>
       <Helmet>
-        <title>Lista de Compras</title>
+        <title>Lista de Compras (Automático)</title>
       </Helmet>
 
       <div className="frequencia-container">
         <div className="frequencia-header">
           <div className="frequencia-title-group">
-            <h1>Lista de Compras</h1>
+            <h1>Lista de Compras (Automático)</h1>
             <p>Gerada automaticamente com base nos insumos abaixo do estoque desejado.</p>
           </div>
           <button className="primary-btn" onClick={fetchListaCompras} disabled={loading}>

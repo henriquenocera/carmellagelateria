@@ -4,6 +4,7 @@ import * as Icons from "react-icons/bs";
 import supabase from "../supabase-client";
 import { useAuth } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import "../css/Frequencia.css";
 
 function AnaliseInsumos() {
@@ -225,7 +226,20 @@ function AnaliseInsumos() {
                         </td>
                         <td style={{ textAlign: "center" }}>
                           {insumo.variacao === 0 ? (
-                             <span style={{ color: "#64748b" }}>-</span>
+                             <span style={{ 
+                               color: "#64748b",
+                               backgroundColor: "#f1f5f9",
+                               padding: "4px 8px",
+                               borderRadius: "20px",
+                               fontWeight: "bold",
+                               fontSize: "1.1rem",
+                               display: "inline-flex",
+                               alignItems: "center",
+                               gap: "4px"
+                             }}>
+                                <Icons.BsDash />
+                                0.0%
+                             </span>
                           ) : (
                              <span style={{ 
                                color: insumo.variacao > 0 ? "#dc2626" : "#16a34a",
@@ -271,16 +285,17 @@ function AnaliseInsumos() {
               </span>
             </div>
 
-            <div style={{ display: "flex", gap: "12px", marginBottom: "24px", flexWrap: "wrap", flexShrink: 0 }}>
-              <div style={{ flex: "1 1 120px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                <p style={{ margin: "0 0 4px 0", color: "#94a3b8", fontSize: "1rem" }}>Preço Atual</p>
-                <p style={{ margin: 0, fontSize: "1.3rem", fontWeight: "bold", color: "var(--primary-color)" }}>
-                  {formatCurrency(selectedInsumo.preco_atual_unit)} <span style={{ fontSize: "0.8em", color: "#94a3b8", fontWeight: "normal" }}>/ {selectedInsumo.unidade_conversao || "un"}</span>
+            <div style={{ display: "flex", gap: "16px", marginBottom: "32px", flexWrap: "wrap", flexShrink: 0 }}>
+              <div style={{ flex: "1 1 200px", backgroundColor: "#fff", padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)" }}>
+                <p style={{ margin: "0 0 8px 0", color: "#64748b", fontSize: "1.1rem", fontWeight: 500 }}>Preço Atual</p>
+                <p style={{ margin: 0, fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "baseline", gap: "8px" }}>
+                  {formatCurrency(selectedInsumo.preco_atual_unit)} 
+                  <span style={{ fontSize: "1.1rem", color: "#94a3b8", fontWeight: 500 }}>/ {selectedInsumo.unidade_conversao || "un"}</span>
                 </p>
               </div>
-              <div style={{ flex: "1 1 120px", backgroundColor: "#f8fafc", padding: "16px", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
-                <p style={{ margin: "0 0 4px 0", color: "#94a3b8", fontSize: "1rem" }}>Variação</p>
-                <p style={{ margin: 0, fontSize: "1.3rem", fontWeight: "bold", color: selectedInsumo.variacao > 0 ? "#dc2626" : selectedInsumo.variacao < 0 ? "#16a34a" : "#64748b" }}>
+              <div style={{ flex: "1 1 200px", backgroundColor: "#fff", padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)" }}>
+                <p style={{ margin: "0 0 8px 0", color: "#64748b", fontSize: "1.1rem", fontWeight: 500 }}>Variação</p>
+                <p style={{ margin: 0, fontSize: "2.2rem", fontWeight: 800, color: selectedInsumo.variacao > 0 ? "#dc2626" : selectedInsumo.variacao < 0 ? "#16a34a" : "#94a3b8" }}>
                   {selectedInsumo.variacao > 0 ? "+" : ""}{selectedInsumo.variacao.toFixed(1)}%
                 </p>
               </div>
@@ -293,23 +308,74 @@ function AnaliseInsumos() {
             {selectedInsumo.entradas && selectedInsumo.entradas.length > 0 ? (
               <div style={{ backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "20px", marginBottom: "24px", flexShrink: 0 }}>
                 {(() => {
-                  const maxValor = Math.max(...selectedInsumo.entradas.map((e: any) => e.valor_unitario / selectedInsumo.quantidade_conversao));
-                  
-                  return selectedInsumo.entradas.slice(0, 10).map((entrada: any, idx: number) => {
-                    const custoUnidade = entrada.valor_unitario / selectedInsumo.quantidade_conversao;
-                    const percent = maxValor > 0 ? (custoUnidade / maxValor) * 100 : 0;
-                    return (
-                      <div key={idx} style={{ marginBottom: "16px" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.95rem", color: "#475569", marginBottom: "4px" }}>
-                          <span>{formatDate(entrada.data_compra)} <span style={{ color: "#94a3b8" }}>- {entrada.fornecedor}</span></span>
-                          <span style={{ fontWeight: "bold", color: "#1e293b" }}>{formatCurrency(custoUnidade)}</span>
-                        </div>
-                        <div style={{ width: "100%", height: "10px", backgroundColor: "#f1f5f9", borderRadius: "5px", overflow: "hidden" }}>
-                          <div style={{ width: `${percent}%`, height: "100%", backgroundColor: "var(--primary-color)", borderRadius: "5px", transition: "width 0.5s ease" }}></div>
-                        </div>
-                      </div>
-                    );
-                  });
+                  const chartData = [...selectedInsumo.entradas]
+                    .reverse()
+                    .map((e: any) => ({
+                      data: formatDate(e.data_compra),
+                      preco: parseFloat((e.valor_unitario / selectedInsumo.quantidade_conversao).toFixed(2)),
+                      fornecedor: e.fornecedor,
+                      data_compra_raw: e.data_compra
+                    }));
+
+                  return (
+                    <div style={{ width: '100%', height: 350 }}>
+                      <ResponsiveContainer>
+                        <LineChart 
+                          data={chartData} 
+                          margin={{ top: 20, right: 20, bottom: 20, left: 0 }}
+                          onClick={(e) => {
+                            if (e && e.activePayload && e.activePayload.length > 0) {
+                              const pointData = e.activePayload[0].payload;
+                              navigate(`/entrada-mercadoria?insumo_id=${selectedInsumo.id}&data_compra=${pointData.data_compra_raw}`);
+                            }
+                          }}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                          <XAxis 
+                            dataKey="data" 
+                            tick={{ fontSize: 12, fill: '#64748b' }} 
+                            tickMargin={15} 
+                            axisLine={{ stroke: '#cbd5e1' }}
+                            tickLine={false}
+                          />
+                          <YAxis 
+                            tick={{ fontSize: 12, fill: '#64748b' }} 
+                            tickFormatter={(val) => `R$ ${val}`} 
+                            width={80} 
+                            axisLine={false}
+                            tickLine={false}
+                          />
+                          <Tooltip 
+                            isAnimationActive={false}
+                            wrapperStyle={{ pointerEvents: 'none', zIndex: 1000 }}
+                            formatter={(value: any) => [formatCurrency(Number(value)), 'Preço (Unidade)']}
+                            labelFormatter={(label) => `Data: ${label}`}
+                            labelStyle={{ color: '#1e293b', fontWeight: 'bold', marginBottom: '8px' }}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', padding: '16px' }}
+                          />
+                          <Line 
+                            type="monotone" 
+                            dataKey="preco" 
+                            stroke="var(--primary-color)" 
+                            strokeWidth={3} 
+                            dot={{ r: 5, fill: "var(--primary-color)", strokeWidth: 2, stroke: "#fff" }} 
+                            activeDot={{ 
+                              r: 8, 
+                              strokeWidth: 0, 
+                              fill: "var(--primary-color)",
+                              onClick: (event: any, payload: any) => {
+                                if (payload && payload.payload) {
+                                  navigate(`/entrada-mercadoria?insumo_id=${selectedInsumo.id}&data_compra=${payload.payload.data_compra_raw}`);
+                                }
+                              }
+                            }} 
+                            animationDuration={1500}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  );
                 })()}
               </div>
             ) : (

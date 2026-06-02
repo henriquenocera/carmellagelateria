@@ -124,6 +124,7 @@ function MovimentacoesEstoque() {
           insumo_id,
           created_at,
           user_id,
+          needs_review,
           cadastro_insumos!inner(nome),
           profiles(name)
         `, { count: 'exact' });
@@ -222,6 +223,7 @@ function MovimentacoesEstoque() {
           insumo_id,
           created_at,
           user_id,
+          needs_review,
           cadastro_insumos(nome),
           profiles(name)
         `)
@@ -332,7 +334,22 @@ function MovimentacoesEstoque() {
       setMovimentacoes(movimentacoes.filter(m => m.id !== id));
     } catch (err) {
       console.error("Erro ao deletar:", err);
-      alert("Erro ao excluir a movimentação.");
+      alert("Erro ao excluir o registro.");
+    }
+  };
+
+  const handleToggleReview = async (id: number, currentStatus: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("movimentacoes_estoque")
+        .update({ needs_review: !currentStatus })
+        .eq("id", id);
+      
+      if (error) throw error;
+      setMovimentacoes(movimentacoes.map(m => m.id === id ? { ...m, needs_review: !currentStatus } : m));
+    } catch (err) {
+      console.error("Erro ao alterar status de revisão:", err);
+      alert("Erro ao alterar o status de revisão da linha.");
     }
   };
 
@@ -738,7 +755,7 @@ function MovimentacoesEstoque() {
                         const dataFormatada = new Date(mov.data_movimentacao + 'T00:00:00').toLocaleDateString('pt-BR');
 
                         content = (
-                          <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={isDuplicate ? { backgroundColor: "#fef08a" } : {}}>
+                          <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={mov.needs_review ? { backgroundColor: "#fca5a5" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
                             <td>
                               {mov.cadastro_insumos?.nome || "Insumo Excluído"}
                               {isDuplicate && (
@@ -749,14 +766,14 @@ function MovimentacoesEstoque() {
                             </td>
                             <td style={{ textAlign: "center" }}>{dataFormatada}</td>
                             <td style={{ textAlign: "center", fontWeight: "bold" }}>{mov.quantidade}</td>
-                            <td style={{
+                            <td style={mov.needs_review ? { textAlign: "center" } : {
                               textAlign: "center",
                               backgroundColor: getUnitBgColor(mov.origem),
                               color: getUnitColor(mov.origem)
                             }}>
                               {mov.origem}
                             </td>
-                            <td style={{
+                            <td style={mov.needs_review ? { textAlign: "center" } : {
                               textAlign: "center",
                               backgroundColor: getUnitBgColor(mov.destino),
                               color: getUnitColor(mov.destino)
@@ -787,7 +804,25 @@ function MovimentacoesEstoque() {
                               </td>
                             )}
                             <td style={{ textAlign: "center" }}>
-                              <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                              <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                                {isAdmin && !mov.needs_review && (
+                                  <button
+                                    onClick={() => handleToggleReview(mov.id, mov.needs_review)}
+                                    title="Marcar para Revisão"
+                                    style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#ef4444", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                  >
+                                    <Icons.BsExclamationCircleFill />
+                                  </button>
+                                )}
+                                {mov.needs_review && (
+                                  <button
+                                    onClick={() => handleToggleReview(mov.id, mov.needs_review)}
+                                    title={isAdmin ? "Desmarcar Revisão" : "Marcar como Revisado"}
+                                    style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                  >
+                                    <Icons.BsCheckCircle /> OK
+                                  </button>
+                                )}
                                 <button
                                   onClick={() => {
                                     setEditingRowId(mov.id);

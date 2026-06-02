@@ -44,7 +44,8 @@ const MENU_CONFIG = [
     icon: <Icons.BsCart3 />,
     id: "compras",
     subItems: [
-      { title: "Lista de Compras", path: "/lista-compras" },
+      { title: "Lista de Compras", subtitle: "Automático", subtitleColor: "#3b82f6", path: "/lista-compras" },
+      { title: "Lista de Compras", subtitle: "Manual", subtitleColor: "#f59e0b", path: "/lista-compras-manual" },
       { title: "Entrada de Mercadoria", path: "/entrada-mercadoria" },
     ]
   },
@@ -176,10 +177,9 @@ function NavBar() {
 
             const submenuHeight = visibleSubItems.reduce((acc, sub) => {
               const hasBadge = sub.adminOnly || isItemAdminOnly;
-              if (hasBadge) {
-                return acc + 65;
-              }
-              return acc + 55;
+              let height = sub.subtitle ? 70 : 55;
+              if (hasBadge) height += 10;
+              return acc + height;
             }, 30);
 
             return (
@@ -204,8 +204,19 @@ function NavBar() {
                         <NavLink to={subItem.path} className={({ isActive }) => isActive ? "submenu-link active" : "submenu-link"}>
                           <span className="submenu-indicator"></span>
                           <span className="text">
-                            <span className="text-container">
+                            <span className="text-container" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px" }}>
                               <span>{subItem.title}</span>
+                              {subItem.subtitle && (
+                                <span style={{ 
+                                  fontSize: "0.85rem", 
+                                  color: subItem.subtitleColor || "#94a3b8", 
+                                  fontWeight: "700", 
+                                  lineHeight: 1, 
+                                  letterSpacing: "0.5px" 
+                                }}>
+                                  {subItem.subtitle.toUpperCase()}
+                                </span>
+                              )}
                               {(subItem.adminOnly || isItemAdminOnly) && <span className="admin-badge-sub">Admin</span>}
                             </span>
                           </span>
