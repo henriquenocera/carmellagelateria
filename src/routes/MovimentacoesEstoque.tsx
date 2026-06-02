@@ -1006,6 +1006,9 @@ function MovimentacoesEstoque() {
                               {mov.status_revisao === 'pending_delete' && (
                                 <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#ef4444", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Deletado</span>
                               )}
+                              {(new Date().getTime() - new Date(mov.created_at).getTime() < 5 * 60 * 1000) && mov.status_revisao !== 'pending_delete' && (
+                                <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#10b981", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Novo</span>
+                              )}
                               {isDuplicate && (
                                 <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd, origem e destino)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
                                   <Icons.BsExclamationTriangleFill />
