@@ -120,12 +120,39 @@ function MovimentacoesEstoque() {
     checkPendingCounts();
   }, [movimentacoes, isAdmin]);
 
-  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fOrigem = filterOrigem, fDestino = filterDestino, fStatus = filterStatus) {
+  const fetchDataRef = useRef<any>(null);
+
+  useEffect(() => {
+    const channel = supabase.channel('realtime-movimentacoes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'movimentacoes_estoque' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setNewlyAddedId(payload.new.id);
+            setTimeout(() => {
+              setNewlyAddedId(current => current === payload.new.id ? null : current);
+            }, 3000);
+          }
+          if (fetchDataRef.current) {
+            fetchDataRef.current(false, 0, undefined, undefined, undefined, undefined, undefined, true);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fOrigem = filterOrigem, fDestino = filterDestino, fStatus = filterStatus, isBackground = false) {
+    fetchDataRef.current = fetchData;
     try {
       if (isLoadMore) {
         setLoadingMore(true);
       } else {
-        setLoading(true);
+        if (!isBackground) setLoading(true);
         if (insumos.length === 0) {
           // Fetch insumos only on initial load
           const { data: insumosData, error: insumosError } = await supabase
