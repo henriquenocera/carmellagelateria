@@ -12,6 +12,7 @@ function AnaliseInsumos() {
   const navigate = useNavigate();
 
   const [insumosAnalise, setInsumosAnalise] = useState<any[]>([]);
+  const [outliers, setOutliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -57,6 +58,8 @@ function AnaliseInsumos() {
         });
       }
 
+      const newOutliers: any[] = [];
+
       const analiseList = (insumosData || []).map(insumo => {
         const entradas = entradasPorInsumo[insumo.id] || [];
         const ultimaCompra = entradas[0] || null;
@@ -79,7 +82,39 @@ function AnaliseInsumos() {
            variacao = ((precoAtualUnit - precoAnteriorUnit) / precoAnteriorUnit) * 100;
         }
 
-        return {
+        // ====== LÓGICA DE OUTLIER ======
+        let isOutlier = false;
+        let variacaoOutlier = 0;
+        let mediaHistorica = 0;
+        
+        if (entradas.length >= 3 && ultimaCompra && insumo.quantidade_conversao > 0) {
+           // O histórico exclui a compra mais recente
+           const historicoEntradas = entradas.slice(1);
+           
+           let sumPrecos = 0;
+           let count = 0;
+           historicoEntradas.forEach(e => {
+             const precoUn = e.valor_unitario / insumo.quantidade_conversao;
+             if (precoUn > 0) {
+               sumPrecos += precoUn;
+               count++;
+             }
+           });
+           
+           if (count > 0) {
+             mediaHistorica = sumPrecos / count;
+             if (mediaHistorica > 0) {
+               variacaoOutlier = ((precoAtualUnit - mediaHistorica) / mediaHistorica) * 100;
+               
+               // Threshold de 25%
+               if (Math.abs(variacaoOutlier) >= 25) {
+                 isOutlier = true;
+               }
+             }
+           }
+        }
+
+        const insumoFinal = {
            ...insumo,
            ultima_compra_data: ultimaCompra?.data_compra || null,
            ultima_compra_fornecedor: ultimaCompra?.fornecedor || '-',
@@ -87,11 +122,24 @@ function AnaliseInsumos() {
            preco_anterior_unit: precoAnteriorUnit,
            variacao: variacao,
            historico_compras: entradas.length,
-           entradas: entradas
+           entradas: entradas,
+           isOutlier,
+           variacaoOutlier,
+           mediaHistorica
         };
+
+        if (isOutlier) {
+           newOutliers.push(insumoFinal);
+        }
+
+        return insumoFinal;
       });
 
       setInsumosAnalise(analiseList);
+      
+      // Sort outliers by magnitude of absolute variation descending
+      newOutliers.sort((a, b) => Math.abs(b.variacaoOutlier) - Math.abs(a.variacaoOutlier));
+      setOutliers(newOutliers);
 
     } catch (err) {
       console.error("Erro ao buscar analise:", err);
@@ -139,6 +187,86 @@ function AnaliseInsumos() {
             Atualizar
           </button>
         </div>
+
+        {!loading && outliers.length > 0 && (
+          <div style={{ margin: "20px auto 0 auto", maxWidth: "100%", padding: "0 20px" }}>
+            <div style={{
+              backgroundColor: "#fff",
+              border: "1px solid #cbd5e1",
+              borderRadius: "12px",
+              padding: "24px",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.05)"
+            }}>
+              <h2 style={{ display: "flex", alignItems: "center", gap: "8px", margin: "0 0 16px 0", color: "#0f172a", fontSize: "1.5rem" }}>
+                <Icons.BsExclamationTriangleFill style={{ color: "#f59e0b" }} /> 
+                Alertas Inteligentes de Preço
+              </h2>
+              <p style={{ color: "#64748b", margin: "0 0 20px 0", fontSize: "1.1rem" }}>
+                Identificamos insumos cujo preço da última compra está fora do padrão histórico (Variação de 25% ou mais em relação à média antiga).
+              </p>
+              
+              <div style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "12px" }}>
+                {outliers.map((o) => {
+                  const isAlta = o.variacaoOutlier > 0;
+                  return (
+                    <div 
+                      key={o.id}
+                      onClick={() => { setSelectedInsumo(o); setIsModalOpen(true); }}
+                      style={{
+                        flex: "0 0 300px",
+                        backgroundColor: isAlta ? "#fee2e2" : "#dcfce7",
+                        border: `1px solid ${isAlta ? "#fca5a5" : "#86efac"}`,
+                        borderRadius: "12px",
+                        padding: "16px",
+                        cursor: "pointer",
+                        transition: "transform 0.2s, box-shadow 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                        e.currentTarget.style.boxShadow = "0 6px 12px rgba(0,0,0,0.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "none";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                        <h3 style={{ margin: 0, fontSize: "1.1rem", color: isAlta ? "#991b1b" : "#166534", fontWeight: "bold", lineHeight: 1.3 }}>
+                          {o.nome}
+                        </h3>
+                        <span style={{ 
+                          backgroundColor: isAlta ? "#ef4444" : "#22c55e", 
+                          color: "#fff", 
+                          padding: "4px 8px", 
+                          borderRadius: "20px", 
+                          fontSize: "0.9rem", 
+                          fontWeight: "bold",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "2px",
+                          whiteSpace: "nowrap"
+                        }}>
+                          {isAlta ? <Icons.BsArrowUpShort /> : <Icons.BsArrowDownShort />}
+                          {Math.abs(o.variacaoOutlier).toFixed(1)}%
+                        </span>
+                      </div>
+                      
+                      <div style={{ fontSize: "0.95rem", color: isAlta ? "#b91c1c" : "#15803d", marginBottom: "4px" }}>
+                        <strong>Média Histórica:</strong> {formatCurrency(o.mediaHistorica)}
+                      </div>
+                      <div style={{ fontSize: "0.95rem", color: isAlta ? "#b91c1c" : "#15803d", marginBottom: "8px" }}>
+                        <strong>Última Compra:</strong> {formatCurrency(o.preco_atual_unit)}
+                      </div>
+                      <div style={{ fontSize: "0.85rem", color: isAlta ? "#7f1d1d" : "#14532d", opacity: 0.8, display: "flex", alignItems: "center", gap: "4px" }}>
+                        <Icons.BsShop /> {o.ultima_compra_fornecedor}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
           {loading ? (

@@ -63,6 +63,8 @@ function MovimentacoesEstoque() {
   const [filterData, setFilterData] = useState("");
   const [filterOrigem, setFilterOrigem] = useState("");
   const [filterDestino, setFilterDestino] = useState("");
+  const [filterNeedsReview, setFilterNeedsReview] = useState(false);
+  const [pendingReviewCount, setPendingReviewCount] = useState(0);
 
   const isFirstRender = useRef(true);
 
@@ -87,10 +89,34 @@ function MovimentacoesEstoque() {
       return;
     }
     setPage(0);
-    fetchData(false, 0, filterInsumoId, filterData, filterOrigem, filterDestino);
-  }, [filterInsumoId, filterData, filterOrigem, filterDestino]);
+    fetchData(false, 0, filterInsumoId, filterData, filterOrigem, filterDestino, filterNeedsReview);
+  }, [filterInsumoId, filterData, filterOrigem, filterDestino, filterNeedsReview]);
 
-  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fOrigem = filterOrigem, fDestino = filterDestino) {
+  useEffect(() => {
+    async function checkPendingReviews() {
+      try {
+        let query = supabase
+          .from('movimentacoes_estoque')
+          .select('*', { count: 'exact', head: true });
+          
+        if (isAdmin) {
+          query = query.in('status_revisao', ['pending_user', 'pending_admin']);
+        } else {
+          query = query.eq('status_revisao', 'pending_user');
+        }
+        
+        const { count, error } = await query;
+        if (!error) {
+          setPendingReviewCount(count || 0);
+        }
+      } catch (err) {
+        console.error("Erro ao checar revisões pendentes:", err);
+      }
+    }
+    checkPendingReviews();
+  }, [movimentacoes, isAdmin]);
+
+  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fOrigem = filterOrigem, fDestino = filterDestino, fReview = filterNeedsReview) {
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -124,7 +150,8 @@ function MovimentacoesEstoque() {
           insumo_id,
           created_at,
           user_id,
-          needs_review,
+          status_revisao,
+          revisao_observacao,
           cadastro_insumos!inner(nome),
           profiles(name)
         `, { count: 'exact' });
@@ -133,6 +160,13 @@ function MovimentacoesEstoque() {
       if (fData) query = query.eq('data_movimentacao', fData);
       if (fOrigem) query = query.eq('origem', fOrigem);
       if (fDestino) query = query.eq('destino', fDestino);
+      if (fReview) {
+        if (isAdmin) {
+          query = query.in('status_revisao', ['pending_user', 'pending_admin']);
+        } else {
+          query = query.eq('status_revisao', 'pending_user');
+        }
+      }
 
       const { data: movData, count, error: movError } = await query
         .order("data_movimentacao", { ascending: false })
@@ -223,7 +257,8 @@ function MovimentacoesEstoque() {
           insumo_id,
           created_at,
           user_id,
-          needs_review,
+          status_revisao,
+          revisao_observacao,
           cadastro_insumos(nome),
           profiles(name)
         `)
@@ -286,15 +321,48 @@ function MovimentacoesEstoque() {
 
     try {
       setSavingEdit(true);
+      const originalRow = movimentacoes.find(m => m.id === editingRowId);
+      let observacaoAdicional = "";
+      
+      if (originalRow && originalRow.status_revisao === 'pending_user') {
+        const diffs = [];
+        if (originalRow.insumo_id !== editRowData.insumo_id) {
+           const nomeAntigo = originalRow.cadastro_insumos?.nome || "Desconhecido";
+           const nomeNovo = insumos.find(i => i.id === editRowData.insumo_id)?.nome || "Desconhecido";
+           diffs.push(`Insumo: ${nomeAntigo} ➔ ${nomeNovo}`);
+        }
+        if (originalRow.data_movimentacao !== editRowData.data_movimentacao) diffs.push(`Data: ${originalRow.data_movimentacao} ➔ ${editRowData.data_movimentacao}`);
+        if (originalRow.origem !== editRowData.origem) diffs.push(`Origem: ${originalRow.origem} ➔ ${editRowData.origem}`);
+        if (originalRow.destino !== editRowData.destino) diffs.push(`Destino: ${originalRow.destino} ➔ ${editRowData.destino}`);
+        if (String(originalRow.quantidade) !== String(editRowData.quantidade)) diffs.push(`Qtd: ${originalRow.quantidade} ➔ ${editRowData.quantidade}`);
+        
+        if (diffs.length > 0) {
+          const prev = originalRow.revisao_observacao;
+          const prefix = (prev && prev !== "Sem alterações") ? prev + " | " : "";
+          observacaoAdicional = prefix + diffs.join(", ");
+        } else {
+          observacaoAdicional = originalRow.revisao_observacao || "Sem alterações";
+        }
+      }
+
+      const updateData: any = {
+        insumo_id: editRowData.insumo_id,
+        data_movimentacao: editRowData.data_movimentacao,
+        quantidade: parseInt(editRowData.quantidade, 10),
+        origem: editRowData.origem,
+        destino: editRowData.destino
+      };
+
+      if (originalRow && originalRow.status_revisao === 'pending_user') {
+        updateData.revisao_observacao = observacaoAdicional;
+        if (!isAdmin) {
+          updateData.status_revisao = 'pending_admin';
+        }
+      }
+
       const { data, error } = await supabase
         .from("movimentacoes_estoque")
-        .update({
-          insumo_id: editRowData.insumo_id,
-          data_movimentacao: editRowData.data_movimentacao,
-          quantidade: parseInt(editRowData.quantidade, 10),
-          origem: editRowData.origem,
-          destino: editRowData.destino
-        })
+        .update(updateData)
         .eq("id", editingRowId)
         .select(`
           id,
@@ -305,6 +373,8 @@ function MovimentacoesEstoque() {
           insumo_id,
           created_at,
           user_id,
+          status_revisao,
+          revisao_observacao,
           cadastro_insumos(nome),
           profiles(name)
         `)
@@ -338,15 +408,20 @@ function MovimentacoesEstoque() {
     }
   };
 
-  const handleToggleReview = async (id: number, currentStatus: boolean) => {
+  const handleUpdateReviewStatus = async (id: number, newStatus: string) => {
     try {
+      const updateData: any = { status_revisao: newStatus };
+      if (newStatus === 'none' || newStatus === 'pending_user') {
+        updateData.revisao_observacao = null; // Limpa observações antigas ao iniciar novo ciclo
+      }
+
       const { error } = await supabase
         .from("movimentacoes_estoque")
-        .update({ needs_review: !currentStatus })
+        .update(updateData)
         .eq("id", id);
       
       if (error) throw error;
-      setMovimentacoes(movimentacoes.map(m => m.id === id ? { ...m, needs_review: !currentStatus } : m));
+      setMovimentacoes(movimentacoes.map(m => m.id === id ? { ...m, ...updateData } : m));
     } catch (err) {
       console.error("Erro ao alterar status de revisão:", err);
       alert("Erro ao alterar o status de revisão da linha.");
@@ -357,13 +432,49 @@ function MovimentacoesEstoque() {
     <>
       <Helmet>
         <title>Movimentações de Estoque</title>
+        <style>{`
+          @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          }
+        `}</style>
       </Helmet>
 
       <div className="frequencia-container">
         <div className="frequencia-header">
-          <div className="frequencia-title-group">
-            <h1>Movimentações de Estoque</h1>
-            <p>Registre entradas de compras e transferências entre as unidades.</p>
+          <div className="frequencia-title-group" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+            <div>
+              <h1>Movimentações de Estoque</h1>
+              <p>Registre entradas de compras e transferências entre as unidades.</p>
+            </div>
+            {pendingReviewCount > 0 && (
+              <button
+                onClick={() => {
+                  setFilterNeedsReview(!filterNeedsReview);
+                }}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  padding: "8px 16px",
+                  backgroundColor: filterNeedsReview ? "#fee2e2" : "#fef2f2",
+                  color: "#dc2626",
+                  border: `2px solid ${filterNeedsReview ? "#dc2626" : "#fca5a5"}`,
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  cursor: "pointer",
+                  transition: "all 0.2s",
+                  boxShadow: (!isAdmin && pendingReviewCount > 0 && !filterNeedsReview) ? "0 0 0 0 rgba(239, 68, 68, 0.7)" : "none",
+                  animation: (!isAdmin && pendingReviewCount > 0 && !filterNeedsReview) ? "pulse-red 2s infinite" : "none"
+                }}
+                title={isAdmin ? "Ver todas as revisões (Aprovadas e Pendentes)" : "Ver linhas que precisam da sua correção"}
+              >
+                <Icons.BsExclamationCircleFill style={{ fontSize: "1.2rem" }} />
+                {isAdmin ? `${pendingReviewCount} Revisões Pendentes` : `${pendingReviewCount} Correções Solicitadas`}
+              </button>
+            )}
           </div>
         </div>
 
@@ -571,33 +682,56 @@ function MovimentacoesEstoque() {
                   </th>
                   {isAdmin && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px", textAlign: "center" }}>
-                    <button
-                      onClick={() => {
-                        setFilterInsumoId(null);
-                        setFilterData("");
-                        setFilterOrigem("");
-                        setFilterDestino("");
-                      }}
-                      style={{
-                        padding: "6px 12px",
-                        backgroundColor: "#cbd5e1",
-                        color: "#334155",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        fontSize: "0.85rem",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        transition: "0.2s"
-                      }}
-                      title="Limpar Filtros"
-                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#94a3b8"}
-                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#cbd5e1"}
-                    >
-                      <Icons.BsXCircleFill /> Limpar
-                    </button>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setFilterNeedsReview(!filterNeedsReview)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: filterNeedsReview ? "#fee2e2" : "#fef2f2",
+                          color: "#dc2626",
+                          border: `2px solid ${filterNeedsReview ? "#dc2626" : "#fca5a5"}`,
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s"
+                        }}
+                        title="Filtrar por Revisão"
+                      >
+                        <Icons.BsExclamationTriangleFill /> Revisão {pendingReviewCount > 0 ? `(${pendingReviewCount})` : ''}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setFilterInsumoId(null);
+                          setFilterData("");
+                          setFilterOrigem("");
+                          setFilterDestino("");
+                          setFilterNeedsReview(false);
+                        }}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#cbd5e1",
+                          color: "#334155",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s"
+                        }}
+                        title="Limpar Filtros"
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#94a3b8"}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#cbd5e1"}
+                      >
+                        <Icons.BsXCircleFill /> Limpar
+                      </button>
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -755,7 +889,7 @@ function MovimentacoesEstoque() {
                         const dataFormatada = new Date(mov.data_movimentacao + 'T00:00:00').toLocaleDateString('pt-BR');
 
                         content = (
-                          <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={mov.needs_review ? { backgroundColor: "#fca5a5" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
+                          <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={mov.status_revisao === 'pending_user' ? { backgroundColor: "#fca5a5" } : mov.status_revisao === 'pending_admin' ? { backgroundColor: "#fed7aa" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
                             <td>
                               {mov.cadastro_insumos?.nome || "Insumo Excluído"}
                               {isDuplicate && (
@@ -766,14 +900,14 @@ function MovimentacoesEstoque() {
                             </td>
                             <td style={{ textAlign: "center" }}>{dataFormatada}</td>
                             <td style={{ textAlign: "center", fontWeight: "bold" }}>{mov.quantidade}</td>
-                            <td style={mov.needs_review ? { textAlign: "center" } : {
+                            <td style={mov.status_revisao !== 'none' ? { textAlign: "center" } : {
                               textAlign: "center",
                               backgroundColor: getUnitBgColor(mov.origem),
                               color: getUnitColor(mov.origem)
                             }}>
                               {mov.origem}
                             </td>
-                            <td style={mov.needs_review ? { textAlign: "center" } : {
+                            <td style={mov.status_revisao !== 'none' ? { textAlign: "center" } : {
                               textAlign: "center",
                               backgroundColor: getUnitBgColor(mov.destino),
                               color: getUnitColor(mov.destino)
@@ -805,22 +939,69 @@ function MovimentacoesEstoque() {
                             )}
                             <td style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
-                                {isAdmin && !mov.needs_review && (
+                                {isAdmin && mov.status_revisao === 'none' && (
                                   <button
-                                    onClick={() => handleToggleReview(mov.id, mov.needs_review)}
+                                    onClick={() => handleUpdateReviewStatus(mov.id, 'pending_user')}
                                     title="Marcar para Revisão"
                                     style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#ef4444", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
                                   >
                                     <Icons.BsExclamationCircleFill />
                                   </button>
                                 )}
-                                {mov.needs_review && (
+                                {mov.status_revisao === 'pending_admin' && (
+                                  isAdmin ? (
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                      {mov.revisao_observacao && (
+                                        <span title={mov.revisao_observacao} style={{ padding: "4px 4px", fontSize: "1.1rem", color: "#ea580c", cursor: "help", display: "flex", alignItems: "center" }}>
+                                          <Icons.BsInfoCircleFill />
+                                        </span>
+                                      )}
+                                      <button
+                                        onClick={() => handleUpdateReviewStatus(mov.id, 'none')}
+                                        title="Aprovar Correção"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsCheckCircle /> Aprovar
+                                      </button>
+                                      <button
+                                        onClick={() => handleUpdateReviewStatus(mov.id, 'pending_user')}
+                                        title="Rejeitar Correção (Devolver ao Usuário)"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#991b1b", backgroundColor: "#fca5a5", border: "1px solid #991b1b", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsXCircle /> Rejeitar
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span title="Em análise pelo Admin" style={{ fontSize: "0.85rem", color: "#c2410c", backgroundColor: "#ffedd5", border: "1px solid #c2410c", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }}>
+                                      <Icons.BsClockHistory /> Pendente
+                                    </span>
+                                  )
+                                )}
+                                {mov.status_revisao === 'pending_user' && (
                                   <button
-                                    onClick={() => handleToggleReview(mov.id, mov.needs_review)}
-                                    title={isAdmin ? "Desmarcar Revisão" : "Marcar como Revisado"}
-                                    style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                    onClick={() => {
+                                      if (isAdmin) {
+                                        handleUpdateReviewStatus(mov.id, 'none');
+                                      } else {
+                                        if (!mov.revisao_observacao) {
+                                          alert("Por favor, faça a correção da linha antes de marcar como resolvido.");
+                                          setEditingRowId(mov.id);
+                                          setEditRowData({
+                                            insumo_id: mov.insumo_id,
+                                            data_movimentacao: mov.data_movimentacao,
+                                            quantidade: mov.quantidade,
+                                            origem: mov.origem,
+                                            destino: mov.destino
+                                          });
+                                        } else {
+                                          handleUpdateReviewStatus(mov.id, 'pending_admin');
+                                        }
+                                      }
+                                    }}
+                                    title={isAdmin ? "Cancelar Revisão" : "Marcar como Resolvido (Enviar p/ Admin)"}
+                                    style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
                                   >
-                                    <Icons.BsCheckCircle /> OK
+                                    <Icons.BsCheckCircle /> {isAdmin ? "Cancelar" : "Resolvido"}
                                   </button>
                                 )}
                                 <button
