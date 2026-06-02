@@ -40,6 +40,7 @@ import MovimentacoesEstoque from "./routes/MovimentacoesEstoque.tsx";
 import Funcionarios from "./routes/Funcionarios.tsx";
 import TesteWhatsApp from "./routes/TesteWhatsApp.tsx";
 import ListaCompras from "./routes/ListaCompras.tsx";
+import ListaComprasManual from "./routes/ListaComprasManual.tsx";
 import EntradaMercadoria from "./routes/EntradaMercadoria.tsx";
 import CadastroProdutos from "./routes/CadastroProdutos.tsx";
 import AnaliseInsumos from "./routes/AnaliseInsumos.tsx";
@@ -132,6 +133,7 @@ const router = createBrowserRouter(
         <Route path="/movimentacoes-estoque" element={<MovimentacoesEstoque />} />
         <Route path="/teste-whatsapp" element={<TesteWhatsApp />} />
         <Route path="/lista-compras" element={<ListaCompras />} />
+        <Route path="/lista-compras-manual" element={<ListaComprasManual />} />
         <Route path="/entrada-mercadoria" element={<EntradaMercadoria />} />
         <Route path="/cadastro-produtos" element={<CadastroProdutos />} />
         <Route path="/analise-insumos" element={<AnaliseInsumos />} />

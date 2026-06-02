@@ -2,11 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
-import supabase from "../supabase-client";
+import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
+import supabase from "../supabase-client";
 
 function EntradaMercadoria() {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin, user } = useAuth();
+  const [searchParams] = useSearchParams();
   const [compras, setCompras] = useState<any[]>([]);
   const [insumos, setInsumos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,9 +41,11 @@ function EntradaMercadoria() {
   const PAGE_SIZE = 100;
 
   // Filters state
-  const [filterInsumoId, setFilterInsumoId] = useState<string | null>(null);
-  const [filterData, setFilterData] = useState("");
+  const [filterInsumoId, setFilterInsumoId] = useState<string | null>(searchParams.get('insumo_id') || null);
+  const [filterData, setFilterData] = useState(searchParams.get('data_compra') || "");
   const [filterFornecedor, setFilterFornecedor] = useState("");
+  const [filterNeedsReview, setFilterNeedsReview] = useState(false);
+  const [pendingReviewCount, setPendingReviewCount] = useState(0);
 
   const isFirstRender = useRef(true);
 
@@ -65,14 +69,38 @@ function EntradaMercadoria() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      fetchData(false, 0, filterInsumoId, filterData, filterFornecedor);
+      fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterNeedsReview);
       return;
     }
     setPage(0);
-    fetchData(false, 0, filterInsumoId, filterData, filterFornecedor);
-  }, [filterInsumoId, filterData, filterFornecedor]);
+    fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterNeedsReview);
+  }, [filterInsumoId, filterData, filterFornecedor, filterNeedsReview]);
 
-  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fFornecedor = filterFornecedor) {
+  useEffect(() => {
+    async function checkPendingReviews() {
+      try {
+        let query = supabase
+          .from('entradas_mercadoria')
+          .select('*', { count: 'exact', head: true });
+          
+        if (isAdmin) {
+          query = query.in('status_revisao', ['pending_user', 'pending_admin']);
+        } else {
+          query = query.eq('status_revisao', 'pending_user');
+        }
+        
+        const { count, error } = await query;
+        if (!error) {
+          setPendingReviewCount(count || 0);
+        }
+      } catch (err) {
+        console.error("Erro ao checar revisões pendentes:", err);
+      }
+    }
+    checkPendingReviews();
+  }, [compras, isAdmin]);
+
+  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fFornecedor = filterFornecedor, fReview = filterNeedsReview) {
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -104,6 +132,8 @@ function EntradaMercadoria() {
           insumo_id,
           created_at,
           user_id,
+          status_revisao,
+          revisao_observacao,
           cadastro_insumos!inner(nome),
           profiles(name)
         `, { count: 'exact' });
@@ -111,10 +141,18 @@ function EntradaMercadoria() {
       if (fInsumoId) query = query.eq('insumo_id', fInsumoId);
       if (fData) query = query.eq('data_compra', fData);
       if (fFornecedor) query = query.ilike('fornecedor', `%${fFornecedor}%`);
+      if (fReview) {
+        if (isAdmin) {
+          query = query.in('status_revisao', ['pending_user', 'pending_admin']);
+        } else {
+          query = query.eq('status_revisao', 'pending_user');
+        }
+      }
 
       const { data: movData, count, error: movError } = await query
         .order("data_compra", { ascending: false })
         .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
         .range(from, to);
 
       if (movError) throw movError;
@@ -215,6 +253,8 @@ function EntradaMercadoria() {
           insumo_id,
           created_at,
           user_id,
+          status_revisao,
+          revisao_observacao,
           cadastro_insumos(nome),
           profiles(name)
         `)
@@ -293,15 +333,48 @@ function EntradaMercadoria() {
 
     try {
       setSavingEdit(true);
+      const originalRow = compras.find(c => c.id === editingRowId);
+      let observacaoAdicional = "";
+      
+      if (originalRow && originalRow.status_revisao === 'pending_user') {
+        const diffs = [];
+        if (originalRow.insumo_id !== editRowData.insumo_id) {
+           const nomeAntigo = originalRow.cadastro_insumos?.nome || "Desconhecido";
+           const nomeNovo = insumos.find(i => i.id === editRowData.insumo_id)?.nome || "Desconhecido";
+           diffs.push(`Insumo: ${nomeAntigo} ➔ ${nomeNovo}`);
+        }
+        if (originalRow.data_compra !== editRowData.data_compra) diffs.push(`Data: ${originalRow.data_compra} ➔ ${editRowData.data_compra}`);
+        if ((originalRow.fornecedor || "") !== (editRowData.fornecedor || "")) diffs.push(`Fornec: ${originalRow.fornecedor || "-"} ➔ ${editRowData.fornecedor || "-"}`);
+        if (String(originalRow.quantidade_comprada) !== String(editRowData.quantidade_comprada)) diffs.push(`Qtd: ${originalRow.quantidade_comprada} ➔ ${editRowData.quantidade_comprada}`);
+        if (String(originalRow.valor_unitario) !== String(editRowData.valor_unitario)) diffs.push(`Valor: ${originalRow.valor_unitario || "-"} ➔ ${editRowData.valor_unitario}`);
+        
+        if (diffs.length > 0) {
+          const prev = originalRow.revisao_observacao;
+          const prefix = (prev && prev !== "Sem alterações") ? prev + " | " : "";
+          observacaoAdicional = prefix + diffs.join(", ");
+        } else {
+          observacaoAdicional = originalRow.revisao_observacao || "Sem alterações";
+        }
+      }
+
+      const updateData: any = {
+        insumo_id: editRowData.insumo_id,
+        data_compra: editRowData.data_compra,
+        fornecedor: editRowData.fornecedor,
+        quantidade_comprada: parseFloat(editRowData.quantidade_comprada) || 0,
+        valor_unitario: parseFloat(editRowData.valor_unitario) || null
+      };
+
+      if (originalRow && originalRow.status_revisao === 'pending_user') {
+        updateData.revisao_observacao = observacaoAdicional;
+        if (!isAdmin) {
+          updateData.status_revisao = 'pending_admin';
+        }
+      }
+
       const { data, error } = await supabase
         .from("entradas_mercadoria")
-        .update({
-          insumo_id: editRowData.insumo_id,
-          data_compra: editRowData.data_compra,
-          fornecedor: editRowData.fornecedor,
-          quantidade_comprada: parseFloat(editRowData.quantidade_comprada) || 0,
-          valor_unitario: parseFloat(editRowData.valor_unitario) || null
-        })
+        .update(updateData)
         .eq("id", editingRowId)
         .select(`
           id,
@@ -312,6 +385,8 @@ function EntradaMercadoria() {
           insumo_id,
           created_at,
           user_id,
+          status_revisao,
+          revisao_observacao,
           cadastro_insumos!inner(nome),
           profiles(name)
         `)
@@ -347,6 +422,26 @@ function EntradaMercadoria() {
     }
   };
 
+  const handleUpdateReviewStatus = async (id: number, newStatus: string) => {
+    try {
+      const updateData: any = { status_revisao: newStatus };
+      if (newStatus === 'none' || newStatus === 'pending_user') {
+        updateData.revisao_observacao = null; // Limpa observações antigas ao iniciar novo ciclo
+      }
+
+      const { error } = await supabase
+        .from("entradas_mercadoria")
+        .update(updateData)
+        .eq("id", id);
+      
+      if (error) throw error;
+      setCompras(compras.map(c => c.id === id ? { ...c, ...updateData } : c));
+    } catch (err) {
+      console.error("Erro ao alterar status de revisão:", err);
+      alert("Erro ao alterar o status de revisão da linha.");
+    }
+  };
+
   const handleInsumoSelect = (selectedOption: any) => {
     if (selectedOption) {
        const insumo = insumos.find(i => i.id === selectedOption.value);
@@ -364,6 +459,13 @@ function EntradaMercadoria() {
     <>
       <Helmet>
         <title>Entrada de Mercadoria</title>
+        <style>{`
+          @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          }
+        `}</style>
       </Helmet>
 
       <div className="frequencia-container">
@@ -625,32 +727,56 @@ function EntradaMercadoria() {
                   <th style={{ padding: "8px" }}></th>
                   {isAdmin && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px", textAlign: "center" }}>
-                    <button
-                      onClick={() => {
-                        setFilterInsumoId(null);
-                        setFilterData("");
-                        setFilterFornecedor("");
-                      }}
-                      style={{
-                        padding: "6px 12px",
-                        backgroundColor: "#cbd5e1",
-                        color: "#334155",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        fontSize: "0.85rem",
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "4px",
-                        transition: "0.2s"
-                      }}
-                      title="Limpar Filtros"
-                      onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#94a3b8"}
-                      onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#cbd5e1"}
-                    >
-                      <Icons.BsXCircleFill /> Limpar
-                    </button>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+                      <button
+                        onClick={() => setFilterNeedsReview(!filterNeedsReview)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: filterNeedsReview ? "#fca5a5" : (pendingReviewCount > 0 ? "#fee2e2" : "#e2e8f0"),
+                          color: filterNeedsReview ? "#7f1d1d" : (pendingReviewCount > 0 ? "#dc2626" : "#475569"),
+                          border: pendingReviewCount > 0 && !filterNeedsReview ? "1px solid #fca5a5" : "1px solid transparent",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s",
+                          animation: pendingReviewCount > 0 && !filterNeedsReview ? "pulse-red 2s infinite" : "none"
+                        }}
+                        title="Filtrar por Revisão"
+                      >
+                        <Icons.BsExclamationTriangleFill /> Revisão {pendingReviewCount > 0 ? `(${pendingReviewCount})` : ""}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setFilterInsumoId(null);
+                          setFilterData("");
+                          setFilterFornecedor("");
+                          setFilterNeedsReview(false);
+                        }}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#cbd5e1",
+                          color: "#334155",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s"
+                        }}
+                        title="Limpar Filtros"
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#94a3b8"}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#cbd5e1"}
+                      >
+                        <Icons.BsXCircleFill /> Limpar
+                      </button>
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -670,30 +796,12 @@ function EntradaMercadoria() {
                 ) : (
                   (() => {
                     const duplicatesMap: Record<string, number> = {};
-                    let hasAnyDuplicate = false;
                     compras.forEach(c => {
                       const key = `${c.insumo_id}_${c.data_compra}_${c.quantidade_comprada}_${c.valor_unitario}`;
                       duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
-                      if (duplicatesMap[key] > 1) {
-                        hasAnyDuplicate = true;
-                      }
                     });
                     
-                    return (
-                      <>
-                        {hasAnyDuplicate && (
-                          <tr>
-                            <td colSpan={isAdmin ? 8 : 7} style={{ padding: "12px" }}>
-                              <div style={{ backgroundColor: "#fffbeb", borderLeft: "4px solid #f59e0b", padding: "12px 16px", borderRadius: "4px", display: "flex", alignItems: "center", gap: "12px", color: "#b45309" }}>
-                                <Icons.BsExclamationTriangleFill style={{ fontSize: "1.5rem" }} />
-                                <div>
-                                  <strong>Atenção:</strong> Foram detectados lançamentos possivelmente duplicados nesta página (mesmo insumo, data, quantidade e valor). Eles estão destacados em amarelo abaixo.
-                                </div>
-                              </div>
-                            </td>
-                          </tr>
-                        )}
-                        {compras.map((comp) => {
+                    return compras.map((comp, index) => {
                       const dataFormatada = new Date(comp.data_compra + 'T00:00:00').toLocaleDateString('pt-BR');
                       const total = comp.quantidade_comprada * comp.valor_unitario;
                       
@@ -701,8 +809,30 @@ function EntradaMercadoria() {
                       const isDuplicate = duplicatesMap[key] > 1;
                       const isEditing = editingRowId === comp.id;
 
+                      const isToday = comp.data_compra === getToday();
+                      const prevComp = index > 0 ? compras[index - 1] : null;
+                      const prevIsToday = prevComp ? prevComp.data_compra === getToday() : false;
+                      
+                      const showHojeHeader = isToday && index === 0;
+                      const showAnterioresHeader = !isToday && (index === 0 || prevIsToday);
+
+                      const headerRow = showHojeHeader ? (
+                        <tr key={`header-hoje-${comp.id}`} style={{ backgroundColor: "#f0fdf4" }}>
+                          <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#166534", borderTop: "2px solid #bbf7d0", borderBottom: "2px solid #bbf7d0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                            Lançamentos de Hoje
+                          </td>
+                        </tr>
+                      ) : showAnterioresHeader ? (
+                        <tr key={`header-ant-${comp.id}`} style={{ backgroundColor: "#f8fafc" }}>
+                          <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#64748b", borderTop: "2px solid #e2e8f0", borderBottom: "2px solid #e2e8f0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                            Lançamentos Anteriores
+                          </td>
+                        </tr>
+                      ) : null;
+
+                      let contentRow;
                       if (isEditing) {
-                        return (
+                        contentRow = (
                           <tr key={comp.id} style={{ backgroundColor: "#f8fafc" }}>
                             <td style={{ padding: "8px" }}>
                               <Select
@@ -755,26 +885,8 @@ function EntradaMercadoria() {
                               -
                             </td>
                             {isAdmin && (
-                              <td style={{ textAlign: "center" }}>
-                                <div 
-                                  title={comp.created_at ? `Registrado em: ${new Date(comp.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
-                                  style={{ 
-                                    color: "#334155", 
-                                    fontWeight: 600, 
-                                    display: "inline-flex", 
-                                    alignItems: "center", 
-                                    justifyContent: "center", 
-                                    gap: "6px", 
-                                    cursor: "help",
-                                    backgroundColor: "#f8fafc",
-                                    padding: "4px 8px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #e2e8f0"
-                                  }}
-                                >
-                                  <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
-                                  {comp.profiles?.name || "-"}
-                                </div>
+                              <td style={{ textAlign: "center", color: "var(--text-dark)", fontWeight: "bold" }}>
+                                -
                               </td>
                             )}
                             <td style={{ textAlign: "center" }}>
@@ -799,84 +911,154 @@ function EntradaMercadoria() {
                             </td>
                           </tr>
                         );
-                      }
-                      
-                      return (
-                        <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={isDuplicate ? { backgroundColor: "#fef08a" } : {}}>
-                          <td style={{ fontWeight: 600 }}>
-                            {comp.cadastro_insumos?.nome || "Insumo Excluído"}
-                            {isDuplicate && (
-                              <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
-                                <Icons.BsExclamationTriangleFill />
-                              </span>
+                      } else {
+                        contentRow = (
+                          <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={comp.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : comp.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
+                            <td style={{ fontWeight: 600 }}>
+                              {comp.cadastro_insumos?.nome || "Insumo Excluído"}
+                              {isDuplicate && (
+                                <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
+                                  <Icons.BsExclamationTriangleFill />
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ textAlign: "center" }}>{dataFormatada}</td>
+                            <td style={{ textAlign: "center" }}>{comp.fornecedor || "-"}</td>
+                            <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.quantidade_comprada}</td>
+                            <td style={{ textAlign: "center", color: "var(--text-dark)" }}>
+                              {comp.valor_unitario ? `R$ ${comp.valor_unitario.toFixed(2)}` : "-"}
+                            </td>
+                            <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
+                              {total ? `R$ ${total.toFixed(2)}` : "-"}
+                            </td>
+                            {isAdmin && (
+                              <td style={{ textAlign: "center" }}>
+                                <div 
+                                  title={comp.created_at ? `Registrado em: ${new Date(comp.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
+                                  style={{ 
+                                    color: "#334155", 
+                                    fontWeight: 600, 
+                                    display: "inline-flex", 
+                                    alignItems: "center", 
+                                    justifyContent: "center", 
+                                    gap: "6px", 
+                                    cursor: "help",
+                                    backgroundColor: "#f8fafc",
+                                    padding: "4px 8px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #e2e8f0"
+                                  }}
+                                >
+                                  <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
+                                  {comp.profiles?.name || "-"}
+                                </div>
+                              </td>
                             )}
-                          </td>
-                          <td style={{ textAlign: "center" }}>{dataFormatada}</td>
-                          <td style={{ textAlign: "center" }}>{comp.fornecedor || "-"}</td>
-                          <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.quantidade_comprada}</td>
-                          <td style={{ textAlign: "center", color: "var(--text-dark)" }}>
-                            {comp.valor_unitario ? `R$ ${comp.valor_unitario.toFixed(2)}` : "-"}
-                          </td>
-                          <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
-                            {total ? `R$ ${total.toFixed(2)}` : "-"}
-                          </td>
-                          {isAdmin && (
                             <td style={{ textAlign: "center" }}>
-                              <div 
-                                title={comp.created_at ? `Registrado em: ${new Date(comp.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
-                                style={{ 
-                                  color: "#334155", 
-                                  fontWeight: 600, 
-                                  display: "inline-flex", 
-                                  alignItems: "center", 
-                                  justifyContent: "center", 
-                                  gap: "6px", 
-                                  cursor: "help",
-                                  backgroundColor: "#f8fafc",
-                                  padding: "4px 8px",
-                                  borderRadius: "6px",
-                                  border: "1px solid #e2e8f0"
-                                }}
-                              >
-                                <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
-                                {comp.profiles?.name || "-"}
+                              <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                                {isAdmin && (!comp.status_revisao || comp.status_revisao === 'none') && (
+                                  <button
+                                    onClick={() => handleUpdateReviewStatus(comp.id, 'pending_user')}
+                                    title="Marcar para Revisão"
+                                    style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#ef4444", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                  >
+                                    <Icons.BsExclamationCircleFill />
+                                  </button>
+                                )}
+                                {comp.status_revisao === 'pending_user' && (
+                                  <button
+                                    onClick={() => {
+                                      if (isAdmin) {
+                                        handleUpdateReviewStatus(comp.id, 'none');
+                                      } else {
+                                        if (!comp.revisao_observacao) {
+                                          alert("Por favor, faça a correção da linha antes de marcar como resolvido.");
+                                          setEditingRowId(comp.id);
+                                          setEditRowData({
+                                            insumo_id: comp.insumo_id,
+                                            data_compra: comp.data_compra,
+                                            fornecedor: comp.fornecedor || "",
+                                            quantidade_comprada: comp.quantidade_comprada,
+                                            valor_unitario: comp.valor_unitario || ""
+                                          });
+                                        } else {
+                                          handleUpdateReviewStatus(comp.id, 'pending_admin');
+                                        }
+                                      }
+                                    }}
+                                    title={isAdmin ? "Cancelar Revisão" : "Marcar como Resolvido (Enviar p/ Admin)"}
+                                    style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                  >
+                                    <Icons.BsCheckCircle /> {isAdmin ? "Cancelar" : "Resolvido"}
+                                  </button>
+                                )}
+                                {comp.status_revisao === 'pending_admin' && (
+                                  isAdmin ? (
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                      {comp.revisao_observacao && (
+                                        <span title={comp.revisao_observacao} style={{ padding: "4px 4px", fontSize: "1.1rem", color: "#ea580c", cursor: "help", display: "flex", alignItems: "center" }}>
+                                          <Icons.BsInfoCircleFill />
+                                        </span>
+                                      )}
+                                      <button
+                                        onClick={() => handleUpdateReviewStatus(comp.id, 'none')}
+                                        title="Aprovar Correção"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsCheckAll />
+                                      </button>
+                                      <button
+                                        onClick={() => handleUpdateReviewStatus(comp.id, 'pending_user')}
+                                        title="Rejeitar Correção"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#9a3412", backgroundColor: "#fed7aa", border: "1px solid #9a3412", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsArrowCounterclockwise />
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span style={{ fontSize: "0.85rem", color: "#c2410c", backgroundColor: "#ffedd5", border: "1px solid #c2410c", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }}>
+                                      <Icons.BsClockHistory /> Pendente
+                                    </span>
+                                  )
+                                )}
+                                <button
+                                  onClick={() => {
+                                    setEditingRowId(comp.id);
+                                    setEditRowData({
+                                      insumo_id: comp.insumo_id,
+                                      data_compra: comp.data_compra,
+                                      fornecedor: comp.fornecedor || "",
+                                      quantidade_comprada: comp.quantidade_comprada,
+                                      valor_unitario: comp.valor_unitario || ""
+                                    });
+                                  }}
+                                  className="nav-btn"
+                                  title="Editar"
+                                  style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsPencil />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(comp.id)}
+                                  className="delete-record-btn"
+                                  title="Excluir"
+                                  style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsTrash />
+                                </button>
                               </div>
                             </td>
-                          )}
-                          <td style={{ textAlign: "center" }}>
-                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                              <button
-                                onClick={() => {
-                                  setEditingRowId(comp.id);
-                                  setEditRowData({
-                                    insumo_id: comp.insumo_id,
-                                    data_compra: comp.data_compra,
-                                    fornecedor: comp.fornecedor || "",
-                                    quantidade_comprada: comp.quantidade_comprada,
-                                    valor_unitario: comp.valor_unitario || ""
-                                  });
-                                }}
-                                className="nav-btn"
-                                title="Editar"
-                                style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                              >
-                                <Icons.BsPencil />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(comp.id)}
-                                className="delete-record-btn"
-                                title="Excluir"
-                                style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
-                              >
-                                <Icons.BsTrash />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
+                          </tr>
+                        );
+                      }
+
+                      return (
+                        <React.Fragment key={`frag-${comp.id}`}>
+                          {headerRow}
+                          {contentRow}
+                        </React.Fragment>
                       );
-                    })}
-                      </>
-                    );
+                    });
                   })()
                 )}
               </tbody>
