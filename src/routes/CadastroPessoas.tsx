@@ -56,6 +56,8 @@ interface Profile {
   dependentes?: number | null;
   ctps?: string | null;
   unidade_registrada?: string | null;
+  chaves?: string | null;
+  uniformes?: string | null;
 }
 
 function CadastroPessoas() {
@@ -73,7 +75,7 @@ function CadastroPessoas() {
   
   const initialFormData = {
     id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true, data_registro: "", passagens_urbs: 0, passagens_metrocard: 0,
-    data_demissao: "", cpf: "", rg: "", cargo: "", telefone: "", endereco: "", sexo: "", data_nascimento: "", cidade_nascimento: "", estado_civil: "", dependentes: 0, ctps: "", unidade_registrada: ""
+    data_demissao: "", cpf: "", rg: "", cargo: "", telefone: "", endereco: "", sexo: "", data_nascimento: "", cidade_nascimento: "", estado_civil: "", dependentes: 0, ctps: "", unidade_registrada: "", chaves: "", uniformes: ""
   };
   const [formData, setFormData] = useState(initialFormData);
   const [createLogin, setCreateLogin] = useState(false);
@@ -188,7 +190,9 @@ function CadastroPessoas() {
         estado_civil: profile.estado_civil || "",
         dependentes: profile.dependentes ?? 0,
         ctps: profile.ctps || "",
-        unidade_registrada: profile.unidade_registrada || ""
+        unidade_registrada: profile.unidade_registrada || "",
+        chaves: profile.chaves || "",
+        uniformes: profile.uniformes || ""
       });
       setCreateLogin(false);
     } else {
@@ -244,6 +248,8 @@ function CadastroPessoas() {
             dependentes: formData.dependentes || 0,
             ctps: formData.ctps || null,
             unidade_registrada: formData.unidade_registrada || null,
+            chaves: formData.chaves || null,
+            uniformes: formData.uniformes || null,
             updated_at: new Date().toISOString()
           })
           .eq("id", formData.id);
@@ -302,6 +308,8 @@ function CadastroPessoas() {
                 dependentes: formData.dependentes || 0,
                 ctps: formData.ctps || null,
                 unidade_registrada: formData.unidade_registrada || null,
+                chaves: formData.chaves || null,
+                uniformes: formData.uniformes || null,
                 updated_at: new Date().toISOString()
               }], { onConflict: 'id' });
 
@@ -339,6 +347,8 @@ function CadastroPessoas() {
               dependentes: formData.dependentes || 0,
               ctps: formData.ctps || null,
               unidade_registrada: formData.unidade_registrada || null,
+              chaves: formData.chaves || null,
+              uniformes: formData.uniformes || null,
               updated_at: new Date().toISOString()
             }]);
           if (insertError) throw insertError;
@@ -535,7 +545,7 @@ function CadastroPessoas() {
 
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: generatedPassword ? "400px" : "680px" }}>
+          <div className="modal-content" style={{ maxWidth: generatedPassword ? "400px" : "900px" }}>
             <h2>{formData.id ? "Editar Pessoa" : "Nova Pessoa"}</h2>
 
             {generatedPassword ? (
@@ -550,22 +560,26 @@ function CadastroPessoas() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-                <div className="tabs-header" style={{ display: "flex", gap: "16px", borderBottom: "1px solid var(--border-color)", marginBottom: "16px" }}>
+              <form onSubmit={handleSave} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div className="tabs-header" style={{ display: "flex", gap: "16px", borderBottom: "1px solid var(--border-color)", marginBottom: "12px" }}>
                   <button type="button" onClick={() => setActiveTab("pessoais")} style={{ background: "none", border: "none", borderBottom: activeTab === "pessoais" ? "2px solid var(--primary-color)" : "2px solid transparent", color: activeTab === "pessoais" ? "var(--primary-color)" : "var(--text-muted)", padding: "8px 16px", cursor: "pointer", fontWeight: "bold", fontSize: "14px", transition: "all 0.2s" }}>Dados Pessoais</button>
                   <button type="button" onClick={() => setActiveTab("contratuais")} style={{ background: "none", border: "none", borderBottom: activeTab === "contratuais" ? "2px solid var(--primary-color)" : "2px solid transparent", color: activeTab === "contratuais" ? "var(--primary-color)" : "var(--text-muted)", padding: "8px 16px", cursor: "pointer", fontWeight: "bold", fontSize: "14px", transition: "all 0.2s" }}>Dados Contratuais</button>
                 </div>
                 
                 {activeTab === "pessoais" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "16px", animation: "popoverFadeIn 0.2s ease-out" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px", animation: "popoverFadeIn 0.2s ease-out" }}>
                     <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
                       <div className="form-group" style={{ flex: 2 }}>
                         <label>Nome Completo</label>
                         <input type="text" required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ex: João Silva" />
                       </div>
-                      <div className="form-group" style={{ flex: 1.5 }}>
+                      <div className="form-group" style={{ flex: 2 }}>
                         <label>E-mail</label>
                         <input type="email" required value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} placeholder="joao@exemplo.com" />
+                      </div>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <label>Telefone / WhatsApp</label>
+                        <input type="text" value={formData.telefone || ""} onChange={(e) => setFormData({ ...formData, telefone: e.target.value })} placeholder="(00) 00000-0000" />
                       </div>
                     </div>
                     
@@ -582,12 +596,14 @@ function CadastroPessoas() {
                         <label>Data de Nascimento</label>
                         <input type="date" value={formData.data_nascimento || ""} onChange={(e) => setFormData({ ...formData, data_nascimento: e.target.value })} style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px", width: "100%" }} />
                       </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
                       <div className="form-group" style={{ flex: 1 }}>
-                        <label>Telefone / WhatsApp</label>
-                        <input type="text" value={formData.telefone || ""} onChange={(e) => setFormData({ ...formData, telefone: e.target.value })} placeholder="(00) 00000-0000" />
+                        <label>Sexo</label>
+                        <select value={formData.sexo || ""} onChange={(e) => setFormData({ ...formData, sexo: e.target.value })} style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px", width: "100%", backgroundColor: "#fff" }}>
+                          <option value="">Selecione</option>
+                          <option value="Masculino">Masculino</option>
+                          <option value="Feminino">Feminino</option>
+                          <option value="Outro">Outro</option>
+                        </select>
                       </div>
                       <div className="form-group" style={{ flex: 1 }}>
                         <label>Estado Civil</label>
@@ -599,15 +615,6 @@ function CadastroPessoas() {
                           <option value="Viúvo(a)">Viúvo(a)</option>
                         </select>
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
-                        <label>Sexo</label>
-                        <select value={formData.sexo || ""} onChange={(e) => setFormData({ ...formData, sexo: e.target.value })} style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px", width: "100%", backgroundColor: "#fff" }}>
-                          <option value="">Selecione</option>
-                          <option value="Masculino">Masculino</option>
-                          <option value="Feminino">Feminino</option>
-                          <option value="Outro">Outro</option>
-                        </select>
-                      </div>
                     </div>
 
                     <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
@@ -615,7 +622,7 @@ function CadastroPessoas() {
                         <label>Endereço Completo</label>
                         <input type="text" value={formData.endereco || ""} onChange={(e) => setFormData({ ...formData, endereco: e.target.value })} placeholder="Rua, Número, Bairro, CEP" />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
+                      <div className="form-group" style={{ flex: 1.5 }}>
                         <label style={{ whiteSpace: "nowrap" }}>Cidade de Nascimento</label>
                         <input type="text" value={formData.cidade_nascimento || ""} onChange={(e) => setFormData({ ...formData, cidade_nascimento: e.target.value })} />
                       </div>
@@ -628,9 +635,9 @@ function CadastroPessoas() {
                 )}
 
                 {activeTab === "contratuais" && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "16px", animation: "popoverFadeIn 0.2s ease-out" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px", animation: "popoverFadeIn 0.2s ease-out" }}>
                     <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
-                      <div className="form-group" style={{ flex: 1 }}>
+                      <div className="form-group" style={{ flex: 1.5 }}>
                         <label>Cargo</label>
                         <input type="text" value={formData.cargo || ""} onChange={(e) => setFormData({ ...formData, cargo: e.target.value })} />
                       </div>
@@ -646,16 +653,24 @@ function CadastroPessoas() {
                         <label>ID (Máx 4)</label>
                         <input type="text" maxLength={4} value={formData.short_id || ""} onChange={(e) => setFormData({ ...formData, short_id: e.target.value.replace(/\D/g, '') })} placeholder="1234" />
                       </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
                       <div className="form-group" style={{ flex: 1 }}>
-                        <label>Data de Admissão</label>
+                        <label>Data Admissão</label>
                         <input type="date" value={formData.data_registro || ""} onChange={(e) => setFormData({ ...formData, data_registro: e.target.value })} style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px", width: "100%" }} />
                       </div>
                       <div className="form-group" style={{ flex: 1 }}>
-                        <label>Data de Demissão</label>
+                        <label>Data Demissão</label>
                         <input type="date" value={formData.data_demissao || ""} onChange={(e) => setFormData({ ...formData, data_demissao: e.target.value })} style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px", width: "100%" }} />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
+                      <div className="form-group" style={{ flex: 1.5 }}>
+                        <label>Uniformes</label>
+                        <input type="text" value={formData.uniformes || ""} onChange={(e) => setFormData({ ...formData, uniformes: e.target.value })} placeholder="Ex: 2 camisas, 1 boné" />
+                      </div>
+                      <div className="form-group" style={{ flex: 1.5 }}>
+                        <label>Chaves</label>
+                        <input type="text" value={formData.chaves || ""} onChange={(e) => setFormData({ ...formData, chaves: e.target.value })} placeholder="Ex: Chave da porta G" />
                       </div>
                       <div className="form-group" style={{ flex: 1 }}>
                         <label style={{ textTransform: "none", whiteSpace: "nowrap" }}>Passagens URBS/Dia</label>
@@ -681,37 +696,29 @@ function CadastroPessoas() {
                         })}
                       </div>
                     </div>
+                  </div>
+                )}
 
-                    <div style={{ display: "flex", gap: "16px", marginTop: "12px", padding: "12px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
-                      <div className="checkbox-group">
-                        <input type="checkbox" id="ativoCheckbox" checked={formData.ativo} onChange={(e) => setFormData({ ...formData, ativo: e.target.checked })} />
-                        <label htmlFor="ativoCheckbox">Usuário Ativo</label>
-                      </div>
-                      <div className="checkbox-group">
-                        <input type="checkbox" id="controlarFrequenciaCheckbox" checked={formData.controlar_frequencia} onChange={(e) => setFormData({ ...formData, controlar_frequencia: e.target.checked })} />
-                        <label htmlFor="controlarFrequenciaCheckbox">Controlar Frequência</label>
-                      </div>
-                      <div className="checkbox-group">
-                        <input type="checkbox" id="isAdminCheckbox" checked={formData.is_admin} onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })} />
-                        <label htmlFor="isAdminCheckbox">Administrador</label>
-                      </div>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "8px", padding: "12px", background: "#f8fafc", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                  <div className="checkbox-group">
+                    <input type="checkbox" id="ativoCheckbox" checked={formData.ativo} onChange={(e) => setFormData({ ...formData, ativo: e.target.checked })} />
+                    <label htmlFor="ativoCheckbox">Usuário Ativo</label>
+                  </div>
+                  <div className="checkbox-group">
+                    <input type="checkbox" id="controlarFrequenciaCheckbox" checked={formData.controlar_frequencia} onChange={(e) => setFormData({ ...formData, controlar_frequencia: e.target.checked })} />
+                    <label htmlFor="controlarFrequenciaCheckbox">Controlar Frequência</label>
+                  </div>
+                  <div className="checkbox-group">
+                    <input type="checkbox" id="isAdminCheckbox" checked={formData.is_admin} onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })} />
+                    <label htmlFor="isAdminCheckbox">Administrador</label>
+                  </div>
+                  {!formData.id && (
+                    <div className="checkbox-group">
+                      <input type="checkbox" id="createLoginCheckbox" checked={createLogin} onChange={(e) => setCreateLogin(e.target.checked)} />
+                      <label htmlFor="createLoginCheckbox">Gerar senha de acesso (Login)</label>
                     </div>
-                  </div>
-                )}
-
-                {!formData.id && (
-                  <div className="checkbox-group" style={{ paddingTop: "12px", borderTop: "1px solid var(--border-color)", marginTop: "8px" }}>
-                    <input
-                      type="checkbox"
-                      id="createLoginCheckbox"
-                      checked={createLogin}
-                      onChange={(e) => setCreateLogin(e.target.checked)}
-                    />
-                    <label htmlFor="createLoginCheckbox">
-                      Gerar senha de acesso (Login)
-                    </label>
-                  </div>
-                )}
+                  )}
+                </div>
 
                 <div className="modal-actions" style={{ marginTop: "12px", borderTop: "1px solid var(--border-color)", paddingTop: "12px" }}>
                   <button type="button" className="cancel-btn" onClick={closeModal} disabled={saving}>
