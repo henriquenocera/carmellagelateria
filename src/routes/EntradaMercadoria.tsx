@@ -832,6 +832,28 @@ function EntradaMercadoria() {
                       >
                         <Icons.BsXCircleFill /> Limpar
                       </button>
+                      <button
+                        onClick={() => fetchData(false, 0)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#f1f5f9",
+                          color: "#334155",
+                          border: "1px solid #cbd5e1",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s"
+                        }}
+                        title="Atualizar Dados"
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e2e8f0"}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f5f9"}
+                      >
+                        <Icons.BsArrowClockwise /> Atualizar
+                      </button>
                     </div>
                   </th>
                 </tr>

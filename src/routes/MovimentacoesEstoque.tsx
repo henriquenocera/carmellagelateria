@@ -63,8 +63,9 @@ function MovimentacoesEstoque() {
   const [filterData, setFilterData] = useState("");
   const [filterOrigem, setFilterOrigem] = useState("");
   const [filterDestino, setFilterDestino] = useState("");
-  const [filterNeedsReview, setFilterNeedsReview] = useState(false);
+  const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
+  const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
 
   const isFirstRender = useRef(true);
 
@@ -85,38 +86,41 @@ function MovimentacoesEstoque() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      fetchData(false, 0, filterInsumoId, filterData, filterOrigem, filterDestino);
+      fetchData(false, 0, filterInsumoId, filterData, filterOrigem, filterDestino, filterStatus);
       return;
     }
     setPage(0);
-    fetchData(false, 0, filterInsumoId, filterData, filterOrigem, filterDestino, filterNeedsReview);
-  }, [filterInsumoId, filterData, filterOrigem, filterDestino, filterNeedsReview]);
+    fetchData(false, 0, filterInsumoId, filterData, filterOrigem, filterDestino, filterStatus);
+  }, [filterInsumoId, filterData, filterOrigem, filterDestino, filterStatus]);
 
   useEffect(() => {
-    async function checkPendingReviews() {
+    async function checkPendingCounts() {
       try {
-        let query = supabase
-          .from('movimentacoes_estoque')
-          .select('*', { count: 'exact', head: true });
-          
+        let revQuery = supabase.from('movimentacoes_estoque').select('*', { count: 'exact', head: true });
         if (isAdmin) {
-          query = query.in('status_revisao', ['pending_user', 'pending_admin']);
+          revQuery = revQuery.in('status_revisao', ['pending_user', 'pending_admin']);
         } else {
-          query = query.eq('status_revisao', 'pending_user');
+          revQuery = revQuery.eq('status_revisao', 'pending_user');
         }
         
-        const { count, error } = await query;
-        if (!error) {
-          setPendingReviewCount(count || 0);
+        const { count: revCount, error: revError } = await revQuery;
+        if (!revError) setPendingReviewCount(revCount || 0);
+
+        if (isAdmin) {
+          const { count: delCount, error: delError } = await supabase
+            .from('movimentacoes_estoque')
+            .select('*', { count: 'exact', head: true })
+            .eq('status_revisao', 'pending_delete');
+          if (!delError) setPendingDeleteCount(delCount || 0);
         }
       } catch (err) {
-        console.error("Erro ao checar revisões pendentes:", err);
+        console.error("Erro ao checar revisões/deletes:", err);
       }
     }
-    checkPendingReviews();
+    checkPendingCounts();
   }, [movimentacoes, isAdmin]);
 
-  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fOrigem = filterOrigem, fDestino = filterDestino, fReview = filterNeedsReview) {
+  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fOrigem = filterOrigem, fDestino = filterDestino, fStatus = filterStatus) {
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -160,11 +164,18 @@ function MovimentacoesEstoque() {
       if (fData) query = query.eq('data_movimentacao', fData);
       if (fOrigem) query = query.eq('origem', fOrigem);
       if (fDestino) query = query.eq('destino', fDestino);
-      if (fReview) {
+      
+      if (fStatus === 'review') {
         if (isAdmin) {
           query = query.in('status_revisao', ['pending_user', 'pending_admin']);
         } else {
           query = query.eq('status_revisao', 'pending_user');
+        }
+      } else if (fStatus === 'deleted') {
+        query = query.eq('status_revisao', 'pending_delete');
+      } else {
+        if (!isAdmin) {
+          query = query.or('status_revisao.is.null,status_revisao.neq.pending_delete');
         }
       }
 
@@ -395,13 +406,25 @@ function MovimentacoesEstoque() {
   const handleDelete = async (id: string) => {
     if (!window.confirm("Deseja realmente excluir esta movimentação? O histórico será perdido.")) return;
     try {
-      const { error } = await supabase
-        .from("movimentacoes_estoque")
-        .delete()
-        .eq("id", id);
-
-      if (error) throw error;
-      setMovimentacoes(movimentacoes.filter(m => m.id !== id));
+      if (isAdmin) {
+        const { error } = await supabase
+          .from("movimentacoes_estoque")
+          .delete()
+          .eq("id", id);
+        if (error) throw error;
+        setMovimentacoes(movimentacoes.filter(m => m.id !== id));
+      } else {
+        const { error } = await supabase
+          .from("movimentacoes_estoque")
+          .update({ status_revisao: 'pending_delete' })
+          .eq("id", id);
+        if (error) throw error;
+        if (filterStatus !== 'deleted') {
+          setMovimentacoes(movimentacoes.filter(m => m.id !== id));
+        } else {
+          setMovimentacoes(movimentacoes.map(c => c.id === id ? { ...c, status_revisao: 'pending_delete' } : c));
+        }
+      }
     } catch (err) {
       console.error("Erro ao deletar:", err);
       alert("Erro ao excluir o registro.");
@@ -451,23 +474,23 @@ function MovimentacoesEstoque() {
             {pendingReviewCount > 0 && (
               <button
                 onClick={() => {
-                  setFilterNeedsReview(!filterNeedsReview);
+                  setFilterStatus(filterStatus === 'review' ? 'all' : 'review');
                 }}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
                   padding: "8px 16px",
-                  backgroundColor: filterNeedsReview ? "#fee2e2" : "#fef2f2",
+                  backgroundColor: filterStatus === 'review' ? "#fee2e2" : "#fef2f2",
                   color: "#dc2626",
-                  border: `2px solid ${filterNeedsReview ? "#dc2626" : "#fca5a5"}`,
+                  border: `2px solid ${filterStatus === 'review' ? "#dc2626" : "#fca5a5"}`,
                   borderRadius: "8px",
                   fontWeight: "bold",
                   fontSize: "1.1rem",
                   cursor: "pointer",
                   transition: "all 0.2s",
-                  boxShadow: (!isAdmin && pendingReviewCount > 0 && !filterNeedsReview) ? "0 0 0 0 rgba(239, 68, 68, 0.7)" : "none",
-                  animation: (!isAdmin && pendingReviewCount > 0 && !filterNeedsReview) ? "pulse-red 2s infinite" : "none"
+                  boxShadow: (!isAdmin && pendingReviewCount > 0 && filterStatus !== 'review') ? "0 0 0 0 rgba(239, 68, 68, 0.7)" : "none",
+                  animation: (!isAdmin && pendingReviewCount > 0 && filterStatus !== 'review') ? "pulse-red 2s infinite" : "none"
                 }}
                 title={isAdmin ? "Ver todas as revisões (Aprovadas e Pendentes)" : "Ver linhas que precisam da sua correção"}
               >
@@ -680,36 +703,75 @@ function MovimentacoesEstoque() {
                       {UNITS.map(u => <option key={u} value={u}>{u}</option>)}
                     </select>
                   </th>
-                  {isAdmin && <th style={{ padding: "8px" }}></th>}
-                  <th style={{ padding: "8px", textAlign: "center" }}>
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "wrap" }}>
+                  <th colSpan={isAdmin ? 2 : 1} style={{ padding: "8px", textAlign: "right" }}>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
                       <button
-                        onClick={() => setFilterNeedsReview(!filterNeedsReview)}
+                        onClick={() => {
+                          const newStatus = filterStatus === 'review' ? 'all' : 'review';
+                          setFilterStatus(newStatus);
+                          if (newStatus === 'review') {
+                            setFilterInsumoId(null);
+                            setFilterData("");
+                            setFilterOrigem("");
+                            setFilterDestino("");
+                          }
+                        }}
                         style={{
                           padding: "6px 12px",
-                          backgroundColor: filterNeedsReview ? "#fee2e2" : "#fef2f2",
-                          color: "#dc2626",
-                          border: `2px solid ${filterNeedsReview ? "#dc2626" : "#fca5a5"}`,
+                          backgroundColor: filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fee2e2" : "#fff"),
+                          color: filterStatus === 'review' ? "#7f1d1d" : (pendingReviewCount > 0 ? "#dc2626" : "#64748b"),
+                          border: `1px solid ${filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
                           borderRadius: "4px",
                           cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
+                          fontWeight: filterStatus === 'review' ? "bold" : "normal",
                           display: "inline-flex",
                           alignItems: "center",
-                          gap: "4px",
-                          transition: "0.2s"
+                          gap: "6px",
+                          fontSize: "0.85rem",
+                          animation: pendingReviewCount > 0 && filterStatus !== 'review' ? "pulse-red 2s infinite" : "none"
                         }}
-                        title="Filtrar por Revisão"
+                        title={filterStatus === 'review' ? "Ver Todas as Movimentações" : "Ver Movimentações com Revisão Pendente"}
                       >
                         <Icons.BsExclamationTriangleFill /> Revisão {pendingReviewCount > 0 ? `(${pendingReviewCount})` : ''}
                       </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
+                            setFilterStatus(newStatus);
+                            if (newStatus === 'deleted') {
+                              setFilterInsumoId(null);
+                              setFilterData("");
+                              setFilterOrigem("");
+                              setFilterDestino("");
+                            }
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"),
+                            color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"),
+                            border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: filterStatus === 'deleted' ? "bold" : "normal",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            fontSize: "0.85rem",
+                            animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none"
+                          }}
+                          title={filterStatus === 'deleted' ? "Ver Todas as Movimentações" : "Ver Itens Aguardando Exclusão"}
+                        >
+                          <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
+                        </button>
+                      )}
                       <button
                         onClick={() => {
                           setFilterInsumoId(null);
                           setFilterData("");
                           setFilterOrigem("");
                           setFilterDestino("");
-                          setFilterNeedsReview(false);
+                          setFilterStatus('all');
                         }}
                         style={{
                           padding: "6px 12px",
@@ -730,6 +792,28 @@ function MovimentacoesEstoque() {
                         onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#cbd5e1"}
                       >
                         <Icons.BsXCircleFill /> Limpar
+                      </button>
+                      <button
+                        onClick={() => fetchData(false, 0)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#f1f5f9",
+                          color: "#334155",
+                          border: "1px solid #cbd5e1",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s"
+                        }}
+                        title="Atualizar Dados"
+                        onMouseOver={(e) => e.currentTarget.style.backgroundColor = "#e2e8f0"}
+                        onMouseOut={(e) => e.currentTarget.style.backgroundColor = "#f1f5f9"}
+                      >
+                        <Icons.BsArrowClockwise /> Atualizar
                       </button>
                     </div>
                   </th>
@@ -889,9 +973,12 @@ function MovimentacoesEstoque() {
                         const dataFormatada = new Date(mov.data_movimentacao + 'T00:00:00').toLocaleDateString('pt-BR');
 
                         content = (
-                          <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={mov.status_revisao === 'pending_user' ? { backgroundColor: "#fca5a5" } : mov.status_revisao === 'pending_admin' ? { backgroundColor: "#fed7aa" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
-                            <td>
+                          <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={mov.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : mov.status_revisao === 'pending_user' ? { backgroundColor: "#fca5a5" } : mov.status_revisao === 'pending_admin' ? { backgroundColor: "#fed7aa" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
+                            <td style={{ opacity: mov.status_revisao === 'pending_delete' ? 0.6 : 1 }}>
                               {mov.cadastro_insumos?.nome || "Insumo Excluído"}
+                              {mov.status_revisao === 'pending_delete' && (
+                                <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#ef4444", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Deletado</span>
+                              )}
                               {isDuplicate && (
                                 <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd, origem e destino)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
                                   <Icons.BsExclamationTriangleFill />
@@ -1004,31 +1091,59 @@ function MovimentacoesEstoque() {
                                     <Icons.BsCheckCircle /> {isAdmin ? "Cancelar" : "Resolvido"}
                                   </button>
                                 )}
-                                <button
-                                  onClick={() => {
-                                    setEditingRowId(mov.id);
-                                    setEditRowData({
-                                      insumo_id: mov.insumo_id,
-                                      data_movimentacao: mov.data_movimentacao,
-                                      quantidade: mov.quantidade,
-                                      origem: mov.origem,
-                                      destino: mov.destino
-                                    });
-                                  }}
-                                  className="nav-btn"
-                                  title="Editar"
-                                  style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                >
-                                  <Icons.BsPencil />
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(mov.id)}
-                                  className="delete-record-btn"
-                                  title="Excluir"
-                                  style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
-                                >
-                                  <Icons.BsTrash />
-                                </button>
+                                {mov.status_revisao === 'pending_delete' && (
+                                  isAdmin ? (
+                                    <div style={{ display: "flex", gap: "4px" }}>
+                                      <button
+                                        onClick={() => handleDelete(mov.id)}
+                                        title="Aprovar Exclusão"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsCheckAll /> Excluir
+                                      </button>
+                                      <button
+                                        onClick={() => handleUpdateReviewStatus(mov.id, 'none')}
+                                        title="Restaurar Registro"
+                                        style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#9a3412", backgroundColor: "#fed7aa", border: "1px solid #9a3412", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                      >
+                                        <Icons.BsXCircle /> Restaurar
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <span style={{ fontSize: "0.85rem", color: "#991b1b", backgroundColor: "#fecaca", border: "1px solid #991b1b", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }}>
+                                      <Icons.BsTrash /> Aguardando
+                                    </span>
+                                  )
+                                )}
+                                {mov.status_revisao !== 'pending_delete' && (
+                                  <button
+                                    onClick={() => {
+                                      setEditingRowId(mov.id);
+                                      setEditRowData({
+                                        insumo_id: mov.insumo_id,
+                                        data_movimentacao: mov.data_movimentacao,
+                                        quantidade: mov.quantidade,
+                                        origem: mov.origem,
+                                        destino: mov.destino
+                                      });
+                                    }}
+                                    className="nav-btn"
+                                    title="Editar"
+                                    style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                  >
+                                    <Icons.BsPencil />
+                                  </button>
+                                )}
+                                {mov.status_revisao !== 'pending_delete' && (isAdmin || (!mov.status_revisao || mov.status_revisao === 'none')) && (
+                                  <button
+                                    onClick={() => handleDelete(mov.id)}
+                                    className="delete-record-btn"
+                                    title="Excluir"
+                                    style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                                  >
+                                    <Icons.BsTrash />
+                                  </button>
+                                )}
                               </div>
                             </td>
                           </tr>
