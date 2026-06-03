@@ -513,7 +513,22 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "ativo" boolean DEFAULT true,
     "data_registro" "date",
     "passagens_urbs" integer DEFAULT 0,
-    "passagens_metrocard" integer DEFAULT 0
+    "passagens_metrocard" integer DEFAULT 0,
+    "data_demissao" "date",
+    "cpf" "text",
+    "rg" "text",
+    "cargo" "text",
+    "telefone" "text",
+    "endereco" "text",
+    "sexo" "text",
+    "data_nascimento" "date",
+    "cidade_nascimento" "text",
+    "estado_civil" "text",
+    "dependentes" integer,
+    "ctps" "text",
+    "unidade_registrada" "text",
+    "chaves" integer,
+    "uniformes" integer
 );
 
 
@@ -1024,6 +1039,18 @@ ALTER TABLE "public"."rules_confirmations" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
+
+
+
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."entradas_mercadoria";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."movimentacoes_estoque";
+
 
 
 
