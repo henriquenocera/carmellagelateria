@@ -26,7 +26,11 @@ function CadastroProdutos() {
   const [unidadeVenda, setUnidadeVenda] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [metodoPreparo, setMetodoPreparo] = useState("");
+  const [isSabor, setIsSabor] = useState(false);
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
+
+  // Tabs state
+  const [activeTab, setActiveTab] = useState<'produtos' | 'sabores'>('produtos');
 
   // Drag and drop state
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -126,7 +130,7 @@ function CadastroProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo,
+          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id,
             cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
@@ -182,6 +186,7 @@ function CadastroProdutos() {
       setUnidadeVenda(produto.unidade_venda || "");
       setMetodoPreparo(produto.metodo_preparo || "");
       setAtivo(produto.ativo);
+      setIsSabor(produto.is_sabor || false);
 
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
         id: item.id,
@@ -194,11 +199,12 @@ function CadastroProdutos() {
     } else {
       setEditingId(null);
       setNome("");
-      setCategoria("");
+      setCategoria(activeTab === 'sabores' ? "Gelato" : "");
       setPrecoVenda("");
-      setUnidadeVenda("");
+      setUnidadeVenda(activeTab === 'sabores' ? "Kg" : "");
       setMetodoPreparo("");
       setAtivo(true);
+      setIsSabor(activeTab === 'sabores');
       setFichaTecnica([]);
     }
 
@@ -314,7 +320,8 @@ function CadastroProdutos() {
         preco_venda: precoVenda ? parseFloat(precoVenda) : null,
         unidade_venda: unidadeVenda.trim() || null,
         metodo_preparo: metodoPreparo.trim() || null,
-        ativo: ativo
+        ativo: ativo,
+        is_sabor: isSabor
       };
 
       let produtoId = editingId;
@@ -402,7 +409,7 @@ function CadastroProdutos() {
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
 
   const sortedProdutos = useMemo(() => {
-    let sortableItems = [...produtos];
+    let sortableItems = produtos.filter(p => activeTab === 'sabores' ? p.is_sabor : !p.is_sabor);
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -438,7 +445,7 @@ function CadastroProdutos() {
       });
     }
     return sortableItems;
-  }, [produtos, sortConfig, calculateCustoProduto]);
+  }, [produtos, sortConfig, calculateCustoProduto, activeTab]);
 
   const requestSort = (key: string) => {
     let direction: 'asc' | 'desc' = 'asc';
@@ -478,23 +485,26 @@ function CadastroProdutos() {
     e.preventDefault();
     if (sortConfig !== null || draggedItemIndex === null || draggedItemIndex === targetIndex) return;
 
-    const items = [...produtos];
-    const draggedItem = items[draggedItemIndex];
-    items.splice(draggedItemIndex, 1);
-    items.splice(targetIndex, 0, draggedItem);
+    const filteredItems = produtos.filter(p => activeTab === 'sabores' ? p.is_sabor : !p.is_sabor);
+    const draggedItem = filteredItems[draggedItemIndex];
+    filteredItems.splice(draggedItemIndex, 1);
+    filteredItems.splice(targetIndex, 0, draggedItem);
 
-    const updatedItems = items.map((item, index) => ({
+    const updatedFilteredItems = filteredItems.map((item, index) => ({
       ...item,
       ordem: index
     }));
     
-    setProdutos(updatedItems);
+    const otherItems = produtos.filter(p => activeTab === 'sabores' ? !p.is_sabor : p.is_sabor);
+    const finalProdutos = [...otherItems, ...updatedFilteredItems];
+    
+    setProdutos(finalProdutos);
     setDraggedItemIndex(null);
     setDragOverItemIndex(null);
 
     try {
       setSaving(true);
-      const updates = updatedItems.map(item => 
+      const updates = updatedFilteredItems.map(item => 
         supabase.from("cadastro_produtos").update({ ordem: item.ordem }).eq("id", item.id)
       );
       await Promise.all(updates);
@@ -545,6 +555,42 @@ function CadastroProdutos() {
         </div>
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
+          
+          <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+            <button 
+              onClick={() => setActiveTab('produtos')}
+              style={{
+                padding: "8px 20px",
+                border: "none",
+                borderRadius: "8px",
+                background: activeTab === 'produtos' ? "#93633e" : "#f1f5f9",
+                color: activeTab === 'produtos' ? "#fff" : "#475569",
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: "1.05rem",
+                transition: "all 0.2s ease"
+              }}
+            >
+              Produtos Finais
+            </button>
+            <button 
+              onClick={() => setActiveTab('sabores')}
+              style={{
+                padding: "8px 20px",
+                border: "none",
+                borderRadius: "8px",
+                background: activeTab === 'sabores' ? "#93633e" : "#f1f5f9",
+                color: activeTab === 'sabores' ? "#fff" : "#475569",
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: "1.05rem",
+                transition: "all 0.2s ease"
+              }}
+            >
+              Sabores de Gelato
+            </button>
+          </div>
+
           {loading ? (
             <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
               <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
@@ -688,6 +734,34 @@ function CadastroProdutos() {
                 <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
                   <Icons.BsBoxSeam /> Dados do Produto
                 </h3>
+
+                <div style={{ marginBottom: "16px" }}>
+                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "8px" }}>Tipo de Cadastro</label>
+                  <div style={{ display: "flex", gap: "20px" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
+                      <input 
+                        type="radio" 
+                        name="is_sabor" 
+                        checked={!isSabor} 
+                        onChange={() => setIsSabor(false)}
+                      />
+                      Produto
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
+                      <input 
+                        type="radio" 
+                        name="is_sabor" 
+                        checked={isSabor} 
+                        onChange={() => {
+                          setIsSabor(true);
+                          setCategoria("Gelato");
+                          setUnidadeVenda("Kg");
+                        }}
+                      />
+                      Sabor de Gelato
+                    </label>
+                  </div>
+                </div>
 
                 <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
