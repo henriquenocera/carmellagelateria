@@ -70,7 +70,7 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
   overflow: hidden;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
   margin-bottom: 30px;
 }
 
@@ -90,7 +90,7 @@
   color: #916942;
   padding: 15px 20px;
   font-weight: bold;
-  font-size: 13px;
+  font-size: 15px;
   border-bottom: 1px solid #eaeaea;
   letter-spacing: 0.5px;
 }
@@ -100,7 +100,8 @@
   border-bottom: 1px solid #f8f9fa;
   color: #444;
   vertical-align: middle;
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 500;
 }
 
 .align-left {
@@ -120,11 +121,12 @@
   padding: 8px;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 600;
   outline: none;
   transition: all 0.2s;
   text-align: center;
-  color: #64748b;
+  color: #444;
 }
 
 .novo-inv-qty-input::placeholder {

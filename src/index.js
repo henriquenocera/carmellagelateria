@@ -11,6 +11,7 @@ import Home from "./routes/Home";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
+import ChecklistReturnPopup from "./components/ChecklistReturnPopup.jsx";
 import Vales from "./routes/Vales.tsx";
 import Salgados from "./routes/Salgados.tsx";
 import Inventario from "./routes/Inventario.tsx";
@@ -29,6 +30,7 @@ const AppLayout = () => (
   <>
     <NavBar />
     <Outlet />
+    <ChecklistReturnPopup />
   </>
 );
 const router = createBrowserRouter(

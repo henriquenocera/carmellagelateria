@@ -39,7 +39,7 @@ function ChecklistAberturaForm({ handleSubmit }) {
         { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
         {
           id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "", buttonText: "Relatório dos Salgados",
-          buttonLink: "https://ahu.carmellagelateria.com.br/salgados"
+          buttonLink: "/salgados"
         },
         { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
         { id: "13", title: "Colocar sacos de lixo externos", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },

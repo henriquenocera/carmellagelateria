@@ -51,8 +51,10 @@ async function sendSupabase(user, money_data) {
 
   if (error) {
     console.log(error);
+    return false;
   } else {
     console.log("tudo ok", data);
+    return true;
   }
 }
 
@@ -63,16 +65,25 @@ function altoxvOpenSubmit(user) {
 }
 
 function ChecklistAbertura() {
-  const handleSubmit = (event, user, moneyCounterMessage = "", moneyCounterData = null) => {
+  const handleSubmit = async (event, user, moneyCounterMessage = "", moneyCounterData = null) => {
     event.preventDefault();
 
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    setSubmissionStatus("submitting");
     setTimeComplete("Enviando...");
 
     console.log("enviou");
-    // supabase
-    sendSupabase(user, moneyCounterData);
-    altoxvOpenSubmit(user);
+    
+    const success = await sendSupabase(user, moneyCounterData);
+    
+    if (success) {
+      altoxvOpenSubmit(user);
+      setSubmissionStatus("success");
+      setTimeComplete("✅ Sucesso! Checklist salvo no banco de dados.");
+    } else {
+      setSubmissionStatus("error");
+      setTimeComplete("❌ Falha ao salvar no banco de dados. Verifique a internet e tente novamente.");
+    }
 
     /*     // Send Telegram message with money counter data
         const openDateFormat = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
@@ -92,7 +103,12 @@ function ChecklistAbertura() {
   };
 
   const [timeComplete, setTimeComplete] = useState("");
+  const [submissionStatus, setSubmissionStatus] = useState("idle");
   let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
+
+  if (submissionStatus !== "idle") {
+    openC = { value: "complete" };
+  }
 
   useEffect(() => {
     if (openC) {
@@ -135,7 +151,22 @@ function ChecklistAbertura() {
           </div>
         </div>
         {openC && openC.value === "complete" ? (
-          <span className="timeComplete">{timeComplete}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', marginTop: '40px' }}>
+            <span className="timeComplete" style={{ 
+              color: submissionStatus === 'error' ? '#ef4444' : submissionStatus === 'success' ? '#22c55e' : '#666',
+              fontSize: '24px', fontWeight: 'bold', textAlign: 'center'
+            }}>
+              {timeComplete}
+            </span>
+            {submissionStatus === 'error' && (
+              <button 
+                onClick={() => setSubmissionStatus('idle')}
+                style={{ padding: '12px 24px', backgroundColor: '#a37a57', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+              >
+                Voltar e Tentar Novamente
+              </button>
+            )}
+          </div>
         ) : (
           <>
             <div className="warningContainer">

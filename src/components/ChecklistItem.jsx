@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, star, checked, onChange, weekday, newItemDate, buttonLink, buttonText }) {
   function getWithExpiry(key) {
@@ -67,9 +68,16 @@ function ChecklistItem({ id, title, subtitle1, subtitle2, subtitle3, subtitle4, 
         <p>{subtitle1}</p>
         <p>{subtitle2}</p>
         {buttonLink && buttonText && (
-          <a href={buttonLink} target="_blank" rel="noreferrer" className="item-action-button">
+          <Link 
+            to={buttonLink} 
+            className="item-action-button"
+            onClick={() => {
+              localStorage.setItem('returnToChecklist', window.location.pathname);
+              localStorage.setItem('returnToChecklistExpiry', Date.now() + 5 * 60 * 1000);
+            }}
+          >
             {buttonText}
-          </a>
+          </Link>
         )}
       </div>
       {star ? (<span className="star"><img src="/Star.svg" alt="" /></span>) : ""}
