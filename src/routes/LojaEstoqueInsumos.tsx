@@ -45,7 +45,7 @@ function LojaEstoqueInsumos() {
       setLoading(true);
       const { data, error } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, tipo, ativo, config_estoque, ordem")
+        .select("id, nome, tipo, ativo, config_estoque, ordem, inventario_especial")
         .eq("ativo", true)
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
@@ -383,16 +383,16 @@ function LojaEstoqueInsumos() {
                         </td>
                         {showConfigCols && (
                           <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.3rem", fontWeight: 500 }}>
-                            {min != null ? min : "-"}
+                            {min != null ? (insumo.inventario_especial ? `${min}%` : min) : "-"}
                           </td>
                         )}
                         {showConfigCols && (
                           <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.3rem", fontWeight: 500 }}>
-                            {desired != null ? desired : "-"}
+                            {desired != null ? (insumo.inventario_especial ? `${desired}%` : desired) : "-"}
                           </td>
                         )}
                         <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.5rem" }}>
-                          {current}
+                          {insumo.inventario_especial ? `${current}%` : current}
                         </td>
                         <td style={{ textAlign: "center", verticalAlign: "middle" }}>
                           {statusIcon}
@@ -403,7 +403,7 @@ function LojaEstoqueInsumos() {
                           fontSize: "1.4rem",
                           color: toOrder != null && toOrder > 0 ? "var(--primary-color)" : "var(--text-muted)" 
                         }}>
-                          {toOrder != null ? toOrder : "-"}
+                          {toOrder != null ? (insumo.inventario_especial ? `${toOrder}%` : toOrder) : "-"}
                         </td>
                       </tr>
                     );

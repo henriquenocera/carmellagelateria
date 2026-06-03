@@ -28,6 +28,7 @@ function CadastroInsumos() {
   const [novoTipo, setNovoTipo] = useState("");
   const [novoFornecedor, setNovoFornecedor] = useState("");
   const [novoFatorDesperdicio, setNovoFatorDesperdicio] = useState("0");
+  const [novoInventarioEspecial, setNovoInventarioEspecial] = useState(false);
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -117,6 +118,7 @@ function CadastroInsumos() {
           tipo: novoTipo.trim(),
           fornecedor_padrao: novoFornecedor.trim(),
           fator_desperdicio: parseFloat(novoFatorDesperdicio) || 0,
+          inventario_especial: novoInventarioEspecial,
           ordem: maxOrdem + 1
         }]);
 
@@ -132,6 +134,7 @@ function CadastroInsumos() {
       setNovoTipo("");
       setNovoFornecedor("");
       setNovoFatorDesperdicio("0");
+      setNovoInventarioEspecial(false);
       setIsModalOpen(false);
 
       fetchInsumos();
@@ -459,6 +462,7 @@ function CadastroInsumos() {
                     <th style={{ width: "90px", textAlign: "center" }}>Desperd. (%)</th>
                     <th style={{ width: "100px" }}>Custo Emb.</th>
                     <th style={{ width: "100px" }}>Custo Unit.</th>
+                    <th style={{ textAlign: "center", width: "60px" }}>Inv. Esp.</th>
                     <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
                   </tr>
                 </thead>
@@ -525,6 +529,22 @@ function CadastroInsumos() {
                       <td style={{ textAlign: "center" }}>{renderEditableInput(insumo, "fator_desperdicio", "number", "0.01", { width: "70px", textAlign: "center" })}</td>
                       <td>{renderEditableInput(insumo, "custo_considerado", "number", "0.01", undefined, undefined, false, "R$")}</td>
                       <td>{renderEditableInput(insumo, "custo_considerado_unitario", "number", "0.0001", undefined, undefined, true, "R$")}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
+                          <input
+                            type="checkbox"
+                            disabled={editingRowId !== insumo.id}
+                            checked={insumo.inventario_especial || false}
+                            onChange={(e) => {
+                              handleLocalChange(insumo.id, "inventario_especial", e.target.checked);
+                              handleUpdateField(insumo.id, "inventario_especial", e.target.checked);
+                            }}
+                            style={{ cursor: "pointer", width: "16px", height: "16px" }}
+                          />
+                          {cellStatus[`${insumo.id}-inventario_especial`] === 'saving' && <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "-20px", color: "#856404", fontSize: "1rem" }} />}
+                          {cellStatus[`${insumo.id}-inventario_especial`] === 'saved' && <Icons.BsCheck style={{ position: "absolute", right: "-22px", color: "#155724", fontSize: "1.3rem" }} />}
+                        </div>
+                      </td>
                       <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
                         <button
                           onClick={() => setEditingRowId(editingRowId === insumo.id ? null : insumo.id)}
@@ -663,6 +683,19 @@ function CadastroInsumos() {
                     />
                     <span style={{ position: "absolute", right: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>%</span>
                   </div>
+                </div>
+
+                <div className="form-group" style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px", marginTop: "8px" }}>
+                  <input
+                    type="checkbox"
+                    id="inventarioEspecial"
+                    checked={novoInventarioEspecial}
+                    onChange={(e) => setNovoInventarioEspecial(e.target.checked)}
+                    style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                  />
+                  <label htmlFor="inventarioEspecial" style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--secondary-color)", cursor: "pointer", margin: 0 }}>
+                    Inventário Especial (Controlar estoque por % de volume)
+                  </label>
                 </div>
 
                 <div className="form-group" style={{ marginBottom: 0 }}>

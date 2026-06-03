@@ -69,7 +69,7 @@ function Inventario() {
     try {
       const { data: insumosData, error: insumosError } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, config_estoque, ordem, tipo, unidade_conversao")
+        .select("id, nome, config_estoque, ordem, tipo, unidade_conversao, inventario_especial")
         .eq("ativo", true)
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
@@ -285,7 +285,36 @@ function Inventario() {
     if (isReadOnly) {
       return (
         <div style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.1rem", color: "var(--text-color)" }}>
-          {value !== "" ? value : "-"}
+          {value !== "" ? (insumo.inventario_especial ? `${value}%` : value) : "-"}
+        </div>
+      );
+    }
+
+    if (insumo.inventario_especial) {
+      return (
+        <div style={{ position: "relative", width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <select
+            value={value}
+            onChange={(e) => handleLocalChange(insumo.id, e.target.value)}
+            style={{
+              border: "1px solid #cbd5e1",
+              background: "#fff",
+              width: "120px",
+              textAlign: "center",
+              outline: "none",
+              color: "inherit",
+              padding: "8px",
+              borderRadius: "6px",
+              transition: "all 0.3s ease",
+              boxSizing: "border-box",
+              fontSize: "1.05rem"
+            }}
+          >
+            <option value="">Selecione...</option>
+            {[0, 25, 50, 75, 100].map(pct => (
+              <option key={pct} value={pct}>{pct}%</option>
+            ))}
+          </select>
         </div>
       );
     }
@@ -364,7 +393,7 @@ function Inventario() {
           insumo.nome,
           insumo.tipo || "-",
           insumo.unidade_conversao || "-",
-          savedValue
+          insumo.inventario_especial ? `${savedValue}%` : savedValue
         ]);
       }
     });
