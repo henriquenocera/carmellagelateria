@@ -20,14 +20,21 @@ CREATE EXTENSION IF NOT EXISTS "pg_cron" WITH SCHEMA "pg_catalog";
 
 
 
+COMMENT ON SCHEMA "public" IS 'standard public schema';
+
+
+
+CREATE EXTENSION IF NOT EXISTS "pg_net" WITH SCHEMA "public";
+
+
+
+
+
+
 CREATE EXTENSION IF NOT EXISTS "pgsodium";
 
 
 
-
-
-
-COMMENT ON SCHEMA "public" IS 'standard public schema';
 
 
 
@@ -267,7 +274,8 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_insumos" (
     "config_estoque" "jsonb" DEFAULT '{}'::"jsonb",
     "ordem" integer DEFAULT 0,
     "custo_considerado_unitario" numeric,
-    "fator_desperdicio" numeric DEFAULT 0
+    "fator_desperdicio" numeric DEFAULT 0,
+    "inventario_especial" boolean DEFAULT false
 );
 
 
@@ -283,7 +291,9 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_produtos" (
     "preco_venda" numeric,
     "unidade_venda" character varying(50),
     "ordem" integer DEFAULT 0,
-    "metodo_preparo" "text"
+    "metodo_preparo" "text",
+    "is_sabor" boolean DEFAULT false,
+    "is_preparacao" boolean DEFAULT false
 );
 
 
@@ -501,6 +511,35 @@ CREATE TABLE IF NOT EXISTS "public"."movimentacoes_estoque" (
 ALTER TABLE "public"."movimentacoes_estoque" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."producao_realizada" (
+    "id" integer NOT NULL,
+    "produto_id" "uuid",
+    "data_producao" "date" NOT NULL,
+    "quantidade" numeric DEFAULT 0 NOT NULL,
+    "user_id" "uuid",
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+);
+
+
+ALTER TABLE "public"."producao_realizada" OWNER TO "postgres";
+
+
+CREATE SEQUENCE IF NOT EXISTS "public"."producao_realizada_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE "public"."producao_realizada_id_seq" OWNER TO "postgres";
+
+
+ALTER SEQUENCE "public"."producao_realizada_id_seq" OWNED BY "public"."producao_realizada"."id";
+
+
+
 CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "id" "uuid" NOT NULL,
     "email" "text" NOT NULL,
@@ -559,6 +598,10 @@ ALTER TABLE "public"."salgados_inventory" OWNER TO "postgres";
 
 
 ALTER TABLE ONLY "public"."lista_compras_manual" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."lista_compras_manual_id_seq"'::"regclass");
+
+
+
+ALTER TABLE ONLY "public"."producao_realizada" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."producao_realizada_id_seq"'::"regclass");
 
 
 
@@ -659,6 +702,11 @@ ALTER TABLE ONLY "public"."lista_compras_manual"
 
 ALTER TABLE ONLY "public"."movimentacoes_estoque"
     ADD CONSTRAINT "movimentacoes_estoque_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."producao_realizada"
+    ADD CONSTRAINT "producao_realizada_pkey" PRIMARY KEY ("id");
 
 
 
@@ -799,6 +847,16 @@ ALTER TABLE ONLY "public"."movimentacoes_estoque"
 
 
 
+ALTER TABLE ONLY "public"."producao_realizada"
+    ADD CONSTRAINT "producao_realizada_produto_id_fkey" FOREIGN KEY ("produto_id") REFERENCES "public"."cadastro_produtos"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."producao_realizada"
+    ADD CONSTRAINT "producao_realizada_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE SET NULL;
+
+
+
 ALTER TABLE ONLY "public"."profiles"
     ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE CASCADE;
 
@@ -928,6 +986,10 @@ CREATE POLICY "Permitir acesso total na lista_compras_manual" ON "public"."lista
 
 
 
+CREATE POLICY "Permitir acesso total na producao_realizada" ON "public"."producao_realizada" USING (true) WITH CHECK (true);
+
+
+
 CREATE POLICY "Permitir atualizacao para usuarios autenticados" ON "public"."inventario_insumos" FOR UPDATE TO "authenticated" USING (true);
 
 
@@ -1030,6 +1092,9 @@ ALTER TABLE "public"."lista_compras_manual" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."movimentacoes_estoque" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."producao_realizada" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
 
 
@@ -1060,6 +1125,9 @@ GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
 GRANT USAGE ON SCHEMA "public" TO "service_role";
+
+
+
 
 
 
@@ -1453,6 +1521,18 @@ GRANT ALL ON SEQUENCE "public"."lista_compras_manual_id_seq" TO "service_role";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."producao_realizada" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."producao_realizada" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."producao_realizada" TO "service_role";
+
+
+
+GRANT ALL ON SEQUENCE "public"."producao_realizada_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."producao_realizada_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."producao_realizada_id_seq" TO "service_role";
 
 
 
