@@ -26,6 +26,7 @@ function OrdemProducao() {
   
   const [produtos, setProdutos] = useState<any[]>([]);
   const [ordemItems, setOrdemItems] = useState<any[]>([]);
+  const [estoqueFabrica, setEstoqueFabrica] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isSavingAll, setIsSavingAll] = useState(false);
   const [isAlreadySaved, setIsAlreadySaved] = useState(false);
@@ -54,6 +55,7 @@ function OrdemProducao() {
       setLoading(true);
       await fetchProdutos();
       await fetchDates();
+      await fetchEstoqueFabrica();
     }
     loadData();
   }, []);
@@ -72,7 +74,19 @@ function OrdemProducao() {
     try {
       const { data, error } = await supabase
         .from("cadastro_produtos")
-        .select("id, nome, categoria, unidade_venda, codigo")
+        .select(`
+          id, nome, categoria, unidade_venda, codigo,
+          ficha_tecnica!ficha_tecnica_produto_id_fkey (
+            quantidade,
+            insumo_id,
+            produto_base_id,
+            cadastro_insumos (
+              nome,
+              nome_simples_unitario,
+              unidade_conversao
+            )
+          )
+        `)
         .eq("ativo", true)
         .eq("is_sabor", true)
         .order("nome", { ascending: true });
@@ -81,6 +95,58 @@ function OrdemProducao() {
       setProdutos(data || []);
     } catch (err) {
       console.error("Erro ao buscar produtos:", err);
+    }
+  }
+
+  async function fetchEstoqueFabrica() {
+    try {
+      const today = getTodayStr();
+      const unitName = "Fábrica";
+
+      const { data: invData } = await supabase
+        .from("inventario_insumos")
+        .select("insumo_id, data_inventario, quantidade")
+        .eq("unidade", unitName)
+        .lte("data_inventario", today);
+
+      const latestInv: Record<string, { data: string, quantidade: number }> = {};
+      (invData || []).forEach((inv: any) => {
+        if (!latestInv[inv.insumo_id] || inv.data_inventario > latestInv[inv.insumo_id].data) {
+          latestInv[inv.insumo_id] = { data: inv.data_inventario, quantidade: Number(inv.quantidade) };
+        }
+      });
+
+      const { data: movData } = await supabase
+        .from("movimentacoes_estoque")
+        .select("insumo_id, data_movimentacao, quantidade, origem, destino")
+        .or(`origem.eq.${unitName},destino.eq.${unitName}`)
+        .lte("data_movimentacao", today);
+
+      const calculatedStock: Record<string, number> = {};
+
+      Object.keys(latestInv).forEach(insumoId => {
+        calculatedStock[insumoId] = latestInv[insumoId].quantidade;
+      });
+
+      (movData || []).forEach((mov: any) => {
+        const inv = latestInv[mov.insumo_id];
+        if (inv && mov.data_movimentacao < inv.data) return;
+
+        if (calculatedStock[mov.insumo_id] === undefined) {
+          calculatedStock[mov.insumo_id] = 0;
+        }
+        
+        if (mov.destino === unitName) {
+          calculatedStock[mov.insumo_id] += Number(mov.quantidade);
+        }
+        if (mov.origem === unitName) {
+          calculatedStock[mov.insumo_id] -= Number(mov.quantidade);
+        }
+      });
+
+      setEstoqueFabrica(calculatedStock);
+    } catch (err) {
+      console.error("Erro ao buscar estoque da fábrica:", err);
     }
   }
 
@@ -503,6 +569,46 @@ function OrdemProducao() {
     });
     
     return productCodes;
+  };
+
+  const calculateRequiredInsumos = () => {
+    const aggregation: Record<string, { id: string; nome: string; unidade: string; quantidade: number }> = {};
+
+    const addInsumosFromFicha = (ficha: any[], multiplier: number) => {
+      if (!ficha) return;
+      ficha.forEach(item => {
+        if (item.insumo_id && item.cadastro_insumos) {
+          const key = item.insumo_id;
+          const qty = parseFloat(item.quantidade) * multiplier;
+          if (!aggregation[key]) {
+            aggregation[key] = {
+              id: item.insumo_id,
+              nome: item.cadastro_insumos.nome_simples_unitario || item.cadastro_insumos.nome || "Desconhecido",
+              unidade: item.cadastro_insumos.unidade_conversao || "un",
+              quantidade: 0
+            };
+          }
+          aggregation[key].quantidade += qty;
+        } else if (item.produto_base_id) {
+          const baseProd = produtos.find(p => p.id === item.produto_base_id);
+          if (baseProd && baseProd.ficha_tecnica) {
+            addInsumosFromFicha(baseProd.ficha_tecnica, multiplier * parseFloat(item.quantidade));
+          }
+        }
+      });
+    };
+
+    ordemItems.forEach(ordemItem => {
+      const prod = produtos.find(p => p.id === ordemItem.produto_id);
+      if (prod && prod.ficha_tecnica) {
+        const multiplier = parseFloat(ordemItem.quantidade) || 0;
+        if (multiplier > 0) {
+          addInsumosFromFicha(prod.ficha_tecnica, multiplier);
+        }
+      }
+    });
+
+    return Object.values(aggregation).sort((a, b) => a.nome.localeCompare(b.nome));
   };
 
   const handleExportEmptyPDF = () => {
@@ -973,6 +1079,50 @@ function OrdemProducao() {
                   </tbody>
                 </table>
               </div>
+
+              {(() => {
+                const insumos = calculateRequiredInsumos();
+                if (insumos.length === 0) return null;
+                return (
+                  <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #cbd5e1', padding: '24px', marginTop: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                    <h3 style={{ margin: '0 0 16px 0', fontSize: '1.4rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Icons.BsBoxSeam style={{ color: "var(--primary-color)" }} /> Lista de Separação (Insumos Necessários)
+                    </h3>
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
+                            <th style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 'bold', color: '#475569', fontSize: '1.2rem' }}>Insumo</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 'bold', color: '#475569', fontSize: '1.2rem' }}>Estoque Atual (Fábrica)</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'center', fontWeight: 'bold', color: '#475569', fontSize: '1.2rem' }}>Quantidade Necessária</th>
+                            <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 'bold', color: '#475569', fontSize: '1.2rem' }}>Saldo Final</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {insumos.map((ins, idx) => {
+                            const stock = estoqueFabrica[ins.id] || 0;
+                            const saldo = stock - ins.quantidade;
+                            return (
+                            <tr key={idx} style={{ borderBottom: idx === insumos.length - 1 ? 'none' : '1px solid #e2e8f0', backgroundColor: idx % 2 === 0 ? '#fff' : '#f8fafc' }}>
+                              <td style={{ padding: '12px 16px', color: '#1e293b', fontWeight: 500, fontSize: '1.25rem' }}>{ins.nome}</td>
+                              <td style={{ padding: '12px 16px', textAlign: 'center', color: '#64748b', fontWeight: 'bold', fontSize: '1.25rem' }}>
+                                {stock.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 4 })} <span style={{ fontSize: '0.9em', fontWeight: 'normal' }}>{ins.unidade}</span>
+                              </td>
+                              <td style={{ padding: '12px 16px', textAlign: 'center', color: '#16a34a', fontWeight: 'bold', fontSize: '1.35rem' }}>
+                                {ins.quantidade.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 4 })} <span style={{ fontSize: '0.9em', fontWeight: 'normal' }}>{ins.unidade}</span>
+                              </td>
+                              <td style={{ padding: '12px 16px', textAlign: 'right', color: saldo < 0 ? '#dc2626' : '#334155', fontWeight: 'bold', fontSize: '1.35rem' }}>
+                                {saldo.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 4 })} <span style={{ fontSize: '0.9em', fontWeight: 'normal' }}>{ins.unidade}</span>
+                              </td>
+                            </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                );
+              })()}
               
               {(!isAlreadySaved || editMode) && (
                 <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "24px" }}>
