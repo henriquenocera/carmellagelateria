@@ -109,7 +109,7 @@ function ConfiguracaoEstoque() {
   const renderEditableInput = (insumo: any, storeId: string, field: string, type: string = "number") => {
     const status = cellStatus[`${insumo.id}-${storeId}-${field}`];
     
-    let bg = "transparent";
+    let bg = "#fff";
     let color = "inherit";
     
     if (status === 'editing') {
@@ -153,7 +153,7 @@ function ConfiguracaoEstoque() {
           onBlur={handleBlur}
           onFocus={handleFocus}
           style={{
-            border: status === 'editing' ? "1px solid var(--primary-color)" : "1px solid transparent",
+            border: status === 'editing' ? "1px solid var(--primary-color)" : "1px solid #cbd5e1",
             background: bg,
             width: "60px",
             textAlign: "center",

@@ -7,18 +7,17 @@ import { useNavigate } from "react-router-dom";
 import "../css/Frequencia.css";
 
 function CadastroInsumos() {
-  const { user, isAdmin } = useAuth();
+  const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [insumos, setInsumos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [cellStatus, setCellStatus] = useState<Record<string, 'editing' | 'saving' | 'saved' | 'error'>>({});
 
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
   const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(null);
-  const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [novoNome, setNovoNome] = useState("");
   const [novaQtdConversao, setNovaQtdConversao] = useState("");
@@ -29,6 +28,7 @@ function CadastroInsumos() {
   const [novoFornecedor, setNovoFornecedor] = useState("");
   const [novoFatorDesperdicio, setNovoFatorDesperdicio] = useState("0");
   const [novoInventarioEspecial, setNovoInventarioEspecial] = useState(false);
+  const [ativo, setAtivo] = useState(true);
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -37,25 +37,6 @@ function CadastroInsumos() {
       fetchInsumos();
     }
   }, [isAdmin, navigate]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (editingRowId === null) return;
-      const target = event.target as HTMLElement;
-      
-      if (target.closest('.modal-content')) return;
-
-      const editingRow = document.getElementById(`row-${editingRowId}`);
-      if (editingRow && editingRow.contains(target)) return;
-
-      setEditingRowId(null);
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [editingRowId]);
 
   async function fetchInsumos() {
     try {
@@ -76,7 +57,49 @@ function CadastroInsumos() {
     }
   }
 
-  async function handleAddInsumo(e: React.FormEvent) {
+  const openModal = (insumo?: any) => {
+    if (insumo) {
+      setEditingId(insumo.id);
+      setNovoNome(insumo.nome);
+      setNovoNomeSimples(insumo.nome_simples_unitario || "");
+      setNovoTipo(insumo.tipo || "");
+      setNovoFornecedor(insumo.fornecedor_padrao || "");
+      setNovaQtdConversao(insumo.quantidade_conversao !== null ? insumo.quantidade_conversao.toString() : "");
+      setNovaUnidadeConversao(insumo.unidade_conversao || "");
+      setNovoCustoConsiderado(insumo.custo_considerado !== null ? insumo.custo_considerado.toString() : "");
+      setNovoFatorDesperdicio(insumo.fator_desperdicio !== null ? insumo.fator_desperdicio.toString() : "0");
+      setNovoInventarioEspecial(insumo.inventario_especial || false);
+      setAtivo(insumo.ativo ?? true);
+    } else {
+      setEditingId(null);
+      setNovoNome("");
+      setNovoNomeSimples("");
+      setNovoTipo("");
+      setNovoFornecedor("");
+      setNovaQtdConversao("");
+      setNovaUnidadeConversao("");
+      setNovoCustoConsiderado("");
+      setNovoFatorDesperdicio("0");
+      setNovoInventarioEspecial(false);
+      setAtivo(true);
+    }
+    setIsModalOpen(true);
+  };
+
+  async function handleToggleAtivo(id: string, currentAtivo: boolean) {
+    try {
+      setLoading(true);
+      const { error } = await supabase.from("cadastro_insumos").update({ ativo: !currentAtivo }).eq("id", id);
+      if (error) throw error;
+      fetchInsumos();
+    } catch (err) {
+      console.error("Erro ao alterar status:", err);
+      alert("Erro ao alterar o status do insumo.");
+      setLoading(false);
+    }
+  }
+
+  async function handleSaveInsumo(e: React.FormEvent) {
     e.preventDefault();
     if (!novoNome.trim()) {
       alert("Preencha o nome do insumo.");
@@ -85,7 +108,7 @@ function CadastroInsumos() {
 
     const nomeFormatado = novoNome.trim();
     const nomeJaExiste = insumos.some(
-      (ins) => ins.nome.toLowerCase() === nomeFormatado.toLowerCase()
+      (ins) => ins.id !== editingId && ins.nome.toLowerCase() === nomeFormatado.toLowerCase()
     );
 
     if (nomeJaExiste) {
@@ -103,44 +126,41 @@ function CadastroInsumos() {
         custoUnit = parseFloat((custoEmb / qtd).toFixed(2));
       }
 
-      const maxOrdem = insumos.length > 0 ? Math.max(...insumos.map(i => i.ordem || 0)) : 0;
+      const payload = {
+        nome: novoNome.trim(),
+        ativo: ativo,
+        quantidade_conversao: qtd,
+        unidade_conversao: novaUnidadeConversao.trim(),
+        custo_considerado: custoEmb,
+        custo_considerado_unitario: custoUnit,
+        nome_simples_unitario: novoNomeSimples.trim(),
+        tipo: novoTipo.trim(),
+        fornecedor_padrao: novoFornecedor.trim(),
+        fator_desperdicio: parseFloat(novoFatorDesperdicio) || 0,
+        inventario_especial: novoInventarioEspecial
+      };
 
-      const { error } = await supabase
-        .from("cadastro_insumos")
-        .insert([{
-          nome: novoNome.trim(),
-          ativo: true,
-          quantidade_conversao: qtd,
-          unidade_conversao: novaUnidadeConversao.trim(),
-          custo_considerado: custoEmb,
-          custo_considerado_unitario: custoUnit,
-          nome_simples_unitario: novoNomeSimples.trim(),
-          tipo: novoTipo.trim(),
-          fornecedor_padrao: novoFornecedor.trim(),
-          fator_desperdicio: parseFloat(novoFatorDesperdicio) || 0,
-          inventario_especial: novoInventarioEspecial,
-          ordem: maxOrdem + 1
-        }]);
+      if (editingId) {
+        const { error } = await supabase
+          .from("cadastro_insumos")
+          .update(payload)
+          .eq("id", editingId);
 
-      if (error) {
-        throw error;
+        if (error) throw error;
+      } else {
+        const maxOrdem = insumos.length > 0 ? Math.max(...insumos.map(i => i.ordem || 0)) : 0;
+        const { error } = await supabase
+          .from("cadastro_insumos")
+          .insert([{ ...payload, ordem: maxOrdem + 1 }]);
+
+        if (error) throw error;
       }
 
-      setNovoNome("");
-      setNovaQtdConversao("");
-      setNovaUnidadeConversao("");
-      setNovoCustoConsiderado("");
-      setNovoNomeSimples("");
-      setNovoTipo("");
-      setNovoFornecedor("");
-      setNovoFatorDesperdicio("0");
-      setNovoInventarioEspecial(false);
       setIsModalOpen(false);
-
       fetchInsumos();
     } catch (err: any) {
-      console.error("Erro ao adicionar:", err);
-      alert(err.message || "Erro ao adicionar insumo");
+      console.error("Erro ao salvar:", err);
+      alert(err.message || "Erro ao salvar insumo");
     } finally {
       setSaving(false);
     }
@@ -158,89 +178,6 @@ function CadastroInsumos() {
       console.error("Erro ao deletar:", err);
       alert("Erro ao deletar insumo");
       setLoading(false);
-    }
-  }
-
-  const handleLocalChange = (id: string, field: string, value: any) => {
-    setInsumos((prev) =>
-      prev.map((ins) => {
-        if (ins.id !== id) return ins;
-        
-        const updatedIns = { ...ins, [field]: value };
-        
-        // Calcular automaticamente o custo unitário se alterar Qtd ou Custo da Embalagem
-        if (field === "quantidade_conversao" || field === "custo_considerado") {
-          const qtd = field === "quantidade_conversao" ? (value ? parseFloat(value) : null) : ins.quantidade_conversao;
-          const custoEmb = field === "custo_considerado" ? (value ? parseFloat(value) : null) : ins.custo_considerado;
-          
-          if (qtd && custoEmb && qtd > 0) {
-            updatedIns.custo_considerado_unitario = parseFloat((custoEmb / qtd).toFixed(2));
-          } else {
-            updatedIns.custo_considerado_unitario = null;
-          }
-        }
-        
-        return updatedIns;
-      })
-    );
-  };
-
-  async function handleUpdateField(id: string, field: string, value: any) {
-    const key = `${id}-${field}`;
-    try {
-      setCellStatus((prev) => ({ ...prev, [key]: 'saving' }));
-      
-      if (field === "nome") {
-        const nomeFormatado = typeof value === "string" ? value.trim() : value;
-        const nomeJaExiste = insumos.some(
-          (ins) => ins.id !== id && ins.nome.toLowerCase() === nomeFormatado.toLowerCase()
-        );
-        if (nomeJaExiste) {
-          alert("Já existe outro insumo cadastrado com este nome!");
-          setCellStatus((prev) => ({ ...prev, [key]: 'error' }));
-          fetchInsumos(); // Reverter alteração local na tela
-          return;
-        }
-      }
-
-      let updatePayload: any = { [field]: value };
-      
-      if (field === "quantidade_conversao" || field === "custo_considerado") {
-        const insumo = insumos.find(i => i.id === id);
-        if (insumo) {
-          const qtd = field === "quantidade_conversao" ? (value ? parseFloat(value) : null) : insumo.quantidade_conversao;
-          const custoEmb = field === "custo_considerado" ? (value ? parseFloat(value) : null) : insumo.custo_considerado;
-          
-          if (qtd && custoEmb && qtd > 0) {
-            updatePayload.custo_considerado_unitario = parseFloat((custoEmb / qtd).toFixed(2));
-          } else {
-            updatePayload.custo_considerado_unitario = null;
-          }
-        }
-      }
-
-      const { error } = await supabase
-        .from("cadastro_insumos")
-        .update(updatePayload)
-        .eq("id", id);
-
-      if (error) throw error;
-
-      setCellStatus((prev) => ({ ...prev, [key]: 'saved' }));
-      setTimeout(() => {
-        setCellStatus((prev) => {
-          if (prev[key] === 'saved') {
-            const newState = { ...prev };
-            delete newState[key];
-            return newState;
-          }
-          return prev;
-        });
-      }, 2000);
-    } catch (err) {
-      console.error("Erro ao atualizar:", err);
-      setCellStatus((prev) => ({ ...prev, [key]: 'error' }));
-      alert("Erro ao atualizar o campo.");
     }
   }
 
@@ -297,131 +234,6 @@ function CadastroInsumos() {
     }
   };
 
-  const renderEditableInput = (
-    insumo: any,
-    field: string,
-    type: string = "text",
-    step?: string,
-    extraStyles?: React.CSSProperties,
-    options?: { label: string, value: string }[],
-    forceReadOnly: boolean = false,
-    prefix?: string
-  ) => {
-    if (editingRowId !== insumo.id || forceReadOnly) {
-      let displayValue = insumo[field];
-      if (prefix === "R$" && typeof displayValue === "number") {
-        displayValue = displayValue.toFixed(2);
-      }
-      return (
-        <div style={{ 
-          padding: "4px", 
-          border: "1px solid transparent", 
-          minHeight: "30px", 
-          boxSizing: "border-box",
-          width: "100%", 
-          display: "flex", 
-          alignItems: "center", 
-          ...extraStyles 
-        }}>
-          {prefix ? `${prefix} ` : ""}{displayValue !== null && displayValue !== undefined ? displayValue : ""}
-        </div>
-      );
-    }
-
-    const status = cellStatus[`${insumo.id}-${field}`];
-    
-    let bg = "transparent";
-    let color = "inherit";
-    
-    if (status === 'editing') {
-      bg = "rgba(0, 0, 0, 0.03)";
-    } else if (status === 'saving') {
-      bg = "#fff3cd";
-      color = "#856404";
-    } else if (status === 'saved') {
-      bg = "#d4edda";
-      color = "#155724";
-    } else if (status === 'error') {
-      bg = "#f8d7da";
-      color = "#721c24";
-    } else {
-      bg = "#fff"; // White background to indicate it's an input
-    }
-
-    const handleFocus = () => {
-      setCellStatus(prev => ({ ...prev, [`${insumo.id}-${field}`]: 'editing' }));
-    };
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      handleLocalChange(insumo.id, field, e.target.value);
-    };
-
-    const handleBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
-      let val: any = e.target.value;
-      if (type === "number") {
-        val = val !== "" ? parseFloat(val) : null;
-        if (val !== null && prefix === "R$") {
-          val = parseFloat(val.toFixed(2));
-          handleLocalChange(insumo.id, field, val); // update locally to rounded format
-        }
-      }
-      handleUpdateField(insumo.id, field, val);
-    };
-
-    const commonProps = {
-      value: (prefix === "R$" && typeof insumo[field] === "number" && status !== 'editing') ? insumo[field].toFixed(2) : (insumo[field] ?? ""),
-      onChange: handleChange,
-      onBlur: handleBlur,
-      onFocus: handleFocus,
-      style: {
-        border: status === 'editing' ? "1px solid var(--primary-color)" : "1px solid #cbd5e1",
-        background: bg,
-        width: "100%",
-        outline: "none",
-        color: color,
-        padding: "4px",
-        minHeight: "30px",
-        boxSizing: "border-box",
-        paddingRight: status === 'saving' || status === 'saved' || status === 'error' ? "24px" : "4px",
-        borderRadius: "4px",
-        transition: "all 0.3s ease",
-        ...extraStyles
-      },
-      title: "Clique para editar"
-    };
-
-    return (
-      <div style={{ position: "relative", width: "100%", display: "flex", alignItems: "center" }}>
-        {prefix && (
-          <span style={{ position: "absolute", left: "6px", color: "#64748b", zIndex: 1, pointerEvents: "none" }}>
-            {prefix}
-          </span>
-        )}
-        {options ? (
-          <select {...commonProps}>
-            {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
-          </select>
-        ) : (
-          <input
-            type={type}
-            step={step}
-            {...commonProps}
-            style={{ ...commonProps.style, paddingLeft: prefix ? "28px" : commonProps.style.paddingLeft }}
-          />
-        )}
-        {status === 'saving' && (
-          <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "6px", color: color, fontSize: "1rem" }} />
-        )}
-        {status === 'saved' && (
-          <Icons.BsCheck style={{ position: "absolute", right: "6px", color: color, fontSize: "1.3rem" }} />
-        )}
-        {status === 'error' && (
-          <Icons.BsX style={{ position: "absolute", right: "6px", color: color, fontSize: "1.3rem" }} />
-        )}
-      </div>
-    );
-  };
-
   return (
     <>
       <Helmet>
@@ -434,7 +246,7 @@ function CadastroInsumos() {
             <h1>Cadastro de Insumos</h1>
             <p>Gerencie os insumos da loja. Eles poderão ser utilizados em módulos de controle de estoque e receitas.</p>
           </div>
-          <button className="primary-btn" onClick={() => setIsModalOpen(true)}>
+          <button className="primary-btn" onClick={() => openModal()}>
             <Icons.BsPlusLg style={{ marginRight: "8px" }} />
             Novo Insumo
           </button>
@@ -452,6 +264,7 @@ function CadastroInsumos() {
               <table className="freq-table" style={{ minWidth: "1100px" }}>
                 <thead>
                   <tr>
+                    <th style={{ width: "30px" }}></th>
                     <th style={{ textAlign: "center", width: "60px" }}>Ativo</th>
                     <th style={{ width: "350px", minWidth: "250px" }}>Nome</th>
                     <th>Nome Simples</th>
@@ -463,108 +276,79 @@ function CadastroInsumos() {
                     <th style={{ width: "100px" }}>Custo Emb.</th>
                     <th style={{ width: "100px" }}>Custo Unit.</th>
                     <th style={{ textAlign: "center", width: "60px" }}>Inv. Esp.</th>
-                    <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
+                    <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {insumos.map((insumo, index) => (
-                    <tr
-                      id={`row-${insumo.id}`}
-                      key={insumo.id}
-                      draggable
-                      onDragStart={() => handleDragStart(index)}
-                      onDragEnter={(e) => handleDragEnter(e, index)}
-                      onDragOver={handleDragOver}
-                      onDragEnd={handleDragEnd}
-                      onDrop={(e) => handleDrop(e, index)}
-                      style={{
-                        opacity: insumo.ativo ? 1 : 0.6,
-                        transition: "all 0.2s",
-                        cursor: "grab",
-                        backgroundColor: dragOverItemIndex === index ? "rgba(0,0,0,0.05)" : "transparent",
-                        borderTop: dragOverItemIndex === index && draggedItemIndex !== null && index < draggedItemIndex ? "2px solid var(--primary-color)" : "none",
-                        borderBottom: dragOverItemIndex === index && draggedItemIndex !== null && index > draggedItemIndex ? "2px solid var(--primary-color)" : "none"
-                      }}
-                    >
-                      <td style={{ textAlign: "center" }}>
-                        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                          <input
-                            type="checkbox"
-                            disabled={editingRowId !== insumo.id}
-                            checked={insumo.ativo || false}
-                            onChange={(e) => {
-                              handleLocalChange(insumo.id, "ativo", e.target.checked);
-                              handleUpdateField(insumo.id, "ativo", e.target.checked);
-                            }}
-                            style={{ cursor: "pointer", width: "16px", height: "16px" }}
-                          />
-                          {cellStatus[`${insumo.id}-ativo`] === 'saving' && <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "-20px", color: "#856404", fontSize: "1rem" }} />}
-                          {cellStatus[`${insumo.id}-ativo`] === 'saved' && <Icons.BsCheck style={{ position: "absolute", right: "-22px", color: "#155724", fontSize: "1.3rem" }} />}
-                        </div>
-                      </td>
-                      <td>{renderEditableInput(insumo, "nome", "text", undefined, { fontWeight: 500 })}</td>
-                      <td>{renderEditableInput(insumo, "nome_simples_unitario")}</td>
-                      <td>
-                        {renderEditableInput(insumo, "tipo", "text", undefined, undefined, [
-                          { label: "Insumos", value: "Insumos" },
-                          { label: "Matéria Prima", value: "Matéria Prima" },
-                          { label: "Bebidas", value: "Bebidas" },
-                          { label: "Material de Limpeza", value: "Material de Limpeza" },
-                          { label: "Salgados", value: "Salgados" },
-                          { label: "Outros", value: "Outros" }
-                        ])}
-                      </td>
-                      <td>{renderEditableInput(insumo, "fornecedor_padrao")}</td>
-                      <td>{renderEditableInput(insumo, "quantidade_conversao", "number", "0.0001")}</td>
-                      <td>
-                        {renderEditableInput(insumo, "unidade_conversao", "text", undefined, undefined, [
-                          { label: "Unidade", value: "Unidade" },
-                          { label: "Caixa", value: "Caixa" },
-                          { label: "Pacote", value: "Pacote" },
-                          { label: "Kg", value: "Kg" },
-                          { label: "Saco", value: "Saco" },
-                          { label: "Pote", value: "Pote" }
-                        ])}
-                      </td>
-                      <td style={{ textAlign: "center" }}>{renderEditableInput(insumo, "fator_desperdicio", "number", "0.01", { width: "70px", textAlign: "center" })}</td>
-                      <td>{renderEditableInput(insumo, "custo_considerado", "number", "0.01", undefined, undefined, false, "R$")}</td>
-                      <td>{renderEditableInput(insumo, "custo_considerado_unitario", "number", "0.0001", undefined, undefined, true, "R$")}</td>
-                      <td style={{ textAlign: "center" }}>
-                        <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-                          <input
-                            type="checkbox"
-                            disabled={editingRowId !== insumo.id}
-                            checked={insumo.inventario_especial || false}
-                            onChange={(e) => {
-                              handleLocalChange(insumo.id, "inventario_especial", e.target.checked);
-                              handleUpdateField(insumo.id, "inventario_especial", e.target.checked);
-                            }}
-                            style={{ cursor: "pointer", width: "16px", height: "16px" }}
-                          />
-                          {cellStatus[`${insumo.id}-inventario_especial`] === 'saving' && <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "-20px", color: "#856404", fontSize: "1rem" }} />}
-                          {cellStatus[`${insumo.id}-inventario_especial`] === 'saved' && <Icons.BsCheck style={{ position: "absolute", right: "-22px", color: "#155724", fontSize: "1.3rem" }} />}
-                        </div>
-                      </td>
-                      <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
-                        <button
-                          onClick={() => setEditingRowId(editingRowId === insumo.id ? null : insumo.id)}
-                          className="delete-record-btn"
-                          title={editingRowId === insumo.id ? "Fechar Edição" : "Editar Insumo"}
-                          style={{ margin: 0, color: editingRowId === insumo.id ? "var(--primary-color)" : "inherit" }}
+                  {insumos.map((insumo, index) => {
+                    const isDragged = index === draggedItemIndex;
+                    const isDragOver = index === dragOverItemIndex;
+                    return (
+                      <tr
+                        key={insumo.id}
+                        draggable
+                        onDragStart={() => handleDragStart(index)}
+                        onDragEnter={(e) => handleDragEnter(e, index)}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                        onDrop={(e) => handleDrop(e, index)}
+                        style={{
+                          opacity: insumo.ativo ? (isDragged ? 0.5 : 1) : 0.6,
+                          borderTop: isDragOver && draggedItemIndex !== null && draggedItemIndex > index ? "2px solid var(--primary-color)" : "",
+                          borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < index ? "2px solid var(--primary-color)" : ""
+                        }}
+                      >
+                        <td style={{ textAlign: "center", cursor: "grab", color: "#cbd5e1" }} title="Arraste para reordenar">
+                          <Icons.BsGripVertical />
+                        </td>
+                        <td
+                          style={{ textAlign: "center", cursor: "pointer" }}
+                          onClick={() => handleToggleAtivo(insumo.id, insumo.ativo)}
+                          title={insumo.ativo ? "Desativar insumo" : "Ativar insumo"}
                         >
-                          {editingRowId === insumo.id ? <Icons.BsCheckLg /> : <Icons.BsPencil />}
-                        </button>
-                        <button
-                          onClick={() => handleDeleteInsumo(insumo.id)}
-                          className="delete-record-btn"
-                          title="Excluir Insumo"
-                          style={{ margin: 0 }}
-                        >
-                          <Icons.BsTrash />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                          {insumo.ativo ? (
+                            <Icons.BsCheckCircleFill style={{ color: "#22c55e", fontSize: "1.5rem" }} />
+                          ) : (
+                            <Icons.BsXCircleFill style={{ color: "#94a3b8", fontSize: "1.5rem" }} />
+                          )}
+                        </td>
+                        <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
+                        <td>{insumo.nome_simples_unitario || "-"}</td>
+                        <td>{insumo.tipo || "-"}</td>
+                        <td>{insumo.fornecedor_padrao || "-"}</td>
+                        <td>{insumo.quantidade_conversao}</td>
+                        <td>{insumo.unidade_conversao || "-"}</td>
+                        <td style={{ textAlign: "center" }}>{insumo.fator_desperdicio}%</td>
+                        <td>{insumo.custo_considerado !== null && insumo.custo_considerado !== undefined ? `R$ ${insumo.custo_considerado.toFixed(2)}` : "-"}</td>
+                        <td>{insumo.custo_considerado_unitario !== null && insumo.custo_considerado_unitario !== undefined ? `R$ ${insumo.custo_considerado_unitario.toFixed(2)}` : "-"}</td>
+                        <td style={{ textAlign: "center" }}>
+                          {insumo.inventario_especial ? (
+                            <Icons.BsCheckCircleFill style={{ color: "#22c55e", fontSize: "1.2rem" }} />
+                          ) : (
+                            "-"
+                          )}
+                        </td>
+                        <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
+                          <button
+                            onClick={() => openModal(insumo)}
+                            className="delete-record-btn"
+                            title="Editar Insumo"
+                            style={{ margin: 0 }}
+                          >
+                            <Icons.BsPencil />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteInsumo(insumo.id)}
+                            className="delete-record-btn"
+                            title="Excluir Insumo"
+                            style={{ margin: 0 }}
+                          >
+                            <Icons.BsTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -574,14 +358,16 @@ function CadastroInsumos() {
 
       {isModalOpen && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: "680px" }}>
+          <div className="modal-content" style={{ maxWidth: "680px", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
-              <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>Cadastrar Novo Insumo</h2>
+              <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>
+                {editingId ? "Editar Insumo" : "Cadastrar Novo Insumo"}
+              </h2>
               <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-muted)" }}>
                 <Icons.BsX />
               </button>
             </div>
-            <form onSubmit={handleAddInsumo} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <form onSubmit={handleSaveInsumo} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <div className="form-group" style={{ marginBottom: 0 }}>
                 <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Nome do Insumo *</label>
                 <input
@@ -685,15 +471,15 @@ function CadastroInsumos() {
                   </div>
                 </div>
 
-                <div className="form-group" style={{ marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px", marginTop: "8px" }}>
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: "10px", marginBottom: "20px", marginTop: "12px" }}>
                   <input
                     type="checkbox"
                     id="inventarioEspecial"
                     checked={novoInventarioEspecial}
                     onChange={(e) => setNovoInventarioEspecial(e.target.checked)}
-                    style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    style={{ width: "18px", height: "18px", cursor: "pointer", margin: 0 }}
                   />
-                  <label htmlFor="inventarioEspecial" style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--secondary-color)", cursor: "pointer", margin: 0 }}>
+                  <label htmlFor="inventarioEspecial" style={{ fontSize: "1rem", fontWeight: 700, color: "var(--secondary-color)", cursor: "pointer", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>
                     Inventário Especial (Controlar estoque por % de volume)
                   </label>
                 </div>

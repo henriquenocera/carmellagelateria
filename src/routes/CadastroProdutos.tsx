@@ -27,10 +27,11 @@ function CadastroProdutos() {
   const [ativo, setAtivo] = useState(true);
   const [metodoPreparo, setMetodoPreparo] = useState("");
   const [isSabor, setIsSabor] = useState(false);
+  const [isPreparacao, setIsPreparacao] = useState(false);
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
 
   // Tabs state
-  const [activeTab, setActiveTab] = useState<'produtos' | 'sabores'>('produtos');
+  const [activeTab, setActiveTab] = useState<'produtos' | 'sabores' | 'preparacoes'>('produtos');
 
   // Drag and drop state
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
@@ -130,7 +131,7 @@ function CadastroProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor,
+          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id,
             cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
@@ -187,6 +188,7 @@ function CadastroProdutos() {
       setMetodoPreparo(produto.metodo_preparo || "");
       setAtivo(produto.ativo);
       setIsSabor(produto.is_sabor || false);
+      setIsPreparacao(produto.is_preparacao || false);
 
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
         id: item.id,
@@ -205,6 +207,7 @@ function CadastroProdutos() {
       setMetodoPreparo("");
       setAtivo(true);
       setIsSabor(activeTab === 'sabores');
+      setIsPreparacao(activeTab === 'preparacoes');
       setFichaTecnica([]);
     }
 
@@ -321,7 +324,8 @@ function CadastroProdutos() {
         unidade_venda: unidadeVenda.trim() || null,
         metodo_preparo: metodoPreparo.trim() || null,
         ativo: ativo,
-        is_sabor: isSabor
+        is_sabor: isSabor,
+        is_preparacao: isPreparacao
       };
 
       let produtoId = editingId;
@@ -409,7 +413,11 @@ function CadastroProdutos() {
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>(null);
 
   const sortedProdutos = useMemo(() => {
-    let sortableItems = produtos.filter(p => activeTab === 'sabores' ? p.is_sabor : !p.is_sabor);
+    let sortableItems = produtos.filter(p => {
+      if (activeTab === 'sabores') return p.is_sabor;
+      if (activeTab === 'preparacoes') return p.is_preparacao;
+      return !p.is_sabor && !p.is_preparacao;
+    });
     if (sortConfig !== null) {
       sortableItems.sort((a, b) => {
         let aValue = a[sortConfig.key];
@@ -485,7 +493,11 @@ function CadastroProdutos() {
     e.preventDefault();
     if (sortConfig !== null || draggedItemIndex === null || draggedItemIndex === targetIndex) return;
 
-    const filteredItems = produtos.filter(p => activeTab === 'sabores' ? p.is_sabor : !p.is_sabor);
+    const filteredItems = produtos.filter(p => {
+      if (activeTab === 'sabores') return p.is_sabor;
+      if (activeTab === 'preparacoes') return p.is_preparacao;
+      return !p.is_sabor && !p.is_preparacao;
+    });
     const draggedItem = filteredItems[draggedItemIndex];
     filteredItems.splice(draggedItemIndex, 1);
     filteredItems.splice(targetIndex, 0, draggedItem);
@@ -495,7 +507,11 @@ function CadastroProdutos() {
       ordem: index
     }));
     
-    const otherItems = produtos.filter(p => activeTab === 'sabores' ? !p.is_sabor : p.is_sabor);
+    const otherItems = produtos.filter(p => {
+      if (activeTab === 'sabores') return !p.is_sabor;
+      if (activeTab === 'preparacoes') return !p.is_preparacao;
+      return p.is_sabor || p.is_preparacao;
+    });
     const finalProdutos = [...otherItems, ...updatedFilteredItems];
     
     setProdutos(finalProdutos);
@@ -588,6 +604,22 @@ function CadastroProdutos() {
               }}
             >
               Sabores de Gelato
+            </button>
+            <button 
+              onClick={() => setActiveTab('preparacoes')}
+              style={{
+                padding: "8px 20px",
+                border: "none",
+                borderRadius: "8px",
+                background: activeTab === 'preparacoes' ? "#93633e" : "#f1f5f9",
+                color: activeTab === 'preparacoes' ? "#fff" : "#475569",
+                fontWeight: "bold",
+                cursor: "pointer",
+                fontSize: "1.05rem",
+                transition: "all 0.2s ease"
+              }}
+            >
+              Preparações
             </button>
           </div>
 
@@ -741,24 +773,40 @@ function CadastroProdutos() {
                     <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
                       <input 
                         type="radio" 
-                        name="is_sabor" 
-                        checked={!isSabor} 
-                        onChange={() => setIsSabor(false)}
+                        name="tipo_cadastro" 
+                        checked={!isSabor && !isPreparacao} 
+                        onChange={() => {
+                          setIsSabor(false);
+                          setIsPreparacao(false);
+                        }}
                       />
                       Produto
                     </label>
                     <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
                       <input 
                         type="radio" 
-                        name="is_sabor" 
+                        name="tipo_cadastro" 
                         checked={isSabor} 
                         onChange={() => {
                           setIsSabor(true);
+                          setIsPreparacao(false);
                           setCategoria("Gelato");
                           setUnidadeVenda("Kg");
                         }}
                       />
                       Sabor de Gelato
+                    </label>
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
+                      <input 
+                        type="radio" 
+                        name="tipo_cadastro" 
+                        checked={isPreparacao} 
+                        onChange={() => {
+                          setIsSabor(false);
+                          setIsPreparacao(true);
+                        }}
+                      />
+                      Preparação
                     </label>
                   </div>
                 </div>

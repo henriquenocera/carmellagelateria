@@ -29,6 +29,14 @@ const MENU_CONFIG = [
     ]
   },
   {
+    title: "Produção",
+    icon: <Icons.BsClipboardData />,
+    id: "producao",
+    subItems: [
+      { title: "Produção Realizada", path: "/producao-realizada" }
+    ]
+  },
+  {
     title: "Estoque",
     icon: <Icons.BsBoxSeam />,
     id: "estoque",
