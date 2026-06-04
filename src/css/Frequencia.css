@@ -709,3 +709,29 @@ input[type="number"].no-spinner::-webkit-outer-spin-button {
 input[type="number"].no-spinner {
   -moz-appearance: textfield;
 }
+
+/* Invisible inputs for inline editing (Ordem de Producao) */
+.invisible-input {
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+  text-align: center;
+  transition: all 0.2s;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.invisible-input:focus,
+.invisible-input:hover {
+  border: 1px solid #cbd5e1 !important;
+  background-color: #fff !important;
+}
+
+/* Hide date picker icon unless hovered or focused */
+.invisible-input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.invisible-input[type="date"]:hover::-webkit-calendar-picker-indicator,
+.invisible-input[type="date"]:focus::-webkit-calendar-picker-indicator {
+  opacity: 1;
+}
