@@ -35,10 +35,16 @@ function ProducaoRealizada() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
+  const [editingRowId, setEditingRowId] = useState<string | null>(null);
+  const [editRowData, setEditRowData] = useState<any>({});
+
   const [newRow, setNewRow] = useState({
     produto_id: "",
     data_producao: getToday(),
-    quantidade: ""
+    peso_bruto: "",
+    tara: "",
+    peso_liquido: "",
+    validade: ""
   });
 
   useEffect(() => {
@@ -88,7 +94,7 @@ function ProducaoRealizada() {
           // Fetch produtos only on initial load
           const { data: produtosData, error: produtosError } = await supabase
             .from("cadastro_produtos")
-            .select("id, nome, ativo")
+            .select("id, nome, ativo, codigo")
             .eq("is_sabor", true)
             .order("nome", { ascending: true });
 
@@ -106,12 +112,18 @@ function ProducaoRealizada() {
         .from("producao_realizada")
         .select(`
           id,
+          codigo,
           data_producao,
-          quantidade,
+          peso_bruto,
+          tara,
+          peso_liquido,
+          data_entrada,
+          destino,
+          validade,
           produto_id,
           created_at,
           user_id,
-          cadastro_produtos!inner(nome),
+          cadastro_produtos!inner(nome, codigo),
           profiles(name)
         `, { count: 'exact' });
 
@@ -148,30 +160,93 @@ function ProducaoRealizada() {
   }
 
   const handleAddRow = async () => {
-    if (!newRow.produto_id || !newRow.data_producao || !newRow.quantidade) {
-      alert("Por favor, preencha todos os campos para adicionar a produção.");
+    if (!newRow.produto_id || !newRow.data_producao || !newRow.peso_bruto || !newRow.tara) {
+      alert("Por favor, preencha todos os campos obrigatórios (Produto, Data, Peso Bruto e Tara).");
       return;
     }
 
     setSavingRow(true);
 
     try {
+      const selectedProduct = produtos.find(p => p.id === newRow.produto_id);
+      const prodCodigo = selectedProduct?.codigo || "ND";
+      
+      let ddMMyy = "";
+      if (newRow.data_producao) {
+        const parts = newRow.data_producao.split('-');
+        if (parts.length === 3) {
+          ddMMyy = `${parts[2]}${parts[1]}${parts[0].substring(2)}`;
+        }
+      }
+      const baseCodProducao = `${prodCodigo}${ddMMyy}`;
+      
+      const { data: existingProds } = await supabase
+        .from("producao_realizada")
+        .select("codigo")
+        .eq("produto_id", newRow.produto_id)
+        .eq("data_producao", newRow.data_producao);
+
+      let finalCodProducao = baseCodProducao;
+      if (existingProds && existingProds.length > 0) {
+        let maxSuffix = -1;
+        for (const p of existingProds) {
+          if (p.codigo === baseCodProducao) {
+            if (maxSuffix < 0) maxSuffix = 0;
+          } else if (p.codigo?.startsWith(baseCodProducao + "-")) {
+            const suffixStr = p.codigo.substring((baseCodProducao + "-").length);
+            const suffixNum = parseInt(suffixStr, 10);
+            if (!isNaN(suffixNum) && suffixNum > maxSuffix) {
+              maxSuffix = suffixNum;
+            }
+          }
+        }
+        if (maxSuffix >= 0) {
+           finalCodProducao = `${baseCodProducao}-${maxSuffix + 1}`;
+        }
+      }
+
+      let calculatedPesoLiquido: number | null = null;
+      const pb = newRow.peso_bruto ? parseFloat(newRow.peso_bruto) : null;
+      const t = newRow.tara ? parseFloat(newRow.tara) : null;
+      if (pb !== null && t !== null) {
+        calculatedPesoLiquido = parseFloat((pb - t).toFixed(2));
+      }
+
+      let calculatedValidade: string | null = null;
+      if (newRow.data_producao) {
+        const dataProdDate = new Date(newRow.data_producao + "T12:00:00");
+        dataProdDate.setDate(dataProdDate.getDate() + 180);
+        calculatedValidade = `${dataProdDate.getFullYear()}-${String(dataProdDate.getMonth() + 1).padStart(2, '0')}-${String(dataProdDate.getDate()).padStart(2, '0')}`;
+      }
+
       const { data, error } = await supabase
         .from("producao_realizada")
         .insert([{
           produto_id: newRow.produto_id,
+          codigo: finalCodProducao,
           data_producao: newRow.data_producao,
-          quantidade: parseFloat(newRow.quantidade),
+          peso_bruto: pb,
+          tara: t,
+          peso_liquido: calculatedPesoLiquido,
+          data_entrada: null,
+          destino: null,
+          validade: calculatedValidade,
           user_id: user?.id
         }])
         .select(`
           id,
+          codigo,
           data_producao,
-          quantidade,
+          peso_bruto,
+          tara,
+          peso_liquido,
+          data_entrada,
+          destino,
+          validade,
           produto_id,
           created_at,
           user_id,
-          cadastro_produtos(nome),
+          cadastro_produtos(nome, codigo),
           profiles(name)
         `)
         .single();
@@ -202,7 +277,10 @@ function ProducaoRealizada() {
       setNewRow({
         ...newRow,
         produto_id: "",
-        quantidade: ""
+        peso_bruto: "",
+        tara: "",
+        peso_liquido: "",
+        validade: ""
       });
 
       // Retornar o foco para o select de produtos após salvar
@@ -215,6 +293,115 @@ function ProducaoRealizada() {
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
       alert("Erro ao salvar a produção: " + (err.message || JSON.stringify(err)));
+    } finally {
+      setSavingRow(false);
+    }
+  };
+
+  const handleQuickUpdate = async (id: string, field: "data_entrada" | "destino", value: string) => {
+    try {
+      const { error } = await supabase
+        .from("producao_realizada")
+        .update({ [field]: value || null })
+        .eq("id", id);
+      
+      if (error) throw error;
+
+      setProducoes(prev => prev.map(p => p.id === id ? { ...p, [field]: value || null } : p));
+    } catch (err: any) {
+      console.error(`Erro ao atualizar ${field}:`, err);
+      alert(`Erro ao atualizar: ${err.message || JSON.stringify(err)}`);
+    }
+  };
+
+  const saveEdit = async (prod: any) => {
+    try {
+      setSavingRow(true);
+      const pb = parseFloat(editRowData.peso_bruto);
+      const t = parseFloat(editRowData.tara);
+      let calculatedPesoLiquido: number | null = null;
+      if (!isNaN(pb) && !isNaN(t)) {
+        calculatedPesoLiquido = parseFloat((pb - t).toFixed(3));
+      }
+
+      let calculatedValidade: string | null = prod.validade;
+      let finalCodProducao: string = prod.codigo;
+
+      const dateChanged = editRowData.data_producao && editRowData.data_producao !== prod.data_producao;
+      const productChanged = editRowData.produto_id && editRowData.produto_id !== prod.produto_id;
+      const newProdutoId = editRowData.produto_id || prod.produto_id;
+
+      if (dateChanged || productChanged) {
+        if (dateChanged) {
+          const dataProdDate = new Date(editRowData.data_producao + "T12:00:00");
+          dataProdDate.setDate(dataProdDate.getDate() + 180);
+          calculatedValidade = `${dataProdDate.getFullYear()}-${String(dataProdDate.getMonth() + 1).padStart(2, '0')}-${String(dataProdDate.getDate()).padStart(2, '0')}`;
+        }
+
+        const selectedProduct = produtos.find(p => p.id === newProdutoId);
+        const prodCodigo = selectedProduct?.codigo || "ND";
+        const parts = editRowData.data_producao.split('-');
+        let ddMMyy = "";
+        if (parts.length === 3) {
+          ddMMyy = `${parts[2]}${parts[1]}${parts[0].substring(2)}`;
+        }
+        const baseCodProducao = `${prodCodigo}${ddMMyy}`;
+        
+        const { data: existingProds } = await supabase
+          .from("producao_realizada")
+          .select("codigo")
+          .eq("produto_id", newProdutoId)
+          .eq("data_producao", editRowData.data_producao)
+          .neq("id", prod.id);
+
+        finalCodProducao = baseCodProducao;
+        if (existingProds && existingProds.length > 0) {
+          let maxSuffix = -1;
+          for (const p of existingProds) {
+            if (p.codigo === baseCodProducao) {
+              if (maxSuffix < 0) maxSuffix = 0;
+            } else if (p.codigo?.startsWith(baseCodProducao + "-")) {
+              const suffixStr = p.codigo.substring((baseCodProducao + "-").length);
+              const suffixNum = parseInt(suffixStr, 10);
+              if (!isNaN(suffixNum) && suffixNum > maxSuffix) {
+                maxSuffix = suffixNum;
+              }
+            }
+          }
+          if (maxSuffix >= 0) {
+             finalCodProducao = `${baseCodProducao}-${maxSuffix + 1}`;
+          }
+        }
+      }
+
+      const { data, error } = await supabase
+        .from("producao_realizada")
+        .update({
+          produto_id: newProdutoId,
+          peso_bruto: isNaN(pb) ? null : pb,
+          tara: isNaN(t) ? null : t,
+          peso_liquido: calculatedPesoLiquido,
+          data_producao: editRowData.data_producao,
+          data_entrada: editRowData.data_entrada || null,
+          destino: editRowData.destino || null,
+          validade: calculatedValidade,
+          codigo: finalCodProducao
+        })
+        .eq("id", prod.id)
+        .select(`
+          id, codigo, data_producao, peso_bruto, tara, peso_liquido, 
+          data_entrada, destino, validade, produto_id, created_at, user_id, 
+          cadastro_produtos(nome, codigo), profiles(name)
+        `)
+        .single();
+      
+      if (error) throw error;
+
+      setProducoes(prev => prev.map(p => p.id === prod.id ? data : p));
+      setEditingRowId(null);
+    } catch (err: any) {
+      console.error("Erro ao salvar edição:", err);
+      alert("Erro ao salvar: " + (err.message || JSON.stringify(err)));
     } finally {
       setSavingRow(false);
     }
@@ -273,7 +460,7 @@ function ProducaoRealizada() {
               alignItems: "flex-end"
             }}>
               <div style={{ flex: "2 1 250px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Produto</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Produto *</label>
                 <Select
                   ref={selectRef}
                   autoFocus
@@ -292,7 +479,7 @@ function ProducaoRealizada() {
                 />
               </div>
               <div style={{ flex: "1 1 150px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data da Produção</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data Produção *</label>
                 <input
                   type="date"
                   value={newRow.data_producao}
@@ -300,17 +487,29 @@ function ProducaoRealizada() {
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
                 />
               </div>
-              <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Quantidade</label>
+              <div style={{ flex: "1 1 100px" }}>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Peso Bruto (kg) *</label>
                 <input
                   type="number"
-                  step="0.01"
-                  placeholder="Qtd Produzida"
-                  value={newRow.quantidade}
-                  onChange={(e) => setNewRow({ ...newRow, quantidade: e.target.value })}
+                  step="0.001"
+                  placeholder="Bruto"
+                  value={newRow.peso_bruto}
+                  onChange={(e) => setNewRow({ ...newRow, peso_bruto: e.target.value })}
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
                 />
               </div>
+              <div style={{ flex: "1 1 100px" }}>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Tara (kg) *</label>
+                <input
+                  type="number"
+                  step="0.001"
+                  placeholder="Tara"
+                  value={newRow.tara}
+                  onChange={(e) => setNewRow({ ...newRow, tara: e.target.value })}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
+                />
+              </div>
+
               <div style={{ flex: "0 0 150px", position: "relative" }}>
                 {showSavedMessage && (
                   <span className="saved-message-anim" style={{
@@ -354,17 +553,26 @@ function ProducaoRealizada() {
           </div>
 
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-            <table className="freq-table" style={{ minWidth: "800px" }}>
+            <table className="freq-table" style={{ minWidth: "1400px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "350px" }}>Produto</th>
-                  <th style={{ textAlign: "center", width: "120px" }}>Data</th>
-                  <th style={{ textAlign: "center", width: "100px" }}>Quantidade</th>
+                  <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
+                  <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
+                  <th style={{ width: "250px" }}>Produto</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Data Produção</th>
+                  <th style={{ textAlign: "center", width: "100px" }}>Peso Bruto (kg)</th>
+                  <th style={{ textAlign: "center", width: "100px" }}>Tara (kg)</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Peso Líquido (kg)</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Data Entrada</th>
+                  <th style={{ textAlign: "center", width: "150px" }}>Destino</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Validade</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>
                   <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
                 </tr>
                 {/* Linha de Filtros */}
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                  <th style={{ padding: "8px" }}></th>
+                  <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}>
                     <Select
                       menuPortalTarget={document.body}
@@ -399,7 +607,7 @@ function ProducaoRealizada() {
                       style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
                     />
                   </th>
-                  <th colSpan={3} style={{ padding: "8px", textAlign: "right" }}>
+                  <th colSpan={8} style={{ padding: "8px", textAlign: "right" }}>
                     <button
                       onClick={() => {
                         setFilterProdutoId(null);
@@ -417,13 +625,13 @@ function ProducaoRealizada() {
               <tbody>
                 {loading && producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={5} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={12} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
                 ) : producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={5} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={12} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhum registro de produção encontrado.
                     </td>
                   </tr>
@@ -441,25 +649,151 @@ function ProducaoRealizada() {
                           transition: "all 0.5s ease"
                         }}
                       >
-                        <td style={{ fontWeight: "500" }}>{prod.cadastro_produtos?.nome || "-"}</td>
-                        <td style={{ textAlign: "center" }}>
-                          {prod.data_producao ? new Date(prod.data_producao + "T12:00:00").toLocaleDateString('pt-BR') : "-"}
+                        <td style={{ textAlign: "center", fontWeight: "bold" }}>{prod.codigo || "-"}</td>
+                        <td style={{ textAlign: "center" }}>{prod.cadastro_produtos?.codigo || "-"}</td>
+                        <td style={{ fontWeight: "500" }}>
+                          {editingRowId === prod.id ? (
+                            <Select
+                              menuPortalTarget={document.body}
+                              options={produtos.map(p => ({ value: p.id, label: p.nome }))}
+                              value={editRowData.produto_id ? { value: editRowData.produto_id, label: produtos.find(p => p.id === editRowData.produto_id)?.nome } : null}
+                              onChange={(selectedOption) => setEditRowData({ ...editRowData, produto_id: selectedOption ? selectedOption.value : "" })}
+                              placeholder="Selecione..."
+                              styles={{
+                                control: (base) => ({ ...base, minHeight: '30px', fontSize: '0.9rem' }),
+                                menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '0.9rem' })
+                              }}
+                            />
+                          ) : (
+                            prod.cadastro_produtos?.nome || "-"
+                          )}
                         </td>
-                        <td style={{ textAlign: "center", fontWeight: "bold", color: "var(--primary-color)" }}>
-                          {prod.quantidade}
+                        <td style={{ textAlign: "center" }}>
+                          {editingRowId === prod.id ? (
+                            <input 
+                              type="date"
+                              value={editRowData.data_producao || ""}
+                              onChange={e => setEditRowData({ ...editRowData, data_producao: e.target.value })}
+                              style={{ width: "100%", padding: "4px", fontSize: "0.9rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            />
+                          ) : (
+                            prod.data_producao ? new Date(prod.data_producao + "T12:00:00").toLocaleDateString('pt-BR') : "-"
+                          )}
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          {editingRowId === prod.id ? (
+                            <input 
+                              type="number" step="0.001"
+                              value={editRowData.peso_bruto || ""}
+                              onChange={e => setEditRowData({ ...editRowData, peso_bruto: e.target.value })}
+                              style={{ width: "80px", padding: "4px", fontSize: "0.9rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            />
+                          ) : (
+                            <span style={{ color: prod.peso_bruto < 0 ? "#ef4444" : "inherit" }}>
+                              {prod.peso_bruto != null ? Number(prod.peso_bruto).toFixed(3) : "-"}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          {editingRowId === prod.id ? (
+                            <input 
+                              type="number" step="0.001"
+                              value={editRowData.tara || ""}
+                              onChange={e => setEditRowData({ ...editRowData, tara: e.target.value })}
+                              style={{ width: "80px", padding: "4px", fontSize: "0.9rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            />
+                          ) : (
+                            <span style={{ color: prod.tara < 0 ? "#ef4444" : "inherit" }}>
+                              {prod.tara != null ? Number(prod.tara).toFixed(3) : "-"}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ textAlign: "center", fontWeight: "bold", color: prod.peso_liquido < 0 ? "#ef4444" : "inherit" }}>{prod.peso_liquido != null ? Number(prod.peso_liquido).toFixed(3) : "-"}</td>
+                        <td style={{ textAlign: "center" }}>
+                          {editingRowId === prod.id ? (
+                            <input 
+                              type="date"
+                              value={editRowData.data_entrada || ""}
+                              onChange={e => setEditRowData({ ...editRowData, data_entrada: e.target.value })}
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            />
+                          ) : prod.data_entrada ? (
+                            new Date(prod.data_entrada + "T12:00:00").toLocaleDateString('pt-BR')
+                          ) : (
+                            <input 
+                              type="date"
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                              onBlur={(e) => {
+                                if (e.target.value) {
+                                  handleQuickUpdate(prod.id, "data_entrada", e.target.value);
+                                }
+                              }}
+                            />
+                          )}
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          {editingRowId === prod.id ? (
+                            <select 
+                              value={editRowData.destino || ""}
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                              onChange={(e) => setEditRowData({ ...editRowData, destino: e.target.value })}
+                            >
+                              <option value="" disabled>Selecionar...</option>
+                              <option value="Loja Ahu">Loja Ahu</option>
+                              <option value="Loja Alto XV">Loja Alto XV</option>
+                              <option value="Venda">Venda</option>
+                              <option value="Rebatido">Rebatido</option>
+                              <option value="Descartado">Descartado</option>
+                              <option value="Outro">Outro</option>
+                            </select>
+                          ) : prod.destino ? (
+                            prod.destino
+                          ) : (
+                            <select 
+                              defaultValue=""
+                              style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                              onChange={(e) => {
+                                if (e.target.value) {
+                                  handleQuickUpdate(prod.id, "destino", e.target.value);
+                                }
+                              }}
+                            >
+                              <option value="" disabled>Selecionar...</option>
+                              <option value="Loja Ahu">Loja Ahu</option>
+                              <option value="Loja Alto XV">Loja Alto XV</option>
+                              <option value="Venda">Venda</option>
+                              <option value="Rebatido">Rebatido</option>
+                              <option value="Descartado">Descartado</option>
+                              <option value="Outro">Outro</option>
+                            </select>
+                          )}
+                        </td>
+                        <td style={{ textAlign: "center" }}>
+                          {prod.validade ? new Date(prod.validade + "T12:00:00").toLocaleDateString('pt-BR') : "-"}
                         </td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>
                           {prod.profiles?.name || "Desconhecido"}
                         </td>
                         <td style={{ textAlign: "center", padding: "4px" }}>
-                          <button
-                            onClick={() => handleDelete(prod.id)}
-                            className="delete-record-btn"
-                            title="Excluir Registro"
-                            style={{ margin: "0 auto" }}
-                          >
-                            <Icons.BsTrash />
-                          </button>
+                          {editingRowId === prod.id ? (
+                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                              <button onClick={() => saveEdit(prod)} title="Salvar" disabled={savingRow} style={{ background: "none", border: "none", color: "#16a34a", cursor: "pointer", fontSize: "1.2rem" }}>
+                                {savingRow ? <Icons.BsArrowClockwise className="spin" /> : <Icons.BsCheckLg />}
+                              </button>
+                              <button onClick={() => setEditingRowId(null)} title="Cancelar" disabled={savingRow} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "1.2rem" }}>
+                                <Icons.BsXLg />
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                              <button onClick={() => { setEditingRowId(prod.id); setEditRowData({ produto_id: prod.produto_id, peso_bruto: prod.peso_bruto, tara: prod.tara, data_producao: prod.data_producao, data_entrada: prod.data_entrada, destino: prod.destino }); }} title="Editar Registro" style={{ background: "none", border: "none", color: "#3b82f6", cursor: "pointer", fontSize: "1.1rem" }}>
+                                <Icons.BsPencil />
+                              </button>
+                              <button onClick={() => handleDelete(prod.id)} className="delete-record-btn" title="Excluir Registro" style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
+                                <Icons.BsTrash />
+                              </button>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -468,7 +802,7 @@ function ProducaoRealizada() {
                 
                 {hasMore && producoes.length > 0 && (
                   <tr>
-                    <td colSpan={5} style={{ textAlign: "center", padding: "16px" }}>
+                    <td colSpan={12} style={{ textAlign: "center", padding: "16px" }}>
                       <button 
                         onClick={() => fetchData(true)}
                         disabled={loadingMore}
@@ -496,7 +830,7 @@ function ProducaoRealizada() {
                   </tr>
                 )}
                 <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold" }}>
-                  <td colSpan={5} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
+                  <td colSpan={12} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
                     Total de registros encontrados: {totalCount}
                   </td>
                 </tr>

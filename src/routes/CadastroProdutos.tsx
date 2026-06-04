@@ -28,6 +28,7 @@ function CadastroProdutos() {
   const [metodoPreparo, setMetodoPreparo] = useState("");
   const [isSabor, setIsSabor] = useState(false);
   const [isPreparacao, setIsPreparacao] = useState(false);
+  const [codigo, setCodigo] = useState("");
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
 
   // Tabs state
@@ -131,7 +132,7 @@ function CadastroProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao,
+          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao, codigo,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id,
             cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
@@ -189,6 +190,7 @@ function CadastroProdutos() {
       setAtivo(produto.ativo);
       setIsSabor(produto.is_sabor || false);
       setIsPreparacao(produto.is_preparacao || false);
+      setCodigo(produto.codigo || "");
 
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
         id: item.id,
@@ -208,6 +210,7 @@ function CadastroProdutos() {
       setAtivo(true);
       setIsSabor(activeTab === 'sabores');
       setIsPreparacao(activeTab === 'preparacoes');
+      setCodigo("");
       setFichaTecnica([]);
     }
 
@@ -325,7 +328,8 @@ function CadastroProdutos() {
         metodo_preparo: metodoPreparo.trim() || null,
         ativo: ativo,
         is_sabor: isSabor,
-        is_preparacao: isPreparacao
+        is_preparacao: isPreparacao,
+        codigo: isSabor && codigo.trim() ? codigo.trim() : null
       };
 
       let produtoId = editingId;
@@ -824,6 +828,19 @@ function CadastroProdutos() {
                       style={{ background: "#fff" }}
                     />
                   </div>
+                  {isSabor && (
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Código</label>
+                      <input
+                        type="text"
+                        className="frequencia-select"
+                        placeholder="Código"
+                        value={codigo}
+                        onChange={(e) => setCodigo(e.target.value)}
+                        style={{ background: "#fff" }}
+                      />
+                    </div>
+                  )}
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Categoria</label>
                     <input
