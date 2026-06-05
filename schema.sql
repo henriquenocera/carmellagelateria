@@ -293,7 +293,8 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_produtos" (
     "ordem" integer DEFAULT 0,
     "metodo_preparo" "text",
     "is_sabor" boolean DEFAULT false,
-    "is_preparacao" boolean DEFAULT false
+    "is_preparacao" boolean DEFAULT false,
+    "codigo" "text"
 );
 
 
@@ -511,13 +512,38 @@ CREATE TABLE IF NOT EXISTS "public"."movimentacoes_estoque" (
 ALTER TABLE "public"."movimentacoes_estoque" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."ordem_producao" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "produto_id" "uuid" NOT NULL,
+    "data_ordem" "date" NOT NULL,
+    "quantidade" numeric NOT NULL,
+    "user_id" "uuid",
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "data_producao" "date",
+    "peso_bruto" numeric,
+    "tara" numeric,
+    "codigo" "text"
+);
+
+
+ALTER TABLE "public"."ordem_producao" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."producao_realizada" (
     "id" integer NOT NULL,
     "produto_id" "uuid",
     "data_producao" "date" NOT NULL,
-    "quantidade" numeric DEFAULT 0 NOT NULL,
     "user_id" "uuid",
-    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "codigo" "text",
+    "peso_bruto" numeric,
+    "tara" numeric,
+    "peso_liquido" numeric,
+    "data_entrada" "date",
+    "destino" "text",
+    "validade" "date",
+    "status_revisao" character varying(20) DEFAULT 'none'::character varying,
+    "revisao_observacao" "text"
 );
 
 
@@ -705,6 +731,11 @@ ALTER TABLE ONLY "public"."movimentacoes_estoque"
 
 
 
+ALTER TABLE ONLY "public"."ordem_producao"
+    ADD CONSTRAINT "ordem_producao_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."producao_realizada"
     ADD CONSTRAINT "producao_realizada_pkey" PRIMARY KEY ("id");
 
@@ -847,6 +878,16 @@ ALTER TABLE ONLY "public"."movimentacoes_estoque"
 
 
 
+ALTER TABLE ONLY "public"."ordem_producao"
+    ADD CONSTRAINT "ordem_producao_produto_id_fkey" FOREIGN KEY ("produto_id") REFERENCES "public"."cadastro_produtos"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."ordem_producao"
+    ADD CONSTRAINT "ordem_producao_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id") ON DELETE SET NULL;
+
+
+
 ALTER TABLE ONLY "public"."producao_realizada"
     ADD CONSTRAINT "producao_realizada_produto_id_fkey" FOREIGN KEY ("produto_id") REFERENCES "public"."cadastro_produtos"("id") ON DELETE CASCADE;
 
@@ -946,7 +987,19 @@ CREATE POLICY "Allow update historico_colaborador" ON "public"."historico_colabo
 
 
 
+CREATE POLICY "Enable delete for authenticated users" ON "public"."ordem_producao" FOR DELETE USING (("auth"."role"() = 'authenticated'::"text"));
+
+
+
+CREATE POLICY "Enable insert for authenticated users" ON "public"."ordem_producao" FOR INSERT WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+
+
 CREATE POLICY "Enable insert for authenticated users only" ON "public"."rules_confirmations" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
+CREATE POLICY "Enable read access for all authenticated users" ON "public"."ordem_producao" FOR SELECT USING (("auth"."role"() = 'authenticated'::"text"));
 
 
 
@@ -955,6 +1008,10 @@ CREATE POLICY "Enable read access for all users" ON "public"."Vouchers" FOR SELE
 
 
 CREATE POLICY "Enable read access for all users" ON "public"."rules_confirmations" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Enable update for authenticated users" ON "public"."ordem_producao" FOR UPDATE USING (("auth"."role"() = 'authenticated'::"text"));
 
 
 
@@ -1092,6 +1149,9 @@ ALTER TABLE "public"."lista_compras_manual" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."movimentacoes_estoque" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."ordem_producao" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."producao_realizada" ENABLE ROW LEVEL SECURITY;
 
 
@@ -1110,11 +1170,23 @@ ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
 
 
 
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."cardsahu";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."cardsaltoxv";
+
+
+
 ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."entradas_mercadoria";
 
 
 
 ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."movimentacoes_estoque";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."producao_realizada";
 
 
 
@@ -1521,6 +1593,12 @@ GRANT ALL ON SEQUENCE "public"."lista_compras_manual_id_seq" TO "service_role";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ordem_producao" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ordem_producao" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ordem_producao" TO "service_role";
 
 
 
