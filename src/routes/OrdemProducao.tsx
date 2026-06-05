@@ -5,10 +5,11 @@ import supabase from "../supabase-client";
 import { useAuth } from "../AuthProvider";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { Navigate } from "react-router-dom";
 import "../css/Frequencia.css";
 
 function OrdemProducao() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   
   const getTodayStr = () => {
     const today = new Date();
@@ -21,6 +22,7 @@ function OrdemProducao() {
   const [viewMode, setViewMode] = useState<'list' | 'detail'>('list');
   const [isOldInvModalOpen, setIsOldInvModalOpen] = useState(false);
   const [ordemCounts, setOrdemCounts] = useState<Record<string, number>>({});
+  const [ordemProducedCounts, setOrdemProducedCounts] = useState<Record<string, number>>({});
   const [ordemUsers, setOrdemUsers] = useState<Record<string, string>>({});
   const [ordemTimes, setOrdemTimes] = useState<Record<string, string>>({});
   
@@ -156,6 +158,9 @@ function OrdemProducao() {
         .from("ordem_producao")
         .select(`
           data_ordem,
+          data_producao,
+          peso_bruto,
+          tara,
           updated_at,
           profiles (name)
         `);
@@ -168,11 +173,15 @@ function OrdemProducao() {
       }
       
       const counts: Record<string, number> = {};
+      const producedCounts: Record<string, number> = {};
       const users: Record<string, string> = {};
       const times: Record<string, string> = {};
       
       (data || []).forEach((d: any) => {
         counts[d.data_ordem] = (counts[d.data_ordem] || 0) + 1;
+        if (d.data_producao && d.peso_bruto !== null && d.tara !== null) {
+          producedCounts[d.data_ordem] = (producedCounts[d.data_ordem] || 0) + 1;
+        }
         if (d.profiles?.name) {
           users[d.data_ordem] = d.profiles.name;
         }
@@ -183,6 +192,7 @@ function OrdemProducao() {
         }
       });
       setOrdemCounts(counts);
+      setOrdemProducedCounts(producedCounts);
       setOrdemUsers(users);
       setOrdemTimes(times);
 
@@ -649,6 +659,12 @@ function OrdemProducao() {
     doc.save(`Ordem_Producao_Branco.pdf`);
   };
 
+  if (authLoading) return null;
+
+  if (!isAdmin) {
+    return <Navigate to="/" replace />;
+  }
+
   return (
     <>
       <Helmet>
@@ -689,8 +705,13 @@ function OrdemProducao() {
                     <Icons.BsCalendar2Check style={{ color: "var(--primary-color)", fontSize: "1.2rem" }} />
                     <span style={{ fontWeight: "bold", color: "#334155", fontSize: "1.1rem" }}>{formatDateBR(date)}</span>
                   </div>
-                  <div style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                    {ordemCounts[date] || 0} itens
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ color: "#16a34a", fontSize: "1rem", fontWeight: "bold" }}>
+                      {ordemProducedCounts[date] || 0} / {ordemCounts[date] || 0}
+                    </div>
+                    <div style={{ color: "var(--text-muted)", fontSize: "0.8rem", textTransform: "uppercase" }}>
+                      Produzidos
+                    </div>
                   </div>
                 </button>
               ))}
@@ -711,12 +732,18 @@ function OrdemProducao() {
           
           <div style={{ 
             display: "flex", 
-            justifyContent: "flex-end", 
+            justifyContent: (viewMode === 'detail' && !isAlreadySaved) ? "space-between" : "flex-end", 
             alignItems: "center",
             flexWrap: "wrap",
             gap: "16px",
             marginBottom: "24px" 
           }}>
+
+            {viewMode === 'detail' && !isAlreadySaved && (
+              <h2 style={{ margin: 0, color: "var(--primary-color)", fontSize: "2.2rem", fontWeight: "bold" }}>
+                Nova Ordem de Produção
+              </h2>
+            )}
 
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               {viewMode === 'detail' && (
@@ -847,9 +874,19 @@ function OrdemProducao() {
                         <div style={{ backgroundColor: "#dbeafe", color: "#1d4ed8", padding: "12px", borderRadius: "12px", display: "flex" }}>
                           <Icons.BsGearWideConnected style={{ fontSize: "1.8rem" }} />
                         </div>
-                        <div>
+                        <div style={{ flex: 1 }}>
                           <h3 style={{ margin: 0, fontSize: "1.3rem", color: "var(--secondary-color)" }}>{getWeekOfMonthString(date)}</h3>
                           <div style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#334155", marginTop: "4px" }}>{formatDateBR(date)}</div>
+                        </div>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ backgroundColor: "#f0fdf4", padding: "6px 12px", borderRadius: "8px", border: "1px solid #bbf7d0" }}>
+                            <div style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#16a34a", textAlign: "center" }}>
+                              {ordemProducedCounts[date] || 0} / {ordemCounts[date] || 0}
+                            </div>
+                            <div style={{ fontSize: "0.85rem", color: "#15803d", textTransform: "uppercase", letterSpacing: "0.5px", marginTop: "2px", fontWeight: "bold" }}>
+                              Produzidos
+                            </div>
+                          </div>
                         </div>
                       </div>
                       <div style={{ borderTop: "1px solid #e2e8f0", margin: "8px 0" }}></div>
