@@ -80,9 +80,11 @@ export function Board() {
   }, [cards, user]); // Dependencies ensure we use latest state/user in handlers
 
   useEffect(() => {
-    const loadCards = async () => {
+    let timeoutId: any;
+
+    const loadCards = async (isBackground = false) => {
       try {
-        setIsLoading(true);
+        if (!isBackground) setIsLoading(true);
         const dbCards = await fetchCards();
         if (dbCards.length > 0) {
           setCards(dbCards);
@@ -94,7 +96,7 @@ export function Board() {
         console.error('Erro ao carregar cards do Supabase:', error);
         setSyncError('Nao foi possivel carregar do Supabase. Usando dados locais.');
       } finally {
-        setIsLoading(false);
+        if (!isBackground) setIsLoading(false);
       }
     };
 
@@ -121,8 +123,26 @@ export function Board() {
       }
     };
 
-    void loadCards();
+    void loadCards(false);
     void loadProfiles();
+
+    const channel = supabase.channel('realtime-cardsaltoxv')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'cardsaltoxv' },
+        () => {
+          if (timeoutId) clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
+            void loadCards(true);
+          }, 300);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {

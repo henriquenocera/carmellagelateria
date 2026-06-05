@@ -57,13 +57,13 @@ export function SessionTimer() {
         display: 'flex',
         alignItems: 'center',
         gap: '6px',
-        color: isWarning ? '#ef4444' : '#64748b',
+        color: isWarning ? '#fca5a5' : '#e2e8f0',
         fontSize: '13px',
         fontWeight: '500',
-        background: isWarning ? '#fef2f2' : '#f8fafc',
+        background: isWarning ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255, 255, 255, 0.15)',
         padding: '4px 10px',
         borderRadius: '12px',
-        border: isWarning ? '1px solid #fecaca' : '1px solid transparent',
+        border: isWarning ? '1px solid rgba(248, 113, 113, 0.5)' : '1px solid rgba(255, 255, 255, 0.2)',
         transition: 'all 0.3s'
       }}
     >

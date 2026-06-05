@@ -24,14 +24,16 @@ function App() {
         </div>
         <div className="flex items-center" style={{ gap: '16px' }}>
           <SessionTimer />
-          <span className="user-email" style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>{user.email}</span>
+          <span className="user-email" style={{ fontSize: '14px', color: '#e2e8f0', fontWeight: '500' }}>{user.email}</span>
 
 
           <button
             onClick={signOut}
             className="icon-button"
             title="Sair"
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#64748b' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', background: 'transparent', border: 'none', color: '#e2e8f0', transition: 'color 0.2s' }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#ffffff'}
+            onMouseOut={(e) => e.currentTarget.style.color = '#e2e8f0'}
           >
             <LogOut size={20} />
           </button>
@@ -39,9 +41,9 @@ function App() {
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('board-action', { detail: 'open-logs' }))}
             style={{
-              background: '#f1f5f9',
-              color: '#475569',
-              border: '1px solid #e2e8f0',
+              background: 'rgba(255, 255, 255, 0.15)',
+              color: '#ffffff',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
               padding: '8px 16px',
               borderRadius: '8px',
               display: 'flex',
@@ -49,8 +51,11 @@ function App() {
               gap: '8px',
               cursor: 'pointer',
               fontWeight: '600',
-              fontSize: '13px'
+              fontSize: '13px',
+              transition: 'background 0.2s'
             }}
+            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.25)'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
           >
             Logs de Atividades
           </button>
