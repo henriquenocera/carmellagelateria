@@ -26,6 +26,25 @@ function ProducaoRealizada() {
   // Filters state
   const [filterProdutoId, setFilterProdutoId] = useState<string | null>(null);
   const [filterData, setFilterData] = useState("");
+  const [filterStatus, setFilterStatus] = useState<'all' | 'deleted'>('all');
+  const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
+
+  useEffect(() => {
+    async function checkPendingCounts() {
+      try {
+        if (isAdmin) {
+          const { count: delCount, error: delError } = await supabase
+            .from('producao_realizada')
+            .select('*', { count: 'exact', head: true })
+            .eq('status_revisao', 'pending_delete');
+          if (!delError) setPendingDeleteCount(delCount || 0);
+        }
+      } catch (err) {
+        console.error("Erro ao checar deletes:", err);
+      }
+    }
+    checkPendingCounts();
+  }, [producoes, isAdmin]);
 
   const isFirstRender = useRef(true);
 
@@ -50,12 +69,12 @@ function ProducaoRealizada() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      fetchData(false, 0, filterProdutoId, filterData);
+      fetchData(false, 0, filterProdutoId, filterData, filterStatus);
       return;
     }
     setPage(0);
-    fetchData(false, 0, filterProdutoId, filterData);
-  }, [filterProdutoId, filterData]);
+    fetchData(false, 0, filterProdutoId, filterData, filterStatus);
+  }, [filterProdutoId, filterData, filterStatus]);
 
   const fetchDataRef = useRef<any>(null);
 
@@ -72,7 +91,7 @@ function ProducaoRealizada() {
             }, 3000);
           }
           if (fetchDataRef.current) {
-            fetchDataRef.current(false, 0, undefined, undefined, true);
+            fetchDataRef.current(false, 0, undefined, undefined, undefined, true);
           }
         }
       )
@@ -83,7 +102,7 @@ function ProducaoRealizada() {
     };
   }, []);
 
-  async function fetchData(isLoadMore = false, overridePage: number | null = null, fProdutoId = filterProdutoId, fData = filterData, isBackground = false) {
+  async function fetchData(isLoadMore = false, overridePage: number | null = null, fProdutoId = filterProdutoId, fData = filterData, fStatus = filterStatus, isBackground = false) {
     fetchDataRef.current = fetchData;
     try {
       if (isLoadMore) {
@@ -107,7 +126,6 @@ function ProducaoRealizada() {
       const from = currentPage * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
 
-      // Fetch producao
       let query = supabase
         .from("producao_realizada")
         .select(`
@@ -123,12 +141,22 @@ function ProducaoRealizada() {
           produto_id,
           created_at,
           user_id,
+          status_revisao,
+          revisao_observacao,
           cadastro_produtos!inner(nome, codigo),
           profiles(name)
         `, { count: 'exact' });
 
       if (fProdutoId) query = query.eq('produto_id', fProdutoId);
       if (fData) query = query.eq('data_producao', fData);
+      
+      if (!isAdmin) {
+        query = query.neq('status_revisao', 'pending_delete');
+      } else {
+        if (fStatus === 'deleted') {
+          query = query.eq('status_revisao', 'pending_delete');
+        }
+      }
 
       const { data: prodData, count, error: prodError } = await query
         .order("data_producao", { ascending: false })
@@ -408,17 +436,51 @@ function ProducaoRealizada() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm("Deseja realmente excluir este registro de produção?")) return;
+    if (!window.confirm("Deseja realmente excluir este registro de produção? O histórico será perdido.")) return;
     try {
-      const { error } = await supabase
-        .from("producao_realizada")
-        .delete()
-        .eq("id", id);
-      if (error) throw error;
-      setProducoes(producoes.filter(p => p.id !== id));
+      if (isAdmin) {
+        const { error } = await supabase
+          .from("producao_realizada")
+          .delete()
+          .eq("id", id);
+        if (error) throw error;
+        setProducoes(producoes.filter(p => p.id !== id));
+      } else {
+        const { error } = await supabase
+          .from("producao_realizada")
+          .update({ status_revisao: 'pending_delete' })
+          .eq("id", id);
+        if (error) throw error;
+        
+        if (filterStatus !== 'deleted') {
+          setProducoes(producoes.filter(p => p.id !== id));
+        } else {
+          setProducoes(producoes.map(c => c.id === id ? { ...c, status_revisao: 'pending_delete' } : c));
+        }
+      }
     } catch (err) {
       console.error("Erro ao deletar:", err);
       alert("Erro ao excluir o registro.");
+    }
+  };
+
+  const handleUpdateReviewStatus = async (id: string, newStatus: string) => {
+    try {
+      const updateData: any = { status_revisao: newStatus };
+      if (newStatus === 'none' || newStatus === 'pending_user') {
+        updateData.revisao_observacao = null;
+      }
+
+      const { error } = await supabase
+        .from("producao_realizada")
+        .update(updateData)
+        .eq("id", id);
+      
+      if (error) throw error;
+      setProducoes(producoes.map(m => m.id === id ? { ...m, ...updateData } : m));
+    } catch (err) {
+      console.error("Erro ao alterar status de revisão:", err);
+      alert("Erro ao alterar o status de revisão.");
     }
   };
 
@@ -608,17 +670,81 @@ function ProducaoRealizada() {
                     />
                   </th>
                   <th colSpan={8} style={{ padding: "8px", textAlign: "right" }}>
-                    <button
-                      onClick={() => {
-                        setFilterProdutoId(null);
-                        setFilterData("");
-                      }}
-                      className="cancel-btn"
-                      style={{ padding: "6px 12px", fontSize: "0.9rem" }}
-                      title="Limpar todos os filtros"
-                    >
-                      <Icons.BsFunnel /> Limpar Filtros
-                    </button>
+                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
+                            setFilterStatus(newStatus);
+                            if (newStatus === 'deleted') {
+                              setFilterProdutoId(null);
+                              setFilterData("");
+                            }
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"),
+                            color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"),
+                            border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
+                            borderRadius: "4px",
+                            cursor: "pointer",
+                            fontWeight: filterStatus === 'deleted' ? "bold" : "normal",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            fontSize: "0.85rem",
+                            animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none"
+                          }}
+                          title={filterStatus === 'deleted' ? "Ver Todas as Produções" : "Ver Itens Aguardando Exclusão"}
+                        >
+                          <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setFilterProdutoId(null);
+                          setFilterData("");
+                          setFilterStatus('all');
+                        }}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#cbd5e1",
+                          color: "#334155",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s"
+                        }}
+                        title="Limpar Filtros"
+                      >
+                        <Icons.BsXCircleFill /> Limpar
+                      </button>
+                      <button
+                        onClick={() => fetchData(false, 0)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: "#f1f5f9",
+                          color: "#334155",
+                          border: "1px solid #cbd5e1",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "0.85rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "4px",
+                          transition: "0.2s"
+                        }}
+                        title="Atualizar Dados"
+                      >
+                        <Icons.BsArrowClockwise /> Atualizar
+                      </button>
+                    </div>
                   </th>
                 </tr>
               </thead>
@@ -644,12 +770,17 @@ function ProducaoRealizada() {
                       <tr 
                         key={prod.id} 
                         style={{ 
-                          backgroundColor: isNew ? '#dcfce7' : 'inherit',
-                          opacity: isDeleting ? 0.6 : 1,
+                          backgroundColor: isNew ? '#dcfce7' : (prod.status_revisao === 'pending_delete' ? '#fecaca' : 'inherit'),
+                          opacity: (isDeleting || prod.status_revisao === 'pending_delete') ? 0.6 : 1,
                           transition: "all 0.5s ease"
                         }}
                       >
-                        <td style={{ textAlign: "center", fontWeight: "bold" }}>{prod.codigo || "-"}</td>
+                        <td style={{ textAlign: "center", fontWeight: "bold" }}>
+                          {prod.codigo || "-"}
+                          {prod.status_revisao === 'pending_delete' && (
+                            <span style={{ display: "block", fontSize: "0.75rem", backgroundColor: "#ef4444", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", marginTop: "4px", width: "fit-content", margin: "4px auto 0 auto" }}>Deletado</span>
+                          )}
+                        </td>
                         <td style={{ textAlign: "center" }}>{prod.cadastro_produtos?.codigo || "-"}</td>
                         <td style={{ fontWeight: "500" }}>
                           {editingRowId === prod.id ? (
@@ -771,8 +902,26 @@ function ProducaoRealizada() {
                         <td style={{ textAlign: "center" }}>
                           {prod.validade ? new Date(prod.validade + "T12:00:00").toLocaleDateString('pt-BR') : "-"}
                         </td>
-                        <td style={{ textAlign: "center", color: "#64748b" }}>
-                          {prod.profiles?.name || "Desconhecido"}
+                        <td style={{ textAlign: "center" }}>
+                          <div 
+                            title={prod.created_at ? `Registrado em: ${new Date(prod.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
+                            style={{ 
+                              color: "#334155", 
+                              fontWeight: 600, 
+                              display: "inline-flex", 
+                              alignItems: "center", 
+                              justifyContent: "center", 
+                              gap: "6px", 
+                              cursor: "help",
+                              backgroundColor: "#f8fafc",
+                              padding: "4px 8px",
+                              borderRadius: "6px",
+                              border: "1px solid #e2e8f0"
+                            }}
+                          >
+                            <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
+                            {prod.profiles?.name || "-"}
+                          </div>
                         </td>
                         <td style={{ textAlign: "center", padding: "4px" }}>
                           {editingRowId === prod.id ? (
@@ -786,12 +935,40 @@ function ProducaoRealizada() {
                             </div>
                           ) : (
                             <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                              <button onClick={() => { setEditingRowId(prod.id); setEditRowData({ produto_id: prod.produto_id, peso_bruto: prod.peso_bruto, tara: prod.tara, data_producao: prod.data_producao, data_entrada: prod.data_entrada, destino: prod.destino }); }} title="Editar Registro" style={{ background: "none", border: "none", color: "#3b82f6", cursor: "pointer", fontSize: "1.1rem" }}>
-                                <Icons.BsPencil />
-                              </button>
-                              <button onClick={() => handleDelete(prod.id)} className="delete-record-btn" title="Excluir Registro" style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
-                                <Icons.BsTrash />
-                              </button>
+                              {prod.status_revisao === 'pending_delete' && (
+                                isAdmin ? (
+                                  <div style={{ display: "flex", gap: "4px" }}>
+                                    <button
+                                      onClick={() => handleDelete(prod.id)}
+                                      title="Aprovar Exclusão"
+                                      style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                    >
+                                      <Icons.BsCheckAll /> Excluir
+                                    </button>
+                                    <button
+                                      onClick={() => handleUpdateReviewStatus(prod.id, 'none')}
+                                      title="Restaurar Registro"
+                                      style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#9a3412", backgroundColor: "#fed7aa", border: "1px solid #9a3412", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                    >
+                                      <Icons.BsXCircle /> Restaurar
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span style={{ fontSize: "0.85rem", color: "#991b1b", backgroundColor: "#fecaca", border: "1px solid #991b1b", padding: "4px 8px", borderRadius: "4px", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }}>
+                                    <Icons.BsTrash /> Aguardando
+                                  </span>
+                                )
+                              )}
+                              {prod.status_revisao !== 'pending_delete' && (
+                                <button onClick={() => { setEditingRowId(prod.id); setEditRowData({ produto_id: prod.produto_id, peso_bruto: prod.peso_bruto, tara: prod.tara, data_producao: prod.data_producao, data_entrada: prod.data_entrada, destino: prod.destino }); }} title="Editar Registro" style={{ background: "none", border: "none", color: "#3b82f6", cursor: "pointer", fontSize: "1.1rem" }}>
+                                  <Icons.BsPencil />
+                                </button>
+                              )}
+                              {prod.status_revisao !== 'pending_delete' && (isAdmin || (!prod.status_revisao || prod.status_revisao === 'none')) && (
+                                <button onClick={() => handleDelete(prod.id)} className="delete-record-btn" title="Excluir Registro" style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
+                                  <Icons.BsTrash />
+                                </button>
+                              )}
                             </div>
                           )}
                         </td>

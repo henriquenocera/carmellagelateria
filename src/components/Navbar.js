@@ -33,7 +33,7 @@ const MENU_CONFIG = [
     icon: <Icons.BsClipboardData />,
     id: "producao",
     subItems: [
-      { title: "Ordem de Produção", path: "/ordem-producao" },
+      { title: "Ordem de Produção", path: "/ordem-producao", adminOnly: true },
       { title: "Produção Realizada", path: "/producao-realizada" },
       { title: "Estoque Fábrica", path: "/estoque-fabrica" }
     ]
