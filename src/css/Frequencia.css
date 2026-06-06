@@ -40,7 +40,7 @@
 }
 
 .frequencia-title-group p {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: var(--text-muted);
   margin: 0;
 }
@@ -81,7 +81,7 @@
   color: var(--text-dark);
   font-family: inherit;
   font-weight: 600;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   outline: none;
   cursor: pointer;
 }
@@ -380,7 +380,7 @@
 }
 
 .frequencia-legend-card h3 {
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   font-weight: 700;
   color: var(--secondary-color);
   margin: 0 0 12px 0;
@@ -603,7 +603,7 @@
   border: 1px solid var(--border-color);
   border-radius: 8px;
   font-family: inherit;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   line-height: 1.5;
   background-color: #fff;
   color: var(--text-dark);

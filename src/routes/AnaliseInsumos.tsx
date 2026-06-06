@@ -41,7 +41,8 @@ function AnaliseInsumos() {
         .from("entradas_mercadoria")
         .select("insumo_id, data_compra, quantidade_comprada, valor_unitario, fornecedor, created_at")
         .order("data_compra", { ascending: false })
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(10000);
 
       if (entradasError) {
          console.warn("Nao foi possivel buscar entradas", entradasError);

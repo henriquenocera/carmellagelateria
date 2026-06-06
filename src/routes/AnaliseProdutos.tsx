@@ -38,11 +38,12 @@ function AnaliseProdutos() {
     try {
       setLoading(true);
 
-      // Fetch latest prices
       const { data: latestEntradasData } = await supabase
         .from("entradas_mercadoria")
-        .select("insumo_id, valor_unitario, created_at")
-        .order("created_at", { ascending: false });
+        .select("insumo_id, valor_unitario, data_compra, created_at")
+        .order("data_compra", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(10000);
 
       const latestCostMap: Record<string, number> = {};
       if (latestEntradasData) {

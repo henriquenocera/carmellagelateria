@@ -4,6 +4,7 @@ import * as Icons from "react-icons/bs";
 import supabase from "../supabase-client";
 import { useAuth } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
+import Select from "react-select";
 import "../css/Frequencia.css";
 
 function CadastroProdutos() {
@@ -18,6 +19,7 @@ function CadastroProdutos() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, message: string, onConfirm: () => void}>({isOpen: false, message: "", onConfirm: () => {}});
 
   // Form state
   const [nome, setNome] = useState("");
@@ -43,6 +45,8 @@ function CadastroProdutos() {
   const [quantidadeInsumo, setQuantidadeInsumo] = useState("");
   const [selectedProdutoBase, setSelectedProdutoBase] = useState("");
   const [quantidadeProdutoBase, setQuantidadeProdutoBase] = useState("");
+  const [editingFichaIndex, setEditingFichaIndex] = useState<number | null>(null);
+  const [editingFichaValue, setEditingFichaValue] = useState<string>("");
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -56,17 +60,19 @@ function CadastroProdutos() {
     try {
       setLoading(true);
 
-      // Fetch the latest entradas_mercadoria for each insumo to get the updated cost
       const { data: latestEntradasData } = await supabase
         .from("entradas_mercadoria")
-        .select("insumo_id, valor_unitario, created_at")
-        .order("created_at", { ascending: false });
+        .select("insumo_id, valor_unitario, data_compra, created_at")
+        .order("data_compra", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(10000);
 
       const latestCostMap: Record<string, number> = {};
       if (latestEntradasData) {
         latestEntradasData.forEach((entrada: any) => {
-          if (latestCostMap[entrada.insumo_id] === undefined) {
-            latestCostMap[entrada.insumo_id] = parseFloat(entrada.valor_unitario) || 0;
+          const valor = parseFloat(entrada.valor_unitario);
+          if (latestCostMap[entrada.insumo_id] === undefined && !isNaN(valor) && valor > 0) {
+            latestCostMap[entrada.insumo_id] = valor;
           }
         });
       }
@@ -82,9 +88,11 @@ function CadastroProdutos() {
 
       const insumosWithUpdatedCosts = (insumosData || []).map((insumo: any) => {
         const latestValor = latestCostMap[insumo.id];
-        let custoAtualizado = insumo.custo_considerado_unitario;
+        let custoAtualizado = parseFloat(insumo.custo_considerado_unitario) || 0;
         if (latestValor !== undefined && insumo.quantidade_conversao > 0) {
-          custoAtualizado = latestValor / insumo.quantidade_conversao;
+          custoAtualizado = latestValor / parseFloat(insumo.quantidade_conversao);
+        } else if (latestValor !== undefined && latestValor > 0) {
+          custoAtualizado = latestValor;
         }
         return {
           ...insumo,
@@ -93,14 +101,15 @@ function CadastroProdutos() {
       });
 
       // Calcular média de custo por nome_simples_unitario
-      const groupedCostMap: Record<string, { total: number, count: number }> = {};
+      const groupedCostMap: Record<string, { total: number, count: number, displayKey: string }> = {};
       
       insumosWithUpdatedCosts.forEach((insumo: any) => {
-        const groupKey = insumo.nome_simples_unitario || insumo.nome;
+        const rawKey = insumo.nome_simples_unitario || insumo.nome || "";
+        const groupKey = rawKey.trim().toUpperCase();
         if (!groupedCostMap[groupKey]) {
-          groupedCostMap[groupKey] = { total: 0, count: 0 };
+          groupedCostMap[groupKey] = { total: 0, count: 0, displayKey: rawKey.trim() };
         }
-        groupedCostMap[groupKey].total += insumo.custo_considerado_unitario || 0;
+        groupedCostMap[groupKey].total += parseFloat(insumo.custo_considerado_unitario) || 0;
         groupedCostMap[groupKey].count += 1;
       });
 
@@ -114,14 +123,15 @@ function CadastroProdutos() {
       const seenGroups = new Set<string>();
       
       insumosWithUpdatedCosts.forEach((insumo: any) => {
-        const groupKey = insumo.nome_simples_unitario || insumo.nome;
+        const rawKey = insumo.nome_simples_unitario || insumo.nome || "";
+        const groupKey = rawKey.trim().toUpperCase();
         if (!seenGroups.has(groupKey)) {
           seenGroups.add(groupKey);
           groupedInsumosList.push({
             ...insumo,
             custo_considerado_unitario: averageCostMap[groupKey],
             nome_original: insumo.nome,
-            nome: groupKey // Para exibir de forma limpa no dropdown
+            nome: groupedCostMap[groupKey].displayKey // Para exibir de forma limpa no dropdown
           });
         }
       });
@@ -152,7 +162,8 @@ function CadastroProdutos() {
           ...prod,
           ficha_tecnica: (prod.ficha_tecnica || []).map((item: any) => {
             if (item.insumo_id) {
-              const groupKey = item.cadastro_insumos?.nome_simples_unitario || item.cadastro_insumos?.nome || "Desconhecido";
+              const rawKey = item.cadastro_insumos?.nome_simples_unitario || item.cadastro_insumos?.nome || "Desconhecido";
+              const groupKey = rawKey.trim().toUpperCase();
               let updatedCusto = item.cadastro_insumos?.custo_considerado_unitario || 0;
               
               if (averageCostMap[groupKey] !== undefined) {
@@ -202,6 +213,7 @@ function CadastroProdutos() {
       setFichaTecnica(mappedFicha);
     } else {
       setEditingId(null);
+      setFichaTecnica([]);
       setNome("");
       setCategoria(activeTab === 'sabores' ? "Gelato" : "");
       setPrecoVenda("");
@@ -211,14 +223,45 @@ function CadastroProdutos() {
       setIsSabor(activeTab === 'sabores');
       setIsPreparacao(activeTab === 'preparacoes');
       setCodigo("");
-      setFichaTecnica([]);
     }
-
     setSelectedInsumo("");
     setQuantidadeInsumo("");
     setSelectedProdutoBase("");
     setQuantidadeProdutoBase("");
     setIsModalOpen(true);
+  };
+
+  const handleCloneProduto = (produto: any) => {
+    setConfirmModal({
+      isOpen: true,
+      message: `Deseja criar uma cópia de "${produto.nome}"?`,
+      onConfirm: () => {
+        setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} });
+        setEditingId(null);
+        setNome(produto.nome + " (Cópia)");
+        setCategoria(produto.categoria || "");
+        setPrecoVenda(produto.preco_venda?.toString() || "");
+        setUnidadeVenda(produto.unidade_venda || "");
+        setMetodoPreparo(produto.metodo_preparo || "");
+        setAtivo(produto.ativo);
+        setIsSabor(produto.is_sabor || false);
+        setIsPreparacao(produto.is_preparacao || false);
+        setCodigo(produto.codigo || "");
+
+        const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
+          insumo_id: item.insumo_id,
+          produto_base_id: item.produto_base_id,
+          quantidade: item.quantidade,
+          insumo: item.cadastro_insumos || item.insumo
+        }));
+        setFichaTecnica(mappedFicha);
+        setSelectedInsumo("");
+        setQuantidadeInsumo("");
+        setSelectedProdutoBase("");
+        setQuantidadeProdutoBase("");
+        setIsModalOpen(true);
+      }
+    });
   };
 
   const calculateCustoProduto = React.useCallback((ficha: any[], allProdutos: any[] = produtos) => {
@@ -238,7 +281,16 @@ function CadastroProdutos() {
     }, 0);
   }, [produtos]);
 
-  const currentCusto = calculateCustoProduto(fichaTecnica);
+  let previewFicha = fichaTecnica;
+  if (editingFichaIndex !== null && !isNaN(parseFloat(editingFichaValue.replace(",", ".")))) {
+    previewFicha = [...fichaTecnica];
+    previewFicha[editingFichaIndex] = { 
+      ...previewFicha[editingFichaIndex], 
+      quantidade: parseFloat(editingFichaValue.replace(",", ".")) 
+    };
+  }
+
+  const currentCusto = calculateCustoProduto(previewFicha);
   const pv = precoVenda ? parseFloat(precoVenda) : 0;
   const currentLucro = pv - currentCusto;
   const currentMargem = pv > 0 ? (currentLucro / pv) * 100 : 0;
@@ -308,6 +360,27 @@ function CadastroProdutos() {
     const newFicha = [...fichaTecnica];
     newFicha.splice(index, 1);
     setFichaTecnica(newFicha);
+  };
+
+  const handleEditFichaItem = (index: number) => {
+    setEditingFichaIndex(index);
+    setEditingFichaValue(String(fichaTecnica[index].quantidade));
+  };
+
+  const handleSaveEditFichaItem = (index: number) => {
+    const parsed = parseFloat(editingFichaValue.replace(",", "."));
+    if (!isNaN(parsed) && parsed > 0) {
+      const newFicha = [...fichaTecnica];
+      newFicha[index].quantidade = parsed;
+      setFichaTecnica(newFicha);
+      setEditingFichaIndex(null);
+    } else {
+      alert("Quantidade inválida.");
+    }
+  };
+
+  const handleCancelEditFichaItem = () => {
+    setEditingFichaIndex(null);
   };
 
   const handleSaveProduto = async (e: React.FormEvent) => {
@@ -387,18 +460,23 @@ function CadastroProdutos() {
   };
 
   async function handleDeleteProduto(id: string) {
-    if (!window.confirm("Deseja realmente excluir este produto e sua ficha técnica?")) return;
-
-    try {
-      setLoading(true);
-      const { error } = await supabase.from("cadastro_produtos").delete().eq("id", id);
-      if (error) throw error;
-      fetchData();
-    } catch (err) {
-      console.error("Erro ao deletar produto:", err);
-      alert("Erro ao deletar o produto.");
-      setLoading(false);
-    }
+    setConfirmModal({
+      isOpen: true,
+      message: "Deseja realmente excluir este produto e sua ficha técnica?",
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} });
+        try {
+          setLoading(true);
+          const { error } = await supabase.from("cadastro_produtos").delete().eq("id", id);
+          if (error) throw error;
+          fetchData();
+        } catch (err) {
+          console.error("Erro ao deletar produto:", err);
+          alert("Erro ao deletar o produto.");
+          setLoading(false);
+        }
+      }
+    });
   }
 
   async function handleToggleAtivo(id: string, currentAtivo: boolean) {
@@ -718,13 +796,21 @@ function CadastroProdutos() {
                             color: margem >= 40 ? "#166534" : margem > 10 ? "#854d0e" : "#991b1b",
                             padding: "4px 8px",
                             borderRadius: "20px",
-                            fontSize: "1.1rem",
+                            fontSize: "1.3rem",
                             fontWeight: "bold"
                           }}>
                             {margem.toFixed(1)}%
                           </span>
                         </td>
                         <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center" }}>
+                          <button
+                            onClick={() => handleCloneProduto(produto)}
+                            className="delete-record-btn"
+                            title="Clonar Produto"
+                            style={{ margin: 0, color: "#6366f1" }}
+                          >
+                            <Icons.BsFiles />
+                          </button>
                           <button
                             onClick={() => openModal(produto)}
                             className="delete-record-btn"
@@ -772,9 +858,9 @@ function CadastroProdutos() {
                 </h3>
 
                 <div style={{ marginBottom: "16px" }}>
-                  <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "8px" }}>Tipo de Cadastro</label>
+                  <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "8px" }}>Tipo de Cadastro</label>
                   <div style={{ display: "flex", gap: "20px" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
                       <input 
                         type="radio" 
                         name="tipo_cadastro" 
@@ -786,7 +872,7 @@ function CadastroProdutos() {
                       />
                       Produto
                     </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
                       <input 
                         type="radio" 
                         name="tipo_cadastro" 
@@ -800,7 +886,7 @@ function CadastroProdutos() {
                       />
                       Sabor de Gelato
                     </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.1rem" }}>
+                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
                       <input 
                         type="radio" 
                         name="tipo_cadastro" 
@@ -817,7 +903,7 @@ function CadastroProdutos() {
 
                 <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Nome do Produto *</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Nome do Produto *</label>
                     <input
                       type="text"
                       required
@@ -830,7 +916,7 @@ function CadastroProdutos() {
                   </div>
                   {isSabor && (
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Código</label>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Código</label>
                       <input
                         type="text"
                         className="frequencia-select"
@@ -842,7 +928,7 @@ function CadastroProdutos() {
                     </div>
                   )}
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Categoria</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Categoria</label>
                     <input
                       type="text"
                       className="frequencia-select"
@@ -856,12 +942,12 @@ function CadastroProdutos() {
 
                 <div style={{ display: "flex", gap: "16px", alignItems: "flex-end" }}>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Unidade de Venda</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Unidade de Venda</label>
                     <select
                       className="frequencia-select"
                       value={unidadeVenda}
                       onChange={(e) => setUnidadeVenda(e.target.value)}
-                      style={{ background: "#fff", fontSize: "1.1rem" }}
+                      style={{ background: "#fff", fontSize: "1.3rem" }}
                     >
                       <option value="">Selecione...</option>
                       <option value="Unidade">Unidade</option>
@@ -873,9 +959,9 @@ function CadastroProdutos() {
                     </select>
                   </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)" }}>Preço de Venda</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Preço de Venda</label>
                     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                      <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>R$</span>
+                      <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.3rem" }}>R$</span>
                       <input
                         type="number"
                         step="0.01"
@@ -897,23 +983,34 @@ function CadastroProdutos() {
 
                 <div style={{ display: "flex", gap: "12px", marginBottom: "12px", alignItems: "flex-end" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Insumo</label>
-                    <select
-                      className="frequencia-select"
-                      value={selectedInsumo}
-                      onChange={(e) => setSelectedInsumo(e.target.value)}
-                      style={{ background: "#fff" }}
-                    >
-                      <option value="">Selecione um insumo...</option>
-                      {insumosList.map((insumo) => (
-                        <option key={insumo.id} value={insumo.id}>
-                          {insumo.nome_simples_unitario || insumo.nome} {insumo.custo_considerado_unitario ? `(Custo: R$ ${insumo.custo_considerado_unitario.toFixed(2)})` : ""}
-                        </option>
-                      ))}
-                    </select>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Insumo</label>
+                    <Select
+                      options={insumosList.map((insumo) => ({
+                        value: insumo.id,
+                        label: `${insumo.nome_simples_unitario || insumo.nome} ${insumo.custo_considerado_unitario ? `(Custo: R$ ${insumo.custo_considerado_unitario.toFixed(2)})` : ""}`
+                      }))}
+                      value={selectedInsumo ? { value: selectedInsumo, label: insumosList.find(i => i.id === selectedInsumo)?.nome_simples_unitario || insumosList.find(i => i.id === selectedInsumo)?.nome } : null}
+                      onChange={(selectedOption) => setSelectedInsumo(selectedOption?.value || "")}
+                      placeholder="Selecione ou pesquise..."
+                      isClearable
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          fontSize: '1.4rem',
+                          minHeight: '42px',
+                          borderRadius: '8px',
+                          borderColor: '#cbd5e1'
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          fontSize: '1.4rem',
+                          zIndex: 1000
+                        })
+                      }}
+                    />
                   </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
                     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                       <input
                         type="number"
@@ -944,23 +1041,34 @@ function CadastroProdutos() {
 
                 <div style={{ display: "flex", gap: "12px", marginBottom: "20px", alignItems: "flex-end" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Produto Base</label>
-                    <select
-                      className="frequencia-select"
-                      value={selectedProdutoBase}
-                      onChange={(e) => setSelectedProdutoBase(e.target.value)}
-                      style={{ background: "#fff" }}
-                    >
-                      <option value="">Selecione um produto base...</option>
-                      {produtos.filter(p => p.id !== editingId).map((prod) => (
-                        <option key={prod.id} value={prod.id}>
-                          {prod.nome}
-                        </option>
-                      ))}
-                    </select>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Produto Base</label>
+                    <Select
+                      options={produtos.filter(p => !isPreparacao || p.is_preparacao).map((p) => ({
+                        value: p.id,
+                        label: p.nome
+                      }))}
+                      value={selectedProdutoBase ? { value: selectedProdutoBase, label: produtos.find(p => p.id === selectedProdutoBase)?.nome } : null}
+                      onChange={(selectedOption) => setSelectedProdutoBase(selectedOption?.value || "")}
+                      placeholder="Selecione ou pesquise..."
+                      isClearable
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          fontSize: '1.4rem',
+                          minHeight: '42px',
+                          borderRadius: '8px',
+                          borderColor: '#cbd5e1'
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          fontSize: '1.4rem',
+                          zIndex: 1000
+                        })
+                      }}
+                    />
                   </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
                     <input
                       type="number"
                       step="0.00001"
@@ -992,13 +1100,21 @@ function CadastroProdutos() {
                           <th style={{ padding: "10px", textAlign: "left", color: "#475569" }}>Item</th>
                           <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>Tipo</th>
                           <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>Quantidade</th>
-                          <th style={{ padding: "10px", textAlign: "right", color: "#475569" }}>Custo Base</th>
+                          <th style={{ padding: "10px", textAlign: "right", color: "#475569" }}>
+                            Custo Atual
+                            <span 
+                              title="Esse valor é o último custo comprado dessa matéria prima" 
+                              style={{ cursor: "help", marginLeft: "6px", color: "#64748b" }}
+                            >
+                              <Icons.BsInfoCircle />
+                            </span>
+                          </th>
                           <th style={{ padding: "10px", textAlign: "right", color: "#475569" }}>Custo Calc.</th>
-                          <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}></th>
+                          <th style={{ padding: "10px", textAlign: "center", color: "#475569", width: "80px" }}>Ações</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {fichaTecnica.map((item, index) => {
+                        {previewFicha.map((item, index) => {
                           let isProduto = !!item.produto_base_id;
                           let nomeItem = "";
                           let unitario = 0;
@@ -1029,21 +1145,50 @@ function CadastroProdutos() {
                                 }
                               </td>
                               <td style={{ padding: "10px", textAlign: "center" }}>
-                                {fatorDesperdicio > 0 ? (
-                                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                                    <span style={{ fontSize: "1.1rem" }}>{item.quantidade} {unidade} <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>(Bruta)</span></span>
-                                    <span style={{ fontSize: "0.95rem", color: "#16a34a" }}>{(parseFloat(item.quantidade) * (1 - fatorDesperdicio / 100)).toFixed(4)} {unidade} <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: "normal" }}>(Líq.)</span></span>
+                                {editingFichaIndex === index ? (
+                                  <div style={{ display: "flex", gap: "6px", alignItems: "center", justifyContent: "center" }}>
+                                    <input
+                                      type="text"
+                                      inputMode="decimal"
+                                      value={editingFichaValue}
+                                      onChange={(e) => setEditingFichaValue(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") handleSaveEditFichaItem(index);
+                                        if (e.key === "Escape") handleCancelEditFichaItem();
+                                      }}
+                                      style={{ width: "65px", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", fontSize: "1.1rem" }}
+                                      autoFocus
+                                    />
+                                    <span style={{ fontSize: "0.9rem" }}>{unidade}</span>
+                                    <button type="button" onClick={() => handleSaveEditFichaItem(index)} style={{ background: "none", border: "none", color: "#16a34a", cursor: "pointer", padding: "4px" }} title="Salvar">
+                                      <Icons.BsCheckLg style={{ fontSize: "1.2rem" }} />
+                                    </button>
+                                    <button type="button" onClick={handleCancelEditFichaItem} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", padding: "4px" }} title="Cancelar">
+                                      <Icons.BsXLg style={{ fontSize: "1.2rem" }} />
+                                    </button>
                                   </div>
                                 ) : (
-                                  <>{item.quantidade} {unidade}</>
+                                  fatorDesperdicio > 0 ? (
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                                      <span style={{ fontSize: "1.1rem" }}>{item.quantidade} {unidade} <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>(Bruta)</span></span>
+                                      <span style={{ fontSize: "0.95rem", color: "#16a34a" }}>{(parseFloat(item.quantidade) * (1 - fatorDesperdicio / 100)).toFixed(4)} {unidade} <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: "normal" }}>(Líq.)</span></span>
+                                    </div>
+                                  ) : (
+                                    <>{item.quantidade} {unidade}</>
+                                  )
                                 )}
                               </td>
                               <td style={{ padding: "10px", textAlign: "right" }}>R$ {unitario.toFixed(2)}</td>
                               <td style={{ padding: "10px", textAlign: "right", fontWeight: "bold" }}>R$ {calc.toFixed(2)}</td>
                               <td style={{ padding: "10px", textAlign: "center" }}>
-                                <button type="button" onClick={() => handleRemoveFichaItem(index)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
-                                  <Icons.BsTrash />
-                                </button>
+                                <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                                  <button type="button" onClick={() => handleEditFichaItem(index)} style={{ background: "none", border: "none", color: "#3b82f6", cursor: "pointer" }} title="Editar quantidade">
+                                    <Icons.BsPencil />
+                                  </button>
+                                  <button type="button" onClick={() => handleRemoveFichaItem(index)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }} title="Remover item">
+                                    <Icons.BsTrash />
+                                  </button>
+                                </div>
                               </td>
                             </tr>
                           );
@@ -1075,15 +1220,15 @@ function CadastroProdutos() {
 
               <div style={{ display: "flex", gap: "16px" }}>
                 <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.1rem" }}>Custo Total</p>
+                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem" }}>Custo Total</p>
                   <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: "#dc2626" }}>R$ {currentCusto.toFixed(2)}</p>
                 </div>
                 <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.1rem" }}>Lucro Bruto</p>
+                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem" }}>Lucro Bruto</p>
                   <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: currentLucro > 0 ? "#16a34a" : "#dc2626" }}>R$ {currentLucro.toFixed(2)}</p>
                 </div>
                 <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.1rem" }}>Margem de Lucro</p>
+                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem" }}>Margem de Lucro</p>
                   <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: currentMargem >= 40 ? "#166534" : currentMargem > 10 ? "#854d0e" : "#991b1b" }}>
                     {currentMargem.toFixed(1)}%
                   </p>
@@ -1099,6 +1244,28 @@ function CadastroProdutos() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {confirmModal.isOpen && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content" style={{ maxWidth: "400px", textAlign: "center", padding: "30px" }}>
+            <h3 style={{ fontSize: "1.8rem", color: "var(--secondary-color)", margin: "0 0 16px 0" }}>Atenção</h3>
+            <p style={{ fontSize: "1.4rem", color: "var(--text-muted)", margin: "0 0 24px 0" }}>{confirmModal.message}</p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button 
+                onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} })}
+                style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", backgroundColor: "#fff", color: "#475569", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmModal.onConfirm}
+                style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", backgroundColor: "var(--primary-color)", color: "#fff", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
+              >
+                Confirmar
+              </button>
+            </div>
           </div>
         </div>
       )}
