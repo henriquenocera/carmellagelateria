@@ -4,6 +4,8 @@ import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
 import ContadorNotasMoedas from "./ContadorNotasMoedas.jsx";
+import { checklistAberturaSteps as steps } from "../config/checklists.js";
+
 
 function ChecklistAberturaForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,79 +17,6 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const [moneyCounterData, setMoneyCounterData] = useState(null);
   const idInputRef = useRef(null);
 
-  const unidadeText = "Ahu";
-
-  const steps = [
-    {
-      title: "1ª - Equipamentos",
-      items: [
-
-        { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido", },
-        { id: "2", title: "Limpeza externa da vitrine", subtitle1: "Vidros com álcool líquido", subtitle2: "" },
-        { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
-        { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v 'tomadas vermelhas'", subtitle2: "Girar o controlador da máquina de café para a posição '1'" },
-        { id: "5", title: "Acender Todas as Luzes", subtitle1: "", subtitle2: "" },
-        { id: "6", title: "Ligar máquininha de cartão POS", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
-        { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
-        { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Utilizar o contador de notas e moedas abaixo", subtitle2: "" },
-        { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 5 | Senha: 2849" },
-      ]
-    },
-    {
-      title: "2ª - Organização",
-      items: [
-        { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
-        {
-          id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "", buttonText: "Relatório dos Salgados",
-          buttonLink: "/salgados"
-        },
-        { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
-        { id: "13", title: "Colocar sacos de lixo externos", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
-        { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
-        { id: "15", title: "Repor papel higiênico no banheiro", subtitle1: "", subtitle2: "" },
-        { id: "16", title: "Repor papel toalha no banheiro", subtitle1: "", subtitle2: "" },
-        { id: "17", title: "Repor insumos necessários", subtitle1: "Retirar do estoque", subtitle2: "" },
-      ]
-    },
-    {
-      title: "3° - Limpeza",
-      items: [
-        { id: "18", title: "Limpar as bancadas da loja", subtitle1: "Pano e álcool líquido", subtitle2: "" },
-        { id: "19", title: "Limpar as mesas e cadeiras do salão", subtitle1: "Pano e álcool líquido", subtitle2: "" },
-        { id: "20", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "21", title: "Passar um mope no chão", subtitle1: "Parte interna da loja", subtitle2: "" },
-        { id: "90", title: "(SEGUNDA) - Passar um mope no chão no salão dos clientes", subtitle1: "Piso madeirado", subtitle2: "", weekday: 1 },
-
-      ]
-    },
-    {
-      title: "4º - Abertura",
-      items: [
-        { id: "22", title: "Abastecer vitrine (-4ºC)", subtitle1: "", subtitle2: "" },
-        { id: "23", title: "Abrir portas de enrolar", subtitle1: "", subtitle2: "" },
-        { id: "24", title: "Abrir janela do salão dos clientes", subtitle1: "", subtitle2: "" },
-        { id: "25", title: "Colocar saco pet", subtitle1: "", subtitle2: "" },
-        { id: "26", title: "Colocar mesas externas", subtitle1: "", subtitle2: "" },
-        { id: "27", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta de metal do corredor", subtitle2: "" },
-        { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "" },
-        { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "" },
-        { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
-        {
-          id: "91", title: "Realizar Aferição de Mão - Sexta", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
-          buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 5,
-        },
-        {
-          id: "92", title: "Realizar Aferição de Mão - Sábado", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
-          buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 6,
-        },
-        {
-          id: "93", title: "Realizar Aferição de Mão - Domingo", subtitle1: "", subtitle2: "", new: "19-03-2026", buttonText: "Aferição de Mão",
-          buttonLink: "https://ahu.carmellagelateria.com.br/afericao", weekday: 0,
-        },
-
-      ]
-    }
-  ];
 
   // Initialize checkedItems and currentStep state from localStorage or default
   useEffect(() => {
