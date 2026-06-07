@@ -11,6 +11,7 @@ const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
 const unidadeText = STORE_CONFIG.textName;
 const unidade = STORE_CONFIG.key;
+const unitAddress = STORE_CONFIG.address;
 
 // Function Get Local Storage
 function getLocalStorage() {
@@ -144,7 +145,7 @@ function ChecklistAbertura() {
           <div className="unitInfo">
             <h1>Checklist de Abertura</h1>
 
-            <h2>Unidade {unidadeText} - Rua Colombo, 183</h2>
+            <h2>Unidade {unidadeText} - {unitAddress}</h2>
           </div>
           <div className="unitLogo">
             <img src="/logo.svg" alt="" />
