@@ -48,6 +48,7 @@ import AnaliseProdutos from "./routes/AnaliseProdutos.tsx";
 import ProducaoRealizada from "./routes/ProducaoRealizada.tsx";
 import EstoqueFabrica from "./routes/EstoqueFabrica.tsx";
 import OrdemProducao from "./routes/OrdemProducao.tsx";
+import CadastroFornecedores from "./routes/CadastroFornecedores.tsx";
 import supabase from "./supabase-client";
 
 const ProtectedLayout = () => {
@@ -144,6 +145,7 @@ const router = createBrowserRouter(
         <Route path="/producao-realizada" element={<ProducaoRealizada />} />
         <Route path="/estoque-fabrica" element={<EstoqueFabrica />} />
         <Route path="/ordem-producao" element={<OrdemProducao />} />
+        <Route path="/cadastro-fornecedores" element={<CadastroFornecedores />} />
       </Route>
     </>
   )

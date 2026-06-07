@@ -38,18 +38,68 @@ function Funcionarios() {
 
       if (dbError) throw dbError;
 
+      const { data: feriadosGlobaisData, error: fgError } = await supabase
+        .from("feriados_globais")
+        .select("date");
+
+      if (fgError) throw fgError;
+
+      const todayStr = new Date().toISOString().split("T")[0];
+      const pastFeriados = (feriadosGlobaisData || []).filter((f: any) => f.date <= todayStr).map((f: any) => f.date);
+
+      let freqData: any[] = [];
+      if (pastFeriados.length > 0) {
+        const { data: fData, error: fError } = await supabase
+          .from("frequencia")
+          .select("employee_id, date, status")
+          .in("date", pastFeriados);
+        if (fError) throw fError;
+        freqData = fData || [];
+      }
+
       const { data: feriadosData, error: feriadosError } = await supabase
         .from("feriados_trabalhados")
-        .select("employee_id, data_folga, pago_em_dobro");
+        .select("employee_id, data_feriado, data_folga, pago_em_dobro");
 
       if (feriadosError) throw feriadosError;
 
-      const feriadosAbertosCount = (feriadosData || []).reduce((acc: any, curr: any) => {
-        if (!curr.data_folga && !curr.pago_em_dobro) {
-          acc[curr.employee_id] = (acc[curr.employee_id] || 0) + 1;
-        }
-        return acc;
-      }, {});
+      const freqByEmpDate: Record<string, Record<string, string>> = {};
+      freqData.forEach((f: any) => {
+        if (!freqByEmpDate[f.employee_id]) freqByEmpDate[f.employee_id] = {};
+        freqByEmpDate[f.employee_id][f.date] = f.status;
+      });
+
+      const feriadosTrabalhadosMap: Record<string, Record<string, any>> = {};
+      (feriadosData || []).forEach((f: any) => {
+        if (!feriadosTrabalhadosMap[f.employee_id]) feriadosTrabalhadosMap[f.employee_id] = {};
+        feriadosTrabalhadosMap[f.employee_id][f.data_feriado] = f;
+      });
+
+      const feriadosAbertosCount: Record<string, number> = {};
+      (profilesData || []).forEach((p: any) => {
+        let abertos = 0;
+        pastFeriados.forEach(fDate => {
+          if (p.data_registro && fDate < p.data_registro) return;
+
+          let freqStatus = freqByEmpDate[p.id]?.[fDate];
+          if (!freqStatus) {
+            const [y, m, d] = fDate.split("-");
+            const dateObj = new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
+            const fixedOffDays = p.folgas_fixas ? p.folgas_fixas.split(",") : [];
+            const dayOfWeek = String(dateObj.getDay());
+            freqStatus = fixedOffDays.includes(dayOfWeek) ? "Folga Fixa Semanal" : "Trabalhado";
+          }
+
+          if (freqStatus === "Trabalhado") {
+            const ft = feriadosTrabalhadosMap[p.id]?.[fDate];
+            const compensado = ft && (ft.data_folga || ft.pago_em_dobro);
+            if (!compensado) {
+              abertos++;
+            }
+          }
+        });
+        feriadosAbertosCount[p.id] = abertos;
+      });
 
       const sorted = (profilesData || []).map((p: any) => ({
         ...p,

@@ -87,6 +87,7 @@ const MENU_CONFIG = [
     subItems: [
       { title: "Cadastro Pessoas", path: "/cadastro-pessoas" },
       { title: "Cadastro Feriados", path: "/feriados-globais" },
+      { title: "Cadastro de Fornecedores", path: "/cadastro-fornecedores" },
       { title: "Cadastro de Insumos", path: "/cadastro-insumos" },
       { title: "Cadastro de Produtos", path: "/cadastro-produtos" },
       { title: "Configuração de Estoque", path: "/configuracao-estoque" },
