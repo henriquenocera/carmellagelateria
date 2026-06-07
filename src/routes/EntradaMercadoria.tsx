@@ -11,6 +11,7 @@ function EntradaMercadoria() {
   const [searchParams] = useSearchParams();
   const [compras, setCompras] = useState<any[]>([]);
   const [insumos, setInsumos] = useState<any[]>([]);
+  const [fornecedores, setFornecedores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingRow, setSavingRow] = useState(false);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
@@ -145,6 +146,16 @@ function EntradaMercadoria() {
             
           if (insumosError) throw insumosError;
           setInsumos(insumosData || []);
+        }
+
+        if (fornecedores.length === 0) {
+          const { data: fornecedoresData, error: fornecedoresError } = await supabase
+            .from("fornecedores")
+            .select("id, nome, ativo")
+            .order("nome", { ascending: true });
+            
+          if (fornecedoresError) throw fornecedoresError;
+          setFornecedores(fornecedoresData || []);
         }
       }
 
@@ -577,12 +588,19 @@ function EntradaMercadoria() {
               </div>
               <div style={{ flex: "1.5 1 150px" }}>
                 <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Fornecedor</label>
-                <input
-                  type="text"
-                  placeholder="Nome do Fornecedor"
-                  value={newRow.fornecedor}
-                  onChange={(e) => setNewRow({ ...newRow, fornecedor: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", height: "54px", fontSize: "1.4rem" }}
+                <Select
+                  menuPortalTarget={document.body}
+                  maxMenuHeight={350}
+                  options={fornecedores.filter(f => f.ativo !== false).map(f => ({ value: f.nome, label: f.nome }))}
+                  value={newRow.fornecedor ? { value: newRow.fornecedor, label: newRow.fornecedor } : null}
+                  onChange={(selectedOption: any) => setNewRow({ ...newRow, fornecedor: selectedOption ? selectedOption.value : "" })}
+                  placeholder="Selecione..."
+                  isClearable
+                  noOptionsMessage={() => "Nenhum fornecedor"}
+                  styles={{
+                    control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '54px', borderRadius: '4px', fontSize: '1.4rem' }),
+                    menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.4rem' })
+                  }}
                 />
               </div>
               <div style={{ flex: "1 1 120px" }}>
@@ -961,11 +979,18 @@ function EntradaMercadoria() {
                               />
                             </td>
                             <td style={{ padding: "8px" }}>
-                              <input
-                                type="text"
-                                value={editRowData.fornecedor}
-                                onChange={(e) => setEditRowData({ ...editRowData, fornecedor: e.target.value })}
-                                style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                              <Select
+                                menuPortalTarget={document.body}
+                                maxMenuHeight={250}
+                                options={fornecedores.filter(f => f.ativo !== false || f.nome === editRowData.fornecedor).map(f => ({ value: f.nome, label: f.nome }))}
+                                value={editRowData.fornecedor ? { value: editRowData.fornecedor, label: editRowData.fornecedor } : null}
+                                onChange={(sel: any) => setEditRowData({ ...editRowData, fornecedor: sel ? sel.value : "" })}
+                                isClearable
+                                placeholder="Selecione..."
+                                styles={{
+                                  control: (base) => ({ ...base, minHeight: '38px', fontSize: '1.1rem' }),
+                                  menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.1rem' })
+                                }}
                               />
                             </td>
                             <td style={{ padding: "8px" }}>
