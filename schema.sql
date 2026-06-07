@@ -400,6 +400,24 @@ CREATE TABLE IF NOT EXISTS "public"."ficha_tecnica" (
 ALTER TABLE "public"."ficha_tecnica" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."fornecedores" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "ativo" boolean DEFAULT true,
+    "nome" "text" NOT NULL,
+    "razao_social" "text",
+    "metodo_compra" "text",
+    "email" "text",
+    "telefone" "text",
+    "contato_nome" "text",
+    "cnpj" "text",
+    "observacoes" "text"
+);
+
+
+ALTER TABLE "public"."fornecedores" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."frequencia" (
     "id" bigint NOT NULL,
     "employee_id" "uuid" NOT NULL,
@@ -701,6 +719,11 @@ ALTER TABLE ONLY "public"."ficha_tecnica"
 
 
 
+ALTER TABLE ONLY "public"."fornecedores"
+    ADD CONSTRAINT "fornecedores_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."frequencia"
     ADD CONSTRAINT "frequencia_pkey" PRIMARY KEY ("id");
 
@@ -987,7 +1010,15 @@ CREATE POLICY "Allow update historico_colaborador" ON "public"."historico_colabo
 
 
 
+CREATE POLICY "Enable delete access for all authenticated users" ON "public"."fornecedores" FOR DELETE TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Enable delete for authenticated users" ON "public"."ordem_producao" FOR DELETE USING (("auth"."role"() = 'authenticated'::"text"));
+
+
+
+CREATE POLICY "Enable insert access for all authenticated users" ON "public"."fornecedores" FOR INSERT TO "authenticated" WITH CHECK (true);
 
 
 
@@ -996,6 +1027,10 @@ CREATE POLICY "Enable insert for authenticated users" ON "public"."ordem_produca
 
 
 CREATE POLICY "Enable insert for authenticated users only" ON "public"."rules_confirmations" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
+CREATE POLICY "Enable read access for all authenticated users" ON "public"."fornecedores" FOR SELECT TO "authenticated" USING (true);
 
 
 
@@ -1008,6 +1043,10 @@ CREATE POLICY "Enable read access for all users" ON "public"."Vouchers" FOR SELE
 
 
 CREATE POLICY "Enable read access for all users" ON "public"."rules_confirmations" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Enable update access for all authenticated users" ON "public"."fornecedores" FOR UPDATE TO "authenticated" USING (true);
 
 
 
@@ -1132,6 +1171,9 @@ ALTER TABLE "public"."feriados_trabalhados" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."ficha_tecnica" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."fornecedores" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."frequencia" ENABLE ROW LEVEL SECURITY;
@@ -1545,6 +1587,12 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ficha_tecnica" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ficha_tecnica" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."ficha_tecnica" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."fornecedores" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."fornecedores" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."fornecedores" TO "service_role";
 
 
 
