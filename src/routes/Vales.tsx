@@ -23,12 +23,68 @@ function Vales() {
   const [isCheckingId, setIsCheckingId] = useState(false);
   const [currentBalance, setCurrentBalance] = useState<number | null>(null);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
+  const [consultView, setConsultView] = useState(false);
+  const [consultingVales, setConsultingVales] = useState<any[]>([]);
+
+  const [showNegativeBalanceModal, setShowNegativeBalanceModal] = useState(false);
+  const [modalTimer, setModalTimer] = useState(5);
+
+  const today = new Date();
+  const [filterMonth, setFilterMonth] = useState<number>(today.getMonth() + 1);
+  const [filterYear, setFilterYear] = useState<number>(today.getFullYear());
+  const [showAllConsult, setShowAllConsult] = useState<boolean>(false);
 
   const [isClearable, setIsClearable] = useState(true);
   const [isSearchable, setIsSearchable] = useState(true);
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRtl, setIsRtl] = useState(false);
+
+  const monthsList = [
+    { value: 1, label: "Janeiro" },
+    { value: 2, label: "Fevereiro" },
+    { value: 3, label: "Março" },
+    { value: 4, label: "Abril" },
+    { value: 5, label: "Maio" },
+    { value: 6, label: "Junho" },
+    { value: 7, label: "Julho" },
+    { value: 8, label: "Agosto" },
+    { value: 9, label: "Setembro" },
+    { value: 10, label: "Outubro" },
+    { value: 11, label: "Novembro" },
+    { value: 12, label: "Dezembro" },
+  ];
+  const yearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
+
+  const handleMonthNavigation = (direction: "prev" | "next") => {
+    if (direction === "prev") {
+      if (filterMonth === 1) {
+        setFilterMonth(12);
+        setFilterYear((prev) => prev - 1);
+      } else {
+        setFilterMonth((prev) => prev - 1);
+      }
+    } else {
+      if (filterMonth === 12) {
+        setFilterMonth(1);
+        setFilterYear((prev) => prev + 1);
+      } else {
+        setFilterMonth((prev) => prev + 1);
+      }
+    }
+  };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (showNegativeBalanceModal && modalTimer > 0) {
+      interval = setInterval(() => {
+        setModalTimer((prev) => prev - 1);
+      }, 1000);
+    } else if (modalTimer === 0) {
+      setShowNegativeBalanceModal(false);
+    }
+    return () => clearInterval(interval);
+  }, [showNegativeBalanceModal, modalTimer]);
 
   useEffect(() => {
     async function fetchProdutos() {
@@ -41,7 +97,7 @@ function Vales() {
   }, []);
 
   const selectOptions: any[] = [];
-  
+
   // Primeiro, adiciona todos os itens seguindo a ordem do Options.ts
   Options.forEach((opt: any) => {
     const dbItem = produtosList.find(p => p.nome === opt.value);
@@ -128,21 +184,68 @@ function Vales() {
         query = query.gte("created_at", data.data_registro);
       }
       const { data: valesData, error: valesError } = await query;
-      
+
       setIsCheckingId(false);
 
       if (!valesError && valesData) {
         const total = valesData.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
         setCurrentBalance(total);
+        if (total < 0) {
+          setModalTimer(5);
+          setShowNegativeBalanceModal(true);
+        }
       } else {
         setCurrentBalance(0);
       }
     }
   }
 
+  async function handleConsultClick(e: any) {
+    e.preventDefault();
+    if (idInputRef.current && !idInputRef.current.validity.valid) {
+      idInputRef.current.reportValidity();
+      return;
+    }
+    let idInput = idInputRef.current?.value;
+
+    if (!idInput) return;
+
+    setIsCheckingId(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("name, data_registro")
+      .eq("short_id", idInput)
+      .single();
+
+    if (error || !data) {
+      setIsCheckingId(false);
+      window.alert("ID não encontrado. Verifique e tente novamente.");
+      setUser("");
+      setConsultingVales([]);
+      setConsultView(false);
+    } else {
+      setUser(data.name);
+
+      let query = supabase.from("Vales").select("*").eq("Nome", data.name).order('created_at', { ascending: false });
+      if (data.data_registro) {
+        query = query.gte("created_at", data.data_registro);
+      }
+      const { data: valesData, error: valesError } = await query;
+
+      setIsCheckingId(false);
+
+      if (!valesError && valesData) {
+        setConsultingVales(valesData);
+      } else {
+        setConsultingVales([]);
+      }
+      setConsultView(true);
+    }
+  }
+
   const handleSubmit = (e: any) => {
     e.preventDefault(); // evita o recarregamento da página
-    
+
     sendGoogleSheetData(e);
     sendSupabaseData(e)
   };
@@ -151,7 +254,7 @@ function Vales() {
 
   async function sendSupabaseData(e: any) {
     console.log("supabase");
-    
+
     const validItems = selectedItems.filter((i) => i.name !== "");
     if (validItems.length === 0) return;
 
@@ -165,7 +268,7 @@ function Vales() {
     const { data, error } = await supabase
       .from("Vales")
       .insert(newdatas);
-  
+
     if (error) {
       console.log(`Opa, erro${error}`);
     } else {
@@ -189,28 +292,28 @@ function Vales() {
       openDateFormat.getMinutes() +
       ":" +
       openDateFormat.getSeconds();
-      
+
     const validItems = selectedItems.filter((i) => i.name !== "");
     const itemsStr = validItems.map(i => i.name).join(" + ");
-    
+
     sendValeMessage(dateStr, itemsStr);
     e.preventDefault();
 
     const action = (e.target as HTMLFormElement).action;
-    
+
     try {
       for (const item of validItems) {
         const data = new FormData();
         data.append("Nome", user);
         data.append("Unidade", unidadeText);
         data.append("Item", item.name);
-        
+
         await fetch(action, {
           method: "POST",
           body: data,
         });
       }
-      
+
       console.log("Google Sheets enviado com sucesso");
       setIsFormSending(false);
       setSubmitStatus("success");
@@ -226,6 +329,8 @@ function Vales() {
     setSelectedItems([{ id: Date.now(), name: "", valor: 0 }]);
     setSubmitStatus("idle");
     setCurrentBalance(null);
+    setConsultView(false);
+    setConsultingVales([]);
     if (idInputRef.current) {
       idInputRef.current.value = "";
     }
@@ -269,14 +374,65 @@ function Vales() {
     })
   };
 
+  const filteredConsultingVales = consultingVales.filter((vale) => {
+    if (showAllConsult) return true;
+    const d = new Date(vale.created_at);
+    return d.getUTCMonth() + 1 === filterMonth && d.getUTCFullYear() === filterYear;
+  });
+
   return (
     <>
       <Helmet>
         <title>Lançamento de Vales</title>
       </Helmet>
 
+      {showNegativeBalanceModal && (
+        <div style={{
+          position: "fixed",
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.85)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 9999,
+          backdropFilter: "blur(4px)"
+        }}>
+          <div style={{
+            backgroundColor: "#fff",
+            padding: "40px",
+            borderRadius: "16px",
+            textAlign: "center",
+            maxWidth: "400px",
+            width: "90%",
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+            animation: "slideDown 0.3s ease-out"
+          }}>
+            <div style={{ width: "80px", height: "80px", borderRadius: "50%", backgroundColor: "#fee2e2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <h2 style={{ color: "#ef4444", fontSize: "2.8rem", fontWeight: 700, margin: "0 0 15px" }}>Atenção!</h2>
+            <p style={{ color: "#334155", fontSize: "1.8rem", margin: "0 0 25px", fontWeight: 500 }}>Seu saldo está negativo.</p>
+            <div style={{ 
+              backgroundColor: "#f1f5f9", 
+              padding: "16px 24px", 
+              borderRadius: "8px",
+              display: "inline-block",
+              color: "#64748b",
+              fontSize: "1.6rem",
+              fontWeight: 600
+            }}>
+              Aguarde {modalTimer} segundo{modalTimer !== 1 ? 's' : ''}...
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="valegelatoContainer">
-        <div className="vales-card">
+        <div className="vales-card" style={{ maxWidth: consultView ? '800px' : '480px' }}>
           <img className="logo" src="/logo.svg" alt="Carmella Logo" />
           <h1 className="vales-title">Vales</h1>
 
@@ -312,6 +468,59 @@ function Vales() {
                 Tentar novamente
               </button>
             </div>
+          ) : consultView ? (
+            <div className="consult-view" style={{ padding: "20px", width: "100%" }}>
+              <h2 style={{ color: "#a17550", marginBottom: "20px", textAlign: "center", fontSize: "2rem" }}>Histórico de Vales - {user}</h2>
+
+              <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "24px", flexWrap: "wrap", alignItems: "center" }}>
+                <button type="button" onClick={() => { setShowAllConsult(false); handleMonthNavigation("prev"); }} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", cursor: "pointer", fontSize: "1.4rem" }}>&lt;</button>
+                <select value={filterMonth} onChange={(e) => { setShowAllConsult(false); setFilterMonth(Number(e.target.value)); }} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", cursor: "pointer", fontSize: "1.4rem" }} disabled={showAllConsult}>
+                  {monthsList.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                </select>
+                <select value={filterYear} onChange={(e) => { setShowAllConsult(false); setFilterYear(Number(e.target.value)); }} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", cursor: "pointer", fontSize: "1.4rem" }} disabled={showAllConsult}>
+                  {yearsList.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+                <button type="button" onClick={() => { setShowAllConsult(false); handleMonthNavigation("next"); }} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", cursor: "pointer", fontSize: "1.4rem" }}>&gt;</button>
+
+                <button type="button" onClick={() => setShowAllConsult(!showAllConsult)} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: showAllConsult ? "#a17550" : "#fff", color: showAllConsult ? "#fff" : "inherit", cursor: "pointer", marginLeft: "10px", fontSize: "1.4rem", fontWeight: showAllConsult ? "bold" : "normal" }}>
+                  {showAllConsult ? "Vendo Todos os Períodos" : "Ver Todos"}
+                </button>
+              </div>
+
+              {filteredConsultingVales.length === 0 ? (
+                <p style={{ textAlign: "center", fontSize: "1.4rem", color: "#64748b" }}>Nenhum vale encontrado para o período selecionado.</p>
+              ) : (
+                <div style={{ overflowX: "auto" }}>
+                  <table className="vales-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                        <th style={{ padding: "12px", textAlign: "left", color: "#475569", fontWeight: "bold" }}>Data</th>
+                        <th style={{ padding: "12px", textAlign: "left", color: "#475569", fontWeight: "bold" }}>Produto</th>
+                        <th style={{ padding: "12px", textAlign: "right", color: "#475569", fontWeight: "bold" }}>Valor</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredConsultingVales.map((vale, index) => (
+                        <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                          <td style={{ padding: "12px", color: "#334155" }}>
+                            {new Date(vale.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })}
+                          </td>
+                          <td style={{ padding: "12px", color: "#334155", fontWeight: 500 }}>{vale.Item}</td>
+                          <td style={{ padding: "12px", textAlign: "right", color: Number(vale.valor) >= 0 ? "#16a34a" : "#ef4444", fontWeight: "bold" }}>
+                            R$ {Math.abs(Number(vale.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+              <div style={{ marginTop: "24px", display: "flex", justifyContent: "center" }}>
+                <button onClick={resetForm} className="sendForm" style={{ backgroundColor: "#94a3b8", width: "auto", padding: "12px 32px" }}>
+                  Voltar
+                </button>
+              </div>
+            </div>
           ) : user === "" ? (
             <form className="idForm" onSubmit={handleClick}>
               <div className="input-group">
@@ -330,9 +539,20 @@ function Vales() {
                   placeholder="••••"
                 />
               </div>
-              <button className="idSubmit" type="submit" disabled={isCheckingId}>
-                {isCheckingId ? "Verificando..." : "Verificar ID"}
-              </button>
+              <div style={{ display: "flex", gap: "12px", flexDirection: "column" }}>
+                <button className="idSubmit" type="submit" disabled={isCheckingId}>
+                  {isCheckingId ? "Verificando..." : "Lançar Vale"}
+                </button>
+                <button
+                  type="button"
+                  className="idSubmit"
+                  style={{ background: "linear-gradient(135deg, #334155 0%, #0f172a 100%)", color: "#fff", border: "none" }}
+                  onClick={handleConsultClick}
+                  disabled={isCheckingId}
+                >
+                  Consultar Meus Vales
+                </button>
+              </div>
             </form>
           ) : (
             <form
@@ -397,8 +617,8 @@ function Vales() {
                       Produto {index + 1}
                     </label>
                     {selectedItems.length > 1 && (
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         onClick={() => removeItem(index)}
                         style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '1.2rem', fontWeight: 600, cursor: 'pointer' }}
                       >
@@ -426,9 +646,9 @@ function Vales() {
                 </div>
               ))}
 
-              <button 
-                type="button" 
-                onClick={addMoreItem} 
+              <button
+                type="button"
+                onClick={addMoreItem}
                 style={{
                   width: '100%',
                   padding: '12px',
