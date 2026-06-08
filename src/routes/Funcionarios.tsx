@@ -14,6 +14,7 @@ interface Profile {
   ativo?: boolean | null;
   data_registro?: string | null;
   feriadosAbertos?: number;
+  total_vales?: number;
 }
 
 function Funcionarios() {
@@ -63,6 +64,31 @@ function Funcionarios() {
 
       if (feriadosError) throw feriadosError;
 
+      // Buscar todos os vales usando paginação para garantir a soma correta (burlar o limite de 1000 do Supabase)
+      let allValesData: any[] = [];
+      let from = 0;
+      const step = 1000;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data: vData, error: vError } = await supabase
+          .from("Vales")
+          .select("Nome, valor, Item")
+          .range(from, from + step - 1);
+
+        if (vError) throw vError;
+        
+        if (vData && vData.length > 0) {
+          allValesData = [...allValesData, ...vData];
+          from += step;
+          if (vData.length < step) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      }
+      
+      const valesData = allValesData;
+
       const freqByEmpDate: Record<string, Record<string, string>> = {};
       freqData.forEach((f: any) => {
         if (!freqByEmpDate[f.employee_id]) freqByEmpDate[f.employee_id] = {};
@@ -101,10 +127,20 @@ function Funcionarios() {
         feriadosAbertosCount[p.id] = abertos;
       });
 
-      const sorted = (profilesData || []).map((p: any) => ({
-        ...p,
-        feriadosAbertos: feriadosAbertosCount[p.id] || 0
-      })).sort((a: any, b: any) => {
+      const valesCount: Record<string, number> = {};
+      (valesData || []).forEach((v: any) => {
+        if (!valesCount[v.Nome]) valesCount[v.Nome] = 0;
+        valesCount[v.Nome] += Number(v.valor) || 0;
+      });
+
+      const sorted = (profilesData || []).map((p: any) => {
+        const firstName = p.name ? p.name.split(" ")[0] : "";
+        return {
+          ...p,
+          feriadosAbertos: feriadosAbertosCount[p.id] || 0,
+          total_vales: valesCount[p.name] || valesCount[firstName] || 0
+        };
+      }).sort((a: any, b: any) => {
         const aActive = a.ativo !== false;
         const bActive = b.ativo !== false;
         if (aActive && !bActive) return -1;
@@ -178,6 +214,12 @@ function Funcionarios() {
                         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
                           <span style={{ background: "#fef3c7", color: "#d97706", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold", width: "fit-content" }}>Admin</span>
                           <span>Feriados em Aberto</span>
+                        </div>
+                      </th>
+                      <th style={{ textAlign: "center", verticalAlign: "middle" }}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                          <span style={{ background: "#fef3c7", color: "#d97706", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold", width: "fit-content" }}>Admin</span>
+                          <span>Saldo de Vales</span>
                         </div>
                       </th>
                     </>
@@ -361,6 +403,9 @@ function Funcionarios() {
                           </td>
                           <td style={{ textAlign: "center", fontWeight: "bold", color: (p.feriadosAbertos || 0) > 0 ? "#ef4444" : "inherit" }}>
                             {p.feriadosAbertos || 0}
+                          </td>
+                          <td style={{ textAlign: "center", fontWeight: "bold", color: (p.total_vales && p.total_vales < 0) ? "#ef4444" : (p.total_vales && p.total_vales > 0) ? "#22c55e" : "inherit" }}>
+                            {p.total_vales !== undefined && p.total_vales !== null ? `${p.total_vales > 0 ? '+' : p.total_vales < 0 ? '-' : ''} R$ ${Math.abs(Number(p.total_vales)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "R$ 0,00"}
                           </td>
                         </>
                       )}

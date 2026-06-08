@@ -20,6 +20,7 @@ const AnaliseVales = () => {
   const [year, setYear] = useState<number>(today.getFullYear());
   const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
   const [selectedUnidade, setSelectedUnidade] = useState<string>("all");
+  const [showAll, setShowAll] = useState<boolean>(false);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,7 +59,7 @@ const AnaliseVales = () => {
     } else {
       setLoading(false);
     }
-  }, [isAdmin, month, year]);
+  }, [isAdmin, month, year, showAll]);
 
   const fetchAuxData = async () => {
     try {
@@ -76,19 +77,33 @@ const AnaliseVales = () => {
     try {
       setLoading(true);
 
-      const startOfMonthStr = `${year}-${String(month).padStart(2, "0")}-01T00:00:00.000Z`;
-      const endOfMonthDate = new Date(year, month, 0);
-      const endOfMonthStr = `${year}-${String(month).padStart(2, "0")}-${String(endOfMonthDate.getDate()).padStart(2, "0")}T23:59:59.999Z`;
+      let allData: any[] = [];
+      let from = 0;
+      const step = 1000;
+      let hasMore = true;
 
-      const { data, error } = await supabase
-        .from('Vales')
-        .select('*')
-        .gte('created_at', startOfMonthStr)
-        .lte('created_at', endOfMonthStr)
-        .order('created_at', { ascending: false });
+      while (hasMore) {
+        let query = supabase.from('Vales').select('*').order('created_at', { ascending: false }).range(from, from + step - 1);
 
-      if (error) throw error;
-      setVales(data || []);
+        if (!showAll) {
+          const startDate = new Date(year, month - 1, 1, 0, 0, 0);
+          const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+          query = query.gte('created_at', startDate.toISOString()).lte('created_at', endDate.toISOString());
+        }
+
+        const { data: vData, error: vError } = await query;
+        if (vError) throw vError;
+
+        if (vData && vData.length > 0) {
+          allData = [...allData, ...vData];
+          from += step;
+          if (vData.length < step) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      }
+      
+      setVales(allData);
     } catch (err) {
       console.error('Erro ao buscar vales:', err);
       alert('Erro ao buscar análise de vales.');
@@ -277,8 +292,8 @@ const AnaliseVales = () => {
           <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", backgroundColor: "#fff", padding: "12px 24px", borderRadius: "8px", border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
               <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Filtrado</span>
-              <span style={{ fontSize: "2.4rem", color: "var(--primary-color)", fontWeight: 800 }}>
-                R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <span style={{ fontSize: "2.4rem", color: totalValue >= 0 ? "#22c55e" : "#ef4444", fontWeight: 800 }}>
+                {totalValue >= 0 ? '+ ' : '- '}R$ {Math.abs(totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
             
@@ -291,14 +306,15 @@ const AnaliseVales = () => {
 
         <div className="frequencia-controls" style={{ flexWrap: "wrap", gap: "16px" }}>
           <div className="control-group">
-            <button className="nav-btn" onClick={() => handleMonthNavigation("prev")} title="Mês Anterior">
+            <button className="nav-btn" onClick={() => { setShowAll(false); handleMonthNavigation("prev"); }} title="Mês Anterior">
               <Icons.BsChevronLeft />
             </button>
 
             <select
               className="frequencia-select"
               value={month}
-              onChange={(e) => setMonth(Number(e.target.value))}
+              onChange={(e) => { setShowAll(false); setMonth(Number(e.target.value)); }}
+              disabled={showAll}
             >
               {monthsList.map((m) => (
                 <option key={m.value} value={m.value}>
@@ -310,7 +326,8 @@ const AnaliseVales = () => {
             <select
               className="frequencia-select"
               value={year}
-              onChange={(e) => setYear(Number(e.target.value))}
+              onChange={(e) => { setShowAll(false); setYear(Number(e.target.value)); }}
+              disabled={showAll}
             >
               {yearsList.map((y) => (
                 <option key={y} value={y}>
@@ -319,8 +336,16 @@ const AnaliseVales = () => {
               ))}
             </select>
 
-            <button className="nav-btn" onClick={() => handleMonthNavigation("next")} title="Próximo Mês">
+            <button className="nav-btn" onClick={() => { setShowAll(false); handleMonthNavigation("next"); }} title="Próximo Mês">
               <Icons.BsChevronRight />
+            </button>
+
+            <button 
+              className="frequencia-select"
+              onClick={() => setShowAll(!showAll)}
+              style={{ background: showAll ? "var(--primary-color)" : "#fff", color: showAll ? "#fff" : "inherit", cursor: "pointer", marginLeft: "10px", fontWeight: showAll ? "bold" : "normal" }}
+            >
+              {showAll ? "Vendo Todos os Períodos" : "Ver Todos"}
             </button>
           </div>
 
@@ -391,8 +416,8 @@ const AnaliseVales = () => {
                         </span>
                       </td>
                       <td style={{ fontWeight: 500 }}>{vale.Item}</td>
-                      <td style={{ textAlign: "right", color: "var(--primary-color)", fontWeight: "bold", fontSize: "1.4rem" }}>
-                        R$ {Number(vale.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      <td style={{ textAlign: "right", color: Number(vale.valor) > 0 ? "#22c55e" : "#ef4444", fontWeight: "bold", fontSize: "1.4rem" }}>
+                        {Number(vale.valor) > 0 ? '+ ' : Number(vale.valor) < 0 ? '- ' : ''}R$ {Math.abs(Number(vale.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
                       <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center" }}>
                         <button
@@ -492,24 +517,26 @@ const AnaliseVales = () => {
                       style={{ background: "#fff", width: "100%" }}
                     >
                       <option value="" disabled>Selecione um produto</option>
+                      <option value="Crédito (Acréscimo)">🌟 Crédito (Acréscimo Positivo)</option>
                       {produtos.map(p => (
                         <option key={p.id} value={p.nome}>{p.nome}</option>
                       ))}
                       {/* Caso seja um item antigo que não está mais na lista de produtos */}
-                      {formItem && !produtos.find(p => p.nome === formItem) && (
+                      {formItem && !produtos.find(p => p.nome === formItem) && formItem !== "Crédito (Acréscimo)" && (
                         <option value={formItem}>{formItem} (Antigo)</option>
                       )}
                     </select>
                   </div>
 
                   <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Valor do Desconto (R$) *</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>
+                      Valor (R$) *
+                    </label>
                     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                       <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.3rem" }}>R$</span>
                       <input
                         type="number"
                         step="0.01"
-                        min="0"
                         required
                         className="frequencia-select"
                         placeholder="0,00"
