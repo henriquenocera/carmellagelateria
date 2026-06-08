@@ -135,6 +135,44 @@ $$;
 ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
 
 
+CREATE OR REPLACE FUNCTION "public"."update_total_vales"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  -- Atualizar para o NOVO registro (INSERT ou UPDATE)
+  IF (TG_OP = 'INSERT' OR TG_OP = 'UPDATE') THEN
+    UPDATE profiles
+    SET total_vales = (
+      SELECT COALESCE(SUM(
+        CASE WHEN "Item" = 'Crédito (Acréscimo)' THEN "valor" ELSE -"valor" END
+      ), 0)
+      FROM "Vales"
+      WHERE "Nome" = NEW."Nome"
+    )
+    WHERE name = NEW."Nome";
+  END IF;
+
+  -- Atualizar para o registro ANTIGO (DELETE ou UPDATE de nome)
+  IF (TG_OP = 'DELETE' OR TG_OP = 'UPDATE') THEN
+    UPDATE profiles
+    SET total_vales = (
+      SELECT COALESCE(SUM(
+        CASE WHEN "Item" = 'Crédito (Acréscimo)' THEN "valor" ELSE -"valor" END
+      ), 0)
+      FROM "Vales"
+      WHERE "Nome" = OLD."Nome"
+    )
+    WHERE name = OLD."Nome";
+  END IF;
+
+  RETURN NULL;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."update_total_vales"() OWNER TO "postgres";
+
+
 CREATE OR REPLACE FUNCTION "public"."update_user_password"("target_user_id" "uuid", "new_password" "text") RETURNS "void"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -187,7 +225,8 @@ CREATE TABLE IF NOT EXISTS "public"."Vales" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "Nome" "text",
     "Unidade" "text",
-    "Item" "text"
+    "Item" "text",
+    "valor" numeric
 );
 
 
@@ -584,6 +623,17 @@ ALTER SEQUENCE "public"."producao_realizada_id_seq" OWNED BY "public"."producao_
 
 
 
+CREATE TABLE IF NOT EXISTS "public"."produtos_vale" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "nome" character varying(255) NOT NULL,
+    "valor" numeric(10,2) NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL
+);
+
+
+ALTER TABLE "public"."produtos_vale" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "id" "uuid" NOT NULL,
     "email" "text" NOT NULL,
@@ -611,7 +661,8 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "ctps" "text",
     "unidade_registrada" "text",
     "chaves" integer,
-    "uniformes" integer
+    "uniformes" integer,
+    "total_vales" numeric DEFAULT 0
 );
 
 
@@ -764,6 +815,11 @@ ALTER TABLE ONLY "public"."producao_realizada"
 
 
 
+ALTER TABLE ONLY "public"."produtos_vale"
+    ADD CONSTRAINT "produtos_vale_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."profiles"
     ADD CONSTRAINT "profiles_email_key" UNIQUE ("email");
 
@@ -818,6 +874,10 @@ CREATE OR REPLACE TRIGGER "trg_audit_vales" AFTER INSERT OR DELETE OR UPDATE ON 
 
 
 CREATE OR REPLACE TRIGGER "trg_audit_vouchers" AFTER INSERT OR DELETE OR UPDATE ON "public"."Vouchers" FOR EACH ROW EXECUTE FUNCTION "public"."audit_log_trigger"();
+
+
+
+CREATE OR REPLACE TRIGGER "trigger_update_total_vales" AFTER INSERT OR DELETE OR UPDATE ON "public"."Vales" FOR EACH ROW EXECUTE FUNCTION "public"."update_total_vales"();
 
 
 
@@ -1094,7 +1154,19 @@ CREATE POLICY "Permitir atualizacao para usuarios autenticados" ON "public"."mov
 
 
 
+CREATE POLICY "Permitir atualização em produtos_vale" ON "public"."produtos_vale" FOR UPDATE USING (true);
+
+
+
+CREATE POLICY "Permitir deleção em produtos_vale" ON "public"."produtos_vale" FOR DELETE USING (true);
+
+
+
 CREATE POLICY "Permitir edição (UPDATE) para todos os usuários autenticados" ON "public"."profiles" FOR UPDATE TO "authenticated" USING (true) WITH CHECK (true);
+
+
+
+CREATE POLICY "Permitir edição para usuários logados" ON "public"."Vales" FOR UPDATE TO "authenticated" USING (true);
 
 
 
@@ -1110,6 +1182,10 @@ CREATE POLICY "Permitir exclusão (DELETE) para todos os usuários autenticado" 
 
 
 
+CREATE POLICY "Permitir exclusão para usuários logados" ON "public"."Vales" FOR DELETE TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Permitir insercao para usuarios autenticados" ON "public"."inventario_insumos" FOR INSERT TO "authenticated" WITH CHECK (true);
 
 
@@ -1122,11 +1198,23 @@ CREATE POLICY "Permitir inserção (INSERT) para todos os usuários autenticad" 
 
 
 
+CREATE POLICY "Permitir inserção em produtos_vale" ON "public"."produtos_vale" FOR INSERT WITH CHECK (true);
+
+
+
+CREATE POLICY "Permitir inserção para usuários logados" ON "public"."Vales" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
 CREATE POLICY "Permitir leitura (SELECT) para todos os usuários autenticados" ON "public"."profiles" FOR SELECT TO "authenticated" USING (true);
 
 
 
 CREATE POLICY "Permitir leitura de logs para usuarios autenticados" ON "public"."audit_logs" FOR SELECT USING (("auth"."role"() = 'authenticated'::"text"));
+
+
+
+CREATE POLICY "Permitir leitura de produtos_vale" ON "public"."produtos_vale" FOR SELECT USING (true);
 
 
 
@@ -1138,12 +1226,19 @@ CREATE POLICY "Permitir leitura para usuarios autenticados" ON "public"."movimen
 
 
 
+CREATE POLICY "Permitir leitura para usuários logados" ON "public"."Vales" FOR SELECT TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Todos podem visualizar feriados_globais" ON "public"."feriados_globais" FOR SELECT USING (true);
 
 
 
 CREATE POLICY "Usuários podem ver seus próprios feriados trabalhados" ON "public"."feriados_trabalhados" FOR SELECT USING (("auth"."uid"() = "employee_id"));
 
+
+
+ALTER TABLE "public"."Vales" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."audit_logs" ENABLE ROW LEVEL SECURITY;
@@ -1195,6 +1290,9 @@ ALTER TABLE "public"."ordem_producao" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."producao_realizada" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."produtos_vale" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
@@ -1458,6 +1556,12 @@ GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
 
 
 
+GRANT ALL ON FUNCTION "public"."update_total_vales"() TO "anon";
+GRANT ALL ON FUNCTION "public"."update_total_vales"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_total_vales"() TO "service_role";
+
+
+
 GRANT ALL ON FUNCTION "public"."update_user_password"("target_user_id" "uuid", "new_password" "text") TO "anon";
 GRANT ALL ON FUNCTION "public"."update_user_password"("target_user_id" "uuid", "new_password" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_user_password"("target_user_id" "uuid", "new_password" "text") TO "service_role";
@@ -1659,6 +1763,12 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 GRANT ALL ON SEQUENCE "public"."producao_realizada_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."producao_realizada_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."producao_realizada_id_seq" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."produtos_vale" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."produtos_vale" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."produtos_vale" TO "service_role";
 
 
 
