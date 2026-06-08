@@ -171,11 +171,38 @@ const AnaliseVales = () => {
     setIsModalOpen(true);
   };
 
-  const handleItemChange = (selectedItemName: string) => {
+  const handleItemChange = (selectedItemName: string, dateStr: string) => {
     setFormItem(selectedItemName);
     const prod = produtos.find(p => p.nome === selectedItemName);
     if (prod) {
-      setFormValor(prod.valor.toString());
+      let finalValor = Number(prod.valor);
+
+      if (selectedItemName.toUpperCase().includes('COMBO')) {
+        const d = dateStr ? new Date(dateStr) : new Date();
+        const dayOfWeek = d.getDay(); // 0 = Dom, 1 = Seg, 2 = Ter, 3 = Qua, 4 = Qui, 5 = Sex, 6 = Sab
+
+        const isMonday = selectedItemName.toUpperCase().includes('SEGUNDA') && dayOfWeek === 1;
+        const isTuesday = selectedItemName.toUpperCase().includes('TERÇA') && dayOfWeek === 2;
+        const isWednesday = selectedItemName.toUpperCase().includes('QUARTA') && dayOfWeek === 3;
+        const isThursday = selectedItemName.toUpperCase().includes('QUINTA') && dayOfWeek === 4;
+        const isFriday = selectedItemName.toUpperCase().includes('SEXTA') && dayOfWeek === 5;
+
+        if (isMonday || isTuesday || isWednesday || isThursday || isFriday) {
+          finalValor = finalValor - 2;
+        }
+      }
+
+      // Vales de consumo agora são negativos por padrão, então invertemos o sinal
+      setFormValor((-Math.abs(finalValor)).toString());
+    } else if (selectedItemName === "Crédito (Acréscimo)") {
+      setFormValor(""); // Deixa vazio para o usuário preencher valor positivo
+    }
+  };
+
+  const handleDateChange = (newDate: string) => {
+    setFormDate(newDate);
+    if (formItem) {
+      handleItemChange(formItem, newDate);
     }
   };
 
@@ -470,7 +497,7 @@ const AnaliseVales = () => {
                       required
                       className="frequencia-select"
                       value={formDate}
-                      onChange={(e) => setFormDate(e.target.value)}
+                      onChange={(e) => handleDateChange(e.target.value)}
                       style={{ background: "#fff", width: "100%" }}
                     />
                   </div>
@@ -513,7 +540,7 @@ const AnaliseVales = () => {
                       required
                       className="frequencia-select"
                       value={formItem}
-                      onChange={(e) => handleItemChange(e.target.value)}
+                      onChange={(e) => handleItemChange(e.target.value, formDate)}
                       style={{ background: "#fff", width: "100%" }}
                     >
                       <option value="" disabled>Selecione um produto</option>

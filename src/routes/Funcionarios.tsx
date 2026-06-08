@@ -73,7 +73,7 @@ function Funcionarios() {
       while (hasMore) {
         const { data: vData, error: vError } = await supabase
           .from("Vales")
-          .select("Nome, valor, Item")
+          .select("Nome, valor, Item, created_at")
           .range(from, from + step - 1);
 
         if (vError) throw vError;
@@ -127,18 +127,32 @@ function Funcionarios() {
         feriadosAbertosCount[p.id] = abertos;
       });
 
-      const valesCount: Record<string, number> = {};
+      const valesList: Record<string, any[]> = {};
       (valesData || []).forEach((v: any) => {
-        if (!valesCount[v.Nome]) valesCount[v.Nome] = 0;
-        valesCount[v.Nome] += Number(v.valor) || 0;
+        if (!valesList[v.Nome]) valesList[v.Nome] = [];
+        valesList[v.Nome].push(v);
       });
 
       const sorted = (profilesData || []).map((p: any) => {
         const firstName = p.name ? p.name.split(" ")[0] : "";
+        const employeeVales = valesList[p.name] || valesList[firstName] || [];
+        
+        let sum = 0;
+        employeeVales.forEach((v: any) => {
+          if (p.data_registro && v.created_at) {
+            const valeDateStr = v.created_at.split('T')[0];
+            if (valeDateStr >= p.data_registro) {
+              sum += Number(v.valor) || 0;
+            }
+          } else {
+            sum += Number(v.valor) || 0;
+          }
+        });
+
         return {
           ...p,
           feriadosAbertos: feriadosAbertosCount[p.id] || 0,
-          total_vales: valesCount[p.name] || valesCount[firstName] || 0
+          total_vales: sum
         };
       }).sort((a: any, b: any) => {
         const aActive = a.ativo !== false;
