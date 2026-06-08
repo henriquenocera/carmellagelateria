@@ -66,6 +66,7 @@ const MENU_CONFIG = [
     subItems: [
       { title: "Análise de Insumos", path: "/analise-insumos" },
       { title: "Análise de Produtos", path: "/analise-produtos" },
+      { title: "Análise de Vales", path: "/analise-vales", adminOnly: true },
     ]
   },
 

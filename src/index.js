@@ -33,6 +33,7 @@ import Logs from "./routes/Logs.tsx";
 import FeriadosGlobais from "./routes/FeriadosGlobais.tsx";
 import EstoqueLojas from "./routes/EstoqueLojas.jsx";
 import CadastroInsumos from "./routes/CadastroInsumos.tsx";
+import AnaliseVales from "./routes/AnaliseVales.tsx";
 import ConfiguracaoEstoque from "./routes/ConfiguracaoEstoque.tsx";
 import LojaEstoqueInsumos from "./routes/LojaEstoqueInsumos.tsx";
 import MovimentacoesEstoque from "./routes/MovimentacoesEstoque.tsx";
@@ -143,6 +144,7 @@ const router = createBrowserRouter(
         <Route path="/analise-produtos" element={<AnaliseProdutos />} />
         <Route path="/producao-realizada" element={<ProducaoRealizada />} />
         <Route path="/estoque-fabrica" element={<EstoqueFabrica />} />
+        <Route path="/analise-vales" element={<AnaliseVales />} />
         <Route path="/ordem-producao" element={<OrdemProducao />} />
         <Route path="/cadastro-fornecedores" element={<CadastroFornecedores />} />
         <Route path="/produtos-vale" element={<ProdutosVale />} />
