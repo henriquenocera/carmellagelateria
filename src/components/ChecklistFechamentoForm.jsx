@@ -1,12 +1,13 @@
 import React, { useState, useRef } from "react";
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem.jsx";
-import { ListId } from '../id.ts';
+import supabase from "../supabase-client";
 import { checklistFechamentoSteps as steps } from "../config/checklists.js";
 
 
 function ChecklistFechamentoForm({ handleSubmit }) {
   const weekday = new Date().getDay();
+  const [isCheckingId, setIsCheckingId] = useState(false);
   const [brownieBatches, setBrownieBatches] = useState([{ quantity: "", date: "" }]);
 
   const getFormattedBrownies = () => {
@@ -158,28 +159,26 @@ function ChecklistFechamentoForm({ handleSubmit }) {
     }
   }
 
-  function checkId(e) {
+  async function checkId(e) {
     e.preventDefault();
-    let idInput = idInputRef.current.value;
+    let idInput = idInputRef.current?.value;
 
-    if (idInput == ListId[0].value) {
-      setUser(ListId[0].nome);
-    } else if (idInput == ListId[1].value) {
-      setUser(ListId[1].nome);
-    } else if (idInput == ListId[2].value) {
-      setUser(ListId[2].nome);
-    } else if (idInput == ListId[3].value) {
-      setUser(ListId[3].nome);
-    } else if (idInput == ListId[4].value) {
-      setUser(ListId[4].nome);
-    } else if (idInput == ListId[5].value) {
-      setUser(ListId[5].nome);
-    } else if (idInput == ListId[6].value) {
-      setUser(ListId[6].nome);
-    } else if (idInput == ListId[7].value) {
-      setUser(ListId[7].nome);
-    } else {
+    if (!idInput) return;
+
+    setIsCheckingId(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("short_id", idInput)
+      .single();
+    
+    setIsCheckingId(false);
+
+    if (error || !data) {
+      window.alert("ID não encontrado. Verifique e tente novamente.");
       setUser("");
+    } else {
+      setUser(data.name);
     }
   }
 
@@ -244,7 +243,11 @@ function ChecklistFechamentoForm({ handleSubmit }) {
                 <div className="modal-buttons">
                   <button
                     onClick={(e) => checkId(e)}
-                    className="confirm-button">Confirmar ID</button>
+                    className="confirm-button"
+                    disabled={isCheckingId}
+                  >
+                    {isCheckingId ? "Verificando..." : "Confirmar ID"}
+                  </button>
                   <button
                     onClick={() => { setIsModalOpen(false); setUser("") }}
                     className="close-button"
