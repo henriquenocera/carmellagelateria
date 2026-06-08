@@ -6,7 +6,6 @@ import { STORE_CONFIG } from '../config/store.js';
 import supabase from "../supabase-client";
 import { Helmet } from "react-helmet";
 import moment from "moment";
-import { ListId } from "../id.ts";
 
 type VoucherRow = {
   id: number;
@@ -22,6 +21,7 @@ function Voucher() {
   const [rowId, setRowId] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState("");
+  const [isCheckingId, setIsCheckingId] = useState(false);
   const idInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -49,27 +49,27 @@ function Voucher() {
     setRowId(id);
   }
 
-  function checkId(e) {
+  async function checkId(e: any) {
     console.log("Check ID");
     e.preventDefault();
-    let idInput = idInputRef.current.value;
+    let idInput = idInputRef.current?.value;
 
-    if (idInput == ListId[0].value) {
-      setUser(ListId[0].nome);
-    } else if (idInput == ListId[1].value) {
-      setUser(ListId[1].nome);
-    } else if (idInput == ListId[2].value) {
-      setUser(ListId[2].nome);
-    } else if (idInput == ListId[3].value) {
-      setUser(ListId[3].nome);
-    } else if (idInput == ListId[4].value) {
-      setUser(ListId[4].nome);
-    } else if (idInput == ListId[5].value) {
-      setUser(ListId[5].nome);
-    } else if (idInput == ListId[6].value) {
-      setUser(ListId[6].nome);
-    } else {
+    if (!idInput) return;
+
+    setIsCheckingId(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("short_id", idInput)
+      .single();
+    
+    setIsCheckingId(false);
+
+    if (error || !data) {
+      window.alert("ID não encontrado. Verifique e tente novamente.");
       setUser("");
+    } else {
+      setUser(data.name);
     }
   }
 
@@ -115,8 +115,9 @@ function Voucher() {
                   <button
                     onClick={(e) => checkId(e)}
                     className="confirm-button"
+                    disabled={isCheckingId}
                   >
-                    Confirmar ID
+                    {isCheckingId ? "Verificando..." : "Confirmar ID"}
                   </button>
                   <button
                     onClick={() => {

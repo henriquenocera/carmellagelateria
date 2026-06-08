@@ -1,140 +1,194 @@
 .valegelatoContainer {
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
   align-items: center;
-  height: 100vh;
+  justify-content: center;
+  min-height: 100vh;
   margin-left: 75px;
-  text-align: center;
+  background-color: #fafafa;
+  font-family: 'Inter', 'Roboto', sans-serif;
+  padding: 40px 20px;
+  box-sizing: border-box;
 }
-.logo {
-  margin-bottom: 20px;
-}
-.idForm {
-  margin-top: 20px;
+
+.vales-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  padding: 40px;
+  width: 100%;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  transition: all 0.3s ease;
 }
-.idLabel {
-  font-size: 2.4rem;
+
+.logo {
+  margin-bottom: 24px;
+  height: 60px;
+  object-fit: contain;
 }
+
+.vales-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 30px;
+  letter-spacing: -0.5px;
+}
+
+.idForm, .valeGelatoForm {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+}
+
+.input-group label {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 4px;
+}
+
+.idInput, .userInput {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1.6rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  color: #334155;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
 .idInput {
-  border: 1px solid #a17550;
-  padding: 6px 12px;
-  margin-top: 10px;
   -webkit-text-security: disc;
   -moz-webkit-text-security: disc;
-  -moz-text-security: disc;
   text-align: center;
-}
-.idSubmit {
-  padding: 8px 16px;
-  font-size: 2.4rem;
-  background: #a17550;
-  color: #fff;
-  margin-top: 20px;
-}
-.userInput {
+  letter-spacing: 4px;
   font-size: 2rem;
-  text-align: center;
-  padding: 4px 8px;
-  margin-top: 20px;
-  background: #f9f2e4;
-  color: #a17550;
-  border: 1px solid #a17550;
+  font-weight: bold;
 }
-.userSelect {
-  font-size: 2rem;
-  background: #f9f2e4;
-  color: #a17550;
-  padding: 4px 8px;
-  border: 1px solid #a17550;
+
+.idInput:focus, .userInput:focus {
+  outline: none;
+  border-color: #a17550;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px rgba(161, 117, 80, 0.1);
 }
-.basic-single {
+
+.userInput:read-only {
+  background-color: #f1f5f9;
+  color: #94a3b8;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+  font-weight: 500;
+}
+
+.idSubmit, .sendForm {
+  width: 100%;
+  padding: 16px;
   font-size: 1.6rem;
-  width: 420px;
-}
-.valeGelatoForm {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-.flex {
-  display: flex;
-  flex-direction: row;
-  gap: 40px;
-}
-.valeGelatoForm .select {
-  font-size: 2rem;
-}
-.selectContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  margin-top: 40px;
-  position: relative;
-}
-.selectTitle {
-  font-size: 2.4rem;
-}
-
-.SelectLabel {
-  font-size: 2rem;
-  position: absolute;
-  top: 20px;
-  left: 55px;
-  color: grey;
-  opacity: 0.5;
-}
-.selectLabelMedio {
-  left: 70px;
-}
-.selectItem.active ~ .SelectLabel {
-  color: #fff;
-  opacity: 1;
+  font-weight: 600;
+  border-radius: 8px;
   border: none;
-}
-.selectItem {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 195px;
-  font-size: 2rem;
-  padding: 34px 16px;
-  border-radius: 6px;
-  position: relative;
-  cursor: pointer;
-  color: grey;
-  border: 1px solid grey;
-  opacity: 0.5;
-  text-align: center;
-  font-size: 0;
-}
-.selectItem:focus {
-  border: 1px solid #a17550;
-}
-
-.selectItem.active {
-  background: #a17550;
-  opacity: 1;
-}
-.sendForm {
-  padding: 8px 16px;
-  font-size: 2.4rem;
-  background: #a17550;
+  background: linear-gradient(135deg, #a17550 0%, #8a6242 100%);
   color: #fff;
-  margin-top: 20px;
-}
-.selectLabelCasquinha {
-  left: 50px;
-}
-
-.version {
-  color: black;
-  font-size: 2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 10px;
 }
 
+.idSubmit:hover, .sendForm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(161, 117, 80, 0.3);
+}
 
+.idSubmit:active, .sendForm:active {
+  transform: translateY(0);
+}
+
+.selectContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+
+.value-badge {
+  margin-top: 10px;
+  padding: 16px;
+  background-color: #fef2f2;
+  border-radius: 8px;
+  border: 1px dashed #fca5a5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  animation: slideDown 0.3s ease-out;
+}
+
+.value-badge span:first-child {
+  font-weight: 600;
+  color: #7f1d1d;
+  font-size: 1.4rem;
+}
+
+.value-badge span:last-child {
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: #ef4444;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  height: 300px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f4f6;
+  border-top-color: #a17550;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom scrollbar for react-select */
+.basic-single * {
+  font-size: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .valegelatoContainer {
+    margin-left: 0;
+    padding: 20px;
+  }
+  .vales-card {
+    padding: 30px 20px;
+  }
+}
