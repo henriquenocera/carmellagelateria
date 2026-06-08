@@ -7,7 +7,7 @@ import '../css/Frequencia.css';
 
 const AnaliseVales = () => {
   const { user, isAdmin } = useAuth();
-  
+
   const [vales, setVales] = useState<any[]>([]);
   const [produtos, setProdutos] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
@@ -24,7 +24,7 @@ const AnaliseVales = () => {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => { } });
   const [editId, setEditId] = useState<number | null>(null);
 
   // Form State
@@ -86,8 +86,8 @@ const AnaliseVales = () => {
         let query = supabase.from('Vales').select('*').order('created_at', { ascending: false }).range(from, from + step - 1);
 
         if (!showAll) {
-          const startDate = new Date(year, month - 1, 1, 0, 0, 0);
-          const endDate = new Date(year, month, 0, 23, 59, 59, 999);
+          const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
+          const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
           query = query.gte('created_at', startDate.toISOString()).lte('created_at', endDate.toISOString());
         }
 
@@ -102,7 +102,7 @@ const AnaliseVales = () => {
           hasMore = false;
         }
       }
-      
+
       setVales(allData);
     } catch (err) {
       console.error('Erro ao buscar vales:', err);
@@ -133,7 +133,7 @@ const AnaliseVales = () => {
   const formatDateTime = (dateStr: string) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
-    return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
   };
 
   // --- CRUD LÓGICA ---
@@ -145,14 +145,14 @@ const AnaliseVales = () => {
       setFormUnidade(vale.Unidade || '');
       setFormItem(vale.Item || '');
       setFormValor(vale.valor !== null ? vale.valor.toString() : '');
-      
+
       if (vale.created_at) {
         const d = new Date(vale.created_at);
-        const y = d.getFullYear();
-        const m = String(d.getMonth() + 1).padStart(2, '0');
-        const day = String(d.getDate()).padStart(2, '0');
-        const h = String(d.getHours()).padStart(2, '0');
-        const min = String(d.getMinutes()).padStart(2, '0');
+        const y = d.getUTCFullYear();
+        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        const h = String(d.getUTCHours()).padStart(2, '0');
+        const min = String(d.getUTCMinutes()).padStart(2, '0');
         setFormDate(`${y}-${m}-${day}T${h}:${min}`);
       } else {
         setFormDate('');
@@ -163,10 +163,10 @@ const AnaliseVales = () => {
       setFormUnidade('');
       setFormItem('');
       setFormValor('');
-      
+
       const d = new Date();
       d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-      setFormDate(d.toISOString().slice(0,16));
+      setFormDate(d.toISOString().slice(0, 16));
     }
     setIsModalOpen(true);
   };
@@ -218,7 +218,7 @@ const AnaliseVales = () => {
       const valorNumerico = parseFloat(formValor.replace(',', '.'));
       if (isNaN(valorNumerico)) throw new Error("Valor inválido");
 
-      const dateObj = new Date(formDate);
+      const dateObj = new Date(formDate + "Z");
 
       const payload = {
         Nome: formNome,
@@ -237,11 +237,11 @@ const AnaliseVales = () => {
       }
 
       setIsModalOpen(false);
-      
+
       // Mudar os filtros para a data do lançamento que acabou de ser salvo se precisar
-      const insertedMonth = dateObj.getMonth() + 1;
-      const insertedYear = dateObj.getFullYear();
-      
+      const insertedMonth = dateObj.getUTCMonth() + 1;
+      const insertedYear = dateObj.getUTCFullYear();
+
       if (month !== insertedMonth || year !== insertedYear) {
         setMonth(insertedMonth);
         setYear(insertedYear);
@@ -262,7 +262,7 @@ const AnaliseVales = () => {
       isOpen: true,
       message: "Tem certeza que deseja excluir este lançamento permanentemente?",
       onConfirm: async () => {
-        setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} });
+        setConfirmModal({ isOpen: false, message: '', onConfirm: () => { } });
         try {
           setLoading(true);
           const { error } = await supabase.from('Vales').delete().eq('id', id);
@@ -315,7 +315,7 @@ const AnaliseVales = () => {
             <h1>Análise de Vales</h1>
             <p>Acompanhe e gerencie os vales lançados pelos funcionários.</p>
           </div>
-          
+
           <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", backgroundColor: "#fff", padding: "12px 24px", borderRadius: "8px", border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
               <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Filtrado</span>
@@ -323,7 +323,7 @@ const AnaliseVales = () => {
                 {totalValue >= 0 ? '+ ' : '- '}R$ {Math.abs(totalValue).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </div>
-            
+
             <button className="primary-btn" onClick={() => openModal()} style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem" }}>
               <Icons.BsPlusLg style={{ marginRight: '8px' }} />
               Lançar Vale
@@ -367,7 +367,7 @@ const AnaliseVales = () => {
               <Icons.BsChevronRight />
             </button>
 
-            <button 
+            <button
               className="frequencia-select"
               onClick={() => setShowAll(!showAll)}
               style={{ background: showAll ? "var(--primary-color)" : "#fff", color: showAll ? "#fff" : "inherit", cursor: "pointer", marginLeft: "10px", fontWeight: showAll ? "bold" : "normal" }}
@@ -489,7 +489,7 @@ const AnaliseVales = () => {
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
               <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                 <div style={{ display: "flex", gap: "16px", flexDirection: "column" }}>
-                  
+
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Data e Hora *</label>
                     <input
@@ -598,13 +598,13 @@ const AnaliseVales = () => {
             <h3 style={{ fontSize: "1.8rem", color: "var(--secondary-color)", margin: "0 0 16px 0" }}>Atenção</h3>
             <p style={{ fontSize: "1.4rem", color: "var(--text-muted)", margin: "0 0 24px 0" }}>{confirmModal.message}</p>
             <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-              <button 
-                onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} })}
+              <button
+                onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => { } })}
                 style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", backgroundColor: "#fff", color: "#475569", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
               >
                 Cancelar
               </button>
-              <button 
+              <button
                 onClick={confirmModal.onConfirm}
                 style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", backgroundColor: "var(--primary-color)", color: "#fff", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
               >

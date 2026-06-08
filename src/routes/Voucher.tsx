@@ -180,7 +180,7 @@ function Voucher() {
               <tbody>
                 {vouchers.map((list) => (
                   <tr key={list.id}>
-                    <td>{moment(list.created_at).format("DD/MM/YYYY [às] HH:mm")}</td>
+                    <td>{moment.utc(list.created_at).format("DD/MM/YYYY [às] HH:mm")}</td>
                     <td>{list.voucher_id}</td>
                     <td>{list.value}</td>
                     <td>

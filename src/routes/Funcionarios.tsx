@@ -77,7 +77,7 @@ function Funcionarios() {
           .range(from, from + step - 1);
 
         if (vError) throw vError;
-        
+
         if (vData && vData.length > 0) {
           allValesData = [...allValesData, ...vData];
           from += step;
@@ -86,7 +86,7 @@ function Funcionarios() {
           hasMore = false;
         }
       }
-      
+
       const valesData = allValesData;
 
       const freqByEmpDate: Record<string, Record<string, string>> = {};
@@ -136,7 +136,7 @@ function Funcionarios() {
       const sorted = (profilesData || []).map((p: any) => {
         const firstName = p.name ? p.name.split(" ")[0] : "";
         const employeeVales = valesList[p.name] || valesList[firstName] || [];
-        
+
         let sum = 0;
         employeeVales.forEach((v: any) => {
           if (p.data_registro && v.created_at) {
@@ -244,7 +244,7 @@ function Funcionarios() {
                 {profiles.map((p) => {
                   const dataRegistro = p.data_registro ? new Date(p.data_registro + 'T00:00:00') : null;
                   const diasDesdeRegistro = dataRegistro ? Math.floor((new Date().getTime() - dataRegistro.getTime()) / (1000 * 60 * 60 * 24)) : null;
-                  
+
                   let dataFim1 = "";
                   let dataFim2 = "";
                   if (dataRegistro) {
@@ -320,7 +320,7 @@ function Funcionarios() {
                           </td>
                           <td style={{ textAlign: "center" }}>
                             {diasDesdeRegistro !== null ? (
-                              <div 
+                              <div
                                 style={{ position: "relative", display: "inline-block", zIndex: diasDesdeRegistro <= 90 ? 10 : 1 }}
                                 onMouseEnter={(e) => {
                                   const tooltip = e.currentTarget.querySelector('.experiencia-tooltip') as HTMLElement;
@@ -356,9 +356,9 @@ function Funcionarios() {
                                 }}>
                                   <span style={{ letterSpacing: "0.3px" }}>{statusContrato}</span>
                                   {diasRestantes !== null && (
-                                    <span style={{ 
-                                      fontSize: "0.75rem", 
-                                      fontWeight: "600", 
+                                    <span style={{
+                                      fontSize: "0.75rem",
+                                      fontWeight: "600",
                                       opacity: 0.85,
                                       backgroundColor: "rgba(255,255,255,0.5)",
                                       padding: "2px 6px",
@@ -369,10 +369,10 @@ function Funcionarios() {
                                     </span>
                                   )}
                                 </span>
-                                
+
                                 {diasDesdeRegistro <= 90 && (
-                                  <div 
-                                    className="experiencia-tooltip" 
+                                  <div
+                                    className="experiencia-tooltip"
                                     style={{
                                       position: "absolute",
                                       bottom: "100%",
