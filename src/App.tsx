@@ -22,7 +22,7 @@ function App() {
         <div className="flex items-center" style={{ gap: '12px' }}>
           {/* Lado esquerdo do header agora vazio */}
         </div>
-        <div className="flex items-center" style={{ gap: '16px' }}>
+        <div className="header-actions">
           <SessionTimer />
           <span className="user-email" style={{ fontSize: '14px', color: '#e2e8f0', fontWeight: '500' }}>{user.email}</span>
 

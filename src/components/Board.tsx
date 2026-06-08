@@ -151,9 +151,27 @@ export function Board() {
     latestCardsRef.current = cards;
   }, [cards]);
 
-  const persistCards = async (nextCards: CardItem[]) => {
+  const persistCards = async (updatedCards: CardItem[], originalCards?: CardItem[]) => {
     try {
-      await upsertCards(nextCards);
+      if (originalCards && originalCards.length > 0) {
+        const ids = originalCards.map(c => c.id);
+        const { data } = await supabase.from('cardsahu').select('id, updated_at').in('id', ids);
+        if (data) {
+          const hasConflict = originalCards.some(orig => {
+            const dbCard = data.find(d => d.id === orig.id);
+            return dbCard && dbCard.updated_at !== orig.updatedAt;
+          });
+          
+          if (hasConflict) {
+            alert('⚠️ Este cartão foi modificado recentemente por outro usuário! A tela será atualizada com as informações mais recentes do banco de dados.');
+            const dbCards = await fetchCards();
+            setCards(dbCards);
+            return;
+          }
+        }
+      }
+
+      await upsertCards(updatedCards);
       setSyncError(null);
     } catch (error) {
       console.error('Erro ao salvar cards no Supabase:', error);
@@ -210,8 +228,9 @@ export function Board() {
       setMovedCardId(null);
       setMoveDirection(null);
     }, 8000);
+    const originalCard = cards.find(c => c.id === card.id);
     const updatedCard = nextCards.find(c => c.id === card.id);
-    await persistCards(updatedCard ? [updatedCard] : []);
+    await persistCards(updatedCard ? [updatedCard] : [], originalCard ? [originalCard] : []);
   };
 
   const handleCreateNewCard = (status: ItemStatus = 'freezer-estoque') => {
@@ -307,8 +326,9 @@ export function Board() {
           return c;
         });
         setCards(nextCards);
+        const originalCard = cards.find(c => c.id === editingCardId);
         const updatedCard = nextCards.find(c => c.id === editingCardId);
-        await persistCards(updatedCard ? [updatedCard] : []);
+        await persistCards(updatedCard ? [updatedCard] : [], originalCard ? [originalCard] : []);
       }
       handleCloseModal();
     } catch (error) {
@@ -347,8 +367,9 @@ export function Board() {
 
     setCards(nextCards);
     handleCloseModal();
+    const originalCard = cards.find(c => c.id === editingCardId);
     const updatedCard = nextCards.find(c => c.id === editingCardId);
-    await persistCards(updatedCard ? [updatedCard] : []);
+    await persistCards(updatedCard ? [updatedCard] : [], originalCard ? [originalCard] : []);
   };
 
   const handleMoveToHistory = async () => {
@@ -376,8 +397,9 @@ export function Board() {
 
     setCards(nextCards);
     handleCloseModal();
+    const originalCard = cards.find(c => c.id === editingCardId);
     const updatedCard = nextCards.find(c => c.id === editingCardId);
-    await persistCards(updatedCard ? [updatedCard] : []);
+    await persistCards(updatedCard ? [updatedCard] : [], originalCard ? [originalCard] : []);
   };
 
   const handleDeletePermanent = async () => {
@@ -517,11 +539,12 @@ export function Board() {
     }, 8000);
 
     setQuebraConfirmData(null);
+    const originalCard = cards.find(c => c.id === card.id);
     const updatedCard = finalCards.find(c => c.id === card.id);
     const persistedCards = shouldCreateQuebra 
       ? [updatedCard, ...finalCards.slice(nextCards.length)].filter(Boolean) as CardItem[]
       : (updatedCard ? [updatedCard] : []);
-    await persistCards(persistedCards);
+    await persistCards(persistedCards, originalCard ? [originalCard] : []);
   };
 
   const globalLogs = cards.flatMap(card =>
@@ -556,8 +579,9 @@ export function Board() {
       );
 
       setCards(nextCards);
+      const originalCards = cards.filter(c => c.status === 'cubas-saidas-vitrine');
       const updatedCards = nextCards.filter(c => c.status === 'excluidos' && cards.find(old => old.id === c.id)?.status === 'cubas-saidas-vitrine');
-      await persistCards(updatedCards);
+      await persistCards(updatedCards, originalCards);
     } catch (error) {
       console.error('Erro ao mover arquivo:', error);
       alert('Não foi possível mover os itens.');
