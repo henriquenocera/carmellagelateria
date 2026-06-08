@@ -97,24 +97,46 @@ function Vales() {
   }, []);
 
   const selectOptions: any[] = [];
+  const currentDay = today.getDay();
+
+  const isComboDiscountApplicable = (itemName: string, dayOfWeek: number) => {
+    if (dayOfWeek === 1 && itemName.includes("COMBO SEGUNDA")) return true;
+    if (dayOfWeek === 2 && itemName.includes("COMBO TERÇA")) return true;
+    if (dayOfWeek === 3 && itemName.includes("COMBO QUARTA")) return true;
+    if (dayOfWeek === 4 && itemName.includes("COMBO QUINTA")) return true;
+    if (dayOfWeek === 5 && itemName.includes("COMBO SEXTA")) return true;
+    return false;
+  };
 
   // Primeiro, adiciona todos os itens seguindo a ordem do Options.ts
   Options.forEach((opt: any) => {
     const dbItem = produtosList.find(p => p.nome === opt.value);
+    let valorFinal = dbItem ? dbItem.valor : 0;
+    
+    if (isComboDiscountApplicable(opt.value, currentDay)) {
+      valorFinal -= 2;
+    }
+
     selectOptions.push({
       value: opt.value,
       label: opt.label,
-      valorReal: dbItem ? dbItem.valor : 0
+      valorReal: valorFinal
     });
   });
 
   // Em seguida, adiciona no final da lista qualquer item do banco que não estava no Options.ts
   produtosList.forEach((p: any) => {
     if (!Options.find((opt: any) => opt.value === p.nome)) {
+      let valorFinal = p.valor;
+
+      if (isComboDiscountApplicable(p.nome, currentDay)) {
+        valorFinal -= 2;
+      }
+
       selectOptions.push({
         value: p.nome,
         label: p.nome,
-        valorReal: p.valor
+        valorReal: valorFinal
       });
     }
   });
