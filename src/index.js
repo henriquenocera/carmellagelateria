@@ -14,7 +14,6 @@ import TextosELinks from "./routes/TextosELinks.jsx";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
-import Vales from "./routes/Vales.tsx";
 import Inventario from "./routes/Inventario.tsx";
 import Informacoes from "./routes/Informacoes.tsx";
 import Voucher from "./routes/Voucher.tsx";
@@ -115,7 +114,6 @@ const router = createBrowserRouter(
         <Route path="/lojas-checklist" element={<Lojas />} />
         <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
         <Route path="/manual" element={<Manual />} />
-        <Route path="/vales" element={<Vales />} />
         <Route path="/inventario" element={<Inventario />} />
         <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
         <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
