@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, ArrowLeft, Archive, Plus, Trash2, Clock, ArrowDownAz } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ArrowRight, ArrowLeft, Archive, Plus, Trash2, Clock, ArrowDownAz, AlertTriangle, X } from 'lucide-react';
 
 import { Column } from './Column';
 import type { CardItem, ItemStatus } from '../types';
@@ -22,6 +23,7 @@ export function Board() {
   const [isSaving, setIsSaving] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [creatingInStatus, setCreatingInStatus] = useState<ItemStatus>('freezer-estoque');
+  const [isWarningsOpen, setIsWarningsOpen] = useState(false);
 
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
@@ -208,7 +210,8 @@ export function Board() {
       setMovedCardId(null);
       setMoveDirection(null);
     }, 8000);
-    await persistCards(nextCards);
+    const updatedCard = nextCards.find(c => c.id === card.id);
+    await persistCards(updatedCard ? [updatedCard] : []);
   };
 
   const handleCreateNewCard = (status: ItemStatus = 'freezer-estoque') => {
@@ -270,7 +273,7 @@ export function Board() {
         const nextCards = [...cards, newCard];
         setCards(nextCards);
         setMovedCardId(newCard.id);
-        await persistCards(nextCards);
+        await persistCards([newCard]);
 
         // Reset highlight and priority sort after 8 seconds
         setTimeout(() => {
@@ -304,7 +307,8 @@ export function Board() {
           return c;
         });
         setCards(nextCards);
-        await persistCards(nextCards);
+        const updatedCard = nextCards.find(c => c.id === editingCardId);
+        await persistCards(updatedCard ? [updatedCard] : []);
       }
       handleCloseModal();
     } catch (error) {
@@ -343,7 +347,8 @@ export function Board() {
 
     setCards(nextCards);
     handleCloseModal();
-    await persistCards(nextCards);
+    const updatedCard = nextCards.find(c => c.id === editingCardId);
+    await persistCards(updatedCard ? [updatedCard] : []);
   };
 
   const handleMoveToHistory = async () => {
@@ -371,7 +376,8 @@ export function Board() {
 
     setCards(nextCards);
     handleCloseModal();
-    await persistCards(nextCards);
+    const updatedCard = nextCards.find(c => c.id === editingCardId);
+    await persistCards(updatedCard ? [updatedCard] : []);
   };
 
   const handleDeletePermanent = async () => {
@@ -511,7 +517,11 @@ export function Board() {
     }, 8000);
 
     setQuebraConfirmData(null);
-    await persistCards(finalCards);
+    const updatedCard = finalCards.find(c => c.id === card.id);
+    const persistedCards = shouldCreateQuebra 
+      ? [updatedCard, ...finalCards.slice(nextCards.length)].filter(Boolean) as CardItem[]
+      : (updatedCard ? [updatedCard] : []);
+    await persistCards(persistedCards);
   };
 
   const globalLogs = cards.flatMap(card =>
@@ -546,7 +556,8 @@ export function Board() {
       );
 
       setCards(nextCards);
-      await persistCards(nextCards);
+      const updatedCards = nextCards.filter(c => c.status === 'excluidos' && cards.find(old => old.id === c.id)?.status === 'cubas-saidas-vitrine');
+      await persistCards(updatedCards);
     } catch (error) {
       console.error('Erro ao mover arquivo:', error);
       alert('Não foi possível mover os itens.');
@@ -567,47 +578,83 @@ export function Board() {
     }
   };
 
+  const hasWarnings = isVitrineInvalid || quebrasFlavorsWithConflict.length > 0;
+  const portalTarget = document.getElementById('header-warnings-portal-target');
+
   return (
     <div className="board-container" style={{ flexDirection: 'column' }}>
-      {isVitrineInvalid && (
-        <div className="capacity-warning" style={{
-          background: '#fff7ed',
-          border: '1px solid #ffedd5',
-          color: '#c2410c',
-          padding: '12px 16px',
-          borderRadius: '12px',
-          marginBottom: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          fontSize: '14px',
-          fontWeight: '500',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
-        }}>
-          <span style={{ fontSize: '16px' }}>⚠️</span>
-          A Vitrine Atual está com <strong>{vitrineCount}</strong> de <strong>{vitrineCol.maxCapacity}</strong> cubas.
-        </div>
+      {hasWarnings && portalTarget && createPortal(
+        <button
+          className="warning-blink-btn"
+          onClick={() => setIsWarningsOpen(true)}
+          style={{
+            background: '#ef4444',
+            color: '#ffffff',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            cursor: 'pointer',
+            fontWeight: '600',
+            fontSize: '13px',
+            animation: 'pulse-warning 1.5s infinite'
+          }}
+          title="Ver Avisos"
+        >
+          <AlertTriangle size={16} /> Avisos
+        </button>,
+        portalTarget
       )}
 
-      {quebrasFlavorsWithConflict.length > 0 && (
-        <div className="conflict-warning" style={{
-          background: '#fef2f2',
-          border: '1px solid #fecaca',
-          color: '#991b1b',
-          padding: '12px 16px',
-          borderRadius: '12px',
-          marginBottom: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
-          fontSize: '14px',
-          fontWeight: '500',
-          boxShadow: '0 2px 4px rgba(239,68,68,0.02)'
-        }}>
-          <span style={{ fontSize: '16px' }}>🚨</span>
-          <span>
-            Atenção: Os seguintes sabores ativos na <strong>Vitrine</strong> possuem registros de <strong>Quebra</strong>: <strong>{quebrasFlavorsWithConflict.join(', ')}</strong>.
-          </span>
+      {isWarningsOpen && (
+        <div className="modal-backdrop" onClick={() => setIsWarningsOpen(false)} style={{ zIndex: 9999 }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '400px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
+              <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px', color: '#0f172a', fontSize: '18px', fontWeight: '600' }}>
+                <div style={{ background: '#fee2e2', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center' }}>
+                  <AlertTriangle size={18} style={{ color: '#ef4444' }} />
+                </div>
+                Avisos do Sistema
+              </h3>
+              <button 
+                onClick={() => setIsWarningsOpen(false)} 
+                style={{ background: '#f8fafc', border: '1px solid #e2e8f0', cursor: 'pointer', color: '#64748b', borderRadius: '8px', padding: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
+                title="Fechar"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {isVitrineInvalid && (
+                <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412', padding: '16px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                  <AlertTriangle size={20} style={{ color: '#ea580c', flexShrink: 0, marginTop: '2px' }} />
+                  <div>
+                    <strong style={{ display: 'block', fontSize: '15px', marginBottom: '4px', color: '#9a3412' }}>Atenção à Capacidade</strong>
+                    <span style={{ color: '#c2410c', lineHeight: '1.5' }}>A Vitrine Atual está com <strong>{vitrineCount}</strong> de <strong>{vitrineCol?.maxCapacity}</strong> cubas cadastradas. Por favor, verifique os registros para manter o estoque preciso.</span>
+                  </div>
+                </div>
+              )}
+              {quebrasFlavorsWithConflict.length > 0 && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', padding: '16px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'flex-start', gap: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+                  <AlertTriangle size={20} style={{ color: '#ef4444', flexShrink: 0, marginTop: '2px' }} />
+                  <div style={{ width: '100%' }}>
+                    <strong style={{ display: 'block', fontSize: '15px', marginBottom: '10px', color: '#991b1b' }}>Quebras na Vitrine Ativa</strong>
+                    <span style={{ display: 'block', color: '#b91c1c', marginBottom: '12px', lineHeight: '1.4' }}>Os seguintes sabores possuem registros de <strong>Quebra</strong>, mas ainda constam como ativos na Vitrine:</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {quebrasFlavorsWithConflict.map(flavor => (
+                        <span key={flavor} style={{ background: '#fee2e2', color: '#b91c1c', padding: '6px 10px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', border: '1px solid #fecaca' }}>
+                          {flavor}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

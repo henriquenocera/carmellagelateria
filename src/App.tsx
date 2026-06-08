@@ -59,6 +59,7 @@ function App() {
           >
             Logs de Atividades
           </button>
+          <div id="header-warnings-portal-target"></div>
         </div>
       </header>
       <main className="app-main">
