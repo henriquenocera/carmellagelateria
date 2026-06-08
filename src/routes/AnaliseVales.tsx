@@ -9,7 +9,10 @@ const AnaliseVales = () => {
   const { user, isAdmin } = useAuth();
   
   const [vales, setVales] = useState<any[]>([]);
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Filters
   const today = new Date();
@@ -17,6 +20,20 @@ const AnaliseVales = () => {
   const [year, setYear] = useState<number>(today.getFullYear());
   const [selectedEmployee, setSelectedEmployee] = useState<string>("all");
   const [selectedUnidade, setSelectedUnidade] = useState<string>("all");
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => {} });
+  const [editId, setEditId] = useState<number | null>(null);
+
+  // Form State
+  const [formDate, setFormDate] = useState('');
+  const [formNome, setFormNome] = useState('');
+  const [formUnidade, setFormUnidade] = useState('');
+  const [formItem, setFormItem] = useState('');
+  const [formValor, setFormValor] = useState('');
+
+  const unidadesList = ["Alto da XV", "Batel", "Ahu", "Fábrica"];
 
   const yearsList = Array.from({ length: 5 }, (_, i) => today.getFullYear() - 2 + i);
   const monthsList = [
@@ -37,10 +54,23 @@ const AnaliseVales = () => {
   useEffect(() => {
     if (isAdmin) {
       fetchVales();
+      fetchAuxData();
     } else {
       setLoading(false);
     }
   }, [isAdmin, month, year]);
+
+  const fetchAuxData = async () => {
+    try {
+      const { data: prodData } = await supabase.from('produtos_vale').select('*').order('nome');
+      if (prodData) setProdutos(prodData);
+
+      const { data: profData } = await supabase.from('profiles').select('*').order('name');
+      if (profData) setProfiles(profData);
+    } catch (err) {
+      console.error('Erro ao buscar dados auxiliares:', err);
+    }
+  };
 
   const fetchVales = async () => {
     try {
@@ -91,6 +121,120 @@ const AnaliseVales = () => {
     return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
+  // --- CRUD LÓGICA ---
+
+  const openModal = (vale: any = null) => {
+    if (vale) {
+      setEditId(vale.id);
+      setFormNome(vale.Nome || '');
+      setFormUnidade(vale.Unidade || '');
+      setFormItem(vale.Item || '');
+      setFormValor(vale.valor !== null ? vale.valor.toString() : '');
+      
+      if (vale.created_at) {
+        const d = new Date(vale.created_at);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const h = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        setFormDate(`${y}-${m}-${day}T${h}:${min}`);
+      } else {
+        setFormDate('');
+      }
+    } else {
+      setEditId(null);
+      setFormNome('');
+      setFormUnidade('');
+      setFormItem('');
+      setFormValor('');
+      
+      const d = new Date();
+      d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+      setFormDate(d.toISOString().slice(0,16));
+    }
+    setIsModalOpen(true);
+  };
+
+  const handleItemChange = (selectedItemName: string) => {
+    setFormItem(selectedItemName);
+    const prod = produtos.find(p => p.nome === selectedItemName);
+    if (prod) {
+      setFormValor(prod.valor.toString());
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formNome || !formUnidade || !formItem || !formValor || !formDate) {
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const valorNumerico = parseFloat(formValor.replace(',', '.'));
+      if (isNaN(valorNumerico)) throw new Error("Valor inválido");
+
+      const dateObj = new Date(formDate);
+
+      const payload = {
+        Nome: formNome,
+        Unidade: formUnidade,
+        Item: formItem,
+        valor: valorNumerico,
+        created_at: dateObj.toISOString()
+      };
+
+      if (editId) {
+        const { error } = await supabase.from('Vales').update(payload).eq('id', editId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('Vales').insert([payload]);
+        if (error) throw error;
+      }
+
+      setIsModalOpen(false);
+      
+      // Mudar os filtros para a data do lançamento que acabou de ser salvo se precisar
+      const insertedMonth = dateObj.getMonth() + 1;
+      const insertedYear = dateObj.getFullYear();
+      
+      if (month !== insertedMonth || year !== insertedYear) {
+        setMonth(insertedMonth);
+        setYear(insertedYear);
+      } else {
+        fetchVales();
+      }
+
+    } catch (err: any) {
+      console.error('Erro ao salvar vale:', err);
+      alert(err.message || 'Erro ao salvar lançamento.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    setConfirmModal({
+      isOpen: true,
+      message: "Tem certeza que deseja excluir este lançamento permanentemente?",
+      onConfirm: async () => {
+        setConfirmModal({ isOpen: false, message: '', onConfirm: () => {} });
+        try {
+          setLoading(true);
+          const { error } = await supabase.from('Vales').delete().eq('id', id);
+          if (error) throw error;
+          fetchVales();
+        } catch (err) {
+          console.error("Erro ao excluir", err);
+          alert("Erro ao excluir o lançamento.");
+          setLoading(false);
+        }
+      }
+    });
+  };
+
   if (!isAdmin && !loading) {
     return (
       <div className="frequencia-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
@@ -104,9 +248,9 @@ const AnaliseVales = () => {
     );
   }
 
-  // Extract unique lists for filters
-  const uniqueEmployees = Array.from(new Set(vales.map(v => v.Nome))).filter(Boolean).sort();
-  const uniqueUnidades = Array.from(new Set(vales.map(v => v.Unidade))).filter(Boolean).sort();
+  // Extract unique lists for filters based on what is in the DB
+  const uniqueEmployees = Array.from(new Set([...profiles.map(p => p.name.split(" ")[0]), ...vales.map(v => v.Nome)])).filter(Boolean).sort();
+  const uniqueUnidades = Array.from(new Set([...unidadesList, ...vales.map(v => v.Unidade)])).filter(Boolean).sort();
 
   // Apply frontend filters
   const filteredVales = vales.filter(v => {
@@ -127,14 +271,21 @@ const AnaliseVales = () => {
         <div className="frequencia-header">
           <div className="frequencia-title-group">
             <h1>Análise de Vales</h1>
-            <p>Acompanhe os vales lançados pelos funcionários.</p>
+            <p>Acompanhe e gerencie os vales lançados pelos funcionários.</p>
           </div>
           
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", backgroundColor: "#fff", padding: "12px 24px", borderRadius: "8px", border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
-            <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Filtrado</span>
-            <span style={{ fontSize: "2.4rem", color: "var(--primary-color)", fontWeight: 800 }}>
-              R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
+          <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", backgroundColor: "#fff", padding: "12px 24px", borderRadius: "8px", border: "1px solid #e2e8f0", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
+              <span style={{ fontSize: "1.2rem", color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px" }}>Total Filtrado</span>
+              <span style={{ fontSize: "2.4rem", color: "var(--primary-color)", fontWeight: 800 }}>
+                R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </span>
+            </div>
+            
+            <button className="primary-btn" onClick={() => openModal()} style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem" }}>
+              <Icons.BsPlusLg style={{ marginRight: '8px' }} />
+              Lançar Vale
+            </button>
           </div>
         </div>
 
@@ -218,14 +369,15 @@ const AnaliseVales = () => {
             </div>
           ) : (
             <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
-              <table className="freq-table" style={{ minWidth: "800px" }}>
+              <table className="freq-table" style={{ minWidth: "900px" }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: "left", width: "180px" }}>Data do Lançamento</th>
                     <th style={{ textAlign: "left", width: "200px" }}>Funcionário</th>
                     <th style={{ textAlign: "left", width: "150px" }}>Unidade</th>
                     <th style={{ textAlign: "left" }}>Produto</th>
-                    <th style={{ textAlign: "right", width: "150px" }}>Valor (R$)</th>
+                    <th style={{ textAlign: "right", width: "130px" }}>Valor (R$)</th>
+                    <th style={{ textAlign: "center", width: "100px" }}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -242,6 +394,24 @@ const AnaliseVales = () => {
                       <td style={{ textAlign: "right", color: "var(--primary-color)", fontWeight: "bold", fontSize: "1.4rem" }}>
                         R$ {Number(vale.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </td>
+                      <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center" }}>
+                        <button
+                          onClick={() => openModal(vale)}
+                          className="delete-record-btn"
+                          title="Editar Lançamento"
+                          style={{ margin: 0, color: "#3b82f6" }}
+                        >
+                          <Icons.BsPencil />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(vale.id)}
+                          className="delete-record-btn"
+                          title="Excluir Lançamento"
+                          style={{ margin: 0 }}
+                        >
+                          <Icons.BsTrash />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -250,6 +420,146 @@ const AnaliseVales = () => {
           )}
         </div>
       </div>
+
+      {/* Modal de Criação / Edição */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: "600px", maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>
+                {editId ? "Editar Lançamento de Vale" : "Novo Lançamento de Vale"}
+              </h2>
+              <button onClick={() => setIsModalOpen(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-muted)" }}>
+                <Icons.BsX />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <div style={{ display: "flex", gap: "16px", flexDirection: "column" }}>
+                  
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Data e Hora *</label>
+                    <input
+                      type="datetime-local"
+                      required
+                      className="frequencia-select"
+                      value={formDate}
+                      onChange={(e) => setFormDate(e.target.value)}
+                      style={{ background: "#fff", width: "100%" }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Funcionário *</label>
+                    <select
+                      required
+                      className="frequencia-select"
+                      value={formNome}
+                      onChange={(e) => setFormNome(e.target.value)}
+                      style={{ background: "#fff", width: "100%" }}
+                    >
+                      <option value="" disabled>Selecione um funcionário</option>
+                      {uniqueEmployees.map(emp => (
+                        <option key={emp} value={emp}>{emp}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Unidade *</label>
+                    <select
+                      required
+                      className="frequencia-select"
+                      value={formUnidade}
+                      onChange={(e) => setFormUnidade(e.target.value)}
+                      style={{ background: "#fff", width: "100%" }}
+                    >
+                      <option value="" disabled>Selecione uma unidade</option>
+                      {uniqueUnidades.map(u => (
+                        <option key={u} value={u}>{u}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Produto *</label>
+                    <select
+                      required
+                      className="frequencia-select"
+                      value={formItem}
+                      onChange={(e) => handleItemChange(e.target.value)}
+                      style={{ background: "#fff", width: "100%" }}
+                    >
+                      <option value="" disabled>Selecione um produto</option>
+                      {produtos.map(p => (
+                        <option key={p.id} value={p.nome}>{p.nome}</option>
+                      ))}
+                      {/* Caso seja um item antigo que não está mais na lista de produtos */}
+                      {formItem && !produtos.find(p => p.nome === formItem) && (
+                        <option value={formItem}>{formItem} (Antigo)</option>
+                      )}
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Valor do Desconto (R$) *</label>
+                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                      <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.3rem" }}>R$</span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        required
+                        className="frequencia-select"
+                        placeholder="0,00"
+                        value={formValor}
+                        onChange={(e) => setFormValor(e.target.value)}
+                        style={{ paddingLeft: "36px", background: "#fff", width: "100%" }}
+                      />
+                    </div>
+                    <span style={{ fontSize: "1.1rem", color: "var(--text-muted)", marginTop: "4px", display: "block" }}>Pode ser alterado manualmente se necessário.</span>
+                  </div>
+
+                </div>
+              </div>
+
+              <div className="modal-actions" style={{ marginTop: "8px", display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)} disabled={submitting}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={submitting} className="primary-btn">
+                  {submitting ? "Salvando..." : "Salvar Lançamento"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Confirmação de Exclusão */}
+      {confirmModal.isOpen && (
+        <div className="modal-overlay" style={{ zIndex: 9999 }}>
+          <div className="modal-content" style={{ maxWidth: "400px", textAlign: "center", padding: "30px" }}>
+            <h3 style={{ fontSize: "1.8rem", color: "var(--secondary-color)", margin: "0 0 16px 0" }}>Atenção</h3>
+            <p style={{ fontSize: "1.4rem", color: "var(--text-muted)", margin: "0 0 24px 0" }}>{confirmModal.message}</p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button 
+                onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} })}
+                style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", backgroundColor: "#fff", color: "#475569", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmModal.onConfirm}
+                style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", backgroundColor: "var(--primary-color)", color: "#fff", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
