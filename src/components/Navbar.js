@@ -90,6 +90,7 @@ const MENU_CONFIG = [
       { title: "Cadastro de Fornecedores", path: "/cadastro-fornecedores" },
       { title: "Cadastro de Insumos", path: "/cadastro-insumos" },
       { title: "Cadastro de Produtos", path: "/cadastro-produtos" },
+      { title: "Cadastro Produtos Vale", path: "/produtos-vale" },
       { title: "Configuração de Estoque", path: "/configuracao-estoque" },
       { title: "Logs", path: "/logs" },
     ]
