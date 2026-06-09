@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import * as Icons from "react-icons/bs";
 import { NavLink } from "react-router-dom";
 import "../css/Navbar.css";
@@ -6,39 +6,16 @@ import { supabase } from "../supabaseClient";
 import { useAuth } from "../auth/AuthContext";
 
 const navItems = [
-  { to: "/", icon: Icons.BsEscape, label: "Manual dos Produtos" },
+  { to: "/", icon: Icons.BsHouseDoor, label: "Início" },
   { to: "/regras", icon: Icons.BsJournalCheck, label: "Regras da Loja" },
-  // { to: "/regulamento-interno", icon: Icons.BsFileEarmarkText, label: "Regulamento Interno" },
-  // { to: "/manual", icon: Icons.BsJournalBookmarkFill, label: "Manual" },
-  //{ to: "/vales", icon: Icons.BsEmojiSmile, label: "Vales" },
-  //{ to: "/checklist-abertura", icon: Icons.BsArrowBarRight, label: "Checklist Abertura" },
-  //{ to: "/checklist-fechamento", icon: Icons.BsArrowBarLeft, label: "Checklist Fechamento" },
-  //{ to: "/voucher", icon: Icons.BsTicket, label: "Voucher" },
 ];
 
 function NavBar() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
 
-  const closeSidebar = () => setSidebarOpen(false);
-
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === "Escape") closeSidebar();
-    };
-    if (sidebarOpen) {
-      document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
-    }
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "";
-    };
-  }, [sidebarOpen]);
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    setSidebarOpen(false);
   };
 
   if (!user) {
@@ -46,71 +23,48 @@ function NavBar() {
   }
 
   return (
-    <>
-      <header className="nav-bar">
-        <button
-          type="button"
-          className="nav-menu-toggle"
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
-          aria-expanded={sidebarOpen}
-        >
-          <Icons.BsList />
-        </button>
-        <span className="nav-bar-title">Carmella Gelateria</span>
-        <div className="nav-user">
-          <span className="nav-user-icon">
-            <Icons.BsPersonCircle />
-          </span>
-          <span className="nav-user-email">
-            {user?.email || user?.user_metadata?.name || "Usuário"}
-          </span>
-        </div>
-      </header>
-
-      <div
-        className={`nav-overlay ${sidebarOpen ? "open" : ""}`}
-        onClick={closeSidebar}
-        role="presentation"
-      />
-
-      <aside className={`nav-sidebar ${sidebarOpen ? "open" : ""}`}>
-        <div className="nav-sidebar-header">
-          <h2>Menu</h2>
-        </div>
-        <ul className="nav-sidebar-list">
+    <div className={`navigation ${sidebarOpen ? "open" : ""}`}>
+      <div 
+        className="menuToggle" 
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
+      ></div>
+      <div className="menu-container">
+        <ul className="nav-list">
           {navItems.map(({ to, icon: Icon, label }) => (
-            <li key={to}>
+            <li key={to} className="nav-item">
               <NavLink
                 to={to}
-                onClick={closeSidebar}
-                className={({ isActive }) => (isActive ? "active" : "")}
+                className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
                 end={to === "/"}
               >
-                <span className="nav-icon">
+                <span className="icon">
                   <Icon />
                 </span>
-                <span className="nav-text">{label}</span>
+                <span className="text">
+                  <span className="text-container"><span>{label}</span></span>
+                </span>
               </NavLink>
             </li>
           ))}
-          <li>
+          
+          <li className="nav-item">
             <button
               type="button"
-              className="nav-logout-button"
+              className="nav-link logout-btn"
               onClick={handleSignOut}
             >
-              <span className="nav-icon">
+              <span className="icon">
                 <Icons.BsBoxArrowRight />
               </span>
-              <span className="nav-text">Sair</span>
+              <span className="text">
+                <span className="text-container"><span>Sair</span></span>
+              </span>
             </button>
           </li>
         </ul>
-      </aside>
-
-      <div className="nav-spacer" />
-    </>
+      </div>
+    </div>
   );
 }
 
