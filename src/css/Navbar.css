@@ -241,3 +241,57 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* Mobile Toggle Button */
+.mobile-menu-toggle {
+  display: none;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #fff;
+  border: 1px solid #e8e0d0;
+  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  z-index: 998;
+  font-size: 1.5rem;
+  color: #5a432c;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
+}
+
+/* Sidebar overlay */
+.nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  .nav-overlay.open {
+    display: block;
+    opacity: 1;
+  }
+  
+  .navigation {
+    transform: translateX(-100%);
+    width: 280px;
+    border-right: none;
+    transition: transform 0.3s ease;
+  }
+  
+  .navigation.open {
+    transform: translateX(0);
+    width: 280px;
+  }
+}

@@ -23,48 +23,65 @@ function NavBar() {
   }
 
   return (
-    <div className={`navigation ${sidebarOpen ? "open" : ""}`}>
+    <>
+      <button 
+        className="mobile-menu-toggle" 
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Abrir menu"
+      >
+        <Icons.BsList />
+      </button>
+
       <div 
-        className="menuToggle" 
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
+        className={`nav-overlay ${sidebarOpen ? "open" : ""}`} 
+        onClick={() => setSidebarOpen(false)}
+        role="presentation"
       ></div>
-      <div className="menu-container">
-        <ul className="nav-list">
-          {navItems.map(({ to, icon: Icon, label }) => (
-            <li key={to} className="nav-item">
-              <NavLink
-                to={to}
-                className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
-                end={to === "/"}
+
+      <div className={`navigation ${sidebarOpen ? "open" : ""}`}>
+        <div 
+          className="menuToggle" 
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          aria-label={sidebarOpen ? "Fechar menu" : "Abrir menu"}
+        ></div>
+        <div className="menu-container">
+          <ul className="nav-list">
+            {navItems.map(({ to, icon: Icon, label }) => (
+              <li key={to} className="nav-item">
+                <NavLink
+                  to={to}
+                  onClick={() => setSidebarOpen(false)}
+                  className={({ isActive }) => (isActive ? "nav-link active" : "nav-link")}
+                  end={to === "/"}
+                >
+                  <span className="icon">
+                    <Icon />
+                  </span>
+                  <span className="text">
+                    <span className="text-container"><span>{label}</span></span>
+                  </span>
+                </NavLink>
+              </li>
+            ))}
+            
+            <li className="nav-item">
+              <button
+                type="button"
+                className="nav-link logout-btn"
+                onClick={handleSignOut}
               >
                 <span className="icon">
-                  <Icon />
+                  <Icons.BsBoxArrowRight />
                 </span>
                 <span className="text">
-                  <span className="text-container"><span>{label}</span></span>
+                  <span className="text-container"><span>Sair</span></span>
                 </span>
-              </NavLink>
+              </button>
             </li>
-          ))}
-          
-          <li className="nav-item">
-            <button
-              type="button"
-              className="nav-link logout-btn"
-              onClick={handleSignOut}
-            >
-              <span className="icon">
-                <Icons.BsBoxArrowRight />
-              </span>
-              <span className="text">
-                <span className="text-container"><span>Sair</span></span>
-              </span>
-            </button>
-          </li>
-        </ul>
+          </ul>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

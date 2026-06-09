@@ -98,6 +98,28 @@
   box-shadow: 0 4px 10px rgba(90, 67, 44, 0.2);
 }
 
+.desktop-tabs {
+  display: flex;
+}
+.mobile-tabs {
+  display: none;
+}
+
+.filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.tab-btn.full-width {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .category-section {
   margin-bottom: 3rem;
 }
@@ -277,12 +299,51 @@
 
 /* Responsive */
 @media (max-width: 768px) {
-  .dashboard-header {
-    padding: 1rem;
+  .desktop-tabs {
+    display: none;
+  }
+  .mobile-tabs {
+    display: flex;
+    justify-content: center;
   }
   
+  .dashboard-header {
+    padding: 1rem 1rem 1rem 4.5rem;
+  }
+  
+  .dashboard-main {
+    padding: 0.5rem 1rem 3rem;
+  }
+
   .products-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .tab-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.95rem;
+  }
+
+  .product-card-header {
+    padding: 1rem 1.2rem;
+  }
+
+  .card-header-titles h3 {
+    font-size: 1.05rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    max-height: 85vh;
+  }
+  
+  .modal-header h2 {
+    font-size: 1.4rem;
+  }
+
+  .login-card {
+    padding: 2rem 1.5rem;
   }
 }
 
@@ -500,7 +561,7 @@
 /* Mobile-friendly styles */
 @media (max-width: 768px) {
   .manual-page {
-    padding: 1rem 0.875rem 3rem;
+    padding: 4.5rem 0.875rem 3rem;
     overflow-x: hidden;
   }
 
@@ -576,7 +637,7 @@
 
 @media (max-width: 480px) {
   .manual-page {
-    padding: 0.75rem 0.625rem 2.5rem;
+    padding: 4.5rem 0.625rem 2.5rem;
     padding-left: max(0.625rem, env(safe-area-inset-left));
     padding-right: max(0.625rem, env(safe-area-inset-right));
     padding-bottom: max(2.5rem, env(safe-area-inset-bottom));

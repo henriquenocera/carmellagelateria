@@ -5,7 +5,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #faf7f2;
   color: #333;
+}
+
+.layout-with-sidebar {
   padding-left: 75px;
+}
+
+@media (max-width: 768px) {
+  .layout-with-sidebar {
+    padding-left: 0;
+  }
 }
 
 * {

@@ -7,6 +7,7 @@ import {
   Route,
   Outlet,
   createRoutesFromElements,
+  useLocation,
 } from "react-router-dom";
 import Home from "./routes/Home";
 import Regras from "./routes/Regras";
@@ -16,14 +17,23 @@ import Login from "./routes/Login";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 const AppLayout = () => {
   const { user } = useAuth();
 
   return (
-    <>
+    <div className={user ? "layout-with-sidebar" : ""}>
+      <ScrollToTop />
       {user && <NavBar />}
       <Outlet />
-    </>
+    </div>
   );
 };
 

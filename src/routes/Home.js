@@ -7,6 +7,7 @@ function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // Filter products based on search query and active category
   const filteredCategories = useMemo(() => {
@@ -54,7 +55,7 @@ function Home() {
         </header>
 
         <div className="dashboard-main">
-          <div className="category-tabs">
+          <div className="category-tabs desktop-tabs">
             <button 
               className={`tab-btn ${activeCategory === "all" ? "active" : ""}`}
               onClick={() => setActiveCategory("all")}
@@ -71,6 +72,49 @@ function Home() {
               </button>
             ))}
           </div>
+
+          <div className="category-tabs mobile-tabs">
+            <button 
+              className={`tab-btn ${activeCategory === "all" ? "active" : ""}`}
+              onClick={() => setActiveCategory("all")}
+            >
+              Todos
+            </button>
+            <button 
+              className={`tab-btn ${activeCategory !== "all" ? "active" : ""}`}
+              onClick={() => setFilterOpen(true)}
+            >
+              {activeCategory === "all" ? "Filtrar" : manualData.find(c => c.id === activeCategory)?.title || "Filtrar"} <span>▼</span>
+            </button>
+          </div>
+
+          {filterOpen && (
+            <div className="modal-overlay" onClick={() => setFilterOpen(false)}>
+              <div className="modal-content filter-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="modal-close" onClick={() => setFilterOpen(false)}>✕</button>
+                <div className="modal-header">
+                  <h2>Filtrar</h2>
+                </div>
+                <div className="modal-body filter-list">
+                  <button 
+                    className={`tab-btn full-width ${activeCategory === "all" ? "active" : ""}`}
+                    onClick={() => { setActiveCategory("all"); setFilterOpen(false); }}
+                  >
+                    Todos
+                  </button>
+                  {manualData.map(cat => (
+                    <button 
+                      key={cat.id}
+                      className={`tab-btn full-width ${activeCategory === cat.id ? "active" : ""}`}
+                      onClick={() => { setActiveCategory(cat.id); setFilterOpen(false); }}
+                    >
+                      {cat.icon} {cat.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="products-container">
             {filteredCategories.length === 0 ? (
