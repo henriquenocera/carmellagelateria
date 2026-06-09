@@ -1,736 +1,161 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import "../css/Home.css";
 import { Helmet } from "react-helmet";
-
-const manualData = [
-  {
-    id: "medidas",
-    title: "Gelatos",
-    icon: "🍦",
-    products: [
-      {
-        id: 1,
-        name: "Porção Espátula",
-        portions: [
-          {
-            size: "Porção padrão da espátula",
-            grams: 70,
-            description: "porção padrão",
-            // container: '- Copo pequeno 80ml - Casquinha Pequena',
-            //finishedImage: "/images/manual/pequeno.png",
-            //preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            //steps: [
-            //  "Pegar o copo pequeno e encher até o topo (~90gr), depois completar com mais meia porção (~30gr)",
-            //  "Preencher a casquina pequena com sorvete (~30gr), depois pegar 1 porção e meia (~90gr) e completar por cima",
-
-            //],
-          },
-          
-        ],
-      },
-      {
-        id: 2,
-        name: "Gelatos",
-        portions: [
-          {
-            size: "Pequeno",
-            grams: 120,
-            description: "1 Sabor",
-            container: '- Copo pequeno 80ml - Casquinha Pequena',
-            finishedImage: "/images/manual/pequeno.png",
-            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "Pegar o copo pequeno e encher até o topo (~90gr), depois completar com mais meia porção (~30gr)",
-              "Preencher a casquina pequena com sorvete (~20gr), depois pegar 1 porção e meia (~100gr) e completar por cima",
-
-            ],
-          },
-          {
-            size: "Médio",
-            grams: 140,
-            description: "até 2 sabores",
-            container: "- Copo pequeno 80ml - Cascão Grande",
-            finishedImage: "/images/manual/copo-medio.jpg",
-            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "Pegar o copo pequeno e preencher com 2 porções padrão de 70gr cada, uma de cada lado do potinho para manter os sabores um ao lado do outro",
-              "Pegar o cascão e preencher com 2 porções padrão de 70gr cada, um por baixo e outra por cima",
-            
-            ],
-          },
-          {
-            size: "Grande",
-            grams: 210,
-            description: "até 3 sabores",
-            container: "- Copo grande 120ml - Cascão Grande",
-            finishedImage: "/images/manual/copo-grande.jpg",
-            preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-
-            steps: [
-              "Pegar o copo grande e preencher com 3 porções padrão de 70gr cada, uma de cada lado do potinho divido em 3",
-              "Pegar o cascão e preencher com 3 porções padrão de 70gr cada, um por baixo e as outras 2 por cima lado a lado",
-
-          
-            ],
-          },
-          {
-            size: "Pote 480ml",
-            grams: 400,
-            description: "até 2 sabores",
-            container: "Pote 480ml",
-            finishedImage: "/images/manual/copo-grande.jpg",
-            steps: [
-              "Pegar o pote de 480ml e servir uma porção de cada lado",
-              "Entregar ao cliente dentro da Sacola"
-
-            ],
-          },
-          {
-            size: "Sorvete do Dog",
-            description: "Sorvete de Banana e Beterraba",
-            container: "Copo de 100ml descartável",
-            finishedImage: "/images/manual/copo-grande.jpg",
-            steps: [
-              "Descongelar o balde de 1hr a 2hr",
-              "Porcionar uma bolinha com o boleador mecânico",
-              "Cobrir com um filme plástico cada porção",
-              "Guardar as porções no Freezer",
-
-            ],
-          },
-        ],
-      },
-      
-    ],
-  },
-  {
-    id: "waffle",
-    title: "Waffle & Brownie",
-    icon: "🧇",
-    products: [
-      {
-        id: 3,
-        name: "Waffle",
-        portions: [
-          { 
-            size: "Waffle de Lìege", 
-            description: "Waffle belga",
-            container: "Prato de cerâmica (comer no local) - Embalagem de papel (para levar)"
-          },
-
-        ],
-        steps: [
-          "4mins a 180ºC no forninho",
-          "Montagem dos toppings conforme manual impresso na loja",
-        ],
-      },
-      {
-        id: 4,
-        name: "Brownie",
-        portions: [
-          { 
-            size: "Brownie", 
-            description: "Brownie de Chocolate",
-            container: "Prato de cerâmica (comer no local) - Embalagem de alumínio (para levar)"
-          },
-
-        ],
-        steps: [
-          "Desenformar da embalagem de alumínio em um prato de cerâmica",
-          "Aquecer por 45 segundos no microondas",
-          "Servir com uma colher",
-          "Caso tenha uma bola de sorvete para acompanhar, servir a bola de sorvete com o boleador em cima do brownie",
-        ],
-      },
-    ],
-  },
-  {
-    id: "sanduiche",
-    title: "Sanduíches e Quiches",
-    icon: "🥖",
-    products: [
-      {
-        id: 5,
-        name: "Sanduíches Baguete",
-        portions: [
-          { 
-            size: "Sanduíche", 
-            description: "Sanduíches congelados",
-            container: "Prato de cerâmica (comer no local) - Embalagem de papel (para levar)"
-          },
-
-        ],
-        steps: [
-          "Abrir o sanduíche da embalagem plástica e colocar sob uma folha de papel manteiga",
-          "Aquecer por 1min e 30seg à 2min no microondas",
-          "Aquecer por 3min na Air Fryer a 180º",
-          "Cortar o sanduíche ao meio",
-          "Retirar o sanduíche do papel manteiga e empratar no prato de cerâmica ou na embalagem de papel",
-        ],
-      },
-      {
-        id: 6,
-        name: "Quiches",
-        portions: [
-          { 
-            size: "Quiches", 
-            description: "Quiche Congelado",
-            container: "Prato de cerâmica (comer no local) - Embalagem de alumínio (para levar)"
-          },
-
-        ],
-        steps: [
-          "Abrir o quiche da embalagem plástica e colocar sob uma folha de papel manteiga",
-          "Aquecer por 1min e 30seg no microondas",
-          "Aquecer por 3min na Air Fryer a 180º",
-          "Retirar o quiche do papel manteiga e empratar no prato de cerâmica ou na embalagem de papel",
-        ],
-      },
-    ],
-  },
-  {
-    id: "cafe",
-    title: "Cafés",
-    icon: "☕",
-    products: [
-      {
-        id: 7,
-        name: "Cafés",
-        portions: [
-          {
-            size: "Espresso Simples",
-            description: "30ml de espresso",
-            container: '- Copo de papel pequeno 110ml - Xícara de vidro pequeno',
-            // finishedImage: "/images/manual/pequeno.png",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "Extrair 30ml de espresso por 20~30seg",
-
-            ],
-          },
-          { 
-            size: "Espresso Duplo",
-            description: "60ml de espresso",
-            container: '- Copo de papel pequeno 110ml - Xícara de vidro pequeno',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Duplo",
-              "⚠️ Moedor 2 doses",
-              "Extrair 60ml de espresso por 20~30seg",
-
-            ],
-          },
-          {
-            size: "Espresso Lungo",
-            description: "60ml de espresso",
-            container: '- Copo de papel pequeno 110ml - Xícara de vidro pequeno',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "Extrair 60ml de espresso por 40~60seg em uma dose alongada",
-
-            ],
-          },
-          {
-            size: "Americano / Caricoca",
-            description: "30ml de espresso + 30ml de água",
-            container: '- Copo de papel pequeno 110ml - Xícara de vidro pequeno',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "Extrair 30ml de espresso por 20~30seg e completar com 30ml de água quente",
-
-            ],
-          },
-          {
-            size: "Machiato",
-            description: "30ml de espresso + Crema do leite",
-            container: '- Copo de papel pequeno 110ml - Xícara de vidro pequeno',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "⚠️ 100ml de Leite",
-              "⚠️ Pitcher Pequeno",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 100ml de leite no Pitcher Pequeno",
-              "Colocar ~3 colheres de espuma do leite em cima da dose de espresso",
-
-            ],
-          },
-          {
-            size: "Espresso com Leite Pequeno",
-            description: "30ml de espresso + 30ml de leite",
-            container: '- Copo de papel pequeno 110ml - Xícara de vidro pequeno',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "⚠️ 100ml de Leite",
-              "⚠️ Pitcher Pequeno",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 100ml de leite no Pitcher Pequeno",
-              "Colocar 30ml de leite vaporizado dentro da dose de 30ml de espresso para totalizar 60ml total",
-
-            ],
-          },
-          {
-            size: "Espresso com Leite Grande",
-            description: "60ml de espresso + 60ml de leite",
-            container: '- Copo de papel pequeno 110ml - Xícara de vidro Média',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Duplo",
-              "⚠️ Moedor 2 dose",
-              "⚠️ 100ml de Leite",
-              "⚠️ Pitcher Pequeno",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 100ml de leite no Pitcher Pequeno",
-              "Colocar 60ml de leite vaporizado dentro da dose de 60ml de espresso para totalizar 120ml total",
-
-            ],
-          },
-          {
-            size: "Cappuccino Italiano",
-            description: "30ml de espresso + 150ml de leite",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "⚠️ 150ml de Leite",
-              "⚠️ Pitcher Grande",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 150ml de leite no Pitcher Grande",
-              "Adicionar primeiro o leite vaporizado (mais líquido) e em seguida concentrar a espuma no topo da xícara/copo",
-
-            ],
-          },
-          {
-            size: "Cappuccino Brasileiro",
-            description: "Mistura adoçada",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ 30gr de pó de Cacppuccino",
-              "⚠️ 150ml de Leite",
-              "⚠️ Pitcher Grande",
-              "Misturar o leite com o pó dentro do pitcher e fazer a vaporização",
-
-            ],
-          },
-          {
-            size: "Latte",
-            description: "30ml de espresso + 150ml de leite",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "⚠️ 150ml de Leite",
-              "⚠️ Pitcher Grande",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 150ml de leite no Pitcher Grande",
-              "Misturar o leite vaporizado com a crema no Pitcher e adicionar a xicara/copo",
-              
-            ],
-          },
-          {
-            size: "Vanilla Latte",
-            description: "30ml de espresso + 150ml de leite + 20ml de xarope de Baunilha",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "⚠️ 150ml de Leite",
-              "⚠️ 20ml de Xarope de Baunilha",
-              "⚠️ Pitcher Grande",
-              "Adicionar 20ml de xarope na xícara",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 150ml de leite no Pitcher Grande",
-              "Misturar o leite vaporizado com a crema no Pitcher e adicionar a xicara/copo",
-              
-            ],
-          },
-          {
-            size: "Caramel Latte",
-            description: "30ml de espresso + 150ml de leite + 20ml de xarope de Caramelo",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "⚠️ 150ml de Leite",
-              "⚠️ 20ml de Xarope de Caramelo",
-              "⚠️ Pitcher Grande",
-              "Adicionar 20ml de xarope na xícara",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 150ml de leite no Pitcher Grande",
-              "Misturar o leite vaporizado com a crema no Pitcher e adicionar a xicara/copo",
-              
-            ],
-          },
-          {
-            size: "Mocha",
-            description: "30ml de espresso + 150ml de leite + 15gr de cacau em pó",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Porta Filtro Simples",
-              "⚠️ Moedor 1 dose",
-              "⚠️ 150ml de Leite",
-              "⚠️ 15gr de Cacau em pó",
-              "⚠️ Pitcher Grande",
-              "Adicionar 20gr de cacau em pó com água quente na xícara e mecher",
-              "Extrair 30ml de espresso por 20~30seg",
-              "Vaporizar 150ml de leite no Pitcher Grande",
-              "Misturar o leite vaporizado com a crema no Pitcher e adicionar a xicara/copo",
-              
-            ],
-          },
-          {
-            size: "Café Passado",
-            description: "1 dose de café + água quente",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Moedor 1 dose",
-              "⚠️ 200ml de água quente",
-              "Colocar o filtro de papel no coador sobre a xícara e o copo",
-              "Adicionar uma dose do pó de café no filtro de papel",
-              "Adicionar 200ml de água quente e aguardar ~4min",
-              
-            ],
-          },
-          {
-            size: "Café Passado c/ Leite",
-            description: "1 dose de café + água quente + leite",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ Moedor 1 dose",
-              "⚠️ 100ml de água quente",
-              "⚠️ 100ml de leite",
-              "⚠️ Pitcher Pequeno",
-              "Colocar o filtro de papel no coador sobre a xícara e o copo",
-              "Adicionar uma dose do pó de café no filtro de papel",
-              "Adicionar 100ml de água quente e aguardar ~4min",
-              "Vaporizar 100ml de leite",
-              "Misturar o leite com a crema e adicionar ao café passado",
-              
-            ],
-          },
-          
-          {
-            size: "Chocolate Quente",
-            description: "Chocolate Cremoso",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ 30gr de pó de Chocolate",
-              "⚠️ 150ml de Leite",
-              "⚠️ Pitcher Grande",
-              "Misturar o leite com o pó dentro do pitcher e fazer a vaporização",
-
-            ],
-          },
-          {
-            size: "Chá Quente",
-            description: "Chá Quente (Sachê)",
-            container: '- Copo de papel Grande 270ml - Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ 1 sachê de chá",
-              "⚠️ 200ml de água",
-              "Adicionar o sachê e água quente na xícara / copo e aguardar ~3min",
-
-            ],
-          },
-          {
-            size: "Affogato",
-            description: "1 dose de espresso + 1 bola de Gelato",
-            container: 'Xícara de Cerâmica Grande',
-            // finishedImage: "/images/manual/copo-medio.jpg",
-            // preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
-            steps: [
-              "⚠️ 70gr de Gelato (1 bola) servido com o boleador",
-              "⚠️ 1 dose de espresso (30ml)",
-              "Adicionar a bola de Gelato na xícara e tirar uma dose de espresso em cima dela",
-
-            ],
-          },
-        ],
-      },
-    ],
-  },
-  
-  
-];
+import { manualData } from "../data/manualData";
 
 function Home() {
-  const [expandedProduct, setExpandedProduct] = useState(null);
-  const [expandedPortion, setExpandedPortion] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const toggleProduct = (categoryId, productId) => {
-    const key = `${categoryId}-${productId}`;
+  // Filter products based on search query and active category
+  const filteredCategories = useMemo(() => {
+    return manualData.map(category => {
+      if (activeCategory !== "all" && category.id !== activeCategory) {
+        return null;
+      }
+      
+      const filteredProducts = category.products.map(product => {
+        const filteredPortions = product.portions.filter(portion => {
+          // The title of the card is portion.size
+          return portion.size.toLowerCase().includes(searchQuery.toLowerCase());
+        });
 
-    if (expandedProduct === key) {
-      // Fechando o produto atual
-      setExpandedProduct(null);
-      setExpandedPortion(null);
-      return;
-    }
+        if (filteredPortions.length === 0) return null;
 
-    // Abrindo um novo produto
-    setExpandedProduct(key);
+        return { ...product, portions: filteredPortions };
+      }).filter(Boolean);
 
-    // Para categorias com apenas 1 item (ex.: Waffle, Brownie, Sanduíches, Quiches),
-    // já abre automaticamente a única porção.
-    const category = manualData.find((c) => c.id === categoryId);
-    const product = category?.products.find((p) => p.id === productId);
+      if (filteredProducts.length === 0) return null;
 
-    if (product && product.portions.length === 1) {
-      const size = product.portions[0].size;
-      setExpandedPortion(`${categoryId}-${productId}-${size}`);
-    } else {
-      setExpandedPortion(null);
-    }
-  };
-
-  const togglePortion = (categoryId, productId, size) => {
-    const key = `${categoryId}-${productId}-${size}`;
-    setExpandedPortion((prev) => (prev === key ? null : key));
-  };
+      return { ...category, products: filteredProducts };
+    }).filter(Boolean);
+  }, [searchQuery, activeCategory]);
 
   return (
     <>
       <Helmet>
-        <title>Manual de Produtos</title>
+        <title>Manual - Carmella Gelateria</title>
       </Helmet>
-      <div className="manual-page">
-        <div className="manual-header">
-          <h1>Manual de Produtos</h1>
-          <p>Consulte como montar cada produto</p>
-        </div>
+      
+      <div className="manual-dashboard">
+        <header className="dashboard-header">
+          <div className="header-content">
+            <div className="search-bar">
+              <span className="search-icon">🔍</span>
+              <input 
+                type="text" 
+                placeholder="Pesquisar por produto..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </div>
+        </header>
 
-        <div className="manual-content">
-          {manualData.map((category) => (
-            <section key={category.id} className="manual-category">
-              <h2 className="manual-category-title">
-                <span className="manual-category-icon">{category.icon}</span>
-                {category.title}
-              </h2>
+        <div className="dashboard-main">
+          <div className="category-tabs">
+            <button 
+              className={`tab-btn ${activeCategory === "all" ? "active" : ""}`}
+              onClick={() => setActiveCategory("all")}
+            >
+              Todos
+            </button>
+            {manualData.map(cat => (
+              <button 
+                key={cat.id}
+                className={`tab-btn ${activeCategory === cat.id ? "active" : ""}`}
+                onClick={() => setActiveCategory(cat.id)}
+              >
+                {cat.icon} {cat.title}
+              </button>
+            ))}
+          </div>
 
-              {category.products.map((product) => {
-                const key = `${category.id}-${product.id}`;
-                const isFlatCategory = false;
-                const isExpanded = expandedProduct === key;
-
-                const renderPortions = () => (
-                  <div className="manual-product-body">
-                    <div className="manual-portion-section">
-                      {isFlatCategory && (
-                        <h3 className="manual-product-flat-title">
-                          {product.name}
-                        </h3>
-                      )}
-                      <div className="manual-portions-list">
-                        {product.portions.map((p) => {
-                          const portionKey = `${category.id}-${product.id}-${p.size}`;
-                          const hasContent =
-                            p.steps?.length ||
-                            product.steps?.length ||
-                            p.finishedImage ||
-                            product.finishedImage ||
-                            p.preparationMedia ||
-                            product.preparationMedia;
-                          const isPortionExpanded =
-                            expandedPortion === portionKey;
-                          const steps = p.steps || product.steps || [];
-
-                          return (
-                            <div
-                              key={p.size}
-                              className="manual-portion-wrapper"
-                            >
-                              <button
-                                type="button"
-                                className={`manual-portion-card ${
-                                  hasContent ? "clickable" : ""
-                                } ${isPortionExpanded ? "expanded" : ""}`}
-                                onClick={() =>
-                                  hasContent &&
-                                  togglePortion(category.id, product.id, p.size)
-                                }
-                                disabled={!hasContent}
-                              >
-                                <span className="manual-portion-main">
-                                  <span className="manual-portion-name">
-                                    {p.size}
-                                  </span>
-                                  {p.grams ? (
-                                    <span className="manual-portion-meta">
-                                      {p.grams}gr · {p.description || "-"}
-                                    </span>
-                                  ) : (
-                                    <span className="manual-portion-meta">
-                                      {p.description || "-"}
-                                    </span>
-                                  )}
-                                </span>
-                                {hasContent && (
-                                  <span
-                                    className="manual-portion-arrow"
-                                    aria-hidden="true"
-                                  >
-                                    {isPortionExpanded ? "▲" : "▼"}
+          <div className="products-container">
+            {filteredCategories.length === 0 ? (
+              <div className="no-results">
+                Nenhum produto encontrado para "{searchQuery}"
+              </div>
+            ) : (
+              filteredCategories.map(category => (
+                <div key={category.id} className="category-section">
+                  <h2 className="category-heading">{category.icon} {category.title}</h2>
+                  <div className="products-grid">
+                    {category.products.flatMap(product => 
+                      product.portions.map((portion, idx) => {
+                        const cardId = `${product.id}-${idx}`;
+                        const steps = portion.steps || product.steps || [];
+                        const container = portion.container || product.container;
+                        
+                        return (
+                          <div 
+                            key={cardId} 
+                            className="product-card" 
+                            onClick={() => setSelectedProduct({ portion, product, steps, container })}
+                          >
+                            <div className="product-card-header">
+                              <div className="card-header-titles">
+                                <h3>{portion.size}</h3>
+                                {(portion.grams || portion.description) && (
+                                  <span className="portion-meta">
+                                    {portion.grams && `${portion.grams}g`}
+                                    {portion.grams && portion.description && ' • '}
+                                    {portion.description}
                                   </span>
                                 )}
-                              </button>
-                              {isPortionExpanded &&
-                                (steps.length > 0 ||
-                                  p.finishedImage ||
-                                  product.finishedImage ||
-                                  p.preparationMedia ||
-                                  product.preparationMedia) && (
-                                  <div className="manual-portion-instructions">
-                                    {(p.finishedImage ||
-                                      product.finishedImage) && (
-                                      <div className="manual-media-section">
-                                        <h4>Produto final</h4>
-                                        <img
-                                          src={
-                                            p.finishedImage ||
-                                            product.finishedImage
-                                          }
-                                          alt={`${p.size} - produto final`}
-                                          className="manual-finished-image"
-                                        />
-                                      </div>
-                                    )}
-                                    {(p.container || product.container) &&
-                                      (() => {
-                                        const raw =
-                                          p.container || product.container;
-                                        const items = Array.isArray(raw)
-                                          ? raw
-                                          : String(raw)
-                                              .split(/\s*-\s*/)
-                                              .map((s) => s.trim())
-                                              .filter(Boolean);
-                                        return (
-                                          <div className="manual-media-section manual-container-section">
-                                            <h4>Recipiente</h4>
-                                            <ul className="manual-container-list">
-                                              {items.map((item, i) => (
-                                                <li key={i}>{item}</li>
-                                              ))}
-                                            </ul>
-                                          </div>
-                                        );
-                                      })()}
-                                    {steps.length > 0 && (
-                                      <>
-                                        <h4>Como montar</h4>
-                                        <ol className="manual-steps">
-                                          {steps.map((step, i) => (
-                                            <li key={i}>{step}</li>
-                                          ))}
-                                        </ol>
-                                      </>
-                                    )}
-                                    {(p.preparationMedia ||
-                                      product.preparationMedia) && (
-                                      <div className="manual-media-section">
-                                        <h4>Preparação</h4>
-                                        {(p.preparationMedia ||
-                                        product.preparationMedia
-                                      ).type === "video" ? (
-                                          <video
-                                            className="manual-prep-media"
-                                            controls
-                                            playsInline
-                                            muted
-                                            loop
-                                            src={
-                                              (p.preparationMedia ||
-                                                product.preparationMedia).url
-                                            }
-                                          >
-                                            Seu navegador não suporta vídeo.
-                                          </video>
-                                        ) : (
-                                          <img
-                                            src={
-                                              (p.preparationMedia ||
-                                                product.preparationMedia).url
-                                            }
-                                            alt="Preparação"
-                                            className="manual-prep-image"
-                                          />
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
+                              </div>
                             </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                );
-
-                return (
-                  <div
-                    key={product.id}
-                    className={`manual-product ${
-                      isExpanded ? "expanded" : ""
-                    }`}
-                  >
-                    {!isFlatCategory && (
-                      <button
-                        type="button"
-                        className="manual-product-header"
-                        onClick={() => toggleProduct(category.id, product.id)}
-                      >
-                        <span className="manual-product-name">
-                          {product.name}
-                        </span>
-                        <span className="manual-product-arrow">
-                          {isExpanded ? "▲" : "▼"}
-                        </span>
-                      </button>
+                          </div>
+                        )
+                      })
                     )}
-
-                    {isExpanded && renderPortions()}
                   </div>
-                );
-              })}
-            </section>
-          ))}
+                </div>
+              ))
+            )}
+          </div>
         </div>
+
+        {/* Modal for Product Details */}
+        {selectedProduct && (
+          <div className="modal-overlay" onClick={() => setSelectedProduct(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <button className="modal-close" onClick={() => setSelectedProduct(null)}>✕</button>
+              
+              <div className="modal-header">
+                <h2>{selectedProduct.portion.size}</h2>
+                {(selectedProduct.portion.grams || selectedProduct.portion.description) && (
+                  <p className="modal-meta">
+                    {selectedProduct.portion.grams && `${selectedProduct.portion.grams}g`}
+                    {selectedProduct.portion.grams && selectedProduct.portion.description && ' • '}
+                    {selectedProduct.portion.description}
+                  </p>
+                )}
+              </div>
+              
+              <div className="modal-body">
+                {selectedProduct.container && (
+                  <div className="instruction-section">
+                    <h5>Recipiente</h5>
+                    <p>{selectedProduct.container}</p>
+                  </div>
+                )}
+                
+                {selectedProduct.steps.length > 0 && (
+                  <div className="instruction-section">
+                    <h5>Preparo</h5>
+                    <ul className="step-list">
+                      {selectedProduct.steps.map((step, sIdx) => (
+                        <li key={sIdx}>{step}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );
