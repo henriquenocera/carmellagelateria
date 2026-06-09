@@ -23,7 +23,7 @@ export const manualData = [
             size: "Pequeno",
             grams: 120,
             description: "1 Sabor",
-            container: "- Copo pequeno 80ml - Casquinha Pequena",
+            container: "- Copo pequeno 80ml \n- Casquinha Pequena",
             finishedImage: "/images/manual/pequeno.png",
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
@@ -35,7 +35,7 @@ export const manualData = [
             size: "Médio",
             grams: 140,
             description: "até 2 sabores",
-            container: "- Copo pequeno 80ml - Cascão Grande",
+            container: "- Copo pequeno 80ml \n- Cascão Grande",
             finishedImage: "/images/manual/copo-medio.jpg",
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
@@ -47,7 +47,7 @@ export const manualData = [
             size: "Grande",
             grams: 210,
             description: "até 3 sabores",
-            container: "- Copo grande 120ml - Cascão Grande",
+            container: "- Copo grande 120ml \n- Cascão Grande",
             finishedImage: "/images/manual/copo-grande.jpg",
             preparationMedia: { type: "video", url: "/images/manual/servir-sorvete.mp4" },
             steps: [
@@ -94,7 +94,7 @@ export const manualData = [
           {
             size: "Waffle de Lìege",
             description: "Waffle belga",
-            container: "Prato de cerâmica (comer no local) - Embalagem de papel (para levar)",
+            container: "Prato de cerâmica (comer no local) \nEmbalagem de papel (para levar)",
           },
         ],
         steps: [
@@ -109,7 +109,7 @@ export const manualData = [
           {
             size: "Brownie",
             description: "Brownie de Chocolate",
-            container: "Prato de cerâmica (comer no local) - Embalagem de alumínio (para levar)",
+            container: "Prato de cerâmica (comer no local) \nEmbalagem de alumínio (para levar)",
           },
         ],
         steps: [
@@ -117,6 +117,7 @@ export const manualData = [
           "Aquecer por 45 segundos no microondas",
           "Servir com uma colher",
           "Caso tenha uma bola de sorvete para acompanhar, servir a bola de sorvete com o boleador em cima do brownie",
+          "Finalizar com a calda de chocolate",
         ],
       },
     ],
@@ -151,7 +152,7 @@ export const manualData = [
           {
             size: "Quiches",
             description: "Quiche Congelado",
-            container: "Prato de cerâmica (comer no local) - Embalagem de alumínio (para levar)",
+            container: "Prato de cerâmica (comer no local) \nEmbalagem de alumínio (para levar)",
           },
         ],
         steps: [
@@ -175,7 +176,7 @@ export const manualData = [
           {
             size: "Espresso Simples",
             description: "30ml de espresso",
-            container: "- Copo de papel pequeno 110ml - Xícara de vidro pequeno",
+            container: "- Copo de papel pequeno 110ml \n- Xícara de vidro pequeno",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -185,7 +186,7 @@ export const manualData = [
           {
             size: "Espresso Duplo",
             description: "60ml de espresso",
-            container: "- Copo de papel pequeno 110ml - Xícara de vidro pequeno",
+            container: "- Copo de papel pequeno 110ml \n- Xícara de vidro pequeno",
             steps: [
               "⚠️ Porta Filtro Duplo",
               "⚠️ Moedor 2 doses",
@@ -195,7 +196,7 @@ export const manualData = [
           {
             size: "Espresso Lungo",
             description: "60ml de espresso",
-            container: "- Copo de papel pequeno 110ml - Xícara de vidro pequeno",
+            container: "- Copo de papel pequeno 110ml \n- Xícara de vidro pequeno",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -205,7 +206,7 @@ export const manualData = [
           {
             size: "Americano / Caricoca",
             description: "30ml de espresso + 30ml de água",
-            container: "- Copo de papel pequeno 110ml - Xícara de vidro pequeno",
+            container: "- Copo de papel pequeno 110ml \n- Xícara de vidro pequeno",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -215,7 +216,7 @@ export const manualData = [
           {
             size: "Machiato",
             description: "30ml de espresso + Crema do leite",
-            container: "- Copo de papel pequeno 110ml - Xícara de vidro pequeno",
+            container: "- Copo de papel pequeno 110ml \n- Xícara de vidro pequeno",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -229,7 +230,7 @@ export const manualData = [
           {
             size: "Espresso com Leite Pequeno",
             description: "30ml de espresso + 30ml de leite",
-            container: "- Copo de papel pequeno 110ml - Xícara de vidro pequeno",
+            container: "- Copo de papel pequeno 110ml \n- Xícara de vidro pequeno",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -243,7 +244,7 @@ export const manualData = [
           {
             size: "Espresso com Leite Grande",
             description: "60ml de espresso + 60ml de leite",
-            container: "- Copo de papel pequeno 110ml - Xícara de vidro Média",
+            container: "- Copo de papel pequeno 110ml \n- Xícara de vidro Média",
             steps: [
               "⚠️ Porta Filtro Duplo",
               "⚠️ Moedor 2 dose",
@@ -257,7 +258,7 @@ export const manualData = [
           {
             size: "Cappuccino Italiano",
             description: "30ml de espresso + 150ml de leite",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -271,7 +272,7 @@ export const manualData = [
           {
             size: "Cappuccino Brasileiro",
             description: "Mistura adoçada",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ 30gr de pó de Cacppuccino",
               "⚠️ 150ml de Leite",
@@ -282,7 +283,7 @@ export const manualData = [
           {
             size: "Latte",
             description: "30ml de espresso + 150ml de leite",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -296,7 +297,7 @@ export const manualData = [
           {
             size: "Vanilla Latte",
             description: "30ml de espresso + 150ml de leite + 20ml de xarope de Baunilha",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -312,7 +313,7 @@ export const manualData = [
           {
             size: "Caramel Latte",
             description: "30ml de espresso + 150ml de leite + 20ml de xarope de Caramelo",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -328,7 +329,7 @@ export const manualData = [
           {
             size: "Mocha",
             description: "30ml de espresso + 150ml de leite + 15gr de cacau em pó",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ Porta Filtro Simples",
               "⚠️ Moedor 1 dose",
@@ -344,7 +345,7 @@ export const manualData = [
           {
             size: "Café Passado",
             description: "1 dose de café + água quente",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ Moedor 1 dose",
               "⚠️ 200ml de água quente",
@@ -356,7 +357,7 @@ export const manualData = [
           {
             size: "Café Passado c/ Leite",
             description: "1 dose de café + água quente + leite",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ Moedor 1 dose",
               "⚠️ 100ml de água quente",
@@ -372,7 +373,7 @@ export const manualData = [
           {
             size: "Chocolate Quente",
             description: "Chocolate Cremoso",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ 30gr de pó de Chocolate",
               "⚠️ 150ml de Leite",
@@ -383,7 +384,7 @@ export const manualData = [
           {
             size: "Chá Quente",
             description: "Chá Quente (Sachê)",
-            container: "- Copo de papel Grande 270ml - Xícara de Cerâmica Grande",
+            container: "- Copo de papel Grande 270ml \n- Xícara de Cerâmica Grande",
             steps: [
               "⚠️ 1 sachê de chá",
               "⚠️ 200ml de água",

@@ -45,7 +45,7 @@ function Home() {
               <span className="search-icon">🔍</span>
               <input 
                 type="text" 
-                placeholder="Pesquisar por produto..." 
+                placeholder="Pesquisar..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
