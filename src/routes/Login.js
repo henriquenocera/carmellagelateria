@@ -39,34 +39,42 @@ function Login() {
       <Helmet>
         <title>Login - Carmella Gelateria</title>
       </Helmet>
-      <div className="manual-page">
-        <div className="manual-header">
-          <h1>Acesso interno</h1>
-          <p>Entre para acessar o manual da loja</p>
-        </div>
-
+      <div className="login-page">
         <div className="login-card">
+          <div className="login-header">
+            <img src="/logo.svg" alt="Carmella Gelateria" className="login-logo" />
+            <h2 className="login-title">Acesso Restrito</h2>
+            <p className="login-subtitle">Faça login para acessar o painel interno.</p>
+          </div>
+          
           <form onSubmit={handleSubmit} className="login-form">
-            <label className="login-label">
-              <span>E-mail</span>
+            <div className="login-field">
+              <label htmlFor="email" className="login-label">Email</label>
               <input
+                id="email"
                 type="email"
+                className="login-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-            </label>
-            <label className="login-label">
-              <span>Senha</span>
+            </div>
+            
+            <div className="login-field">
+              <label htmlFor="password" className="login-label">Senha</label>
               <input
+                id="password"
                 type="password"
+                className="login-input"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-            </label>
+            </div>
+            
             {error && <p className="login-error">{error}</p>}
-            <button type="submit" className="btn" disabled={loading}>
+            
+            <button type="submit" className="login-submit" disabled={loading}>
               {loading ? "Entrando..." : "Entrar"}
             </button>
           </form>
