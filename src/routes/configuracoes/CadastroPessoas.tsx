@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import { Link, useLocation } from "react-router-dom";
 import * as Icons from "react-icons/bs";
-import "../css/CadastroPessoas.css";
-import supabase from "../services/supabase-client";
+import "../../css/CadastroPessoas.css";
+import supabase from "../../services/supabase-client";
 import { createClient } from "@supabase/supabase-js";
 
-import { useAuth } from "../AuthProvider";
+import { useAuth } from "../../AuthProvider";
 
 // Instância secundária para não sobrescrever a sessão atual ao criar um novo usuário
 const supabaseAdmin = createClient(
@@ -107,7 +107,7 @@ function CadastroPessoas() {
       const profileToEdit = profiles.find(p => p.id === editId);
       if (profileToEdit && !isModalOpen) {
         openModal(profileToEdit);
-        window.history.replaceState(null, "", "/cadastro-pessoas");
+        window.history.replaceState(null, "", "/configuracoes/cadastro-pessoas");
       }
     }
   }, [location.search, profiles]);

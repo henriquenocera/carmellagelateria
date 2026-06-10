@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import * as Icons from 'react-icons/bs';
-import { useAuth } from '../AuthProvider';
-import supabase from '../services/supabase-client';
-import '../css/Frequencia.css';
+import { useAuth } from "../../AuthProvider";
+import supabase from "../../services/supabase-client";
+import "../../css/Frequencia.css";
 
 const ProdutosVale = () => {
   const { user, isAdmin } = useAuth();
@@ -70,7 +70,7 @@ const ProdutosVale = () => {
     setSubmitting(true);
 
     try {
-      const valorNumerico = parseFloat(valor.replace(',', '.'));
+      const valorNumerico = parseFloat(valor.replace(',', "."));
       if (isNaN(valorNumerico)) {
         throw new Error("Valor inválido");
       }

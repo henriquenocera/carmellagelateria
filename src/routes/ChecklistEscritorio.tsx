@@ -5,6 +5,7 @@ import * as Icons from "react-icons/bs";
 import ChecklistEscritorioForm from "../components/ChecklistEscritorioForm";
 import "../css/Checklist.css";
 import supabase from "../services/supabase-client";
+import { useAuth } from "../AuthProvider";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
@@ -102,15 +103,18 @@ function altoxvCloseSubmit(geladeira, brownie, panos, user) {
 }
 
 function ChecklistEscritorio() {
-  const onSubmit = (event, geladeira, brownie, panos, user) => {
+  const { user } = useAuth();
+  const userName = user?.user_metadata?.full_name || user?.email || "Usuário do Escritório";
+
+  const onSubmit = (event, geladeira, brownie, panos, check) => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
 
     console.log("enviou");
     // supabase
-    sendSupabase(user);
+    sendSupabase(userName);
     event.preventDefault();
-    altoxvCloseSubmit(geladeira, brownie, panos, user);
+    altoxvCloseSubmit(geladeira, brownie, panos, userName);
 
     // Limpar o progresso salvo
     localStorage.removeItem("checklistEscritorio_checkedItems");

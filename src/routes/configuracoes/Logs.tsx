@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import supabase from "../services/supabase-client";
-import { useAuth } from "../AuthProvider";
+import supabase from "../../services/supabase-client";
+import { useAuth } from "../../AuthProvider";
 import { Navigate } from "react-router-dom";
 import moment from "moment";
 import * as Icons from "react-icons/bs";
-import "../css/Logs.css";
+import "../../css/Logs.css";
 
 interface LogEntry {
   id: string;

@@ -86,14 +86,14 @@ const MENU_CONFIG = [
     id: "admin",
     adminOnly: true,
     subItems: [
-      { title: "Cadastro Pessoas", path: "/cadastro-pessoas" },
-      { title: "Cadastro Feriados", path: "/feriados-globais" },
-      { title: "Cadastro de Fornecedores", path: "/cadastro-fornecedores" },
-      { title: "Cadastro de Insumos", path: "/cadastro-insumos" },
-      { title: "Cadastro de Produtos", path: "/cadastro-produtos" },
-      { title: "Cadastro Produtos Vale", path: "/produtos-vale" },
-      { title: "Configuração de Estoque", path: "/configuracao-estoque" },
-      { title: "Logs", path: "/logs" },
+      { title: "Cadastro Pessoas", path: "/configuracoes/cadastro-pessoas" },
+      { title: "Cadastro Feriados", path: "/configuracoes/feriados-globais" },
+      { title: "Cadastro de Fornecedores", path: "/configuracoes/cadastro-fornecedores" },
+      { title: "Cadastro de Insumos", path: "/configuracoes/cadastro-insumos" },
+      { title: "Cadastro de Produtos", path: "/configuracoes/cadastro-produtos" },
+      { title: "Cadastro Produtos Vale", path: "/configuracoes/produtos-vale" },
+      { title: "Configuração de Estoque", path: "/configuracoes/configuracao-estoque" },
+      { title: "Logs", path: "/configuracoes/logs" },
     ]
   }
 ];

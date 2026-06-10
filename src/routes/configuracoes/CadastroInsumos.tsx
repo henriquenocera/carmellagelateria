@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
-import supabase from "../services/supabase-client";
-import { useAuth } from "../AuthProvider";
+import supabase from "../../services/supabase-client";
+import { useAuth } from "../../AuthProvider";
 import { useNavigate } from "react-router-dom";
-import "../css/Frequencia.css";
+import "../../css/Frequencia.css";
 
 function CadastroInsumos() {
   const { isAdmin } = useAuth();

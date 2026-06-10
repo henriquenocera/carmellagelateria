@@ -2,17 +2,13 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem.jsx";
-import { ListId } from '../id.ts';
-
 function ChecklistEscritorioForm({ handleSubmit }) {
   const navigate = useNavigate();
   const [geladeira, setGeladeira] = useState("");
   const [brownie, setBrownie] = useState("");
   const [panos, setPanos] = useState("");
-  const [user, setUser] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
   const [checkedItems, setCheckedItems] = useState({});
-  const idInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalErrorOpen, setIsModalErrorOpen] = useState(false);
   const [check, setCheck] = useState(false);
@@ -166,28 +162,7 @@ function ChecklistEscritorioForm({ handleSubmit }) {
     }
   }
 
-  function checkId(e) {
-    e.preventDefault();
-    let idInput = idInputRef.current.value;
 
-    if (idInput == ListId[0].value) {
-      setUser(ListId[0].nome);
-    } else if (idInput == ListId[1].value) {
-      setUser(ListId[1].nome);
-    } else if (idInput == ListId[2].value) {
-      setUser(ListId[2].nome);
-    } else if (idInput == ListId[3].value) {
-      setUser(ListId[3].nome);
-    } else if (idInput == ListId[4].value) {
-      setUser(ListId[4].nome);
-    } else if (idInput == ListId[5].value) {
-      setUser(ListId[5].nome);
-    } else if (idInput == ListId[6].value) {
-      setUser(ListId[6].nome);
-    } else {
-      setUser("");
-    }
-  }
 
   const Checked = (e) => {
     function setWithExpiry(key, value, ttl) {
@@ -252,58 +227,27 @@ Fico à disposição!`;
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
-            {user == "" ? (
-              <>
-                <h3 className="modalTitle">Por favor, digite seu ID</h3>
-                <input
-                  type="password"
-                  placeholder="Seu ID"
-                  className="userInput"
-                  pattern="[0-9]*"
-                  inputMode="numeric"
-                  min="0"
-                  max="9999"
-                  required
-                  ref={idInputRef}
-                />
-                <div className="modal-buttons">
-                  <button
-                    onClick={(e) => checkId(e)}
-                    className="confirm-button">Confirmar ID</button>
-                  <button
-                    onClick={() => { setIsModalOpen(false); setUser("") }}
-                    className="close-button"
-                  >
-                    Voltar
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="modalTextContainer">
-                  <p className="modalText">Ao Enviar o Checklist você confirma que realizou todas as tarefas descritas nele</p>
-                </div>
-                <h3 className="modalTitle">Responsável pelo Checklist:</h3>
-                <h2 className="user">{user}</h2>
-                <div className="modal-buttons">
-                  <button
-                    type="submit"
-                    form="checklistClose"
-                    className="confirm-button">Enviar Checklist</button>
-                  <button
-                    onClick={() => { setIsModalOpen(false); setUser("") }}
-                    className="close-button"
-                  >
-                    Voltar
-                  </button>
-                </div>
-              </>
-            )}
+            <div className="modalTextContainer">
+              <p className="modalText">Ao Enviar o Checklist você confirma que realizou todas as tarefas descritas nele</p>
+            </div>
+            <h3 className="modalTitle">Você está prestes a enviar.</h3>
+            <div className="modal-buttons">
+              <button
+                type="submit"
+                form="checklistClose"
+                className="confirm-button">Enviar Checklist</button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="close-button"
+              >
+                Voltar
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      <form onSubmit={event => handleSubmit(event, geladeira, brownie, panos, user, check)} className="fechamentoAltoxv" id="checklistClose">
+      <form onSubmit={event => handleSubmit(event, geladeira, brownie, panos, check)} className="fechamentoAltoxv" id="checklistClose">
         <button className="hidebtn" onClick={Checked}>Check</button>
 
         <div className="step-indicator">
