@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 import "../css/Login.css";
 

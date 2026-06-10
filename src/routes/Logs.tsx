@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 import { Navigate } from "react-router-dom";
 import moment from "moment";

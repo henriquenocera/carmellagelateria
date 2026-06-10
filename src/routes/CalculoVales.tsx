@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";

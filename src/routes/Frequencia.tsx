@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import { Link } from "react-router-dom";
 import "../css/Frequencia.css";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 
 interface Profile {

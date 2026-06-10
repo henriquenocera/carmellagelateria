@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import "../css/Lojas.css";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 
 interface ChecklistEntry {
   id: number;
@@ -83,11 +83,11 @@ function Lojas() {
       person: latestFechamento?.person ?? "-",
       updatedAt: latestFechamento?.created_at
         ? new Date(latestFechamento.created_at).toLocaleString("pt-BR", {
-            day: "2-digit",
-            month: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+        })
         : null,
     };
   };
@@ -138,7 +138,7 @@ function Lojas() {
         const total = Number(parsed.total);
         return `R$ ${total.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       }
-    } catch (e) {}
+    } catch (e) { }
     return String(moneyData);
   };
 
@@ -163,7 +163,7 @@ function Lojas() {
         if (den.oneCent) lines.push(`R$ 0,01: ${den.oneCent}`);
         return "Detalhamento:\n" + lines.join("\n");
       }
-    } catch (e) {}
+    } catch (e) { }
     return "";
   };
 

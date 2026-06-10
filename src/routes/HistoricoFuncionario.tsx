@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import "../css/HistoricoFuncionario.css";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 
 const WEEKDAYS = [

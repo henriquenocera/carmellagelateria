@@ -4,7 +4,7 @@ import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem.jsx";
 import { ListId } from '../id.ts';
 
-function ChecklistFechamentoForm({ handleSubmit }) {
+function ChecklistEscritorioForm({ handleSubmit }) {
   const navigate = useNavigate();
   const [geladeira, setGeladeira] = useState("");
   const [brownie, setBrownie] = useState("");
@@ -451,4 +451,4 @@ Fico à disposição!`;
   );
 }
 
-export default ChecklistFechamentoForm;
+export default ChecklistEscritorioForm;

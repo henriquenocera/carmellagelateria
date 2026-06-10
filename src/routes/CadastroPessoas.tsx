@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { Link, useLocation } from "react-router-dom";
 import * as Icons from "react-icons/bs";
 import "../css/CadastroPessoas.css";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { createClient } from "@supabase/supabase-js";
 
 import { useAuth } from "../AuthProvider";

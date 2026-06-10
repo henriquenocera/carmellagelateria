@@ -1,18 +1,47 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet";
+
 import * as Icons from "react-icons/bs";
-import ChecklistAberturaForm from "../components/ChecklistAberturaForm";
+import ChecklistEscritorioForm from "../components/ChecklistEscritorioForm";
 import "../css/Checklist.css";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
 const unidadeText = "Escritório";
 const unidade = "escritorio";
 
-// Function Get Local Storage
+async function sendOpenMessage(
+  openDateFormat,
+  geladeira,
+  brownie,
+  panos,
+  user
+) {
+  const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist - Escritório ${unidadeText} %0D%0A ${openDateFormat}
+
+  `;
+  try {
+    const response = await fetch(checkOpenComplete, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
+    const data = await response.json();
+    console.log(JSON.stringify(data));
+    window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
+  } catch (error) {
+    console.error(error);
+    window.alert(
+      "Erro na confirmação do Checklist, por gentileza tente novamente"
+    );
+  }
+}
 function getLocalStorage() {
-  let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
+  let openC = JSON.parse(localStorage.getItem("altoxvClose"));
   let today = new Date();
   let dayToday = today.getDate();
   console.log(`dayToday = ${dayToday}`);
@@ -27,7 +56,7 @@ function getLocalStorage() {
       // Block Form
     } else {
       console.log("Continue Form");
-      localStorage.setItem("altoxvOpen", 0);
+      localStorage.setItem("altoxvClose", 0);
     }
   }
 }
@@ -36,7 +65,7 @@ getLocalStorage();
 async function sendSupabase(user) {
   console.log("supabase");
   const newdata = {
-    checklist: "Checklist de Abertura",
+    checklist: "Checklist de Fechamento",
     person: user,
     store: unidade,
   };
@@ -52,43 +81,44 @@ async function sendSupabase(user) {
   }
 }
 
-// Function Submit Form
-function altoxvOpenSubmit(user) {
+function altoxvCloseSubmit(geladeira, brownie, panos, user) {
   var object = { value: "complete", timestamp: new Date().getTime() };
-  localStorage.setItem("altoxvOpen", JSON.stringify(object));
+  localStorage.setItem("altoxvClose", JSON.stringify(object));
+
+  let openDateFormat = new Date(object.timestamp);
+  openDateFormat =
+    openDateFormat.getDate() +
+    "/" +
+    (openDateFormat.getMonth() + 1) +
+    "/" +
+    openDateFormat.getFullYear() +
+    " -- " +
+    openDateFormat.getHours() +
+    ":" +
+    openDateFormat.getMinutes() +
+    ":" +
+    openDateFormat.getSeconds();
+  // sendOpenMessage(openDateFormat, geladeira, brownie, panos, user);
 }
 
-function ChecklistAbertura() {
-  const handleSubmit = (event, user, moneyCounterMessage = "") => {
-    event.preventDefault();
-
+function ChecklistEscritorio() {
+  const onSubmit = (event, geladeira, brownie, panos, user) => {
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeComplete("Enviando...");
 
     console.log("enviou");
     // supabase
     sendSupabase(user);
-    altoxvOpenSubmit(user);
+    event.preventDefault();
+    altoxvCloseSubmit(geladeira, brownie, panos, user);
 
-    // Send Telegram message with money counter data
-    const openDateFormat = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
-    const checkOpenComplete = `https://api.telegram.org/bot${telegramBotId}/sendMessage?chat_id=${telegramChatId}&text=Checklist de Abertura - Loja ${unidadeText} %0D%0A ${openDateFormat} %0D%0A %0D%0A Responsável: ${user}${moneyCounterMessage}`;
-    
-    fetch(checkOpenComplete)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        window.location.replace(`https://${unidade}.carmellagelateria.com.br/`);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        window.alert("Erro na confirmação do Checklist, por gentileza tente novamente");
-      });
+    // Limpar o progresso salvo
+    localStorage.removeItem("checklistEscritorio_checkedItems");
+    localStorage.removeItem("checklistEscritorio_currentStep");
   };
 
   const [timeComplete, setTimeComplete] = useState("");
-  let openC = JSON.parse(localStorage.getItem("altoxvOpen"));
+  let openC = JSON.parse(localStorage.getItem("altoxvClose"));
 
   useEffect(() => {
     if (openC) {
@@ -117,12 +147,13 @@ function ChecklistAbertura() {
   return (
     <>
       <Helmet>
-        <title>Checklist</title>
+        <title>Checklist Escritório</title>
       </Helmet>
+
       <div className="checklistContainer">
         <div className="unitContainer">
           <div className="unitInfo">
-            <h1>Checklist</h1>
+            <h1>Checklist Escritório</h1>
 
             <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
           </div>
@@ -134,18 +165,10 @@ function ChecklistAbertura() {
           <span className="timeComplete">{timeComplete}</span>
         ) : (
           <>
-            <div className="warningContainer">
-
-              <p className="warningText">
-                <span className="warningIcon">
-                  <Icons.BsExclamationDiamondFill />
-                </span>
-                Bater Ponto
-              </p>
-            </div>
             <div className="checklistFormContainer">
-              <ChecklistAberturaForm handleSubmit={handleSubmit} />
+              <ChecklistEscritorioForm handleSubmit={onSubmit} />
             </div>
+
           </>
         )}
       </div>
@@ -153,4 +176,4 @@ function ChecklistAbertura() {
   );
 }
 
-export default ChecklistAbertura;
+export default ChecklistEscritorio;

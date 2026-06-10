@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import * as Icons from 'react-icons/bs';
 import { useAuth } from '../AuthProvider';
-import supabase from '../supabase-client';
+import supabase from '../services/supabase-client';
 import '../css/Frequencia.css';
 
 const AnaliseVales = () => {

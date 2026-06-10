@@ -4,7 +4,7 @@ import * as Icons from "react-icons/bs";
 import Select from "react-select";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 
 function EntradaMercadoria() {
   const { isAdmin, user } = useAuth();
