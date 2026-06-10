@@ -3,7 +3,6 @@ import React, { useState, useRef, useEffect } from "react";
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
 import { ListId } from '../id.ts';
-import ContadorNotasMoedas from "./ContadorNotasMoedas.jsx";
 
 function ChecklistAberturaForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -325,8 +324,6 @@ function ChecklistAberturaForm({ handleSubmit }) {
             weekday={item.weekday}
           />
         ))}
-
-        {/* {currentStep === 1 && <ContadorNotasMoedas onTotalChange={handleMoneyCounterChange} />} */}
 
         <div className="form-navigation">
           {currentStep > 1 && (

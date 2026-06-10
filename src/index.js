@@ -17,13 +17,11 @@ import NavBar from "./components/Navbar";
 import Inventario from "./routes/Inventario.tsx";
 import Informacoes from "./routes/Informacoes.tsx";
 import Voucher from "./routes/Voucher.tsx";
-import ChecklistTest from "./routes/ChecklistTest.tsx";
 import Lojas from "./routes/Lojas.tsx";
 import Manual from "./routes/Manual.tsx";
 import Etiquetas from "./routes/Etiquetas.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
-import CRM from "./routes/CRM.jsx";
 import Status from "./routes/Status.tsx";
 import CadastroPessoas from "./routes/CadastroPessoas.tsx";
 import Frequencia from "./routes/Frequencia.tsx";
@@ -121,8 +119,6 @@ const router = createBrowserRouter(
         <Route path="/informacoes" element={<Informacoes />} />
         <Route path="/voucher" element={<Voucher />} />
         <Route path="/etiquetas" element={<Etiquetas />} />
-        <Route path="/checklist-test" element={<ChecklistTest />} />
-        <Route path="/crm" element={<CRM />} />
         <Route path="/status" element={<Status />} />
         <Route path="/cadastro-pessoas" element={<CadastroPessoas />} />
         <Route path="/cadastro-pessoas/:id" element={<HistoricoFuncionario />} />
