@@ -4,7 +4,7 @@ import * as Icons from "react-icons/bs";
 import Select from "react-select";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 
 function EntradaMercadoria() {
   const { isAdmin, user } = useAuth();
@@ -46,6 +46,7 @@ function EntradaMercadoria() {
   const [filterData, setFilterData] = useState(searchParams.get('data_compra') || "");
   const [filterFornecedor, setFilterFornecedor] = useState("");
   const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
+  const [filterCreatedToday, setFilterCreatedToday] = useState(false);
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
   const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
 
@@ -71,12 +72,12 @@ function EntradaMercadoria() {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterStatus);
+      fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterStatus, filterCreatedToday);
       return;
     }
     setPage(0);
-    fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterStatus);
-  }, [filterInsumoId, filterData, filterFornecedor, filterStatus]);
+    fetchData(false, 0, filterInsumoId, filterData, filterFornecedor, filterStatus, filterCreatedToday);
+  }, [filterInsumoId, filterData, filterFornecedor, filterStatus, filterCreatedToday]);
 
   useEffect(() => {
     async function checkPendingCounts() {
@@ -120,7 +121,7 @@ function EntradaMercadoria() {
             }, 3000);
           }
           if (fetchDataRef.current) {
-            fetchDataRef.current(false, 0, undefined, undefined, undefined, undefined, true);
+            fetchDataRef.current(false, 0, undefined, undefined, undefined, undefined, undefined, true);
           }
         }
       )
@@ -131,7 +132,7 @@ function EntradaMercadoria() {
     };
   }, []);
 
-  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fFornecedor = filterFornecedor, fStatus = filterStatus, isBackground = false) {
+  async function fetchData(isLoadMore = false, overridePage: number | null = null, fInsumoId = filterInsumoId, fData = filterData, fFornecedor = filterFornecedor, fStatus = filterStatus, fCreatedToday = filterCreatedToday, isBackground = false) {
     fetchDataRef.current = fetchData;
     try {
       if (isLoadMore) {
@@ -198,9 +199,14 @@ function EntradaMercadoria() {
         }
       }
 
-      const { data: movData, count, error: movError } = await query
-        .order("data_compra", { ascending: false })
-        .order("created_at", { ascending: false })
+      let orderedQuery = query;
+      if (fCreatedToday) {
+        orderedQuery = orderedQuery.order("created_at", { ascending: false }).order("data_compra", { ascending: false });
+      } else {
+        orderedQuery = orderedQuery.order("data_compra", { ascending: false }).order("created_at", { ascending: false });
+      }
+      
+      const { data: movData, count, error: movError } = await orderedQuery
         .order("id", { ascending: false })
         .range(from, to);
 
@@ -793,6 +799,26 @@ function EntradaMercadoria() {
                   <th colSpan={isAdmin ? 5 : 4} style={{ padding: "8px", textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
                       <button
+                        onClick={() => setFilterCreatedToday(!filterCreatedToday)}
+                        style={{
+                          padding: "6px 12px",
+                          backgroundColor: filterCreatedToday ? "var(--primary-color)" : "#fff",
+                          color: filterCreatedToday ? "#fff" : "#64748b",
+                          border: `1px solid ${filterCreatedToday ? "var(--primary-color)" : "#e2e8f0"}`,
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontWeight: filterCreatedToday ? "bold" : "normal",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          fontSize: "0.85rem",
+                          transition: "0.2s"
+                        }}
+                        title="Alternar ordenação (Data da Compra x Data de Criação)"
+                      >
+                        <Icons.BsSortDown /> {filterCreatedToday ? "Ordem: Criação" : "Ordem: Compra"}
+                      </button>
+                      <button
                         onClick={() => {
                           const newStatus = filterStatus === 'review' ? 'all' : 'review';
                           setFilterStatus(newStatus);
@@ -856,6 +882,7 @@ function EntradaMercadoria() {
                           setFilterData("");
                           setFilterFornecedor("");
                           setFilterStatus('all');
+                          setFilterCreatedToday(false);
                         }}
                         style={{
                           padding: "6px 12px",
@@ -936,8 +963,8 @@ function EntradaMercadoria() {
                       const prevComp = index > 0 ? compras[index - 1] : null;
                       const prevIsToday = prevComp ? prevComp.data_compra === getToday() : false;
                       
-                      const showHojeHeader = isToday && index === 0;
-                      const showAnterioresHeader = !isToday && (index === 0 || prevIsToday);
+                      const showHojeHeader = !filterCreatedToday && isToday && index === 0;
+                      const showAnterioresHeader = !filterCreatedToday && !isToday && (index === 0 || prevIsToday);
 
                       const headerRow = showHojeHeader ? (
                         <tr key={`header-hoje-${comp.id}`} style={{ backgroundColor: "#f0fdf4" }}>

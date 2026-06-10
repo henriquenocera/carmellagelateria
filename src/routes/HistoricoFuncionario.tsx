@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import "../css/HistoricoFuncionario.css";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 
 const WEEKDAYS = [
@@ -718,7 +718,7 @@ function HistoricoFuncionario() {
       <div className="historico-container">
         {/* Header */}
         <div className="historico-header">
-          <button onClick={() => navigate("/cadastro-pessoas")} className="back-btn" title="Voltar para Pessoas">
+          <button onClick={() => navigate("/configuracoes/cadastro-pessoas")} className="back-btn" title="Voltar para Pessoas">
             <Icons.BsChevronLeft />
           </button>
           <div className="historico-title-group">
@@ -745,7 +745,7 @@ function HistoricoFuncionario() {
           <div className="error-state" style={{ background: '#fff', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '40px' }}>
             <Icons.BsExclamationTriangle style={{ fontSize: '3rem', color: '#ef4444', marginBottom: '12px' }} />
             <p>{error}</p>
-            <button onClick={() => navigate("/cadastro-pessoas")} className="primary-btn" style={{ marginTop: '16px' }}>Voltar para Pessoas</button>
+            <button onClick={() => navigate("/configuracoes/cadastro-pessoas")} className="primary-btn" style={{ marginTop: '16px' }}>Voltar para Pessoas</button>
           </div>
         ) : (
           <>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import * as Icons from "react-icons/bs";
 
 const fetchEstoque = async () => {

@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import * as Icons from "react-icons/bs";
 import "../css/CadastroPessoas.css";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 
 interface Profile {
@@ -306,7 +306,7 @@ function Funcionarios() {
                   return (
                     <tr key={p.id} className={p.ativo === false ? "inactive-row" : ""}>
                       <td style={{ fontWeight: 600 }}>
-                        <Link to={`/cadastro-pessoas/${p.id}`} className="employee-link" style={{ textDecoration: 'none', color: 'var(--primary-color)' }}>
+                        <Link to={`/configuracoes/cadastro-pessoas/${p.id}`} className="employee-link" style={{ textDecoration: 'none', color: 'var(--primary-color)' }}>
                           {p.name || "-"}
                         </Link>
                         {p.ativo === false && <span style={{ marginLeft: "8px", background: "#fee2e2", color: "#ef4444", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Inativo</span>}

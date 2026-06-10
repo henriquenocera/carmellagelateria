@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 
 function ListaComprasManual() {
   const [loading, setLoading] = useState(true);

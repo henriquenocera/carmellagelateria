@@ -11,46 +11,43 @@ import {
 } from "react-router-dom";
 import Home from "./routes/Home.jsx";
 import TextosELinks from "./routes/TextosELinks.jsx";
-import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
-import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
+
+import ChecklistEscritorio from "./routes/ChecklistEscritorio.tsx";
 import NavBar from "./components/Navbar";
 import Inventario from "./routes/Inventario.tsx";
-import Informacoes from "./routes/Informacoes.tsx";
-import Voucher from "./routes/Voucher.tsx";
-import ChecklistTest from "./routes/ChecklistTest.tsx";
+
 import Lojas from "./routes/Lojas.tsx";
-import Manual from "./routes/Manual.tsx";
+
 import Etiquetas from "./routes/Etiquetas.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
-import CRM from "./routes/CRM.jsx";
-import Status from "./routes/Status.tsx";
-import CadastroPessoas from "./routes/CadastroPessoas.tsx";
+
+import CadastroPessoas from "./routes/configuracoes/CadastroPessoas.tsx";
 import Frequencia from "./routes/Frequencia.tsx";
 import HistoricoFuncionario from "./routes/HistoricoFuncionario.tsx";
 import CalculoVales from "./routes/CalculoVales.tsx";
-import Logs from "./routes/Logs.tsx";
-import FeriadosGlobais from "./routes/FeriadosGlobais.tsx";
+import Logs from "./routes/configuracoes/Logs.tsx";
+import FeriadosGlobais from "./routes/configuracoes/FeriadosGlobais.tsx";
 import EstoqueLojas from "./routes/EstoqueLojas.jsx";
-import CadastroInsumos from "./routes/CadastroInsumos.tsx";
+import CadastroInsumos from "./routes/configuracoes/CadastroInsumos.tsx";
 import AnaliseVales from "./routes/AnaliseVales.tsx";
-import ConfiguracaoEstoque from "./routes/ConfiguracaoEstoque.tsx";
+import ConfiguracaoEstoque from "./routes/configuracoes/ConfiguracaoEstoque.tsx";
 import LojaEstoqueInsumos from "./routes/LojaEstoqueInsumos.tsx";
 import MovimentacoesEstoque from "./routes/MovimentacoesEstoque.tsx";
 import Funcionarios from "./routes/Funcionarios.tsx";
-import TesteWhatsApp from "./routes/TesteWhatsApp.tsx";
+
 import ListaCompras from "./routes/ListaCompras.tsx";
 import ListaComprasManual from "./routes/ListaComprasManual.tsx";
 import EntradaMercadoria from "./routes/EntradaMercadoria.tsx";
-import CadastroProdutos from "./routes/CadastroProdutos.tsx";
+import CadastroProdutos from "./routes/configuracoes/CadastroProdutos.tsx";
 import AnaliseInsumos from "./routes/AnaliseInsumos.tsx";
 import AnaliseProdutos from "./routes/AnaliseProdutos.tsx";
 import ProducaoRealizada from "./routes/ProducaoRealizada.tsx";
 import EstoqueFabrica from "./routes/EstoqueFabrica.tsx";
 import OrdemProducao from "./routes/OrdemProducao.tsx";
-import CadastroFornecedores from "./routes/CadastroFornecedores.tsx";
-import ProdutosVale from "./routes/ProdutosVale.tsx";
-import supabase from "./supabase-client";
+import CadastroFornecedores from "./routes/configuracoes/CadastroFornecedores.tsx";
+import ProdutosVale from "./routes/configuracoes/ProdutosVale.tsx";
+import supabase from "./services/supabase-client";
 
 const ProtectedLayout = () => {
   const { session, loading, user } = useAuth();
@@ -114,40 +111,37 @@ const router = createBrowserRouter(
         <Route path="/textos-e-links" element={<TextosELinks />} />
         <Route path="/lojas-checklist" element={<Lojas />} />
         <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
-        <Route path="/manual" element={<Manual />} />
+
         <Route path="/inventario" element={<Inventario />} />
-        <Route path="/checklist-abertura" element={<ChecklistAbertura />} />
-        <Route path="/checklist-fechamento" element={<ChecklistFechamento />} />
-        <Route path="/informacoes" element={<Informacoes />} />
-        <Route path="/voucher" element={<Voucher />} />
+
+        <Route path="/checklist-escritorio" element={<ChecklistEscritorio />} />
+
         <Route path="/etiquetas" element={<Etiquetas />} />
-        <Route path="/checklist-test" element={<ChecklistTest />} />
-        <Route path="/crm" element={<CRM />} />
-        <Route path="/status" element={<Status />} />
-        <Route path="/cadastro-pessoas" element={<CadastroPessoas />} />
-        <Route path="/cadastro-pessoas/:id" element={<HistoricoFuncionario />} />
+
+        <Route path="/configuracoes/cadastro-pessoas" element={<CadastroPessoas />} />
+        <Route path="/configuracoes/cadastro-pessoas/:id" element={<HistoricoFuncionario />} />
         <Route path="/funcionarios" element={<Funcionarios />} />
         <Route path="/frequencia" element={<Frequencia />} />
         <Route path="/calculo-vales" element={<CalculoVales />} />
-        <Route path="/logs" element={<Logs />} />
-        <Route path="/feriados-globais" element={<FeriadosGlobais />} />
-        <Route path="/cadastro-insumos" element={<CadastroInsumos />} />
-        <Route path="/configuracao-estoque" element={<ConfiguracaoEstoque />} />
+        <Route path="/configuracoes/logs" element={<Logs />} />
+        <Route path="/configuracoes/feriados-globais" element={<FeriadosGlobais />} />
+        <Route path="/configuracoes/cadastro-insumos" element={<CadastroInsumos />} />
+        <Route path="/configuracoes/configuracao-estoque" element={<ConfiguracaoEstoque />} />
         <Route path="/loja-estoque-insumos" element={<LojaEstoqueInsumos />} />
         <Route path="/movimentacoes-estoque" element={<MovimentacoesEstoque />} />
-        <Route path="/teste-whatsapp" element={<TesteWhatsApp />} />
+
         <Route path="/lista-compras" element={<ListaCompras />} />
         <Route path="/lista-compras-manual" element={<ListaComprasManual />} />
         <Route path="/entrada-mercadoria" element={<EntradaMercadoria />} />
-        <Route path="/cadastro-produtos" element={<CadastroProdutos />} />
+        <Route path="/configuracoes/cadastro-produtos" element={<CadastroProdutos />} />
         <Route path="/analise-insumos" element={<AnaliseInsumos />} />
         <Route path="/analise-produtos" element={<AnaliseProdutos />} />
         <Route path="/producao-realizada" element={<ProducaoRealizada />} />
         <Route path="/estoque-fabrica" element={<EstoqueFabrica />} />
         <Route path="/analise-vales" element={<AnaliseVales />} />
         <Route path="/ordem-producao" element={<OrdemProducao />} />
-        <Route path="/cadastro-fornecedores" element={<CadastroFornecedores />} />
-        <Route path="/produtos-vale" element={<ProdutosVale />} />
+        <Route path="/configuracoes/cadastro-fornecedores" element={<CadastroFornecedores />} />
+        <Route path="/configuracoes/produtos-vale" element={<ProdutosVale />} />
       </Route>
     </>
   )

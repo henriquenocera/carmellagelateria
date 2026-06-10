@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import * as Icons from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
-import supabase from "../supabase-client";
+import supabase from "../services/supabase-client";
 import { avaliarRegrasDeNegocio } from "../utils/regrasDeNegocio";
 
 // Helpers
@@ -96,7 +96,7 @@ function Home() {
 
         const calcEstoque = (data) => {
           if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0 };
-          
+
           const res = data.reduce((acc, curr) => {
             if (curr.status === "vitrine-atual") {
               acc.vitrine++;
@@ -107,20 +107,20 @@ function Home() {
               if (curr.title) acc.itensEstoque.push(curr.title.trim().toLowerCase());
               acc.itensEstoqueDetalhado.push(curr);
             }
-            
+
             if (curr.history && Array.isArray(curr.history)) {
-               curr.history.forEach(h => {
-                  if (h.timestamp && new Date(h.timestamp) >= twoDaysAgo) {
-                     const act = (h.action || "").toLowerCase();
-                     if (act.includes("criado") && !act.includes("quebra")) acc.entradas2d++;
-                     if (act.includes("→ arquivo") || act.includes("→ histórico") || act.includes("lixo")) acc.saidas2d++;
-                  }
-               });
+              curr.history.forEach(h => {
+                if (h.timestamp && new Date(h.timestamp) >= twoDaysAgo) {
+                  const act = (h.action || "").toLowerCase();
+                  if (act.includes("criado") && !act.includes("quebra")) acc.entradas2d++;
+                  if (act.includes("→ arquivo") || act.includes("→ histórico") || act.includes("lixo")) acc.saidas2d++;
+                }
+              });
             }
 
             return acc;
           }, { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0 });
-          
+
           return res;
         };
 
@@ -161,7 +161,7 @@ function Home() {
           const estadoChecklists = { ahu: latestAhu, altoxv: latestAltoxv };
           setEstoque(estadoEstoque);
           setChecklists(estadoChecklists);
-          
+
           // Avaliar regras de negócio para gerar notificações
           const alertas = avaliarRegrasDeNegocio({ estoque: estadoEstoque, checklists: estadoChecklists });
           setNotificacoes(alertas);
@@ -196,7 +196,7 @@ function Home() {
 
     return (
       <div style={{ background: "#fff", borderTop: "6px solid #5c3a21", borderRadius: "12px", padding: "24px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)", border: "1px solid #f1f5f9", display: "flex", flexDirection: "column" }}>
-        
+
         {/* Title Row */}
         <div style={{ marginBottom: "32px", display: "flex", alignItems: "center", gap: "12px" }}>
           <Icons.BsShop style={{ fontSize: "2.4rem", color: "#a68a71" }} />
@@ -204,10 +204,10 @@ function Home() {
             {title}
           </div>
         </div>
-        
+
         {/* Data Columns */}
         <div className="checklist-items-grid" style={{ gap: "8px", marginBottom: "32px", textAlign: "center" }}>
-          
+
           <div style={{ borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ fontSize: "1rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" }}>MASSAS</div>
             <div style={{ fontSize: "2.8rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", lineHeight: "1" }}>{massas.main}</div>
@@ -221,7 +221,7 @@ function Home() {
               </div>
             )}
           </div>
-          
+
           <div style={{ borderRight: "1px solid #f1f5f9", display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ fontSize: "1rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" }}>BROWNIES</div>
             <div style={{ fontSize: "2.8rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", lineHeight: "1" }}>{brownies.main}</div>
@@ -235,7 +235,7 @@ function Home() {
               </div>
             )}
           </div>
-          
+
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <div style={{ fontSize: "1rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", letterSpacing: "1px", textTransform: "uppercase" }}>PANOS</div>
             <div style={{ fontSize: "2.8rem", color: "#a68a71", fontWeight: "700", marginBottom: "12px", lineHeight: "1" }}>{panos.main}</div>
@@ -249,38 +249,38 @@ function Home() {
               </div>
             )}
           </div>
-          
+
         </div>
 
         {/* Footer Row */}
-        <div style={{ 
-          borderTop: "1px solid #f3ebe4", 
-          paddingTop: "16px", 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center", 
-          marginTop: "auto" 
+        <div style={{
+          borderTop: "1px solid #f3ebe4",
+          paddingTop: "16px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: "auto"
         }}>
-          <span style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            gap: "6px", 
-            color: "#6b503c", 
-            fontSize: "1.3rem", 
-            fontWeight: "600" 
+          <span style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            color: "#6b503c",
+            fontSize: "1.3rem",
+            fontWeight: "600"
           }}>
-            <Icons.BsPerson style={{ color: "#a17550", fontSize: "1.5rem" }} /> 
+            <Icons.BsPerson style={{ color: "#a17550", fontSize: "1.5rem" }} />
             {data.person}
           </span>
-          <span style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            gap: "6px", 
-            color: "#8c7664", 
-            fontSize: "1.25rem", 
-            fontWeight: "500" 
+          <span style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            color: "#8c7664",
+            fontSize: "1.25rem",
+            fontWeight: "500"
           }}>
-            <Icons.BsClock style={{ color: "#a17550", fontSize: "1.3rem" }} /> 
+            <Icons.BsClock style={{ color: "#a17550", fontSize: "1.3rem" }} />
             {formatDateAndTime(data.created_at)}
           </span>
         </div>
@@ -294,7 +294,7 @@ function Home() {
 
   return (
     <div className="dashboard-container">
-      
+
       {/* Page Title */}
       <div style={{ marginBottom: "32px", textAlign: "left" }}>
         <h1 style={{ fontSize: "3rem", color: "#78350f", margin: "0 0 8px 0", fontWeight: "700" }}>Dashboard</h1>
@@ -302,7 +302,7 @@ function Home() {
       </div>
 
       <div className="dashboard-grid">
-        
+
         {/* Checklists Section (Row 1, Col 1) */}
         <section style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -320,9 +320,9 @@ function Home() {
             <Icons.BsBoxSeam style={{ color: "#a17550" }} /> Resumo de Estoque
           </h2>
           <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-            
+
             <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-              
+
               {/* Loja Ahú */}
               <div style={{ borderBottom: "1px solid #f1f5f9", paddingBottom: "24px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
@@ -336,15 +336,15 @@ function Home() {
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.ahu.vitrine}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.ahu.estoque}</span>
                   </div>
-                  
+
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                     <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
-                     <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
-                        <Icons.BsArrowDownLeftCircleFill /> +{estoque.ahu.entradas2d}
-                     </span>
-                     <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
-                        <Icons.BsArrowUpRightCircleFill /> -{estoque.ahu.saidas2d}
-                     </span>
+                    <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
+                    <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
+                      <Icons.BsArrowDownLeftCircleFill /> +{estoque.ahu.entradas2d}
+                    </span>
+                    <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
+                      <Icons.BsArrowUpRightCircleFill /> -{estoque.ahu.saidas2d}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -364,19 +364,19 @@ function Home() {
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                     <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
-                     <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
-                        <Icons.BsArrowDownLeftCircleFill /> +{estoque.altoxv.entradas2d}
-                     </span>
-                     <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
-                        <Icons.BsArrowUpRightCircleFill /> -{estoque.altoxv.saidas2d}
-                     </span>
+                    <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
+                    <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
+                      <Icons.BsArrowDownLeftCircleFill /> +{estoque.altoxv.entradas2d}
+                    </span>
+                    <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
+                      <Icons.BsArrowUpRightCircleFill /> -{estoque.altoxv.saidas2d}
+                    </span>
                   </div>
                 </div>
               </div>
 
             </div>
-            
+
             <Link to="/lojas-cubas-estoque" style={{ display: "block", textAlign: "center", marginTop: "32px", color: "#4f46e5", textDecoration: "none", fontWeight: "600", fontSize: "1.3rem" }}>
               Ver Estoque Completo &rarr;
             </Link>
@@ -389,7 +389,7 @@ function Home() {
             <Icons.BsBell style={{ color: "#a17550" }} /> Notificações e Instruções
           </h2>
           <div style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", flex: 1, display: "flex", flexDirection: "column" }}>
-            
+
             {notificacoes.length === 0 ? (
               <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", color: "#64748b" }}>
                 <Icons.BsCheckCircle style={{ fontSize: "2rem", color: "#10b981", flexShrink: 0 }} />
@@ -411,10 +411,10 @@ function Home() {
                         <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
                       )}
                       <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <span style={{ 
-                          color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444", 
-                          fontSize: "1.4rem", 
-                          fontWeight: "600" 
+                        <span style={{
+                          color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444",
+                          fontSize: "1.4rem",
+                          fontWeight: "600"
                         }}>
                           {notif.titulo}
                         </span>
@@ -435,7 +435,7 @@ function Home() {
             <Icons.BsCupHot style={{ color: "#10b981" }} /> Folgas de Hoje
           </h2>
           <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0" }}>
-            
+
             {folgas.length === 0 ? (
               <p style={{ color: "#94a3b8", fontStyle: "italic", margin: 0, fontSize: "1.3rem" }}>Ninguém de folga hoje.</p>
             ) : (
@@ -452,7 +452,7 @@ function Home() {
         </section>
 
       </div>
-      
+
       <style>{`
         @keyframes spin { 100% { transform: rotate(360deg); } }
         
