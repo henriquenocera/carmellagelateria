@@ -87,7 +87,7 @@ function AnaliseProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda, ordem, metodo_preparo,
+          id, nome, categoria, preco_venda, ativo, unidade_venda, ordem, metodo_preparo, rendimento,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             quantidade,
             insumo_id,
@@ -124,8 +124,10 @@ function AnaliseProdutos() {
           } else if (item.produto_base_id) {
             const pBase = allProdutos.find(p => p.id === item.produto_base_id);
             if (pBase) {
-              const baseCusto = calculateCusto(pBase.ficha_tecnica || [], allProdutos);
-              return acc + (parseFloat(item.quantidade) * baseCusto);
+              const baseCustoTotal = calculateCusto(pBase.ficha_tecnica || [], allProdutos);
+              const baseRend = pBase.rendimento && parseFloat(pBase.rendimento) > 0 ? parseFloat(pBase.rendimento) : 1;
+              const baseCustoUnit = baseCustoTotal / baseRend;
+              return acc + (parseFloat(item.quantidade) * baseCustoUnit);
             }
           }
           return acc;
@@ -136,6 +138,8 @@ function AnaliseProdutos() {
         .filter(prod => prod.ativo)
         .map((prod: any) => {
           let custoTotal = calculateCusto(prod.ficha_tecnica || [], produtosData || []);
+          let rend = prod.rendimento && parseFloat(prod.rendimento) > 0 ? parseFloat(prod.rendimento) : 1;
+          let custoUnitario = custoTotal / rend;
 
           const resolvedFicha = (prod.ficha_tecnica || []).map((item: any) => {
             if (item.insumo_id || item.cadastro_insumos) {
@@ -174,7 +178,7 @@ function AnaliseProdutos() {
           }).filter(Boolean);
 
           const pv = prod.preco_venda || 0;
-          const lucro = pv - custoTotal;
+          const lucro = pv - custoUnitario;
           const margem = pv > 0 ? (lucro / pv) * 100 : 0;
 
           return {
@@ -182,6 +186,7 @@ function AnaliseProdutos() {
             nome: prod.nome,
             categoria: prod.categoria || "Sem Categoria",
             custo_total: custoTotal,
+            custo_unitario: custoUnitario,
             preco_venda: pv,
             unidade_venda: prod.unidade_venda,
             lucro: lucro,
@@ -234,9 +239,11 @@ function AnaliseProdutos() {
       startY += 6;
       doc.text(`Preço de Venda: ${selectedProduto.preco_venda > 0 ? formatCurrency(selectedProduto.preco_venda) : "-"}`, 14, startY);
       startY += 6;
-      doc.text(`Custo Total: ${formatCurrency(selectedProduto.custoTotal || 0)}`, 14, startY);
+      doc.text(`Custo Total (Receita): ${formatCurrency(selectedProduto.custo_total || 0)}`, 14, startY);
       startY += 6;
-      doc.text(`Lucro Bruto: ${formatCurrency(selectedProduto.lucro || 0)}`, 14, startY);
+      doc.text(`Custo Unitário: ${formatCurrency(selectedProduto.custo_unitario || 0)}`, 14, startY);
+      startY += 6;
+      doc.text(`Lucro Unitário: ${formatCurrency(selectedProduto.lucro || 0)}`, 14, startY);
       startY += 6;
       doc.text(`Margem: ${(selectedProduto.margem || 0).toFixed(1)}%`, 14, startY);
       startY += 12;
@@ -347,7 +354,8 @@ function AnaliseProdutos() {
                     <th>Categoria</th>
                     <th style={{ textAlign: "right" }}>Preço de Venda</th>
                     <th style={{ textAlign: "right" }}>Custo Total (Real)</th>
-                    <th style={{ textAlign: "right" }}>Lucro Bruto</th>
+                    <th style={{ textAlign: "right" }}>Custo Unitário</th>
+                    <th style={{ textAlign: "right" }}>Lucro Unitário</th>
                     <th style={{ textAlign: "center" }}>Margem de Lucro</th>
                   </tr>
                 </thead>
@@ -373,6 +381,9 @@ function AnaliseProdutos() {
                         </td>
                         <td style={{ textAlign: "right", color: "#dc2626" }}>
                           {formatCurrency(prod.custo_total)}
+                        </td>
+                        <td style={{ textAlign: "right", color: "#b91c1c", fontWeight: "bold" }}>
+                          {formatCurrency(prod.custo_unitario)}
                         </td>
                         <td style={{ textAlign: "right", color: prod.lucro > 0 ? "#16a34a" : "#dc2626", fontWeight: "bold" }}>
                           {formatCurrency(prod.lucro)}
@@ -423,13 +434,19 @@ function AnaliseProdutos() {
                 </p>
               </div>
               <div style={{ flex: "1 1 120px", backgroundColor: "#fff1f2", padding: "16px", borderRadius: "10px", border: "1px solid #fecdd3" }}>
-                <p style={{ margin: "0 0 4px 0", color: "#f43f5e", fontSize: "1rem" }}>Custo Total</p>
+                <p style={{ margin: "0 0 4px 0", color: "#f43f5e", fontSize: "1rem" }}>Custo Total (Receita)</p>
                 <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: "bold", color: "#e11d48" }}>
                   {formatCurrency(selectedProduto.custo_total)}
                 </p>
               </div>
+              <div style={{ flex: "1 1 120px", backgroundColor: "#fff1f2", padding: "16px", borderRadius: "10px", border: "1px solid #fecdd3" }}>
+                <p style={{ margin: "0 0 4px 0", color: "#f43f5e", fontSize: "1rem" }}>Custo Unitário</p>
+                <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: "bold", color: "#e11d48" }}>
+                  {formatCurrency(selectedProduto.custo_unitario)}
+                </p>
+              </div>
               <div style={{ flex: "1 1 120px", backgroundColor: selectedProduto.lucro > 0 ? "#f0fdf4" : "#fff1f2", padding: "16px", borderRadius: "10px", border: selectedProduto.lucro > 0 ? "1px solid #bbf7d0" : "1px solid #fecdd3" }}>
-                <p style={{ margin: "0 0 4px 0", color: selectedProduto.lucro > 0 ? "#22c55e" : "#f43f5e", fontSize: "1rem" }}>Lucro Bruto</p>
+                <p style={{ margin: "0 0 4px 0", color: selectedProduto.lucro > 0 ? "#22c55e" : "#f43f5e", fontSize: "1rem" }}>Lucro Unitário</p>
                 <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: "bold", color: selectedProduto.lucro > 0 ? "#16a34a" : "#e11d48" }}>
                   {formatCurrency(selectedProduto.lucro)}
                 </p>

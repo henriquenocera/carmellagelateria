@@ -20,7 +20,7 @@ function CadastroProdutos() {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, message: string, onConfirm: () => void}>({isOpen: false, message: "", onConfirm: () => {}});
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, message: string, onConfirm: () => void }>({ isOpen: false, message: "", onConfirm: () => { } });
 
   // Form state
   const [nome, setNome] = useState("");
@@ -32,6 +32,7 @@ function CadastroProdutos() {
   const [isSabor, setIsSabor] = useState(false);
   const [isPreparacao, setIsPreparacao] = useState(false);
   const [codigo, setCodigo] = useState("");
+  const [rendimento, setRendimento] = useState("");
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
 
   // Tabs state
@@ -103,7 +104,7 @@ function CadastroProdutos() {
 
       // Calcular média de custo por nome_simples_unitario
       const groupedCostMap: Record<string, { total: number, count: number, displayKey: string }> = {};
-      
+
       insumosWithUpdatedCosts.forEach((insumo: any) => {
         const rawKey = insumo.nome_simples_unitario || insumo.nome || "";
         const groupKey = rawKey.trim().toUpperCase();
@@ -122,7 +123,7 @@ function CadastroProdutos() {
       // Criar lista agrupada para o dropdown
       const groupedInsumosList: any[] = [];
       const seenGroups = new Set<string>();
-      
+
       insumosWithUpdatedCosts.forEach((insumo: any) => {
         const rawKey = insumo.nome_simples_unitario || insumo.nome || "";
         const groupKey = rawKey.trim().toUpperCase();
@@ -136,14 +137,14 @@ function CadastroProdutos() {
           });
         }
       });
-      
+
       setInsumosList(groupedInsumosList);
 
       // Fetch produtos and their ficha tecnica
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao, codigo,
+          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao, codigo, rendimento,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id,
             cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
@@ -166,7 +167,7 @@ function CadastroProdutos() {
               const rawKey = item.cadastro_insumos?.nome_simples_unitario || item.cadastro_insumos?.nome || "Desconhecido";
               const groupKey = rawKey.trim().toUpperCase();
               let updatedCusto = item.cadastro_insumos?.custo_considerado_unitario || 0;
-              
+
               if (averageCostMap[groupKey] !== undefined) {
                 updatedCusto = averageCostMap[groupKey];
               }
@@ -203,6 +204,7 @@ function CadastroProdutos() {
       setIsSabor(produto.is_sabor || false);
       setIsPreparacao(produto.is_preparacao || false);
       setCodigo(produto.codigo || "");
+      setRendimento(produto.rendimento?.toString() || "");
 
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
         id: item.id,
@@ -224,6 +226,7 @@ function CadastroProdutos() {
       setIsSabor(activeTab === 'sabores');
       setIsPreparacao(activeTab === 'preparacoes');
       setCodigo("");
+      setRendimento("");
     }
     setSelectedInsumo("");
     setQuantidadeInsumo("");
@@ -237,7 +240,7 @@ function CadastroProdutos() {
       isOpen: true,
       message: `Deseja criar uma cópia de "${produto.nome}"?`,
       onConfirm: () => {
-        setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} });
+        setConfirmModal({ isOpen: false, message: "", onConfirm: () => { } });
         setEditingId(null);
         setNome(produto.nome + " (Cópia)");
         setCategoria(produto.categoria || "");
@@ -248,6 +251,7 @@ function CadastroProdutos() {
         setIsSabor(produto.is_sabor || false);
         setIsPreparacao(produto.is_preparacao || false);
         setCodigo(produto.codigo || "");
+        setRendimento(produto.rendimento?.toString() || "");
 
         const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
           insumo_id: item.insumo_id,
@@ -274,8 +278,10 @@ function CadastroProdutos() {
       } else if (item.produto_base_id) {
         const baseProd = allProdutos.find(p => p.id === item.produto_base_id);
         if (baseProd) {
-          const baseCusto = calculateCustoProduto(baseProd.ficha_tecnica || [], allProdutos);
-          return acc + (parseFloat(item.quantidade) * baseCusto);
+          const baseCustoTotal = calculateCustoProduto(baseProd.ficha_tecnica || [], allProdutos);
+          const baseRend = baseProd.rendimento && parseFloat(baseProd.rendimento) > 0 ? parseFloat(baseProd.rendimento) : 1;
+          const baseCustoUnit = baseCustoTotal / baseRend;
+          return acc + (parseFloat(item.quantidade) * baseCustoUnit);
         }
       }
       return acc;
@@ -285,15 +291,17 @@ function CadastroProdutos() {
   let previewFicha = fichaTecnica;
   if (editingFichaIndex !== null && !isNaN(parseFloat(editingFichaValue.replace(",", ".")))) {
     previewFicha = [...fichaTecnica];
-    previewFicha[editingFichaIndex] = { 
-      ...previewFicha[editingFichaIndex], 
-      quantidade: parseFloat(editingFichaValue.replace(",", ".")) 
+    previewFicha[editingFichaIndex] = {
+      ...previewFicha[editingFichaIndex],
+      quantidade: parseFloat(editingFichaValue.replace(",", "."))
     };
   }
 
-  const currentCusto = calculateCustoProduto(previewFicha);
+  const currentCustoTotal = calculateCustoProduto(previewFicha);
+  const rendVal = rendimento && parseFloat(rendimento) > 0 ? parseFloat(rendimento) : 1;
+  const currentCustoUnitario = currentCustoTotal / rendVal;
   const pv = precoVenda ? parseFloat(precoVenda) : 0;
-  const currentLucro = pv - currentCusto;
+  const currentLucro = pv - currentCustoUnitario;
   const currentMargem = pv > 0 ? (currentLucro / pv) * 100 : 0;
 
   const handleAddFichaItem = () => {
@@ -403,7 +411,8 @@ function CadastroProdutos() {
         ativo: ativo,
         is_sabor: isSabor,
         is_preparacao: isPreparacao,
-        codigo: isSabor && codigo.trim() ? codigo.trim() : null
+        codigo: isSabor && codigo.trim() ? codigo.trim() : null,
+        rendimento: rendimento ? parseFloat(rendimento) : null
       };
 
       let produtoId = editingId;
@@ -465,7 +474,7 @@ function CadastroProdutos() {
       isOpen: true,
       message: "Deseja realmente excluir este produto e sua ficha técnica?",
       onConfirm: async () => {
-        setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} });
+        setConfirmModal({ isOpen: false, message: "", onConfirm: () => { } });
         try {
           setLoading(true);
           const { error } = await supabase.from("cadastro_produtos").delete().eq("id", id);
@@ -505,25 +514,39 @@ function CadastroProdutos() {
       sortableItems.sort((a, b) => {
         let aValue = a[sortConfig.key];
         let bValue = b[sortConfig.key];
-        
+
         if (sortConfig.key === 'custo') {
-           aValue = calculateCustoProduto(a.ficha_tecnica || []);
-           bValue = calculateCustoProduto(b.ficha_tecnica || []);
+          const aCusto_r = calculateCustoProduto(a.ficha_tecnica || []);
+          const bCusto_r = calculateCustoProduto(b.ficha_tecnica || []);
+          const aRend = a.rendimento && parseFloat(a.rendimento) > 0 ? parseFloat(a.rendimento) : 1;
+          const bRend = b.rendimento && parseFloat(b.rendimento) > 0 ? parseFloat(b.rendimento) : 1;
+          aValue = aCusto_r / aRend;
+          bValue = bCusto_r / bRend;
+        } else if (sortConfig.key === 'custo_total') {
+          aValue = calculateCustoProduto(a.ficha_tecnica || []);
+          bValue = calculateCustoProduto(b.ficha_tecnica || []);
+        } else if (sortConfig.key === 'rendimento') {
+          aValue = a.rendimento && parseFloat(a.rendimento) > 0 ? parseFloat(a.rendimento) : 1;
+          bValue = b.rendimento && parseFloat(b.rendimento) > 0 ? parseFloat(b.rendimento) : 1;
         } else if (sortConfig.key === 'lucro') {
-           const aCusto = calculateCustoProduto(a.ficha_tecnica || []);
-           const bCusto = calculateCustoProduto(b.ficha_tecnica || []);
-           aValue = (a.preco_venda || 0) - aCusto;
-           bValue = (b.preco_venda || 0) - bCusto;
+          const aCusto_r = calculateCustoProduto(a.ficha_tecnica || []);
+          const bCusto_r = calculateCustoProduto(b.ficha_tecnica || []);
+          const aRend = a.rendimento && parseFloat(a.rendimento) > 0 ? parseFloat(a.rendimento) : 1;
+          const bRend = b.rendimento && parseFloat(b.rendimento) > 0 ? parseFloat(b.rendimento) : 1;
+          aValue = (a.preco_venda || 0) - (aCusto_r / aRend);
+          bValue = (b.preco_venda || 0) - (bCusto_r / bRend);
         } else if (sortConfig.key === 'margem') {
-           const aCusto = calculateCustoProduto(a.ficha_tecnica || []);
-           const bCusto = calculateCustoProduto(b.ficha_tecnica || []);
-           const aLucro = (a.preco_venda || 0) - aCusto;
-           const bLucro = (b.preco_venda || 0) - bCusto;
-           aValue = a.preco_venda > 0 ? (aLucro / a.preco_venda) * 100 : 0;
-           bValue = b.preco_venda > 0 ? (bLucro / b.preco_venda) * 100 : 0;
+          const aCusto_r = calculateCustoProduto(a.ficha_tecnica || []);
+          const bCusto_r = calculateCustoProduto(b.ficha_tecnica || []);
+          const aRend = a.rendimento && parseFloat(a.rendimento) > 0 ? parseFloat(a.rendimento) : 1;
+          const bRend = b.rendimento && parseFloat(b.rendimento) > 0 ? parseFloat(b.rendimento) : 1;
+          const aLucro = (a.preco_venda || 0) - (aCusto_r / aRend);
+          const bLucro = (b.preco_venda || 0) - (bCusto_r / bRend);
+          aValue = a.preco_venda > 0 ? (aLucro / a.preco_venda) * 100 : 0;
+          bValue = b.preco_venda > 0 ? (bLucro / b.preco_venda) * 100 : 0;
         } else if (typeof aValue === 'string') {
-           aValue = aValue.toLowerCase();
-           bValue = (bValue || '').toLowerCase();
+          aValue = aValue.toLowerCase();
+          bValue = (bValue || '').toLowerCase();
         }
 
         if (aValue < bValue) {
@@ -589,21 +612,21 @@ function CadastroProdutos() {
       ...item,
       ordem: index
     }));
-    
+
     const otherItems = produtos.filter(p => {
       if (activeTab === 'sabores') return !p.is_sabor;
       if (activeTab === 'preparacoes') return !p.is_preparacao;
       return p.is_sabor || p.is_preparacao;
     });
     const finalProdutos = [...otherItems, ...updatedFilteredItems];
-    
+
     setProdutos(finalProdutos);
     setDraggedItemIndex(null);
     setDragOverItemIndex(null);
 
     try {
       setSaving(true);
-      const updates = updatedFilteredItems.map(item => 
+      const updates = updatedFilteredItems.map(item =>
         supabase.from("cadastro_produtos").update({ ordem: item.ordem }).eq("id", item.id)
       );
       await Promise.all(updates);
@@ -618,7 +641,7 @@ function CadastroProdutos() {
 
   const renderSortableHeader = (label: string, key: string, align: 'left' | 'center' | 'right' = 'left', width?: string) => {
     return (
-      <th 
+      <th
         style={{ textAlign: align, width: width, cursor: "pointer", userSelect: "none" }}
         onClick={() => requestSort(key)}
         title={`Ordenar por ${label}`}
@@ -654,9 +677,9 @@ function CadastroProdutos() {
         </div>
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
-          
+
           <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-            <button 
+            <button
               onClick={() => setActiveTab('produtos')}
               style={{
                 padding: "8px 20px",
@@ -672,7 +695,7 @@ function CadastroProdutos() {
             >
               Produtos Finais
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('sabores')}
               style={{
                 padding: "8px 20px",
@@ -688,7 +711,7 @@ function CadastroProdutos() {
             >
               Sabores de Gelato
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('preparacoes')}
               style={{
                 padding: "8px 20px",
@@ -733,27 +756,31 @@ function CadastroProdutos() {
                     {renderSortableHeader("Nome do Produto", "nome", "left")}
                     {renderSortableHeader("Categoria", "categoria", "left")}
                     {renderSortableHeader("Unid. Venda", "unidade_venda", "center", "100px")}
-                    {renderSortableHeader("Preço (Venda)", "preco_venda", "right", "120px")}
-                    {renderSortableHeader("Custo Total", "custo", "right", "120px")}
-                    {renderSortableHeader("Lucro", "lucro", "right", "120px")}
+                    {renderSortableHeader("Rendimento", "rendimento", "center", "100px")}
+                    {renderSortableHeader("Preço Unit. (Venda)", "preco_venda", "center", "150px")}
+                    {renderSortableHeader("Custo Total", "custo_total", "center", "140px")}
+                    {renderSortableHeader("Custo Unit.", "custo", "center", "120px")}
+                    {renderSortableHeader("Lucro Unitário", "lucro", "center", "140px")}
                     {renderSortableHeader("Margem", "margem", "center", "100px")}
                     <th style={{ textAlign: "center", width: "100px" }}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedProdutos.map((produto, index) => {
-                    const custo = calculateCustoProduto(produto.ficha_tecnica || []);
+                    const custo_receita = calculateCustoProduto(produto.ficha_tecnica || []);
+                    const rend = produto.rendimento && parseFloat(produto.rendimento) > 0 ? parseFloat(produto.rendimento) : 1;
+                    const custo = custo_receita / rend;
                     const pv = produto.preco_venda || 0;
                     const lucro = pv - custo;
                     const margem = pv > 0 ? (lucro / pv) * 100 : 0;
-                    
+
                     const isDragged = index === draggedItemIndex;
                     const isDragOver = index === dragOverItemIndex;
 
                     return (
-                      <tr 
-                        key={produto.id} 
-                        style={{ 
+                      <tr
+                        key={produto.id}
+                        style={{
                           opacity: produto.ativo ? (isDragged ? 0.5 : 1) : 0.6,
                           borderTop: isDragOver && draggedItemIndex !== null && draggedItemIndex > index ? "2px solid var(--primary-color)" : "",
                           borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < index ? "2px solid var(--primary-color)" : ""
@@ -782,13 +809,17 @@ function CadastroProdutos() {
                         <td style={{ fontWeight: 500 }}>{produto.nome}</td>
                         <td>{produto.categoria || "-"}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{produto.unidade_venda || "-"}</td>
-                        <td style={{ textAlign: "right", color: "var(--primary-color)", fontWeight: "bold" }}>
+                        <td style={{ textAlign: "center", color: "#64748b" }}>{rend}</td>
+                        <td style={{ textAlign: "center", color: "var(--primary-color)", fontWeight: "bold" }}>
                           {pv > 0 ? `R$ ${pv.toFixed(2)}` : "-"}
                         </td>
-                        <td style={{ textAlign: "right", color: "#dc2626" }}>
+                        <td style={{ textAlign: "center", color: "#b91c1c" }}>
+                          R$ {custo_receita.toFixed(2)}
+                        </td>
+                        <td style={{ textAlign: "center", color: "#dc2626" }}>
                           R$ {custo.toFixed(2)}
                         </td>
-                        <td style={{ textAlign: "right", color: lucro > 0 ? "#16a34a" : "#dc2626", fontWeight: "bold" }}>
+                        <td style={{ textAlign: "center", color: lucro > 0 ? "#16a34a" : "#dc2626", fontWeight: "bold" }}>
                           R$ {lucro.toFixed(2)}
                         </td>
                         <td style={{ textAlign: "center" }}>
@@ -862,10 +893,10 @@ function CadastroProdutos() {
                   <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "8px" }}>Tipo de Cadastro</label>
                   <div style={{ display: "flex", gap: "20px" }}>
                     <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
-                      <input 
-                        type="radio" 
-                        name="tipo_cadastro" 
-                        checked={!isSabor && !isPreparacao} 
+                      <input
+                        type="radio"
+                        name="tipo_cadastro"
+                        checked={!isSabor && !isPreparacao}
                         onChange={() => {
                           setIsSabor(false);
                           setIsPreparacao(false);
@@ -874,10 +905,10 @@ function CadastroProdutos() {
                       Produto
                     </label>
                     <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
-                      <input 
-                        type="radio" 
-                        name="tipo_cadastro" 
-                        checked={isSabor} 
+                      <input
+                        type="radio"
+                        name="tipo_cadastro"
+                        checked={isSabor}
                         onChange={() => {
                           setIsSabor(true);
                           setIsPreparacao(false);
@@ -888,10 +919,10 @@ function CadastroProdutos() {
                       Sabor de Gelato
                     </label>
                     <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
-                      <input 
-                        type="radio" 
-                        name="tipo_cadastro" 
-                        checked={isPreparacao} 
+                      <input
+                        type="radio"
+                        name="tipo_cadastro"
+                        checked={isPreparacao}
                         onChange={() => {
                           setIsSabor(false);
                           setIsPreparacao(true);
@@ -960,7 +991,19 @@ function CadastroProdutos() {
                     </select>
                   </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Preço de Venda</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Rendimento </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      className="frequencia-select"
+                      placeholder="Ex: 30"
+                      value={rendimento}
+                      onChange={(e) => setRendimento(e.target.value)}
+                      style={{ background: "#fff" }}
+                    />
+                  </div>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Preço de Venda (Unid.)</label>
                     <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                       <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.3rem" }}>R$</span>
                       <input
@@ -1103,8 +1146,8 @@ function CadastroProdutos() {
                           <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>Quantidade</th>
                           <th style={{ padding: "10px", textAlign: "right", color: "#475569" }}>
                             Custo Atual
-                            <span 
-                              title="Esse valor é o último custo comprado dessa matéria prima" 
+                            <span
+                              title="Esse valor é o último custo comprado dessa matéria prima"
                               style={{ cursor: "help", marginLeft: "6px", color: "#64748b" }}
                             >
                               <Icons.BsInfoCircle />
@@ -1221,16 +1264,20 @@ function CadastroProdutos() {
 
               <div style={{ display: "flex", gap: "16px" }}>
                 <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem" }}>Custo Total</p>
-                  <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: "#dc2626" }}>R$ {currentCusto.toFixed(2)}</p>
+                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Custo Total<br /><span style={{ fontSize: "0.95rem" }}>(Receita)</span></p>
+                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: "#dc2626" }}>R$ {currentCustoTotal.toFixed(2)}</p>
                 </div>
                 <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem" }}>Lucro Bruto</p>
-                  <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: currentLucro > 0 ? "#16a34a" : "#dc2626" }}>R$ {currentLucro.toFixed(2)}</p>
+                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Custo Unitário<br /><span style={{ fontSize: "0.95rem" }}>(Por Rendimento)</span></p>
+                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: "#dc2626" }}>R$ {currentCustoUnitario.toFixed(2)}</p>
                 </div>
                 <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem" }}>Margem de Lucro</p>
-                  <p style={{ margin: 0, fontSize: "1.8rem", fontWeight: "bold", color: currentMargem >= 40 ? "#166534" : currentMargem > 10 ? "#854d0e" : "#991b1b" }}>
+                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Lucro Bruto<br /><span style={{ fontSize: "0.95rem" }}>(Unid.)</span></p>
+                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: currentLucro > 0 ? "#16a34a" : "#dc2626" }}>R$ {currentLucro.toFixed(2)}</p>
+                </div>
+                <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
+                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Margem de Lucro<br /><span style={{ fontSize: "0.95rem" }}>(Unid.)</span></p>
+                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: currentMargem >= 40 ? "#166534" : currentMargem > 10 ? "#854d0e" : "#991b1b" }}>
                     {currentMargem.toFixed(1)}%
                   </p>
                 </div>
@@ -1252,7 +1299,7 @@ function CadastroProdutos() {
         isOpen={confirmModal.isOpen}
         message={confirmModal.message}
         onConfirm={confirmModal.onConfirm}
-        onCancel={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} })}
+        onCancel={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => { } })}
       />
     </>
   );
