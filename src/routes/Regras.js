@@ -91,6 +91,7 @@ function Regras() {
   const [confirmedAt, setConfirmedAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
+  const [userName, setUserName] = useState("Colaborador");
 
   useEffect(() => {
     async function checkConfirmation() {
@@ -100,18 +101,27 @@ function Regras() {
       }
 
       try {
-        const { data, error } = await supabase
-          .from('rules_confirmations')
-          .select('confirmed_at')
-          .eq('user_id', user.id)
+        const { data: profileData, error } = await supabase
+          .from('profiles')
+          .select('name, rules_confirmed_at')
+          .eq('id', user.id)
           .maybeSingle();
 
         if (error) {
-          console.error("Error fetching confirmation:", error);
+          console.error("Error fetching profile:", error);
         }
 
-        if (data) {
-          setConfirmedAt(data.confirmed_at);
+        if (profileData) {
+          if (profileData.rules_confirmed_at) {
+            setConfirmedAt(profileData.rules_confirmed_at);
+          }
+          if (profileData.name) {
+            setUserName(profileData.name);
+          } else if (user.email) {
+            setUserName(user.email.split('@')[0]);
+          }
+        } else if (user.email) {
+          setUserName(user.email.split('@')[0]);
         }
       } catch (err) {
         console.error("Unexpected error:", err);
@@ -130,8 +140,9 @@ function Regras() {
     try {
       const now = new Date().toISOString();
       const { error } = await supabase
-        .from('rules_confirmations')
-        .insert([{ user_id: user.id }]);
+        .from('profiles')
+        .update({ rules_confirmed_at: now })
+        .eq('id', user.id);
 
       if (error) throw error;
 
@@ -161,14 +172,16 @@ function Regras() {
         </div>
 
         <div className="manual-content">
-          <div className="manual-intro" style={{ marginBottom: '2rem', backgroundColor: '#f9f9f9', padding: '1.5rem', borderRadius: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontSize: '0.9rem', color: '#666' }}>
+          <div className="manual-intro">
+            <div className="manual-intro-header">
               <span><strong>Versão:</strong> 1.0</span>
               <span><strong>Última modificação:</strong> 01/01/2026</span>
             </div>
 
-            <h3 style={{ marginBottom: '1rem', color: '#333' }}>Bem-vindo às Regras da Carmella Gelateria!</h3>
-            <p style={{ lineHeight: '1.6', color: '#444' }}>
+            <h3>
+              Olá, {userName}! <br /> Bem-vindo(a) às Regras da Carmella Gelateria!
+            </h3>
+            <p>
               Este documento reúne todas as normas e orientações que devem ser seguidas no dia a dia da loja. Nosso objetivo é garantir um ambiente de trabalho organizado, seguro, respeitoso e alinhado com os valores da Carmella Gelateria.
             </p>
           </div>
@@ -179,7 +192,7 @@ function Regras() {
                 <span className="manual-category-icon">{section.icon}</span>
                 {section.title}
               </h2>
-              <ul className="regras-list">
+              <ol className="regras-list" style={{ paddingLeft: '1.5rem', margin: '0 0 1.5rem' }}>
                 {section.items.map((item, i) => {
                   let formattedItem = item;
 
@@ -188,7 +201,7 @@ function Regras() {
                   // A simpler approach for React is splitting the string by the keywords and wrapping them.
 
                   return (
-                    <li key={i} style={{ whiteSpace: 'pre-line', marginBottom: '0.5rem' }}>
+                    <li key={i} style={{ whiteSpace: 'pre-line', marginBottom: '1rem', lineHeight: '1.6', color: '#444' }}>
                       {item.split(/(É obrigatório|É proibido|É permitido)/gi).map((part, index) => {
                         if (part.toLowerCase() === 'é obrigatório') {
                           return <strong key={index}>{part}</strong>;
@@ -203,7 +216,7 @@ function Regras() {
                     </li>
                   );
                 })}
-              </ul>
+              </ol>
             </section>
           ))}
 

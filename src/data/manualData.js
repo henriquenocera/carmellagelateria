@@ -1,5 +1,10 @@
 export const manualData = [
   {
+    id: "produtos",
+    title: "Produtos",
+    icon: "🛍️",
+    categories: [
+      {
     id: "medidas",
     title: "Gelatos",
     icon: "🍦",
@@ -399,6 +404,40 @@ export const manualData = [
               "⚠️ 70gr de Gelato (1 bola) servido com o boleador",
               "⚠️ 1 dose de espresso (30ml)",
               "Adicionar a bola de Gelato na xícara e tirar uma dose de espresso em cima dela",
+            ],
+          },
+        ],
+      },
+        ],
+      },
+    ],
+  },
+  {
+    id: "operacional",
+    title: "Operacional",
+    icon: "⚙️",
+    categories: [
+      {
+        id: "rotinas-diarias",
+        title: "Rotinas Diárias",
+        icon: "📋",
+        products: [
+          {
+            id: 100,
+            name: "Abertura de Loja",
+            portions: [
+              {
+                size: "Checklist de Abertura",
+                description: "Tarefas para iniciar o dia",
+                container: "Uso interno",
+                steps: [
+                  "1. Ligar as luzes e o ar condicionado",
+                  "2. Ligar a máquina de café espresso",
+                  "3. Verificar a temperatura da vitrine de gelatos (-12ºC a -15ºC)",
+                  "4. Conferir o fundo de caixa e iniciar o PDV",
+                  "5. Preparar a vitrine (alinhar as cubas e limpar os vidros)",
+                ],
+              },
             ],
           },
         ],
