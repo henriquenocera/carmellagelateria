@@ -695,7 +695,7 @@ function Frequencia() {
                     const displayName = p.short_id ? `${firstName}` : firstName;
                     return (
                       <th key={p.id} title={p.email} style={{ whiteSpace: 'nowrap', width: selectedEmployee !== "all" ? "250px" : "auto", minWidth: selectedEmployee !== "all" ? "250px" : "auto" }}>
-                        <Link to={`/cadastro-pessoas/${p.id}`} style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }} title={`Ver perfil de ${displayName}`}>
+                        <Link to={`/configuracoes/cadastro-pessoas/${p.id}`} style={{ color: 'inherit', textDecoration: 'none', cursor: 'pointer' }} title={`Ver perfil de ${displayName}`}>
                           <span style={{ textDecoration: 'underline', textDecorationColor: 'rgba(0,0,0,0.2)' }}>{displayName}</span>
                         </Link>
                         <span style={{ marginLeft: '8px', fontSize: '1.2rem', fontWeight: 700, color: '#ffffff', background: '#784e21', padding: '2px 8px', borderRadius: '20px', display: 'inline-block', verticalAlign: 'middle', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>

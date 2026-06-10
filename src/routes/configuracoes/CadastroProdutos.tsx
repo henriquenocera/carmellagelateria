@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
+import ConfirmModal from "../../components/ConfirmModal";
 import * as Icons from "react-icons/bs";
 import supabase from "../../services/supabase-client";
 import { useAuth } from "../../AuthProvider";
@@ -1247,28 +1248,12 @@ function CadastroProdutos() {
           </div>
         </div>
       )}
-      {confirmModal.isOpen && (
-        <div className="modal-overlay" style={{ zIndex: 9999 }}>
-          <div className="modal-content" style={{ maxWidth: "400px", textAlign: "center", padding: "30px" }}>
-            <h3 style={{ fontSize: "1.8rem", color: "var(--secondary-color)", margin: "0 0 16px 0" }}>Atenção</h3>
-            <p style={{ fontSize: "1.4rem", color: "var(--text-muted)", margin: "0 0 24px 0" }}>{confirmModal.message}</p>
-            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-              <button 
-                onClick={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} })}
-                style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", backgroundColor: "#fff", color: "#475569", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
-              >
-                Cancelar
-              </button>
-              <button 
-                onClick={confirmModal.onConfirm}
-                style={{ flex: 1, padding: "12px", borderRadius: "8px", border: "none", backgroundColor: "var(--primary-color)", color: "#fff", cursor: "pointer", fontSize: "1.3rem", fontWeight: "bold" }}
-              >
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        message={confirmModal.message}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal({ isOpen: false, message: "", onConfirm: () => {} })}
+      />
     </>
   );
 }

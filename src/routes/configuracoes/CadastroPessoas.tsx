@@ -491,7 +491,7 @@ function CadastroPessoas() {
                     <td>{p.email || "-"}</td>
                     <td>
                       <div className="actions-cell">
-                        <Link className="icon-btn" title="Histórico e Ocorrências" to={`/cadastro-pessoas/${p.id}`} style={{ backgroundColor: "rgba(139, 92, 246, 0.1)", color: "#8b5cf6" }}>
+                        <Link className="icon-btn" title="Histórico e Ocorrências" to={`/configuracoes/cadastro-pessoas/${p.id}`} style={{ backgroundColor: "rgba(139, 92, 246, 0.1)", color: "#8b5cf6" }}>
                           <Icons.BsFolder2Open />
                         </Link>
                         <button className="icon-btn" title="Alterar Senha" onClick={() => openPasswordModal(p.id)} style={{ backgroundColor: "rgba(16, 185, 129, 0.1)", color: "#10b981" }}>
