@@ -60,8 +60,10 @@ function Home() {
   // Data states
   const [checklists, setChecklists] = useState({ ahu: null, altoxv: null });
   const [estoque, setEstoque] = useState({ ahu: { vitrine: 0, estoque: 0 }, altoxv: { vitrine: 0, estoque: 0 } });
-  const [folgas, setFolgas] = useState([]);
+  const [insumosStatus, setInsumosStatus] = useState({ ahu: { ok: 0, warning: 0, critical: 0, criticalItems: [] }, altoxv: { ok: 0, warning: 0, critical: 0, criticalItems: [] } });
+  const [folgas, setFolgas] = useState({ hoje: [], amanha: [] });
   const [notificacoes, setNotificacoes] = useState([]);
+  const [saldosVales, setSaldosVales] = useState([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -127,34 +129,151 @@ function Home() {
         const ahuEstoque = calcEstoque(ahuRes.data);
         const altoxvEstoque = calcEstoque(altoxvRes.data);
 
-        // 3. Fetch Frequência (Folgas de hoje)
+        // 3. Fetch Frequência (Folgas de hoje e amanhã)
         const today = new Date();
         const todayStr = getLocalDateString(today);
         const weekdayVal = String(today.getDay()); // "0" for Sunday, etc.
 
-        const [profilesRes, freqRes] = await Promise.all([
-          supabase.from("profiles").select("id, name, folgas_fixas, ativo").eq("ativo", true),
-          supabase.from("frequencia").select("employee_id, status").eq("date", todayStr)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const tomorrowStr = getLocalDateString(tomorrow);
+        const tomorrowWeekdayVal = String(tomorrow.getDay());
+
+        // 4. Fetch Insumos Status
+        const fetchInsumosStatus = async (unitName, unitId) => {
+          const [{ data: insData }, { data: invData }, { data: movData }] = await Promise.all([
+            supabase.from("cadastro_insumos").select("id, nome, config_estoque").eq("ativo", true).order("ordem", { ascending: true }).order("nome", { ascending: true }),
+            supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade").eq("unidade", unitName),
+            supabase.from("movimentacoes_estoque").select("insumo_id, data_movimentacao, quantidade, origem, destino").or(`origem.eq.${unitName},destino.eq.${unitName}`)
+          ]);
+          
+          let status = { ok: 0, warning: 0, critical: 0, criticalItems: [] };
+          if (!insData) return status;
+
+          const latestInv = {};
+          (invData || []).forEach(inv => {
+            if (!latestInv[inv.insumo_id] || inv.data_inventario > latestInv[inv.insumo_id].data) {
+              latestInv[inv.insumo_id] = { data: inv.data_inventario, quantidade: Number(inv.quantidade) };
+            }
+          });
+
+          const calculatedStock = {};
+          Object.keys(latestInv).forEach(id => { calculatedStock[id] = latestInv[id].quantidade; });
+
+          (movData || []).forEach(mov => {
+            const inv = latestInv[mov.insumo_id];
+            if (inv && mov.data_movimentacao < inv.data) return;
+            if (calculatedStock[mov.insumo_id] === undefined) calculatedStock[mov.insumo_id] = 0;
+            if (mov.destino === unitName) calculatedStock[mov.insumo_id] += Number(mov.quantidade);
+            if (mov.origem === unitName) calculatedStock[mov.insumo_id] -= Number(mov.quantidade);
+          });
+
+          insData.forEach(ins => {
+            const config = ins.config_estoque?.[unitId];
+            if (!config || !config.ativo) return;
+            
+            const current = calculatedStock[ins.id] || 0;
+            const min = config.minimo;
+            const desired = config.desejado;
+
+            if (min != null && current < min) {
+              status.critical++;
+              status.criticalItems.push(ins.nome);
+            }
+            else if (desired != null && current < desired) status.warning++;
+            else status.ok++;
+          });
+
+          return status;
+        };
+
+        const fetchAllVales = async () => {
+          let allVales = [];
+          let from = 0;
+          const step = 1000;
+          let hasMore = true;
+          while (hasMore) {
+            const { data: vData, error: vError } = await supabase
+              .from("Vales")
+              .select("Nome, valor, created_at")
+              .range(from, from + step - 1);
+            if (vError) throw vError;
+            if (vData && vData.length > 0) {
+              allVales = [...allVales, ...vData];
+              from += step;
+              if (vData.length < step) hasMore = false;
+            } else {
+              hasMore = false;
+            }
+          }
+          return allVales;
+        };
+
+        const [profilesRes, freqRes, allValesData, ahuInsumos, altoxvInsumos] = await Promise.all([
+          supabase.from("profiles").select("id, name, folgas_fixas, ativo, data_registro, controlar_frequencia").eq("ativo", true).eq("controlar_frequencia", true),
+          supabase.from("frequencia").select("employee_id, date, status").in("date", [todayStr, tomorrowStr]),
+          fetchAllVales(),
+          fetchInsumosStatus("Loja Ahú", "ahu"),
+          fetchInsumosStatus("Loja Alto XV", "altoxv")
         ]);
 
         const profiles = profilesRes.data || [];
         const frequencias = freqRes.data || [];
         const folgasHoje = [];
+        const folgasAmanha = [];
 
         profiles.forEach(p => {
-          const freqEntry = frequencias.find(f => f.employee_id === p.id);
           const fixedOffDays = p.folgas_fixas ? p.folgas_fixas.split(",") : [];
-          const isFixedOff = fixedOffDays.includes(weekdayVal);
 
-          let status = isFixedOff ? "Folga Fixa Semanal" : "Trabalhado";
-          if (freqEntry) {
-            status = freqEntry.status;
+          // Hoje
+          const freqEntryHoje = frequencias.find(f => f.employee_id === p.id && f.date === todayStr);
+          const isFixedOffHoje = fixedOffDays.includes(weekdayVal);
+
+          let statusHoje = isFixedOffHoje ? "Folga Fixa Semanal" : "Trabalhado";
+          if (freqEntryHoje) {
+            statusHoje = freqEntryHoje.status;
           }
 
-          if (["Folga Fixa Semanal", "Domingo de Folga", "Folga Compensatória", "Férias", "Atestado", "Falta Não Justificada"].includes(status)) {
-            folgasHoje.push({ name: p.name, status });
+          if (["Folga Fixa Semanal", "Domingo de Folga", "Folga Compensatória", "Férias", "Atestado", "Falta Não Justificada"].includes(statusHoje)) {
+            folgasHoje.push({ name: p.name, status: statusHoje });
+          }
+
+          // Amanhã
+          const freqEntryAmanha = frequencias.find(f => f.employee_id === p.id && f.date === tomorrowStr);
+          const isFixedOffAmanha = fixedOffDays.includes(tomorrowWeekdayVal);
+
+          let statusAmanha = isFixedOffAmanha ? "Folga Fixa Semanal" : "Trabalhado";
+          if (freqEntryAmanha) {
+            statusAmanha = freqEntryAmanha.status;
+          }
+
+          if (["Folga Fixa Semanal", "Domingo de Folga", "Folga Compensatória", "Férias", "Atestado", "Falta Não Justificada"].includes(statusAmanha)) {
+            folgasAmanha.push({ name: p.name, status: statusAmanha });
           }
         });
+
+        const valesList = {};
+        allValesData.forEach(v => {
+          if (!valesList[v.Nome]) valesList[v.Nome] = [];
+          valesList[v.Nome].push(v);
+        });
+
+        const listaSaldosVales = profiles.map(p => {
+          const firstName = p.name ? p.name.split(" ")[0] : "";
+          const employeeVales = valesList[p.name] || valesList[firstName] || [];
+          let sum = 0;
+          employeeVales.forEach(v => {
+            if (p.data_registro && v.created_at) {
+              const valeDateStr = v.created_at.split('T')[0];
+              if (valeDateStr >= p.data_registro) {
+                sum += Number(v.valor) || 0;
+              }
+            } else {
+              sum += Number(v.valor) || 0;
+            }
+          });
+          return { name: p.name, saldo: sum };
+        }).sort((a, b) => a.name.localeCompare(b.name));
 
         if (isMounted) {
           const estadoEstoque = { ahu: ahuEstoque, altoxv: altoxvEstoque };
@@ -166,7 +285,9 @@ function Home() {
           const alertas = avaliarRegrasDeNegocio({ estoque: estadoEstoque, checklists: estadoChecklists });
           setNotificacoes(alertas);
 
-          setFolgas(folgasHoje);
+          setInsumosStatus({ ahu: ahuInsumos, altoxv: altoxvInsumos });
+          setFolgas({ hoje: folgasHoje, amanha: folgasAmanha });
+          setSaldosVales(listaSaldosVales);
           setLoading(false);
         }
       } catch (err) {
@@ -301,34 +422,161 @@ function Home() {
         <p style={{ color: "#78716c", fontSize: "1.4rem", margin: 0 }}>Visão geral das operações da Carmella Gelateria.</p>
       </div>
 
-      <div className="dashboard-grid">
+      {/* Notificações Section (Topo) */}
+      <section style={{ display: "flex", flexDirection: "column", marginBottom: "32px" }}>
+        <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+          <Icons.BsBell style={{ color: "#a17550" }} /> Notificações e Instruções
+        </h2>
+        <div style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", display: "flex", flexDirection: "column" }}>
 
-        {/* Checklists Section (Row 1, Col 1) */}
-        <section style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-            <Icons.BsCardChecklist style={{ color: "#a17550" }} /> Últimos Checklists de Fechamento
-          </h2>
-          <div className="checklists-grid">
-            <ChecklistCard title="Alto da XV" data={checklists.altoxv} />
-            <ChecklistCard title="Ahú" data={checklists.ahu} />
+          {notificacoes.length === 0 ? (
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", color: "#64748b" }}>
+              <Icons.BsCheckCircle style={{ fontSize: "2rem", color: "#10b981", flexShrink: 0 }} />
+              <div>
+                <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.5rem" }}>Tudo certo por aqui!</h3>
+                <p style={{ margin: 0, fontSize: "1.3rem", lineHeight: "1.5" }}>Não há nenhuma notificação ou recado importante no momento.</p>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {notificacoes.map((notif, idx) => {
+                const isLast = idx === notificacoes.length - 1;
+                return (
+                  <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "12px 0", borderBottom: isLast ? "none" : "1px solid #f8fafc" }}>
+                    {notif.tipo === 'info' ? (
+                      <Icons.BsInfoCircle style={{ fontSize: "1.8rem", color: "#3b82f6", flexShrink: 0, marginTop: "2px" }} />
+                    ) : notif.tipo === 'aviso' ? (
+                      <Icons.BsExclamationCircle style={{ fontSize: "1.8rem", color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
+                    ) : (
+                      <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
+                    )}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                      <span style={{
+                        color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444",
+                        fontSize: "1.4rem",
+                        fontWeight: "600"
+                      }}>
+                        {notif.titulo}
+                      </span>
+                      {notif.mensagem && <span style={{ color: "#64748b", fontSize: "1.3rem", lineHeight: "1.4" }}>{notif.mensagem}</span>}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+        </div>
+      </section>
+
+      {/* Main Grid */}
+      <div className="dashboard-main-grid">
+
+        {/* Coluna da Esquerda (Checklists + Folgas + Vales) */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
+          
+          {/* Checklists Section */}
+          <section className="card-checklists" style={{ display: "flex", flexDirection: "column", alignSelf: "start", width: "100%" }}>
+            <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <Icons.BsCardChecklist style={{ color: "#a17550" }} /> Últimos Checklists de Fechamento
+            </h2>
+            <div className="checklists-grid">
+              <ChecklistCard title="Alto da XV" data={checklists.altoxv} />
+              <ChecklistCard title="Ahú" data={checklists.ahu} />
+            </div>
+          </section>
+
+          <div className="folgas-vales-grid">
+            {/* Folgas e Ausências */}
+            <section className="card-folgas" style={{ display: "flex", flexDirection: "column", alignSelf: "start", width: "100%" }}>
+              <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Icons.BsCupHot style={{ color: "#10b981" }} /> Folgas e Ausências
+              </h2>
+              <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", flex: 1 }}>
+
+                <div style={{ marginBottom: "16px", fontWeight: "bold", color: "#475569", fontSize: "1.4rem", borderBottom: "2px solid #f1f5f9", paddingBottom: "8px" }}>Hoje</div>
+                {(!folgas.hoje || folgas.hoje.length === 0) ? (
+                  <p style={{ color: "#94a3b8", fontStyle: "italic", margin: "0 0 24px 0", fontSize: "1.3rem" }}>Ninguém de folga hoje.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
+                    {folgas.hoje.map((folga, idx) => (
+                      <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "12px 16px", borderRadius: "8px", border: "1px solid #f1f5f9" }}>
+                        <span style={{ fontWeight: "600", color: "#334155", fontSize: "1.4rem" }}>{folga.name}</span>
+                        <span style={{ padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "600", ...getFolgaStyle(folga.status) }}>{folga.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div style={{ marginBottom: "16px", fontWeight: "bold", color: "#475569", fontSize: "1.4rem", borderBottom: "2px solid #f1f5f9", paddingBottom: "8px" }}>Amanhã</div>
+                {(!folgas.amanha || folgas.amanha.length === 0) ? (
+                  <p style={{ color: "#94a3b8", fontStyle: "italic", margin: 0, fontSize: "1.3rem" }}>Ninguém de folga amanhã.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {folgas.amanha.map((folga, idx) => (
+                      <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "12px 16px", borderRadius: "8px", border: "1px solid #f1f5f9" }}>
+                        <span style={{ fontWeight: "600", color: "#334155", fontSize: "1.4rem" }}>{folga.name}</span>
+                        <span style={{ padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "600", ...getFolgaStyle(folga.status) }}>{folga.status}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Saldo de Vales */}
+            <section className="card-vales" style={{ display: "flex", flexDirection: "column", alignSelf: "start", width: "100%" }}>
+              <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Icons.BsCashCoin style={{ color: "#10b981" }} /> Saldo de Vales (Ativos)
+              </h2>
+              <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", flex: 1, display: "flex", flexDirection: "column" }}>
+                {saldosVales.length === 0 ? (
+                  <p style={{ color: "#94a3b8", fontStyle: "italic", margin: 0, fontSize: "1.3rem" }}>Nenhum saldo encontrado.</p>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {saldosVales.map((item, idx) => (
+                      <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "12px 16px", borderRadius: "8px", border: "1px solid #f1f5f9" }}>
+                        <span style={{ fontWeight: "600", color: "#334155", fontSize: "1.4rem" }}>{item.name}</span>
+                        <span style={{
+                          fontSize: "1.3rem",
+                          fontWeight: "bold",
+                          color: item.saldo < 0 ? "#ef4444" : item.saldo > 0 ? "#22c55e" : "#64748b"
+                        }}>
+                          {item.saldo > 0 ? '+' : item.saldo < 0 ? '-' : ''} R$ {Math.abs(item.saldo).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <Link to="/analise-vales" style={{ display: "block", textAlign: "center", marginTop: "auto", color: "#4f46e5", textDecoration: "none", fontWeight: "600", fontSize: "1.2rem", paddingTop: "24px" }}>
+                  Ver Análise de Vales &rarr;
+                </Link>
+              </div>
+            </section>
           </div>
-        </section>
 
-        {/* Resumo de Estoque (Row 1, Col 2) */}
-        <section style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        </div>
+
+        {/* Coluna da Direita (Resumo de Estoque) */}
+        <section className="card-estoque" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
           <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
             <Icons.BsBoxSeam style={{ color: "#a17550" }} /> Resumo de Estoque
           </h2>
-          <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0", flex: 1, display: "flex", flexDirection: "column", gap: "24px" }}>
 
+            {/* Parte 1: Cubas */}
             <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "2px solid #f1f5f9", paddingBottom: "8px" }}>
+                <Icons.BsSnow style={{ color: "#3b82f6", fontSize: "1.6rem" }} />
+                <span style={{ fontWeight: "bold", color: "#475569", fontSize: "1.5rem" }}>Cubas de Gelato</span>
+              </div>
 
-              {/* Loja Ahú */}
-              <div style={{ borderBottom: "1px solid #f1f5f9", paddingBottom: "24px" }}>
+              {/* Loja Ahú - Cubas */}
+              <div style={{ borderBottom: "1px solid #f1f5f9", paddingBottom: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                   <span style={{ fontSize: "1.6rem", color: "#334155", fontWeight: "600" }}>Loja Ahú</span>
                   <span style={{ background: "#fef3c7", color: "#b45309", padding: "6px 16px", borderRadius: "20px", fontWeight: "bold", fontSize: "1.3rem" }}>
-                    {estoque.ahu.vitrine + estoque.ahu.estoque} cubas totais
+                    {estoque.ahu.vitrine + estoque.ahu.estoque} cubas
                   </span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -336,25 +584,15 @@ function Home() {
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.ahu.vitrine}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.ahu.estoque}</span>
                   </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
-                    <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
-                      <Icons.BsArrowDownLeftCircleFill /> +{estoque.ahu.entradas2d}
-                    </span>
-                    <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
-                      <Icons.BsArrowUpRightCircleFill /> -{estoque.ahu.saidas2d}
-                    </span>
-                  </div>
                 </div>
               </div>
 
-              {/* Loja Alto XV */}
+              {/* Loja Alto XV - Cubas */}
               <div style={{ paddingBottom: "8px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                   <span style={{ fontSize: "1.6rem", color: "#334155", fontWeight: "600" }}>Loja Alto XV</span>
                   <span style={{ background: "#fef3c7", color: "#b45309", padding: "6px 16px", borderRadius: "20px", fontWeight: "bold", fontSize: "1.3rem" }}>
-                    {estoque.altoxv.vitrine + estoque.altoxv.estoque} cubas totais
+                    {estoque.altoxv.vitrine + estoque.altoxv.estoque} cubas
                   </span>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -362,92 +600,81 @@ function Home() {
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.altoxv.vitrine}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.altoxv.estoque}</span>
                   </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "1.1rem", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.5px" }}>últimas 48hrs:</span>
-                    <span style={{ background: "#dcfce7", color: "#16a34a", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Entradas nos últimos 2 dias">
-                      <Icons.BsArrowDownLeftCircleFill /> +{estoque.altoxv.entradas2d}
-                    </span>
-                    <span style={{ background: "#fee2e2", color: "#dc2626", padding: "2px 8px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "4px" }} title="Saídas nos últimos 2 dias">
-                      <Icons.BsArrowUpRightCircleFill /> -{estoque.altoxv.saidas2d}
-                    </span>
-                  </div>
                 </div>
               </div>
 
+              <Link to="/lojas-cubas-estoque" style={{ display: "block", textAlign: "center", color: "#4f46e5", textDecoration: "none", fontWeight: "600", fontSize: "1.2rem" }}>
+                Ver Estoque Completo de Cubas &rarr;
+              </Link>
             </div>
 
-            <Link to="/lojas-cubas-estoque" style={{ display: "block", textAlign: "center", marginTop: "32px", color: "#4f46e5", textDecoration: "none", fontWeight: "600", fontSize: "1.3rem" }}>
-              Ver Estoque Completo &rarr;
-            </Link>
-          </div>
-        </section>
+            {/* Separador */}
+            <hr style={{ border: "none", borderTop: "1px dashed #cbd5e1", margin: "0" }} />
 
-        {/* Notificações Section (Row 2, Col 1) */}
-        <section style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-            <Icons.BsBell style={{ color: "#a17550" }} /> Notificações e Instruções
-          </h2>
-          <div style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", flex: 1, display: "flex", flexDirection: "column" }}>
+            {/* Parte 2: Insumos */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px", flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "2px solid #f1f5f9", paddingBottom: "8px" }}>
+                <Icons.BsBasket style={{ color: "#10b981", fontSize: "1.6rem" }} />
+                <span style={{ fontWeight: "bold", color: "#475569", fontSize: "1.5rem" }}>Estoque de Insumos</span>
+              </div>
 
-            {notificacoes.length === 0 ? (
-              <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", color: "#64748b" }}>
-                <Icons.BsCheckCircle style={{ fontSize: "2rem", color: "#10b981", flexShrink: 0 }} />
-                <div>
-                  <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.5rem" }}>Tudo certo por aqui!</h3>
-                  <p style={{ margin: 0, fontSize: "1.3rem", lineHeight: "1.5" }}>Não há nenhuma notificação ou recado importante no momento.</p>
+              {/* Loja Ahú - Insumos */}
+              <div style={{ borderBottom: "1px solid #f1f5f9", paddingBottom: "16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <span style={{ fontSize: "1.5rem", color: "#334155", fontWeight: "600" }}>Loja Ahú</span>
                 </div>
-              </div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {notificacoes.map((notif) => {
-                  return (
-                    <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "12px 0", borderBottom: "1px solid #f8fafc" }}>
-                      {notif.tipo === 'info' ? (
-                        <Icons.BsInfoCircle style={{ fontSize: "1.8rem", color: "#3b82f6", flexShrink: 0, marginTop: "2px" }} />
-                      ) : notif.tipo === 'aviso' ? (
-                        <Icons.BsExclamationCircle style={{ fontSize: "1.8rem", color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
-                      ) : (
-                        <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
-                      )}
-                      <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                        <span style={{
-                          color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444",
-                          fontSize: "1.4rem",
-                          fontWeight: "600"
-                        }}>
-                          {notif.titulo}
-                        </span>
-                        {notif.mensagem && <span style={{ color: "#64748b", fontSize: "1.3rem", lineHeight: "1.4" }}>{notif.mensagem}</span>}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-          </div>
-        </section>
-
-        {/* Quem Folga Hoje (Row 2, Col 2) */}
-        <section style={{ display: "flex", flexDirection: "column", alignSelf: "start" }}>
-          <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-            <Icons.BsCupHot style={{ color: "#10b981" }} /> Folgas de Hoje
-          </h2>
-          <div style={{ background: "#fff", borderRadius: "16px", padding: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)", border: "1px solid #e2e8f0" }}>
-
-            {folgas.length === 0 ? (
-              <p style={{ color: "#94a3b8", fontStyle: "italic", margin: 0, fontSize: "1.3rem" }}>Ninguém de folga hoje.</p>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                {folgas.map((folga, idx) => (
-                  <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "12px 16px", borderRadius: "8px", border: "1px solid #f1f5f9" }}>
-                    <span style={{ fontWeight: "600", color: "#334155", fontSize: "1.4rem" }}>{folga.name}</span>
-                    <span style={{ padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "600", ...getFolgaStyle(folga.status) }}>{folga.status}</span>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: insumosStatus.ahu.criticalItems?.length > 0 ? "12px" : "0" }}>
+                  <div style={{ background: "#f0fdf4", color: "#16a34a", padding: "6px 12px", borderRadius: "8px", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }} title="Insumos com Estoque Ideal">
+                    <Icons.BsCheckCircleFill /> {insumosStatus.ahu.ok} OK
                   </div>
-                ))}
+                  <div style={{ background: "#fefce8", color: "#ca8a04", padding: "6px 12px", borderRadius: "8px", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }} title="Insumos em Alerta">
+                    <Icons.BsExclamationCircleFill /> {insumosStatus.ahu.warning} Alerta
+                  </div>
+                  <div style={{ background: "#fef2f2", color: "#dc2626", padding: "6px 12px", borderRadius: "8px", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }} title="Insumos com Estoque Crítico">
+                    <Icons.BsXCircleFill /> {insumosStatus.ahu.critical} Crítico
+                  </div>
+                </div>
+                {insumosStatus.ahu.criticalItems?.length > 0 && (
+                  <div style={{ backgroundColor: "#fef2f2", padding: "8px 12px", borderRadius: "8px", border: "1px dashed #fecaca" }}>
+                    <div style={{ fontWeight: "bold", color: "#ef4444", fontSize: "1.2rem", marginBottom: "4px" }}>Faltando:</div>
+                    <ul style={{ margin: 0, paddingLeft: "16px", color: "#ef4444", fontSize: "1.1rem", lineHeight: "1.4" }}>
+                      {insumosStatus.ahu.criticalItems.map((item, i) => <li key={i}>{item}</li>)}
+                    </ul>
+                  </div>
+                )}
               </div>
-            )}
+
+              {/* Loja Alto XV - Insumos */}
+              <div style={{ paddingBottom: "8px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                  <span style={{ fontSize: "1.5rem", color: "#334155", fontWeight: "600" }}>Loja Alto XV</span>
+                </div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: insumosStatus.altoxv.criticalItems?.length > 0 ? "12px" : "0" }}>
+                  <div style={{ background: "#f0fdf4", color: "#16a34a", padding: "6px 12px", borderRadius: "8px", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }} title="Insumos com Estoque Ideal">
+                    <Icons.BsCheckCircleFill /> {insumosStatus.altoxv.ok} OK
+                  </div>
+                  <div style={{ background: "#fefce8", color: "#ca8a04", padding: "6px 12px", borderRadius: "8px", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }} title="Insumos em Alerta">
+                    <Icons.BsExclamationCircleFill /> {insumosStatus.altoxv.warning} Alerta
+                  </div>
+                  <div style={{ background: "#fef2f2", color: "#dc2626", padding: "6px 12px", borderRadius: "8px", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "6px" }} title="Insumos com Estoque Crítico">
+                    <Icons.BsXCircleFill /> {insumosStatus.altoxv.critical} Crítico
+                  </div>
+                </div>
+                {insumosStatus.altoxv.criticalItems?.length > 0 && (
+                  <div style={{ backgroundColor: "#fef2f2", padding: "8px 12px", borderRadius: "8px", border: "1px dashed #fecaca" }}>
+                    <div style={{ fontWeight: "bold", color: "#ef4444", fontSize: "1.2rem", marginBottom: "4px" }}>Faltando:</div>
+                    <ul style={{ margin: 0, paddingLeft: "16px", color: "#ef4444", fontSize: "1.1rem", lineHeight: "1.4" }}>
+                      {insumosStatus.altoxv.criticalItems.map((item, i) => <li key={i}>{item}</li>)}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <Link to="/loja-estoque-insumos" style={{ display: "block", textAlign: "center", marginTop: "auto", color: "#4f46e5", textDecoration: "none", fontWeight: "600", fontSize: "1.2rem" }}>
+                Ver Controle de Insumos &rarr;
+              </Link>
+            </div>
+            
           </div>
         </section>
 
@@ -466,9 +693,17 @@ function Home() {
            box-sizing: border-box;
         }
         
-        .dashboard-grid {
+        .dashboard-main-grid {
            display: grid;
            grid-template-columns: 1.8fr 1fr;
+           gap: 32px;
+           width: 100%;
+           align-items: start;
+        }
+
+        .folgas-vales-grid {
+           display: grid;
+           grid-template-columns: 1fr 1fr;
            gap: 32px;
            width: 100%;
         }
@@ -487,9 +722,13 @@ function Home() {
 
         /* Responsividade para Tablets */
         @media (max-width: 1100px) {
-           .dashboard-grid {
+           .dashboard-main-grid {
               grid-template-columns: 1fr;
            }
+           .folgas-vales-grid {
+              grid-template-columns: 1fr 1fr;
+           }
+
            .checklists-grid {
               grid-template-columns: 1fr 1fr;
            }
@@ -498,7 +737,10 @@ function Home() {
         /* Responsividade para Celulares */
         @media (max-width: 768px) {
            .dashboard-container {
-              padding: 85px 15px 80px 85px; /* Top 85px para topbar e Left 85px para o sidebar */
+              padding: 85px 15px 80px 85px;
+           }
+           .folgas-vales-grid {
+              grid-template-columns: 1fr;
            }
            .checklists-grid {
               grid-template-columns: 1fr;
