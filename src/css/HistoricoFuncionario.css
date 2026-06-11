@@ -342,6 +342,16 @@
   color: #a855f7;
 }
 
+/* WhatsApp */
+.marker-whatsapp {
+  background-color: #25D366;
+}
+
+.badge-whatsapp {
+  background-color: rgba(37, 211, 102, 0.15);
+  color: #16a34a;
+}
+
 /* Feriados Trabalhados Badges */
 .badge-pago-dobro {
   background-color: rgba(16, 185, 129, 0.15);

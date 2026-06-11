@@ -26,6 +26,8 @@ const MENU_CONFIG = [
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },
       { title: "Checklists", path: "/lojas-checklist" },
+      { title: "Mapa Food Service", path: "/mapa-food-service" },
+      { title: "CRM", path: "/crm" },
     ]
   },
   {
@@ -89,6 +91,7 @@ const MENU_CONFIG = [
       { title: "Cadastro Pessoas", path: "/configuracoes/cadastro-pessoas" },
       { title: "Cadastro Feriados", path: "/configuracoes/feriados-globais" },
       { title: "Cadastro de Fornecedores", path: "/configuracoes/cadastro-fornecedores" },
+      { title: "Clientes Food Service", path: "/configuracoes/cadastro-clientes" },
       { title: "Cadastro de Insumos", path: "/configuracoes/cadastro-insumos" },
       { title: "Cadastro de Produtos", path: "/configuracoes/cadastro-produtos" },
       { title: "Cadastro Produtos Vale", path: "/configuracoes/produtos-vale" },

@@ -636,50 +636,54 @@ function CadastroPessoas() {
 
                 {activeTab === "contratuais" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "12px", animation: "popoverFadeIn 0.2s ease-out" }}>
-                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
-                      <div className="form-group" style={{ flex: 1.5 }}>
+                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end", flexWrap: "wrap" }}>
+                      <div className="form-group" style={{ flex: "1 1 200px" }}>
                         <label>Cargo</label>
                         <input type="text" value={formData.cargo || ""} onChange={(e) => setFormData({ ...formData, cargo: e.target.value })} />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
+                      <div className="form-group" style={{ flex: "1 1 150px" }}>
                         <label>Unidade Registrada</label>
                         <input type="text" value={formData.unidade_registrada || ""} onChange={(e) => setFormData({ ...formData, unidade_registrada: e.target.value })} placeholder="Ex: Matriz" />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
+                      <div className="form-group" style={{ flex: "1 1 150px" }}>
                         <label>Nº CTPS</label>
                         <input type="text" value={formData.ctps || ""} onChange={(e) => setFormData({ ...formData, ctps: e.target.value })} />
                       </div>
-                      <div className="form-group" style={{ flex: 0.5 }}>
+                      <div className="form-group" style={{ flex: "1 1 80px" }}>
                         <label>ID (Máx 4)</label>
                         <input type="text" maxLength={4} value={formData.short_id || ""} onChange={(e) => setFormData({ ...formData, short_id: e.target.value.replace(/\D/g, '') })} placeholder="1234" />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end", flexWrap: "wrap" }}>
+                      <div className="form-group" style={{ flex: "1 1 180px" }}>
                         <label>Data Admissão</label>
                         <input type="date" value={formData.data_registro || ""} onChange={(e) => setFormData({ ...formData, data_registro: e.target.value })} style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px", width: "100%" }} />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
+                      <div className="form-group" style={{ flex: "1 1 180px" }}>
                         <label>Data Demissão</label>
                         <input type="date" value={formData.data_demissao || ""} onChange={(e) => setFormData({ ...formData, data_demissao: e.target.value })} style={{ padding: "10px", border: "1px solid var(--border-color)", borderRadius: "6px", fontFamily: "inherit", fontSize: "14px", width: "100%" }} />
                       </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end" }}>
-                      <div className="form-group" style={{ flex: 1.5 }}>
+                      <div className="form-group" style={{ flex: "1 1 200px" }}>
                         <label>Uniformes</label>
                         <input type="text" value={formData.uniformes || ""} onChange={(e) => setFormData({ ...formData, uniformes: e.target.value })} placeholder="Ex: 2 camisas, 1 boné" />
                       </div>
-                      <div className="form-group" style={{ flex: 1.5 }}>
+                      <div className="form-group" style={{ flex: "1 1 200px" }}>
                         <label>Chaves</label>
                         <input type="text" value={formData.chaves || ""} onChange={(e) => setFormData({ ...formData, chaves: e.target.value })} placeholder="Ex: Chave da porta G" />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end", flexWrap: "wrap" }}>
+                      <div className="form-group" style={{ flex: "1 1 150px" }}>
                         <label style={{ textTransform: "none", whiteSpace: "nowrap" }}>Passagens URBS/Dia</label>
                         <input type="number" min={0} value={formData.passagens_urbs || 0} onChange={(e) => setFormData({ ...formData, passagens_urbs: parseInt(e.target.value) || 0 })} />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
+                      <div className="form-group" style={{ flex: "1 1 150px" }}>
                         <label style={{ textTransform: "none", whiteSpace: "nowrap" }}>Metrocard/Dia</label>
                         <input type="number" min={0} value={formData.passagens_metrocard || 0} onChange={(e) => setFormData({ ...formData, passagens_metrocard: parseInt(e.target.value) || 0 })} />
                       </div>
+                      <div style={{ flex: "2 1 300px" }}></div>
                     </div>
 
                     <div className="form-group" style={{ marginTop: "4px" }}>

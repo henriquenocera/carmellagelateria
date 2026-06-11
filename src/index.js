@@ -17,6 +17,9 @@ import NavBar from "./components/Navbar";
 import Inventario from "./routes/Inventario.tsx";
 
 import Lojas from "./routes/Lojas.tsx";
+import MapaFoodService from "./routes/MapaFoodService.tsx";
+import CRM from "./routes/CRM.tsx";
+import HistoricoCliente from "./routes/HistoricoCliente.tsx";
 
 import Etiquetas from "./routes/Etiquetas.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
@@ -46,6 +49,7 @@ import ProducaoRealizada from "./routes/ProducaoRealizada.tsx";
 import EstoqueFabrica from "./routes/EstoqueFabrica.tsx";
 import OrdemProducao from "./routes/OrdemProducao.tsx";
 import CadastroFornecedores from "./routes/configuracoes/CadastroFornecedores.tsx";
+import CadastroClientes from "./routes/configuracoes/CadastroClientes.tsx";
 import ProdutosVale from "./routes/configuracoes/ProdutosVale.tsx";
 import supabase from "./services/supabase-client";
 
@@ -110,6 +114,9 @@ const router = createBrowserRouter(
         <Route path="/" element={<Home />} />
         <Route path="/textos-e-links" element={<TextosELinks />} />
         <Route path="/lojas-checklist" element={<Lojas />} />
+        <Route path="/mapa-food-service" element={<MapaFoodService />} />
+        <Route path="/crm" element={<CRM />} />
+        <Route path="/crm/cliente/:id" element={<HistoricoCliente />} />
         <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
 
         <Route path="/inventario" element={<Inventario />} />
@@ -141,6 +148,7 @@ const router = createBrowserRouter(
         <Route path="/analise-vales" element={<AnaliseVales />} />
         <Route path="/ordem-producao" element={<OrdemProducao />} />
         <Route path="/configuracoes/cadastro-fornecedores" element={<CadastroFornecedores />} />
+        <Route path="/configuracoes/cadastro-clientes" element={<CadastroClientes />} />
         <Route path="/configuracoes/produtos-vale" element={<ProdutosVale />} />
       </Route>
     </>
