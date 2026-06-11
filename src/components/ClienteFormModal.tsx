@@ -171,6 +171,45 @@ const ClienteFormModal: React.FC<ClienteFormModalProps> = ({ isOpen, onClose, cl
     }
   };
 
+  const atualizarCoordenadas = async () => {
+    if (!endereco) {
+      alert("Preencha o endereço completo primeiro.");
+      return;
+    }
+    setGeocodeResult(null);
+    setIsGeocoding(true);
+    
+    try {
+      let enderecoAtual = endereco;
+      if (numero && !endereco.includes(`Nº ${numero}`)) {
+        enderecoAtual = `${endereco}, Nº ${numero}`;
+        setEndereco(enderecoAtual);
+      }
+
+      const enderecoParaBusca = enderecoAtual.replace(", Nº ", ", ");
+      const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || "";
+      
+      const response = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(enderecoParaBusca)}&key=${apiKey}`
+      );
+
+      if (response.data && response.data.results && response.data.results.length > 0) {
+        const location = response.data.results[0].geometry.location;
+        setLatitude(location.lat);
+        setLongitude(location.lng);
+        setGeocodeResult("success");
+      } else {
+        setGeocodeResult("error");
+        alert("Não foi possível encontrar este endereço no mapa do Google. Você pode inserir a Latitude e Longitude manualmente.");
+      }
+    } catch (err) {
+      console.error(err);
+      setGeocodeResult("error");
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!nome.trim()) {
@@ -178,7 +217,8 @@ const ClienteFormModal: React.FC<ClienteFormModalProps> = ({ isOpen, onClose, cl
       return;
     }
 
-    const enderecoFinal = numero ? `${endereco}, Nº ${numero}` : endereco;
+    // Evita duplicar o número se o usuário já tiver clicado no botão ou preenchido manualmente
+    const enderecoFinal = numero && !endereco.includes(`Nº ${numero}`) ? `${endereco}, Nº ${numero}` : endereco;
 
     const payload = {
       ativo,
@@ -382,13 +422,25 @@ const ClienteFormModal: React.FC<ClienteFormModalProps> = ({ isOpen, onClose, cl
 
           <div className="form-group" style={{ marginBottom: 0 }}>
             <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--secondary-color)" }}>Endereço Completo</label>
-            <input
-              type="text"
-              className="frequencia-select"
-              placeholder="Preenchido automaticamente pelo CEP"
-              value={endereco}
-              onChange={(e) => setEndereco(e.target.value)}
-            />
+            <div style={{ display: "flex", gap: "8px" }}>
+              <input
+                type="text"
+                className="frequencia-select"
+                placeholder="Preenchido automaticamente pelo CEP"
+                value={endereco}
+                onChange={(e) => setEndereco(e.target.value)}
+                style={{ flex: 1 }}
+              />
+              <button 
+                type="button" 
+                onClick={atualizarCoordenadas}
+                disabled={isGeocoding}
+                className="primary-btn"
+                style={{ margin: 0, padding: "0 16px", whiteSpace: "nowrap", backgroundColor: "var(--secondary-color)" }}
+              >
+                {isGeocoding ? "Buscando..." : "Localizar no Mapa"}
+              </button>
+            </div>
             {geocodeResult === "success" && (
               <div style={{ marginTop: "8px", color: "#10b981", fontSize: "0.9rem", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}>
                 <Icons.BsCheckCircleFill /> Endereço validado no mapa!
@@ -396,9 +448,34 @@ const ClienteFormModal: React.FC<ClienteFormModalProps> = ({ isOpen, onClose, cl
             )}
             {geocodeResult === "error" && (
               <div style={{ marginTop: "8px", color: "#ef4444", fontSize: "0.9rem", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}>
-                <Icons.BsXCircleFill /> CEP não encontrado.
+                <Icons.BsXCircleFill /> Coordenadas não encontradas.
               </div>
             )}
+          </div>
+
+          <div style={{ display: "flex", gap: "16px" }}>
+            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+              <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--secondary-color)" }}>Latitude</label>
+              <input
+                type="number"
+                step="any"
+                className="frequencia-select"
+                placeholder="Ex: -25.4206"
+                value={latitude || ""}
+                onChange={(e) => setLatitude(e.target.value ? parseFloat(e.target.value) : null)}
+              />
+            </div>
+            <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+              <label style={{ fontSize: "1.1rem", fontWeight: 600, color: "var(--secondary-color)" }}>Longitude</label>
+              <input
+                type="number"
+                step="any"
+                className="frequencia-select"
+                placeholder="Ex: -49.2635"
+                value={longitude || ""}
+                onChange={(e) => setLongitude(e.target.value ? parseFloat(e.target.value) : null)}
+              />
+            </div>
           </div>
 
           <div className="form-group" style={{ marginBottom: 0 }}>

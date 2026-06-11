@@ -5,47 +5,17 @@ import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
 import "../css/Frequencia.css";
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, Circle } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-
-// Correção de ícone padrão do Leaflet
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-});
-L.Marker.prototype.options.icon = DefaultIcon;
-
-const invisibleIcon = new L.DivIcon({
-  className: 'invisible-icon',
-  html: '',
-  iconSize: [0, 0],
-  iconAnchor: [0, 0],
-});
-
-const factoryIcon = new L.Icon({
-  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41]
-});
-
-const statusIcons: Record<string, L.Icon> = {
-  "Lead": new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }),
-  "Em Contato": new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }),
-  "Negócio Fechado": new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }),
-  "Perdido": new L.Icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }),
+import { GoogleMap, useJsApiLoader, MarkerF, InfoWindowF, CircleF } from "@react-google-maps/api";
+import ClienteFormModal from "../components/ClienteFormModal.tsx";
+const factoryIconUrl = 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png';
+const statusIconUrls: Record<string, string> = {
+  "Lead": 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+  "Em Contato": 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png',
+  "Negócio Fechado": 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+  "Perdido": 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
 };
 
-const getStatusIcon = (status: string) => {
-  return statusIcons[status] || statusIcons["Lead"];
-};
+const getStatusIconUrl = (status: string) => statusIconUrls[status] || statusIconUrls["Lead"];
 
 // Função para calcular distância entre duas coordenadas (Fórmula de Haversine)
 function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -60,6 +30,10 @@ function getDistanceFromLatLonInKm(lat1: number, lon1: number, lat2: number, lon
   return R * c;
 }
 
+const mapCenterLat = -25.4234265;
+const mapCenterLng = -49.2556277;
+const mapCenter = { lat: mapCenterLat, lng: mapCenterLng };
+
 function MapaFoodService() {
   const { session } = useAuth();
   const navigate = useNavigate();
@@ -67,9 +41,13 @@ function MapaFoodService() {
   const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredRadius, setHoveredRadius] = useState<number | null>(null);
+  const [activeMarker, setActiveMarker] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Centro do mapa: Rua Sete de Abril, 934, Alto da XV, Curitiba - CEP 80045-165
-  const mapCenter: [number, number] = [-25.4234265, -49.2556277];
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY || ""
+  });
 
   useEffect(() => {
     if (!session) {
@@ -120,138 +98,156 @@ function MapaFoodService() {
             <h1>Mapa Food Service</h1>
             <p>Visualização geográfica dos clientes e leads de Food Service.</p>
           </div>
-          <button className="primary-btn" onClick={() => navigate("/configuracoes/clientes")}>
-            <Icons.BsGear style={{ marginRight: "8px" }} />
-            Gerenciar Clientes
+          <button className="primary-btn" onClick={() => setIsModalOpen(true)}>
+            <Icons.BsPlusCircle style={{ marginRight: "8px" }} />
+            Novo Cliente
           </button>
         </div>
 
         {/* Componente do Mapa */}
         <div style={{ margin: "20px auto", width: "100%", padding: "0 20px" }}>
-          <div style={{ height: "600px", borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "1px solid var(--border-color)", position: "relative", zIndex: 1 }}>
-            <MapContainer center={mapCenter} zoom={13} style={{ height: "100%", width: "100%", zIndex: 1 }}>
-              <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              />
-
-              {/* Círculos de Raio (Renderizados do maior para o menor para acertar o clique) */}
-              {[5000, 4000, 3000, 2000, 1000].map((radius) => {
-                const radiusKm = radius / 1000;
-                const latOffset = radiusKm / 111.32;
-                const labelPosTop: [number, number] = [mapCenter[0] + latOffset, mapCenter[1]];
-                const labelPosBottom: [number, number] = [mapCenter[0] - latOffset, mapCenter[1]];
-
-                const isHovered = hoveredRadius === radius;
-
-                return (
-                  <React.Fragment key={`radius-group-${radius}`}>
-                    <Circle 
-                      center={mapCenter} 
-                      radius={radius} 
-                      interactive={true}
-                      eventHandlers={{
-                        mouseover: () => setHoveredRadius(radius),
-                        mouseout: () => setHoveredRadius(null),
-                      }}
-                      pathOptions={{ 
-                        color: isHovered ? "var(--secondary-color)" : "var(--primary-color)", 
-                        fillColor: isHovered ? "var(--secondary-color)" : "var(--primary-color)", 
-                        fillOpacity: isHovered ? 0.08 : 0.03, 
-                        opacity: isHovered ? 0.8 : 0.35,
-                        weight: isHovered ? 2.5 : 1.5, 
-                        dashArray: isHovered ? "" : "5, 8",
-                        className: "radar-circle-anim"
-                      }} 
-                    />
-                    {/* Top Label */}
-                    <Marker position={labelPosTop} icon={invisibleIcon} interactive={false}>
-                      <Tooltip permanent direction="center" offset={[0, 0]} opacity={isHovered ? 1 : 0.8}>
-                        <div style={{ 
-                          fontWeight: 800, 
-                          fontSize: "0.9rem", 
-                          color: isHovered ? "#fff" : "var(--primary-color)", 
-                          textShadow: isHovered ? "none" : "0 0 5px white, 0 0 5px white", 
-                          backgroundColor: isHovered ? "var(--secondary-color)" : "rgba(255,255,255,0.7)", 
-                          padding: "2px 8px", 
-                          borderRadius: "10px",
-                          transition: "all 0.2s ease"
-                        }}>
-                          {radiusKm} km
-                        </div>
-                      </Tooltip>
-                    </Marker>
-                    {/* Bottom Label */}
-                    <Marker position={labelPosBottom} icon={invisibleIcon} interactive={false}>
-                      <Tooltip permanent direction="center" offset={[0, 0]} opacity={isHovered ? 1 : 0.8}>
-                        <div style={{ 
-                          fontWeight: 800, 
-                          fontSize: "0.9rem", 
-                          color: isHovered ? "#fff" : "var(--primary-color)", 
-                          textShadow: isHovered ? "none" : "0 0 5px white, 0 0 5px white", 
-                          backgroundColor: isHovered ? "var(--secondary-color)" : "rgba(255,255,255,0.7)", 
-                          padding: "2px 8px", 
-                          borderRadius: "10px",
-                          transition: "all 0.2s ease"
-                        }}>
-                          {radiusKm} km
-                        </div>
-                      </Tooltip>
-                    </Marker>
-                  </React.Fragment>
-                );
-              })}
-
-              {/* Pino Central da Fábrica */}
-              <Marker position={mapCenter} icon={factoryIcon}>
-                <Tooltip permanent direction="top" offset={[0, -30]}>
-                  <strong style={{ fontSize: "1.4em", color: "var(--primary-color)" }}>Fábrica</strong>
-                </Tooltip>
-                <Popup>
-                  <strong style={{ display: "block", fontSize: "1.8em", color: "var(--primary-color)" }}>Fábrica</strong>
-                  <div style={{ marginTop: "6px", fontSize: "1.3em", color: "#444" }}>Rua Sete de Abril, 934<br/>Alto da XV - Curitiba - PR<br/>CEP: 80045-165</div>
-                </Popup>
-              </Marker>
-              
-              {/* Pinos dos Clientes */}
-              {clientes.map((c) => {
-                if (c.latitude && c.longitude) {
-                  const lat = Number(c.latitude);
-                  const lon = Number(c.longitude);
-                  const distKm = getDistanceFromLatLonInKm(mapCenter[0], mapCenter[1], lat, lon);
-                  const distText = distKm < 1 ? `${Math.round(distKm * 1000)}m` : `${distKm.toFixed(1)}km`;
+          <div style={{ height: "calc(100vh - 220px)", minHeight: "500px", borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 20px rgba(0,0,0,0.08)", border: "1px solid var(--border-color)", position: "relative", zIndex: 1, backgroundColor: "#f3f4f6" }}>
+            {isLoaded ? (
+              <GoogleMap
+                mapContainerStyle={{ height: "100%", width: "100%" }}
+                center={mapCenter}
+                zoom={13}
+                options={{ 
+                  disableDefaultUI: false,
+                  mapTypeControl: true,
+                  streetViewControl: false
+                }}
+                onMouseMove={(e) => {
+                  if (e.latLng) {
+                    const distKm = getDistanceFromLatLonInKm(mapCenter.lat, mapCenter.lng, e.latLng.lat(), e.latLng.lng());
+                    const distMeters = distKm * 1000;
+                    // Encontra o menor círculo em que o mouse está dentro
+                    let hovered = null;
+                    const radii = [1000, 2000, 3000, 4000, 5000];
+                    for (const r of radii) {
+                      if (distMeters <= r) {
+                        hovered = r;
+                        break;
+                      }
+                    }
+                    if (hoveredRadius !== hovered) {
+                      setHoveredRadius(hovered);
+                    }
+                  }
+                }}
+                onMouseOut={() => setHoveredRadius(null)}
+              >
+                {/* Círculos de Raio */}
+                {[5000, 4000, 3000, 2000, 1000].map((radius) => {
+                  const isHovered = hoveredRadius === radius;
+                  const radiusKm = radius / 1000;
+                  const latOffset = radiusKm / 111.32; // Aproximação de km para graus de latitude
+                  const labelPosTop = { lat: mapCenter.lat + latOffset, lng: mapCenter.lng };
+                  const labelPosBottom = { lat: mapCenter.lat - latOffset, lng: mapCenter.lng };
+                  const transparentIcon = { url: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" };
 
                   return (
-                    <Marker key={c.id} position={[lat, lon]} icon={getStatusIcon(c.status)}>
-                      <Tooltip permanent direction="top" offset={[0, -30]}>
-                        <div style={{ textAlign: "center", padding: "2px 4px" }}>
-                          <strong style={{ display: "block", fontSize: "1.5em", marginBottom: "4px" }}>{c.nome}</strong>
-                          <span style={{ fontSize: "1.35em", color: "var(--primary-color)", fontWeight: 800 }}>📍 {distText}</span>
-                        </div>
-                      </Tooltip>
-                      <Popup>
-                        <strong style={{ display: "block", fontSize: "1.6em" }}>{c.nome}</strong>
-                        <span style={{ 
-                          display: "inline-block",
-                          marginTop: "6px",
-                          padding: "6px 10px", 
-                          borderRadius: "8px", 
-                          fontSize: "1.1rem",
-                          fontWeight: 600,
-                          backgroundColor: `${getStatusColor(c.status || "Lead")}20`,
-                          color: getStatusColor(c.status || "Lead")
-                        }}>
-                          {c.status || "Lead"}
-                        </span>
-                        {c.telefone && <div style={{ marginTop: "12px", fontSize: "1.3em" }}><Icons.BsTelephone /> {c.telefone}</div>}
-                        <div style={{ marginTop: "8px", fontSize: "1.3em", color: "#444" }}>{c.endereco}</div>
-                      </Popup>
-                    </Marker>
+                    <React.Fragment key={`radius-group-${radius}`}>
+                      <CircleF
+                        center={mapCenter}
+                        radius={radius}
+                        options={{
+                          strokeColor: isHovered ? "var(--secondary-color)" : "var(--primary-color)",
+                          strokeOpacity: isHovered ? 0.8 : 0.35,
+                          strokeWeight: isHovered ? 2.5 : 1.5,
+                          fillColor: isHovered ? "var(--secondary-color)" : "var(--primary-color)",
+                          fillOpacity: isHovered ? 0.08 : 0.03,
+                          clickable: false
+                        }}
+                      />
+                      {/* Top Label */}
+                      <MarkerF
+                        position={labelPosTop}
+                        icon={transparentIcon}
+                        options={{ clickable: false }}
+                        label={{
+                          text: `${radiusKm} km`,
+                          className: `radius-label ${isHovered ? "hovered" : ""}`
+                        }}
+                      />
+                      {/* Bottom Label */}
+                      <MarkerF
+                        position={labelPosBottom}
+                        icon={transparentIcon}
+                        options={{ clickable: false }}
+                        label={{
+                          text: `${radiusKm} km`,
+                          className: `radius-label ${isHovered ? "hovered" : ""}`
+                        }}
+                      />
+                    </React.Fragment>
                   );
-                }
-                return null;
-              })}
-            </MapContainer>
+                })}
+
+                {/* Pino Central da Fábrica */}
+                <MarkerF 
+                  position={mapCenter} 
+                  icon={{ url: factoryIconUrl, scaledSize: new window.google.maps.Size(25, 41) }}
+                  onClick={() => setActiveMarker("fabrica")}
+                  label={{ text: "Fábrica", className: "marker-permanent-label" }}
+                >
+                  {activeMarker === "fabrica" && (
+                    <InfoWindowF onCloseClick={() => setActiveMarker(null)}>
+                      <div style={{ minWidth: "220px", padding: "4px 8px 0px 4px" }}>
+                        <strong style={{ display: "block", fontSize: "1.3em", color: "var(--primary-color)", marginBottom: "8px" }}>Fábrica</strong>
+                        <div style={{ fontSize: "1.05em", color: "#444", lineHeight: "1.4" }}>Rua Sete de Abril, 934<br/>Alto da XV - Curitiba - PR<br/>CEP: 80045-165</div>
+                      </div>
+                    </InfoWindowF>
+                  )}
+                </MarkerF>
+                
+                {/* Pinos dos Clientes */}
+                {clientes.map((c) => {
+                  if (c.latitude && c.longitude) {
+                    const lat = Number(c.latitude);
+                    const lon = Number(c.longitude);
+                    const pos = { lat, lng: lon };
+                    
+                    return (
+                      <MarkerF 
+                        key={c.id} 
+                        position={pos} 
+                        icon={{ url: getStatusIconUrl(c.status), scaledSize: new window.google.maps.Size(25, 41) }}
+                        onClick={() => setActiveMarker(c.id)}
+                        label={{ text: c.nome, className: "marker-permanent-label" }}
+                      >
+                        {activeMarker === c.id && (
+                          <InfoWindowF onCloseClick={() => setActiveMarker(null)}>
+                            <div style={{ minWidth: "220px", padding: "4px 8px 0px 4px" }}>
+                              <strong style={{ display: "block", fontSize: "1.3em", marginBottom: "8px", color: "var(--secondary-color)" }}>{c.nome}</strong>
+                              <span style={{ 
+                                display: "inline-block",
+                                padding: "4px 8px", 
+                                borderRadius: "6px", 
+                                fontSize: "0.9rem",
+                                fontWeight: 700,
+                                backgroundColor: `${getStatusColor(c.status || "Lead")}20`,
+                                color: getStatusColor(c.status || "Lead"),
+                                marginBottom: "12px"
+                              }}>
+                                {c.status || "Lead"}
+                              </span>
+                              {c.telefone && <div style={{ fontSize: "1.05em", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}><Icons.BsTelephone /> {c.telefone}</div>}
+                              <div style={{ fontSize: "1.05em", color: "#444", lineHeight: "1.4" }}>{c.endereco}</div>
+                            </div>
+                          </InfoWindowF>
+                        )}
+                      </MarkerF>
+                    );
+                  }
+                  return null;
+                })}
+              </GoogleMap>
+            ) : (
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%" }}>
+                <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -275,7 +271,7 @@ function MapaFoodService() {
                 </thead>
                 <tbody>
                   {clientes.filter(c => c.latitude).map((c) => {
-                    const distKm = getDistanceFromLatLonInKm(mapCenter[0], mapCenter[1], Number(c.latitude), Number(c.longitude));
+                    const distKm = getDistanceFromLatLonInKm(mapCenter.lat, mapCenter.lng, Number(c.latitude), Number(c.longitude));
                     const distText = distKm < 1 ? `${Math.round(distKm * 1000)} metros` : `${distKm.toFixed(1)} km`;
                     return (
                       <tr key={c.id} style={{ backgroundColor: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", borderRadius: "12px", transition: "transform 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}>
@@ -322,6 +318,11 @@ function MapaFoodService() {
           )}
         </div>
       </div>
+      <ClienteFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={fetchClientes}
+      />
     </>
   );
 }

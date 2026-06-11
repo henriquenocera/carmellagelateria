@@ -735,3 +735,60 @@ input[type="number"].no-spinner {
 .invisible-input[type="date"]:focus::-webkit-calendar-picker-indicator {
   opacity: 1;
 }
+
+/* Google Maps Overrides */
+.marker-permanent-label {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 800 !important;
+  color: var(--secondary-color) !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  transform: translateY(-40px);
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  pointer-events: none;
+  border: 1px solid var(--border-color);
+}
+
+.gm-style-iw-c {
+  padding: 16px !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important;
+}
+
+.gm-style-iw-d {
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+button.gm-ui-hover-effect {
+  top: 10px !important;
+  right: 10px !important;
+  background-color: #f3f4f6 !important;
+  border-radius: 50% !important;
+}
+button.gm-ui-hover-effect:hover {
+  background-color: #e5e7eb !important;
+}
+
+.radius-label {
+  font-weight: 800 !important;
+  font-size: 11px !important;
+  color: var(--primary-color) !important;
+  text-shadow: 0 0 5px white, 0 0 5px white, 0 0 5px white !important;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 2px 6px;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  font-family: inherit !important;
+  transform: translateY(-8px);
+}
+
+.radius-label.hovered {
+  color: #fff !important;
+  background-color: var(--secondary-color);
+  text-shadow: none !important;
+}
