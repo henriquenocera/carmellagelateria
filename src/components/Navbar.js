@@ -28,6 +28,7 @@ const MENU_CONFIG = [
       { title: "Checklists", path: "/lojas-checklist" },
       { title: "Mapa Food Service", path: "/mapa-food-service" },
       { title: "CRM", path: "/crm" },
+      { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
     ]
   },
   {

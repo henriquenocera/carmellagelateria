@@ -22,6 +22,7 @@ import CRM from "./routes/CRM.tsx";
 import HistoricoCliente from "./routes/HistoricoCliente.tsx";
 
 import Etiquetas from "./routes/Etiquetas.tsx";
+import NotificacoesLoja from "./routes/NotificacoesLoja.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
 
@@ -118,6 +119,7 @@ const router = createBrowserRouter(
         <Route path="/mapa-food-service" element={<MapaFoodService />} />
         <Route path="/crm" element={<CRM />} />
         <Route path="/crm/cliente/:id" element={<HistoricoCliente />} />
+        <Route path="/notificacoes-loja" element={<NotificacoesLoja />} />
         <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
 
         <Route path="/inventario" element={<Inventario />} />
