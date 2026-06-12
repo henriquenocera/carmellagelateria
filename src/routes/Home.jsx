@@ -422,59 +422,59 @@ function Home() {
         <p style={{ color: "#78716c", fontSize: "1.4rem", margin: 0 }}>Visão geral das operações da Carmella Gelateria.</p>
       </div>
 
-      {/* Notificações Section (Topo) */}
-      <section style={{ display: "flex", flexDirection: "column", marginBottom: "32px" }}>
-        <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
-          <Icons.BsBell style={{ color: "#a17550" }} /> Notificações e Instruções
-        </h2>
-        <div style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", display: "flex", flexDirection: "column" }}>
-
-          {notificacoes.length === 0 ? (
-            <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", color: "#64748b" }}>
-              <Icons.BsCheckCircle style={{ fontSize: "2rem", color: "#10b981", flexShrink: 0 }} />
-              <div>
-                <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.5rem" }}>Tudo certo por aqui!</h3>
-                <p style={{ margin: 0, fontSize: "1.3rem", lineHeight: "1.5" }}>Não há nenhuma notificação ou recado importante no momento.</p>
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {notificacoes.map((notif, idx) => {
-                const isLast = idx === notificacoes.length - 1;
-                return (
-                  <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "12px 0", borderBottom: isLast ? "none" : "1px solid #f8fafc" }}>
-                    {notif.tipo === 'info' ? (
-                      <Icons.BsInfoCircle style={{ fontSize: "1.8rem", color: "#3b82f6", flexShrink: 0, marginTop: "2px" }} />
-                    ) : notif.tipo === 'aviso' ? (
-                      <Icons.BsExclamationCircle style={{ fontSize: "1.8rem", color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
-                    ) : (
-                      <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
-                    )}
-                    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                      <span style={{
-                        color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444",
-                        fontSize: "1.4rem",
-                        fontWeight: "600"
-                      }}>
-                        {notif.titulo}
-                      </span>
-                      {notif.mensagem && <span style={{ color: "#64748b", fontSize: "1.3rem", lineHeight: "1.4" }}>{notif.mensagem}</span>}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-        </div>
-      </section>
-
       {/* Main Grid */}
       <div className="dashboard-main-grid">
 
-        {/* Coluna da Esquerda (Checklists + Folgas + Vales) */}
+        {/* Coluna da Esquerda (Notificações + Checklists + Folgas + Vales) */}
         <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
           
+          {/* Notificações Section */}
+          <section style={{ display: "flex", flexDirection: "column" }}>
+            <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <Icons.BsBell style={{ color: "#a17550" }} /> Notificações e Instruções
+            </h2>
+            <div style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", display: "flex", flexDirection: "column" }}>
+
+              {notificacoes.length === 0 ? (
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", color: "#64748b" }}>
+                  <Icons.BsCheckCircle style={{ fontSize: "2rem", color: "#10b981", flexShrink: 0 }} />
+                  <div>
+                    <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.5rem" }}>Tudo certo por aqui!</h3>
+                    <p style={{ margin: 0, fontSize: "1.3rem", lineHeight: "1.5" }}>Não há nenhuma notificação ou recado importante no momento.</p>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  {notificacoes.map((notif, idx) => {
+                    const isLast = idx === notificacoes.length - 1;
+                    return (
+                      <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "12px 0", borderBottom: isLast ? "none" : "1px solid #f8fafc" }}>
+                        {notif.tipo === 'info' ? (
+                          <Icons.BsInfoCircle style={{ fontSize: "1.8rem", color: "#3b82f6", flexShrink: 0, marginTop: "2px" }} />
+                        ) : notif.tipo === 'aviso' ? (
+                          <Icons.BsExclamationCircle style={{ fontSize: "1.8rem", color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
+                        ) : (
+                          <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
+                        )}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          <span style={{
+                            color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444",
+                            fontSize: "1.4rem",
+                            fontWeight: "600"
+                          }}>
+                            {notif.titulo}
+                          </span>
+                          {notif.mensagem && <span style={{ color: "#64748b", fontSize: "1.3rem", lineHeight: "1.4" }}>{notif.mensagem}</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            </div>
+          </section>
+
           {/* Checklists Section */}
           <section className="card-checklists" style={{ display: "flex", flexDirection: "column", alignSelf: "start", width: "100%" }}>
             <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
