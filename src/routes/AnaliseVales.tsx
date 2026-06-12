@@ -87,8 +87,8 @@ const AnaliseVales = () => {
         let query = supabase.from('Vales').select('*').order('created_at', { ascending: false }).range(from, from + step - 1);
 
         if (!showAll) {
-          const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0));
-          const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999));
+          const startDate = new Date(year, month - 1, 1, 0, 0, 0);
+          const endDate = new Date(year, month, 0, 23, 59, 59, 999);
           query = query.gte('created_at', startDate.toISOString()).lte('created_at', endDate.toISOString());
         }
 
@@ -134,7 +134,7 @@ const AnaliseVales = () => {
   const formatDateTime = (dateStr: string) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
-    return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+    return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
   };
 
   // --- CRUD LÓGICA ---
@@ -149,11 +149,11 @@ const AnaliseVales = () => {
 
       if (vale.created_at) {
         const d = new Date(vale.created_at);
-        const y = d.getUTCFullYear();
-        const m = String(d.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(d.getUTCDate()).padStart(2, '0');
-        const h = String(d.getUTCHours()).padStart(2, '0');
-        const min = String(d.getUTCMinutes()).padStart(2, '0');
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const h = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
         setFormDate(`${y}-${m}-${day}T${h}:${min}`);
       } else {
         setFormDate('');
@@ -219,7 +219,7 @@ const AnaliseVales = () => {
       const valorNumerico = parseFloat(formValor.replace(',', '.'));
       if (isNaN(valorNumerico)) throw new Error("Valor inválido");
 
-      const dateObj = new Date(formDate + "Z");
+      const dateObj = new Date(formDate);
 
       const payload = {
         Nome: formNome,
@@ -240,8 +240,8 @@ const AnaliseVales = () => {
       setIsModalOpen(false);
 
       // Mudar os filtros para a data do lançamento que acabou de ser salvo se precisar
-      const insertedMonth = dateObj.getUTCMonth() + 1;
-      const insertedYear = dateObj.getUTCFullYear();
+      const insertedMonth = dateObj.getMonth() + 1;
+      const insertedYear = dateObj.getFullYear();
 
       if (month !== insertedMonth || year !== insertedYear) {
         setMonth(insertedMonth);
