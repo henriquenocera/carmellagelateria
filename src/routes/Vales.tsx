@@ -22,6 +22,8 @@ function Vales() {
   const [isFormSending, setIsFormSending] = useState(false);
   const [isCheckingId, setIsCheckingId] = useState(false);
   const [currentBalance, setCurrentBalance] = useState<number | null>(null);
+  const [futureBalance, setFutureBalance] = useState<number | null>(null);
+  const [futureVales, setFutureVales] = useState<any[]>([]);
   const [submitStatus, setSubmitStatus] = useState<"idle" | "success" | "error">("idle");
   const [consultView, setConsultView] = useState(false);
   const [consultingVales, setConsultingVales] = useState<any[]>([]);
@@ -112,7 +114,7 @@ function Vales() {
   Options.forEach((opt: any) => {
     const dbItem = produtosList.find(p => p.nome === opt.value);
     let valorFinal = dbItem ? dbItem.valor : 0;
-    
+
     if (isComboDiscountApplicable(opt.value, currentDay)) {
       valorFinal -= 2;
     }
@@ -201,7 +203,7 @@ function Vales() {
     } else {
       setUser(data.name);
 
-      let query = supabase.from("Vales").select("valor").eq("Nome", data.name);
+      let query = supabase.from("Vales").select("valor, created_at, Item").eq("Nome", data.name);
       if (data.data_registro) {
         query = query.gte("created_at", data.data_registro);
       }
@@ -210,14 +212,31 @@ function Vales() {
       setIsCheckingId(false);
 
       if (!valesError && valesData) {
-        const total = valesData.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
-        setCurrentBalance(total);
-        if (total < 0) {
-          setModalTimer(5);
+        const now = new Date();
+        let currTotal = 0;
+        let futureTot = 0;
+        let futureItems: any[] = [];
+        valesData.forEach(curr => {
+          const val = Number(curr.valor) || 0;
+          const vDate = new Date(curr.created_at);
+          if (vDate > now) {
+            futureTot += val;
+            futureItems.push(curr);
+          } else {
+            currTotal += val;
+          }
+        });
+        setCurrentBalance(currTotal);
+        setFutureBalance(futureTot);
+        setFutureVales(futureItems);
+        if (currTotal < 0) {
+          setModalTimer(1);
           setShowNegativeBalanceModal(true);
         }
       } else {
         setCurrentBalance(0);
+        setFutureBalance(0);
+        setFutureVales([]);
       }
     }
   }
@@ -259,11 +278,24 @@ function Vales() {
 
       if (!valesError && valesData) {
         setConsultingVales(valesData);
-        const total = valesData.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
-        setCurrentBalance(total);
+        const now = new Date();
+        let currTotal = 0;
+        let futureTot = 0;
+        valesData.forEach(curr => {
+          const val = Number(curr.valor) || 0;
+          const vDate = new Date(curr.created_at);
+          if (vDate > now) {
+            futureTot += val;
+          } else {
+            currTotal += val;
+          }
+        });
+        setCurrentBalance(currTotal);
+        setFutureBalance(futureTot);
       } else {
         setConsultingVales([]);
         setCurrentBalance(0);
+        setFutureBalance(0);
       }
       setConsultView(true);
     }
@@ -355,6 +387,8 @@ function Vales() {
     setSelectedItems([{ id: Date.now(), name: "", valor: 0 }]);
     setSubmitStatus("idle");
     setCurrentBalance(null);
+    setFutureBalance(null);
+    setFutureVales([]);
     setConsultView(false);
     setConsultingVales([]);
     if (idInputRef.current) {
@@ -442,9 +476,9 @@ function Vales() {
             </div>
             <h2 style={{ color: "#ef4444", fontSize: "2.8rem", fontWeight: 700, margin: "0 0 15px" }}>Atenção!</h2>
             <p style={{ color: "#334155", fontSize: "1.8rem", margin: "0 0 25px", fontWeight: 500 }}>Seu saldo está negativo.</p>
-            <div style={{ 
-              backgroundColor: "#f1f5f9", 
-              padding: "16px 24px", 
+            <div style={{
+              backgroundColor: "#f1f5f9",
+              padding: "16px 24px",
               borderRadius: "8px",
               display: "inline-block",
               color: "#64748b",
@@ -499,11 +533,21 @@ function Vales() {
               <h2 style={{ color: "#a17550", marginBottom: "20px", textAlign: "center", fontSize: "2rem" }}>Histórico de Vales - {user}</h2>
 
               {currentBalance !== null && (
-                <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", marginBottom: "24px", border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ color: "#64748b", fontWeight: 600, fontSize: "1.6rem" }}>Saldo Atual:</span>
-                  <span style={{ color: currentBalance < 0 ? "#ef4444" : currentBalance > 0 ? "#16a34a" : "#64748b", fontWeight: 700, fontSize: "1.8rem" }}>
-                    {currentBalance > 0 ? '+' : currentBalance < 0 ? '-' : ''} R$ {Math.abs(currentBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
+                <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", marginBottom: "24px", border: "1px solid #e2e8f0", display: "flex", flexDirection: "column", gap: "12px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ color: "#334155", fontWeight: 800, fontSize: "1.8rem" }}>Saldo Atual:</span>
+                    <span style={{ color: currentBalance < 0 ? "#ef4444" : currentBalance > 0 ? "#16a34a" : "#64748b", fontWeight: 800, fontSize: "2.2rem" }}>
+                      {currentBalance > 0 ? '+' : currentBalance < 0 ? '-' : ''} R$ {Math.abs(currentBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  {futureBalance !== null && futureBalance !== 0 && (
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px dashed #cbd5e1", paddingTop: "12px" }}>
+                      <span style={{ color: "#b45309", fontWeight: 700, fontSize: "1.5rem" }}>Saldo Futuro Previsto:</span>
+                      <span style={{ color: (currentBalance + futureBalance) < 0 ? "#ef4444" : (currentBalance + futureBalance) > 0 ? "#16a34a" : "#64748b", fontWeight: 700, fontSize: "1.8rem" }}>
+                        {(currentBalance + futureBalance) > 0 ? '+' : (currentBalance + futureBalance) < 0 ? '-' : ''} R$ {Math.abs(currentBalance + futureBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -535,17 +579,27 @@ function Vales() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredConsultingVales.map((vale, index) => (
-                        <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                          <td style={{ padding: "12px", color: "#334155" }}>
-                            {new Date(vale.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })}
-                          </td>
-                          <td style={{ padding: "12px", color: "#334155", fontWeight: 500 }}>{vale.Item}</td>
-                          <td style={{ padding: "12px", textAlign: "right", color: Number(vale.valor) >= 0 ? "#16a34a" : "#ef4444", fontWeight: "bold" }}>
-                            R$ {Math.abs(Number(vale.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                          </td>
-                        </tr>
-                      ))}
+                      {filteredConsultingVales.map((vale, index) => {
+                        const isFuture = new Date(vale.created_at) > new Date();
+                        return (
+                          <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
+                            <td style={{ padding: "12px", color: "#334155" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <span>{new Date(vale.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })}</span>
+                                {isFuture && (
+                                  <span style={{ fontSize: "1.1rem", color: "#d97706", fontWeight: "bold", backgroundColor: "#fef3c7", padding: "2px 6px", borderRadius: "4px", width: "fit-content" }}>
+                                    Lançamento futuro previsto
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td style={{ padding: "12px", color: "#334155", fontWeight: 500 }}>{vale.Item}</td>
+                            <td style={{ padding: "12px", textAlign: "right", color: Number(vale.valor) >= 0 ? "#16a34a" : "#ef4444", fontWeight: "bold" }}>
+                              R$ {Math.abs(Number(vale.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -620,12 +674,29 @@ function Vales() {
 
               {currentBalance !== null && (
                 <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", marginBottom: "20px", border: "1px solid #e2e8f0" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: selectedItems.reduce((acc, curr) => acc + Math.abs(curr.valor), 0) > 0 ? "8px" : "0" }}>
-                    <span style={{ color: "#64748b", fontWeight: 600, fontSize: "1.4rem" }}>Saldo Atual:</span>
-                    <span style={{ color: currentBalance < 0 ? "#ef4444" : "#16a34a", fontWeight: 700, fontSize: "1.5rem" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: (futureVales.length > 0 || selectedItems.reduce((acc, curr) => acc + Math.abs(curr.valor), 0) > 0) ? "16px" : "0" }}>
+                    <span style={{ color: "#334155", fontWeight: 800, fontSize: "1.8rem" }}>Saldo Atual:</span>
+                    <span style={{ color: currentBalance < 0 ? "#ef4444" : "#16a34a", fontWeight: 800, fontSize: "2.2rem" }}>
                       R$ {currentBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </span>
                   </div>
+                  {futureVales.length > 0 && (
+                    <div style={{ backgroundColor: "#fffbeb", padding: "12px", borderRadius: "8px", marginBottom: selectedItems.reduce((acc, curr) => acc + Math.abs(curr.valor), 0) > 0 ? "16px" : "0", border: "1px solid #fde68a" }}>
+                      <span style={{ color: "#d97706", fontWeight: 700, fontSize: "1.4rem", display: "block", marginBottom: "8px" }}>Lançamentos futuros:</span>
+                      {futureVales.map((fv, idx) => (
+                        <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: "1.3rem", color: "#64748b", marginBottom: "6px", paddingLeft: "8px", borderLeft: "2px solid #fbbf24" }}>
+                          <span>{new Date(fv.created_at).toLocaleDateString('pt-BR')} - {fv.Item}</span>
+                          <span style={{ color: Number(fv.valor) < 0 ? "#ef4444" : "#16a34a", fontWeight: 600 }}>R$ {Math.abs(Number(fv.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                      ))}
+                      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", paddingTop: "8px", borderTop: "1px dashed #fcd34d" }}>
+                        <span style={{ color: "#b45309", fontWeight: 700, fontSize: "1.4rem" }}>Saldo Futuro Previsto:</span>
+                        <span style={{ color: (currentBalance + futureBalance) < 0 ? "#ef4444" : "#16a34a", fontWeight: 800, fontSize: "1.6rem" }}>
+                          R$ {(currentBalance + futureBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                   {selectedItems.reduce((acc, curr) => acc + Math.abs(curr.valor), 0) > 0 && (
                     <>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
@@ -635,7 +706,7 @@ function Vales() {
                         </span>
                       </div>
                       <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px dashed #cbd5e1", paddingTop: "8px" }}>
-                        <span style={{ color: "#334155", fontWeight: 700, fontSize: "1.4rem" }}>Saldo Futuro:</span>
+                        <span style={{ color: "#334155", fontWeight: 700, fontSize: "1.4rem" }}>Novo Saldo {futureVales.length > 0 ? 'Atual ' : ''}(Após Lançamento):</span>
                         <span style={{ color: (currentBalance - selectedItems.reduce((acc, curr) => acc + Math.abs(curr.valor), 0)) < 0 ? "#ef4444" : "#16a34a", fontWeight: 800, fontSize: "1.6rem" }}>
                           R$ {(currentBalance - selectedItems.reduce((acc, curr) => acc + Math.abs(curr.valor), 0)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
