@@ -585,7 +585,7 @@ function Vales() {
                           <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
                             <td style={{ padding: "12px", color: "#334155" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                                <span>{new Date(vale.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
+                                <span>{new Date(vale.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" })}</span>
                                 {isFuture && (
                                   <span style={{ fontSize: "1.1rem", color: "#d97706", fontWeight: "bold", backgroundColor: "#fef3c7", padding: "2px 6px", borderRadius: "4px", width: "fit-content" }}>
                                     Lançamento futuro previsto
