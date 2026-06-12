@@ -245,6 +245,7 @@ function Vales() {
       setUser("");
       setConsultingVales([]);
       setConsultView(false);
+      setCurrentBalance(null);
     } else {
       setUser(data.name);
 
@@ -258,8 +259,11 @@ function Vales() {
 
       if (!valesError && valesData) {
         setConsultingVales(valesData);
+        const total = valesData.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
+        setCurrentBalance(total);
       } else {
         setConsultingVales([]);
+        setCurrentBalance(0);
       }
       setConsultView(true);
     }
@@ -493,6 +497,15 @@ function Vales() {
           ) : consultView ? (
             <div className="consult-view" style={{ padding: "20px", width: "100%" }}>
               <h2 style={{ color: "#a17550", marginBottom: "20px", textAlign: "center", fontSize: "2rem" }}>Histórico de Vales - {user}</h2>
+
+              {currentBalance !== null && (
+                <div style={{ backgroundColor: "#f8fafc", padding: "16px", borderRadius: "8px", marginBottom: "24px", border: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ color: "#64748b", fontWeight: 600, fontSize: "1.6rem" }}>Saldo Atual:</span>
+                  <span style={{ color: currentBalance < 0 ? "#ef4444" : currentBalance > 0 ? "#16a34a" : "#64748b", fontWeight: 700, fontSize: "1.8rem" }}>
+                    {currentBalance > 0 ? '+' : currentBalance < 0 ? '-' : ''} R$ {Math.abs(currentBalance).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                </div>
+              )}
 
               <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginBottom: "24px", flexWrap: "wrap", alignItems: "center" }}>
                 <button type="button" onClick={() => { setShowAllConsult(false); handleMonthNavigation("prev"); }} style={{ padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", background: "#fff", cursor: "pointer", fontSize: "1.4rem" }}>&lt;</button>
