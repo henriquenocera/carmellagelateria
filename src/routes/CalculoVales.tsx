@@ -192,7 +192,7 @@ function CalculoVales() {
         .select("employee_id, status")
         .gte("date", startOfPrevStr)
         .lte("date", endOfPrevStr)
-        .in("status", ["Falta Não Justificada", "Atestado", "Folga Compensatória"]);
+        .in("status", ["Falta Não Justificada", "Atestado", "Folga Compensatória", "Férias"]);
 
       if (attError) throw attError;
 
