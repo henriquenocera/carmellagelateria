@@ -129,14 +129,16 @@ function Home() {
                             </td>
                           </tr>
                           {todaysLimited.map((vale) => (
-                            <tr key={vale.id}>
+                            <tr key={vale.id} className={moment().diff(moment(vale.created_at), "minutes") < 0 ? "future-row" : ""}>
                               <td>
                                 {moment(vale.created_at).format(
                                   "DD/MM/YYYY HH:mm"
                                 )}
-                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
+                                {moment().diff(moment(vale.created_at), "minutes") < 0 ? (
+                                  <span className="previsto-tag">previsto</span>
+                                ) : moment().diff(moment(vale.created_at), "minutes") < 60 ? (
                                   <span className="new-tag">novo</span>
-                                )}
+                                ) : null}
                               </td>
                               <td>{vale.Nome ?? "-"}</td>
                               <td>{vale.Item ?? "-"}</td>
@@ -151,14 +153,16 @@ function Home() {
                             <td colSpan={3}>Dias anteriores</td>
                           </tr>
                           {othersLimited.map((vale) => (
-                            <tr key={vale.id}>
+                            <tr key={vale.id} className={moment().diff(moment(vale.created_at), "minutes") < 0 ? "future-row" : ""}>
                               <td>
                                 {moment(vale.created_at).format(
                                   "DD/MM/YYYY HH:mm"
                                 )}
-                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
+                                {moment().diff(moment(vale.created_at), "minutes") < 0 ? (
+                                  <span className="previsto-tag">previsto</span>
+                                ) : moment().diff(moment(vale.created_at), "minutes") < 60 ? (
                                   <span className="new-tag">novo</span>
-                                )}
+                                ) : null}
                               </td>
                               <td>{vale.Nome ?? "-"}</td>
                               <td>{vale.Item ?? "-"}</td>

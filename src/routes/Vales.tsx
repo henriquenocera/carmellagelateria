@@ -16,6 +16,7 @@ const unidade = STORE_CONFIG.key;
 
 function Vales() {
   const [user, setUser] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const idInputRef = useRef<HTMLInputElement>(null);
   const [selectedItems, setSelectedItems] = useState([{ id: Date.now(), name: "", valor: 0 }]);
   const [produtosList, setProdutosList] = useState<any[]>([]);
@@ -162,6 +163,35 @@ function Vales() {
     }
   }
 
+  async function sendMakeWebhook(userName: string, userEmail: string, items: any[]) {
+    // React só lê variáveis que começam com REACT_APP_
+    // Como a chave atual é MAKE_WEBHOOK_URL, vou deixar a URL como fallback caso o .env não seja atualizado
+    const webhookUrl = process.env.REACT_APP_MAKE_WEBHOOK_URL || "https://hook.us2.make.com/ggooa8voo7o86bpbkj6sn1vkiep4y2ai";
+    const total = items.reduce((acc, curr) => acc + Math.abs(curr.valor), 0);
+    const itemsStr = items.map(i => i.name).join(" + ");
+
+    try {
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          evento: "novo_vale",
+          nome: userName,
+          email: userEmail,
+          unidade: unidadeText,
+          itens: itemsStr,
+          total: total,
+          data: new Date().toISOString()
+        }),
+      });
+      console.log("Webhook do Make enviado com sucesso!");
+    } catch (e) {
+      console.error("Erro no envio do webhook para o Make", e);
+    }
+  }
+
   function handleSelect(e: any, index: number) {
     const newItems = [...selectedItems];
     if (e) {
@@ -191,7 +221,7 @@ function Vales() {
     setIsCheckingId(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("name, data_registro")
+      .select("name, data_registro, email")
       .eq("short_id", idInput)
       .single();
 
@@ -199,9 +229,11 @@ function Vales() {
       setIsCheckingId(false);
       window.alert("ID não encontrado. Verifique e tente novamente.");
       setUser("");
+      setUserEmail("");
       setCurrentBalance(null);
     } else {
       setUser(data.name);
+      setUserEmail(data.email);
 
       let query = supabase.from("Vales").select("valor, created_at, Item").eq("Nome", data.name);
       if (data.data_registro) {
@@ -254,7 +286,7 @@ function Vales() {
     setIsCheckingId(true);
     const { data, error } = await supabase
       .from("profiles")
-      .select("name, data_registro")
+      .select("name, data_registro, email")
       .eq("short_id", idInput)
       .single();
 
@@ -262,11 +294,13 @@ function Vales() {
       setIsCheckingId(false);
       window.alert("ID não encontrado. Verifique e tente novamente.");
       setUser("");
+      setUserEmail("");
       setConsultingVales([]);
       setConsultView(false);
       setCurrentBalance(null);
     } else {
       setUser(data.name);
+      setUserEmail(data.email);
 
       let query = supabase.from("Vales").select("*").eq("Nome", data.name).order('created_at', { ascending: false });
       if (data.data_registro) {
@@ -355,6 +389,8 @@ function Vales() {
     const itemsStr = validItems.map(i => i.name).join(" + ");
 
     sendValeMessage(dateStr, itemsStr);
+    sendMakeWebhook(user, userEmail, validItems);
+    
     e.preventDefault();
 
     const action = (e.target as HTMLFormElement).action;
@@ -384,6 +420,7 @@ function Vales() {
 
   function resetForm() {
     setUser("");
+    setUserEmail("");
     setSelectedItems([{ id: Date.now(), name: "", valor: 0 }]);
     setSubmitStatus("idle");
     setCurrentBalance(null);
