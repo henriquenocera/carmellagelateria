@@ -80,6 +80,7 @@ const MENU_CONFIG = [
       { title: "Funcionários", path: "/funcionarios" },
       { title: "Frequência", path: "/frequencia" },
       { title: "Cálculo de Vales", path: "/calculo-vales", adminOnly: true },
+      { title: "Histórico de Vales", subtitle: "VT / VR", subtitleColor: "#10b981", path: "/historico-vt-vr", adminOnly: true },
     ]
   },
   {
@@ -224,12 +225,12 @@ function NavBar() {
                             <span className="text-container" style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px" }}>
                               <span>{subItem.title}</span>
                               {subItem.subtitle && (
-                                <span style={{ 
-                                  fontSize: "0.85rem", 
-                                  color: subItem.subtitleColor || "#94a3b8", 
-                                  fontWeight: "700", 
-                                  lineHeight: 1, 
-                                  letterSpacing: "0.5px" 
+                                <span style={{
+                                  fontSize: "0.85rem",
+                                  color: subItem.subtitleColor || "#94a3b8",
+                                  fontWeight: "700",
+                                  lineHeight: 1,
+                                  letterSpacing: "0.5px"
                                 }}>
                                   {subItem.subtitle.toUpperCase()}
                                 </span>

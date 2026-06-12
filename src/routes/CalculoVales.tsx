@@ -51,6 +51,9 @@ function CalculoVales() {
   const [adjustedDays, setAdjustedDays] = useState<{ [profileId: string]: number }>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{type: "success" | "error", text: string} | null>(null);
 
   // Default to the next calendar month
   const getNextMonthAndYear = () => {
@@ -251,6 +254,62 @@ function CalculoVales() {
       ...prev,
       [profileId]: isNaN(intVal) || intVal < 0 ? 0 : intVal
     }));
+  };
+
+  const handleSavePagamentos = async () => {
+    try {
+      setSaving(true);
+      setSaveMessage(null);
+      
+      const payload = profiles.map((p) => {
+        const days = adjustedDays[p.id] ?? 0;
+        const urbsQty = days * (p.passagens_urbs ?? 0);
+        const metroQty = days * (p.passagens_metrocard ?? 0);
+        const vrQty = days;
+        
+        const urbsCost = urbsQty * 6.00;
+        const metroCost = metroQty * 5.50;
+        const vtCost = urbsCost + metroCost;
+        const vrCost = vrQty * 17.00;
+        
+        return {
+          employee_id: p.id,
+          mes_referencia: month,
+          ano_referencia: year,
+          valor_vt: parseFloat(vtCost.toFixed(2)),
+          valor_vr: parseFloat(vrCost.toFixed(2)),
+          data_pagamento: new Date().toISOString().split('T')[0]
+        };
+      });
+
+      const validPayload = payload.filter(p => p.valor_vt > 0 || p.valor_vr > 0);
+
+      if (validPayload.length === 0) {
+         setSaveMessage({type: "error", text: "Não há valores previstos para salvar."});
+         return;
+      }
+
+      const { error } = await supabase
+        .from("historico_pagamentos_vt_vr")
+        .upsert(validPayload, { onConflict: 'employee_id, mes_referencia, ano_referencia' });
+
+      if (error) {
+        if (error.code === '42P01') {
+          throw new Error("Execute o Script SQL no painel do Supabase para criar a tabela de histórico.");
+        }
+        throw error;
+      }
+
+      setSaveMessage({type: "success", text: "Pagamentos salvos com sucesso no Histórico!"});
+      
+      // Limpa a mensagem após 4 segundos
+      setTimeout(() => setSaveMessage(null), 4000);
+    } catch (err: any) {
+      console.error(err);
+      setSaveMessage({type: "error", text: err.message || "Erro ao salvar histórico no banco."});
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Calculations for summary card
@@ -502,6 +561,24 @@ function CalculoVales() {
             </button>
           </div>
         </div>
+
+        {saveMessage && (
+          <div style={{ 
+            marginTop: "16px",
+            padding: "12px 16px", 
+            borderRadius: "8px", 
+            backgroundColor: saveMessage.type === "success" ? "#dcfce7" : "#fee2e2", 
+            color: saveMessage.type === "success" ? "#15803d" : "#b91c1c",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            fontSize: "1.4rem",
+            fontWeight: 600
+          }}>
+            {saveMessage.type === "success" ? <Icons.BsCheckCircleFill /> : <Icons.BsExclamationTriangleFill />}
+            {saveMessage.text}
+          </div>
+        )}
 
         {/* Resumo Consolidado */}
         <div className="vales-summary-grid">

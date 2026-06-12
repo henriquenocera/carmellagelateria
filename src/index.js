@@ -38,6 +38,7 @@ import ConfiguracaoEstoque from "./routes/configuracoes/ConfiguracaoEstoque.tsx"
 import LojaEstoqueInsumos from "./routes/LojaEstoqueInsumos.tsx";
 import MovimentacoesEstoque from "./routes/MovimentacoesEstoque.tsx";
 import Funcionarios from "./routes/Funcionarios.tsx";
+import HistoricoVT_VR from "./routes/HistoricoVT_VR.tsx";
 
 import ListaCompras from "./routes/ListaCompras.tsx";
 import ListaComprasManual from "./routes/ListaComprasManual.tsx";
@@ -67,8 +68,8 @@ const ProtectedLayout = () => {
       if (session) {
         const { data: { user: dbUser }, error } = await supabase.auth.getUser();
         if (error || !dbUser) {
-           await supabase.auth.signOut();
-           window.location.href = "/login"; // Força o redirecionamento
+          await supabase.auth.signOut();
+          window.location.href = "/login"; // Força o redirecionamento
         }
       }
     };
@@ -128,6 +129,7 @@ const router = createBrowserRouter(
         <Route path="/configuracoes/cadastro-pessoas" element={<CadastroPessoas />} />
         <Route path="/configuracoes/cadastro-pessoas/:id" element={<HistoricoFuncionario />} />
         <Route path="/funcionarios" element={<Funcionarios />} />
+        <Route path="/historico-vt-vr" element={<HistoricoVT_VR />} />
         <Route path="/frequencia" element={<Frequencia />} />
         <Route path="/calculo-vales" element={<CalculoVales />} />
         <Route path="/configuracoes/logs" element={<Logs />} />
