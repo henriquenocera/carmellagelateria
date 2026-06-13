@@ -434,39 +434,91 @@ const AnaliseVales = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredVales.map((vale) => (
-                    <tr key={vale.id}>
-                      <td style={{ color: "var(--text-muted)", fontSize: "1.3rem" }}>{formatDateTime(vale.created_at)}</td>
-                      <td style={{ fontWeight: 600, color: "var(--secondary-color)" }}>{vale.Nome}</td>
-                      <td>
-                        <span style={{ backgroundColor: "#e2e8f0", color: "#475569", padding: "4px 8px", borderRadius: "4px", fontSize: "1.2rem", fontWeight: 600 }}>
-                          {vale.Unidade}
-                        </span>
-                      </td>
-                      <td style={{ fontWeight: 500 }}>{vale.Item}</td>
-                      <td style={{ textAlign: "right", color: Number(vale.valor) > 0 ? "#22c55e" : "#ef4444", fontWeight: "bold", fontSize: "1.4rem" }}>
-                        {Number(vale.valor) > 0 ? '+ ' : Number(vale.valor) < 0 ? '- ' : ''}R$ {Math.abs(Number(vale.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </td>
-                      <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center" }}>
-                        <button
-                          onClick={() => openModal(vale)}
-                          className="delete-record-btn"
-                          title="Editar Lançamento"
-                          style={{ margin: 0, color: "#3b82f6" }}
-                        >
-                          <Icons.BsPencil />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(vale.id)}
-                          className="delete-record-btn"
-                          title="Excluir Lançamento"
-                          style={{ margin: 0 }}
-                        >
-                          <Icons.BsTrash />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {(() => {
+                    const now = new Date();
+                    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+                    const tomorrowStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
+                    
+                    const futureVales = filteredVales.filter(v => new Date(v.created_at) >= tomorrowStart);
+                    const todayVales = filteredVales.filter(v => {
+                      const d = new Date(v.created_at);
+                      return d >= todayStart && d < tomorrowStart;
+                    });
+                    const pastVales = filteredVales.filter(v => new Date(v.created_at) < todayStart);
+
+                    const renderRow = (vale: any) => (
+                      <tr key={vale.id}>
+                        <td style={{ color: "var(--text-muted)", fontSize: "1.3rem" }}>{formatDateTime(vale.created_at)}</td>
+                        <td style={{ fontWeight: 600, color: "var(--secondary-color)" }}>{vale.Nome}</td>
+                        <td>
+                          <span style={{ backgroundColor: "#e2e8f0", color: "#475569", padding: "4px 8px", borderRadius: "4px", fontSize: "1.2rem", fontWeight: 600 }}>
+                            {vale.Unidade}
+                          </span>
+                        </td>
+                        <td style={{ fontWeight: 500 }}>{vale.Item}</td>
+                        <td style={{ textAlign: "right", color: Number(vale.valor) > 0 ? "#22c55e" : "#ef4444", fontWeight: "bold", fontSize: "1.4rem" }}>
+                          {Number(vale.valor) > 0 ? '+ ' : Number(vale.valor) < 0 ? '- ' : ''}R$ {Math.abs(Number(vale.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </td>
+                        <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center" }}>
+                          <button
+                            onClick={() => openModal(vale)}
+                            className="delete-record-btn"
+                            title="Editar Lançamento"
+                            style={{ margin: 0, color: "#3b82f6" }}
+                          >
+                            <Icons.BsPencil />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(vale.id)}
+                            className="delete-record-btn"
+                            title="Excluir Lançamento"
+                            style={{ margin: 0 }}
+                          >
+                            <Icons.BsTrash />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+
+                    const rows: React.ReactNode[] = [];
+                    
+                    if (futureVales.length > 0) {
+                      rows.push(
+                        <tr key="header-future" style={{ backgroundColor: "#f8fafc" }}>
+                          <td colSpan={6} style={{ textAlign: "center", fontWeight: "bold", color: "#64748b", padding: "12px", textTransform: "uppercase", fontSize: "1.2rem", letterSpacing: "1px", borderBottom: "1px solid #e2e8f0", borderTop: "1px solid #e2e8f0" }}>
+                            Lançamentos Futuros
+                          </td>
+                        </tr>
+                      );
+                      futureVales.forEach(vale => rows.push(renderRow(vale)));
+                    }
+
+                    if (todayVales.length > 0) {
+                      rows.push(
+                        <tr key="header-today" style={{ backgroundColor: "#f8fafc" }}>
+                          <td colSpan={6} style={{ textAlign: "center", fontWeight: "bold", color: "#3b82f6", padding: "12px", textTransform: "uppercase", fontSize: "1.2rem", letterSpacing: "1px", borderBottom: "1px solid #e2e8f0", borderTop: "1px solid #e2e8f0" }}>
+                            Lançamentos de Hoje
+                          </td>
+                        </tr>
+                      );
+                      todayVales.forEach(vale => rows.push(renderRow(vale)));
+                    }
+
+                    if (pastVales.length > 0) {
+                      if (futureVales.length > 0 || todayVales.length > 0) {
+                        rows.push(
+                          <tr key="header-past" style={{ backgroundColor: "#f8fafc" }}>
+                            <td colSpan={6} style={{ textAlign: "center", fontWeight: "bold", color: "#64748b", padding: "12px", textTransform: "uppercase", fontSize: "1.2rem", letterSpacing: "1px", borderBottom: "1px solid #e2e8f0", borderTop: "1px solid #e2e8f0" }}>
+                              Lançamentos Anteriores
+                            </td>
+                          </tr>
+                        );
+                      }
+                      pastVales.forEach(vale => rows.push(renderRow(vale)));
+                    }
+
+                    return rows;
+                  })()}
                 </tbody>
               </table>
             </div>

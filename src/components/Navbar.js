@@ -26,9 +26,16 @@ const MENU_CONFIG = [
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },
       { title: "Checklists", path: "/lojas-checklist" },
+      { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
+    ]
+  },
+  {
+    title: "Comercial",
+    icon: <Icons.BsShop />,
+    id: "comercial",
+    subItems: [
       { title: "Mapa Food Service", path: "/mapa-food-service" },
       { title: "CRM", path: "/crm" },
-      { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
     ]
   },
   {
