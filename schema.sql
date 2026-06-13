@@ -654,6 +654,20 @@ CREATE TABLE IF NOT EXISTS "public"."movimentacoes_estoque" (
 ALTER TABLE "public"."movimentacoes_estoque" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."notificacao_lojas" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "titulo" "text" NOT NULL,
+    "mensagem" "text" NOT NULL,
+    "loja" "text" DEFAULT 'Todas'::"text",
+    "data_agendada" timestamp with time zone,
+    "repeticao_diaria" boolean DEFAULT false
+);
+
+
+ALTER TABLE "public"."notificacao_lojas" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."ordem_producao" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "produto_id" "uuid" NOT NULL,
@@ -902,6 +916,11 @@ ALTER TABLE ONLY "public"."lista_compras_manual"
 
 ALTER TABLE ONLY "public"."movimentacoes_estoque"
     ADD CONSTRAINT "movimentacoes_estoque_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."notificacao_lojas"
+    ADD CONSTRAINT "notificacao_lojas_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1240,11 +1259,19 @@ CREATE POLICY "Permitir ALL em ficha_tecnica" ON "public"."ficha_tecnica" TO "au
 
 
 
+CREATE POLICY "Permitir INSERT em notificacao_lojas" ON "public"."notificacao_lojas" FOR INSERT WITH CHECK (true);
+
+
+
 CREATE POLICY "Permitir SELECT em cadastro_produtos" ON "public"."cadastro_produtos" FOR SELECT TO "authenticated" USING (true);
 
 
 
 CREATE POLICY "Permitir SELECT em ficha_tecnica" ON "public"."ficha_tecnica" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir UPDATE em notificacao_lojas" ON "public"."notificacao_lojas" FOR UPDATE USING (true) WITH CHECK (true);
 
 
 
@@ -1356,7 +1383,15 @@ CREATE POLICY "Permitir leitura para usuários logados" ON "public"."Vales" FOR 
 
 
 
+CREATE POLICY "Permitir leitura pública" ON "public"."notificacao_lojas" FOR SELECT USING (true);
+
+
+
 CREATE POLICY "Permitir tudo no historico_crm" ON "public"."historico_crm" USING (true);
+
+
+
+CREATE POLICY "Permitir tudo para admin" ON "public"."notificacao_lojas" TO "authenticated" USING (true) WITH CHECK (true);
 
 
 
@@ -1423,6 +1458,9 @@ ALTER TABLE "public"."lista_compras_manual" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."movimentacoes_estoque" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."notificacao_lojas" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."ordem_producao" ENABLE ROW LEVEL SECURITY;
@@ -1911,6 +1949,12 @@ GRANT ALL ON SEQUENCE "public"."lista_compras_manual_id_seq" TO "service_role";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."movimentacoes_estoque" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."notificacao_lojas" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."notificacao_lojas" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."notificacao_lojas" TO "service_role";
 
 
 
