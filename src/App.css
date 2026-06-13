@@ -11,6 +11,35 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: flex-start;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    padding: 12px 16px;
+  }
+  
+  .header-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .user-email {
+    display: none;
+  }
+  
+  .header-actions button, 
+  #header-warnings-portal-target button {
+    font-size: 11px !important;
+    padding: 6px 10px !important;
+  }
+}
+
 .app-header h1 {
   font-size: 20px;
   font-weight: 600;

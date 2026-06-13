@@ -33,7 +33,7 @@ const toCard = (row: CardRow): CardItem => ({
   history: row.history || [],
 });
 
-const toRow = (card: CardItem, index: number): CardRow => ({
+const toRow = (card: CardItem): CardRow => ({
   id: card.id,
   title: card.title,
   status: card.status,
@@ -44,7 +44,7 @@ const toRow = (card: CardItem, index: number): CardRow => ({
   created_at: card.createdAt,
   last_edited_by: card.lastEditedBy,
   updated_at: card.updatedAt,
-  position: index,
+  position: card.position,
   history: card.history || [],
 });
 
@@ -59,7 +59,7 @@ export async function fetchCards() {
 }
 
 export async function upsertCards(cards: CardItem[]) {
-  const rows = cards.map((card, index) => toRow({ ...card, position: index }, index));
+  const rows = cards.map(toRow);
   const { error } = await supabase.from(TABLE_NAME).upsert(rows, { onConflict: 'id' });
   if (error) throw error;
 }
