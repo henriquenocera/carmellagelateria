@@ -79,6 +79,14 @@ const MENU_CONFIG = [
       { title: "Análise de Vales", path: "/analise-vales", adminOnly: true },
     ]
   },
+  {
+    title: "Financeiro",
+    icon: <Icons.BsCurrencyDollar />,
+    id: "financeiro",
+    subItems: [
+      { title: "Lançamentos Financeiros", path: "/lancamentos-financeiros" },
+    ]
+  },
 
   {
     title: "RH",
@@ -100,6 +108,8 @@ const MENU_CONFIG = [
       { title: "Cadastro Pessoas", path: "/configuracoes/cadastro-pessoas" },
       { title: "Cadastro Feriados", path: "/configuracoes/feriados-globais" },
       { title: "Cadastro de Fornecedores", path: "/configuracoes/cadastro-fornecedores" },
+      { title: "Cadastro de Contas", path: "/configuracoes/cadastro-contas" },
+      { title: "Categorias Financeiras", path: "/configuracoes/categorias-financeiras" },
       { title: "Clientes Food Service", path: "/configuracoes/cadastro-clientes" },
       { title: "Cadastro de Insumos", path: "/configuracoes/cadastro-insumos" },
       { title: "Cadastro de Produtos", path: "/configuracoes/cadastro-produtos" },

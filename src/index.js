@@ -52,7 +52,10 @@ import EstoqueFabrica from "./routes/EstoqueFabrica.tsx";
 import OrdemProducao from "./routes/OrdemProducao.tsx";
 import CadastroFornecedores from "./routes/configuracoes/CadastroFornecedores.tsx";
 import CadastroClientes from "./routes/configuracoes/CadastroClientes.tsx";
+import CadastroContas from "./routes/configuracoes/CadastroContas.tsx";
+import CadastroCategoriasFinanceiras from "./routes/configuracoes/CadastroCategoriasFinanceiras.tsx";
 import ProdutosVale from "./routes/configuracoes/ProdutosVale.tsx";
+import LancamentosFinanceiros from "./routes/LancamentosFinanceiros.tsx";
 import supabase from "./services/supabase-client";
 
 const ProtectedLayout = () => {
@@ -153,7 +156,10 @@ const router = createBrowserRouter(
         <Route path="/ordem-producao" element={<OrdemProducao />} />
         <Route path="/configuracoes/cadastro-fornecedores" element={<CadastroFornecedores />} />
         <Route path="/configuracoes/cadastro-clientes" element={<CadastroClientes />} />
+        <Route path="/configuracoes/cadastro-contas" element={<CadastroContas />} />
+        <Route path="/configuracoes/categorias-financeiras" element={<CadastroCategoriasFinanceiras />} />
         <Route path="/configuracoes/produtos-vale" element={<ProdutosVale />} />
+        <Route path="/lancamentos-financeiros" element={<LancamentosFinanceiros />} />
       </Route>
     </>
   )

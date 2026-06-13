@@ -146,7 +146,7 @@ function Home() {
             supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade").eq("unidade", unitName),
             supabase.from("movimentacoes_estoque").select("insumo_id, data_movimentacao, quantidade, origem, destino").or(`origem.eq.${unitName},destino.eq.${unitName}`)
           ]);
-          
+
           let status = { ok: 0, warning: 0, critical: 0, criticalItems: [] };
           if (!insData) return status;
 
@@ -171,7 +171,7 @@ function Home() {
           insData.forEach(ins => {
             const config = ins.config_estoque?.[unitId];
             if (!config || !config.ativo) return;
-            
+
             const current = calculatedStock[ins.id] || 0;
             const min = config.minimo;
             const desired = config.desejado;
@@ -413,6 +413,19 @@ function Home() {
     return <div style={{ padding: "40px", textAlign: "center", color: "#a17550", fontSize: "2rem" }}><Icons.BsArrowClockwise className="spin" /> Carregando Dashboard...</div>;
   }
 
+  const getCapacityColors = (current, max) => {
+    const pct = (current / max) * 100;
+    if (pct >= 80) return { bg: "#dcfce7", text: "#15803d", barBg: "#bbf7d0", barFill: "#16a34a" };
+    if (pct >= 65) return { bg: "#fef3c7", text: "#b45309", barBg: "#fde68a", barFill: "#d97706" };
+    return { bg: "#fee2e2", text: "#b91c1c", barBg: "#fecaca", barFill: "#ef4444" };
+  };
+
+  const ahuCurrent = estoque.ahu.vitrine + estoque.ahu.estoque;
+  const ahuColors = getCapacityColors(ahuCurrent, 40);
+
+  const altoxvCurrent = estoque.altoxv.vitrine + estoque.altoxv.estoque;
+  const altoxvColors = getCapacityColors(altoxvCurrent, 24);
+
   return (
     <div className="dashboard-container">
 
@@ -427,7 +440,7 @@ function Home() {
 
         {/* Coluna da Esquerda (Notificações + Checklists + Folgas + Vales) */}
         <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-          
+
           {/* Notificações Section */}
           <section style={{ display: "flex", flexDirection: "column" }}>
             <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -575,14 +588,25 @@ function Home() {
               <div style={{ borderBottom: "1px solid #f1f5f9", paddingBottom: "16px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                   <span style={{ fontSize: "1.6rem", color: "#334155", fontWeight: "600" }}>Loja Ahú</span>
-                  <span style={{ background: "#fef3c7", color: "#b45309", padding: "6px 16px", borderRadius: "20px", fontWeight: "bold", fontSize: "1.3rem" }}>
-                    {estoque.ahu.vitrine + estoque.ahu.estoque} cubas
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
+                    <span style={{ background: ahuColors.bg, color: ahuColors.text, padding: "4px 12px", borderRadius: "12px", fontWeight: "bold", fontSize: "1.2rem", transition: "all 0.3s ease" }}>
+                      {ahuCurrent} / 40 cubas
+                    </span>
+                    <div style={{ width: "100%", height: "6px", background: ahuColors.barBg, borderRadius: "4px", overflow: "hidden", transition: "background 0.3s ease" }}>
+                      <div style={{ width: `${Math.min((ahuCurrent / 40) * 100, 100)}%`, height: "100%", background: ahuColors.barFill, borderRadius: "4px", transition: "all 0.5s ease" }}></div>
+                    </div>
+                  </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.ahu.vitrine}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.ahu.estoque}</span>
+                  </div>
+                  <div style={{ fontSize: "1.2rem", color: "#94a3b8", display: "flex", gap: "8px" }}>
+                    <span>Últimas 48h:</span>
+                    <span style={{ color: "#16a34a", fontWeight: "600" }}>+{estoque.ahu.entradas2d}</span>
+                    <span style={{ color: "#cbd5e1" }}>|</span>
+                    <span style={{ color: "#ef4444", fontWeight: "600" }}>-{estoque.ahu.saidas2d}</span>
                   </div>
                 </div>
               </div>
@@ -591,14 +615,25 @@ function Home() {
               <div style={{ paddingBottom: "8px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
                   <span style={{ fontSize: "1.6rem", color: "#334155", fontWeight: "600" }}>Loja Alto XV</span>
-                  <span style={{ background: "#fef3c7", color: "#b45309", padding: "6px 16px", borderRadius: "20px", fontWeight: "bold", fontSize: "1.3rem" }}>
-                    {estoque.altoxv.vitrine + estoque.altoxv.estoque} cubas
-                  </span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
+                    <span style={{ background: altoxvColors.bg, color: altoxvColors.text, padding: "4px 12px", borderRadius: "12px", fontWeight: "bold", fontSize: "1.2rem", transition: "all 0.3s ease" }}>
+                      {altoxvCurrent} / 24 cubas
+                    </span>
+                    <div style={{ width: "100%", height: "6px", background: altoxvColors.barBg, borderRadius: "4px", overflow: "hidden", transition: "background 0.3s ease" }}>
+                      <div style={{ width: `${Math.min((altoxvCurrent / 24) * 100, 100)}%`, height: "100%", background: altoxvColors.barFill, borderRadius: "4px", transition: "all 0.5s ease" }}></div>
+                    </div>
+                  </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                   <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.altoxv.vitrine}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.altoxv.estoque}</span>
+                  </div>
+                  <div style={{ fontSize: "1.2rem", color: "#94a3b8", display: "flex", gap: "8px" }}>
+                    <span>Últimas 48h:</span>
+                    <span style={{ color: "#16a34a", fontWeight: "600" }}>+{estoque.altoxv.entradas2d}</span>
+                    <span style={{ color: "#cbd5e1" }}>|</span>
+                    <span style={{ color: "#ef4444", fontWeight: "600" }}>-{estoque.altoxv.saidas2d}</span>
                   </div>
                 </div>
               </div>
@@ -674,7 +709,7 @@ function Home() {
                 Ver Controle de Insumos &rarr;
               </Link>
             </div>
-            
+
           </div>
         </section>
 
