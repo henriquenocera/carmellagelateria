@@ -385,6 +385,18 @@ CREATE TABLE IF NOT EXISTS "public"."cardsaltoxv" (
 ALTER TABLE "public"."cardsaltoxv" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."categorias_financeiras" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "nome" "text" NOT NULL,
+    "parent_id" "uuid",
+    "ativo" boolean DEFAULT true,
+    "created_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."categorias_financeiras" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."clientes_food_service" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
     "nome" "text" NOT NULL,
@@ -408,6 +420,23 @@ CREATE TABLE IF NOT EXISTS "public"."clientes_food_service" (
 
 
 ALTER TABLE "public"."clientes_food_service" OWNER TO "postgres";
+
+
+CREATE TABLE IF NOT EXISTS "public"."contas" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "banco" "text" NOT NULL,
+    "agencia" "text",
+    "conta_corrente" "text",
+    "data_inicial" "date",
+    "saldo_inicial" numeric DEFAULT 0,
+    "cnpj" "text",
+    "descricao" "text",
+    "ativo" boolean DEFAULT true,
+    "created_at" timestamp with time zone DEFAULT "now"()
+);
+
+
+ALTER TABLE "public"."contas" OWNER TO "postgres";
 
 
 CREATE TABLE IF NOT EXISTS "public"."entradas_mercadoria" (
@@ -609,6 +638,24 @@ CREATE TABLE IF NOT EXISTS "public"."inventario_insumos" (
 ALTER TABLE "public"."inventario_insumos" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."lancamentos_financeiros" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "data" "date" NOT NULL,
+    "descricao" "text" NOT NULL,
+    "valor" numeric NOT NULL,
+    "fornecedor" "text",
+    "categoria" "text",
+    "conta" "text" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "user_id" "uuid" DEFAULT "auth"."uid"(),
+    "status_revisao" "text",
+    "revisao_observacao" "text"
+);
+
+
+ALTER TABLE "public"."lancamentos_financeiros" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."lista_compras_manual" (
     "id" integer NOT NULL,
     "insumo_id" "uuid",
@@ -661,7 +708,8 @@ CREATE TABLE IF NOT EXISTS "public"."notificacao_lojas" (
     "mensagem" "text" NOT NULL,
     "loja" "text" DEFAULT 'Todas'::"text",
     "data_agendada" timestamp with time zone,
-    "repeticao_diaria" boolean DEFAULT false
+    "repeticao_diaria" boolean DEFAULT false,
+    "dias_semana" "jsonb" DEFAULT '[]'::"jsonb"
 );
 
 
@@ -839,8 +887,18 @@ ALTER TABLE ONLY "public"."cardsahu"
 
 
 
+ALTER TABLE ONLY "public"."categorias_financeiras"
+    ADD CONSTRAINT "categorias_financeiras_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."clientes_food_service"
     ADD CONSTRAINT "clientes_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."contas"
+    ADD CONSTRAINT "contas_pkey" PRIMARY KEY ("id");
 
 
 
@@ -906,6 +964,11 @@ ALTER TABLE ONLY "public"."inventario_insumos"
 
 ALTER TABLE ONLY "public"."inventario_insumos"
     ADD CONSTRAINT "inventario_insumos_pkey" PRIMARY KEY ("id");
+
+
+
+ALTER TABLE ONLY "public"."lancamentos_financeiros"
+    ADD CONSTRAINT "lancamentos_financeiros_pkey" PRIMARY KEY ("id");
 
 
 
@@ -1000,6 +1063,11 @@ ALTER TABLE ONLY "public"."audit_logs"
 
 
 
+ALTER TABLE ONLY "public"."categorias_financeiras"
+    ADD CONSTRAINT "categorias_financeiras_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."categorias_financeiras"("id") ON DELETE SET NULL;
+
+
+
 ALTER TABLE ONLY "public"."entradas_mercadoria"
     ADD CONSTRAINT "entradas_mercadoria_insumo_id_fkey" FOREIGN KEY ("insumo_id") REFERENCES "public"."cadastro_insumos"("id") ON DELETE CASCADE;
 
@@ -1072,6 +1140,11 @@ ALTER TABLE ONLY "public"."inventario_insumos"
 
 ALTER TABLE ONLY "public"."inventario_insumos"
     ADD CONSTRAINT "inventario_insumos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."profiles"("id");
+
+
+
+ALTER TABLE ONLY "public"."lancamentos_financeiros"
+    ADD CONSTRAINT "lancamentos_financeiros_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
 
 
 
@@ -1203,6 +1276,10 @@ CREATE POLICY "Enable delete access for all authenticated users" ON "public"."fo
 
 
 
+CREATE POLICY "Enable delete for authenticated users" ON "public"."lancamentos_financeiros" FOR DELETE TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Enable delete for authenticated users" ON "public"."ordem_producao" FOR DELETE USING (("auth"."role"() = 'authenticated'::"text"));
 
 
@@ -1215,6 +1292,10 @@ CREATE POLICY "Enable insert access for all authenticated users" ON "public"."fo
 
 
 
+CREATE POLICY "Enable insert for authenticated users" ON "public"."lancamentos_financeiros" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
 CREATE POLICY "Enable insert for authenticated users" ON "public"."ordem_producao" FOR INSERT WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
 
@@ -1224,6 +1305,10 @@ CREATE POLICY "Enable insert for authenticated users only" ON "public"."clientes
 
 
 CREATE POLICY "Enable read access for all authenticated users" ON "public"."fornecedores" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Enable read access for all authenticated users" ON "public"."lancamentos_financeiros" FOR SELECT TO "authenticated" USING (true);
 
 
 
@@ -1240,6 +1325,10 @@ CREATE POLICY "Enable read access for all users" ON "public"."clientes_food_serv
 
 
 CREATE POLICY "Enable update access for all authenticated users" ON "public"."fornecedores" FOR UPDATE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Enable update for authenticated users" ON "public"."lancamentos_financeiros" FOR UPDATE TO "authenticated" USING (true) WITH CHECK (true);
 
 
 
@@ -1303,6 +1392,18 @@ CREATE POLICY "Permitir atualização em produtos_vale" ON "public"."produtos_va
 
 
 
+CREATE POLICY "Permitir atualização para autenticados" ON "public"."lancamentos_financeiros" FOR UPDATE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir atualização para usuários autenticados" ON "public"."categorias_financeiras" FOR UPDATE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir atualização para usuários autenticados" ON "public"."contas" FOR UPDATE TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Permitir deleção em produtos_vale" ON "public"."produtos_vale" FOR DELETE USING (true);
 
 
@@ -1324,6 +1425,18 @@ CREATE POLICY "Permitir exclusao para usuarios autenticados" ON "public"."movime
 
 
 CREATE POLICY "Permitir exclusão (DELETE) para todos os usuários autenticado" ON "public"."profiles" FOR DELETE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir exclusão para autenticados" ON "public"."lancamentos_financeiros" FOR DELETE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir exclusão para usuários autenticados" ON "public"."categorias_financeiras" FOR DELETE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir exclusão para usuários autenticados" ON "public"."contas" FOR DELETE TO "authenticated" USING (true);
 
 
 
@@ -1351,6 +1464,18 @@ CREATE POLICY "Permitir inserção em produtos_vale" ON "public"."produtos_vale"
 
 
 
+CREATE POLICY "Permitir inserção para autenticados" ON "public"."lancamentos_financeiros" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
+CREATE POLICY "Permitir inserção para usuários autenticados" ON "public"."categorias_financeiras" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
+CREATE POLICY "Permitir inserção para usuários autenticados" ON "public"."contas" FOR INSERT TO "authenticated" WITH CHECK (true);
+
+
+
 CREATE POLICY "Permitir inserção para usuários logados" ON "public"."Vales" FOR INSERT TO "authenticated" WITH CHECK (true);
 
 
@@ -1367,6 +1492,10 @@ CREATE POLICY "Permitir leitura de produtos_vale" ON "public"."produtos_vale" FO
 
 
 
+CREATE POLICY "Permitir leitura para autenticados" ON "public"."lancamentos_financeiros" FOR SELECT TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Permitir leitura para logados" ON "public"."historico_pagamentos_vt_vr" FOR SELECT USING (("auth"."role"() = 'authenticated'::"text"));
 
 
@@ -1376,6 +1505,14 @@ CREATE POLICY "Permitir leitura para usuarios autenticados" ON "public"."inventa
 
 
 CREATE POLICY "Permitir leitura para usuarios autenticados" ON "public"."movimentacoes_estoque" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir leitura para usuários autenticados" ON "public"."categorias_financeiras" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir leitura para usuários autenticados" ON "public"."contas" FOR SELECT TO "authenticated" USING (true);
 
 
 
@@ -1421,7 +1558,13 @@ ALTER TABLE "public"."cardsahu" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."cardsaltoxv" ENABLE ROW LEVEL SECURITY;
 
 
+ALTER TABLE "public"."categorias_financeiras" ENABLE ROW LEVEL SECURITY;
+
+
 ALTER TABLE "public"."clientes_food_service" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."contas" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."entradas_mercadoria" ENABLE ROW LEVEL SECURITY;
@@ -1452,6 +1595,9 @@ ALTER TABLE "public"."historico_pagamentos_vt_vr" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."inventario_insumos" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."lancamentos_financeiros" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."lista_compras_manual" ENABLE ROW LEVEL SECURITY;
@@ -1844,9 +1990,21 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 
 
 
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."categorias_financeiras" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."categorias_financeiras" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."categorias_financeiras" TO "service_role";
+
+
+
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."clientes_food_service" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."clientes_food_service" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."clientes_food_service" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas" TO "service_role";
 
 
 
@@ -1931,6 +2089,12 @@ GRANT ALL ON SEQUENCE "public"."historico_pagamentos_vt_vr_id_seq" TO "service_r
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."inventario_insumos" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."inventario_insumos" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."inventario_insumos" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."lancamentos_financeiros" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."lancamentos_financeiros" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."lancamentos_financeiros" TO "service_role";
 
 
 
