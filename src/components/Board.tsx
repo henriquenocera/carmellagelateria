@@ -52,7 +52,10 @@ export function Board() {
     cards.filter(c => c.status === 'quebras' && vitrineFlavorsList.includes(c.title)).map(c => c.title)
   ));
 
-  const getToday = () => new Date().toISOString().slice(0, 10);
+  const getToday = () => {
+    const d = new Date();
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  };
 
   const getStatusName = (status: ItemStatus) => {
     const col = COLUMNS.find(c => c.id === status);
