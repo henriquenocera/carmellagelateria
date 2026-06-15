@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
@@ -13,6 +13,7 @@ function LancamentosFinanceiros() {
   const [categoriasDb, setCategoriasDb] = useState<any[]>([]);
   const [fornecedoresDb, setFornecedoresDb] = useState<any[]>([]);
   const [lancamentos, setLancamentos] = useState<any[]>([]);
+  const [profilesMap, setProfilesMap] = useState<{[key: string]: string}>({});
   const [savingRow, setSavingRow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
@@ -69,6 +70,60 @@ function LancamentosFinanceiros() {
     })
   };
 
+  const filterSelectStyles = {
+    control: (base: any) => ({
+      ...base,
+      height: '38px',
+      minHeight: '38px',
+      borderRadius: '4px',
+      borderColor: '#cbd5e1',
+      fontSize: '1.2rem'
+    }),
+    valueContainer: (base: any) => ({
+      ...base,
+      padding: '0 8px',
+      height: '38px',
+      minHeight: '38px',
+      display: 'flex',
+      alignItems: 'center'
+    }),
+    indicatorsContainer: (base: any) => ({
+      ...base,
+      height: '38px',
+      minHeight: '38px'
+    }),
+    placeholder: (base: any) => ({
+      ...base,
+      color: '#94a3b8',
+      fontSize: '1.2rem',
+      fontWeight: 'normal',
+      textTransform: 'none'
+    }),
+    singleValue: (base: any) => ({
+      ...base,
+      color: '#334155',
+      fontSize: '1.2rem',
+      fontWeight: 'normal'
+    }),
+    input: (base: any) => ({
+      ...base,
+      fontSize: '1.2rem',
+      fontWeight: 'normal'
+    }),
+    menu: (base: any) => ({
+      ...base,
+      fontSize: '1.2rem'
+    }),
+    option: (base: any) => ({
+      ...base,
+      fontSize: '1.2rem'
+    }),
+    menuPortal: (base: any) => ({
+      ...base,
+      zIndex: 9999
+    })
+  };
+
   const fornecedorOptions = fornecedoresDb.map(f => ({ value: f.nome, label: f.nome }));
 
   const categoriaOptions = categoriasDb.filter(c => !c.parent_id).map(pai => ({
@@ -116,7 +171,19 @@ function LancamentosFinanceiros() {
           setFornecedoresDb(fornData);
         }
 
-        await fetchLancamentos();
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, name");
+
+        if (!profilesError && profilesData) {
+          const map: {[key: string]: string} = {};
+          profilesData.forEach((p: any) => {
+            map[p.id] = p.name || "";
+          });
+          setProfilesMap(map);
+        }
+
+        // fetchLancamentos will be handled by the useEffect below
       } catch (err) {
         console.error("Erro ao buscar dados iniciais:", err);
       }
@@ -124,21 +191,27 @@ function LancamentosFinanceiros() {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    checkPendingCounts();
-  }, [lancamentos, isAdmin]);
+  const checkPendingCounts = useCallback(async () => {
+    try {
+      if (isAdmin) {
+        const { count: revCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).in('status_revisao', ['pending_user', 'pending_admin']);
+        setPendingReviewCount(revCount || 0);
 
-  const checkPendingCounts = async () => {
-    if (isAdmin) {
-      const { count: revCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).in('status_revisao', ['pending_user', 'pending_admin']);
-      setPendingReviewCount(revCount || 0);
-
-      const { count: delCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).eq('status_revisao', 'pending_delete');
-      setPendingDeleteCount(delCount || 0);
+        const { count: delCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).eq('status_revisao', 'pending_delete');
+        setPendingDeleteCount(delCount || 0);
+      } else {
+        const { count: revCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).eq('status_revisao', 'pending_user');
+        setPendingReviewCount(revCount || 0);
+      }
+    } catch (err) {
+      console.error("Erro ao checar contagens pendentes:", err);
     }
-  };
+  }, [isAdmin]);
 
-  async function fetchLancamentos(fStatus = filterStatus, orderCreated = filterCreatedToday) {
+  const fetchLancamentosRef = useRef<any>(null);
+
+  const fetchLancamentos = useCallback(async (fStatus = filterStatus, orderCreated = filterCreatedToday) => {
+    fetchLancamentosRef.current = fetchLancamentos;
     try {
       let query = supabase
         .from("lancamentos_financeiros")
@@ -160,7 +233,7 @@ function LancamentosFinanceiros() {
         query = query.eq('status_revisao', 'pending_delete');
       } else {
         if (!isAdmin) {
-          query = query.or('status_revisao.is.null,status_revisao.neq.pending_delete');
+          query = query.or('status_revisao.is.null,status_revisao.eq.pending_user,status_revisao.eq.pending_admin');
         }
       }
 
@@ -172,7 +245,35 @@ function LancamentosFinanceiros() {
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
     }
-  }
+  }, [isAdmin, filterStatus, filterCreatedToday, checkPendingCounts]);
+
+  useEffect(() => {
+    if (user) {
+      fetchLancamentos();
+    }
+  }, [fetchLancamentos, user]);
+
+  useEffect(() => {
+    const channel = supabase.channel('realtime-lancamentos')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'lancamentos_financeiros' },
+        () => {
+          if (fetchLancamentosRef.current) {
+            fetchLancamentosRef.current();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => {
+    checkPendingCounts();
+  }, [checkPendingCounts, lancamentos]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,7 +292,7 @@ function LancamentosFinanceiros() {
         categoria: newRow.categoria || null,
         conta: newRow.conta,
         user_id: user?.id,
-        status_revisao: isAdmin ? null : 'pending_user'
+        status_revisao: null
       };
 
       const { error } = await supabase.from("lancamentos_financeiros").insert([payload]);
@@ -215,15 +316,41 @@ function LancamentosFinanceiros() {
 
     try {
       setSavingRow(true);
-      const payload = {
+      const originalRow = lancamentos.find(l => l.id === id);
+      const diffs = [];
+      if (originalRow) {
+        if (originalRow.descricao !== editRowData.descricao) diffs.push(`Descrição: ${originalRow.descricao} ➔ ${editRowData.descricao}`);
+        if (originalRow.data !== editRowData.data) diffs.push(`Data: ${originalRow.data} ➔ ${editRowData.data}`);
+        if (parseFloat(originalRow.valor).toFixed(2) !== parseFloat(editRowData.valor.toString().replace(",", ".")).toFixed(2)) diffs.push(`Valor: R$ ${originalRow.valor} ➔ R$ ${editRowData.valor}`);
+        if ((originalRow.fornecedor || "") !== (editRowData.fornecedor || "")) diffs.push(`Fornecedor: ${originalRow.fornecedor || "-"} ➔ ${editRowData.fornecedor || "-"}`);
+        if ((originalRow.categoria || "") !== (editRowData.categoria || "")) diffs.push(`Categoria: ${originalRow.categoria || "-"} ➔ ${editRowData.categoria || "-"}`);
+        if (originalRow.conta !== editRowData.conta) diffs.push(`Conta: ${originalRow.conta} ➔ ${editRowData.conta}`);
+      }
+
+      const hasChanges = diffs.length > 0;
+      let observacaoAdicional = null;
+      if (originalRow && originalRow.status_revisao === 'pending_user' && hasChanges) {
+        const prev = originalRow.revisao_observacao;
+        const prefix = (prev && prev !== "Sem alterações") ? prev + " | " : "";
+        observacaoAdicional = prefix + diffs.join(", ");
+      } else if (originalRow) {
+        observacaoAdicional = originalRow.revisao_observacao;
+      }
+
+      const payload: any = {
         data: editRowData.data,
         descricao: editRowData.descricao,
         fornecedor: editRowData.fornecedor || null,
         valor: parseFloat(editRowData.valor.toString().replace(",", ".")),
         categoria: editRowData.categoria || null,
         conta: editRowData.conta,
-        status_revisao: isAdmin ? null : 'pending_user'
+        status_revisao: isAdmin ? null : (hasChanges ? 'pending_admin' : (originalRow.status_revisao || 'pending_user')),
+        revisao_observacao: observacaoAdicional
       };
+
+      if (hasChanges) {
+        payload.updated_at = new Date().toISOString();
+      }
 
       const { error } = await supabase.from("lancamentos_financeiros").update(payload).eq("id", id);
       if (error) throw error;
@@ -288,6 +415,13 @@ function LancamentosFinanceiros() {
     <>
       <Helmet>
         <title>Lançamentos Financeiros</title>
+        <style>{`
+          @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          }
+        `}</style>
       </Helmet>
 
       <div className="frequencia-container">
@@ -318,17 +452,6 @@ function LancamentosFinanceiros() {
 
             <form onSubmit={handleSave} style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
 
-              <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data</label>
-                <input
-                  type="date"
-                  value={newRow.data}
-                  onChange={(e) => setNewRow({ ...newRow, data: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
-                  required
-                />
-              </div>
-
               <div style={{ flex: "2 1 200px" }}>
                 <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Descrição</label>
                 <input
@@ -337,6 +460,17 @@ function LancamentosFinanceiros() {
                   value={newRow.descricao}
                   onChange={(e) => setNewRow({ ...newRow, descricao: e.target.value })}
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", height: "54px", fontSize: "1.4rem" }}
+                  required
+                />
+              </div>
+
+              <div style={{ flex: "1 1 120px" }}>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data</label>
+                <input
+                  type="date"
+                  value={newRow.data}
+                  onChange={(e) => setNewRow({ ...newRow, data: e.target.value })}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
                   required
                 />
               </div>
@@ -428,35 +562,172 @@ function LancamentosFinanceiros() {
               </div>
             </form>
           </div>
+
+          {/* Barra de Filtros e Ordenação Globais */}
+          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px" }}>
+            <button
+              onClick={() => {
+                const newOrder = !filterCreatedToday;
+                setFilterCreatedToday(newOrder);
+                fetchLancamentos(filterStatus, newOrder);
+              }}
+              style={{
+                padding: "6px 12px",
+                backgroundColor: filterCreatedToday ? "var(--primary-color)" : "#fff",
+                color: filterCreatedToday ? "#fff" : "#64748b",
+                border: `1px solid ${filterCreatedToday ? "var(--primary-color)" : "#e2e8f0"}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: filterCreatedToday ? "bold" : "normal",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "0.85rem",
+                transition: "0.2s"
+              }}
+              title="Alternar ordenação (Data x Data de Criação)"
+            >
+              <Icons.BsSortDown /> {filterCreatedToday ? "Ordem: Criação" : "Ordem: Data"}
+            </button>
+            <button
+              onClick={() => {
+                const newStatus = filterStatus === 'review' ? 'all' : 'review';
+                setFilterStatus(newStatus);
+                if (newStatus === 'review') {
+                  setFilterData("");
+                  setFilterDescricao("");
+                  setFilterFornecedor(null);
+                  setFilterCategoria(null);
+                  setFilterConta(null);
+                }
+                fetchLancamentos(newStatus, filterCreatedToday);
+              }}
+              style={{
+                padding: "6px 12px",
+                backgroundColor: filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fee2e2" : "#fff"),
+                color: filterStatus === 'review' ? "#7f1d1d" : (pendingReviewCount > 0 ? "#dc2626" : "#64748b"),
+                border: `1px solid ${filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: filterStatus === 'review' ? "bold" : "normal",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "0.85rem",
+                animation: pendingReviewCount > 0 && filterStatus !== 'review' ? "pulse-red 2s infinite" : "none"
+              }}
+            >
+              <Icons.BsExclamationTriangleFill /> Revisão {pendingReviewCount > 0 ? `(${pendingReviewCount})` : ""}
+            </button>
+            {(isAdmin || filterStatus === 'deleted') && (
+              <button
+                onClick={() => {
+                  const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
+                  setFilterStatus(newStatus);
+                  if (newStatus === 'deleted') {
+                    setFilterData("");
+                    setFilterDescricao("");
+                    setFilterFornecedor(null);
+                    setFilterCategoria(null);
+                    setFilterConta(null);
+                  }
+                  fetchLancamentos(newStatus, filterCreatedToday);
+                }}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"),
+                  color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"),
+                  border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontWeight: filterStatus === 'deleted' ? "bold" : "normal",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.85rem",
+                  animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none"
+                }}
+              >
+                <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
+              </button>
+            )}
+            <button
+              onClick={() => {
+                setFilterData("");
+                setFilterDescricao("");
+                setFilterFornecedor(null);
+                setFilterCategoria(null);
+                setFilterConta(null);
+                setFilterStatus('all');
+                setFilterCreatedToday(false);
+                fetchLancamentos('all', false);
+              }}
+              style={{
+                padding: "6px 12px",
+                backgroundColor: "#cbd5e1",
+                color: "#334155",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "0.85rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px"
+              }}
+            >
+              <Icons.BsXCircleFill /> Limpar
+            </button>
+            <button
+              onClick={() => fetchLancamentos(filterStatus, filterCreatedToday)}
+              style={{
+                padding: "6px 12px",
+                backgroundColor: "#f1f5f9",
+                color: "#475569",
+                border: "1px solid #cbd5e1",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "0.85rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px"
+              }}
+            >
+              <Icons.BsArrowClockwise /> Atualizar
+            </button>
+          </div>
+
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
             <table className="freq-table" style={{ minWidth: "1000px" }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "center", width: "100px" }}>Data</th>
-                  <th style={{ width: "150px" }}>Descrição</th>
-                  <th style={{ textAlign: "right", width: "120px" }}>Valor</th>
-                  <th style={{ width: "150px" }}>Fornecedor</th>
-                  <th style={{ width: "150px" }}>Categoria</th>
-                  <th style={{ width: "150px" }}>Conta</th>
-                  <th style={{ textAlign: "center", width: "100px" }}>Tipo</th>
-                  <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
+                  <th style={{ width: "250px" }}>Descrição</th>
+                  <th style={{ textAlign: "center", width: "80px" }}>Data</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Valor</th>
+                  <th style={{ textAlign: "center", width: "150px" }}>Fornecedor</th>
+                  <th style={{ textAlign: "center", width: "150px" }}>Categoria</th>
+                  <th style={{ textAlign: "center", width: "150px" }}>Conta</th>
+                  <th style={{ textAlign: "center", width: "60px" }}>Tipo</th>
+                  {isAdmin && <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>}
+                  <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
                 </tr>
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                  <th style={{ padding: "8px" }}>
-                    <input
-                      type="date"
-                      value={filterData}
-                      onChange={(e) => setFilterData(e.target.value)}
-                      style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
-                    />
-                  </th>
                   <th style={{ padding: "8px" }}>
                     <input
                       type="text"
                       placeholder="Descrição..."
                       value={filterDescricao}
                       onChange={(e) => setFilterDescricao(e.target.value)}
-                      style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
+                      style={{ width: "100%", height: "38px", padding: "6px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.2rem", boxSizing: "border-box" }}
+                    />
+                  </th>
+                  <th style={{ padding: "8px" }}>
+                    <input
+                      type="date"
+                      value={filterData}
+                      onChange={(e) => setFilterData(e.target.value)}
+                      style={{ width: "100%", height: "38px", padding: "6px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.2rem", boxSizing: "border-box" }}
                     />
                   </th>
                   <th></th>
@@ -468,7 +739,7 @@ function LancamentosFinanceiros() {
                       onChange={(sel: any) => setFilterFornecedor(sel ? sel.value : null)}
                       placeholder="Fornecedor..."
                       isClearable
-                      styles={{ control: (b) => ({ ...b, minHeight: '38px', fontSize: '1.1rem' }), menuPortal: (b) => ({ ...b, zIndex: 9999, fontSize: '1.1rem' }) }}
+                      styles={filterSelectStyles}
                     />
                   </th>
                   <th style={{ padding: "8px" }}>
@@ -479,7 +750,7 @@ function LancamentosFinanceiros() {
                       onChange={(sel: any) => setFilterCategoria(sel ? sel.value : null)}
                       placeholder="Categoria..."
                       isClearable
-                      styles={{ control: (b) => ({ ...b, minHeight: '38px', fontSize: '1.1rem' }), menuPortal: (b) => ({ ...b, zIndex: 9999, fontSize: '1.1rem' }) }}
+                      styles={filterSelectStyles}
                     />
                   </th>
                   <th style={{ padding: "8px" }}>
@@ -490,144 +761,12 @@ function LancamentosFinanceiros() {
                       onChange={(sel: any) => setFilterConta(sel ? sel.value : null)}
                       placeholder="Conta..."
                       isClearable
-                      styles={{ control: (b) => ({ ...b, minHeight: '38px', fontSize: '1.1rem' }), menuPortal: (b) => ({ ...b, zIndex: 9999, fontSize: '1.1rem' }) }}
+                      styles={filterSelectStyles}
                     />
                   </th>
-                  <th colSpan={2} style={{ padding: "8px", textAlign: "right" }}>
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
-                      <button
-                        onClick={() => {
-                          const newOrder = !filterCreatedToday;
-                          setFilterCreatedToday(newOrder);
-                          fetchLancamentos(filterStatus, newOrder);
-                        }}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: filterCreatedToday ? "var(--primary-color)" : "#fff",
-                          color: filterCreatedToday ? "#fff" : "#64748b",
-                          border: `1px solid ${filterCreatedToday ? "var(--primary-color)" : "#e2e8f0"}`,
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: filterCreatedToday ? "bold" : "normal",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          fontSize: "0.85rem",
-                          transition: "0.2s"
-                        }}
-                        title="Alternar ordenação (Data x Data de Criação)"
-                      >
-                        <Icons.BsSortDown /> {filterCreatedToday ? "Ordem: Criação" : "Ordem: Data"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          const newStatus = filterStatus === 'review' ? 'all' : 'review';
-                          setFilterStatus(newStatus);
-                          if (newStatus === 'review') {
-                            setFilterData("");
-                            setFilterDescricao("");
-                            setFilterFornecedor(null);
-                            setFilterCategoria(null);
-                            setFilterConta(null);
-                          }
-                          fetchLancamentos(newStatus, filterCreatedToday);
-                        }}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fee2e2" : "#fff"),
-                          color: filterStatus === 'review' ? "#7f1d1d" : (pendingReviewCount > 0 ? "#dc2626" : "#64748b"),
-                          border: `1px solid ${filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: filterStatus === 'review' ? "bold" : "normal",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "6px",
-                          fontSize: "0.85rem",
-                          animation: pendingReviewCount > 0 && filterStatus !== 'review' ? "pulse-red 2s infinite" : "none"
-                        }}
-                      >
-                        <Icons.BsExclamationTriangleFill /> Revisão {pendingReviewCount > 0 ? `(${pendingReviewCount})` : ""}
-                      </button>
-                      {(isAdmin || filterStatus === 'deleted') && (
-                        <button
-                          onClick={() => {
-                            const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
-                            setFilterStatus(newStatus);
-                            if (newStatus === 'deleted') {
-                              setFilterData("");
-                              setFilterDescricao("");
-                              setFilterFornecedor(null);
-                              setFilterCategoria(null);
-                              setFilterConta(null);
-                            }
-                            fetchLancamentos(newStatus, filterCreatedToday);
-                          }}
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"),
-                            color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"),
-                            border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontWeight: filterStatus === 'deleted' ? "bold" : "normal",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            fontSize: "0.85rem",
-                            animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none"
-                          }}
-                        >
-                          <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
-                        </button>
-                      )}
-                      <button
-                        onClick={() => {
-                          setFilterData("");
-                          setFilterDescricao("");
-                          setFilterFornecedor(null);
-                          setFilterCategoria(null);
-                          setFilterConta(null);
-                          setFilterStatus('all');
-                          setFilterCreatedToday(false);
-                          fetchLancamentos('all', false);
-                        }}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#cbd5e1",
-                          color: "#334155",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px"
-                        }}
-                      >
-                        <Icons.BsXCircleFill /> Limpar
-                      </button>
-                      <button
-                        onClick={() => fetchLancamentos(filterStatus, filterCreatedToday)}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#f1f5f9",
-                          color: "#475569",
-                          border: "1px solid #cbd5e1",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px"
-                        }}
-                      >
-                        <Icons.BsArrowClockwise /> Atualizar
-                      </button>
-                    </div>
-                  </th>
+                  <th></th>
+                  {isAdmin && <th></th>}
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
@@ -644,176 +783,426 @@ function LancamentosFinanceiros() {
                   if (lancamentosFiltrados.length === 0) {
                     return (
                       <tr>
-                        <td colSpan={8} style={{ textAlign: "center", padding: "24px", color: "#94a3b8", fontSize: "1.3rem" }}>
+                        <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "24px", color: "#94a3b8", fontSize: "1.3rem" }}>
                           Nenhum lançamento encontrado.
                         </td>
                       </tr>
                     );
                   }
 
-                  return lancamentosFiltrados.map((l, i) => (
-                    <tr key={l.id}>
-                      {editingId === l.id ? (
-                        <>
-                          <td style={{ textAlign: "center" }}>
-                            <input
-                              type="date"
-                              value={editRowData.data || ""}
-                              onChange={(e) => setEditRowData({ ...editRowData, data: e.target.value })}
-                              style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={editRowData.descricao || ""}
-                              onChange={(e) => setEditRowData({ ...editRowData, descricao: e.target.value })}
-                              style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
-                            />
-                          </td>
-                          <td style={{ textAlign: "right" }}>
-                            <input
-                              type="number"
-                              step="0.01"
-                              className="no-spinner"
-                              value={editRowData.valor || ""}
-                              onChange={(e) => setEditRowData({ ...editRowData, valor: e.target.value })}
-                              onBlur={(e) => {
-                                if (e.target.value) {
-                                  setEditRowData({ ...editRowData, valor: parseFloat(e.target.value).toFixed(2) });
-                                }
-                              }}
-                              style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "right", boxSizing: "border-box", fontSize: "1.3rem" }}
-                            />
-                          </td>
-                          <td>
-                            <Select
-                              options={fornecedorOptions}
-                              value={fornecedorOptions.find(o => o.value === editRowData.fornecedor) || null}
-                              onChange={(option: any) => setEditRowData({ ...editRowData, fornecedor: option ? option.value : "" })}
-                              menuPortalTarget={document.body}
-                              styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
-                            />
-                          </td>
-                          <td>
-                            <Select
-                              options={categoriaOptions}
-                              value={categoriaOptions.flatMap(g => g.options).find(o => o.value === editRowData.categoria) || null}
-                              onChange={(option: any) => setEditRowData({ ...editRowData, categoria: option ? option.value : "" })}
-                              menuPortalTarget={document.body}
-                              styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
-                            />
-                          </td>
-                          <td>
-                            <Select
-                              options={contaOptions}
-                              value={contaOptions.find(o => o.value === editRowData.conta) || null}
-                              onChange={(option: any) => setEditRowData({ ...editRowData, conta: option ? option.value : "" })}
-                              menuPortalTarget={document.body}
-                              styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
-                            />
-                          </td>
-                          <td style={{ textAlign: "center" }}>
-                            <span style={{
-                              background: parseFloat(editRowData.valor || 0) >= 0 ? "#dcfce7" : "#fee2e2",
-                              color: parseFloat(editRowData.valor || 0) >= 0 ? "#15803d" : "#b91c1c",
-                              padding: "4px 8px",
-                              borderRadius: "12px",
-                              fontWeight: "bold",
-                              fontSize: "1.1rem"
-                            }}>
-                              {parseFloat(editRowData.valor || 0) >= 0 ? "Entrada" : "Saída"}
-                            </span>
-                          </td>
-                          <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px" }}>
-                            <button
-                              onClick={() => handleSaveInline(l.id)}
-                              style={{ backgroundColor: "transparent", border: "none", color: "#15803d", cursor: "pointer", fontSize: "1.6rem", padding: "4px", margin: 0 }}
-                              title="Salvar"
-                            >
-                              <Icons.BsCheckCircleFill />
-                            </button>
-                            <button
-                              onClick={() => setEditingId(null)}
-                              style={{ backgroundColor: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "1.6rem", padding: "4px", margin: 0 }}
-                              title="Cancelar"
-                            >
-                              <Icons.BsXCircleFill />
-                            </button>
-                          </td>
-                        </>
-                      ) : (
-                        <>
-                          <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
-                          <td>{l.descricao}</td>
-                          <td style={{ textAlign: "right", fontWeight: "bold", color: l.valor < 0 ? "#ef4444" : "#334155", fontSize: "1.3rem" }}>
-                            R$ {l.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </td>
-                          <td>{l.fornecedor || "-"}</td>
-                          <td>{l.categoria || "-"}</td>
-                          <td>{l.conta}</td>
-                          <td style={{ textAlign: "center" }}>
-                            <span style={{
-                              background: l.valor >= 0 ? "#dcfce7" : "#fee2e2",
-                              color: l.valor >= 0 ? "#15803d" : "#b91c1c",
-                              padding: "4px 8px",
-                              borderRadius: "12px",
-                              fontWeight: "bold",
-                              fontSize: "1.1rem"
-                            }}>
-                              {l.valor >= 0 ? "Entrada" : "Saída"}
-                            </span>
-                          </td>
-                          <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px" }}>
-                            {isAdmin && filterStatus === 'review' ? (
+                  const hoje = lancamentosFiltrados.filter(l => l.data === getToday());
+                  const anteriores = lancamentosFiltrados.filter(l => l.data !== getToday());
+
+                  const renderRow = (l: any) => {
+                    const diffMin = l.created_at ? (new Date().getTime() - new Date(l.created_at).getTime()) / (1000 * 60) : -1;
+                    const isRowNew = diffMin >= 0 && diffMin < 60; // 1 hora de duração
+
+                    const diffEditMin = l.updated_at ? (new Date().getTime() - new Date(l.updated_at).getTime()) / (1000 * 60) : -1;
+                    const isRowEdited = l.updated_at && diffEditMin >= 0 && diffEditMin < 60; // 1 hora de duração
+
+                    return (
+                      <tr key={l.id} style={l.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : l.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : l.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : {}}>
+                        {editingId === l.id ? (
+                          <>
+                            <td>
+                              <input
+                                type="text"
+                                value={editRowData.descricao || ""}
+                                onChange={(e) => setEditRowData({ ...editRowData, descricao: e.target.value })}
+                                style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
+                              />
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <input
+                                type="date"
+                                value={editRowData.data || ""}
+                                onChange={(e) => setEditRowData({ ...editRowData, data: e.target.value })}
+                                style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
+                              />
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <input
+                                type="number"
+                                step="0.01"
+                                className="no-spinner"
+                                value={editRowData.valor || ""}
+                                onChange={(e) => setEditRowData({ ...editRowData, valor: e.target.value })}
+                                onBlur={(e) => {
+                                  if (e.target.value) {
+                                    setEditRowData({ ...editRowData, valor: parseFloat(e.target.value).toFixed(2) });
+                                  }
+                                }}
+                                style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
+                              />
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <Select
+                                options={fornecedorOptions}
+                                value={fornecedorOptions.find(o => o.value === editRowData.fornecedor) || null}
+                                onChange={(option: any) => setEditRowData({ ...editRowData, fornecedor: option ? option.value : "" })}
+                                menuPortalTarget={document.body}
+                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                              />
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <Select
+                                options={categoriaOptions}
+                                value={categoriaOptions.flatMap(g => g.options).find(o => o.value === editRowData.categoria) || null}
+                                onChange={(option: any) => setEditRowData({ ...editRowData, categoria: option ? option.value : "" })}
+                                menuPortalTarget={document.body}
+                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                              />
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <Select
+                                options={contaOptions}
+                                value={contaOptions.find(o => o.value === editRowData.conta) || null}
+                                onChange={(option: any) => setEditRowData({ ...editRowData, conta: option ? option.value : "" })}
+                                menuPortalTarget={document.body}
+                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                              />
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              <span style={{
+                                background: parseFloat(editRowData.valor || 0) >= 0 ? "#dcfce7" : "#fee2e2",
+                                color: parseFloat(editRowData.valor || 0) >= 0 ? "#15803d" : "#b91c1c",
+                                padding: "4px 8px",
+                                borderRadius: "12px",
+                                fontWeight: "bold",
+                                fontSize: "1.1rem"
+                              }}>
+                               {parseFloat(editRowData.valor || 0) >= 0 ? "Entrada" : "Saída"}
+                              </span>
+                            </td>
+                            {isAdmin && <td></td>}
+                            <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px" }}>
                               <button
-                                onClick={() => handleUpdateReviewStatus(l.id, null)}
-                                style={{ backgroundColor: "transparent", border: "none", color: "#15803d", cursor: "pointer", fontSize: "1.6rem", padding: "4px" }}
-                                title="Aprovar Lançamento"
+                                onClick={() => handleSaveInline(l.id)}
+                                style={{ backgroundColor: "transparent", border: "none", color: "#15803d", cursor: "pointer", fontSize: "1.6rem", padding: "4px", margin: 0 }}
+                                title="Salvar"
                               >
                                 <Icons.BsCheckCircleFill />
                               </button>
-                            ) : isAdmin && filterStatus === 'deleted' ? (
                               <button
-                                onClick={() => handleUpdateReviewStatus(l.id, null)}
-                                style={{ backgroundColor: "transparent", border: "none", color: "#64748b", cursor: "pointer", fontSize: "1.6rem", padding: "4px" }}
-                                title="Cancelar Exclusão"
+                                onClick={() => setEditingId(null)}
+                                style={{ backgroundColor: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "1.6rem", padding: "4px", margin: 0 }}
+                                title="Cancelar"
                               >
-                                <Icons.BsArrowCounterclockwise />
+                                <Icons.BsXCircleFill />
                               </button>
-                            ) : (
-                              <>
-                                {isAdmin && (!l.status_revisao || l.status_revisao === 'none') && (
-                                  <button
-                                    onClick={() => handleUpdateReviewStatus(l.id, 'pending_user')}
-                                    title="Marcar para Revisão"
-                                    style={{ backgroundColor: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "1.6rem", padding: "4px", margin: 0 }}
-                                  >
-                                    <Icons.BsExclamationCircleFill />
-                                  </button>
+                            </td>
+                          </>
+                        ) : (
+                          <>
+                            <td>
+                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span>{l.descricao}</span>
+                                {l.status_revisao === 'admin_only' && (
+                                  <span style={{
+                                    backgroundColor: "#3b82f6",
+                                    color: "#ffffff",
+                                    fontSize: "0.9rem",
+                                    fontWeight: "bold",
+                                    padding: "2px 6px",
+                                    borderRadius: "4px",
+                                    textTransform: "uppercase",
+                                    lineHeight: "1.1",
+                                    display: "inline-block",
+                                    letterSpacing: "0.03em"
+                                  }}>
+                                    Somente Admin
+                                  </span>
                                 )}
-                                <button
-                                  onClick={() => handleEdit(l)}
-                                  style={{ backgroundColor: "transparent", border: "none", color: "#3b82f6", cursor: "pointer", fontSize: "1.6rem", padding: "4px", margin: 0 }}
-                                  title="Editar"
+                                {isRowNew && (
+                                  <span style={{
+                                    backgroundColor: "#10b981",
+                                    color: "#ffffff",
+                                    fontSize: "0.9rem",
+                                    fontWeight: "bold",
+                                    padding: "2px 6px",
+                                    borderRadius: "4px",
+                                    textTransform: "uppercase",
+                                    lineHeight: "1.1",
+                                    display: "inline-block",
+                                    letterSpacing: "0.03em"
+                                  }}>
+                                    Novo
+                                  </span>
+                                )}
+                                {isRowEdited && (
+                                  <span style={{
+                                    backgroundColor: "#f97316",
+                                    color: "#ffffff",
+                                    fontSize: "0.9rem",
+                                    fontWeight: "bold",
+                                    padding: "2px 6px",
+                                    borderRadius: "4px",
+                                    textTransform: "uppercase",
+                                    lineHeight: "1.1",
+                                    display: "inline-block",
+                                    letterSpacing: "0.03em"
+                                  }}>
+                                    Editado
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
+                            <td style={{ textAlign: "center", fontWeight: "bold", color: l.valor < 0 ? "#ef4444" : "#334155", fontSize: "1.3rem" }}>
+                              R$ {l.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            </td>
+                            <td style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
+                            <td style={{ textAlign: "center" }}>{l.categoria || "-"}</td>
+                            <td style={{ textAlign: "center" }}>{l.conta}</td>
+                            <td style={{ textAlign: "center" }}>
+                              <span style={{
+                                background: l.valor >= 0 ? "#dcfce7" : "#fee2e2",
+                                color: l.valor >= 0 ? "#15803d" : "#b91c1c",
+                                padding: "4px 8px",
+                                borderRadius: "12px",
+                                fontWeight: "bold",
+                                fontSize: "1.1rem"
+                              }}>
+                                {l.valor >= 0 ? "Entrada" : "Saída"}
+                              </span>
+                            </td>
+                            {isAdmin && (
+                              <td style={{ textAlign: "center" }}>
+                                <span 
+                                  title={l.created_at ? new Date(l.created_at).toLocaleString("pt-BR") : ""}
+                                  style={{
+                                    background: "#f1f5f9",
+                                    border: "1px solid #cbd5e1",
+                                    borderRadius: "8px",
+                                    padding: "4px 12px",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    fontSize: "1.2rem",
+                                    color: "#334155",
+                                    cursor: "pointer"
+                                  }}
                                 >
-                                  <Icons.BsPencil />
-                                </button>
-                              </>
+                                  <Icons.BsPerson style={{ fontSize: "1.4rem", color: "#64748b" }} />
+                                  {profilesMap[l.user_id] || "-"}
+                                </span>
+                              </td>
                             )}
-                            <button
-                              onClick={() => handleDelete(l.id)}
-                              className="delete-record-btn"
-                              title="Excluir"
-                              style={{ margin: 0 }}
-                            >
-                              <Icons.BsTrash />
-                            </button>
-                          </td>
+                            <td style={{ textAlign: "center" }}>
+                              <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                                {l.status_revisao === 'pending_delete' ? (
+                                  <>
+                                    {isAdmin && (
+                                      <button
+                                        onClick={() => handleDelete(l.id)}
+                                        title="Excluir permanentemente"
+                                        style={{
+                                          padding: "4px 8px",
+                                          color: "#166534",
+                                          backgroundColor: "#dcfce7",
+                                          border: "1px solid #166534",
+                                          borderRadius: "4px",
+                                          cursor: "pointer",
+                                          display: "inline-flex",
+                                          alignItems: "center",
+                                          gap: "4px",
+                                          fontWeight: "bold",
+                                          fontSize: "1.1rem",
+                                          margin: 0
+                                        }}
+                                      >
+                                        <Icons.BsCheckAll style={{ fontSize: "1.4rem" }} /> Excluir
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => handleUpdateReviewStatus(l.id, null)}
+                                      title="Restaurar Lançamento"
+                                      style={{
+                                        padding: "4px 8px",
+                                        color: "#c2410c",
+                                        backgroundColor: "#ffedd5",
+                                        border: "1px solid #c2410c",
+                                        borderRadius: "4px",
+                                        cursor: "pointer",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        fontWeight: "bold",
+                                        fontSize: "1.1rem",
+                                        margin: 0
+                                      }}
+                                    >
+                                      <Icons.BsXCircle style={{ fontSize: "1.2rem" }} /> Restaurar
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    {isAdmin && l.status_revisao === 'pending_admin' ? (
+                                      <>
+                                        {l.revisao_observacao && (
+                                          <span title={l.revisao_observacao} style={{ padding: "4px 4px", fontSize: "1.1rem", color: "#ea580c", cursor: "help", display: "flex", alignItems: "center" }}>
+                                            <Icons.BsInfoCircleFill />
+                                          </span>
+                                        )}
+                                        <button
+                                          onClick={() => handleUpdateReviewStatus(l.id, null)}
+                                          title="Aprovar Correção"
+                                          style={{ padding: "4px 8px", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
+                                        >
+                                          <Icons.BsCheckAll />
+                                        </button>
+                                        <button
+                                          onClick={() => handleUpdateReviewStatus(l.id, 'pending_user')}
+                                          title="Voltar para Revisão"
+                                          style={{ padding: "4px 8px", color: "#c2410c", backgroundColor: "#ffedd5", border: "1px solid #c2410c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
+                                        >
+                                          <Icons.BsArrowCounterclockwise />
+                                        </button>
+                                        <button
+                                          onClick={() => handleEdit(l)}
+                                          className="nav-btn"
+                                          title="Editar"
+                                          style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                        >
+                                          <Icons.BsPencil />
+                                        </button>
+                                      </>
+                                    ) : isAdmin && filterStatus === 'review' ? (
+                                      <>
+                                        {l.status_revisao === 'pending_user' && (
+                                          <button
+                                            onClick={() => handleUpdateReviewStatus(l.id, null)}
+                                            title="Cancelar Revisão"
+                                            style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                          >
+                                            <Icons.BsXCircle /> Cancelar
+                                          </button>
+                                        )}
+                                        <button
+                                          onClick={() => handleEdit(l)}
+                                          className="nav-btn"
+                                          title="Editar"
+                                          style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                        >
+                                          <Icons.BsPencil />
+                                        </button>
+                                      </>
+                                    ) : (
+                                      <>
+                                        {l.status_revisao === 'pending_user' ? (
+                                          isAdmin ? (
+                                            <>
+                                              <button
+                                                onClick={() => handleUpdateReviewStatus(l.id, null)}
+                                                title="Cancelar Revisão"
+                                                style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                              >
+                                                <Icons.BsXCircle /> Cancelar
+                                              </button>
+                                              <button
+                                                onClick={() => handleEdit(l)}
+                                                className="nav-btn"
+                                                title="Editar"
+                                                style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                              >
+                                                <Icons.BsPencil />
+                                              </button>
+                                            </>
+                                          ) : (
+                                            <button
+                                              onClick={() => handleEdit(l)}
+                                              title="Revisar Lançamento"
+                                              style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
+                                            >
+                                              <Icons.BsExclamationCircle /> Revisar
+                                            </button>
+                                          )
+                                        ) : (
+                                          <>
+                                            {isAdmin && (
+                                              l.status_revisao === 'admin_only' ? (
+                                                <button
+                                                  onClick={() => handleUpdateReviewStatus(l.id, null)}
+                                                  title="Tornar Público (Todos visualizam)"
+                                                  style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#3b82f6", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                                >
+                                                  <Icons.BsShieldLockFill />
+                                                </button>
+                                              ) : (!l.status_revisao || l.status_revisao === 'none') && (
+                                                <button
+                                                  onClick={() => handleUpdateReviewStatus(l.id, 'admin_only')}
+                                                  title="Restringir aos Admins (Apenas admins visualizam)"
+                                                  style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#64748b", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                                >
+                                                  <Icons.BsShieldLock />
+                                                </button>
+                                              )
+                                            )}
+                                            {isAdmin && (!l.status_revisao || l.status_revisao === 'none') && (
+                                              <button
+                                                onClick={() => handleUpdateReviewStatus(l.id, 'pending_user')}
+                                                title="Marcar para Revisão"
+                                                style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#ef4444", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                              >
+                                                <Icons.BsExclamationCircleFill />
+                                              </button>
+                                            )}
+                                            <button
+                                              onClick={() => handleEdit(l)}
+                                              className="nav-btn"
+                                              title="Editar"
+                                              style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                            >
+                                              <Icons.BsPencil />
+                                            </button>
+                                          </>
+                                        )}
+                                      </>
+                                    )}
+                                    {!( !isAdmin && (l.status_revisao === 'pending_user' || l.status_revisao === 'pending_admin') ) && (
+                                      <button
+                                        onClick={() => handleDelete(l.id)}
+                                        className="delete-record-btn"
+                                        title="Excluir"
+                                        style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                                      >
+                                        <Icons.BsTrash />
+                                      </button>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </>
+                        )}
+                      </tr>
+                    );
+                  };
+
+                  return (
+                    <>
+                      {hoje.length > 0 && (
+                        <>
+                          <tr style={{ backgroundColor: "#f0fdf4", borderBottom: "1px solid #bbf7d0", borderTop: "1px solid #bbf7d0" }}>
+                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#166534", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                              Lançamentos de Hoje
+                            </td>
+                          </tr>
+                          {hoje.map(renderRow)}
                         </>
                       )}
-                    </tr>
-                  ));
+                      {anteriores.length > 0 && (
+                        <>
+                          <tr style={{ backgroundColor: "#f1f5f9", borderBottom: "1px solid #cbd5e1", borderTop: "1px solid #cbd5e1" }}>
+                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#475569", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                              Lançamentos Anteriores
+                            </td>
+                          </tr>
+                          {anteriores.map(renderRow)}
+                        </>
+                      )}
+                    </>
+                  );
                 })()}
               </tbody>
             </table>

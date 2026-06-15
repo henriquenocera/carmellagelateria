@@ -174,6 +174,7 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
+          updated_at,
           user_id,
           status_revisao,
           revisao_observacao,
@@ -307,6 +308,7 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
+          updated_at,
           user_id,
           status_revisao,
           revisao_observacao,
@@ -390,6 +392,16 @@ function EntradaMercadoria() {
       setSavingEdit(true);
       const originalRow = compras.find(c => c.id === editingRowId);
       let observacaoAdicional = "";
+      let hasChanges = false;
+      if (originalRow) {
+        if (originalRow.insumo_id !== editRowData.insumo_id ||
+            originalRow.data_compra !== editRowData.data_compra ||
+            (originalRow.fornecedor || "") !== (editRowData.fornecedor || "") ||
+            String(originalRow.quantidade_comprada) !== String(editRowData.quantidade_comprada) ||
+            String(originalRow.valor_unitario) !== String(editRowData.valor_unitario)) {
+          hasChanges = true;
+        }
+      }
       
       if (originalRow && originalRow.status_revisao === 'pending_user') {
         const diffs = [];
@@ -420,6 +432,10 @@ function EntradaMercadoria() {
         valor_unitario: parseFloat(editRowData.valor_unitario) || null
       };
 
+      if (hasChanges) {
+        updateData.updated_at = new Date().toISOString();
+      }
+
       if (originalRow && originalRow.status_revisao === 'pending_user') {
         updateData.revisao_observacao = observacaoAdicional;
         if (!isAdmin) {
@@ -439,6 +455,7 @@ function EntradaMercadoria() {
           valor_unitario,
           insumo_id,
           created_at,
+          updated_at,
           user_id,
           status_revisao,
           revisao_observacao,
@@ -959,6 +976,11 @@ function EntradaMercadoria() {
                       const isDuplicate = duplicatesMap[key] > 1;
                       const isEditing = editingRowId === comp.id;
 
+                      const diffMin = comp.created_at ? (new Date().getTime() - new Date(comp.created_at).getTime()) / (1000 * 60) : -1;
+                      const isRowNew = diffMin >= 0 && diffMin < 60; // 1 hora
+                      const diffEditMin = comp.updated_at ? (new Date().getTime() - new Date(comp.updated_at).getTime()) / (1000 * 60) : -1;
+                      const isRowEdited = comp.updated_at && diffEditMin >= 0 && diffEditMin < 60; // 1 hora
+
                       const isToday = comp.data_compra === getToday();
                       const prevComp = index > 0 ? compras[index - 1] : null;
                       const prevIsToday = prevComp ? prevComp.data_compra === getToday() : false;
@@ -1076,8 +1098,39 @@ function EntradaMercadoria() {
                               {comp.status_revisao === 'pending_delete' && (
                                 <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#ef4444", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Deletado</span>
                               )}
-                              {(new Date().getTime() - new Date(comp.created_at).getTime() < 5 * 60 * 1000) && comp.status_revisao !== 'pending_delete' && (
-                                <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#10b981", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Novo</span>
+                              {isRowNew && comp.status_revisao !== 'pending_delete' && (
+                                <span style={{
+                                  marginLeft: "8px",
+                                  backgroundColor: "#10b981",
+                                  color: "#ffffff",
+                                  fontSize: "0.75rem",
+                                  fontWeight: "bold",
+                                  padding: "2px 6px",
+                                  borderRadius: "4px",
+                                  textTransform: "uppercase",
+                                  lineHeight: "1.1",
+                                  display: "inline-block",
+                                  letterSpacing: "0.03em"
+                                }}>
+                                  Novo
+                                </span>
+                              )}
+                              {isRowEdited && comp.status_revisao !== 'pending_delete' && (
+                                <span style={{
+                                  marginLeft: "8px",
+                                  backgroundColor: "#f97316",
+                                  color: "#ffffff",
+                                  fontSize: "0.75rem",
+                                  fontWeight: "bold",
+                                  padding: "2px 6px",
+                                  borderRadius: "4px",
+                                  textTransform: "uppercase",
+                                  lineHeight: "1.1",
+                                  display: "inline-block",
+                                  letterSpacing: "0.03em"
+                                }}>
+                                  Editado
+                                </span>
                               )}
                               {isDuplicate && (
                                 <span title="Atenção: Possível lançamento duplicado (mesmo insumo, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
@@ -1096,25 +1149,24 @@ function EntradaMercadoria() {
                             </td>
                             {isAdmin && (
                               <td style={{ textAlign: "center" }}>
-                                <div 
-                                  title={comp.created_at ? `Registrado em: ${new Date(comp.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
-                                  style={{ 
-                                    color: "#334155", 
-                                    fontWeight: 600, 
-                                    display: "inline-flex", 
-                                    alignItems: "center", 
-                                    justifyContent: "center", 
-                                    gap: "6px", 
-                                    cursor: "help",
-                                    backgroundColor: "#f8fafc",
-                                    padding: "4px 8px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #e2e8f0"
+                                <span 
+                                  title={comp.created_at ? new Date(comp.created_at).toLocaleString("pt-BR") : ""}
+                                  style={{
+                                    background: "#f1f5f9",
+                                    border: "1px solid #cbd5e1",
+                                    borderRadius: "8px",
+                                    padding: "4px 12px",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    fontSize: "1.2rem",
+                                    color: "#334155",
+                                    cursor: "pointer"
                                   }}
                                 >
-                                  <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
+                                  <Icons.BsPerson style={{ fontSize: "1.4rem", color: "#64748b" }} />
                                   {comp.profiles?.name || "-"}
-                                </div>
+                                </span>
                               </td>
                             )}
                             <td style={{ textAlign: "center" }}>
