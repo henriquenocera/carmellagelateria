@@ -449,7 +449,8 @@ CREATE TABLE IF NOT EXISTS "public"."entradas_mercadoria" (
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "user_id" "uuid",
     "status_revisao" character varying(20) DEFAULT 'none'::character varying,
-    "revisao_observacao" "text"
+    "revisao_observacao" "text",
+    "updated_at" timestamp with time zone
 );
 
 
@@ -649,7 +650,8 @@ CREATE TABLE IF NOT EXISTS "public"."lancamentos_financeiros" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "user_id" "uuid" DEFAULT "auth"."uid"(),
     "status_revisao" "text",
-    "revisao_observacao" "text"
+    "revisao_observacao" "text",
+    "updated_at" timestamp with time zone
 );
 
 
@@ -694,7 +696,8 @@ CREATE TABLE IF NOT EXISTS "public"."movimentacoes_estoque" (
     "destino" "text" NOT NULL,
     "user_id" "uuid" DEFAULT "auth"."uid"(),
     "status_revisao" character varying(20) DEFAULT 'none'::character varying,
-    "revisao_observacao" "text"
+    "revisao_observacao" "text",
+    "updated_at" timestamp with time zone
 );
 
 
@@ -1639,6 +1642,10 @@ ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."cardsaltoxv";
 
 
 ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."entradas_mercadoria";
+
+
+
+ALTER PUBLICATION "supabase_realtime" ADD TABLE ONLY "public"."lancamentos_financeiros";
 
 
 
