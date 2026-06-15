@@ -91,13 +91,16 @@ function Home() {
         twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
         const iso2d = twoDaysAgo.toISOString();
 
+        const oneDayAgo = new Date();
+        oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
         const [ahuRes, altoxvRes] = await Promise.all([
           supabase.from("cardsahu").select("id, status, title, production_date, history, updated_at").or(`status.in.(vitrine-atual,freezer-estoque),updated_at.gte.${iso2d}`),
           supabase.from("cardsaltoxv").select("id, status, title, production_date, history, updated_at").or(`status.in.(vitrine-atual,freezer-estoque),updated_at.gte.${iso2d}`)
         ]);
 
         const calcEstoque = (data) => {
-          if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0 };
+          if (!data) return { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0, entradas1d: 0, saidas1d: 0 };
 
           const res = data.reduce((acc, curr) => {
             if (curr.status === "vitrine-atual") {
@@ -112,16 +115,25 @@ function Home() {
 
             if (curr.history && Array.isArray(curr.history)) {
               curr.history.forEach(h => {
-                if (h.timestamp && new Date(h.timestamp) >= twoDaysAgo) {
+                if (h.timestamp) {
+                  const hDate = new Date(h.timestamp);
                   const act = (h.action || "").toLowerCase();
-                  if (act.includes("criado") && !act.includes("quebra")) acc.entradas2d++;
-                  if (act.includes("→ arquivo") || act.includes("→ histórico") || act.includes("lixo")) acc.saidas2d++;
+
+                  if (hDate >= twoDaysAgo) {
+                    if (act.includes("criado") && !act.includes("quebra")) acc.entradas2d++;
+                    if (act.includes("→ arquivo") || act.includes("→ histórico") || act.includes("lixo")) acc.saidas2d++;
+                  }
+
+                  if (hDate >= oneDayAgo) {
+                    if (act.includes("criado") && !act.includes("quebra")) acc.entradas1d++;
+                    if (act.includes("→ arquivo") || act.includes("→ histórico") || act.includes("lixo")) acc.saidas1d++;
+                  }
                 }
               });
             }
 
             return acc;
-          }, { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0 });
+          }, { vitrine: 0, estoque: 0, itensVitrine: [], itensEstoque: [], itensEstoqueDetalhado: [], entradas2d: 0, saidas2d: 0, entradas1d: 0, saidas1d: 0 });
 
           return res;
         };
@@ -602,6 +614,12 @@ function Home() {
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.ahu.vitrine}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.ahu.estoque}</span>
                   </div>
+                  <div style={{ fontSize: "1.2rem", color: "#94a3b8", display: "flex", gap: "8px", marginBottom: "4px" }}>
+                    <span>Últimas 24h:</span>
+                    <span style={{ color: "#16a34a", fontWeight: "600" }}>+{estoque.ahu.entradas1d}</span>
+                    <span style={{ color: "#cbd5e1" }}>|</span>
+                    <span style={{ color: "#ef4444", fontWeight: "600" }}>-{estoque.ahu.saidas1d}</span>
+                  </div>
                   <div style={{ fontSize: "1.2rem", color: "#94a3b8", display: "flex", gap: "8px" }}>
                     <span>Últimas 48h:</span>
                     <span style={{ color: "#16a34a", fontWeight: "600" }}>+{estoque.ahu.entradas2d}</span>
@@ -628,6 +646,12 @@ function Home() {
                   <div style={{ display: "flex", gap: "16px", color: "#64748b", fontSize: "1.3rem", alignItems: "center", flexWrap: "wrap" }}>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div> Vitrine: {estoque.altoxv.vitrine}</span>
                     <span style={{ display: "flex", alignItems: "center", gap: "6px" }}><div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#3b82f6" }}></div> Estoque: {estoque.altoxv.estoque}</span>
+                  </div>
+                  <div style={{ fontSize: "1.2rem", color: "#94a3b8", display: "flex", gap: "8px", marginBottom: "4px" }}>
+                    <span>Últimas 24h:</span>
+                    <span style={{ color: "#16a34a", fontWeight: "600" }}>+{estoque.altoxv.entradas1d}</span>
+                    <span style={{ color: "#cbd5e1" }}>|</span>
+                    <span style={{ color: "#ef4444", fontWeight: "600" }}>-{estoque.altoxv.saidas1d}</span>
                   </div>
                   <div style={{ fontSize: "1.2rem", color: "#94a3b8", display: "flex", gap: "8px" }}>
                     <span>Últimas 48h:</span>

@@ -236,6 +236,7 @@ body {
   border-left: 2px solid rgba(161, 117, 80, 0.2);
   margin-left: 27px;
   list-style: none;
+  width: 200px; /* Fixed width prevents text reflow and wrapping during menu open/close transitions */
 }
 
 .submenu-item {
@@ -364,6 +365,10 @@ body {
   width: 100%;
   white-space: nowrap;
   font-size: 1.5rem;
+}
+
+.submenu-link .text-container {
+  white-space: normal;
 }
 
 .admin-badge-sub {
