@@ -58,6 +58,8 @@ import ProdutosVale from "./routes/configuracoes/ProdutosVale.tsx";
 import LancamentosFinanceiros from "./routes/LancamentosFinanceiros.tsx";
 import ConciliacaoBancaria from "./routes/ConciliacaoBancaria.tsx";
 import ContasPagarReceber from "./routes/ContasPagarReceber.tsx";
+import ContasFixas from "./routes/ContasFixas.tsx";
+import DashboardFinanceiro from "./routes/DashboardFinanceiro.tsx";
 import supabase from "./services/supabase-client";
 
 const ProtectedLayout = () => {
@@ -161,9 +163,11 @@ const router = createBrowserRouter(
         <Route path="/configuracoes/cadastro-contas" element={<CadastroContas />} />
         <Route path="/configuracoes/categorias-financeiras" element={<CadastroCategoriasFinanceiras />} />
         <Route path="/configuracoes/produtos-vale" element={<ProdutosVale />} />
+        <Route path="/dashboard-financeiro" element={<DashboardFinanceiro />} />
         <Route path="/lancamentos-financeiros" element={<LancamentosFinanceiros />} />
         <Route path="/conciliacao-bancaria" element={<ConciliacaoBancaria />} />
         <Route path="/contas-pagar-receber" element={<ContasPagarReceber />} />
+        <Route path="/contas-fixas" element={<ContasFixas />} />
       </Route>
     </>
   )

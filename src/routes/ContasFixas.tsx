@@ -6,7 +6,7 @@ import { useAuth } from "../AuthProvider";
 import supabase from "../services/supabase-client";
 import "../css/Frequencia.css";
 
-function ContasPagarReceber() {
+function ContasFixas() {
   const { isAdmin, user } = useAuth();
 
   const [categoriasDb, setCategoriasDb] = useState<any[]>([]);
@@ -23,11 +23,8 @@ function ContasPagarReceber() {
   const [confirmData, setConfirmData] = useState<string>("");
   const [selectedConta, setSelectedConta] = useState<string>("");
   const [confirmingLoading, setConfirmingLoading] = useState(false);
-  const [importingLoading, setImportingLoading] = useState(false);
-  const [importModalOpen, setImportModalOpen] = useState(false);
-  const [importMonth, setImportMonth] = useState("");
 
-  const [filterData, setFilterData] = useState("");
+  const [filterDia, setFilterDia] = useState("");
   const [filterDescricao, setFilterDescricao] = useState("");
   const [filterFornecedor, setFilterFornecedor] = useState<string | null>(null);
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null);
@@ -39,7 +36,7 @@ function ContasPagarReceber() {
   };
 
   const [newRow, setNewRow] = useState({
-    data: getToday(),
+    dia_vencimento: 1,
     descricao: "",
     fornecedor_cliente: "",
     valor: "",
@@ -227,9 +224,9 @@ function ContasPagarReceber() {
     fetchLancamentosRef.current = fetchLancamentos;
     try {
       let query = supabase
-        .from("contas_pagar_receber")
+        .from("contas_fixas")
         .select("*")
-        .order("data", { ascending: true })
+        .order("dia_vencimento", { ascending: true })
         .order("created_at", { ascending: false });
 
       const { data, error } = await query;
@@ -250,7 +247,7 @@ function ContasPagarReceber() {
     const channel = supabase.channel('realtime-lancamentos')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'contas_pagar_receber' },
+        { event: '*', schema: 'public', table: 'contas_fixas' },
         () => {
           if (fetchLancamentosRef.current) {
             fetchLancamentosRef.current();
@@ -278,7 +275,7 @@ function ContasPagarReceber() {
       let val = parseFloat(newRow.valor.replace(",", "."));
 
       const payload = {
-        data: newRow.data,
+        dia_vencimento: newRow.dia_vencimento,
         descricao: newRow.descricao,
         fornecedor_cliente: newRow.fornecedor_cliente || null,
         valor: val,
@@ -286,10 +283,10 @@ function ContasPagarReceber() {
         user_id: user?.id
       };
 
-      const { error } = await supabase.from("contas_pagar_receber").insert([payload]);
+      const { error } = await supabase.from("contas_fixas").insert([payload]);
       if (error) throw error;
 
-      setNewRow({ data: getToday(), descricao: "", tipo: "pagar", valor: "", fornecedor: "", cliente: "", categoria: "" });
+      setNewRow({ dia_vencimento: 1, descricao: "", tipo: "pagar", valor: "", fornecedor: "", cliente: "", categoria: "" });
       fetchLancamentos();
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
@@ -320,7 +317,7 @@ function ContasPagarReceber() {
       let val = parseFloat(editRowData.valor.toString().replace(",", "."));
 
       const payload: any = {
-        data: editRowData.data,
+        dia_vencimento: editRowData.dia_vencimento,
         descricao: editRowData.descricao,
         fornecedor_cliente: editRowData.fornecedor_cliente || null,
         valor: val,
@@ -331,7 +328,7 @@ function ContasPagarReceber() {
         payload.updated_at = new Date().toISOString();
       }
 
-      const { error } = await supabase.from("contas_pagar_receber").update(payload).eq("id", id);
+      const { error } = await supabase.from("contas_fixas").update(payload).eq("id", id);
       if (error) throw error;
 
       setEditingId(null);
@@ -347,7 +344,7 @@ function ContasPagarReceber() {
   const handleEdit = (lancamento: any) => {
     setEditingId(lancamento.id);
     setEditRowData({
-      data: lancamento.data,
+      dia_vencimento: lancamento.dia_vencimento,
       descricao: lancamento.descricao,
       fornecedor_cliente: lancamento.fornecedor_cliente || "",
       valor: lancamento.valor.toString(),
@@ -358,7 +355,7 @@ function ContasPagarReceber() {
   const handleDelete = async (id: string) => {
     if (window.confirm("Deseja excluir este lançamento?")) {
       try {
-        const { error } = await supabase.from("contas_pagar_receber").delete().eq("id", id);
+        const { error } = await supabase.from("contas_fixas").delete().eq("id", id);
         if (error) throw error;
         fetchLancamentos();
       } catch (err) {
@@ -377,7 +374,7 @@ function ContasPagarReceber() {
     try {
       setConfirmingLoading(true);
       const payload = {
-        data: confirmData,
+        dia_vencimento: confirmData,
         descricao: confirmingLancamento.descricao,
         fornecedor: confirmingLancamento.fornecedor_cliente,
         valor: confirmingLancamento.valor,
@@ -390,13 +387,11 @@ function ContasPagarReceber() {
       const { error: insertError } = await supabase.from("lancamentos_financeiros").insert([payload]);
       if (insertError) throw insertError;
 
-      const { error: deleteError } = await supabase.from("contas_pagar_receber").delete().eq("id", confirmingLancamento.id);
+      const { error: deleteError } = await supabase.from("contas_fixas").delete().eq("id", confirmingLancamento.id);
       if (deleteError) throw deleteError;
 
       setConfirmingLancamento(null);
-      setSelectedConta("");
-      fetchLancamentos();
-    } catch (err: any) {
+        } catch (err: any) {
       console.error("Erro ao confirmar:", err);
       alert("Erro ao confirmar lançamento: " + (err?.message || JSON.stringify(err)));
     } finally {
@@ -404,107 +399,17 @@ function ContasPagarReceber() {
     }
   };
 
-  const openImportModal = () => {
-    const d = new Date();
-    const currentYear = d.getFullYear();
-    const currentMonth = String(d.getMonth() + 1).padStart(2, '0');
-    setImportMonth(`${currentYear}-${currentMonth}`);
-    setImportModalOpen(true);
-  };
+  const lancamentosFiltrados = lancamentos.filter(l => {
+    if (filterDia && String(l.dia_vencimento) !== filterDia) return false;
+    if (filterDescricao && !l.descricao.toLowerCase().includes(filterDescricao.toLowerCase())) return false;
+    if (filterFornecedor && l.fornecedor_cliente !== filterFornecedor) return false;
+    if (filterCategoria && l.categoria !== filterCategoria) return false;
+    if (filterTipo === "pagar" && l.valor >= 0) return false;
+    if (filterTipo === "receber" && l.valor < 0) return false;
+    return true;
+  });
 
-  const handleImportContasFixas = async () => {
-    if (!importMonth) {
-      alert("Selecione um mês válido.");
-      return;
-    }
-
-    try {
-      setImportingLoading(true);
-      
-      const { data: fixas, error: fixasError } = await supabase
-        .from("contas_fixas")
-        .select("*")
-        .eq("ativo", true);
-        
-      if (fixasError) throw fixasError;
-      if (!fixas || fixas.length === 0) {
-        alert("Nenhuma conta fixa cadastrada.");
-        setImportModalOpen(false);
-        return;
-      }
-
-      const [yearStr, monthStr] = importMonth.split('-');
-      const targetYear = parseInt(yearStr);
-      const targetMonth = parseInt(monthStr);
-      
-      const firstDay = `${targetYear}-${String(targetMonth).padStart(2, '0')}-01`;
-      const lastDay = new Date(targetYear, targetMonth, 0).getDate();
-      const lastDayStr = `${targetYear}-${String(targetMonth).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-
-      // Fetch existing records for this month to check duplicates
-      const { data: existing, error: existingError } = await supabase
-        .from("contas_pagar_receber")
-        .select("data, descricao, valor")
-        .gte("data", firstDay)
-        .lte("data", lastDayStr);
-
-      if (existingError) throw existingError;
-
-      const payload = fixas.map(f => {
-        const m = String(targetMonth).padStart(2, '0');
-        const d = String(Math.min(f.dia_vencimento, lastDay)).padStart(2, '0'); // Evita dia 31 em mês de 30
-        const dataVencimento = `${targetYear}-${m}-${d}`;
-
-        return {
-          data: dataVencimento,
-          descricao: f.descricao,
-          fornecedor_cliente: f.fornecedor_cliente,
-          valor: f.valor,
-          categoria: f.categoria,
-          user_id: user?.id
-        };
-      });
-
-      // Duplicates check
-      let newPayload = payload;
-      const duplicates = payload.filter(p => 
-        existing?.some(e => e.data === p.data && e.descricao === p.descricao && e.valor === p.valor)
-      );
-
-      if (duplicates.length > 0) {
-        const proceed = window.confirm(`Encontramos ${duplicates.length} conta(s) fixa(s) que já parecem ter sido importadas neste mês (mesma descrição, valor e data).\n\nDeseja pular as duplicadas e importar apenas as ${payload.length - duplicates.length} novas?\n\n(Clique em Cancelar para abortar toda a importação)`);
-        
-        if (!proceed) {
-          setImportingLoading(false);
-          return;
-        }
-
-        // Filter out duplicates
-        newPayload = payload.filter(p => !duplicates.includes(p));
-      }
-
-      if (newPayload.length === 0) {
-        alert("Nenhuma conta nova para importar neste mês.");
-        setImportModalOpen(false);
-        setImportingLoading(false);
-        return;
-      }
-
-      const { error: insertError } = await supabase
-        .from("contas_pagar_receber")
-        .insert(newPayload);
-
-      if (insertError) throw insertError;
-      
-      setImportModalOpen(false);
-      fetchLancamentos();
-    } catch (err: any) {
-      console.error("Erro ao importar contas fixas:", err);
-      alert("Erro ao importar: " + (err?.message || JSON.stringify(err)));
-    } finally {
-      setImportingLoading(false);
-    }
-  };
+  const totalDespesas = lancamentosFiltrados.filter(l => l.valor < 0).reduce((acc, curr) => acc + curr.valor, 0);
 
   return (
     <>
@@ -521,31 +426,9 @@ function ContasPagarReceber() {
 
       <div className="frequencia-container">
         <div className="frequencia-header">
-          <div className="frequencia-title-group" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: "16px" }}>
-            <div>
-              <h1>Contas a pagar e receber</h1>
-              <p>Registre contas a pagar e receber. Acompanhe os compromissos financeiros.</p>
-            </div>
-            {isAdmin && (
-              <button
-                onClick={openImportModal}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "var(--primary-color)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  fontWeight: "bold",
-                  fontSize: "1.4rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px"
-                }}
-              >
-                <Icons.BsCloudDownload /> Importar Contas Fixas
-              </button>
-            )}
+          <div className="frequencia-title-group">
+            <h1>Contas Fixas</h1>
+            <p>Gerencie contas recorrentes e gere lançamentos automáticos.</p>
           </div>
         </div>
 
@@ -582,11 +465,13 @@ function ContasPagarReceber() {
               </div>
 
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data de Vencimento</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Dia Vencimento</label>
                 <input
-                  type="date"
-                  value={newRow.data}
-                  onChange={(e) => setNewRow({ ...newRow, data: e.target.value })}
+                  type="number"
+                  min="1"
+                  max="31"
+                  value={newRow.dia_vencimento}
+                  onChange={(e) => setNewRow({ ...newRow, dia_vencimento: parseInt(e.target.value) || 1 })}
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
                   required
                 />
@@ -667,15 +552,22 @@ function ContasPagarReceber() {
             </form>
           </div>
 
-          {/* Barra de Filtros foi movida para dentro da tabela */}
+          {/* Resumo Financeiro */}
+          <div style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
+            <div style={{ flex: "1 1 200px", backgroundColor: "#fff", padding: "16px 20px", borderRadius: "8px", borderLeft: "4px solid #ef4444", boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}>
+              <h4 style={{ margin: 0, color: "#64748b", fontSize: "1.2rem", textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Icons.BsArrowDownRightCircleFill style={{ color: "#ef4444" }} /> Total Despesas
+              </h4>
+              <p style={{ margin: "8px 0 0", color: "#ef4444", fontSize: "2rem", fontWeight: "bold" }}>R$ {Math.abs(totalDespesas).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+            </div>
+          </div>
 
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
             <table className="freq-table" style={{ minWidth: "1000px" }}>
               <thead>
                 <tr>
                   <th style={{ width: "250px" }}>Descrição</th>
-                  <th style={{ textAlign: "center", width: "80px" }}>Data de Vencimento</th>
-                  <th style={{ textAlign: "center", width: "100px" }}>Status</th>
+                  <th style={{ textAlign: "center", width: "80px" }}>Dia</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Valor</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Fornecedor / Cliente</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Categoria</th>
@@ -695,13 +587,15 @@ function ContasPagarReceber() {
                   </th>
                   <th style={{ padding: "8px" }}>
                     <input
-                      type="date"
-                      value={filterData}
-                      onChange={(e) => setFilterData(e.target.value)}
+                      type="number"
+                      min="1"
+                      max="31"
+                      placeholder="Dia..."
+                      value={filterDia}
+                      onChange={(e) => setFilterDia(e.target.value)}
                       style={{ width: "100%", height: "38px", padding: "6px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.2rem", boxSizing: "border-box" }}
                     />
                   </th>
-                  <th></th>
                   <th></th>
                   <th style={{ padding: "8px" }}>
                     <Select
@@ -744,7 +638,7 @@ function ContasPagarReceber() {
                     <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
                       <button
                         onClick={() => {
-                          setFilterData("");
+                          setFilterDia("");
                           setFilterDescricao("");
                           setFilterFornecedor(null);
                           setFilterCategoria(null);
@@ -791,16 +685,6 @@ function ContasPagarReceber() {
               </thead>
               <tbody>
                 {(() => {
-                  const lancamentosFiltrados = lancamentos.filter(l => {
-                    if (filterData && l.data !== filterData) return false;
-                    if (filterDescricao && !l.descricao.toLowerCase().includes(filterDescricao.toLowerCase())) return false;
-                    if (filterFornecedor && l.fornecedor_cliente !== filterFornecedor) return false;
-                    if (filterCategoria && l.categoria !== filterCategoria) return false;
-                    if (filterTipo === "pagar" && l.valor >= 0) return false;
-                    if (filterTipo === "receber" && l.valor < 0) return false;
-                    return true;
-                  });
-
                   if (lancamentosFiltrados.length === 0) {
                     return (
                       <tr>
@@ -811,41 +695,11 @@ function ContasPagarReceber() {
                     );
                   }
 
-                  const todayStr = getToday();
-                  const todayDate = new Date(todayStr + "T00:00:00");
-                  
-                  const vencidos = lancamentosFiltrados.filter(l => l.data < todayStr);
-                  const venceHoje = lancamentosFiltrados.filter(l => l.data === todayStr);
-                  const vence7Dias = lancamentosFiltrados.filter(l => {
-                    if (l.data <= todayStr) return false;
-                    const lDate = new Date(l.data + "T00:00:00");
-                    const diffTime = lDate.getTime() - todayDate.getTime();
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return diffDays <= 7;
-                  });
-                  const futuros = lancamentosFiltrados.filter(l => {
-                    if (l.data <= todayStr) return false;
-                    const lDate = new Date(l.data + "T00:00:00");
-                    const diffTime = lDate.getTime() - todayDate.getTime();
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    return diffDays > 7;
-                  });
-
                   const renderRow = (l: any) => {
                     const diffMin = l.created_at ? (new Date().getTime() - new Date(l.created_at).getTime()) / (1000 * 60) : -1;
                     const diffEditMin = l.updated_at ? (new Date().getTime() - new Date(l.updated_at).getTime()) / (1000 * 60) : -1;
-                    const isRowNew = l.created_at && diffMin >= 0 && diffMin < 60; // 1 hora de duração
-                    const isRowEdited = l.updated_at && diffEditMin >= 0 && diffEditMin < 60; // 1 hora de duração
-
-                    // Calculo do status
-                    const hojeDate = new Date();
-                    hojeDate.setHours(0,0,0,0);
-                    const vencDate = new Date(l.data + 'T00:00:00');
-                    const isAtrasado = vencDate < hojeDate;
-                    
-                    const statusText = isAtrasado ? "Atrasado" : "Pendente";
-                    const statusBg = isAtrasado ? "#fee2e2" : "#fef08a";
-                    const statusColor = isAtrasado ? "#b91c1c" : "#a16207";
+                    const isRowNew = l.created_at && diffMin >= 0 && diffMin < 60;
+                    const isRowEdited = l.updated_at && diffEditMin >= 0 && diffEditMin < 60;
 
                     return (
                       <tr key={l.id}>
@@ -861,15 +715,15 @@ function ContasPagarReceber() {
                             </td>
                             <td style={{ textAlign: "center" }}>
                               <input
-                                type="date"
-                                value={editRowData.data}
-                                onChange={(e) => setEditRowData({ ...editRowData, data: e.target.value })}
+                                type="number"
+                                min="1"
+                                max="31"
+                                value={editRowData.dia_vencimento}
+                                onChange={(e) => setEditRowData({ ...editRowData, dia_vencimento: parseInt(e.target.value) || 1 })}
                                 style={{ width: "100%", height: "36px", padding: "4px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
                             </td>
-                            <td style={{ textAlign: "center", color: "#94a3b8" }}>
-                              -
-                            </td>
+
                             <td style={{ textAlign: "center" }}>
                               <input
                                 type="number"
@@ -991,19 +845,7 @@ function ContasPagarReceber() {
                                 )}
                               </div>
                             </td>
-                            <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
-                            <td style={{ textAlign: "center" }}>
-                              <span style={{
-                                background: statusBg,
-                                color: statusColor,
-                                padding: "4px 8px",
-                                borderRadius: "12px",
-                                fontWeight: "bold",
-                                fontSize: "1.1rem"
-                              }}>
-                                {statusText}
-                              </span>
-                            </td>
+                            <td style={{ textAlign: "center", fontSize: "1.3rem", fontWeight: "bold" }}>{l.dia_vencimento}</td>
                             <td style={{ textAlign: "center", fontWeight: "bold", color: l.valor < 0 ? "#ef4444" : "#334155", fontSize: "1.3rem" }}>
                               R$ {l.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
@@ -1046,17 +888,6 @@ function ContasPagarReceber() {
                             <td style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
                                 <button
-                                  onClick={() => {
-                                    setConfirmData(getToday());
-                                    setConfirmingLancamento(l);
-                                  }}
-                                  className="nav-btn"
-                                  title="Confirmar"
-                                  style={{ padding: "4px 8px", fontSize: "0.9rem", color: "#10b981", borderColor: "#10b981" }}
-                                >
-                                  <Icons.BsCheck2Circle />
-                                </button>
-                                <button
                                   onClick={() => handleEdit(l)}
                                   className="nav-btn"
                                   title="Editar"
@@ -1082,46 +913,7 @@ function ContasPagarReceber() {
 
                   return (
                     <>
-                      {vencidos.length > 0 && (
-                        <>
-                          <tr style={{ backgroundColor: "#fef2f2", borderBottom: "1px solid #fecaca", borderTop: "1px solid #fecaca" }}>
-                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#991b1b", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Vencidos
-                            </td>
-                          </tr>
-                          {vencidos.map(renderRow)}
-                        </>
-                      )}
-                      {venceHoje.length > 0 && (
-                        <>
-                          <tr style={{ backgroundColor: "#fffbeb", borderBottom: "1px solid #fde68a", borderTop: "1px solid #fde68a" }}>
-                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#92400e", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Vence Hoje
-                            </td>
-                          </tr>
-                          {venceHoje.map(renderRow)}
-                        </>
-                      )}
-                      {vence7Dias.length > 0 && (
-                        <>
-                          <tr style={{ backgroundColor: "#f0fdf4", borderBottom: "1px solid #bbf7d0", borderTop: "1px solid #bbf7d0" }}>
-                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#166534", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Vence em 7 dias
-                            </td>
-                          </tr>
-                          {vence7Dias.map(renderRow)}
-                        </>
-                      )}
-                      {futuros.length > 0 && (
-                        <>
-                          <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0", borderTop: "1px solid #e2e8f0" }}>
-                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#475569", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Próximos
-                            </td>
-                          </tr>
-                          {futuros.map(renderRow)}
-                        </>
-                      )}
+                      {lancamentosFiltrados.map(renderRow)}
                     </>
                   );
                 })()}
@@ -1131,98 +923,8 @@ function ContasPagarReceber() {
 
         </div>
       </div>
-
-      {confirmingLancamento && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 10000 }}>
-          <div style={{ backgroundColor: "white", padding: "24px", borderRadius: "8px", width: "400px", maxWidth: "90%", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-            <h3 style={{ marginTop: 0, marginBottom: "16px", color: "#334155", fontSize: "1.6rem", display: "flex", alignItems: "center", gap: "8px" }}>
-              <Icons.BsCheck2Circle style={{ color: "#10b981" }} /> Confirmar {confirmingLancamento.valor < 0 ? "Pagamento" : "Recebimento"}
-            </h3>
-            <p style={{ marginBottom: "16px", color: "#64748b", fontSize: "1.2rem" }}>
-              <strong>Descrição:</strong> {confirmingLancamento.descricao} <br />
-              <strong>Valor:</strong> R$ {Math.abs(confirmingLancamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label style={{ display: "block", fontSize: "1.2rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data do Lançamento</label>
-              <input
-                type="date"
-                value={confirmData}
-                onChange={(e) => setConfirmData(e.target.value)}
-                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", fontSize: "1.2rem", boxSizing: "border-box" }}
-              />
-            </div>
-
-            <div style={{ marginBottom: "24px" }}>
-              <label style={{ display: "block", fontSize: "1.2rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Conta Bancária</label>
-              <Select
-                options={contaOptions}
-                value={contaOptions.find(c => c.value === selectedConta) || null}
-                onChange={(opt: any) => setSelectedConta(opt ? opt.value : "")}
-                placeholder="Selecione a conta..."
-                styles={{ ...filterSelectStyles, menuPortal: (b: any) => ({ ...b, zIndex: 10001 }) }}
-                menuPortalTarget={document.body}
-              />
-            </div>
-
-            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
-              <button
-                onClick={() => setConfirmingLancamento(null)}
-                style={{ padding: "8px 16px", borderRadius: "4px", border: "1px solid #cbd5e1", backgroundColor: "white", color: "#64748b", cursor: "pointer", fontSize: "1.2rem", fontWeight: "bold" }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleConfirmar}
-                disabled={confirmingLoading}
-                style={{ padding: "8px 16px", borderRadius: "4px", border: "none", backgroundColor: "#10b981", color: "white", cursor: confirmingLoading ? "not-allowed" : "pointer", fontSize: "1.2rem", fontWeight: "bold" }}
-              >
-                {confirmingLoading ? "Confirmando..." : "Confirmar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {importModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 10000 }}>
-          <div style={{ backgroundColor: "white", padding: "24px", borderRadius: "8px", width: "400px", maxWidth: "90%", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
-            <h3 style={{ marginTop: 0, marginBottom: "16px", color: "#334155", fontSize: "1.6rem", display: "flex", alignItems: "center", gap: "8px" }}>
-              <Icons.BsCloudDownload style={{ color: "var(--primary-color)" }} /> Importar Contas Fixas
-            </h3>
-            <p style={{ marginBottom: "16px", color: "#64748b", fontSize: "1.2rem" }}>
-              Selecione o mês para qual deseja importar os lançamentos. O sistema criará novas contas a pagar/receber utilizando os dias de vencimento configurados nas suas contas fixas.
-            </p>
-
-            <div style={{ marginBottom: "24px" }}>
-              <label style={{ display: "block", fontSize: "1.2rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Mês de Importação</label>
-              <input
-                type="month"
-                value={importMonth}
-                onChange={(e) => setImportMonth(e.target.value)}
-                style={{ width: "100%", padding: "10px", borderRadius: "4px", border: "1px solid #cbd5e1", fontSize: "1.4rem", boxSizing: "border-box" }}
-              />
-            </div>
-
-            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
-              <button
-                onClick={() => setImportModalOpen(false)}
-                style={{ padding: "8px 16px", borderRadius: "4px", border: "1px solid #cbd5e1", backgroundColor: "white", color: "#64748b", cursor: "pointer", fontSize: "1.2rem", fontWeight: "bold" }}
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleImportContasFixas}
-                disabled={importingLoading}
-                style={{ padding: "8px 16px", borderRadius: "4px", border: "none", backgroundColor: "var(--primary-color)", color: "white", cursor: importingLoading ? "not-allowed" : "pointer", fontSize: "1.2rem", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                {importingLoading ? "Importando..." : "Importar"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
-export default ContasPagarReceber;
+
+export default ContasFixas;
