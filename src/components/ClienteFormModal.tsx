@@ -451,6 +451,13 @@ const ClienteFormModal: React.FC<ClienteFormModalProps> = ({ isOpen, onClose, cl
                 <Icons.BsXCircleFill /> Coordenadas não encontradas.
               </div>
             )}
+            {endereco && nome && (
+              <div style={{ marginTop: "12px", fontSize: "0.95rem" }}>
+                <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${nome} ${endereco}`)}`} target="_blank" rel="noopener noreferrer" style={{ color: "#4285F4", display: "inline-flex", alignItems: "center", gap: "6px", fontWeight: 600, textDecoration: "none" }}>
+                  <Icons.BsGoogle /> Abrir {nome} no Google Maps
+                </a>
+              </div>
+            )}
           </div>
 
           <div style={{ display: "flex", gap: "16px" }}>

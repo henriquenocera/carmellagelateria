@@ -480,6 +480,26 @@ function CRM() {
                               <Icons.BsWhatsapp size={18} />
                             </button>
                           )}
+                          {c.endereco && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${c.nome} ${c.endereco}`)}`, "_blank");
+                              }}
+                              title="Buscar no Google Maps"
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#4285F4",
+                                cursor: "pointer",
+                                padding: "6px",
+                                backgroundColor: "rgba(66, 133, 244, 0.1)",
+                                borderRadius: "6px"
+                              }}
+                            >
+                              <Icons.BsGoogle size={18} />
+                            </button>
+                          )}
                           <button
                             onClick={(e) => { e.stopPropagation(); navigate(`/crm/cliente/${c.id}`); }}
                             title="Histórico / Detalhes"
