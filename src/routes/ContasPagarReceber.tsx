@@ -9,9 +9,9 @@ import "../css/Frequencia.css";
 function ContasPagarReceber() {
   const { isAdmin, user } = useAuth();
 
-  const [contasDb, setContasDb] = useState<any[]>([]);
   const [categoriasDb, setCategoriasDb] = useState<any[]>([]);
   const [fornecedoresDb, setFornecedoresDb] = useState<any[]>([]);
+  const [clientesDb, setClientesDb] = useState<any[]>([]);
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [profilesMap, setProfilesMap] = useState<{[key: string]: string}>({});
   const [savingRow, setSavingRow] = useState(false);
@@ -22,12 +22,6 @@ function ContasPagarReceber() {
   const [filterDescricao, setFilterDescricao] = useState("");
   const [filterFornecedor, setFilterFornecedor] = useState<string | null>(null);
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null);
-  const [filterConta, setFilterConta] = useState<string | null>(null);
-  const [filterCreatedToday, setFilterCreatedToday] = useState(false);
-
-  const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
-  const [pendingReviewCount, setPendingReviewCount] = useState(0);
-  const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
 
   const getToday = () => {
     const d = new Date();
@@ -37,10 +31,9 @@ function ContasPagarReceber() {
   const [newRow, setNewRow] = useState({
     data: getToday(),
     descricao: "",
-    fornecedor: "",
+    fornecedor_cliente: "",
     valor: "",
-    categoria: "",
-    conta: ""
+    categoria: ""
   });
 
   const selectStyles = {
@@ -125,6 +118,19 @@ function ContasPagarReceber() {
   };
 
   const fornecedorOptions = fornecedoresDb.map(f => ({ value: f.nome, label: f.nome }));
+  const clienteOptions = clientesDb.map(c => ({ value: c.nome, label: c.nome }));
+  const pessoaOptions = [
+    { label: 'Fornecedores', options: fornecedorOptions },
+    { label: 'Clientes', options: clienteOptions }
+  ];
+
+  const getPessoaOptions = (valorStr: string) => {
+    if (!valorStr) return pessoaOptions;
+    const val = parseFloat(valorStr.replace(",", ".") || "0");
+    if (val < 0) return [{ label: 'Fornecedores', options: fornecedorOptions }];
+    if (val > 0) return [{ label: 'Clientes', options: clienteOptions }];
+    return pessoaOptions;
+  };
 
   const categoriaOptions = categoriasDb.filter(c => !c.parent_id).map(pai => ({
     label: pai.nome,
@@ -134,23 +140,12 @@ function ContasPagarReceber() {
     }))
   }));
 
-  const contaOptions = contasDb.map(c => {
-    const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
-    return { value: label, label: label };
-  });
+
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const { data: contasData, error: contasError } = await supabase
-          .from("contas")
-          .select("id, banco, agencia, conta_corrente")
-          .eq("ativo", true)
-          .order("banco", { ascending: true });
 
-        if (!contasError && contasData) {
-          setContasDb(contasData);
-        }
 
         const { data: catData, error: catError } = await supabase
           .from("categorias_financeiras")
@@ -169,6 +164,16 @@ function ContasPagarReceber() {
 
         if (!fornError && fornData) {
           setFornecedoresDb(fornData);
+        }
+
+        const { data: cliData, error: cliError } = await supabase
+          .from("clientes_food_service")
+          .select("id, nome")
+          .eq("ativo", true)
+          .order("nome", { ascending: true });
+
+        if (!cliError && cliData) {
+          setClientesDb(cliData);
         }
 
         const { data: profilesData, error: profilesError } = await supabase
@@ -191,61 +196,24 @@ function ContasPagarReceber() {
     fetchData();
   }, []);
 
-  const checkPendingCounts = useCallback(async () => {
-    try {
-      if (isAdmin) {
-        const { count: revCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).in('status_revisao', ['pending_user', 'pending_admin']);
-        setPendingReviewCount(revCount || 0);
-
-        const { count: delCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).eq('status_revisao', 'pending_delete');
-        setPendingDeleteCount(delCount || 0);
-      } else {
-        const { count: revCount } = await supabase.from("lancamentos_financeiros").select("*", { count: 'exact', head: true }).eq('status_revisao', 'pending_user');
-        setPendingReviewCount(revCount || 0);
-      }
-    } catch (err) {
-      console.error("Erro ao checar contagens pendentes:", err);
-    }
-  }, [isAdmin]);
-
   const fetchLancamentosRef = useRef<any>(null);
 
-  const fetchLancamentos = useCallback(async (fStatus = filterStatus, orderCreated = filterCreatedToday) => {
+  const fetchLancamentos = useCallback(async () => {
     fetchLancamentosRef.current = fetchLancamentos;
     try {
       let query = supabase
-        .from("lancamentos_financeiros")
-        .select("*");
-
-      if (orderCreated) {
-        query = query.order("created_at", { ascending: false }).order("data", { ascending: false });
-      } else {
-        query = query.order("data", { ascending: false }).order("created_at", { ascending: false });
-      }
-
-      if (fStatus === 'review') {
-        if (isAdmin) {
-          query = query.in('status_revisao', ['pending_user', 'pending_admin']);
-        } else {
-          query = query.eq('status_revisao', 'pending_user');
-        }
-      } else if (fStatus === 'deleted') {
-        query = query.eq('status_revisao', 'pending_delete');
-      } else {
-        if (!isAdmin) {
-          query = query.or('status_revisao.is.null,status_revisao.eq.pending_user,status_revisao.eq.pending_admin');
-        }
-      }
+        .from("contas_pagar_receber")
+        .select("*")
+        .order("data", { ascending: false })
+        .order("created_at", { ascending: false });
 
       const { data, error } = await query;
       if (error) throw error;
       setLancamentos(data || []);
-
-      checkPendingCounts();
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
     }
-  }, [isAdmin, filterStatus, filterCreatedToday, checkPendingCounts]);
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -257,7 +225,7 @@ function ContasPagarReceber() {
     const channel = supabase.channel('realtime-lancamentos')
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'lancamentos_financeiros' },
+        { event: '*', schema: 'public', table: 'contas_pagar_receber' },
         () => {
           if (fetchLancamentosRef.current) {
             fetchLancamentosRef.current();
@@ -271,46 +239,44 @@ function ContasPagarReceber() {
     };
   }, []);
 
-  useEffect(() => {
-    checkPendingCounts();
-  }, [checkPendingCounts, lancamentos]);
+
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newRow.descricao || !newRow.valor || !newRow.conta) {
-      alert("Preencha descrição, conta e valor.");
+    if (!newRow.descricao || !newRow.valor) {
+      alert("Preencha descrição e valor.");
       return;
     }
 
     try {
       setSavingRow(true);
+      let val = parseFloat(newRow.valor.replace(",", "."));
+
       const payload = {
         data: newRow.data,
         descricao: newRow.descricao,
-        fornecedor: newRow.fornecedor || null,
-        valor: parseFloat(newRow.valor.replace(",", ".")),
+        fornecedor_cliente: newRow.fornecedor_cliente || null,
+        valor: val,
         categoria: newRow.categoria || null,
-        conta: newRow.conta,
-        user_id: user?.id,
-        status_revisao: null
+        user_id: user?.id
       };
 
-      const { error } = await supabase.from("lancamentos_financeiros").insert([payload]);
+      const { error } = await supabase.from("contas_pagar_receber").insert([payload]);
       if (error) throw error;
 
-      setNewRow({ data: getToday(), descricao: "", valor: "", fornecedor: "", categoria: "", conta: "" });
+      setNewRow({ data: getToday(), descricao: "", tipo: "pagar", valor: "", fornecedor: "", cliente: "", categoria: "" });
       fetchLancamentos();
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
-      alert("Erro ao salvar lançamento.");
+      alert("Erro ao salvar lançamento: " + (err?.message || JSON.stringify(err)));
     } finally {
       setSavingRow(false);
     }
   };
 
   const handleSaveInline = async (id: string) => {
-    if (!editRowData.descricao || !editRowData.valor || !editRowData.conta) {
-      alert("Preencha descrição, conta e valor.");
+    if (!editRowData.descricao || !editRowData.valor) {
+      alert("Preencha descrição e valor.");
       return;
     }
 
@@ -319,47 +285,35 @@ function ContasPagarReceber() {
       const originalRow = lancamentos.find(l => l.id === id);
       const diffs = [];
       if (originalRow) {
-        if (originalRow.descricao !== editRowData.descricao) diffs.push(`Descrição: ${originalRow.descricao} ➔ ${editRowData.descricao}`);
-        if (originalRow.data !== editRowData.data) diffs.push(`Data: ${originalRow.data} ➔ ${editRowData.data}`);
-        if (parseFloat(originalRow.valor).toFixed(2) !== parseFloat(editRowData.valor.toString().replace(",", ".")).toFixed(2)) diffs.push(`Valor: R$ ${originalRow.valor} ➔ R$ ${editRowData.valor}`);
-        if ((originalRow.fornecedor || "") !== (editRowData.fornecedor || "")) diffs.push(`Fornecedor: ${originalRow.fornecedor || "-"} ➔ ${editRowData.fornecedor || "-"}`);
-        if ((originalRow.categoria || "") !== (editRowData.categoria || "")) diffs.push(`Categoria: ${originalRow.categoria || "-"} ➔ ${editRowData.categoria || "-"}`);
-        if (originalRow.conta !== editRowData.conta) diffs.push(`Conta: ${originalRow.conta} ➔ ${editRowData.conta}`);
+        if (originalRow.descricao !== editRowData.descricao) diffs.push(`Descrição`);
+        if (originalRow.data !== editRowData.data) diffs.push(`Data`);
+        if (parseFloat(originalRow.valor).toFixed(2) !== parseFloat(editRowData.valor.toString().replace(",", ".")).toFixed(2)) diffs.push(`Valor`);
       }
 
       const hasChanges = diffs.length > 0;
-      let observacaoAdicional = null;
-      if (originalRow && originalRow.status_revisao === 'pending_user' && hasChanges) {
-        const prev = originalRow.revisao_observacao;
-        const prefix = (prev && prev !== "Sem alterações") ? prev + " | " : "";
-        observacaoAdicional = prefix + diffs.join(", ");
-      } else if (originalRow) {
-        observacaoAdicional = originalRow.revisao_observacao;
-      }
+
+      let val = parseFloat(editRowData.valor.toString().replace(",", "."));
 
       const payload: any = {
         data: editRowData.data,
         descricao: editRowData.descricao,
-        fornecedor: editRowData.fornecedor || null,
-        valor: parseFloat(editRowData.valor.toString().replace(",", ".")),
-        categoria: editRowData.categoria || null,
-        conta: editRowData.conta,
-        status_revisao: isAdmin ? null : (hasChanges ? 'pending_admin' : (originalRow.status_revisao || 'pending_user')),
-        revisao_observacao: observacaoAdicional
+        fornecedor_cliente: editRowData.fornecedor_cliente || null,
+        valor: val,
+        categoria: editRowData.categoria || null
       };
 
       if (hasChanges) {
         payload.updated_at = new Date().toISOString();
       }
 
-      const { error } = await supabase.from("lancamentos_financeiros").update(payload).eq("id", id);
+      const { error } = await supabase.from("contas_pagar_receber").update(payload).eq("id", id);
       if (error) throw error;
 
       setEditingId(null);
       fetchLancamentos();
     } catch (err: any) {
       console.error("Erro ao salvar edição:", err);
-      alert("Erro ao atualizar lançamento.");
+      alert("Erro ao atualizar lançamento: " + (err?.message || JSON.stringify(err)));
     } finally {
       setSavingRow(false);
     }
@@ -370,25 +324,18 @@ function ContasPagarReceber() {
     setEditRowData({
       data: lancamento.data,
       descricao: lancamento.descricao,
-      fornecedor: lancamento.fornecedor || "",
+      fornecedor_cliente: lancamento.fornecedor_cliente || "",
       valor: lancamento.valor.toString(),
-      categoria: lancamento.categoria || "",
-      conta: lancamento.conta
+      categoria: lancamento.categoria || ""
     });
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Deseja excluir este lançamento?")) {
       try {
-        if (isAdmin) {
-          const { error } = await supabase.from("lancamentos_financeiros").delete().eq("id", id);
-          if (error) throw error;
-          fetchLancamentos();
-        } else {
-          const { error } = await supabase.from("lancamentos_financeiros").update({ status_revisao: 'pending_delete' }).eq("id", id);
-          if (error) throw error;
-          fetchLancamentos();
-        }
+        const { error } = await supabase.from("contas_pagar_receber").delete().eq("id", id);
+        if (error) throw error;
+        fetchLancamentos();
       } catch (err) {
         console.error("Erro ao excluir:", err);
         alert("Erro ao excluir lançamento.");
@@ -396,25 +343,10 @@ function ContasPagarReceber() {
     }
   }
 
-  const handleUpdateReviewStatus = async (id: string, newStatus: string | null) => {
-    try {
-      const { error } = await supabase
-        .from("lancamentos_financeiros")
-        .update({ status_revisao: newStatus, revisao_observacao: null })
-        .eq("id", id);
-
-      if (error) throw error;
-      fetchLancamentos();
-    } catch (err) {
-      console.error("Erro ao alterar status de revisão:", err);
-      alert("Erro ao alterar status.");
-    }
-  };
-
   return (
     <>
       <Helmet>
-        <title>Lançamentos Financeiros</title>
+        <title>Contas a pagar e receber</title>
         <style>{`
           @keyframes pulse-red {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
@@ -427,8 +359,8 @@ function ContasPagarReceber() {
       <div className="frequencia-container">
         <div className="frequencia-header">
           <div className="frequencia-title-group">
-            <h1>Lançamentos Financeiros</h1>
-            <p>Registre receitas e despesas. Acompanhe o fluxo de caixa detalhado.</p>
+            <h1>Contas a pagar e receber</h1>
+            <p>Registre contas a pagar e receber. Acompanhe os compromissos financeiros.</p>
           </div>
         </div>
 
@@ -465,7 +397,7 @@ function ContasPagarReceber() {
               </div>
 
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data de Vencimento</label>
                 <input
                   type="date"
                   value={newRow.data}
@@ -498,12 +430,12 @@ function ContasPagarReceber() {
               </div>
 
               <div style={{ flex: "2 1 220px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Fornecedor</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>{newRow.valor && parseFloat(newRow.valor.replace(",", ".") || "0") < 0 ? "Fornecedor" : newRow.valor && parseFloat(newRow.valor.replace(",", ".") || "0") > 0 ? "Cliente" : "Fornecedor / Cliente"}</label>
                 <Select
-                  options={fornecedorOptions}
-                  value={fornecedorOptions.find(o => o.value === newRow.fornecedor) || null}
-                  onChange={(option: any) => setNewRow({ ...newRow, fornecedor: option ? option.value : "" })}
-                  placeholder="Buscar Fornecedor..."
+                  options={getPessoaOptions(newRow.valor)}
+                  value={pessoaOptions.flatMap(g => g.options).find(o => o.value === newRow.fornecedor_cliente) || null}
+                  onChange={(option: any) => setNewRow({ ...newRow, fornecedor_cliente: option ? option.value : "" })}
+                  placeholder="Buscar..."
                   isClearable
                   styles={selectStyles}
                   menuPortalTarget={document.body}
@@ -517,19 +449,6 @@ function ContasPagarReceber() {
                   value={categoriaOptions.flatMap(g => g.options).find(o => o.value === newRow.categoria) || null}
                   onChange={(option: any) => setNewRow({ ...newRow, categoria: option ? option.value : "" })}
                   placeholder="Buscar Categoria..."
-                  isClearable
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
-                />
-              </div>
-
-              <div style={{ flex: "2 1 220px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Conta</label>
-                <Select
-                  options={contaOptions}
-                  value={contaOptions.find(o => o.value === newRow.conta) || null}
-                  onChange={(option: any) => setNewRow({ ...newRow, conta: option ? option.value : "" })}
-                  placeholder="Buscar Conta..."
                   isClearable
                   styles={selectStyles}
                   menuPortalTarget={document.body}
@@ -567,100 +486,11 @@ function ContasPagarReceber() {
           <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px" }}>
             <button
               onClick={() => {
-                const newOrder = !filterCreatedToday;
-                setFilterCreatedToday(newOrder);
-                fetchLancamentos(filterStatus, newOrder);
-              }}
-              style={{
-                padding: "6px 12px",
-                backgroundColor: filterCreatedToday ? "var(--primary-color)" : "#fff",
-                color: filterCreatedToday ? "#fff" : "#64748b",
-                border: `1px solid ${filterCreatedToday ? "var(--primary-color)" : "#e2e8f0"}`,
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: filterCreatedToday ? "bold" : "normal",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "0.85rem",
-                transition: "0.2s"
-              }}
-              title="Alternar ordenação (Data x Data de Criação)"
-            >
-              <Icons.BsSortDown /> {filterCreatedToday ? "Ordem: Criação" : "Ordem: Data"}
-            </button>
-            <button
-              onClick={() => {
-                const newStatus = filterStatus === 'review' ? 'all' : 'review';
-                setFilterStatus(newStatus);
-                if (newStatus === 'review') {
-                  setFilterData("");
-                  setFilterDescricao("");
-                  setFilterFornecedor(null);
-                  setFilterCategoria(null);
-                  setFilterConta(null);
-                }
-                fetchLancamentos(newStatus, filterCreatedToday);
-              }}
-              style={{
-                padding: "6px 12px",
-                backgroundColor: filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fee2e2" : "#fff"),
-                color: filterStatus === 'review' ? "#7f1d1d" : (pendingReviewCount > 0 ? "#dc2626" : "#64748b"),
-                border: `1px solid ${filterStatus === 'review' ? "#fca5a5" : (pendingReviewCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: filterStatus === 'review' ? "bold" : "normal",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "0.85rem",
-                animation: pendingReviewCount > 0 && filterStatus !== 'review' ? "pulse-red 2s infinite" : "none"
-              }}
-            >
-              <Icons.BsExclamationTriangleFill /> Revisão {pendingReviewCount > 0 ? `(${pendingReviewCount})` : ""}
-            </button>
-            {(isAdmin || filterStatus === 'deleted') && (
-              <button
-                onClick={() => {
-                  const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
-                  setFilterStatus(newStatus);
-                  if (newStatus === 'deleted') {
-                    setFilterData("");
-                    setFilterDescricao("");
-                    setFilterFornecedor(null);
-                    setFilterCategoria(null);
-                    setFilterConta(null);
-                  }
-                  fetchLancamentos(newStatus, filterCreatedToday);
-                }}
-                style={{
-                  padding: "6px 12px",
-                  backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"),
-                  color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"),
-                  border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontWeight: filterStatus === 'deleted' ? "bold" : "normal",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  fontSize: "0.85rem",
-                  animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none"
-                }}
-              >
-                <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
-              </button>
-            )}
-            <button
-              onClick={() => {
                 setFilterData("");
                 setFilterDescricao("");
                 setFilterFornecedor(null);
                 setFilterCategoria(null);
-                setFilterConta(null);
-                setFilterStatus('all');
-                setFilterCreatedToday(false);
-                fetchLancamentos('all', false);
+                fetchLancamentos();
               }}
               style={{
                 padding: "6px 12px",
@@ -679,7 +509,7 @@ function ContasPagarReceber() {
               <Icons.BsXCircleFill /> Limpar
             </button>
             <button
-              onClick={() => fetchLancamentos(filterStatus, filterCreatedToday)}
+              onClick={() => fetchLancamentos()}
               style={{
                 padding: "6px 12px",
                 backgroundColor: "#f1f5f9",
@@ -703,11 +533,11 @@ function ContasPagarReceber() {
               <thead>
                 <tr>
                   <th style={{ width: "250px" }}>Descrição</th>
-                  <th style={{ textAlign: "center", width: "80px" }}>Data</th>
+                  <th style={{ textAlign: "center", width: "80px" }}>Data de Vencimento</th>
+                  <th style={{ textAlign: "center", width: "100px" }}>Status</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Valor</th>
-                  <th style={{ textAlign: "center", width: "150px" }}>Fornecedor</th>
+                  <th style={{ textAlign: "center", width: "150px" }}>Fornecedor / Cliente</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Categoria</th>
-                  <th style={{ textAlign: "center", width: "150px" }}>Conta</th>
                   <th style={{ textAlign: "center", width: "60px" }}>Tipo</th>
                   {isAdmin && <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>}
                   <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
@@ -731,6 +561,7 @@ function ContasPagarReceber() {
                     />
                   </th>
                   <th></th>
+                  <th></th>
                   <th style={{ padding: "8px" }}>
                     <Select
                       menuPortalTarget={document.body}
@@ -753,17 +584,6 @@ function ContasPagarReceber() {
                       styles={filterSelectStyles}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}>
-                    <Select
-                      menuPortalTarget={document.body}
-                      options={contaOptions}
-                      value={filterConta ? { value: filterConta, label: filterConta } : null}
-                      onChange={(sel: any) => setFilterConta(sel ? sel.value : null)}
-                      placeholder="Conta..."
-                      isClearable
-                      styles={filterSelectStyles}
-                    />
-                  </th>
                   <th></th>
                   {isAdmin && <th></th>}
                   <th></th>
@@ -774,9 +594,8 @@ function ContasPagarReceber() {
                   const lancamentosFiltrados = lancamentos.filter(l => {
                     if (filterData && l.data !== filterData) return false;
                     if (filterDescricao && !l.descricao.toLowerCase().includes(filterDescricao.toLowerCase())) return false;
-                    if (filterFornecedor && l.fornecedor !== filterFornecedor) return false;
+                    if (filterFornecedor && l.fornecedor_cliente !== filterFornecedor) return false;
                     if (filterCategoria && l.categoria !== filterCategoria) return false;
-                    if (filterConta && l.conta !== filterConta) return false;
                     return true;
                   });
 
@@ -795,13 +614,22 @@ function ContasPagarReceber() {
 
                   const renderRow = (l: any) => {
                     const diffMin = l.created_at ? (new Date().getTime() - new Date(l.created_at).getTime()) / (1000 * 60) : -1;
-                    const isRowNew = diffMin >= 0 && diffMin < 60; // 1 hora de duração
-
                     const diffEditMin = l.updated_at ? (new Date().getTime() - new Date(l.updated_at).getTime()) / (1000 * 60) : -1;
+                    const isRowNew = l.created_at && diffMin >= 0 && diffMin < 60; // 1 hora de duração
                     const isRowEdited = l.updated_at && diffEditMin >= 0 && diffEditMin < 60; // 1 hora de duração
 
+                    // Calculo do status
+                    const hojeDate = new Date();
+                    hojeDate.setHours(0,0,0,0);
+                    const vencDate = new Date(l.data + 'T00:00:00');
+                    const isAtrasado = vencDate < hojeDate;
+                    
+                    const statusText = isAtrasado ? "Atrasado" : "Pendente";
+                    const statusBg = isAtrasado ? "#fee2e2" : "#fef08a";
+                    const statusColor = isAtrasado ? "#b91c1c" : "#a16207";
+
                     return (
-                      <tr key={l.id} style={l.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : l.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : l.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : {}}>
+                      <tr key={l.id}>
                         {editingId === l.id ? (
                           <>
                             <td>
@@ -815,10 +643,13 @@ function ContasPagarReceber() {
                             <td style={{ textAlign: "center" }}>
                               <input
                                 type="date"
-                                value={editRowData.data || ""}
+                                value={editRowData.data}
                                 onChange={(e) => setEditRowData({ ...editRowData, data: e.target.value })}
-                                style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
+                                style={{ width: "100%", height: "36px", padding: "4px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
+                            </td>
+                            <td style={{ textAlign: "center", color: "#94a3b8" }}>
+                              -
                             </td>
                             <td style={{ textAlign: "center" }}>
                               <input
@@ -835,13 +666,15 @@ function ContasPagarReceber() {
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
                             </td>
-                            <td style={{ textAlign: "center" }}>
+                            <td style={{ width: "20%" }}>
                               <Select
-                                options={fornecedorOptions}
-                                value={fornecedorOptions.find(o => o.value === editRowData.fornecedor) || null}
-                                onChange={(option: any) => setEditRowData({ ...editRowData, fornecedor: option ? option.value : "" })}
+                                options={getPessoaOptions(editRowData.valor)}
+                                value={pessoaOptions.flatMap(g => g.options).find(o => o.value === editRowData.fornecedor_cliente) || null}
+                                onChange={(opt: any) => setEditRowData({ ...editRowData, fornecedor_cliente: opt ? opt.value : "" })}
+                                placeholder="Selecionar..."
+                                styles={filterSelectStyles}
                                 menuPortalTarget={document.body}
-                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                                isClearable
                               />
                             </td>
                             <td style={{ textAlign: "center" }}>
@@ -854,24 +687,16 @@ function ContasPagarReceber() {
                               />
                             </td>
                             <td style={{ textAlign: "center" }}>
-                              <Select
-                                options={contaOptions}
-                                value={contaOptions.find(o => o.value === editRowData.conta) || null}
-                                onChange={(option: any) => setEditRowData({ ...editRowData, conta: option ? option.value : "" })}
-                                menuPortalTarget={document.body}
-                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
-                              />
-                            </td>
-                            <td style={{ textAlign: "center" }}>
                               <span style={{
-                                background: parseFloat(editRowData.valor || 0) >= 0 ? "#dcfce7" : "#fee2e2",
-                                color: parseFloat(editRowData.valor || 0) >= 0 ? "#15803d" : "#b91c1c",
+                                backgroundColor: parseFloat(editRowData.valor.toString().replace(",", ".") || "0") < 0 ? "#fee2e2" : "#dcfce7",
+                                color: parseFloat(editRowData.valor.toString().replace(",", ".") || "0") < 0 ? "#b91c1c" : "#15803d",
                                 padding: "4px 8px",
                                 borderRadius: "12px",
                                 fontWeight: "bold",
-                                fontSize: "1.1rem"
+                                fontSize: "1.1rem",
+                                display: "inline-block"
                               }}>
-                               {parseFloat(editRowData.valor || 0) >= 0 ? "Entrada" : "Saída"}
+                                {parseFloat(editRowData.valor.toString().replace(",", ".") || "0") < 0 ? 'A Pagar' : 'A Receber'}
                               </span>
                             </td>
                             {isAdmin && <td></td>}
@@ -948,12 +773,23 @@ function ContasPagarReceber() {
                               </div>
                             </td>
                             <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
+                            <td style={{ textAlign: "center" }}>
+                              <span style={{
+                                background: statusBg,
+                                color: statusColor,
+                                padding: "4px 8px",
+                                borderRadius: "12px",
+                                fontWeight: "bold",
+                                fontSize: "1.1rem"
+                              }}>
+                                {statusText}
+                              </span>
+                            </td>
                             <td style={{ textAlign: "center", fontWeight: "bold", color: l.valor < 0 ? "#ef4444" : "#334155", fontSize: "1.3rem" }}>
                               R$ {l.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
-                            <td style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
+                            <td style={{ textAlign: "center" }}>{l.fornecedor_cliente || "-"}</td>
                             <td style={{ textAlign: "center" }}>{l.categoria || "-"}</td>
-                            <td style={{ textAlign: "center" }}>{l.conta}</td>
                             <td style={{ textAlign: "center" }}>
                               <span style={{
                                 background: l.valor >= 0 ? "#dcfce7" : "#fee2e2",
@@ -963,7 +799,7 @@ function ContasPagarReceber() {
                                 fontWeight: "bold",
                                 fontSize: "1.1rem"
                               }}>
-                                {l.valor >= 0 ? "Entrada" : "Saída"}
+                                {l.valor >= 0 ? "A Receber" : "A Pagar"}
                               </span>
                             </td>
                             {isAdmin && (
@@ -990,187 +826,22 @@ function ContasPagarReceber() {
                             )}
                             <td style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
-                                {l.status_revisao === 'pending_delete' ? (
-                                  <>
-                                    {isAdmin && (
-                                      <button
-                                        onClick={() => handleDelete(l.id)}
-                                        title="Excluir permanentemente"
-                                        style={{
-                                          padding: "4px 8px",
-                                          color: "#166534",
-                                          backgroundColor: "#dcfce7",
-                                          border: "1px solid #166534",
-                                          borderRadius: "4px",
-                                          cursor: "pointer",
-                                          display: "inline-flex",
-                                          alignItems: "center",
-                                          gap: "4px",
-                                          fontWeight: "bold",
-                                          fontSize: "1.1rem",
-                                          margin: 0
-                                        }}
-                                      >
-                                        <Icons.BsCheckAll style={{ fontSize: "1.4rem" }} /> Excluir
-                                      </button>
-                                    )}
-                                    <button
-                                      onClick={() => handleUpdateReviewStatus(l.id, null)}
-                                      title="Restaurar Lançamento"
-                                      style={{
-                                        padding: "4px 8px",
-                                        color: "#c2410c",
-                                        backgroundColor: "#ffedd5",
-                                        border: "1px solid #c2410c",
-                                        borderRadius: "4px",
-                                        cursor: "pointer",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "4px",
-                                        fontWeight: "bold",
-                                        fontSize: "1.1rem",
-                                        margin: 0
-                                      }}
-                                    >
-                                      <Icons.BsXCircle style={{ fontSize: "1.2rem" }} /> Restaurar
-                                    </button>
-                                  </>
-                                ) : (
-                                  <>
-                                    {isAdmin && l.status_revisao === 'pending_admin' ? (
-                                      <>
-                                        {l.revisao_observacao && (
-                                          <span title={l.revisao_observacao} style={{ padding: "4px 4px", fontSize: "1.1rem", color: "#ea580c", cursor: "help", display: "flex", alignItems: "center" }}>
-                                            <Icons.BsInfoCircleFill />
-                                          </span>
-                                        )}
-                                        <button
-                                          onClick={() => handleUpdateReviewStatus(l.id, null)}
-                                          title="Aprovar Correção"
-                                          style={{ padding: "4px 8px", color: "#166534", backgroundColor: "#dcfce7", border: "1px solid #166534", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
-                                        >
-                                          <Icons.BsCheckAll />
-                                        </button>
-                                        <button
-                                          onClick={() => handleUpdateReviewStatus(l.id, 'pending_user')}
-                                          title="Voltar para Revisão"
-                                          style={{ padding: "4px 8px", color: "#c2410c", backgroundColor: "#ffedd5", border: "1px solid #c2410c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }}
-                                        >
-                                          <Icons.BsArrowCounterclockwise />
-                                        </button>
-                                        <button
-                                          onClick={() => handleEdit(l)}
-                                          className="nav-btn"
-                                          title="Editar"
-                                          style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                        >
-                                          <Icons.BsPencil />
-                                        </button>
-                                      </>
-                                    ) : isAdmin && filterStatus === 'review' ? (
-                                      <>
-                                        {l.status_revisao === 'pending_user' && (
-                                          <button
-                                            onClick={() => handleUpdateReviewStatus(l.id, null)}
-                                            title="Cancelar Revisão"
-                                            style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
-                                          >
-                                            <Icons.BsXCircle /> Cancelar
-                                          </button>
-                                        )}
-                                        <button
-                                          onClick={() => handleEdit(l)}
-                                          className="nav-btn"
-                                          title="Editar"
-                                          style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                        >
-                                          <Icons.BsPencil />
-                                        </button>
-                                      </>
-                                    ) : (
-                                      <>
-                                        {l.status_revisao === 'pending_user' ? (
-                                          isAdmin ? (
-                                            <>
-                                              <button
-                                                onClick={() => handleUpdateReviewStatus(l.id, null)}
-                                                title="Cancelar Revisão"
-                                                style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
-                                              >
-                                                <Icons.BsXCircle /> Cancelar
-                                              </button>
-                                              <button
-                                                onClick={() => handleEdit(l)}
-                                                className="nav-btn"
-                                                title="Editar"
-                                                style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                              >
-                                                <Icons.BsPencil />
-                                              </button>
-                                            </>
-                                          ) : (
-                                            <button
-                                              onClick={() => handleEdit(l)}
-                                              title="Revisar Lançamento"
-                                              style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
-                                            >
-                                              <Icons.BsExclamationCircle /> Revisar
-                                            </button>
-                                          )
-                                        ) : (
-                                          <>
-                                            {isAdmin && (
-                                              l.status_revisao === 'admin_only' ? (
-                                                <button
-                                                  onClick={() => handleUpdateReviewStatus(l.id, null)}
-                                                  title="Tornar Público (Todos visualizam)"
-                                                  style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#3b82f6", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
-                                                >
-                                                  <Icons.BsShieldLockFill />
-                                                </button>
-                                              ) : (!l.status_revisao || l.status_revisao === 'none') && (
-                                                <button
-                                                  onClick={() => handleUpdateReviewStatus(l.id, 'admin_only')}
-                                                  title="Restringir aos Admins (Apenas admins visualizam)"
-                                                  style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#64748b", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
-                                                >
-                                                  <Icons.BsShieldLock />
-                                                </button>
-                                              )
-                                            )}
-                                            {isAdmin && (!l.status_revisao || l.status_revisao === 'none') && (
-                                              <button
-                                                onClick={() => handleUpdateReviewStatus(l.id, 'pending_user')}
-                                                title="Marcar para Revisão"
-                                                style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#ef4444", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
-                                              >
-                                                <Icons.BsExclamationCircleFill />
-                                              </button>
-                                            )}
-                                            <button
-                                              onClick={() => handleEdit(l)}
-                                              className="nav-btn"
-                                              title="Editar"
-                                              style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                            >
-                                              <Icons.BsPencil />
-                                            </button>
-                                          </>
-                                        )}
-                                      </>
-                                    )}
-                                    {!( !isAdmin && (l.status_revisao === 'pending_user' || l.status_revisao === 'pending_admin') ) && (
-                                      <button
-                                        onClick={() => handleDelete(l.id)}
-                                        className="delete-record-btn"
-                                        title="Excluir"
-                                        style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
-                                      >
-                                        <Icons.BsTrash />
-                                      </button>
-                                    )}
-                                  </>
-                                )}
+                                <button
+                                  onClick={() => handleEdit(l)}
+                                  className="nav-btn"
+                                  title="Editar"
+                                  style={{ padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsPencil />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(l.id)}
+                                  className="delete-record-btn"
+                                  title="Excluir"
+                                  style={{ margin: 0, padding: "4px 8px", fontSize: "0.9rem" }}
+                                >
+                                  <Icons.BsTrash />
+                                </button>
                               </div>
                             </td>
                           </>
