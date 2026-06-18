@@ -84,7 +84,11 @@ const MENU_CONFIG = [
     icon: <Icons.BsCurrencyDollar />,
     id: "financeiro",
     subItems: [
+      { title: "Dashboard Financeiro", path: "/dashboard-financeiro", adminOnly: true },
       { title: "Lançamentos Financeiros", path: "/lancamentos-financeiros" },
+      { title: "Conciliação bancária", path: "/conciliacao-bancaria" },
+      { title: "Contas à pagar e receber", path: "/contas-pagar-receber" },
+      { title: "Contas fixas", path: "/contas-fixas", adminOnly: true },
     ]
   },
 

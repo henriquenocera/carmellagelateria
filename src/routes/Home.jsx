@@ -64,6 +64,8 @@ function Home() {
   const [folgas, setFolgas] = useState({ hoje: [], amanha: [] });
   const [notificacoes, setNotificacoes] = useState([]);
   const [saldosVales, setSaldosVales] = useState([]);
+  const [crmStatus, setCrmStatus] = useState({ atrasados: 0, hoje: 0, proximos: 0 });
+  const [financeiroStatus, setFinanceiroStatus] = useState({ vencidos: 0, hoje: 0, proximos: 0 });
 
   useEffect(() => {
     let isMounted = true;
@@ -221,12 +223,14 @@ function Home() {
           return allVales;
         };
 
-        const [profilesRes, freqRes, allValesData, ahuInsumos, altoxvInsumos] = await Promise.all([
+        const [profilesRes, freqRes, allValesData, ahuInsumos, altoxvInsumos, crmRes, financeiroRes] = await Promise.all([
           supabase.from("profiles").select("id, name, folgas_fixas, ativo, data_registro, controlar_frequencia").eq("ativo", true).eq("controlar_frequencia", true),
           supabase.from("frequencia").select("employee_id, date, status").in("date", [todayStr, tomorrowStr]),
           fetchAllVales(),
           fetchInsumosStatus("Loja Ahú", "ahu"),
-          fetchInsumosStatus("Loja Alto XV", "altoxv")
+          fetchInsumosStatus("Loja Alto XV", "altoxv"),
+          supabase.from("clientes_food_service").select("id, nome, data_proximo_contato, data_ultimo_contato, status, historico_crm(date)").eq("ativo", true),
+          supabase.from("contas_pagar_receber").select("id, data, valor")
         ]);
 
         const profiles = profilesRes.data || [];
@@ -287,6 +291,59 @@ function Home() {
           return { name: p.name, saldo: sum };
         }).sort((a, b) => a.name.localeCompare(b.name));
 
+        const crmData = crmRes?.data || [];
+        let crmAtrasados = 0;
+        let crmHoje = 0;
+        let crmProximos = 0;
+
+        crmData.forEach(c => {
+          const status = c.status || "Lead";
+          if (!["Lead", "Em Contato"].includes(status) || !c.data_proximo_contato) return;
+
+          let ultimo = c.data_ultimo_contato;
+          if (c.historico_crm && c.historico_crm.length > 0) {
+            const sorted = c.historico_crm.map(h => h.date).sort().reverse();
+            if (!ultimo || sorted[0] > ultimo) {
+              ultimo = sorted[0];
+            }
+          }
+
+          if (!ultimo) return; // Se não tem último contato, o CRM.tsx não renderiza o próximo contato, então não contamos
+          
+          const targetDate = new Date(c.data_proximo_contato + "T12:00:00");
+          const todayDate = new Date();
+          todayDate.setHours(12, 0, 0, 0);
+          const diffTime = targetDate.getTime() - todayDate.getTime();
+          const dias = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+          if (dias < 0) crmAtrasados++;
+          else if (dias === 0) crmHoje++;
+          else if (dias > 0 && dias <= 3) crmProximos++;
+        });
+
+        const financeiroData = financeiroRes?.data || [];
+        let finVencidos = 0;
+        let finHoje = 0;
+        let finProximos = 0;
+        
+        const todayFinDate = new Date(todayStr + "T00:00:00");
+
+        financeiroData.forEach(f => {
+          if (!f.data) return;
+          if (f.data < todayStr) {
+            finVencidos++;
+          } else if (f.data === todayStr) {
+            finHoje++;
+          } else {
+            const fDate = new Date(f.data + "T00:00:00");
+            const diffTime = fDate.getTime() - todayFinDate.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays <= 7) {
+              finProximos++;
+            }
+          }
+        });
+
         if (isMounted) {
           const estadoEstoque = { ahu: ahuEstoque, altoxv: altoxvEstoque };
           const estadoChecklists = { ahu: latestAhu, altoxv: latestAltoxv };
@@ -300,6 +357,8 @@ function Home() {
           setInsumosStatus({ ahu: ahuInsumos, altoxv: altoxvInsumos });
           setFolgas({ hoje: folgasHoje, amanha: folgasAmanha });
           setSaldosVales(listaSaldosVales);
+          setCrmStatus({ atrasados: crmAtrasados, hoje: crmHoje, proximos: crmProximos });
+          setFinanceiroStatus({ vencidos: finVencidos, hoje: finHoje, proximos: finProximos });
           setLoading(false);
         }
       } catch (err) {
@@ -510,6 +569,57 @@ function Home() {
               <ChecklistCard title="Ahú" data={checklists.ahu} />
             </div>
           </section>
+
+          {/* CRM e Financeiro Section */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", width: "100%" }}>
+            
+            <section className="card-crm" style={{ display: "flex", flexDirection: "column", alignSelf: "start", width: "100%" }}>
+              <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Icons.BsPeopleFill style={{ color: "#a17550" }} /> CRM
+              </h2>
+              <Link to="/crm" style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", justifyContent: "space-between", flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ backgroundColor: "#fdf8f4", padding: "16px", borderRadius: "50%" }}>
+                    <Icons.BsPersonLinesFill style={{ fontSize: "2.4rem", color: "#a68a71" }} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.6rem" }}>Acessar CRM</h3>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                      {crmStatus.atrasados > 0 && <span style={{ background: "#fef2f2", color: "#ef4444", padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", border: "1px solid #fecaca" }}>{crmStatus.atrasados} Atrasado(s)</span>}
+                      {crmStatus.hoje > 0 && <span style={{ background: "#fffbeb", color: "#d97706", padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", border: "1px solid #fde68a" }}>{crmStatus.hoje} P/ Hoje</span>}
+                      {crmStatus.proximos > 0 && <span style={{ background: "#eff6ff", color: "#3b82f6", padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", border: "1px solid #bfdbfe" }}>{crmStatus.proximos} Próximos</span>}
+                      {(crmStatus.atrasados === 0 && crmStatus.hoje === 0 && crmStatus.proximos === 0) && <span style={{ color: "#64748b", fontSize: "1.3rem" }}>Todos em dia.</span>}
+                    </div>
+                  </div>
+                </div>
+                <Icons.BsChevronRight style={{ color: "#94a3b8", fontSize: "2rem" }} />
+              </Link>
+            </section>
+
+            <section className="card-financeiro" style={{ display: "flex", flexDirection: "column", alignSelf: "start", width: "100%" }}>
+              <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Icons.BsCurrencyDollar style={{ color: "#10b981" }} /> Financeiro
+              </h2>
+              <Link to="/contas-pagar-receber" style={{ background: "#fff", borderRadius: "12px", padding: "24px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", justifyContent: "space-between", flex: 1 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  <div style={{ backgroundColor: "#f0fdf4", padding: "16px", borderRadius: "50%" }}>
+                    <Icons.BsCashCoin style={{ fontSize: "2.4rem", color: "#16a34a" }} />
+                  </div>
+                  <div>
+                    <h3 style={{ margin: "0 0 8px 0", color: "#334155", fontSize: "1.6rem" }}>Acessar Contas</h3>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
+                      {financeiroStatus.vencidos > 0 && <span style={{ background: "#fef2f2", color: "#ef4444", padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", border: "1px solid #fecaca" }}>{financeiroStatus.vencidos} Vencida(s)</span>}
+                      {financeiroStatus.hoje > 0 && <span style={{ background: "#fffbeb", color: "#d97706", padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", border: "1px solid #fde68a" }}>{financeiroStatus.hoje} P/ Hoje</span>}
+                      {financeiroStatus.proximos > 0 && <span style={{ background: "#eff6ff", color: "#3b82f6", padding: "4px 10px", borderRadius: "12px", fontSize: "1.1rem", fontWeight: "bold", border: "1px solid #bfdbfe" }}>{financeiroStatus.proximos} Próximas (7 dias)</span>}
+                      {(financeiroStatus.vencidos === 0 && financeiroStatus.hoje === 0 && financeiroStatus.proximos === 0) && <span style={{ color: "#64748b", fontSize: "1.3rem" }}>Tudo em dia.</span>}
+                    </div>
+                  </div>
+                </div>
+                <Icons.BsChevronRight style={{ color: "#94a3b8", fontSize: "2rem" }} />
+              </Link>
+            </section>
+
+          </div>
 
           <div className="folgas-vales-grid">
             {/* Folgas e Ausências */}
