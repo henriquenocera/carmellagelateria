@@ -189,3 +189,64 @@
 .table-copy-btn:hover {
   opacity: 0.9;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  position: relative;
+  text-align: center;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #5a432c;
+}
+
+.modal-text {
+  margin-top: 1rem;
+  white-space: pre-wrap;
+  color: #000000;
+  font-size: 1.4rem;
+  text-align: left;
+  background: none;
+  padding: 0.5rem 1rem;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.copied-animation {
+  margin-top: 1.5rem;
+  color: #2ecc71;
+  font-weight: bold;
+  font-size: 1.4rem;
+  animation: popIn 0.5s ease-out 0.4s backwards;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}

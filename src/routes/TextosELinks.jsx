@@ -4,6 +4,8 @@ import { Helmet } from "react-helmet";
 
 function Home() {
   const [copiedIndex, setCopiedIndex] = useState(null);
+  const [modalData, setModalData] = useState(null);
+  const [showCopiedAnim, setShowCopiedAnim] = useState(false);
 
   const predefinedTexts = [
     {
@@ -68,6 +70,17 @@ Fico à disposição!`
       Loja Ifood Ahu:
       https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---ahu-ahu/b8f4806a-7fd6-4df5-a739-65fc17356556
       `
+    },
+    {
+      id: 7,
+      title: "Primeiro Contato - Food Service",
+      text: `Olá! 🍦
+      
+Somos da Carmella Gelateria, deixamos recentemente algumas amostras de nosso Gelato ai no restaurante de vocês, chegaram a experimentar ?
+
+Eu vou encaminhar o nosso catálogo de preços do Food Service, caso tenham alguma dúvida, ficamos a disposição.
+obs: temos 20% de desconto para os 3 primeiros pedidos para novos clientes.
+      `
     }
   ];
 
@@ -120,10 +133,17 @@ Fico à disposição!`
         document.body.removeChild(textarea);
       }
       setCopiedIndex(index);
+      setModalData({ text });
+      setShowCopiedAnim(true);
       setTimeout(() => setCopiedIndex(null), 2000);
     } catch (err) {
       console.error("Erro ao copiar texto:", err);
     }
+  };
+
+  const closeModal = () => {
+    setModalData(null);
+    setShowCopiedAnim(false);
   };
 
   return (
@@ -192,6 +212,21 @@ Fico à disposição!`
           </div>
         </div>
       </div>
+
+      {modalData && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={closeModal}>&times;</button>
+            <h3 style={{ color: "#5a432c", marginTop: 0 }}>Texto Copiado!</h3>
+            <div className="modal-text">{modalData.text}</div>
+            {showCopiedAnim && (
+              <div className="copied-animation">
+                ✓ Texto copiado com sucesso!
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }
