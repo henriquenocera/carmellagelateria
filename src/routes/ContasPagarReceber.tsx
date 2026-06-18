@@ -14,14 +14,21 @@ function ContasPagarReceber() {
   const [clientesDb, setClientesDb] = useState<any[]>([]);
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [profilesMap, setProfilesMap] = useState<{[key: string]: string}>({});
+  const [contasDb, setContasDb] = useState<any[]>([]);
   const [savingRow, setSavingRow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
+
+  const [confirmingLancamento, setConfirmingLancamento] = useState<any | null>(null);
+  const [confirmData, setConfirmData] = useState<string>("");
+  const [selectedConta, setSelectedConta] = useState<string>("");
+  const [confirmingLoading, setConfirmingLoading] = useState(false);
 
   const [filterData, setFilterData] = useState("");
   const [filterDescricao, setFilterDescricao] = useState("");
   const [filterFornecedor, setFilterFornecedor] = useState<string | null>(null);
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null);
+  const [filterTipo, setFilterTipo] = useState<string | null>(null);
 
   const getToday = () => {
     const d = new Date();
@@ -68,6 +75,7 @@ function ContasPagarReceber() {
       ...base,
       height: '38px',
       minHeight: '38px',
+      minWidth: '120px',
       borderRadius: '4px',
       borderColor: '#cbd5e1',
       fontSize: '1.2rem'
@@ -132,6 +140,11 @@ function ContasPagarReceber() {
     return pessoaOptions;
   };
 
+  const contaOptions = contasDb.map(c => {
+    const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
+    return { value: label, label: label };
+  });
+
   const categoriaOptions = categoriasDb.filter(c => !c.parent_id).map(pai => ({
     label: pai.nome,
     options: categoriasDb.filter(sub => sub.parent_id === pai.id).map(sub => ({
@@ -146,6 +159,15 @@ function ContasPagarReceber() {
     async function fetchData() {
       try {
 
+        const { data: cData, error: cError } = await supabase
+          .from("contas")
+          .select("id, banco, agencia, conta_corrente")
+          .eq("ativo", true)
+          .order("banco", { ascending: true });
+
+        if (!cError && cData) {
+          setContasDb(cData);
+        }
 
         const { data: catData, error: catError } = await supabase
           .from("categorias_financeiras")
@@ -204,7 +226,7 @@ function ContasPagarReceber() {
       let query = supabase
         .from("contas_pagar_receber")
         .select("*")
-        .order("data", { ascending: false })
+        .order("data", { ascending: true })
         .order("created_at", { ascending: false });
 
       const { data, error } = await query;
@@ -342,6 +364,42 @@ function ContasPagarReceber() {
       }
     }
   }
+
+  const handleConfirmar = async () => {
+    if (!selectedConta) {
+      alert("Selecione uma conta bancária para confirmar o lançamento.");
+      return;
+    }
+
+    try {
+      setConfirmingLoading(true);
+      const payload = {
+        data: confirmData,
+        descricao: confirmingLancamento.descricao,
+        fornecedor: confirmingLancamento.fornecedor_cliente,
+        valor: confirmingLancamento.valor,
+        categoria: confirmingLancamento.categoria,
+        conta: selectedConta,
+        user_id: user?.id,
+        status_revisao: null
+      };
+
+      const { error: insertError } = await supabase.from("lancamentos_financeiros").insert([payload]);
+      if (insertError) throw insertError;
+
+      const { error: deleteError } = await supabase.from("contas_pagar_receber").delete().eq("id", confirmingLancamento.id);
+      if (deleteError) throw deleteError;
+
+      setConfirmingLancamento(null);
+      setSelectedConta("");
+      fetchLancamentos();
+    } catch (err: any) {
+      console.error("Erro ao confirmar:", err);
+      alert("Erro ao confirmar lançamento: " + (err?.message || JSON.stringify(err)));
+    } finally {
+      setConfirmingLoading(false);
+    }
+  };
 
   return (
     <>
@@ -482,51 +540,7 @@ function ContasPagarReceber() {
             </form>
           </div>
 
-          {/* Barra de Filtros e Ordenação Globais */}
-          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px" }}>
-            <button
-              onClick={() => {
-                setFilterData("");
-                setFilterDescricao("");
-                setFilterFornecedor(null);
-                setFilterCategoria(null);
-                fetchLancamentos();
-              }}
-              style={{
-                padding: "6px 12px",
-                backgroundColor: "#cbd5e1",
-                color: "#334155",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                fontSize: "0.85rem",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px"
-              }}
-            >
-              <Icons.BsXCircleFill /> Limpar
-            </button>
-            <button
-              onClick={() => fetchLancamentos()}
-              style={{
-                padding: "6px 12px",
-                backgroundColor: "#f1f5f9",
-                color: "#475569",
-                border: "1px solid #cbd5e1",
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: "bold",
-                fontSize: "0.85rem",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "4px"
-              }}
-            >
-              <Icons.BsArrowClockwise /> Atualizar
-            </button>
-          </div>
+          {/* Barra de Filtros foi movida para dentro da tabela */}
 
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
             <table className="freq-table" style={{ minWidth: "1000px" }}>
@@ -538,9 +552,9 @@ function ContasPagarReceber() {
                   <th style={{ textAlign: "center", width: "120px" }}>Valor</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Fornecedor / Cliente</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Categoria</th>
-                  <th style={{ textAlign: "center", width: "60px" }}>Tipo</th>
+                  <th style={{ textAlign: "center", width: "140px" }}>Tipo</th>
                   {isAdmin && <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>}
-                  <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Ações</th>
                 </tr>
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
                   <th style={{ padding: "8px" }}>
@@ -584,9 +598,68 @@ function ContasPagarReceber() {
                       styles={filterSelectStyles}
                     />
                   </th>
-                  <th></th>
+                  <th style={{ padding: "8px" }}>
+                    <Select
+                      menuPortalTarget={document.body}
+                      options={[
+                        { value: "pagar", label: "A Pagar" },
+                        { value: "receber", label: "A Receber" }
+                      ]}
+                      value={filterTipo ? { value: filterTipo, label: filterTipo === "pagar" ? "A Pagar" : "A Receber" } : null}
+                      onChange={(sel: any) => setFilterTipo(sel ? sel.value : null)}
+                      placeholder="Tipo..."
+                      isClearable
+                      styles={filterSelectStyles}
+                    />
+                  </th>
                   {isAdmin && <th></th>}
-                  <th></th>
+                  <th style={{ padding: "8px", verticalAlign: "middle" }}>
+                    <div style={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+                      <button
+                        onClick={() => {
+                          setFilterData("");
+                          setFilterDescricao("");
+                          setFilterFornecedor(null);
+                          setFilterCategoria(null);
+                          setFilterTipo(null);
+                          fetchLancamentos();
+                        }}
+                        style={{
+                          padding: "6px 8px",
+                          backgroundColor: "#cbd5e1",
+                          color: "#334155",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "1.2rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}
+                        title="Limpar Filtros"
+                      >
+                        <Icons.BsXCircleFill />
+                      </button>
+                      <button
+                        onClick={() => fetchLancamentos()}
+                        style={{
+                          padding: "6px 8px",
+                          backgroundColor: "#f1f5f9",
+                          color: "#475569",
+                          border: "1px solid #cbd5e1",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "1.2rem",
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}
+                        title="Atualizar Dados"
+                      >
+                        <Icons.BsArrowClockwise />
+                      </button>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -596,6 +669,8 @@ function ContasPagarReceber() {
                     if (filterDescricao && !l.descricao.toLowerCase().includes(filterDescricao.toLowerCase())) return false;
                     if (filterFornecedor && l.fornecedor_cliente !== filterFornecedor) return false;
                     if (filterCategoria && l.categoria !== filterCategoria) return false;
+                    if (filterTipo === "pagar" && l.valor >= 0) return false;
+                    if (filterTipo === "receber" && l.valor < 0) return false;
                     return true;
                   });
 
@@ -609,8 +684,25 @@ function ContasPagarReceber() {
                     );
                   }
 
-                  const hoje = lancamentosFiltrados.filter(l => l.data === getToday());
-                  const anteriores = lancamentosFiltrados.filter(l => l.data !== getToday());
+                  const todayStr = getToday();
+                  const todayDate = new Date(todayStr + "T00:00:00");
+                  
+                  const vencidos = lancamentosFiltrados.filter(l => l.data < todayStr);
+                  const venceHoje = lancamentosFiltrados.filter(l => l.data === todayStr);
+                  const vence7Dias = lancamentosFiltrados.filter(l => {
+                    if (l.data <= todayStr) return false;
+                    const lDate = new Date(l.data + "T00:00:00");
+                    const diffTime = lDate.getTime() - todayDate.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 7;
+                  });
+                  const futuros = lancamentosFiltrados.filter(l => {
+                    if (l.data <= todayStr) return false;
+                    const lDate = new Date(l.data + "T00:00:00");
+                    const diffTime = lDate.getTime() - todayDate.getTime();
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays > 7;
+                  });
 
                   const renderRow = (l: any) => {
                     const diffMin = l.created_at ? (new Date().getTime() - new Date(l.created_at).getTime()) / (1000 * 60) : -1;
@@ -827,6 +919,17 @@ function ContasPagarReceber() {
                             <td style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
                                 <button
+                                  onClick={() => {
+                                    setConfirmData(getToday());
+                                    setConfirmingLancamento(l);
+                                  }}
+                                  className="nav-btn"
+                                  title="Confirmar"
+                                  style={{ padding: "4px 8px", fontSize: "0.9rem", color: "#10b981", borderColor: "#10b981" }}
+                                >
+                                  <Icons.BsCheck2Circle />
+                                </button>
+                                <button
                                   onClick={() => handleEdit(l)}
                                   className="nav-btn"
                                   title="Editar"
@@ -852,24 +955,44 @@ function ContasPagarReceber() {
 
                   return (
                     <>
-                      {hoje.length > 0 && (
+                      {vencidos.length > 0 && (
+                        <>
+                          <tr style={{ backgroundColor: "#fef2f2", borderBottom: "1px solid #fecaca", borderTop: "1px solid #fecaca" }}>
+                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#991b1b", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                              Vencidos
+                            </td>
+                          </tr>
+                          {vencidos.map(renderRow)}
+                        </>
+                      )}
+                      {venceHoje.length > 0 && (
+                        <>
+                          <tr style={{ backgroundColor: "#fffbeb", borderBottom: "1px solid #fde68a", borderTop: "1px solid #fde68a" }}>
+                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#92400e", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                              Vence Hoje
+                            </td>
+                          </tr>
+                          {venceHoje.map(renderRow)}
+                        </>
+                      )}
+                      {vence7Dias.length > 0 && (
                         <>
                           <tr style={{ backgroundColor: "#f0fdf4", borderBottom: "1px solid #bbf7d0", borderTop: "1px solid #bbf7d0" }}>
                             <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#166534", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Lançamentos de Hoje
+                              Vence em 7 dias
                             </td>
                           </tr>
-                          {hoje.map(renderRow)}
+                          {vence7Dias.map(renderRow)}
                         </>
                       )}
-                      {anteriores.length > 0 && (
+                      {futuros.length > 0 && (
                         <>
-                          <tr style={{ backgroundColor: "#f1f5f9", borderBottom: "1px solid #cbd5e1", borderTop: "1px solid #cbd5e1" }}>
+                          <tr style={{ backgroundColor: "#f8fafc", borderBottom: "1px solid #e2e8f0", borderTop: "1px solid #e2e8f0" }}>
                             <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#475569", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
-                              Lançamentos Anteriores
+                              Próximos
                             </td>
                           </tr>
-                          {anteriores.map(renderRow)}
+                          {futuros.map(renderRow)}
                         </>
                       )}
                     </>
@@ -881,6 +1004,58 @@ function ContasPagarReceber() {
 
         </div>
       </div>
+
+      {confirmingLancamento && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 10000 }}>
+          <div style={{ backgroundColor: "white", padding: "24px", borderRadius: "8px", width: "400px", maxWidth: "90%", boxShadow: "0 4px 6px rgba(0,0,0,0.1)" }}>
+            <h3 style={{ marginTop: 0, marginBottom: "16px", color: "#334155", fontSize: "1.6rem", display: "flex", alignItems: "center", gap: "8px" }}>
+              <Icons.BsCheck2Circle style={{ color: "#10b981" }} /> Confirmar {confirmingLancamento.valor < 0 ? "Pagamento" : "Recebimento"}
+            </h3>
+            <p style={{ marginBottom: "16px", color: "#64748b", fontSize: "1.2rem" }}>
+              <strong>Descrição:</strong> {confirmingLancamento.descricao} <br />
+              <strong>Valor:</strong> R$ {Math.abs(confirmingLancamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+
+            <div style={{ marginBottom: "16px" }}>
+              <label style={{ display: "block", fontSize: "1.2rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data do Lançamento</label>
+              <input
+                type="date"
+                value={confirmData}
+                onChange={(e) => setConfirmData(e.target.value)}
+                style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", fontSize: "1.2rem", boxSizing: "border-box" }}
+              />
+            </div>
+
+            <div style={{ marginBottom: "24px" }}>
+              <label style={{ display: "block", fontSize: "1.2rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Conta Bancária</label>
+              <Select
+                options={contaOptions}
+                value={contaOptions.find(c => c.value === selectedConta) || null}
+                onChange={(opt: any) => setSelectedConta(opt ? opt.value : "")}
+                placeholder="Selecione a conta..."
+                styles={{ ...filterSelectStyles, menuPortal: (b: any) => ({ ...b, zIndex: 10001 }) }}
+                menuPortalTarget={document.body}
+              />
+            </div>
+
+            <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+              <button
+                onClick={() => setConfirmingLancamento(null)}
+                style={{ padding: "8px 16px", borderRadius: "4px", border: "1px solid #cbd5e1", backgroundColor: "white", color: "#64748b", cursor: "pointer", fontSize: "1.2rem", fontWeight: "bold" }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleConfirmar}
+                disabled={confirmingLoading}
+                style={{ padding: "8px 16px", borderRadius: "4px", border: "none", backgroundColor: "#10b981", color: "white", cursor: confirmingLoading ? "not-allowed" : "pointer", fontSize: "1.2rem", fontWeight: "bold" }}
+              >
+                {confirmingLoading ? "Confirmando..." : "Confirmar"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
