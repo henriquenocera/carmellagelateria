@@ -439,21 +439,33 @@ CREATE TABLE IF NOT EXISTS "public"."contas" (
 ALTER TABLE "public"."contas" OWNER TO "postgres";
 
 
+CREATE TABLE IF NOT EXISTS "public"."contas_fixas" (
+    "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone,
+    "descricao" "text" NOT NULL,
+    "valor" numeric NOT NULL,
+    "dia_vencimento" integer NOT NULL,
+    "fornecedor_cliente" "text",
+    "categoria" "text",
+    "user_id" "uuid",
+    "ativo" boolean DEFAULT true NOT NULL
+);
+
+
+ALTER TABLE "public"."contas_fixas" OWNER TO "postgres";
+
+
 CREATE TABLE IF NOT EXISTS "public"."contas_pagar_receber" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
-    "tipo" "text" NOT NULL,
     "descricao" "text" NOT NULL,
-    "fornecedor_cliente" "text",
+    "data" "date" NOT NULL,
     "valor" numeric NOT NULL,
-    "data_vencimento" "date" NOT NULL,
-    "status" "text" DEFAULT 'Pendente'::"text" NOT NULL,
-    "data_pagamento" "date",
-    "conta_pagamento" "text",
+    "fornecedor_cliente" "text",
     "categoria" "text",
-    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "user_id" "uuid",
-    CONSTRAINT "contas_pagar_receber_status_check" CHECK (("status" = ANY (ARRAY['Pendente'::"text", 'Pago'::"text"]))),
-    CONSTRAINT "contas_pagar_receber_tipo_check" CHECK (("tipo" = ANY (ARRAY['Pagar'::"text", 'Receber'::"text"])))
+    "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "updated_at" timestamp with time zone
 );
 
 
@@ -921,6 +933,11 @@ ALTER TABLE ONLY "public"."clientes_food_service"
 
 
 
+ALTER TABLE ONLY "public"."contas_fixas"
+    ADD CONSTRAINT "contas_fixas_pkey" PRIMARY KEY ("id");
+
+
+
 ALTER TABLE ONLY "public"."contas_pagar_receber"
     ADD CONSTRAINT "contas_pagar_receber_pkey" PRIMARY KEY ("id");
 
@@ -1094,6 +1111,11 @@ ALTER TABLE ONLY "public"."audit_logs"
 
 ALTER TABLE ONLY "public"."categorias_financeiras"
     ADD CONSTRAINT "categorias_financeiras_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."categorias_financeiras"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."contas_fixas"
+    ADD CONSTRAINT "contas_fixas_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id");
 
 
 
@@ -1306,6 +1328,14 @@ CREATE POLICY "Allow update historico_colaborador" ON "public"."historico_colabo
 
 
 
+CREATE POLICY "Enable ALL for authenticated users" ON "public"."contas_pagar_receber" TO "authenticated" USING (true) WITH CHECK (true);
+
+
+
+CREATE POLICY "Enable all for authenticated users" ON "public"."contas_fixas" TO "authenticated" USING (true) WITH CHECK (true);
+
+
+
 CREATE POLICY "Enable delete access for all authenticated users" ON "public"."fornecedores" FOR DELETE TO "authenticated" USING (true);
 
 
@@ -1438,10 +1468,6 @@ CREATE POLICY "Permitir atualização para usuários autenticados" ON "public"."
 
 
 
-CREATE POLICY "Permitir atualização para usuários autenticados" ON "public"."contas_pagar_receber" FOR UPDATE TO "authenticated" USING (true);
-
-
-
 CREATE POLICY "Permitir deleção em produtos_vale" ON "public"."produtos_vale" FOR DELETE USING (true);
 
 
@@ -1478,10 +1504,6 @@ CREATE POLICY "Permitir exclusão para usuários autenticados" ON "public"."cont
 
 
 
-CREATE POLICY "Permitir exclusão para usuários autenticados" ON "public"."contas_pagar_receber" FOR DELETE TO "authenticated" USING (true);
-
-
-
 CREATE POLICY "Permitir exclusão para usuários logados" ON "public"."Vales" FOR DELETE TO "authenticated" USING (true);
 
 
@@ -1515,10 +1537,6 @@ CREATE POLICY "Permitir inserção para usuários autenticados" ON "public"."cat
 
 
 CREATE POLICY "Permitir inserção para usuários autenticados" ON "public"."contas" FOR INSERT TO "authenticated" WITH CHECK (true);
-
-
-
-CREATE POLICY "Permitir inserção para usuários autenticados" ON "public"."contas_pagar_receber" FOR INSERT TO "authenticated" WITH CHECK (true);
 
 
 
@@ -1559,10 +1577,6 @@ CREATE POLICY "Permitir leitura para usuários autenticados" ON "public"."catego
 
 
 CREATE POLICY "Permitir leitura para usuários autenticados" ON "public"."contas" FOR SELECT TO "authenticated" USING (true);
-
-
-
-CREATE POLICY "Permitir leitura para usuários autenticados" ON "public"."contas_pagar_receber" FOR SELECT TO "authenticated" USING (true);
 
 
 
@@ -1615,6 +1629,9 @@ ALTER TABLE "public"."clientes_food_service" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."contas" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."contas_fixas" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."contas_pagar_receber" ENABLE ROW LEVEL SECURITY;
@@ -2062,6 +2079,12 @@ GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public".
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas" TO "anon";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas" TO "authenticated";
 GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas" TO "service_role";
+
+
+
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas_fixas" TO "anon";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas_fixas" TO "authenticated";
+GRANT SELECT,INSERT,REFERENCES,DELETE,TRIGGER,TRUNCATE,UPDATE ON TABLE "public"."contas_fixas" TO "service_role";
 
 
 
