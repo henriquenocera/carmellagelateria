@@ -23,6 +23,11 @@ function Voucher() {
   const [user, setUser] = useState("");
   const [isCheckingId, setIsCheckingId] = useState(false);
   const idInputRef = useRef<HTMLInputElement | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredVouchers = vouchers.filter((voucher) => 
+    voucher.voucher_id.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     FetchVouchers();
@@ -165,32 +170,44 @@ function Voucher() {
       )}
 
       <div className="homeVoucher">
-        <h1>Vouchers Ativos</h1>
-        <div className="container">
-          {vouchers.length === 0 ? (
-            <p>Nenhum voucher ativo.</p>
+        <h1 style={{ paddingBottom: "20px", paddingTop: "20px" }}>Vouchers Ativos</h1>
+
+        <div style={{ marginBottom: "20px", width: "100%", maxWidth: "400px" }}>
+          <input 
+            type="text" 
+            placeholder="Pesquisar por nome do voucher..." 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "16px", outline: "none" }}
+          />
+        </div>
+
+        <div className="container" style={{ display: "block", maxHeight: "75vh", overflowY: "auto", maxWidth: "1000px", width: "95%", margin: "0 auto" }}>
+          {filteredVouchers.length === 0 ? (
+            <p>Nenhum voucher encontrado.</p>
           ) : (
-            <table className="vales-table">
+            <table className="vales-table" style={{ width: "100%", textAlign: "center" }}>
               <thead>
                 <tr>
-                  <th>Criado em:</th>
-                  <th>Nome do Voucher</th>
-                  <th>Item</th>
-                  <th>Utilizar Voucher</th>
+                  <th style={{ textAlign: "center" }}>Criado em:</th>
+                  <th style={{ textAlign: "center" }}>Nome do Voucher</th>
+                  <th style={{ textAlign: "center" }}>Item</th>
+                  <th style={{ textAlign: "center" }}>Utilizar Voucher</th>
                 </tr>
               </thead>
               <tbody>
-                {vouchers.map((list) => (
+                {filteredVouchers.map((list) => (
                   <tr key={list.id}>
-                    <td>{moment(list.created_at).format("DD/MM/YYYY [às] HH:mm")}</td>
-                    <td>{list.voucher_id}</td>
-                    <td>{list.value}</td>
-                    <td>
+                    <td style={{ textAlign: "center" }}>{moment(list.created_at).format("DD/MM/YYYY [às] HH:mm")}</td>
+                    <td style={{ textAlign: "center" }}>{list.voucher_id}</td>
+                    <td style={{ textAlign: "center" }}>{list.value}</td>
+                    <td style={{ textAlign: "center" }}>
                       <button
                         onClick={() => {
                           handleClick(list.id);
                         }}
                         className="btn"
+                        style={{ margin: "0 auto", display: "block" }}
                       >
                         Utilizar
                       </button>
