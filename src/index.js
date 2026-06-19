@@ -55,6 +55,7 @@ import CadastroClientes from "./routes/configuracoes/CadastroClientes.tsx";
 import CadastroContas from "./routes/configuracoes/CadastroContas.tsx";
 import CadastroCategoriasFinanceiras from "./routes/configuracoes/CadastroCategoriasFinanceiras.tsx";
 import ProdutosVale from "./routes/configuracoes/ProdutosVale.tsx";
+import CadastroVouchers from "./routes/configuracoes/CadastroVouchers.tsx";
 import LancamentosFinanceiros from "./routes/LancamentosFinanceiros.tsx";
 import ConciliacaoBancaria from "./routes/ConciliacaoBancaria.tsx";
 import ContasPagarReceber from "./routes/ContasPagarReceber.tsx";
@@ -163,6 +164,7 @@ const router = createBrowserRouter(
         <Route path="/configuracoes/cadastro-contas" element={<CadastroContas />} />
         <Route path="/configuracoes/categorias-financeiras" element={<CadastroCategoriasFinanceiras />} />
         <Route path="/configuracoes/produtos-vale" element={<ProdutosVale />} />
+        <Route path="/configuracoes/cadastro-vouchers" element={<CadastroVouchers />} />
         <Route path="/dashboard-financeiro" element={<DashboardFinanceiro />} />
         <Route path="/lancamentos-financeiros" element={<LancamentosFinanceiros />} />
         <Route path="/conciliacao-bancaria" element={<ConciliacaoBancaria />} />

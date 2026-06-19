@@ -118,6 +118,7 @@ const MENU_CONFIG = [
       { title: "Cadastro de Insumos", path: "/configuracoes/cadastro-insumos" },
       { title: "Cadastro de Produtos", path: "/configuracoes/cadastro-produtos" },
       { title: "Cadastro Produtos Vale", path: "/configuracoes/produtos-vale" },
+      { title: "Cadastro de Voucher", path: "/configuracoes/cadastro-vouchers" },
       { title: "Configuração de Estoque", path: "/configuracoes/configuracao-estoque" },
       { title: "Logs", path: "/configuracoes/logs" },
     ]
