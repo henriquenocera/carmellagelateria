@@ -5,6 +5,7 @@ import moment from "moment";
 import "moment/locale/pt-br";
 import { Helmet } from "react-helmet";
 import { FaTimesCircle } from "react-icons/fa";
+import { STORE_CONFIG } from "../config/store.js";
 
 function Home() {
   const [vales, setVales] = useState([]);
@@ -23,7 +24,7 @@ function Home() {
     const { data, error } = await supabase
       .from("Checklist")
       .select("*")
-      .eq("store", "altoxv")
+      .eq("store", STORE_CONFIG.key)
       .gte("created_at", fiveDaysAgo)
       .order("created_at", { ascending: false });
 
@@ -42,7 +43,7 @@ function Home() {
     const { data, error } = await supabase
       .from("Vales")
       .select("*")
-      .eq("Unidade", "Alto da XV")
+      .eq("Unidade", STORE_CONFIG.textName)
       .gte("created_at", fiveDaysAgo)
       .order("created_at", { ascending: false });
 
@@ -128,14 +129,16 @@ function Home() {
                             </td>
                           </tr>
                           {todaysLimited.map((vale) => (
-                            <tr key={vale.id}>
+                            <tr key={vale.id} className={moment().diff(moment(vale.created_at), "minutes") < 0 ? "future-row" : ""}>
                               <td>
                                 {moment(vale.created_at).format(
                                   "DD/MM/YYYY HH:mm"
                                 )}
-                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
+                                {moment().diff(moment(vale.created_at), "minutes") < 0 ? (
+                                  <span className="previsto-tag">previsto</span>
+                                ) : moment().diff(moment(vale.created_at), "minutes") < 60 ? (
                                   <span className="new-tag">novo</span>
-                                )}
+                                ) : null}
                               </td>
                               <td>{vale.Nome ?? "-"}</td>
                               <td>{vale.Item ?? "-"}</td>
@@ -150,14 +153,16 @@ function Home() {
                             <td colSpan={3}>Dias anteriores</td>
                           </tr>
                           {othersLimited.map((vale) => (
-                            <tr key={vale.id}>
+                            <tr key={vale.id} className={moment().diff(moment(vale.created_at), "minutes") < 0 ? "future-row" : ""}>
                               <td>
                                 {moment(vale.created_at).format(
                                   "DD/MM/YYYY HH:mm"
                                 )}
-                                {moment().diff(moment(vale.created_at), "minutes") < 60 && (
+                                {moment().diff(moment(vale.created_at), "minutes") < 0 ? (
+                                  <span className="previsto-tag">previsto</span>
+                                ) : moment().diff(moment(vale.created_at), "minutes") < 60 ? (
                                   <span className="new-tag">novo</span>
-                                )}
+                                ) : null}
                               </td>
                               <td>{vale.Nome ?? "-"}</td>
                               <td>{vale.Item ?? "-"}</td>

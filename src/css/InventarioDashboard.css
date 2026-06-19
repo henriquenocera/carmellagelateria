@@ -1,0 +1,362 @@
+.inv-dashboard-container {
+  padding: 40px;
+  min-height: 100vh;
+  margin-left: 75px;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.inv-dashboard-header {
+  margin-bottom: 30px;
+}
+
+.inv-dashboard-header h1 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 32px;
+  color: #8c6748;
+  margin: 0 0 10px 0;
+}
+
+.inv-dashboard-header p {
+  color: #888;
+  margin: 0;
+  font-size: 15px;
+}
+
+.inv-dashboard-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+}
+
+.inv-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.inv-tab-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  background-color: #f0f4f8;
+  color: #555;
+}
+
+.inv-tab-btn.active {
+  background-color: #a37a57;
+  color: white;
+}
+
+.inv-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.inv-btn-outline {
+  padding: 10px 20px;
+  border: 1px solid #4a90e2;
+  background-color: transparent;
+  color: #4a90e2;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.inv-btn-outline:hover {
+  background-color: #f0f7ff;
+}
+
+.inv-btn-primary {
+  padding: 10px 20px;
+  border: 1px solid #a37a57;
+  background-color: transparent;
+  color: #a37a57;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.inv-btn-primary:hover {
+  background-color: #fdfaf7;
+}
+
+.inv-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 25px;
+}
+
+.inv-card {
+  background-color: #fff;
+  border: 1px solid #eaeaea;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.inv-card-top {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.inv-date-icon {
+  background-color: #fdf5e6;
+  color: #d4a373;
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.inv-date-info h4 {
+  margin: 0;
+  font-size: 13px;
+  color: #888;
+  font-weight: 500;
+}
+
+.inv-date-info h2 {
+  margin: 5px 0 0 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.inv-card-bottom {
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.inv-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inv-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+}
+
+.inv-stat-item svg {
+  color: #a37a57;
+}
+
+.inv-view-link {
+  color: #8c6748;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.inv-view-link:hover {
+  text-decoration: underline;
+}
+
+.inv-card-dashed {
+  border: 2px dashed #cbd5e1;
+  background-color: transparent;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  cursor: pointer;
+  color: #64748b;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: none;
+}
+
+.inv-card-dashed:hover {
+  border-color: #94a3b8;
+  background-color: #f8fafc;
+  color: #475569;
+}
+
+.inv-card-dashed svg {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #94a3b8;
+}
+
+.inv-card-antigos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.inv-card-antigos:hover {
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  transform: translateY(-2px);
+}
+
+.inv-antigos-icon {
+  background-color: #f0f4f8;
+  color: #475569;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.inv-antigos-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #8c6748;
+}
+
+.inv-antigos-info p {
+  margin: 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* Modal de Inventários Antigos */
+.inv-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+}
+
+.inv-modal-content {
+  background-color: #fff;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+}
+
+.inv-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.inv-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inv-modal-title h2 {
+  margin: 0;
+  font-size: 22px;
+  color: #8c6748;
+  font-weight: 500;
+}
+
+.inv-modal-title svg {
+  font-size: 22px;
+}
+
+.inv-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.inv-modal-close:hover {
+  color: #333;
+}
+
+.inv-modal-subtitle {
+  color: #888;
+  font-size: 14px;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.inv-modal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.inv-modal-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background-color: #fcfcfc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.inv-modal-item:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.inv-modal-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inv-modal-item-left strong {
+  color: #334155;
+  font-size: 15px;
+}
+
+.inv-modal-item-right {
+  color: #8c6748;
+  font-size: 13px;
+}

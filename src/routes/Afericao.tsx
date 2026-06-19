@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import "../css/Afericao.css";
 import supabase from "../supabase-client";
-import { ListId } from "../id.ts";
+import { STORE_CONFIG } from '../config/store.js';
 
 // Tabela no Supabase: "afericao_porcao"
 // Colunas sugeridas:
@@ -13,7 +13,7 @@ import { ListId } from "../id.ts";
 // weight_grams (numeric)
 // created_at (timestamptz) - default now()
 
-const UNIT = process.env.REACT_APP_UNIT || "Alto XV";
+const UNIT = process.env.REACT_APP_UNIT || STORE_CONFIG.key;
 
 function Afericao() {
   const WEIGHT_LABELS = [
@@ -26,6 +26,7 @@ function Afericao() {
   const idInputRef = useRef<HTMLInputElement | null>(null);
   const [weights, setWeights] = useState<number[]>([0, 0, 0]); // 3 pesagens obrigatórias
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [isCheckingId, setIsCheckingId] = useState<boolean>(false);
   const [submitMessage, setSubmitMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [idError, setIdError] = useState<string>("");
@@ -46,7 +47,7 @@ function Afericao() {
   const validWeights = weights.filter((w) => w > 0);
   const canSubmit = !submitting && employeeName.trim().length > 0 && validWeights.length >= 3;
 
-  const handleCheckId = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleCheckId = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIdError("");
     const raw = idInputRef.current?.value || "";
@@ -58,12 +59,19 @@ function Afericao() {
       return;
     }
 
-    const match = ListId.find((item) => String(item.value) === idValue);
-    if (match) {
-      setEmployeeName(match.nome);
-    } else {
+    setIsCheckingId(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("short_id", idValue)
+      .single();
+    setIsCheckingId(false);
+
+    if (error || !data) {
       setEmployeeName("");
       setIdError("ID não encontrado. Verifique e tente novamente.");
+    } else {
+      setEmployeeName(data.name);
     }
   };
 
@@ -137,8 +145,9 @@ function Afericao() {
               type="button"
               className="btn-secondary confirm-id-btn"
               onClick={handleCheckId}
+              disabled={isCheckingId}
             >
-              Confirmar ID
+              {isCheckingId ? "Verificando..." : "Confirmar ID"}
             </button>
           </div>
           {idError && <div className="form-error small">{idError}</div>}

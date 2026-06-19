@@ -1,0 +1,114 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-card {
+  background-color: #ffffff;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+}
+
+.login-logo {
+  margin-bottom: 20px;
+}
+
+.login-logo h1 {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 36px;
+  font-weight: 500;
+  color: #9a7352;
+  margin: 0;
+  letter-spacing: 2px;
+}
+
+.login-logo p {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  color: #b5957b;
+  margin: 5px 0 0 0;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.login-title {
+  font-size: 20px;
+  color: #5c4033;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-bottom: 30px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.login-form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form-group label {
+  font-size: 13px;
+  color: #6c6c6c;
+  margin-bottom: 6px;
+}
+
+.login-form-group input {
+  padding: 12px 14px;
+  font-size: 14px;
+  border: 1px solid #cda37f;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.login-form-group input:focus {
+  border-color: #9a7352;
+  box-shadow: 0 0 0 2px rgba(154, 115, 82, 0.1);
+}
+
+.login-error {
+  color: #d9534f;
+  font-size: 13px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.login-button {
+  background-color: #a37a57;
+  color: #ffffff;
+  border: none;
+  border-radius: 25px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background-color: #8c6748;
+}
+
+.login-button:disabled {
+  background-color: #d2c0b0;
+  cursor: not-allowed;
+}

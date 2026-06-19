@@ -5,11 +5,13 @@ import * as Icons from "react-icons/bs";
 import ChecklistFechamentoForm from "../components/ChecklistFechamentoForm";
 import "../css/Checklist.css";
 import supabase from "../supabase-client";
+import { STORE_CONFIG } from '../config/store.js';
 
 const telegramBotId = "6170143874:AAGyo6gioXlufhGGzPTGNe9YE6TrCuoKEWU";
 const telegramChatId = "-1001602173856";
-const unidadeText = "Alto da XV";
-const unidade = "altoxv";
+const unidadeText = STORE_CONFIG.textName;
+const unidade = STORE_CONFIG.key;
+const unitAddress = STORE_CONFIG.address;
 
 async function sendOpenMessage(
   openDateFormat,
@@ -82,8 +84,10 @@ async function sendSupabase(user, massas, brownies, panos) {
 
   if (error) {
     console.log(error);
+    return false;
   } else {
     console.log("tudo ok", data);
+    return true;
   }
 }
 
@@ -108,19 +112,33 @@ function altoxvCloseSubmit(geladeira, brownie, panos, user) {
 }
 
 function ChecklistFechamento() {
-  const onSubmit = (event, geladeira, brownie, panos, user) => {
+  const onSubmit = async (event, geladeira, brownie, panos, user) => {
+    event.preventDefault();
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+    setSubmissionStatus("submitting");
     setTimeComplete("Enviando...");
 
     console.log("enviou");
-    // supabase
-    sendSupabase(user, geladeira, brownie, panos);
-    event.preventDefault();
-    altoxvCloseSubmit(geladeira, brownie, panos, user);
+    
+    const success = await sendSupabase(user, geladeira, brownie, panos);
+    
+    if (success) {
+      altoxvCloseSubmit(geladeira, brownie, panos, user);
+      setSubmissionStatus("success");
+      setTimeComplete("✅ Sucesso! Checklist salvo no banco de dados.");
+    } else {
+      setSubmissionStatus("error");
+      setTimeComplete("❌ Falha ao salvar no banco de dados. Verifique a internet e tente novamente.");
+    }
   };
 
   const [timeComplete, setTimeComplete] = useState("");
+  const [submissionStatus, setSubmissionStatus] = useState("idle");
   let openC = JSON.parse(localStorage.getItem("altoxvClose"));
+
+  if (submissionStatus !== "idle") {
+    openC = { value: "complete" };
+  }
 
   useEffect(() => {
     if (openC) {
@@ -157,14 +175,29 @@ function ChecklistFechamento() {
           <div className="unitInfo">
             <h1>Checklist de Fechamento</h1>
 
-            <h2>Unidade {unidadeText} - Rua Sete de Abril, 934</h2>
+            <h2>Unidade {unidadeText} - {unitAddress}</h2>
           </div>
           <div className="unitLogo">
             <img src="/logo.svg" alt="" />
           </div>
         </div>
         {openC && openC.value === "complete" ? (
-          <span className="timeComplete">{timeComplete}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', marginTop: '40px' }}>
+            <span className="timeComplete" style={{ 
+              color: submissionStatus === 'error' ? '#ef4444' : submissionStatus === 'success' ? '#22c55e' : '#666',
+              fontSize: '24px', fontWeight: 'bold', textAlign: 'center'
+            }}>
+              {timeComplete}
+            </span>
+            {submissionStatus === 'error' && (
+              <button 
+                onClick={() => setSubmissionStatus('idle')}
+                style={{ padding: '12px 24px', backgroundColor: '#a37a57', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+              >
+                Voltar e Tentar Novamente
+              </button>
+            )}
+          </div>
         ) : (
           <>
             <div className="checklistFormContainer">

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import * as Icons from "react-icons/bs";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "./AuthProvider.tsx";
 import "../css/Navbar.css";
 
 function NavBar() {
@@ -9,8 +10,15 @@ function NavBar() {
   const showSidebar = () => setSidebar(!sidebar);
   let activeMenu = false;
 
+  const { user } = useAuth();
+
   return (
     <>
+      {user && (
+        <div className="user-badge">
+          {user.email}
+        </div>
+      )}
       <div className={sidebar ? "navigation open" : "navigation"}>
         <div className="menuToggle" onClick={showSidebar}></div>
         <ul>
@@ -22,6 +30,14 @@ function NavBar() {
               <span className="text">Início</span>
             </NavLink>
           </li>
+{/*           <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/afericao">
+              <span className="icon">
+                <Icons.BsEject />
+              </span>
+              <span className="text">Aferição de Peso</span>
+            </NavLink>
+          </li> */}
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/salgados">
               <span className="icon">
@@ -47,6 +63,15 @@ function NavBar() {
               <span className="text">Inventário</span>
             </NavLink>
           </li> */}
+
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/inventario">
+              <span className="icon">
+                <Icons.BsBoxSeam />
+              </span>
+              <span className="text">Inventário Insumos</span>
+            </NavLink>
+          </li>
 
           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">

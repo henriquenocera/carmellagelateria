@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from "react";
 
 import "../css/ChecklistForm.css";
 import ChecklistItem from "./ChecklistItem";
-import { ListId } from '../id.ts';
+import supabase from "../supabase-client";
 import ContadorNotasMoedas from "./ContadorNotasMoedas.jsx";
+import { checklistAberturaSteps as steps } from "../config/checklists.js";
+
 
 function ChecklistAberturaForm({ handleSubmit }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,100 +15,42 @@ function ChecklistAberturaForm({ handleSubmit }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [checkedItems, setCheckedItems] = useState({});
   const [moneyCounterData, setMoneyCounterData] = useState(null);
+  const [isCheckingId, setIsCheckingId] = useState(false);
   const idInputRef = useRef(null);
 
-  const unidadeText = "Alto XV";
 
-  const steps = [
-    {
-      title: "1ª - Equipamentos",
-      items: [
-        { id: "1", title: "Limpeza interna da vitrine", subtitle1: "Interior com um pano úmido" },
-        { id: "2", title: "Limpeza externa da vitrine", subtitle1: "Vidros com álcool líquido", subtitle2: "" },
-        { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
-        { id: "300", title: "Ligar a Luz da Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "", new: "2026-03-19" },
-        { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v 'tomadas vermelhas'", subtitle2: "Girar o controlador da máquina de café para a posição '1'" },
-        { id: "5", title: "Acender Todas as Luzes", subtitle1: "", subtitle2: "" },
-        { id: "6", title: "Ligar máquininha de cartão POS 'Máquininha da Rede'", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
-        { id: "7", title: "Ligar Tablet", subtitle1: "Se estiver sem bateria, colocar para carregar", subtitle2: "" },
-        { id: "8", title: "Realizar a contagem de notas do malote", subtitle1: "Utilizar o contador de notas e moedas abaixo", subtitle2: "" },
-        { id: "9", title: "Realizar a abertura do caixa", subtitle1: "Abrir o caixa com o valor real do malote", subtitle2: "Usuário: 6 | Senha: 2849" },
-      ]
-    },
-    {
-      title: "2ª - Organização",
-      items: [
-        { id: "1006", title: "Repor as bebidas da Coca na Geladeira", subtitle1: "", subtitle2: "", new: "2026-03-31", weekday: 1 },
-        { id: "1007", title: "Repor as bebidas da Coca na Geladeira", subtitle1: "", subtitle2: "", new: "2026-03-31", weekday: 5 },
-        { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
-        {
-          id: "11", title: "Atualizar relatório dos salgados", subtitle1: "", subtitle2: "", buttonText: "Acessar Relatório dos Salgados",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/salgados"
-        },
-        { id: "111", title: "Colocar as mesas e cadeiras externas", subtitle1: "", subtitle2: "" },
-        { id: "112", title: "Colocar cadeiras externas do gramado", subtitle1: "", subtitle2: "", new: "2026-03-31" },
-        { id: "12", title: "Colocar sacos de lixo interno", subtitle1: "Sacos de lixo de 20 Litros", subtitle2: "" },
-        { id: "13", title: "Colocar sacos de lixo do salão dos clientes", subtitle1: "Sacos de lixo de 60 Litros", subtitle2: "" },
-        { id: "104", title: "Colocar sacos de lixo em todas as lixeiras externas", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
-        { id: "14", title: "Colocar sacos de lixo no banheiro", subtitle1: "Sacos de lixo de 40 Litros", subtitle2: "" },
-        { id: "15", title: "Repor papel higiênico no banheiro", subtitle1: "", subtitle2: "" },
-        { id: "16", title: "Repor papel toalha no banheiro", subtitle1: "", subtitle2: "" },
-        //{ id: "17", title: "Repor insumos necessários", subtitle1: "Retirar do estoque", subtitle2: "" },
-      ]
-    },
-    {
-      title: "3° - Limpeza",
-      items: [
-        { id: "18", title: "Limpar as bancadas da loja", subtitle1: "Pano e álcool líquido", subtitle2: "" },
-        { id: "19", title: "Limpar as mesas e cadeiras do salão", subtitle1: "Pano e álcool líquido", subtitle2: "" },
-        { id: "20", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "21", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-        { id: "31", title: "Limpar Pátio externo da frente", subtitle1: "Recolher lixo e varrer", subtitle2: "" },
-        { id: "32", title: "Limpar Pátio externo dos fundos", subtitle1: "Recolher lixo e varrer", subtitle2: "" },
-
-      ]
-    },
-    {
-      title: "4º - Abertura",
-      items: [
-        { id: "22", title: "Abastecer vitrine (-4ºC)", subtitle1: "", subtitle2: "" },
-        { id: "23", title: "Abrir portas de enrolar", subtitle1: "", subtitle2: "" },
-        { id: "24", title: "Abrir porta do salão dos clientes", subtitle1: "", subtitle2: "" },
-        { id: "27", title: "Trancar porta de entrada dos funcionários", subtitle1: "Porta dos fundos", subtitle2: "" },
-        { id: "35", title: "Trancar os cadeados dos portões", subtitle1: "", subtitle2: "", new: "2026-03-31" },
-        { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "", new: "2026-03-31" },
-        { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "", new: "2026-03-31" },
-        { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
-
-        {
-          id: "34", title: "Aferição de Mão - Domingo", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 0
-        },
-        {
-          id: "346", title: "Aferição de Mão - Sábado", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 6
-        },
-        {
-          id: "347", title: "Aferição de Mão - Quinta", subtitle1: "", subtitle2: "", buttonText: "Acessar Aferição de Mão",
-          buttonLink: "https://altoxv.carmellagelateria.com.br/afericao", weekday: 4
-        },
-
-
-
-      ]
-    }
-  ];
-
-  // Initialize checkedItems state with all items set to false
+  // Initialize checkedItems and currentStep state from localStorage or default
   useEffect(() => {
-    const initialCheckedState = {};
-    steps.forEach(step => {
-      step.items.forEach(item => {
-        initialCheckedState[item.id] = false;
+    const savedItems = localStorage.getItem('check_abertura_items');
+    if (savedItems) {
+      setCheckedItems(JSON.parse(savedItems));
+    } else {
+      const initialCheckedState = {};
+      steps.forEach(step => {
+        step.items.forEach(item => {
+          initialCheckedState[item.id] = false;
+        });
       });
-    });
-    setCheckedItems(initialCheckedState);
+      setCheckedItems(initialCheckedState);
+    }
+
+    const savedStep = localStorage.getItem('check_abertura_step');
+    if (savedStep) {
+      setCurrentStep(parseInt(savedStep));
+    }
   }, []);
+
+  // Save checkedItems to localStorage whenever it changes
+  useEffect(() => {
+    if (Object.keys(checkedItems).length > 0) {
+      localStorage.setItem('check_abertura_items', JSON.stringify(checkedItems));
+    }
+  }, [checkedItems]);
+
+  // Save currentStep to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('check_abertura_step', currentStep.toString());
+  }, [currentStep]);
 
   const handleCheckboxChange = (id) => {
     setCheckedItems(prevState => ({
@@ -144,29 +88,27 @@ function ChecklistAberturaForm({ handleSubmit }) {
     }
   }
 
-  function checkId(e) {
+  async function checkId(e) {
     console.log("Check ID");
     e.preventDefault();
-    let idInput = idInputRef.current.value;
+    let idInput = idInputRef.current?.value;
 
-    if (idInput == ListId[0].value) {
-      setUser(ListId[0].nome);
-    } else if (idInput == ListId[1].value) {
-      setUser(ListId[1].nome);
-    } else if (idInput == ListId[2].value) {
-      setUser(ListId[2].nome);
-    } else if (idInput == ListId[3].value) {
-      setUser(ListId[3].nome);
-    } else if (idInput == ListId[4].value) {
-      setUser(ListId[4].nome);
-    } else if (idInput == ListId[5].value) {
-      setUser(ListId[5].nome);
-    } else if (idInput == ListId[6].value) {
-      setUser(ListId[6].nome);
-    } else if (idInput == ListId[7].value) {
-      setUser(ListId[7].nome);
-    } else {
+    if (!idInput) return;
+
+    setIsCheckingId(true);
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("name")
+      .eq("short_id", idInput)
+      .single();
+    
+    setIsCheckingId(false);
+
+    if (error || !data) {
+      window.alert("ID não encontrado. Verifique e tente novamente.");
       setUser("");
+    } else {
+      setUser(data.name);
     }
   }
 
@@ -249,6 +191,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
     event.preventDefault();
     const moneyCounterMessage = formatMoneyCounterMessage();
     handleSubmit(event, user, moneyCounterMessage, moneyCounterData);
+
+    // Limpa o progresso do local storage ao enviar o formulário
+    localStorage.removeItem('check_abertura_items');
+    localStorage.removeItem('check_abertura_step');
+    localStorage.removeItem('contador_notas_moedas');
   };
 
   return (
@@ -289,7 +236,11 @@ function ChecklistAberturaForm({ handleSubmit }) {
                 <div className="modal-buttons">
                   <button
                     onClick={(e) => checkId(e)}
-                    className="confirm-button">Confirmar ID</button>
+                    className="confirm-button"
+                    disabled={isCheckingId}
+                  >
+                    {isCheckingId ? "Verificando..." : "Confirmar ID"}
+                  </button>
                   <button
                     onClick={() => { setIsModalOpen(false); setUser("") }}
                     className="close-button"

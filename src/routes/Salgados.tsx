@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Select from "react-select";
 import "../css/Salgados.css";
 import supabase from "../supabase-client";
+import { STORE_CONFIG } from '../config/store.js';
 
 const BOXES_PER_ROW = 12; // number of small check boxes per item (adjust as needed)
 
@@ -24,7 +25,7 @@ function Salgados() {
   const saveDebounceRef = useRef<Record<string, any>>({});
 
   // Unit / loja identifier - adjust or make selectable if needed
-  const UNIT = process.env.REACT_APP_UNIT || "altoxv";
+  const UNIT = process.env.REACT_APP_UNIT || STORE_CONFIG.key;
 
   const setItemStatus = (key: string, status: string) => {
     setSaveStatus((s) => ({ ...s, [key]: status }));
