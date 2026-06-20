@@ -40,7 +40,7 @@ function DashboardFinanceiro() {
         const todayZero = new Date(todayStr + "T00:00:00");
 
         const [contasRes, lancamentosRes, pendentesRes] = await Promise.all([
-          supabase.from("contas").select("id, banco, agencia, conta_corrente").eq("ativo", true).order("banco", { ascending: true }),
+          supabase.from("contas").select("id, banco, agencia, conta_corrente, descricao").eq("ativo", true).order("banco", { ascending: true }),
           supabase.from("lancamentos_financeiros").select("conta, valor, status_revisao, data"),
           supabase.from("contas_pagar_receber").select("data, valor")
         ]);
@@ -51,9 +51,12 @@ function DashboardFinanceiro() {
 
         // Calcular Saldos das Contas
         const balancesMap: { [label: string]: number } = {};
+        const displayMap: { [label: string]: string } = {};
         contasData.forEach(c => {
           const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
+          const displayLabel = [c.descricao, c.banco, c.conta_corrente].filter(Boolean).join(" - ");
           balancesMap[label] = 0;
+          displayMap[label] = displayLabel;
         });
 
         lancamentosData.forEach(l => {
@@ -64,7 +67,7 @@ function DashboardFinanceiro() {
           }
         });
 
-        const listSaldos = Object.keys(balancesMap).map(k => ({ label: k, valor: balancesMap[k] }));
+        const listSaldos = Object.keys(balancesMap).map(k => ({ label: displayMap[k] || k, valor: balancesMap[k] }));
         const sumSaldos = listSaldos.reduce((acc, curr) => acc + curr.valor, 0);
 
         // Calcular Pagar/Receber
@@ -186,9 +189,9 @@ function DashboardFinanceiro() {
             
             {/* SALDO TOTAL */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px" }}>
-              <div style={{ background: "linear-gradient(135deg, #475569, #1e293b)", borderRadius: "16px", padding: "32px", color: "#fff", boxShadow: "0 10px 15px -3px rgba(30, 41, 59, 0.3)" }}>
-                <h2 style={{ margin: "0 0 8px 0", fontSize: "1.6rem", opacity: 0.9, fontWeight: 500 }}>Saldo Total (Todas as Contas)</h2>
-                <div style={{ fontSize: "4.2rem", fontWeight: "bold", letterSpacing: "-1px" }}>
+              <div style={{ background: "linear-gradient(135deg, #475569, #1e293b)", borderRadius: "12px", padding: "24px", color: "#fff", boxShadow: "0 4px 6px -1px rgba(30, 41, 59, 0.3)" }}>
+                <h2 style={{ margin: "0 0 4px 0", fontSize: "1.4rem", opacity: 0.9, fontWeight: 500 }}>Saldo Total (Todas as Contas)</h2>
+                <div style={{ fontSize: "3.0rem", fontWeight: "bold", letterSpacing: "-0.5px" }}>
                   {formatCurrency(saldoTotal)}
                 </div>
               </div>

@@ -325,10 +325,10 @@ function CRM() {
                       onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; }}
                     >
 
-                      <td style={{ padding: "16px 20px", borderRadius: "12px 0 0 12px", border: "none" }}>
-                        <div style={{ fontWeight: 800, fontSize: "1.5rem", color: "var(--secondary-color)", marginBottom: "4px" }}>{c.nome}</div>
+                      <td style={{ padding: "10px 16px", borderRadius: "12px 0 0 12px", border: "none" }}>
+                        <div style={{ fontWeight: 800, fontSize: "1.3rem", color: "var(--secondary-color)", marginBottom: "2px" }}>{c.nome}</div>
                         {c.endereco && (
-                          <div style={{ fontSize: "1.15rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <div style={{ fontSize: "1.05rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
                             <Icons.BsGeoAlt /> {c.endereco.length > 40 ? c.endereco.substring(0, 40) + "..." : c.endereco}
                           </div>
                         )}
@@ -340,9 +340,9 @@ function CRM() {
                           onClick={(e) => e.stopPropagation()}
                           onChange={(e) => handleStatusChange(c.id, e.target.value)}
                           style={{
-                            padding: "8px 14px",
+                            padding: "6px 12px",
                             borderRadius: "20px",
-                            fontSize: "1.15rem",
+                            fontSize: "1.1rem",
                             fontWeight: 700,
                             backgroundColor: `${getStatusColor(c.status || "Lead")}15`,
                             color: getStatusColor(c.status || "Lead"),
@@ -351,7 +351,7 @@ function CRM() {
                             outline: "none",
                             appearance: "none",
                             textAlign: "center",
-                            width: "180px",
+                            width: "160px",
                             margin: "0 auto",
                             display: "block"
                           }}

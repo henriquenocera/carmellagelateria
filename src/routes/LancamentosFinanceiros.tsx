@@ -135,8 +135,9 @@ function LancamentosFinanceiros() {
   }));
 
   const contaOptions = contasDb.map(c => {
-    const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
-    return { value: label, label: label };
+    const value = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
+    const label = [c.descricao, c.banco, c.conta_corrente].filter(Boolean).join(" - ");
+    return { value: value, label: label };
   });
 
   useEffect(() => {
@@ -144,7 +145,7 @@ function LancamentosFinanceiros() {
       try {
         const { data: contasData, error: contasError } = await supabase
           .from("contas")
-          .select("id, banco, agencia, conta_corrente")
+          .select("id, banco, agencia, conta_corrente, descricao")
           .eq("ativo", true)
           .order("banco", { ascending: true });
 
@@ -953,7 +954,7 @@ function LancamentosFinanceiros() {
                             </td>
                             <td style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
                             <td style={{ textAlign: "center" }}>{l.categoria || "-"}</td>
-                            <td style={{ textAlign: "center" }}>{l.conta}</td>
+                            <td style={{ textAlign: "center" }}>{contaOptions.find(o => o.value === l.conta)?.label || l.conta}</td>
                             <td style={{ textAlign: "center" }}>
                               <span style={{
                                 background: l.valor >= 0 ? "#dcfce7" : "#fee2e2",
