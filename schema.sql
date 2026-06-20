@@ -1452,6 +1452,10 @@ CREATE POLICY "Permitir atualizacao para usuarios autenticados" ON "public"."mov
 
 
 
+CREATE POLICY "Permitir atualização de vouchers para autenticados" ON "public"."Vouchers" FOR UPDATE TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Permitir atualização em produtos_vale" ON "public"."produtos_vale" FOR UPDATE USING (true);
 
 
@@ -1465,6 +1469,10 @@ CREATE POLICY "Permitir atualização para usuários autenticados" ON "public"."
 
 
 CREATE POLICY "Permitir atualização para usuários autenticados" ON "public"."contas" FOR UPDATE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir criação de vouchers para autenticados" ON "public"."Vouchers" FOR INSERT TO "authenticated" WITH CHECK (true);
 
 
 
@@ -1489,6 +1497,10 @@ CREATE POLICY "Permitir exclusao para usuarios autenticados" ON "public"."movime
 
 
 CREATE POLICY "Permitir exclusão (DELETE) para todos os usuários autenticado" ON "public"."profiles" FOR DELETE TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir exclusão de vouchers para autenticados" ON "public"."Vouchers" FOR DELETE TO "authenticated" USING (true);
 
 
 
@@ -1556,6 +1568,10 @@ CREATE POLICY "Permitir leitura de produtos_vale" ON "public"."produtos_vale" FO
 
 
 
+CREATE POLICY "Permitir leitura de vouchers para autenticados" ON "public"."Vouchers" FOR SELECT TO "authenticated" USING (true);
+
+
+
 CREATE POLICY "Permitir leitura para autenticados" ON "public"."lancamentos_financeiros" FOR SELECT TO "authenticated" USING (true);
 
 
@@ -1605,6 +1621,9 @@ CREATE POLICY "Usuários podem ver seus próprios feriados trabalhados" ON "publ
 
 
 ALTER TABLE "public"."Vales" ENABLE ROW LEVEL SECURITY;
+
+
+ALTER TABLE "public"."Vouchers" ENABLE ROW LEVEL SECURITY;
 
 
 ALTER TABLE "public"."audit_logs" ENABLE ROW LEVEL SECURITY;
