@@ -309,7 +309,7 @@ function Home() {
           }
 
           if (!ultimo) return; // Se não tem último contato, o CRM.tsx não renderiza o próximo contato, então não contamos
-          
+
           const targetDate = new Date(c.data_proximo_contato + "T12:00:00");
           const todayDate = new Date();
           todayDate.setHours(12, 0, 0, 0);
@@ -325,7 +325,7 @@ function Home() {
         let finVencidos = 0;
         let finHoje = 0;
         let finProximos = 0;
-        
+
         const todayFinDate = new Date(todayStr + "T00:00:00");
 
         financeiroData.forEach(f => {
@@ -572,7 +572,7 @@ function Home() {
 
           {/* CRM e Financeiro Section */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "24px", width: "100%" }}>
-            
+
             <section className="card-crm" style={{ display: "flex", flexDirection: "column", alignSelf: "start", width: "100%" }}>
               <h2 style={{ fontSize: "1.8rem", color: "#44403c", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
                 <Icons.BsPeopleFill style={{ color: "#a17550" }} /> CRM

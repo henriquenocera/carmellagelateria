@@ -6,6 +6,7 @@ import supabase from "../../services/supabase-client";
 import { useAuth } from "../../AuthProvider";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import "../../css/Frequencia.css";
 
 function CadastroProdutos() {
@@ -26,6 +27,7 @@ function CadastroProdutos() {
   const [nome, setNome] = useState("");
   const [categoria, setCategoria] = useState("");
   const [precoVenda, setPrecoVenda] = useState("");
+  const [precoVendaFoodService, setPrecoVendaFoodService] = useState("");
   const [unidadeVenda, setUnidadeVenda] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [metodoPreparo, setMetodoPreparo] = useState("");
@@ -198,6 +200,7 @@ function CadastroProdutos() {
       setNome(produto.nome);
       setCategoria(produto.categoria || "");
       setPrecoVenda(produto.preco_venda?.toString() || "");
+      setPrecoVendaFoodService(produto.preco_venda_food_service?.toString() || "");
       setUnidadeVenda(produto.unidade_venda || "");
       setMetodoPreparo(produto.metodo_preparo || "");
       setAtivo(produto.ativo);
@@ -220,6 +223,7 @@ function CadastroProdutos() {
       setNome("");
       setCategoria(activeTab === 'sabores' ? "Gelato" : "");
       setPrecoVenda("");
+      setPrecoVendaFoodService("");
       setUnidadeVenda(activeTab === 'sabores' ? "Kg" : "");
       setMetodoPreparo("");
       setAtivo(true);
@@ -245,6 +249,7 @@ function CadastroProdutos() {
         setNome(produto.nome + " (Cópia)");
         setCategoria(produto.categoria || "");
         setPrecoVenda(produto.preco_venda?.toString() || "");
+        setPrecoVendaFoodService(produto.preco_venda_food_service?.toString() || "");
         setUnidadeVenda(produto.unidade_venda || "");
         setMetodoPreparo(produto.metodo_preparo || "");
         setAtivo(produto.ativo);
@@ -404,8 +409,9 @@ function CadastroProdutos() {
 
       const produtoPayload = {
         nome: nome.trim(),
-        categoria: categoria.trim() || null,
-        preco_venda: precoVenda ? parseFloat(precoVenda) : null,
+        categoria: isPreparacao ? null : (categoria.trim() || null),
+        preco_venda: isPreparacao ? null : (precoVenda ? parseFloat(precoVenda) : null),
+        preco_venda_food_service: isSabor ? (precoVendaFoodService ? parseFloat(precoVendaFoodService) : null) : null,
         unidade_venda: unidadeVenda.trim() || null,
         metodo_preparo: metodoPreparo.trim() || null,
         ativo: ativo,
@@ -886,100 +892,132 @@ function CadastroProdutos() {
 
               <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                 <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsTags /> Tipo de Produto
+                </h3>
+                <div style={{ display: "flex", gap: "20px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
+                    <input
+                      type="radio"
+                      name="tipo_cadastro"
+                      checked={!isSabor && !isPreparacao}
+                      onChange={() => {
+                        setIsSabor(false);
+                        setIsPreparacao(false);
+                      }}
+                    />
+                    Produto
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
+                    <input
+                      type="radio"
+                      name="tipo_cadastro"
+                      checked={isSabor}
+                      onChange={() => {
+                        setIsSabor(true);
+                        setIsPreparacao(false);
+                        setCategoria("Gelato");
+                        setUnidadeVenda("Kg");
+                      }}
+                    />
+                    Sabor de Gelato
+                  </label>
+                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
+                    <input
+                      type="radio"
+                      name="tipo_cadastro"
+                      checked={isPreparacao}
+                      onChange={() => {
+                        setIsSabor(false);
+                        setIsPreparacao(true);
+                      }}
+                    />
+                    Preparação
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
                   <Icons.BsBoxSeam /> Dados do Produto
                 </h3>
 
-                <div style={{ marginBottom: "16px" }}>
-                  <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", display: "block", marginBottom: "8px" }}>Tipo de Cadastro</label>
-                  <div style={{ display: "flex", gap: "20px" }}>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
-                      <input
-                        type="radio"
-                        name="tipo_cadastro"
-                        checked={!isSabor && !isPreparacao}
-                        onChange={() => {
-                          setIsSabor(false);
-                          setIsPreparacao(false);
-                        }}
-                      />
-                      Produto
-                    </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
-                      <input
-                        type="radio"
-                        name="tipo_cadastro"
-                        checked={isSabor}
-                        onChange={() => {
-                          setIsSabor(true);
-                          setIsPreparacao(false);
-                          setCategoria("Gelato");
-                          setUnidadeVenda("Kg");
-                        }}
-                      />
-                      Sabor de Gelato
-                    </label>
-                    <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "1.3rem" }}>
-                      <input
-                        type="radio"
-                        name="tipo_cadastro"
-                        checked={isPreparacao}
-                        onChange={() => {
-                          setIsSabor(false);
-                          setIsPreparacao(true);
-                        }}
-                      />
-                      Preparação
-                    </label>
-                  </div>
-                </div>
-
                 <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                   <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Nome do Produto *</label>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center" }}>Nome do Produto *</label>
                     <input
                       type="text"
                       required
                       className="frequencia-select"
-                      placeholder="Ex: Copinho P - Pistache"
+                      placeholder={isSabor ? "Baunilha" : isPreparacao ? "Calda de Caramelo" : "Pequeno ( 1 Sabor )"}
                       value={nome}
                       onChange={(e) => setNome(e.target.value)}
-                      style={{ background: "#fff" }}
+                      style={{ background: "#fff", textAlign: "center" }}
                     />
                   </div>
                   {isSabor && (
-                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Código</label>
+                    <div className="form-group" style={{ flex: "0 0 150px", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center" }}>Código</label>
                       <input
                         type="text"
                         className="frequencia-select"
-                        placeholder="Código"
+                        placeholder="BAU"
                         value={codigo}
                         onChange={(e) => setCodigo(e.target.value)}
-                        style={{ background: "#fff" }}
+                        style={{ background: "#fff", textAlign: "center" }}
                       />
                     </div>
                   )}
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Categoria</label>
-                    <input
-                      type="text"
-                      className="frequencia-select"
-                      placeholder="Ex: Gelatos"
-                      value={categoria}
-                      onChange={(e) => setCategoria(e.target.value)}
-                      style={{ background: "#fff" }}
-                    />
-                  </div>
+                  {!isPreparacao && (
+                    <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center" }}>Categoria</label>
+                      <CreatableSelect
+                        isClearable
+                        placeholder="Ex: Gelatos"
+                        options={[
+                          { value: 'Gelato', label: 'Gelato' },
+                          { value: 'Waffles', label: 'Waffles' },
+                          { value: 'Doces', label: 'Doces' },
+                          { value: 'Bebidas', label: 'Bebidas' },
+                          { value: 'Café', label: 'Café' },
+                          { value: 'Salgados', label: 'Salgados' },
+                          { value: 'Conveniência', label: 'Conveniência' }
+                        ]}
+                        value={categoria ? { value: categoria, label: categoria } : null}
+                        onChange={(selectedOption) => setCategoria(selectedOption?.value || "")}
+                        formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            fontSize: '1.4rem',
+                            minHeight: '42px',
+                            borderRadius: '8px',
+                            borderColor: '#cbd5e1',
+                            backgroundColor: '#fff',
+                            textAlign: 'center'
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            textAlign: 'center'
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            fontSize: '1.4rem',
+                            zIndex: 1000
+                          })
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
 
-                <div style={{ display: "flex", gap: "16px", alignItems: "flex-end" }}>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Unidade de Venda</label>
+                <div style={{ display: "flex", gap: "16px", marginBottom: "16px", alignItems: "flex-end", justifyContent: "flex-start", flexWrap: "wrap" }}>
+                  <div className="form-group" style={{ flex: "0 0 150px", marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center" }}>Unidade de Venda</label>
                     <select
                       className="frequencia-select"
                       value={unidadeVenda}
                       onChange={(e) => setUnidadeVenda(e.target.value)}
-                      style={{ background: "#fff", fontSize: "1.3rem" }}
+                      style={{ background: "#fff", fontSize: "1.3rem", textAlign: "center" }}
                     >
                       <option value="">Selecione...</option>
                       <option value="Unidade">Unidade</option>
@@ -990,8 +1028,8 @@ function CadastroProdutos() {
                       <option value="Outro">Outro</option>
                     </select>
                   </div>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Rendimento </label>
+                  <div className="form-group" style={{ flex: "0 0 120px", maxWidth: "120px", marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", whiteSpace: "normal", lineHeight: 1.2 }}>Rendimento </label>
                     <input
                       type="number"
                       step="0.01"
@@ -999,24 +1037,43 @@ function CadastroProdutos() {
                       placeholder="Ex: 30"
                       value={rendimento}
                       onChange={(e) => setRendimento(e.target.value)}
-                      style={{ background: "#fff" }}
+                      style={{ background: "#fff", textAlign: "center" }}
                     />
                   </div>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Preço de Venda (Unid.)</label>
-                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                      <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.3rem" }}>R$</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="frequencia-select"
-                        placeholder="0,00"
-                        value={precoVenda}
-                        onChange={(e) => setPrecoVenda(e.target.value)}
-                        style={{ paddingLeft: "36px", background: "#fff" }}
-                      />
+                  {!isPreparacao && (
+                    <div className="form-group" style={{ flex: "0 0 160px", maxWidth: "160px", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", whiteSpace: "normal", lineHeight: 1.2 }}>Preço de Venda<br />(Unid.)</label>
+                      <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
+                        <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.3rem" }}>R$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="frequencia-select"
+                          placeholder="0,00"
+                          value={precoVenda}
+                          onChange={(e) => setPrecoVenda(e.target.value)}
+                          style={{ paddingLeft: "36px", background: "#fff", textAlign: "center", width: "100%", boxSizing: "border-box" }}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  )}
+                  {isSabor && (
+                    <div className="form-group" style={{ flex: "0 0 160px", maxWidth: "160px", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", whiteSpace: "normal", lineHeight: 1.2 }}>Preço de Venda<br />(Food Service)</label>
+                      <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
+                        <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.3rem" }}>R$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="frequencia-select"
+                          placeholder="0,00"
+                          value={precoVendaFoodService}
+                          onChange={(e) => setPrecoVendaFoodService(e.target.value)}
+                          style={{ paddingLeft: "36px", background: "#fff", textAlign: "center", width: "100%", boxSizing: "border-box" }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1026,12 +1083,12 @@ function CadastroProdutos() {
                 </h3>
 
                 <div style={{ display: "flex", gap: "12px", marginBottom: "12px", alignItems: "flex-end" }}>
-                  <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Insumo</label>
                     <Select
                       options={insumosList.map((insumo) => ({
                         value: insumo.id,
-                        label: `${insumo.nome_simples_unitario || insumo.nome} ${insumo.custo_considerado_unitario ? `(Custo: R$ ${insumo.custo_considerado_unitario.toFixed(2)})` : ""}`
+                        label: insumo.nome_simples_unitario || insumo.nome
                       }))}
                       value={selectedInsumo ? { value: selectedInsumo, label: insumosList.find(i => i.id === selectedInsumo)?.nome_simples_unitario || insumosList.find(i => i.id === selectedInsumo)?.nome } : null}
                       onChange={(selectedOption) => setSelectedInsumo(selectedOption?.value || "")}
@@ -1053,9 +1110,9 @@ function CadastroProdutos() {
                       }}
                     />
                   </div>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
-                    <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                  <div className="form-group" style={{ flex: "0 0 100px", maxWidth: "100px", marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b", width: "100%", textAlign: "center" }}>Quantidade</label>
+                    <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
                       <input
                         type="number"
                         step="0.00001"
@@ -1063,10 +1120,20 @@ function CadastroProdutos() {
                         placeholder="Qtd"
                         value={quantidadeInsumo}
                         onChange={(e) => setQuantidadeInsumo(e.target.value)}
-                        style={{ background: "#fff" }}
+                        style={{ background: "#fff", textAlign: "center", width: "100%", boxSizing: "border-box", paddingRight: "28px" }}
                       />
                       <span style={{ position: "absolute", right: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "0.9rem", fontWeight: "bold" }}>
-                        {selectedInsumo ? insumosList.find(i => i.id === selectedInsumo)?.unidade_conversao || "un" : ""}
+                        {(() => {
+                          const unit = selectedInsumo ? insumosList.find(i => i.id === selectedInsumo)?.unidade_conversao : "";
+                          if (!unit) return "";
+                          const u = String(unit).toLowerCase();
+                          if (u === "unidade" || u === "unidades") return "un";
+                          if (u === "gramas" || u === "grama") return "g";
+                          if (u === "quilogramas" || u === "quilograma" || u === "quilo") return "kg";
+                          if (u === "mililitros" || u === "mililitro") return "ml";
+                          if (u === "litros" || u === "litro") return "L";
+                          return unit;
+                        })()}
                       </span>
                     </div>
                   </div>
@@ -1084,7 +1151,7 @@ function CadastroProdutos() {
                 </div>
 
                 <div style={{ display: "flex", gap: "12px", marginBottom: "20px", alignItems: "flex-end" }}>
-                  <div className="form-group" style={{ flex: 2, marginBottom: 0 }}>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                     <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Produto Base</label>
                     <Select
                       options={produtos.filter(p => !isPreparacao || p.is_preparacao).map((p) => ({
@@ -1111,8 +1178,8 @@ function CadastroProdutos() {
                       }}
                     />
                   </div>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b" }}>Quantidade</label>
+                  <div className="form-group" style={{ flex: "0 0 100px", maxWidth: "100px", marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b", width: "100%", textAlign: "center" }}>Quantidade</label>
                     <input
                       type="number"
                       step="0.00001"
@@ -1120,7 +1187,7 @@ function CadastroProdutos() {
                       placeholder="Qtd"
                       value={quantidadeProdutoBase}
                       onChange={(e) => setQuantidadeProdutoBase(e.target.value)}
-                      style={{ background: "#fff" }}
+                      style={{ background: "#fff", textAlign: "center", width: "100%", boxSizing: "border-box" }}
                     />
                   </div>
                   <button

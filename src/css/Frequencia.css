@@ -86,6 +86,12 @@
   cursor: pointer;
 }
 
+.frequencia-select::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+  opacity: 1;
+}
+
 .frequencia-select:focus {
   border-color: var(--primary-color);
 }
@@ -701,12 +707,12 @@
 }
 
 /* Remove spinners from number inputs */
-input[type="number"].no-spinner::-webkit-inner-spin-button,
-input[type="number"].no-spinner::-webkit-outer-spin-button {
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-input[type="number"].no-spinner {
+input[type="number"] {
   -moz-appearance: textfield;
 }
 

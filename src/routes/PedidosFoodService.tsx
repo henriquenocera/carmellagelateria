@@ -54,6 +54,8 @@ function PedidosFoodService() {
 
   const [inputMode, setInputMode] = useState<'unit' | 'total'>('unit');
   const [valorTotalInput, setValorTotalInput] = useState("");
+  const [profilesMap, setProfilesMap] = useState<{[key: string]: string}>({});
+  const [focusedCell, setFocusedCell] = useState<string | null>(null);
 
   // New row state
   const getToday = () => {
@@ -139,10 +141,22 @@ function PedidosFoodService() {
         setLoadingMore(true);
       } else {
         if (!isBackground) setLoading(true);
+
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("id, name");
+        if (!profilesError && profilesData) {
+          const map: any = {};
+          profilesData.forEach((p: any) => {
+            map[p.id] = p.name;
+          });
+          setProfilesMap(map);
+        }
+
         if (produtos.length === 0) {
           const { data: produtosData, error: produtosError } = await supabase
             .from("cadastro_produtos")
-            .select("id, nome, ativo")
+            .select("id, nome, ativo, preco_venda_food_service")
             .eq("is_sabor", true)
             .order("nome", { ascending: true });
             
@@ -174,6 +188,8 @@ function PedidosFoodService() {
           data_pedido,
           cliente,
           quantidade,
+          quantidade_produzida,
+          data_entrega,
           valor_unitario,
           produto_id,
           created_at,
@@ -181,8 +197,7 @@ function PedidosFoodService() {
           user_id,
           status_revisao,
           revisao_observacao,
-          cadastro_produtos!inner(nome),
-          profiles(name)
+          cadastro_produtos!inner(nome)
         `, { count: 'exact' });
 
       if (fProdutoId) query = query.eq('produto_id', fProdutoId);
@@ -240,56 +255,12 @@ function PedidosFoodService() {
     }
   }
 
-  const handleStartWizard = async () => {
+  const handleSavePedido = async () => {
     if (!newRow.produto_id || !newRow.data_pedido || !newRow.quantidade || !newRow.valor_unitario) {
       alert("Por favor, preencha produto, data, quantidade e valor unitário.");
       return;
     }
 
-    setSavingRow(true);
-    try {
-      const [mercadoriaRes, estoqueRes] = await Promise.all([
-        supabase
-          .from("pedidos_food_service")
-          .select("id")
-          .eq("produto_id", newRow.produto_id)
-          .eq("data_pedido", newRow.data_pedido)
-          .eq("quantidade", Number(newRow.quantidade))
-          .eq("valor_unitario", Number(newRow.valor_unitario.replace(",", ".")))
-          .limit(1),
-        supabase
-          .from("movimentacoes_estoque")
-          .select("id")
-          .eq("produto_id", newRow.produto_id)
-          .eq("data_movimentacao", newRow.data_pedido)
-          .eq("quantidade", Number(newRow.quantidade))
-          .limit(1)
-      ]);
-
-      const hasMercadoriaDuplicate = !mercadoriaRes.error && mercadoriaRes.data && mercadoriaRes.data.length > 0;
-      const hasEstoqueDuplicate = !estoqueRes.error && estoqueRes.data && estoqueRes.data.length > 0;
-
-      setWizardData({
-        hasMercadoriaDuplicate,
-        hasEstoqueDuplicate
-      });
-
-      if (hasMercadoriaDuplicate) {
-        setWizardStep(1);
-      } else {
-        setWizardStep(2);
-      }
-      
-      setShowWizard(true);
-    } catch (err) {
-      console.error("Erro na verificação do wizard:", err);
-    } finally {
-      setSavingRow(false);
-    }
-  };
-
-  const handleWizardConfirm = async (shouldLaunchStock: boolean) => {
-    setShowWizard(false);
     setSavingRow(true);
 
     try {
@@ -300,7 +271,7 @@ function PedidosFoodService() {
           data_pedido: newRow.data_pedido,
           cliente: newRow.cliente,
           quantidade: Number(newRow.quantidade),
-          valor_unitario: Number(newRow.valor_unitario.replace(",", ".")),
+          valor_unitario: Number(newRow.valor_unitario.toString().replace(",", ".")),
           user_id: user?.id
         }])
         .select(`
@@ -308,6 +279,8 @@ function PedidosFoodService() {
           data_pedido,
           cliente,
           quantidade,
+          quantidade_produzida,
+          data_entrega,
           valor_unitario,
           produto_id,
           created_at,
@@ -315,8 +288,7 @@ function PedidosFoodService() {
           user_id,
           status_revisao,
           revisao_observacao,
-          cadastro_produtos(nome),
-          profiles(name)
+          cadastro_produtos(nome)
         `)
         .single();
 
@@ -339,25 +311,6 @@ function PedidosFoodService() {
       
       setShowSavedMessage(true);
       setTimeout(() => setShowSavedMessage(false), 2000);
-
-      if (shouldLaunchStock) {
-        const { error: movError } = await supabase
-          .from("movimentacoes_estoque")
-          .insert([{
-            produto_id: newRow.produto_id,
-            data_movimentacao: newRow.data_pedido,
-            quantidade: Number(newRow.quantidade),
-            origem: "Compras",
-            destino: stockDestino
-          }]);
-          
-        if (movError) {
-          console.error("Erro ao lançar estoque:", movError);
-          setFeedbackModal({ type: 'error', message: "Erro ao lançar estoque: " + (movError.message || JSON.stringify(movError)) });
-        } else {
-          setFeedbackModal({ type: 'success', message: "Lançamento de estoque realizado com sucesso no destino: " + stockDestino });
-        }
-      }
 
       setNewRow({
         ...newRow,
@@ -401,6 +354,8 @@ function PedidosFoodService() {
             originalRow.data_pedido !== editRowData.data_pedido ||
             (originalRow.cliente || "") !== (editRowData.cliente || "") ||
             String(originalRow.quantidade) !== String(editRowData.quantidade) ||
+            String(originalRow.quantidade_produzida || "") !== String(editRowData.quantidade_produzida || "") ||
+            (originalRow.data_entrega || "") !== (editRowData.data_entrega || "") ||
             String(originalRow.valor_unitario) !== String(editRowData.valor_unitario)) {
           hasChanges = true;
         }
@@ -432,6 +387,8 @@ function PedidosFoodService() {
         data_pedido: editRowData.data_pedido,
         cliente: editRowData.cliente,
         quantidade: parseFloat(editRowData.quantidade) || 0,
+        quantidade_produzida: editRowData.quantidade_produzida ? parseFloat(editRowData.quantidade_produzida) : null,
+        data_entrega: editRowData.data_entrega || null,
         valor_unitario: parseFloat(editRowData.valor_unitario) || null
       };
 
@@ -455,6 +412,8 @@ function PedidosFoodService() {
           data_pedido,
           cliente,
           quantidade,
+          quantidade_produzida,
+          data_entrega,
           valor_unitario,
           produto_id,
           created_at,
@@ -462,8 +421,7 @@ function PedidosFoodService() {
           user_id,
           status_revisao,
           revisao_observacao,
-          cadastro_produtos!inner(nome),
-          profiles(name)
+          cadastro_produtos!inner(nome)
         `)
         .single();
 
@@ -476,6 +434,37 @@ function PedidosFoodService() {
       alert("Erro ao atualizar o registro: " + (err.message || JSON.stringify(err)));
     } finally {
       setSavingEdit(false);
+    }
+  };
+
+  const handleFastUpdate = async (id: string, field: string, value: any) => {
+    try {
+      const { data, error } = await supabase
+        .from("pedidos_food_service")
+        .update({ [field]: value })
+        .eq("id", id)
+        .select(`
+          id,
+          data_pedido,
+          cliente,
+          quantidade,
+          quantidade_produzida,
+          data_entrega,
+          valor_unitario,
+          produto_id,
+          created_at,
+          updated_at,
+          user_id,
+          status_revisao,
+          revisao_observacao,
+          cadastro_produtos!inner(nome)
+        `)
+        .single();
+      if (error) throw error;
+      setCompras(prev => prev.map(c => c.id === id ? data : c));
+    } catch (err) {
+      console.error("Erro ao atualizar campo rapidamente:", err);
+      alert("Erro ao salvar o campo.");
     }
   };
 
@@ -535,10 +524,11 @@ function PedidosFoodService() {
        setNewRow({ 
          ...newRow, 
          produto_id: selectedOption.value,
-         cliente: newRow.cliente 
+         cliente: newRow.cliente,
+         valor_unitario: produto?.preco_venda_food_service ? String(produto.preco_venda_food_service) : ""
        });
     } else {
-       setNewRow({ ...newRow, produto_id: "" });
+       setNewRow({ ...newRow, produto_id: "", valor_unitario: "" });
     }
   };
 
@@ -630,90 +620,25 @@ function PedidosFoodService() {
                 />
               </div>
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Qtd</label>
-                <input
-                  type="number"
-                  step="any"
-                  placeholder="0"
-                  value={newRow.quantidade}
-                  onChange={(e) => {
-                    const q = e.target.value;
-                    setNewRow({ ...newRow, quantidade: q });
-                    if (inputMode === 'total') {
-                      const vt = parseFloat(valorTotalInput) || 0;
-                      const qf = parseFloat(q) || 0;
-                      if (qf > 0) {
-                        setNewRow(prev => ({ ...prev, quantidade: q, valor_unitario: (vt / qf).toFixed(2) }));
-                      } else {
-                        setNewRow(prev => ({ ...prev, quantidade: q, valor_unitario: "" }));
-                      }
-                    }
-                  }}
-                  onKeyDown={(e) => {
-                    if (['e', 'E', '+', '-'].includes(e.key)) {
-                      e.preventDefault();
-                    }
-                  }}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
-                />
-              </div>
-              <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Valor Unt. (R$)</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Qtd (Litros)</label>
                 <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                  <span style={{ position: "absolute", left: "12px", color: "#94a3b8", zIndex: 1, pointerEvents: "none", fontSize: "1.2rem", fontWeight: "bold" }}>R$</span>
                   <input
                     type="number"
                     step="any"
-                    placeholder="0.00"
-                    value={newRow.valor_unitario}
-                    onChange={(e) => setNewRow({ ...newRow, valor_unitario: e.target.value })}
+                    placeholder="0"
+                    value={newRow.quantidade}
+                    onChange={(e) => {
+                      const q = e.target.value;
+                      setNewRow({ ...newRow, quantidade: q });
+                    }}
                     onKeyDown={(e) => {
                       if (['e', 'E', '+', '-'].includes(e.key)) {
                         e.preventDefault();
                       }
                     }}
-                    readOnly={inputMode === 'total'}
-                    onClick={() => {
-                      if (inputMode === 'total') setInputMode('unit');
-                      if (parseFloat(newRow.valor_unitario) === 0) {
-                        setNewRow({ ...newRow, valor_unitario: "" });
-                      }
-                    }}
-                    style={{ width: "100%", padding: "8px 8px 8px 36px", borderRadius: "4px", border: "1px solid #cbd5e1", backgroundColor: inputMode === 'total' ? "#f1f5f9" : "#fff", textAlign: "center", height: "54px", fontSize: "1.4rem", cursor: inputMode === 'total' ? "not-allowed" : "text" }}
+                    style={{ width: "100%", padding: "8px 36px 8px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "54px", fontSize: "1.4rem" }}
                   />
-                </div>
-              </div>
-              <div style={{ flex: "1 1 120px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Valor Total</label>
-                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-                  <span style={{ position: "absolute", left: "12px", color: "#94a3b8", zIndex: 1, pointerEvents: "none", fontSize: "1.2rem", fontWeight: "bold" }}>R$</span>
-                  <input
-                    type="number"
-                    step="any"
-                    placeholder="0.00"
-                    value={inputMode === 'unit' ? (((parseFloat(newRow.quantidade) || 0) * (parseFloat(newRow.valor_unitario) || 0)) === 0 ? "" : ((parseFloat(newRow.quantidade) || 0) * (parseFloat(newRow.valor_unitario) || 0)).toFixed(2)) : valorTotalInput}
-                    onChange={(e) => {
-                      const vt = e.target.value;
-                      setValorTotalInput(vt);
-                      const qf = parseFloat(newRow.quantidade) || 0;
-                      if (qf > 0) {
-                        setNewRow({ ...newRow, valor_unitario: (parseFloat(vt) / qf).toFixed(2) });
-                      }
-                    }}
-                    readOnly={inputMode === 'unit'}
-                    onClick={() => {
-                      if (inputMode === 'unit') {
-                        setInputMode('total');
-                        const calc = ((parseFloat(newRow.quantidade) || 0) * (parseFloat(newRow.valor_unitario) || 0));
-                        setValorTotalInput(calc === 0 ? "" : calc.toFixed(2));
-                      } else {
-                        if (parseFloat(valorTotalInput) === 0) {
-                          setValorTotalInput("");
-                        }
-                      }
-                    }}
-                    style={{ width: "100%", padding: "8px 8px 8px 36px", borderRadius: "4px", border: "1px solid #cbd5e1", backgroundColor: inputMode === 'unit' ? "#f1f5f9" : "#fff", color: "#64748b", height: "54px", fontSize: "1.4rem", fontWeight: "bold", cursor: inputMode === 'unit' ? "not-allowed" : "text" }}
-                  />
+                  <span style={{ position: "absolute", right: "12px", color: "#94a3b8", zIndex: 1, pointerEvents: "none", fontSize: "1.2rem", fontWeight: "bold" }}>L</span>
                 </div>
               </div>
               <div style={{ flex: "0 0 130px", position: "relative" }}>
@@ -733,7 +658,7 @@ function PedidosFoodService() {
                   </span>
                 )}
                 <button
-                  onClick={handleStartWizard}
+                  onClick={handleSavePedido}
                   disabled={savingRow}
                   style={{
                     height: "54px",
@@ -765,7 +690,9 @@ function PedidosFoodService() {
                   <th style={{ width: "250px" }}>Produto</th>
                   <th style={{ textAlign: "center", width: "130px" }}>Data do Pedido</th>
                   <th style={{ textAlign: "center", width: "200px" }}>Cliente</th>
-                  <th style={{ textAlign: "center", width: "120px" }}>Qtd</th>
+                  <th style={{ textAlign: "center", width: "120px" }}>Qtd (L)</th>
+                  <th style={{ textAlign: "center", width: "130px" }}>Qtd Prod. (kg)</th>
+                  <th style={{ textAlign: "center", width: "130px" }}>Data Entrega</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Valor Unt.</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Total</th>
                   {isAdmin && <th style={{ textAlign: "center", width: "110px" }}>Usuário</th>}
@@ -816,7 +743,7 @@ function PedidosFoodService() {
                       style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
                     />
                   </th>
-                  <th colSpan={isAdmin ? 5 : 4} style={{ padding: "8px", textAlign: "right" }}>
+                  <th colSpan={isAdmin ? 7 : 6} style={{ padding: "8px", textAlign: "right" }}>
                     <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
                       <button
                         onClick={() => setFilterCreatedToday(!filterCreatedToday)}
@@ -953,13 +880,13 @@ function PedidosFoodService() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={isAdmin ? 10 : 9} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
                 ) : pedidos.length === 0 ? (
                   <tr>
-                    <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={isAdmin ? 10 : 9} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhuma entrada registrada.
                     </td>
                   </tr>
@@ -967,22 +894,37 @@ function PedidosFoodService() {
                   (() => {
                     const duplicatesMap: Record<string, number> = {};
                     pedidos.forEach(c => {
-                      const key = `${c.produto_id}_${c.data_pedido}_${c.quantidade}_${c.valor_unitario}`;
+                      const key = `${c.produto_id}_${c.data_pedido}_${c.cliente}_${c.quantidade}`;
                       duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
                     });
                     
                     return pedidos.map((comp, index) => {
                       const dataFormatada = new Date(comp.data_pedido + 'T00:00:00').toLocaleDateString('pt-BR');
-                      const total = comp.quantidade * comp.valor_unitario;
+                      const total = (parseFloat(comp.quantidade_produzida) || 0) * (comp.valor_unitario || 0);
                       
-                      const key = `${comp.produto_id}_${comp.data_pedido}_${comp.quantidade}_${comp.valor_unitario}`;
+                      const key = `${comp.produto_id}_${comp.data_pedido}_${comp.cliente}_${comp.quantidade}`;
                       const isDuplicate = duplicatesMap[key] > 1;
                       const isEditing = editingRowId === comp.id;
+
+                      const isPendenteProducao = !comp.quantidade_produzida && !comp.data_entrega;
+                      const isPendenteEntrega = comp.quantidade_produzida && !comp.data_entrega;
+                      const isEntregue = comp.quantidade_produzida && comp.data_entrega;
+
+                      let rowBg = "";
+                      if (comp.status_revisao === 'pending_delete') rowBg = "#fecaca";
+                      else if (comp.status_revisao === 'pending_user') rowBg = "#fee2e2";
+                      else if (comp.status_revisao === 'pending_admin') rowBg = "#ffedd5";
+                      else if (isDuplicate) rowBg = "#fef08a";
+                      else if (isEntregue) rowBg = "#f0fdf4";
+                      else if (isPendenteEntrega) rowBg = "#fefce8";
+                      else rowBg = "#fef2f2";
+
+                      const leftBorder = isEntregue ? "4px solid #22c55e" : isPendenteEntrega ? "4px solid #eab308" : "4px solid #ef4444";
 
                       const diffMin = comp.created_at ? (new Date().getTime() - new Date(comp.created_at).getTime()) / (1000 * 60) : -1;
                       const isRowNew = diffMin >= 0 && diffMin < 60; // 1 hora
                       const diffEditMin = comp.updated_at ? (new Date().getTime() - new Date(comp.updated_at).getTime()) / (1000 * 60) : -1;
-                      const isRowEdited = comp.updated_at && diffEditMin >= 0 && diffEditMin < 60; // 1 hora
+                      const isRowEdited = comp.updated_at && comp.updated_at !== comp.created_at && diffEditMin >= 0 && diffEditMin < 60; // 1 hora
 
                       const isToday = comp.data_pedido === getToday();
                       const prevComp = index > 0 ? pedidos[index - 1] : null;
@@ -993,13 +935,13 @@ function PedidosFoodService() {
 
                       const headerRow = showHojeHeader ? (
                         <tr key={`header-hoje-${comp.id}`} style={{ backgroundColor: "#f0fdf4" }}>
-                          <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#166534", borderTop: "2px solid #bbf7d0", borderBottom: "2px solid #bbf7d0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                          <td colSpan={isAdmin ? 10 : 9} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#166534", borderTop: "2px solid #bbf7d0", borderBottom: "2px solid #bbf7d0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
                             Lançamentos de Hoje
                           </td>
                         </tr>
                       ) : showAnterioresHeader ? (
                         <tr key={`header-ant-${comp.id}`} style={{ backgroundColor: "#f8fafc" }}>
-                          <td colSpan={isAdmin ? 8 : 7} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#64748b", borderTop: "2px solid #e2e8f0", borderBottom: "2px solid #e2e8f0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
+                          <td colSpan={isAdmin ? 10 : 9} style={{ textAlign: "center", padding: "10px", fontWeight: "bold", color: "#64748b", borderTop: "2px solid #e2e8f0", borderBottom: "2px solid #e2e8f0", textTransform: "uppercase", letterSpacing: "1px", fontSize: "0.85rem" }}>
                             Lançamentos Anteriores
                           </td>
                         </tr>
@@ -1058,6 +1000,24 @@ function PedidosFoodService() {
                               <input
                                 type="number"
                                 step="any"
+                                value={editRowData.quantidade_produzida || ""}
+                                onChange={(e) => setEditRowData({ ...editRowData, quantidade_produzida: e.target.value })}
+                                style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px", textAlign: "center" }}
+                                placeholder="kg"
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                type="date"
+                                value={editRowData.data_entrega || ""}
+                                onChange={(e) => setEditRowData({ ...editRowData, data_entrega: e.target.value })}
+                                style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px", textAlign: "center" }}
+                              />
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              <input
+                                type="number"
+                                step="any"
                                 value={editRowData.valor_unitario}
                                 onChange={(e) => setEditRowData({ ...editRowData, valor_unitario: e.target.value })}
                                 style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px", textAlign: "center" }}
@@ -1095,8 +1055,8 @@ function PedidosFoodService() {
                         );
                       } else {
                         contentRow = (
-                          <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={comp.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : comp.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : comp.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
-                            <td style={{ fontWeight: 600, opacity: comp.status_revisao === 'pending_delete' ? 0.6 : 1 }}>
+                          <tr key={comp.id} className={comp.id === newlyAddedId ? "new-row-animation" : ""} style={{ backgroundColor: rowBg }}>
+                            <td style={{ fontWeight: 600, opacity: comp.status_revisao === 'pending_delete' ? 0.6 : 1, borderLeft: leftBorder }}>
                               {comp.cadastro_produtos?.nome || "Produto Excluído"}
                               {comp.status_revisao === 'pending_delete' && (
                                 <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#ef4444", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Deletado</span>
@@ -1136,14 +1096,70 @@ function PedidosFoodService() {
                                 </span>
                               )}
                               {isDuplicate && (
-                                <span title="Atenção: Possível lançamento duplicado (mesmo produto, data, qtd e valor)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
+                                <span title="Atenção: Possível lançamento duplicado (mesmo produto, data, cliente e qtd)" style={{ marginLeft: "8px", color: "#b45309", cursor: "help" }}>
                                   <Icons.BsExclamationTriangleFill />
                                 </span>
+                              )}
+                              {isPendenteProducao && (
+                                <span style={{ marginLeft: "8px", backgroundColor: "#ef4444", color: "#ffffff", fontSize: "0.70rem", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", display: "inline-block" }}>Pendente Prod.</span>
+                              )}
+                              {isPendenteEntrega && (
+                                <span style={{ marginLeft: "8px", backgroundColor: "#eab308", color: "#ffffff", fontSize: "0.70rem", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", display: "inline-block" }}>Aguardando Entrega</span>
+                              )}
+                              {isEntregue && (
+                                <span style={{ marginLeft: "8px", backgroundColor: "#22c55e", color: "#ffffff", fontSize: "0.70rem", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", display: "inline-block" }}>Entregue</span>
                               )}
                             </td>
                             <td style={{ textAlign: "center" }}>{dataFormatada}</td>
                             <td style={{ textAlign: "center" }}>{comp.cliente || "-"}</td>
                             <td style={{ textAlign: "center", fontWeight: "bold" }}>{comp.quantidade}</td>
+                            <td style={{ padding: "4px" }}>
+                              {comp.quantidade_produzida && focusedCell !== `${comp.id}_qp` ? (
+                                <div style={{ textAlign: "center", padding: "6px", color: "var(--text-dark)" }}>{comp.quantidade_produzida} kg</div>
+                              ) : (
+                                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                                  <input
+                                    type="number"
+                                    step="any"
+                                    value={comp.quantidade_produzida || ""}
+                                    onFocus={() => setFocusedCell(`${comp.id}_qp`)}
+                                    onChange={(e) => {
+                                      const val = e.target.value;
+                                      setCompras(pedidos.map(c => c.id === comp.id ? { ...c, quantidade_produzida: val } : c));
+                                    }}
+                                    onBlur={(e) => {
+                                      setFocusedCell(null);
+                                      const val = e.target.value;
+                                      handleFastUpdate(comp.id, "quantidade_produzida", val ? parseFloat(val) : null);
+                                    }}
+                                    style={{ width: "100%", padding: "4px 24px 4px 4px", fontSize: "1rem", border: "1px solid #e2e8f0", borderRadius: "4px", textAlign: "center", backgroundColor: "#f8fafc", transition: "0.2s" }}
+                                    placeholder="0"
+                                  />
+                                  <span style={{ position: "absolute", right: "6px", color: "#94a3b8", pointerEvents: "none", fontSize: "0.85rem", fontWeight: "bold" }}>kg</span>
+                                </div>
+                              )}
+                            </td>
+                            <td style={{ padding: "4px" }}>
+                              {comp.data_entrega && focusedCell !== `${comp.id}_de` ? (
+                                <div style={{ textAlign: "center", padding: "6px", color: "var(--text-dark)" }}>{new Date(comp.data_entrega + 'T00:00:00').toLocaleDateString('pt-BR')}</div>
+                              ) : (
+                                <input
+                                  type="date"
+                                  value={comp.data_entrega || ""}
+                                  onFocus={() => setFocusedCell(`${comp.id}_de`)}
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    setCompras(pedidos.map(c => c.id === comp.id ? { ...c, data_entrega: val } : c));
+                                  }}
+                                  onBlur={(e) => {
+                                    setFocusedCell(null);
+                                    const val = e.target.value;
+                                    handleFastUpdate(comp.id, "data_entrega", val || null);
+                                  }}
+                                  style={{ width: "100%", padding: "4px", fontSize: "1rem", border: "1px solid #e2e8f0", borderRadius: "4px", textAlign: "center", backgroundColor: "#f8fafc", transition: "0.2s" }}
+                                />
+                              )}
+                            </td>
                             <td style={{ textAlign: "center", color: "var(--text-dark)" }}>
                               {comp.valor_unitario ? `R$ ${comp.valor_unitario.toFixed(2)}` : "-"}
                             </td>
@@ -1168,7 +1184,7 @@ function PedidosFoodService() {
                                   }}
                                 >
                                   <Icons.BsPerson style={{ fontSize: "1.4rem", color: "#64748b" }} />
-                                  {comp.profiles?.name || "-"}
+                                  {profilesMap[comp.user_id] || "-"}
                                 </span>
                               </td>
                             )}
@@ -1197,6 +1213,8 @@ function PedidosFoodService() {
                                             data_pedido: comp.data_pedido,
                                             cliente: comp.cliente || "",
                                             quantidade: comp.quantidade,
+                                            quantidade_produzida: comp.quantidade_produzida || "",
+                                            data_entrega: comp.data_entrega || "",
                                             valor_unitario: comp.valor_unitario || ""
                                           });
                                         } else {
@@ -1341,240 +1359,7 @@ function PedidosFoodService() {
         </div>
       </div>
 
-      {showWizard && (
-        <div style={{
-          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: "rgba(0,0,0,0.5)", zIndex: 10000,
-          display: "flex", justifyContent: "center", alignItems: "center"
-        }}>
-          <div style={{
-            backgroundColor: "#fff", padding: "40px", borderRadius: "16px",
-            width: "90%", maxWidth: "650px", boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-            maxHeight: "90vh", overflowY: "auto"
-          }}>
-            <style>{`
-              .wizard-step-enter {
-                animation: wizardFadeInSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-              }
-              @keyframes wizardFadeInSlide {
-                0% { opacity: 0; transform: translateX(20px); }
-                100% { opacity: 1; transform: translateX(0); }
-              }
-            `}</style>
 
-            {/* Stepper Visual */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "40px", position: "relative", width: "100%", maxWidth: "400px", margin: "0 auto 40px auto" }}>
-              {/* Linha base */}
-              <div style={{ position: "absolute", top: "20px", left: "25%", right: "25%", height: "3px", backgroundColor: "#e2e8f0", zIndex: 1 }}>
-                {/* Linha preenchida animada */}
-                <div style={{ height: "100%", backgroundColor: "var(--primary-color)", width: wizardStep === 2 ? "100%" : "0%", transition: "width 0.4s ease-in-out" }}></div>
-              </div>
-
-              {/* Passo 1 */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", zIndex: 2, flex: 1 }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center",
-                  backgroundColor: wizardStep > 1 ? "#22c55e" : "var(--primary-color)", 
-                  color: "white", 
-                  fontWeight: "bold", fontSize: "1.6rem", transition: "all 0.3s ease",
-                  boxShadow: "0 0 0 4px #fff"
-                }}>
-                  {wizardStep > 1 ? "✓" : "1"}
-                </div>
-                <span style={{ marginTop: "12px", fontSize: "1.3rem", fontWeight: "bold", color: wizardStep > 1 ? "#22c55e" : "var(--primary-color)" }}>1ª - Mercadoria</span>
-              </div>
-
-              {/* Passo 2 */}
-              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", zIndex: 2, flex: 1 }}>
-                <div style={{
-                  width: "40px", height: "40px", borderRadius: "50%", display: "flex", justifyContent: "center", alignItems: "center",
-                  backgroundColor: "#e2e8f0", 
-                  color: wizardStep === 2 ? "var(--primary-color)" : "#94a3b8", 
-                  border: "none",
-                  fontWeight: "bold", fontSize: "1.6rem", transition: "all 0.3s ease",
-                  boxShadow: "0 0 0 4px #fff"
-                }}>
-                  2
-                </div>
-                <span style={{ marginTop: "12px", fontSize: "1.3rem", fontWeight: wizardStep === 2 ? "bold" : "normal", color: wizardStep === 2 ? "var(--primary-color)" : "#94a3b8", transition: "all 0.3s ease" }}>2ª - Estoque</span>
-              </div>
-            </div>
-
-            <div key={`step-${wizardStep}`} className="wizard-step-enter">
-              {wizardStep === 1 && (
-                  <>
-                    <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
-                      <Icons.BsExclamationTriangleFill style={{ color: "#eab308" }} /> Lançamento Duplicado
-                    </h3>
-                    
-                    <div style={{
-                      backgroundColor: "#fef2f2", color: "#dc2626", padding: "16px 20px",
-                      borderRadius: "12px", marginBottom: "24px", border: "2px solid #fecaca",
-                      fontSize: "1.4rem", lineHeight: "1.5"
-                    }}>
-                      <strong style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                          <Icons.BsExclamationTriangleFill /> Atenção!
-                      </strong>
-                      Já existe um lançamento de entrada de mercadoria idêntico (mesmo produto, data, quantidade e valor).
-                    </div>
-
-                    <p style={{ fontSize: "1.5rem", color: "#475569", marginBottom: "32px", lineHeight: "1.6" }}>
-                      Tem certeza que deseja prosseguir para o próximo passo com este lançamento duplicado?
-                    </p>
-
-                    <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end" }}>
-                      <button 
-                        onClick={() => setShowWizard(false)}
-                        style={{
-                          padding: "14px 24px",
-                          backgroundColor: "#f1f5f9",
-                          color: "#475569",
-                          border: "none",
-                          borderRadius: "10px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "1.4rem"
-                        }}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        onClick={() => setWizardStep(2)}
-                        style={{
-                          padding: "14px 24px",
-                          backgroundColor: "#eab308",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "10px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "1.4rem",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px"
-                        }}
-                      >
-                        Prosseguir <Icons.BsArrowRight />
-                      </button>
-                    </div>
-                  </>
-              )}
-
-              {wizardStep === 2 && (
-                  <>
-                    <h3 style={{ margin: "0 0 24px 0", color: "#334155", display: "flex", alignItems: "center", gap: "12px", fontSize: "2.2rem" }}>
-                      <Icons.BsBoxSeam style={{ color: "var(--primary-color)" }} /> Lançamento de Estoque
-                    </h3>
-                    
-                    {!wizardData.hasMercadoriaDuplicate && (
-                      <div style={{ marginBottom: "24px" }}>
-                        <div style={{ margin: "0 0 8px 0", color: "#64748b", fontSize: "1.3rem", fontWeight: "bold" }}>1ª - Mercadoria</div>
-                        <div style={{
-                          backgroundColor: "#f0fdf4", color: "#166534", padding: "16px 20px",
-                          borderRadius: "12px", border: "2px solid #bbf7d0",
-                          fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "10px"
-                        }}>
-                          <Icons.BsCheckCircleFill style={{ fontSize: "1.8rem" }} /> 
-                          <span><strong>Verificação concluída:</strong> Nenhuma duplicata encontrada na entrada de mercadoria.</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {wizardData.hasEstoqueDuplicate && (
-                      <div style={{ marginBottom: "24px" }}>
-                        <div style={{ margin: "0 0 8px 0", color: "#64748b", fontSize: "1.3rem", fontWeight: "bold" }}>2ª - Estoque</div>
-                        <div style={{
-                          backgroundColor: "#fef2f2", color: "#dc2626", padding: "16px 20px",
-                          borderRadius: "12px", border: "2px solid #fecaca",
-                          fontSize: "1.4rem", lineHeight: "1.5"
-                        }}>
-                          <strong style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                            <Icons.BsExclamationTriangleFill /> Atenção: Lançamento Duplicado no Estoque!
-                          </strong>
-                          Já existe um lançamento de estoque para este produto na mesma data e com esta exata quantidade.
-                        </div>
-                      </div>
-                    )}
-
-                    <p style={{ color: "#64748b", marginBottom: "24px", lineHeight: "1.6", fontSize: "1.5rem" }}>
-                      Deseja fazer automaticamente o lançamento de estoque deste produto considerando que a origem foi <strong>'Compras'</strong>?
-                    </p>
-
-                    <div style={{ marginBottom: "32px" }}>
-                      <label style={{ display: "block", fontSize: "1.5rem", color: "#64748b", marginBottom: "12px", fontWeight: "bold" }}>
-                        Destino do Estoque
-                      </label>
-                      <select
-                        value={stockDestino}
-                        onChange={(e) => setStockDestino(e.target.value)}
-                        style={{
-                          width: "100%", padding: "16px", borderRadius: "10px", border: "2px solid #cbd5e1",
-                          fontSize: "1.5rem", backgroundColor: "#f8fafc", color: "#334155", outline: "none"
-                        }}
-                      >
-                        <option value="Estoque MH">Estoque MH</option>
-                        <option value="Fábrica">Fábrica</option>
-                        <option value="Loja Ahú">Loja Ahú</option>
-                        <option value="Loja Alto XV">Loja Alto XV</option>
-                      </select>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "16px", justifyContent: "flex-end", flexWrap: "wrap" }}>
-                      <button 
-                        onClick={() => setShowWizard(false)}
-                        style={{
-                          padding: "14px 20px",
-                          backgroundColor: "#f1f5f9",
-                          color: "#475569",
-                          border: "none",
-                          borderRadius: "10px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "1.4rem"
-                        }}
-                      >
-                        Cancelar
-                      </button>
-                      <button 
-                        onClick={() => handleWizardConfirm(false)}
-                        style={{
-                          padding: "14px 20px",
-                          backgroundColor: "#e2e8f0",
-                          color: "#334155",
-                          border: "2px solid #cbd5e1",
-                          borderRadius: "10px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "1.4rem"
-                        }}
-                      >
-                        Apenas Salvar Mercadoria
-                      </button>
-                      <button 
-                        onClick={() => handleWizardConfirm(true)}
-                        style={{
-                          padding: "14px 20px",
-                          backgroundColor: "var(--primary-color)",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "10px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "1.4rem",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px"
-                        }}
-                      >
-                        <Icons.BsCheckCircleFill /> Salvar & Lançar Estoque
-                      </button>
-                    </div>
-                  </>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {feedbackModal && (
         <div style={{
