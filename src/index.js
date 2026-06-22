@@ -19,6 +19,7 @@ import Inventario from "./routes/Inventario.tsx";
 import Lojas from "./routes/Lojas.tsx";
 import MapaFoodService from "./routes/MapaFoodService.tsx";
 import CRM from "./routes/CRM.tsx";
+import PedidosFoodService from "./routes/PedidosFoodService.tsx";
 import HistoricoCliente from "./routes/HistoricoCliente.tsx";
 
 import Etiquetas from "./routes/Etiquetas.tsx";
@@ -127,6 +128,7 @@ const router = createBrowserRouter(
         <Route path="/mapa-food-service" element={<MapaFoodService />} />
         <Route path="/crm" element={<CRM />} />
         <Route path="/crm/cliente/:id" element={<HistoricoCliente />} />
+        <Route path="/pedidos-food-service" element={<PedidosFoodService />} />
         <Route path="/notificacoes-loja" element={<NotificacoesLoja />} />
         <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
 

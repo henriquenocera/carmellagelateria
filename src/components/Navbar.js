@@ -36,6 +36,7 @@ const MENU_CONFIG = [
     subItems: [
       { title: "Mapa Food Service", path: "/mapa-food-service" },
       { title: "CRM", path: "/crm" },
+      { title: "Pedidos Food Service", path: "/pedidos-food-service" },
     ]
   },
   {

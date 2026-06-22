@@ -232,13 +232,17 @@ function ContasPagarReceber() {
         .order("data", { ascending: true })
         .order("created_at", { ascending: false });
 
+      if (!isAdmin) {
+        query = query.or('status_revisao.is.null,status_revisao.neq.admin_only');
+      }
+
       const { data, error } = await query;
       if (error) throw error;
       setLancamentos(data || []);
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
     }
-  }, []);
+  }, [isAdmin]);
 
   useEffect(() => {
     if (user) {
@@ -368,6 +372,17 @@ function ContasPagarReceber() {
     }
   }
 
+  const handleUpdateReviewStatus = async (id: string, status: string | null) => {
+    try {
+      const { error } = await supabase.from("contas_pagar_receber").update({ status_revisao: status }).eq("id", id);
+      if (error) throw error;
+      fetchLancamentos();
+    } catch (err: any) {
+      console.error("Erro ao atualizar status:", err);
+      alert("Erro ao atualizar status: " + (err?.message || JSON.stringify(err)));
+    }
+  };
+
   const handleConfirmar = async () => {
     if (!selectedConta) {
       alert("Selecione uma conta bancária para confirmar o lançamento.");
@@ -384,7 +399,7 @@ function ContasPagarReceber() {
         categoria: confirmingLancamento.categoria,
         conta: selectedConta,
         user_id: user?.id,
-        status_revisao: null
+        status_revisao: confirmingLancamento.status_revisao || null
       };
 
       const { error: insertError } = await supabase.from("lancamentos_financeiros").insert([payload]);
@@ -1045,6 +1060,25 @@ function ContasPagarReceber() {
                             )}
                             <td style={{ textAlign: "center" }}>
                               <div style={{ display: "flex", gap: "8px", justifyContent: "center", alignItems: "center" }}>
+                                {isAdmin && (
+                                  l.status_revisao === 'admin_only' ? (
+                                    <button
+                                      onClick={() => handleUpdateReviewStatus(l.id, null)}
+                                      title="Tornar Público (Todos visualizam)"
+                                      style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#3b82f6", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                    >
+                                      <Icons.BsShieldLockFill />
+                                    </button>
+                                  ) : (!l.status_revisao || l.status_revisao === 'none') && (
+                                    <button
+                                      onClick={() => handleUpdateReviewStatus(l.id, 'admin_only')}
+                                      title="Restringir aos Admins (Apenas admins visualizam)"
+                                      style={{ padding: "4px 8px", fontSize: "1.1rem", color: "#64748b", backgroundColor: "transparent", border: "none", cursor: "pointer", display: "flex" }}
+                                    >
+                                      <Icons.BsShieldLock />
+                                    </button>
+                                  )
+                                )}
                                 <button
                                   onClick={() => {
                                     setConfirmData(getToday());
