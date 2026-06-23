@@ -763,9 +763,9 @@ function CadastroProdutos() {
                     {renderSortableHeader("Categoria", "categoria", "left")}
                     {renderSortableHeader("Unid. Venda", "unidade_venda", "center", "100px")}
                     {renderSortableHeader("Rendimento", "rendimento", "center", "100px")}
-                    {renderSortableHeader("Preço Unit. (Venda)", "preco_venda", "center", "150px")}
                     {renderSortableHeader("Custo Total", "custo_total", "center", "140px")}
                     {renderSortableHeader("Custo Unit.", "custo", "center", "120px")}
+                    {renderSortableHeader("Preço Unit. (Venda)", "preco_venda", "center", "150px")}
                     {renderSortableHeader("Lucro Unitário", "lucro", "center", "140px")}
                     {renderSortableHeader("Margem", "margem", "center", "100px")}
                     <th style={{ textAlign: "center", width: "100px" }}>Ações</th>
@@ -816,14 +816,14 @@ function CadastroProdutos() {
                         <td>{produto.categoria || "-"}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{produto.unidade_venda || "-"}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{rend}</td>
-                        <td style={{ textAlign: "center", color: "var(--primary-color)", fontWeight: "bold" }}>
-                          {pv > 0 ? `R$ ${pv.toFixed(2)}` : "-"}
-                        </td>
                         <td style={{ textAlign: "center", color: "#b91c1c" }}>
                           R$ {custo_receita.toFixed(2)}
                         </td>
                         <td style={{ textAlign: "center", color: "#dc2626" }}>
                           R$ {custo.toFixed(2)}
+                        </td>
+                        <td style={{ textAlign: "center", color: "var(--primary-color)", fontWeight: "bold" }}>
+                          {pv > 0 ? `R$ ${pv.toFixed(2)}` : "-"}
                         </td>
                         <td style={{ textAlign: "center", color: lucro > 0 ? "#16a34a" : "#dc2626", fontWeight: "bold" }}>
                           R$ {lucro.toFixed(2)}
@@ -1129,10 +1129,10 @@ function CadastroProdutos() {
                           const u = String(unit).toLowerCase();
                           if (u === "unidade" || u === "unidades") return "un";
                           if (u === "gramas" || u === "grama") return "g";
-                          if (u === "quilogramas" || u === "quilograma" || u === "quilo") return "kg";
+                          if (u === "quilogramas" || u === "quilograma" || u === "quilo" || u === "kg") return "kg";
                           if (u === "mililitros" || u === "mililitro") return "ml";
                           if (u === "litros" || u === "litro") return "L";
-                          return unit;
+                          return "un";
                         })()}
                       </span>
                     </div>
@@ -1211,7 +1211,7 @@ function CadastroProdutos() {
                           <th style={{ padding: "10px", textAlign: "left", color: "#475569" }}>Item</th>
                           <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>Tipo</th>
                           <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>Quantidade</th>
-                          <th style={{ padding: "10px", textAlign: "right", color: "#475569" }}>
+                          <th style={{ padding: "10px", textAlign: "center", color: "#475569" }}>
                             Custo Atual
                             <span
                               title="Esse valor é o último custo comprado dessa matéria prima"
@@ -1240,7 +1240,14 @@ function CadastroProdutos() {
                             const insumoData = item.insumo || item.cadastro_insumos;
                             nomeItem = insumoData?.nome_simples_unitario || insumoData?.nome || "Insumo Desconhecido";
                             unitario = insumoData?.custo_considerado_unitario || 0;
-                            unidade = insumoData?.unidade_conversao || "un";
+                            
+                            const u = String(insumoData?.unidade_conversao || "un").toLowerCase();
+                            if (u === "gramas" || u === "grama") unidade = "g";
+                            else if (u === "quilogramas" || u === "quilograma" || u === "quilo" || u === "kg") unidade = "kg";
+                            else if (u === "mililitros" || u === "mililitro") unidade = "ml";
+                            else if (u === "litros" || u === "litro") unidade = "L";
+                            else unidade = "un";
+
                             fatorDesperdicio = insumoData?.fator_desperdicio || 0;
                           }
 
@@ -1248,7 +1255,7 @@ function CadastroProdutos() {
 
                           return (
                             <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                              <td style={{ padding: "10px" }}>{nomeItem}</td>
+                              <td style={{ padding: "10px", textAlign: "left" }}>{nomeItem}</td>
                               <td style={{ padding: "10px", textAlign: "center" }}>
                                 {isProduto ?
                                   <span style={{ backgroundColor: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Produto</span> :
@@ -1289,7 +1296,7 @@ function CadastroProdutos() {
                                   )
                                 )}
                               </td>
-                              <td style={{ padding: "10px", textAlign: "right" }}>R$ {unitario.toFixed(2)}</td>
+                              <td style={{ padding: "10px", textAlign: "center" }}>R$ {unitario.toFixed(2)} / {unidade}</td>
                               <td style={{ padding: "10px", textAlign: "right", fontWeight: "bold" }}>R$ {calc.toFixed(2)}</td>
                               <td style={{ padding: "10px", textAlign: "center" }}>
                                 <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>

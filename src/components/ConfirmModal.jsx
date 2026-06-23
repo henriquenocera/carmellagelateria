@@ -6,6 +6,7 @@ const ConfirmModal = ({
   onConfirm,
   onCancel,
   confirmText = "Confirmar",
+  isAlert = false,
 }) => {
   if (!isOpen) return null;
 
@@ -34,22 +35,24 @@ const ConfirmModal = ({
           {message}
         </p>
         <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-          <button
-            onClick={onCancel}
-            style={{
-              flex: 1,
-              padding: "12px",
-              borderRadius: "8px",
-              border: "1px solid #cbd5e1",
-              backgroundColor: "#fff",
-              color: "#475569",
-              cursor: "pointer",
-              fontSize: "1.3rem",
-              fontWeight: "bold",
-            }}
-          >
-            Cancelar
-          </button>
+          {!isAlert && (
+            <button
+              onClick={onCancel}
+              style={{
+                flex: 1,
+                padding: "12px",
+                borderRadius: "8px",
+                border: "1px solid #cbd5e1",
+                backgroundColor: "#fff",
+                color: "#475569",
+                cursor: "pointer",
+                fontSize: "1.3rem",
+                fontWeight: "bold",
+              }}
+            >
+              Cancelar
+            </button>
+          )}
           <button
             onClick={onConfirm}
             style={{
