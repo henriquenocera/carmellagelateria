@@ -5,6 +5,8 @@ import { useAuth } from '../AuthProvider';
 import supabase from '../services/supabase-client';
 import '../css/Frequencia.css';
 import ConfirmModal from '../components/ConfirmModal';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const AnaliseVales = () => {
   const { user, isAdmin } = useAuth();
@@ -25,8 +27,15 @@ const AnaliseVales = () => {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false, message: '', onConfirm: () => { } });
   const [editId, setEditId] = useState<number | null>(null);
+
+  // Export State
+  const [exportMonth, setExportMonth] = useState<number>(today.getMonth() + 1);
+  const [exportYear, setExportYear] = useState<number>(today.getFullYear());
+  const [selectedExportEmployees, setSelectedExportEmployees] = useState<string[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Form State
   const [formDate, setFormDate] = useState('');
@@ -179,7 +188,11 @@ const AnaliseVales = () => {
       let finalValor = Number(prod.valor);
 
       if (selectedItemName.toUpperCase().includes('COMBO')) {
-        const d = dateStr ? new Date(dateStr) : new Date();
+        let d = new Date();
+        if (dateStr) {
+          const [y, m, day, h, min] = dateStr.split(/[-T:]/).map(Number);
+          d = new Date(y, m - 1, day, h || 0, min || 0);
+        }
         const dayOfWeek = d.getDay(); // 0 = Dom, 1 = Seg, 2 = Ter, 3 = Qua, 4 = Qui, 5 = Sex, 6 = Sab
 
         const isMonday = selectedItemName.toUpperCase().includes('SEGUNDA') && dayOfWeek === 1;
@@ -219,7 +232,9 @@ const AnaliseVales = () => {
       const valorNumerico = parseFloat(formValor.replace(',', '.'));
       if (isNaN(valorNumerico)) throw new Error("Valor inválido");
 
-      const dateObj = new Date(formDate);
+      // Corrigir o timezone para garantir que o horário do formulário seja interpretado como LOCAL e não UTC
+      const [year, month, day, hour, min] = formDate.split(/[-T:]/).map(Number);
+      const dateObj = new Date(year, month - 1, day, hour || 0, min || 0);
 
       const payload = {
         Nome: formNome,
@@ -293,6 +308,11 @@ const AnaliseVales = () => {
 
   // Extract unique lists for filters based on what is in the DB
   const uniqueEmployees = Array.from(new Set([...profiles.map(p => p.name.split(" ")[0]), ...vales.map(v => v.Nome)])).filter(Boolean).sort();
+  const activeEmployees = Array.from(new Set(
+    profiles
+      .filter(p => p.controlar_frequencia !== false && p.ativo !== false)
+      .map(p => p.name.split(" ")[0])
+  )).filter(Boolean).sort();
   const uniqueUnidades = Array.from(new Set([...unidadesList, ...vales.map(v => v.Unidade)])).filter(Boolean).sort();
 
   // Apply frontend filters
@@ -303,6 +323,153 @@ const AnaliseVales = () => {
   });
 
   const totalValue = filteredVales.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
+
+  const handleExportPDF = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedExportEmployees.length === 0) {
+      alert("Selecione pelo menos um funcionário para exportar.");
+      return;
+    }
+
+    setIsExporting(true);
+    try {
+      let query = supabase.from('Vales').select('*').order('created_at', { ascending: false });
+      
+      const startDate = new Date(exportYear, exportMonth - 1, 1, 0, 0, 0);
+      const endDate = new Date(exportYear, exportMonth, 0, 23, 59, 59, 999);
+      query = query.gte('created_at', startDate.toISOString()).lte('created_at', endDate.toISOString());
+      query = query.in('Nome', selectedExportEmployees);
+
+      let allExportData: any[] = [];
+      let from = 0;
+      const step = 1000;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data: vData, error: vError } = await query.range(from, from + step - 1);
+        if (vError) throw vError;
+
+        if (vData && vData.length > 0) {
+          allExportData = [...allExportData, ...vData];
+          from += step;
+          if (vData.length < step) hasMore = false;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      let initQuery = supabase.from('Vales').select('Nome, valor').lt('created_at', startDate.toISOString());
+      initQuery = initQuery.in('Nome', selectedExportEmployees);
+
+      let allInitData: any[] = [];
+      let initFrom = 0;
+      const initStep = 1000;
+      let initHasMore = true;
+
+      while (initHasMore) {
+        const { data: iData, error: iError } = await initQuery.range(initFrom, initFrom + initStep - 1);
+        if (iError) throw iError;
+
+        if (iData && iData.length > 0) {
+          allInitData = [...allInitData, ...iData];
+          initFrom += initStep;
+          if (iData.length < initStep) initHasMore = false;
+        } else {
+          initHasMore = false;
+        }
+      }
+
+      const monthName = monthsList.find(m => m.value === exportMonth)?.label || "";
+
+      for (let i = 0; i < selectedExportEmployees.length; i++) {
+        const doc = new jsPDF();
+        const emp = selectedExportEmployees[i];
+        const empVales = allExportData.filter(v => v.Nome === emp);
+        const empInitVales = allInitData.filter(v => v.Nome === emp);
+
+        const initialBalance = empInitVales.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
+        const totalVal = empVales.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
+        const finalBalance = initialBalance + totalVal;
+
+        doc.setFontSize(18);
+        doc.text(`Relatório de Vales - ${monthName}/${exportYear}`, 14, 20);
+        
+        doc.setFontSize(12);
+        doc.text(`Funcionário: ${emp}`, 14, 30);
+        
+        let startY = 40;
+
+        doc.setFontSize(14);
+        doc.text("Detalhamento dos Lançamentos", 14, startY);
+
+        if (empVales.length > 0) {
+          const tableColumn = ["Data", "Unidade", "Produto", "Valor (R$)"];
+          const tableRows = empVales.map(vale => [
+            formatDateTime(vale.created_at),
+            vale.Unidade,
+            vale.Item,
+            `R$ ${Number(vale.valor).toFixed(2).replace('.', ',')}`
+          ]);
+
+          autoTable(doc, {
+            startY: startY + 5,
+            head: [tableColumn],
+            body: tableRows,
+            theme: 'striped',
+            headStyles: { fillColor: [55, 48, 163] }
+          });
+
+          startY = (doc as any).lastAutoTable.finalY + 15;
+        } else {
+          doc.setFontSize(11);
+          doc.setFont("helvetica", "italic");
+          doc.text("Nenhum lançamento neste período.", 14, startY + 10);
+          startY += 20;
+        }
+
+        if (startY > 230) {
+          doc.addPage();
+          startY = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont("helvetica", "bold");
+        doc.text("Balanço do Período:", 14, startY);
+        
+        doc.setFont("helvetica", "normal");
+        doc.text(`Saldo Inicial (Anterior a ${monthName}/${exportYear}): R$ ${initialBalance.toFixed(2).replace('.', ',')}`, 14, startY + 10);
+        doc.text(`Total do Período Atual: R$ ${totalVal.toFixed(2).replace('.', ',')}`, 14, startY + 18);
+        
+        doc.setFont("helvetica", "bold");
+        doc.text(`Saldo Final: R$ ${finalBalance.toFixed(2).replace('.', ',')}`, 14, startY + 28);
+
+        startY += 60;
+        if (startY > 280) {
+          doc.addPage();
+          startY = 40;
+        }
+
+        doc.setFont("helvetica", "normal");
+        doc.text("___________________________________________________", 105, startY, { align: "center" });
+        doc.text(`Assinatura - ${emp}`, 105, startY + 7, { align: "center" });
+
+        // Save the individual document
+        doc.save(`Relatorio_Vales_${emp.replace(/\s+/g, '_')}_${monthName}_${exportYear}.pdf`);
+        
+        // Pequeno delay para evitar que o navegador bloqueie por "Spam" de downloads simultâneos
+        if (i < selectedExportEmployees.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+
+      setIsExportModalOpen(false);
+    } catch (err) {
+      console.error("Erro ao exportar PDF:", err);
+      alert("Erro ao exportar PDF.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <>
@@ -325,7 +492,21 @@ const AnaliseVales = () => {
               </span>
             </div>
 
-            <button className="primary-btn" onClick={() => openModal()} style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem" }}>
+            <button 
+              className="primary-btn" 
+              onClick={() => {
+                setExportMonth(month);
+                setExportYear(year);
+                setSelectedExportEmployees(activeEmployees);
+                setIsExportModalOpen(true);
+              }} 
+              style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem", backgroundColor: "#475569", display: "flex", alignItems: "center" }}
+            >
+              <Icons.BsFileEarmarkPdf style={{ marginRight: '8px' }} />
+              Exportar PDF
+            </button>
+
+            <button className="primary-btn" onClick={() => openModal()} style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem", display: "flex", alignItems: "center" }}>
               <Icons.BsPlusLg style={{ marginRight: '8px' }} />
               Lançar Vale
             </button>
@@ -565,7 +746,7 @@ const AnaliseVales = () => {
                       style={{ background: "#fff", width: "100%" }}
                     >
                       <option value="" disabled>Selecione um funcionário</option>
-                      {uniqueEmployees.map(emp => (
+                      {activeEmployees.map(emp => (
                         <option key={emp} value={emp}>{emp}</option>
                       ))}
                     </select>
@@ -652,6 +833,89 @@ const AnaliseVales = () => {
         onCancel={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => { } })}
         confirmText="Excluir"
       />
+
+      {/* Modal de Exportação */}
+      {isExportModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: "450px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+              <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>Exportar Relatório PDF</h2>
+              <button onClick={() => setIsExportModalOpen(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "var(--text-muted)" }}>
+                <Icons.BsX />
+              </button>
+            </div>
+            <form onSubmit={handleExportPDF} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+              
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Mês/Ano *</label>
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <select
+                    className="frequencia-select"
+                    value={exportMonth}
+                    onChange={(e) => setExportMonth(Number(e.target.value))}
+                    style={{ flex: 2, background: "#f8fafc" }}
+                  >
+                    {monthsList.map((m) => (
+                      <option key={m.value} value={m.value}>{m.label}</option>
+                    ))}
+                  </select>
+                  <select
+                    className="frequencia-select"
+                    value={exportYear}
+                    onChange={(e) => setExportYear(Number(e.target.value))}
+                    style={{ flex: 1, background: "#f8fafc" }}
+                  >
+                    {yearsList.map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Funcionários *</label>
+                <div style={{ maxHeight: '200px', overflowY: 'auto', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '10px', background: '#f8fafc' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, marginBottom: '8px', borderBottom: '1px solid #cbd5e1', paddingBottom: '8px', fontSize: '1.4rem' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedExportEmployees.length === activeEmployees.length && activeEmployees.length > 0}
+                      onChange={(e) => {
+                        if (e.target.checked) setSelectedExportEmployees(activeEmployees);
+                        else setSelectedExportEmployees([]);
+                      }}
+                      style={{ transform: 'scale(1.2)' }}
+                    />
+                    Selecionar Todos
+                  </label>
+                  {activeEmployees.map(emp => (
+                    <label key={emp} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', margin: '8px 0', fontSize: '1.4rem' }}>
+                      <input 
+                        type="checkbox" 
+                        checked={selectedExportEmployees.includes(emp)}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedExportEmployees([...selectedExportEmployees, emp]);
+                          else setSelectedExportEmployees(selectedExportEmployees.filter(e => e !== emp));
+                        }}
+                        style={{ transform: 'scale(1.2)' }}
+                      />
+                      {emp}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="modal-actions" style={{ marginTop: "10px", display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+                <button type="button" className="cancel-btn" onClick={() => setIsExportModalOpen(false)} disabled={isExporting}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={isExporting} className="primary-btn">
+                  {isExporting ? "Gerando..." : "Gerar Relatório"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </>
   );
 };
