@@ -35,6 +35,7 @@ function CadastroProdutos() {
   const [isPreparacao, setIsPreparacao] = useState(false);
   const [codigo, setCodigo] = useState("");
   const [rendimento, setRendimento] = useState("");
+  const [tipoGelato, setTipoGelato] = useState("");
   const [fichaTecnica, setFichaTecnica] = useState<any[]>([]);
 
   // Tabs state
@@ -146,7 +147,7 @@ function CadastroProdutos() {
       const { data: produtosData, error: produtosError } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, preco_venda, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao, codigo, rendimento,
+          id, nome, categoria, preco_venda, preco_venda_food_service, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao, codigo, rendimento, tipo_gelato,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id,
             cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
@@ -208,6 +209,7 @@ function CadastroProdutos() {
       setIsPreparacao(produto.is_preparacao || false);
       setCodigo(produto.codigo || "");
       setRendimento(produto.rendimento?.toString() || "");
+      setTipoGelato(produto.tipo_gelato || "");
 
       const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
         id: item.id,
@@ -231,6 +233,7 @@ function CadastroProdutos() {
       setIsPreparacao(activeTab === 'preparacoes');
       setCodigo("");
       setRendimento("");
+      setTipoGelato("");
     }
     setSelectedInsumo("");
     setQuantidadeInsumo("");
@@ -257,6 +260,7 @@ function CadastroProdutos() {
         setIsPreparacao(produto.is_preparacao || false);
         setCodigo(produto.codigo || "");
         setRendimento(produto.rendimento?.toString() || "");
+        setTipoGelato(produto.tipo_gelato || "");
 
         const mappedFicha = (produto.ficha_tecnica || []).map((item: any) => ({
           insumo_id: item.insumo_id,
@@ -418,7 +422,8 @@ function CadastroProdutos() {
         is_sabor: isSabor,
         is_preparacao: isPreparacao,
         codigo: isSabor && codigo.trim() ? codigo.trim() : null,
-        rendimento: rendimento ? parseFloat(rendimento) : null
+        rendimento: rendimento ? parseFloat(rendimento) : null,
+        tipo_gelato: isSabor && tipoGelato.trim() ? tipoGelato.trim() : null
       };
 
       let produtoId = editingId;
@@ -550,6 +555,25 @@ function CadastroProdutos() {
           const bLucro = (b.preco_venda || 0) - (bCusto_r / bRend);
           aValue = a.preco_venda > 0 ? (aLucro / a.preco_venda) * 100 : 0;
           bValue = b.preco_venda > 0 ? (bLucro / b.preco_venda) * 100 : 0;
+        } else if (sortConfig.key === 'preco_venda_food_service') {
+          aValue = a.preco_venda_food_service || 0;
+          bValue = b.preco_venda_food_service || 0;
+        } else if (sortConfig.key === 'lucro_fs') {
+          const aCusto_r = calculateCustoProduto(a.ficha_tecnica || []);
+          const bCusto_r = calculateCustoProduto(b.ficha_tecnica || []);
+          const aRend = a.rendimento && parseFloat(a.rendimento) > 0 ? parseFloat(a.rendimento) : 1;
+          const bRend = b.rendimento && parseFloat(b.rendimento) > 0 ? parseFloat(b.rendimento) : 1;
+          aValue = (a.preco_venda_food_service || 0) - (aCusto_r / aRend);
+          bValue = (b.preco_venda_food_service || 0) - (bCusto_r / bRend);
+        } else if (sortConfig.key === 'margem_fs') {
+          const aCusto_r = calculateCustoProduto(a.ficha_tecnica || []);
+          const bCusto_r = calculateCustoProduto(b.ficha_tecnica || []);
+          const aRend = a.rendimento && parseFloat(a.rendimento) > 0 ? parseFloat(a.rendimento) : 1;
+          const bRend = b.rendimento && parseFloat(b.rendimento) > 0 ? parseFloat(b.rendimento) : 1;
+          const aLucro = (a.preco_venda_food_service || 0) - (aCusto_r / aRend);
+          const bLucro = (b.preco_venda_food_service || 0) - (bCusto_r / bRend);
+          aValue = a.preco_venda_food_service > 0 ? (aLucro / a.preco_venda_food_service) * 100 : 0;
+          bValue = b.preco_venda_food_service > 0 ? (bLucro / b.preco_venda_food_service) * 100 : 0;
         } else if (typeof aValue === 'string') {
           aValue = aValue.toLowerCase();
           bValue = (bValue || '').toLowerCase();
@@ -645,10 +669,10 @@ function CadastroProdutos() {
     }
   };
 
-  const renderSortableHeader = (label: string, key: string, align: 'left' | 'center' | 'right' = 'left', width?: string) => {
+  const renderSortableHeader = (label: string, key: string, align: 'left' | 'center' | 'right' = 'left', width?: string, borderLeft?: string) => {
     return (
       <th
-        style={{ textAlign: align, width: width, cursor: "pointer", userSelect: "none" }}
+        style={{ textAlign: align, width: width, cursor: "pointer", userSelect: "none", borderLeft: borderLeft, position: "sticky", top: 0, zIndex: 10, backgroundColor: "#f5ede4" }}
         onClick={() => requestSort(key)}
         title={`Ordenar por ${label}`}
       >
@@ -746,7 +770,7 @@ function CadastroProdutos() {
               <p style={{ color: "#94a3b8", marginTop: "8px" }}>Lembre-se de rodar o SQL no Supabase para criar as tabelas <br /><b>cadastro_produtos</b> e <b>ficha_tecnica</b>.</p>
             </div>
           ) : (
-            <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
+            <div className="freq-table-wrapper" style={{ overflowX: "auto", maxHeight: "calc(100vh - 200px)", overflowY: "auto" }}>
               {sortConfig && (
                 <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "12px" }}>
                   <button onClick={clearSort} className="cancel-btn" style={{ fontSize: "12px", padding: "6px 12px" }}>
@@ -757,18 +781,22 @@ function CadastroProdutos() {
               <table className="freq-table" style={{ minWidth: "1000px" }}>
                 <thead>
                   <tr>
-                    <th style={{ width: "30px" }}></th>
+                    <th style={{ width: "30px", position: "sticky", top: 0, zIndex: 10, backgroundColor: "#f5ede4" }}></th>
                     {renderSortableHeader("Ativo", "ativo", "center", "60px")}
                     {renderSortableHeader("Nome do Produto", "nome", "left")}
+                    {activeTab === 'sabores' && renderSortableHeader("Tipo Gelato", "tipo_gelato", "center", "120px")}
                     {renderSortableHeader("Categoria", "categoria", "left")}
                     {renderSortableHeader("Unid. Venda", "unidade_venda", "center", "100px")}
                     {renderSortableHeader("Rendimento", "rendimento", "center", "100px")}
                     {renderSortableHeader("Custo Total", "custo_total", "center", "140px")}
                     {renderSortableHeader("Custo Unit.", "custo", "center", "120px")}
-                    {renderSortableHeader("Preço Unit. (Venda)", "preco_venda", "center", "150px")}
+                    {renderSortableHeader("Preço Unit. (Venda)", "preco_venda", "center", "150px", "2px solid #e2e8f0")}
                     {renderSortableHeader("Lucro Unitário", "lucro", "center", "140px")}
                     {renderSortableHeader("Margem", "margem", "center", "100px")}
-                    <th style={{ textAlign: "center", width: "100px" }}>Ações</th>
+                    {activeTab === 'sabores' && renderSortableHeader("Preço (Food Service)", "preco_venda_food_service", "center", "150px", "2px solid #e2e8f0")}
+                    {activeTab === 'sabores' && renderSortableHeader("Lucro (FS)", "lucro_fs", "center", "140px")}
+                    {activeTab === 'sabores' && renderSortableHeader("Margem (FS)", "margem_fs", "center", "100px")}
+                    <th style={{ textAlign: "center", width: "100px", borderLeft: activeTab === 'sabores' ? "2px solid #e2e8f0" : "none", position: "sticky", top: 0, zIndex: 10, backgroundColor: "#f5ede4" }}>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -779,6 +807,10 @@ function CadastroProdutos() {
                     const pv = produto.preco_venda || 0;
                     const lucro = pv - custo;
                     const margem = pv > 0 ? (lucro / pv) * 100 : 0;
+
+                    const pv_fs = produto.preco_venda_food_service || 0;
+                    const lucro_fs = pv_fs - custo;
+                    const margem_fs = pv_fs > 0 ? (lucro_fs / pv_fs) * 100 : 0;
 
                     const isDragged = index === draggedItemIndex;
                     const isDragOver = index === dragOverItemIndex;
@@ -813,19 +845,37 @@ function CadastroProdutos() {
                           )}
                         </td>
                         <td style={{ fontWeight: 500 }}>{produto.nome}</td>
+                        {activeTab === 'sabores' && (
+                          <td style={{ textAlign: "center" }}>
+                            {produto.tipo_gelato ? (
+                              <span style={{
+                                backgroundColor: produto.tipo_gelato.toLowerCase() === 'nata' ? "#eff6ff" : produto.tipo_gelato.toLowerCase() === 'fruta' ? "#fff7ed" : produto.tipo_gelato.toLowerCase() === 'dog' ? "#fefce8" : "#f1f5f9",
+                                color: produto.tipo_gelato.toLowerCase() === 'nata' ? "#3b82f6" : produto.tipo_gelato.toLowerCase() === 'fruta' ? "#ea580c" : produto.tipo_gelato.toLowerCase() === 'dog' ? "#ca8a04" : "#64748b",
+                                padding: "4px 10px",
+                                borderRadius: "20px",
+                                fontSize: "1.2rem",
+                                fontWeight: "bold"
+                              }}>
+                                {produto.tipo_gelato}
+                              </span>
+                            ) : (
+                              <span style={{ color: "#94a3b8" }}>-</span>
+                            )}
+                          </td>
+                        )}
                         <td>{produto.categoria || "-"}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{produto.unidade_venda || "-"}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{rend}</td>
-                        <td style={{ textAlign: "center", color: "#b91c1c" }}>
+                        <td style={{ textAlign: "center", color: "#b91c1c", whiteSpace: "nowrap" }}>
                           R$ {custo_receita.toFixed(2)}
                         </td>
-                        <td style={{ textAlign: "center", color: "#dc2626" }}>
+                        <td style={{ textAlign: "center", color: "#dc2626", whiteSpace: "nowrap" }}>
                           R$ {custo.toFixed(2)}
                         </td>
-                        <td style={{ textAlign: "center", color: "var(--primary-color)", fontWeight: "bold" }}>
+                        <td style={{ textAlign: "center", color: "var(--primary-color)", fontWeight: "bold", borderLeft: "2px solid #e2e8f0", whiteSpace: "nowrap" }}>
                           {pv > 0 ? `R$ ${pv.toFixed(2)}` : "-"}
                         </td>
-                        <td style={{ textAlign: "center", color: lucro > 0 ? "#16a34a" : "#dc2626", fontWeight: "bold" }}>
+                        <td style={{ textAlign: "center", color: lucro > 0 ? "#16a34a" : "#dc2626", fontWeight: "bold", whiteSpace: "nowrap" }}>
                           R$ {lucro.toFixed(2)}
                         </td>
                         <td style={{ textAlign: "center" }}>
@@ -840,31 +890,57 @@ function CadastroProdutos() {
                             {margem.toFixed(1)}%
                           </span>
                         </td>
-                        <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center" }}>
-                          <button
-                            onClick={() => handleCloneProduto(produto)}
-                            className="delete-record-btn"
-                            title="Clonar Produto"
-                            style={{ margin: 0, color: "#6366f1" }}
-                          >
-                            <Icons.BsFiles />
-                          </button>
-                          <button
-                            onClick={() => openModal(produto)}
-                            className="delete-record-btn"
-                            title="Editar Produto"
-                            style={{ margin: 0 }}
-                          >
-                            <Icons.BsPencil />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProduto(produto.id)}
-                            className="delete-record-btn"
-                            title="Excluir Produto"
-                            style={{ margin: 0 }}
-                          >
-                            <Icons.BsTrash />
-                          </button>
+                        {activeTab === 'sabores' && (
+                          <td style={{ textAlign: "center", color: "#6366f1", fontWeight: "bold", borderLeft: "2px solid #e2e8f0", whiteSpace: "nowrap" }}>
+                            {pv_fs > 0 ? `R$ ${pv_fs.toFixed(2)}` : "-"}
+                          </td>
+                        )}
+                        {activeTab === 'sabores' && (
+                          <td style={{ textAlign: "center", color: lucro_fs > 0 ? "#16a34a" : "#dc2626", fontWeight: "bold", whiteSpace: "nowrap" }}>
+                            R$ {lucro_fs.toFixed(2)}
+                          </td>
+                        )}
+                        {activeTab === 'sabores' && (
+                          <td style={{ textAlign: "center" }}>
+                            <span style={{
+                              backgroundColor: margem_fs >= 40 ? "#e0e7ff" : margem_fs > 10 ? "#fef9c3" : "#fee2e2",
+                              color: margem_fs >= 40 ? "#3730a3" : margem_fs > 10 ? "#854d0e" : "#991b1b",
+                              padding: "4px 8px",
+                              borderRadius: "20px",
+                              fontSize: "1.3rem",
+                              fontWeight: "bold"
+                            }}>
+                              {margem_fs.toFixed(1)}%
+                            </span>
+                          </td>
+                        )}
+                        <td style={{ textAlign: "center", borderLeft: activeTab === 'sabores' ? "2px solid #e2e8f0" : "none" }}>
+                          <div style={{ display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%" }}>
+                            <button
+                              onClick={() => handleCloneProduto(produto)}
+                              className="delete-record-btn"
+                              title="Clonar Produto"
+                              style={{ margin: 0, color: "#6366f1" }}
+                            >
+                              <Icons.BsFiles />
+                            </button>
+                            <button
+                              onClick={() => openModal(produto)}
+                              className="delete-record-btn"
+                              title="Editar Produto"
+                              style={{ margin: 0 }}
+                            >
+                              <Icons.BsPencil />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteProduto(produto.id)}
+                              className="delete-record-btn"
+                              title="Excluir Produto"
+                              style={{ margin: 0 }}
+                            >
+                              <Icons.BsTrash />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -1011,6 +1087,42 @@ function CadastroProdutos() {
                 </div>
 
                 <div style={{ display: "flex", gap: "16px", marginBottom: "16px", alignItems: "flex-end", justifyContent: "flex-start", flexWrap: "wrap" }}>
+                  {isSabor && (
+                    <div className="form-group" style={{ flex: "0 0 150px", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", whiteSpace: "normal", lineHeight: 1.2 }}>Tipo Gelato</label>
+                      <CreatableSelect
+                        isClearable
+                        placeholder="Ex: Água"
+                        options={[
+                          { value: 'Água', label: 'Água' },
+                          { value: 'Nata', label: 'Nata' }
+                        ]}
+                        value={tipoGelato ? { value: tipoGelato, label: tipoGelato } : null}
+                        onChange={(selectedOption) => setTipoGelato(selectedOption?.value || "")}
+                        formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            fontSize: '1.4rem',
+                            minHeight: '42px',
+                            borderRadius: '8px',
+                            borderColor: '#cbd5e1',
+                            backgroundColor: '#fff',
+                            textAlign: 'center'
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            textAlign: 'center'
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            fontSize: '1.4rem',
+                            zIndex: 1000
+                          })
+                        }}
+                      />
+                    </div>
+                  )}
                   <div className="form-group" style={{ flex: "0 0 150px", marginBottom: 0 }}>
                     <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center" }}>Unidade de Venda</label>
                     <select
@@ -1040,6 +1152,9 @@ function CadastroProdutos() {
                       style={{ background: "#fff", textAlign: "center" }}
                     />
                   </div>
+                </div>
+
+                <div style={{ display: "flex", gap: "16px", marginBottom: "16px", alignItems: "flex-end", justifyContent: "flex-start", flexWrap: "wrap" }}>
                   {!isPreparacao && (
                     <div className="form-group" style={{ flex: "0 0 160px", maxWidth: "160px", marginBottom: 0 }}>
                       <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", whiteSpace: "normal", lineHeight: 1.2 }}>Preço de Venda<br />(Unid.)</label>
@@ -1240,7 +1355,7 @@ function CadastroProdutos() {
                             const insumoData = item.insumo || item.cadastro_insumos;
                             nomeItem = insumoData?.nome_simples_unitario || insumoData?.nome || "Insumo Desconhecido";
                             unitario = insumoData?.custo_considerado_unitario || 0;
-                            
+
                             const u = String(insumoData?.unidade_conversao || "un").toLowerCase();
                             if (u === "gramas" || u === "grama") unidade = "g";
                             else if (u === "quilogramas" || u === "quilograma" || u === "quilo" || u === "kg") unidade = "kg";
