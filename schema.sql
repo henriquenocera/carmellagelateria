@@ -335,7 +335,8 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_produtos" (
     "is_preparacao" boolean DEFAULT false,
     "codigo" "text",
     "rendimento" numeric DEFAULT 1,
-    "preco_venda_food_service" numeric
+    "preco_venda_food_service" numeric,
+    "tipo_gelato" "text"
 );
 
 
@@ -523,7 +524,8 @@ CREATE TABLE IF NOT EXISTS "public"."ficha_tecnica" (
     "insumo_id" "uuid",
     "quantidade" numeric NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"(),
-    "produto_base_id" "uuid"
+    "produto_base_id" "uuid",
+    "subgrupo" "text"
 );
 
 
