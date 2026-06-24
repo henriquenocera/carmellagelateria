@@ -45,13 +45,21 @@ function CadastroProdutos() {
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
   const [dragOverItemIndex, setDragOverItemIndex] = useState<number | null>(null);
 
+  // Ficha tecnica drag and drop state
+  const [draggedFichaIndex, setDraggedFichaIndex] = useState<number | null>(null);
+  const [dragOverFichaIndex, setDragOverFichaIndex] = useState<number | null>(null);
+  const [dragOverFichaSubgrupo, setDragOverFichaSubgrupo] = useState<string | null>(null);
+
   // Form temporary state for adding an item to the ficha
   const [selectedInsumo, setSelectedInsumo] = useState("");
   const [quantidadeInsumo, setQuantidadeInsumo] = useState("");
+  const [subgrupoInsumo, setSubgrupoInsumo] = useState("Calda Base");
   const [selectedProdutoBase, setSelectedProdutoBase] = useState("");
   const [quantidadeProdutoBase, setQuantidadeProdutoBase] = useState("");
+  const [subgrupoProdutoBase, setSubgrupoProdutoBase] = useState("Calda Base");
   const [editingFichaIndex, setEditingFichaIndex] = useState<number | null>(null);
   const [editingFichaValue, setEditingFichaValue] = useState<string>("");
+  const [editingFichaSubgrupo, setEditingFichaSubgrupo] = useState<string>("");
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -149,7 +157,7 @@ function CadastroProdutos() {
         .select(`
           id, nome, categoria, preco_venda, preco_venda_food_service, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao, codigo, rendimento, tipo_gelato,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
-            id, insumo_id, quantidade, produto_base_id,
+            id, insumo_id, quantidade, produto_base_id, subgrupo,
             cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, fator_desperdicio ),
             cadastro_produtos!ficha_tecnica_produto_base_id_fkey ( id, nome )
           )
@@ -216,7 +224,8 @@ function CadastroProdutos() {
         insumo_id: item.insumo_id,
         produto_base_id: item.produto_base_id,
         quantidade: item.quantidade,
-        insumo: item.cadastro_insumos
+        insumo: item.cadastro_insumos,
+        subgrupo: item.subgrupo
       }));
       setFichaTecnica(mappedFicha);
     } else {
@@ -237,8 +246,10 @@ function CadastroProdutos() {
     }
     setSelectedInsumo("");
     setQuantidadeInsumo("");
+    setSubgrupoInsumo("Calda Base");
     setSelectedProdutoBase("");
     setQuantidadeProdutoBase("");
+    setSubgrupoProdutoBase("Calda Base");
     setIsModalOpen(true);
   };
 
@@ -266,13 +277,16 @@ function CadastroProdutos() {
           insumo_id: item.insumo_id,
           produto_base_id: item.produto_base_id,
           quantidade: item.quantidade,
-          insumo: item.cadastro_insumos || item.insumo
+          insumo: item.cadastro_insumos || item.insumo,
+          subgrupo: item.subgrupo
         }));
         setFichaTecnica(mappedFicha);
         setSelectedInsumo("");
         setQuantidadeInsumo("");
+        setSubgrupoInsumo("Calda Base");
         setSelectedProdutoBase("");
         setQuantidadeProdutoBase("");
+        setSubgrupoProdutoBase("Calda Base");
         setIsModalOpen(true);
       }
     });
@@ -332,6 +346,7 @@ function CadastroProdutos() {
       {
         insumo_id: selectedInsumo,
         quantidade: parseFloat(quantidadeInsumo),
+        subgrupo: subgrupoInsumo,
         insumo: {
           nome: insumoFound.nome,
           nome_simples_unitario: insumoFound.nome_simples_unitario,
@@ -366,7 +381,8 @@ function CadastroProdutos() {
       ...fichaTecnica,
       {
         produto_base_id: selectedProdutoBase,
-        quantidade: parseFloat(quantidadeProdutoBase)
+        quantidade: parseFloat(quantidadeProdutoBase),
+        subgrupo: subgrupoProdutoBase
       }
     ]);
 
@@ -383,6 +399,7 @@ function CadastroProdutos() {
   const handleEditFichaItem = (index: number) => {
     setEditingFichaIndex(index);
     setEditingFichaValue(String(fichaTecnica[index].quantidade));
+    setEditingFichaSubgrupo(fichaTecnica[index].subgrupo || "Calda Base");
   };
 
   const handleSaveEditFichaItem = (index: number) => {
@@ -390,6 +407,7 @@ function CadastroProdutos() {
     if (!isNaN(parsed) && parsed > 0) {
       const newFicha = [...fichaTecnica];
       newFicha[index].quantidade = parsed;
+      newFicha[index].subgrupo = editingFichaSubgrupo;
       setFichaTecnica(newFicha);
       setEditingFichaIndex(null);
     } else {
@@ -399,6 +417,33 @@ function CadastroProdutos() {
 
   const handleCancelEditFichaItem = () => {
     setEditingFichaIndex(null);
+  };
+
+  const handleFichaDrop = (e: React.DragEvent, targetIndex: number | null, targetSubgrupo: string) => {
+    e.preventDefault();
+    if (draggedFichaIndex === null) return;
+    if (draggedFichaIndex === targetIndex) return;
+
+    const newFicha = [...fichaTecnica];
+    const [movedItem] = newFicha.splice(draggedFichaIndex, 1);
+    
+    movedItem.subgrupo = targetSubgrupo;
+
+    if (targetIndex === null) {
+      newFicha.push(movedItem);
+    } else {
+      const targetItem = fichaTecnica[targetIndex];
+      let insertIndex = newFicha.indexOf(targetItem);
+      if (insertIndex === -1) {
+        insertIndex = newFicha.length;
+      }
+      newFicha.splice(insertIndex, 0, movedItem);
+    }
+
+    setFichaTecnica(newFicha);
+    setDraggedFichaIndex(null);
+    setDragOverFichaIndex(null);
+    setDragOverFichaSubgrupo(null);
   };
 
   const handleSaveProduto = async (e: React.FormEvent) => {
@@ -459,7 +504,8 @@ function CadastroProdutos() {
           produto_id: produtoId,
           insumo_id: item.insumo_id || null,
           produto_base_id: item.produto_base_id || null,
-          quantidade: item.quantidade
+          quantidade: item.quantidade,
+          subgrupo: item.subgrupo || null
         }));
 
         const { error: fichaErr } = await supabase
@@ -818,10 +864,12 @@ function CadastroProdutos() {
                     return (
                       <tr
                         key={produto.id}
+                        onClick={() => openModal(produto)}
                         style={{
                           opacity: produto.ativo ? (isDragged ? 0.5 : 1) : 0.6,
                           borderTop: isDragOver && draggedItemIndex !== null && draggedItemIndex > index ? "2px solid var(--primary-color)" : "",
-                          borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < index ? "2px solid var(--primary-color)" : ""
+                          borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < index ? "2px solid var(--primary-color)" : "",
+                          cursor: "pointer"
                         }}
                         draggable={sortConfig === null}
                         onDragStart={() => handleDragStart(index)}
@@ -830,12 +878,19 @@ function CadastroProdutos() {
                         onDragEnd={handleDragEnd}
                         onDrop={(e) => handleDrop(e, index)}
                       >
-                        <td style={{ textAlign: "center", cursor: sortConfig === null ? "grab" : "not-allowed", color: "#cbd5e1" }} title={sortConfig === null ? "Arraste para reordenar" : "Limpe a ordenação para arrastar"}>
+                        <td 
+                          style={{ textAlign: "center", cursor: sortConfig === null ? "grab" : "not-allowed", color: "#cbd5e1" }} 
+                          title={sortConfig === null ? "Arraste para reordenar" : "Limpe a ordenação para arrastar"}
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Icons.BsGripVertical />
                         </td>
                         <td
                           style={{ textAlign: "center", cursor: "pointer" }}
-                          onClick={() => handleToggleAtivo(produto.id, produto.ativo)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleAtivo(produto.id, produto.ativo);
+                          }}
                           title={produto.ativo ? "Desativar produto" : "Ativar produto"}
                         >
                           {produto.ativo ? (
@@ -914,7 +969,10 @@ function CadastroProdutos() {
                             </span>
                           </td>
                         )}
-                        <td style={{ textAlign: "center", borderLeft: activeTab === 'sabores' ? "2px solid #e2e8f0" : "none" }}>
+                        <td 
+                          style={{ textAlign: "center", borderLeft: activeTab === 'sabores' ? "2px solid #e2e8f0" : "none" }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div style={{ display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%" }}>
                             <button
                               onClick={() => handleCloneProduto(produto)}
@@ -953,8 +1011,8 @@ function CadastroProdutos() {
       </div>
 
       {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: "800px", maxHeight: "90vh", overflowY: "auto" }}>
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "800px", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>
                 {editingId ? "Editar Produto" : "Cadastrar Novo Produto"}
@@ -1252,6 +1310,21 @@ function CadastroProdutos() {
                       </span>
                     </div>
                   </div>
+                  {isSabor && (
+                    <div className="form-group" style={{ flex: "0 0 150px", maxWidth: "150px", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b", width: "100%", textAlign: "center" }}>Subgrupo</label>
+                      <select
+                        className="frequencia-select"
+                        value={subgrupoInsumo}
+                        onChange={(e) => setSubgrupoInsumo(e.target.value)}
+                        style={{ background: "#fff", fontSize: "1.3rem", textAlign: "center" }}
+                      >
+                        <option value="Calda Base">Calda Base</option>
+                        <option value="Recheio">Recheio</option>
+                        <option value="Cobertura">Cobertura</option>
+                      </select>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={handleAddFichaItem}
@@ -1305,6 +1378,21 @@ function CadastroProdutos() {
                       style={{ background: "#fff", textAlign: "center", width: "100%", boxSizing: "border-box" }}
                     />
                   </div>
+                  {isSabor && (
+                    <div className="form-group" style={{ flex: "0 0 150px", maxWidth: "150px", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "#64748b", width: "100%", textAlign: "center" }}>Subgrupo</label>
+                      <select
+                        className="frequencia-select"
+                        value={subgrupoProdutoBase}
+                        onChange={(e) => setSubgrupoProdutoBase(e.target.value)}
+                        style={{ background: "#fff", fontSize: "1.3rem", textAlign: "center" }}
+                      >
+                        <option value="Calda Base">Calda Base</option>
+                        <option value="Recheio">Recheio</option>
+                        <option value="Cobertura">Cobertura</option>
+                      </select>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={handleAddProdutoBaseItem}
@@ -1340,92 +1428,246 @@ function CadastroProdutos() {
                         </tr>
                       </thead>
                       <tbody>
-                        {previewFicha.map((item, index) => {
-                          let isProduto = !!item.produto_base_id;
-                          let nomeItem = "";
-                          let unitario = 0;
-                          let unidade = "un";
-                          let fatorDesperdicio = 0;
+                        {(() => {
+                          const subgruposDefinidos = ["Calda Base", "Recheio", "Cobertura"];
+                          const previewFichaWithIndex = previewFicha.map((item, idx) => ({ ...item, originalIndex: idx }));
+                          
+                          const legacyItems = previewFichaWithIndex.filter(
+                            item => !item.subgrupo || !subgruposDefinidos.includes(item.subgrupo)
+                          );
 
-                          if (isProduto) {
-                            const pBase = produtos.find(p => p.id === item.produto_base_id);
-                            nomeItem = pBase ? pBase.nome : "Produto Desconhecido";
-                            unitario = pBase ? calculateCustoProduto(pBase.ficha_tecnica || [], produtos) : 0;
-                          } else {
-                            const insumoData = item.insumo || item.cadastro_insumos;
-                            nomeItem = insumoData?.nome_simples_unitario || insumoData?.nome || "Insumo Desconhecido";
-                            unitario = insumoData?.custo_considerado_unitario || 0;
+                          const renderRow = (item: any) => {
+                            const index = item.originalIndex;
+                            let isProduto = !!item.produto_base_id;
+                            let nomeItem = "";
+                            let unitario = 0;
+                            let unidade = "un";
+                            let fatorDesperdicio = 0;
 
-                            const u = String(insumoData?.unidade_conversao || "un").toLowerCase();
-                            if (u === "gramas" || u === "grama") unidade = "g";
-                            else if (u === "quilogramas" || u === "quilograma" || u === "quilo" || u === "kg") unidade = "kg";
-                            else if (u === "mililitros" || u === "mililitro") unidade = "ml";
-                            else if (u === "litros" || u === "litro") unidade = "L";
-                            else unidade = "un";
+                            if (isProduto) {
+                              const pBase = produtos.find(p => p.id === item.produto_base_id);
+                              nomeItem = pBase ? pBase.nome : "Produto Desconhecido";
+                              unitario = pBase ? calculateCustoProduto(pBase.ficha_tecnica || [], produtos) : 0;
+                            } else {
+                              const insumoData = item.insumo || item.cadastro_insumos;
+                              nomeItem = insumoData?.nome_simples_unitario || insumoData?.nome || "Insumo Desconhecido";
+                              unitario = insumoData?.custo_considerado_unitario || 0;
 
-                            fatorDesperdicio = insumoData?.fator_desperdicio || 0;
-                          }
+                              const u = String(insumoData?.unidade_conversao || "un").toLowerCase();
+                              if (u === "gramas" || u === "grama") unidade = "g";
+                              else if (u === "quilogramas" || u === "quilograma" || u === "quilo" || u === "kg") unidade = "kg";
+                              else if (u === "mililitros" || u === "mililitro") unidade = "ml";
+                              else if (u === "litros" || u === "litro") unidade = "L";
+                              else unidade = "un";
 
-                          const calc = parseFloat(item.quantidade) * unitario;
+                              fatorDesperdicio = insumoData?.fator_desperdicio || 0;
+                            }
 
-                          return (
-                            <tr key={index} style={{ borderBottom: "1px solid #e2e8f0" }}>
-                              <td style={{ padding: "10px", textAlign: "left" }}>{nomeItem}</td>
-                              <td style={{ padding: "10px", textAlign: "center" }}>
-                                {isProduto ?
-                                  <span style={{ backgroundColor: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Produto</span> :
-                                  <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Insumo</span>
-                                }
-                              </td>
-                              <td style={{ padding: "10px", textAlign: "center" }}>
-                                {editingFichaIndex === index ? (
-                                  <div style={{ display: "flex", gap: "6px", alignItems: "center", justifyContent: "center" }}>
-                                    <input
-                                      type="text"
-                                      inputMode="decimal"
-                                      value={editingFichaValue}
-                                      onChange={(e) => setEditingFichaValue(e.target.value)}
-                                      onKeyDown={(e) => {
-                                        if (e.key === "Enter") handleSaveEditFichaItem(index);
-                                        if (e.key === "Escape") handleCancelEditFichaItem();
-                                      }}
-                                      style={{ width: "65px", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", fontSize: "1.1rem" }}
-                                      autoFocus
-                                    />
-                                    <span style={{ fontSize: "0.9rem" }}>{unidade}</span>
-                                    <button type="button" onClick={() => handleSaveEditFichaItem(index)} style={{ background: "none", border: "none", color: "#16a34a", cursor: "pointer", padding: "4px" }} title="Salvar">
-                                      <Icons.BsCheckLg style={{ fontSize: "1.2rem" }} />
-                                    </button>
-                                    <button type="button" onClick={handleCancelEditFichaItem} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", padding: "4px" }} title="Cancelar">
-                                      <Icons.BsXLg style={{ fontSize: "1.2rem" }} />
-                                    </button>
+                            const calc = parseFloat(item.quantidade) * unitario;
+                            const isDragged = index === draggedFichaIndex;
+                            const isDragOver = index === dragOverFichaIndex;
+
+                            return (
+                              <tr 
+                                key={index} 
+                                draggable={true}
+                                onDragStart={() => setDraggedFichaIndex(index)}
+                                onDragOver={(e) => e.preventDefault()}
+                                onDragEnter={(e) => {
+                                  e.preventDefault();
+                                  setDragOverFichaIndex(index);
+                                  setDragOverFichaSubgrupo(item.subgrupo || "");
+                                }}
+                                onDragEnd={() => {
+                                  setDraggedFichaIndex(null);
+                                  setDragOverFichaIndex(null);
+                                  setDragOverFichaSubgrupo(null);
+                                }}
+                                onDrop={(e) => handleFichaDrop(e, index, item.subgrupo || "")}
+                                style={{ 
+                                  opacity: isDragged ? 0.5 : 1,
+                                  borderTop: isDragOver && draggedFichaIndex !== null && draggedFichaIndex > index ? "2px solid var(--primary-color)" : "",
+                                  borderBottom: isDragOver && draggedFichaIndex !== null && draggedFichaIndex < index ? "2px solid var(--primary-color)" : "1px solid #e2e8f0",
+                                  cursor: "grab"
+                                }}
+                              >
+                                <td style={{ padding: "10px", textAlign: "left" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                    <Icons.BsGripVertical style={{ color: "#cbd5e1" }} />
+                                    {nomeItem}
                                   </div>
-                                ) : (
-                                  fatorDesperdicio > 0 ? (
-                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                                      <span style={{ fontSize: "1.1rem" }}>{item.quantidade} {unidade} <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>(Bruta)</span></span>
-                                      <span style={{ fontSize: "0.95rem", color: "#16a34a" }}>{(parseFloat(item.quantidade) * (1 - fatorDesperdicio / 100)).toFixed(4)} {unidade} <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: "normal" }}>(Líq.)</span></span>
+                                </td>
+                                <td style={{ padding: "10px", textAlign: "center" }}>
+                                  {isProduto ? (
+                                    <span style={{ backgroundColor: "#e0e7ff", color: "#3730a3", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Produto</span>
+                                  ) : (
+                                    <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "2px 6px", borderRadius: "4px", fontSize: "1rem", fontWeight: "bold" }}>Insumo</span>
+                                  )}
+                                </td>
+                                <td style={{ padding: "10px", textAlign: "center" }}>
+                                  {editingFichaIndex === index ? (
+                                    <div style={{ display: "flex", gap: "6px", alignItems: "center", justifyContent: "center", flexWrap: "wrap" }} onClick={(e) => e.stopPropagation()}>
+                                      <input
+                                        type="text"
+                                        inputMode="decimal"
+                                        value={editingFichaValue}
+                                        onChange={(e) => setEditingFichaValue(e.target.value)}
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter") handleSaveEditFichaItem(index);
+                                          if (e.key === "Escape") handleCancelEditFichaItem();
+                                        }}
+                                        style={{ width: "65px", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", fontSize: "1.1rem" }}
+                                        autoFocus
+                                      />
+                                      <span style={{ fontSize: "0.9rem" }}>{unidade}</span>
+                                      {isSabor && (
+                                        <select
+                                          value={editingFichaSubgrupo}
+                                          onChange={(e) => setEditingFichaSubgrupo(e.target.value)}
+                                          style={{ padding: "5px", borderRadius: "4px", border: "1px solid #cbd5e1", fontSize: "1.1rem", background: "#fff" }}
+                                        >
+                                          <option value="Calda Base">Calda Base</option>
+                                          <option value="Recheio">Recheio</option>
+                                          <option value="Cobertura">Cobertura</option>
+                                        </select>
+                                      )}
+                                      <button type="button" onClick={() => handleSaveEditFichaItem(index)} style={{ background: "none", border: "none", color: "#16a34a", cursor: "pointer", padding: "4px" }} title="Salvar">
+                                        <Icons.BsCheckLg style={{ fontSize: "1.2rem" }} />
+                                      </button>
+                                      <button type="button" onClick={handleCancelEditFichaItem} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", padding: "4px" }} title="Cancelar">
+                                        <Icons.BsXLg style={{ fontSize: "1.2rem" }} />
+                                      </button>
                                     </div>
                                   ) : (
-                                    <>{item.quantidade} {unidade}</>
-                                  )
-                                )}
-                              </td>
-                              <td style={{ padding: "10px", textAlign: "center" }}>R$ {unitario.toFixed(2)} / {unidade}</td>
-                              <td style={{ padding: "10px", textAlign: "right", fontWeight: "bold" }}>R$ {calc.toFixed(2)}</td>
-                              <td style={{ padding: "10px", textAlign: "center" }}>
-                                <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
-                                  <button type="button" onClick={() => handleEditFichaItem(index)} style={{ background: "none", border: "none", color: "#3b82f6", cursor: "pointer" }} title="Editar quantidade">
-                                    <Icons.BsPencil />
-                                  </button>
-                                  <button type="button" onClick={() => handleRemoveFichaItem(index)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }} title="Remover item">
-                                    <Icons.BsTrash />
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
+                                    fatorDesperdicio > 0 ? (
+                                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                                        <span style={{ fontSize: "1.1rem" }}>{item.quantidade} {unidade} <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: "normal" }}>(Bruta)</span></span>
+                                        <span style={{ fontSize: "0.95rem", color: "#16a34a" }}>{(parseFloat(item.quantidade) * (1 - fatorDesperdicio / 100)).toFixed(4)} {unidade} <span style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: "normal" }}>(Líq.)</span></span>
+                                      </div>
+                                    ) : (
+                                      <>{item.quantidade} {unidade}</>
+                                    )
+                                  )}
+                                </td>
+                                <td style={{ padding: "10px", textAlign: "center" }}>R$ {unitario.toFixed(2)} / {unidade}</td>
+                                <td style={{ padding: "10px", textAlign: "right", fontWeight: "bold" }}>R$ {calc.toFixed(2)}</td>
+                                <td style={{ padding: "10px", textAlign: "center" }}>
+                                  <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                                    <button type="button" onClick={() => handleEditFichaItem(index)} style={{ background: "none", border: "none", color: "#3b82f6", cursor: "pointer" }} title={isSabor ? "Editar quantidade e subgrupo" : "Editar quantidade"}>
+                                      <Icons.BsPencil />
+                                    </button>
+                                    <button type="button" onClick={() => handleRemoveFichaItem(index)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }} title="Remover item">
+                                      <Icons.BsTrash />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          };
+
+                          const elements: React.ReactNode[] = [];
+
+                          if (!isSabor) {
+                            previewFichaWithIndex.forEach(item => {
+                              elements.push(renderRow(item));
+                            });
+                            return elements;
+                          }
+
+                          subgruposDefinidos.forEach(sg => {
+                            const itemsGrupo = previewFichaWithIndex.filter(item => item.subgrupo === sg);
+                            const isOverHeader = dragOverFichaIndex === null && dragOverFichaSubgrupo === sg;
+                            elements.push(
+                              <tr 
+                                key={`header-${sg}`} 
+                                onDragOver={(e) => e.preventDefault()}
+                                onDragEnter={(e) => {
+                                  e.preventDefault();
+                                  setDragOverFichaIndex(null);
+                                  setDragOverFichaSubgrupo(sg);
+                                }}
+                                onDrop={(e) => handleFichaDrop(e, null, sg)}
+                                style={{ 
+                                  backgroundColor: isOverHeader ? "#cbd5e1" : "#f1f5f9", 
+                                  borderBottom: "2px solid #cbd5e1",
+                                  transition: "background-color 0.2s"
+                                }}
+                              >
+                                <td colSpan={6} style={{ padding: "10px 14px", fontWeight: "bold", color: "#334155", fontSize: "1.35rem" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    {sg === "Calda Base" && <Icons.BsDropletFill style={{ color: "#3b82f6" }} />}
+                                    {sg === "Recheio" && <Icons.BsLayersFill style={{ color: "#ca8a04" }} />}
+                                    {sg === "Cobertura" && <Icons.BsStars style={{ color: "#ec4899" }} />}
+                                    {sg}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+
+                            if (itemsGrupo.length === 0) {
+                              elements.push(
+                                <tr 
+                                  key={`empty-${sg}`} 
+                                  onDragOver={(e) => e.preventDefault()}
+                                  onDragEnter={(e) => {
+                                    e.preventDefault();
+                                    setDragOverFichaIndex(null);
+                                    setDragOverFichaSubgrupo(sg);
+                                  }}
+                                  onDrop={(e) => handleFichaDrop(e, null, sg)}
+                                  style={{ 
+                                    color: "#94a3b8", 
+                                    fontStyle: "italic", 
+                                    borderBottom: "1px solid #e2e8f0",
+                                    backgroundColor: isOverHeader ? "#e2e8f0" : "#fff",
+                                    transition: "background-color 0.2s"
+                                  }}
+                                >
+                                  <td colSpan={6} style={{ padding: "12px", textAlign: "center" }}>
+                                    Nenhum item alocado em {sg.toLowerCase()}
+                                  </td>
+                                </tr>
+                              );
+                            } else {
+                              itemsGrupo.forEach(item => {
+                                elements.push(renderRow(item));
+                              });
+                            }
+                          });
+
+                          if (legacyItems.length > 0) {
+                            const isOverLegacy = dragOverFichaIndex === null && dragOverFichaSubgrupo === "";
+                            elements.push(
+                              <tr 
+                                key="header-legacy" 
+                                onDragOver={(e) => e.preventDefault()}
+                                onDragEnter={(e) => {
+                                  e.preventDefault();
+                                  setDragOverFichaIndex(null);
+                                  setDragOverFichaSubgrupo("");
+                                }}
+                                onDrop={(e) => handleFichaDrop(e, null, "")}
+                                style={{ 
+                                  backgroundColor: isOverLegacy ? "#cbd5e1" : "#f1f5f9", 
+                                  borderBottom: "2px solid #cbd5e1",
+                                  transition: "background-color 0.2s"
+                                }}
+                              >
+                                <td colSpan={6} style={{ padding: "10px 14px", fontWeight: "bold", color: "#334155", fontSize: "1.35rem" }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                    <Icons.BsQuestionCircleFill style={{ color: "#64748b" }} />
+                                    Sem Subgrupo / Geral
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                            legacyItems.forEach(item => {
+                              elements.push(renderRow(item));
+                            });
+                          }
+
+                          return elements;
+                        })()}
                       </tbody>
                     </table>
                   </div>
@@ -1451,26 +1693,6 @@ function CadastroProdutos() {
                 </div>
               </div>
 
-              <div style={{ display: "flex", gap: "16px" }}>
-                <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Custo Total<br /><span style={{ fontSize: "0.95rem" }}>(Receita)</span></p>
-                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: "#dc2626" }}>R$ {currentCustoTotal.toFixed(2)}</p>
-                </div>
-                <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Custo Unitário<br /><span style={{ fontSize: "0.95rem" }}>(Por Rendimento)</span></p>
-                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: "#dc2626" }}>R$ {currentCustoUnitario.toFixed(2)}</p>
-                </div>
-                <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Lucro Bruto<br /><span style={{ fontSize: "0.95rem" }}>(Unid.)</span></p>
-                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: currentLucro > 0 ? "#16a34a" : "#dc2626" }}>R$ {currentLucro.toFixed(2)}</p>
-                </div>
-                <div style={{ flex: 1, backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
-                  <p style={{ margin: "0 0 4px 0", color: "#64748b", fontSize: "1.3rem", lineHeight: 1.1 }}>Margem de Lucro<br /><span style={{ fontSize: "0.95rem" }}>(Unid.)</span></p>
-                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: "bold", color: currentMargem >= 40 ? "#166534" : currentMargem > 10 ? "#854d0e" : "#991b1b" }}>
-                    {currentMargem.toFixed(1)}%
-                  </p>
-                </div>
-              </div>
 
               <div className="modal-actions" style={{ marginTop: "8px", display: "flex", gap: "12px", justifyContent: "flex-end" }}>
                 <button type="button" className="cancel-btn" onClick={() => setIsModalOpen(false)} disabled={saving}>

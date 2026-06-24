@@ -359,6 +359,7 @@ function CadastroInsumos() {
                       return (
                         <tr
                           key={insumo.id}
+                          onClick={() => openModal(insumo)}
                           draggable={!filtroTexto}
                           onDragStart={() => !filtroTexto && handleDragStart(originalIndex)}
                           onDragEnter={(e) => !filtroTexto && handleDragEnter(e, originalIndex)}
@@ -368,15 +369,23 @@ function CadastroInsumos() {
                           style={{
                             opacity: insumo.ativo ? (isDragged ? 0.5 : 1) : 0.6,
                             borderTop: isDragOver && draggedItemIndex !== null && draggedItemIndex > originalIndex ? "2px solid var(--primary-color)" : "",
-                            borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < originalIndex ? "2px solid var(--primary-color)" : ""
+                            borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < originalIndex ? "2px solid var(--primary-color)" : "",
+                            cursor: "pointer"
                           }}
                         >
-                          <td style={{ textAlign: "center", cursor: "grab", color: "#cbd5e1" }} title="Arraste para reordenar">
+                          <td 
+                            style={{ textAlign: "center", cursor: "grab", color: "#cbd5e1" }} 
+                            title="Arraste para reordenar"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <Icons.BsGripVertical />
                           </td>
                           <td
                             style={{ textAlign: "center", cursor: "pointer" }}
-                            onClick={() => handleToggleAtivo(insumo.id, insumo.ativo)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleToggleAtivo(insumo.id, insumo.ativo);
+                            }}
                             title={insumo.ativo ? "Desativar insumo" : "Ativar insumo"}
                           >
                             {insumo.ativo ? (
@@ -401,7 +410,10 @@ function CadastroInsumos() {
                               "-"
                             )}
                           </td>
-                          <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}>
+                          <td 
+                            style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <button
                               onClick={() => openModal(insumo)}
                               className="delete-record-btn"
@@ -430,8 +442,8 @@ function CadastroInsumos() {
       </div>
 
       {infoModalOpen && (
-        <div className="modal-overlay" style={{ zIndex: 1100, backdropFilter: "blur(4px)" }}>
-          <div className="modal-content" style={{ maxWidth: "340px", textAlign: "center", padding: "32px 24px", borderRadius: "16px", border: "none", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
+        <div className="modal-overlay" onClick={() => setInfoModalOpen(false)} style={{ zIndex: 1100, backdropFilter: "blur(4px)" }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "340px", textAlign: "center", padding: "32px 24px", borderRadius: "16px", border: "none", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
             <h3 style={{ margin: "0 0 12px 0", color: "var(--secondary-color)", fontSize: "1.8rem", fontWeight: 700 }}>Inventário Especial</h3>
             <p style={{ fontSize: "1.3rem", color: "#64748b", lineHeight: "1.6", margin: "0 0 28px 0" }}>
               Ao marcar esse campo, o insumo passa a ser controlado no estoque em <strong>porcentagem (%)</strong> de volume em vez de unidades fixas.
@@ -449,8 +461,8 @@ function CadastroInsumos() {
       )}
 
       {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: "680px", minHeight: "80vh", maxHeight: "90vh", overflowY: "auto", paddingBottom: "100px" }}>
+        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "680px", minHeight: "80vh", maxHeight: "90vh", overflowY: "auto", paddingBottom: "100px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
               <h2 style={{ margin: 0, color: "var(--secondary-color)" }}>
                 {editingId ? "Editar Insumo" : "Cadastrar Novo Insumo"}
