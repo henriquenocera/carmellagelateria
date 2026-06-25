@@ -314,7 +314,9 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_insumos" (
     "ordem" integer DEFAULT 0,
     "custo_considerado_unitario" numeric,
     "fator_desperdicio" numeric DEFAULT 0,
-    "inventario_especial" boolean DEFAULT false
+    "inventario_especial" boolean DEFAULT false,
+    "unidade_estoque" "text",
+    "unidade_consumo" "text"
 );
 
 
