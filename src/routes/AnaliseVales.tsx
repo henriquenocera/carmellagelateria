@@ -43,6 +43,8 @@ const AnaliseVales = () => {
   const [formUnidade, setFormUnidade] = useState('');
   const [formItem, setFormItem] = useState('');
   const [formValor, setFormValor] = useState('');
+  const [customItem, setCustomItem] = useState('');
+  const [isCustomItem, setIsCustomItem] = useState(false);
 
   const unidadesList = ["Alto da XV", "Batel", "Ahu", "Fábrica"];
 
@@ -153,8 +155,18 @@ const AnaliseVales = () => {
       setEditId(vale.id);
       setFormNome(vale.Nome || '');
       setFormUnidade(vale.Unidade || '');
-      setFormItem(vale.Item || '');
       setFormValor(vale.valor !== null ? vale.valor.toString() : '');
+
+      const isDefault = produtos.some(p => p.nome === vale.Item) || vale.Item === "Crédito (Acréscimo)";
+      if (isDefault) {
+        setFormItem(vale.Item || '');
+        setIsCustomItem(false);
+        setCustomItem('');
+      } else {
+        setFormItem('custom');
+        setIsCustomItem(true);
+        setCustomItem(vale.Item || '');
+      }
 
       if (vale.created_at) {
         const d = new Date(vale.created_at);
@@ -173,6 +185,8 @@ const AnaliseVales = () => {
       setFormUnidade('');
       setFormItem('');
       setFormValor('');
+      setIsCustomItem(false);
+      setCustomItem('');
 
       const d = new Date();
       d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
@@ -215,14 +229,15 @@ const AnaliseVales = () => {
 
   const handleDateChange = (newDate: string) => {
     setFormDate(newDate);
-    if (formItem) {
+    if (formItem && formItem !== 'custom') {
       handleItemChange(formItem, newDate);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formNome || !formUnidade || !formItem || !formValor || !formDate) {
+    const finalItem = formItem === 'custom' ? customItem : formItem;
+    if (!formNome || !formUnidade || !finalItem || !formValor || !formDate) {
       alert("Preencha todos os campos obrigatórios.");
       return;
     }
@@ -239,7 +254,7 @@ const AnaliseVales = () => {
       const payload = {
         Nome: formNome,
         Unidade: formUnidade,
-        Item: formItem,
+        Item: finalItem,
         valor: valorNumerico,
         created_at: dateObj.toISOString()
       };
@@ -774,7 +789,17 @@ const AnaliseVales = () => {
                       required
                       className="frequencia-select"
                       value={formItem}
-                      onChange={(e) => handleItemChange(e.target.value, formDate)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === 'custom') {
+                          setIsCustomItem(true);
+                          setFormItem('custom');
+                          setFormValor('');
+                        } else {
+                          setIsCustomItem(false);
+                          handleItemChange(val, formDate);
+                        }
+                      }}
                       style={{ background: "#fff", width: "100%" }}
                     >
                       <option value="" disabled>Selecione um produto</option>
@@ -782,12 +807,28 @@ const AnaliseVales = () => {
                       {produtos.map(p => (
                         <option key={p.id} value={p.nome}>{p.nome}</option>
                       ))}
+                      <option value="custom">✍️ Outro (Digitar manualmente...)</option>
                       {/* Caso seja um item antigo que não está mais na lista de produtos */}
-                      {formItem && !produtos.find(p => p.nome === formItem) && formItem !== "Crédito (Acréscimo)" && (
+                      {formItem && formItem !== 'custom' && !produtos.find(p => p.nome === formItem) && formItem !== "Crédito (Acréscimo)" && (
                         <option value={formItem}>{formItem} (Antigo)</option>
                       )}
                     </select>
                   </div>
+
+                  {isCustomItem && (
+                    <div className="form-group" style={{ marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Descrição do Vale Customizado *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Ex: Pão de queijo ou outra despesa..."
+                        className="frequencia-select"
+                        value={customItem}
+                        onChange={(e) => setCustomItem(e.target.value)}
+                        style={{ background: "#fff", width: "100%" }}
+                      />
+                    </div>
+                  )}
 
                   <div className="form-group" style={{ marginBottom: 0 }}>
                     <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>

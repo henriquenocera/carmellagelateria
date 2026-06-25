@@ -85,7 +85,9 @@ function OrdemProducao() {
             cadastro_insumos (
               nome,
               nome_simples_unitario,
-              unidade_conversao
+              unidade_conversao,
+              unidade_estoque,
+              quantidade_conversao
             )
           )
         `)
@@ -582,7 +584,7 @@ function OrdemProducao() {
   };
 
   const calculateRequiredInsumos = () => {
-    const aggregation: Record<string, { id: string; nome: string; unidade: string; quantidade: number }> = {};
+    const aggregation: Record<string, { id: string; nome: string; unidade: string; quantidade: number; quantidade_conversao?: number }> = {};
 
     const addInsumosFromFicha = (ficha: any[], multiplier: number) => {
       if (!ficha) return;
@@ -594,8 +596,9 @@ function OrdemProducao() {
             aggregation[key] = {
               id: item.insumo_id,
               nome: item.cadastro_insumos.nome_simples_unitario || item.cadastro_insumos.nome || "Desconhecido",
-              unidade: item.cadastro_insumos.unidade_conversao || "un",
-              quantidade: 0
+              unidade: item.cadastro_insumos.unidade_estoque || item.cadastro_insumos.unidade_conversao || "un",
+              quantidade: 0,
+              quantidade_conversao: item.cadastro_insumos.quantidade_conversao
             };
           }
           aggregation[key].quantidade += qty;
@@ -1137,7 +1140,9 @@ function OrdemProducao() {
                         </thead>
                         <tbody>
                           {insumos.map((ins, idx) => {
-                            const stock = estoqueFabrica[ins.id] || 0;
+                            const rawStock = estoqueFabrica[ins.id] || 0;
+                            const mult = ins.quantidade_conversao && Number(ins.quantidade_conversao) > 0 ? Number(ins.quantidade_conversao) : 1;
+                            const stock = rawStock * mult;
                             const saldo = stock - ins.quantidade;
                             return (
                             <tr key={idx} style={{ borderBottom: idx === insumos.length - 1 ? 'none' : '1px solid #e2e8f0', backgroundColor: idx % 2 === 0 ? '#fff' : '#f8fafc' }}>

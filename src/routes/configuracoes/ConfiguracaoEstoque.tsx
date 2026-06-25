@@ -34,7 +34,7 @@ function ConfiguracaoEstoque() {
       setLoading(true);
       const { data, error } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, ativo, config_estoque")
+        .select("id, nome, ativo, config_estoque, inventario_especial")
         .eq("ativo", true)
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
@@ -145,35 +145,40 @@ function ConfiguracaoEstoque() {
     const value = config[field] ?? "";
 
     return (
-      <div style={{ position: "relative", width: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <input
-          type={type}
-          value={value}
-          onChange={handleChange}
-          onBlur={handleBlur}
-          onFocus={handleFocus}
-          style={{
-            border: status === 'editing' ? "1px solid var(--primary-color)" : "1px solid #cbd5e1",
-            background: bg,
-            width: "60px",
-            textAlign: "center",
-            outline: "none",
-            color: color,
-            padding: "4px",
-            paddingRight: status === 'saving' || status === 'saved' || status === 'error' ? "20px" : "4px",
-            borderRadius: "4px",
-            transition: "all 0.3s ease",
-          }}
-          title="Clique para editar"
-        />
-        {status === 'saving' && (
-          <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "2px", color: color, fontSize: "0.9rem" }} />
-        )}
-        {status === 'saved' && (
-          <Icons.BsCheck style={{ position: "absolute", right: "2px", color: color, fontSize: "1.1rem" }} />
-        )}
-        {status === 'error' && (
-          <Icons.BsX style={{ position: "absolute", right: "2px", color: color, fontSize: "1.1rem" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: "4px", justifyContent: "center" }}>
+        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+          <input
+            type={type}
+            value={value}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            onFocus={handleFocus}
+            style={{
+              border: status === 'editing' ? "1px solid var(--primary-color)" : "1px solid #cbd5e1",
+              background: bg,
+              width: "60px",
+              textAlign: "center",
+              outline: "none",
+              color: color,
+              padding: "4px",
+              paddingRight: status === 'saving' || status === 'saved' || status === 'error' ? "20px" : "4px",
+              borderRadius: "4px",
+              transition: "all 0.3s ease",
+            }}
+            title="Clique para editar"
+          />
+          {status === 'saving' && (
+            <Icons.BsArrowClockwise className="spin" style={{ position: "absolute", right: "2px", color: color, fontSize: "0.9rem" }} />
+          )}
+          {status === 'saved' && (
+            <Icons.BsCheck style={{ position: "absolute", right: "2px", color: color, fontSize: "1.1rem" }} />
+          )}
+          {status === 'error' && (
+            <Icons.BsX style={{ position: "absolute", right: "2px", color: color, fontSize: "1.1rem" }} />
+          )}
+        </div>
+        {insumo.inventario_especial && (
+          <span style={{ fontSize: "1.1rem", fontWeight: "bold", color: "#64748b" }}>%</span>
         )}
       </div>
     );

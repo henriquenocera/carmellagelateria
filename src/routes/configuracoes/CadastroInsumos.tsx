@@ -32,11 +32,14 @@ function CadastroInsumos() {
   const [novoFatorDesperdicio, setNovoFatorDesperdicio] = useState("0");
   const [novoInventarioEspecial, setNovoInventarioEspecial] = useState(false);
   const [novoUnidadeEstoque, setNovoUnidadeEstoque] = useState("");
-  const [novoUnidadeConsumo, setNovoUnidadeConsumo] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
+  const [conversaoInfoModalOpen, setConversaoInfoModalOpen] = useState(false);
+  const [nomeSimplesInfoModalOpen, setNomeSimplesInfoModalOpen] = useState(false);
+  const [custoManualInfoModalOpen, setCustoManualInfoModalOpen] = useState(false);
   const [filtroTexto, setFiltroTexto] = useState("");
   const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean, message: string, onConfirm: () => void, isAlert?: boolean, confirmText?: string }>({ isOpen: false, message: "", onConfirm: () => { } });
+  const [habilitarConversao, setHabilitarConversao] = useState(false);
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -78,8 +81,15 @@ function CadastroInsumos() {
       setNovoFatorDesperdicio(insumo.fator_desperdicio !== null ? insumo.fator_desperdicio.toString() : "0");
       setNovoInventarioEspecial(insumo.inventario_especial || false);
       setNovoUnidadeEstoque(insumo.unidade_estoque || "");
-      setNovoUnidadeConsumo(insumo.unidade_consumo || "");
       setAtivo(insumo.ativo ?? true);
+
+      const temConversao = (
+        insumo.unidade_conversao &&
+        insumo.unidade_estoque &&
+        (insumo.unidade_conversao.trim().toLowerCase() !== insumo.unidade_estoque.trim().toLowerCase() ||
+          (insumo.quantidade_conversao !== null && insumo.quantidade_conversao !== 1))
+      );
+      setHabilitarConversao(!!temConversao);
     } else {
       setEditingId(null);
       setNovoNome("");
@@ -92,8 +102,8 @@ function CadastroInsumos() {
       setNovoFatorDesperdicio("0");
       setNovoInventarioEspecial(false);
       setNovoUnidadeEstoque("");
-      setNovoUnidadeConsumo("");
       setAtivo(true);
+      setHabilitarConversao(false);
     }
     setIsModalOpen(true);
   };
@@ -131,7 +141,9 @@ function CadastroInsumos() {
     try {
       setSaving(true);
 
-      const qtd = novaQtdConversao ? parseFloat(novaQtdConversao) : null;
+      const qtd = habilitarConversao
+        ? (novaQtdConversao ? parseFloat(novaQtdConversao) : null)
+        : 1;
       const custoEmb = novoCustoConsiderado ? parseFloat(novoCustoConsiderado) : null;
       let custoUnit = null;
       if (qtd && custoEmb && qtd > 0) {
@@ -150,8 +162,8 @@ function CadastroInsumos() {
         fornecedor_padrao: novoFornecedor.trim(),
         fator_desperdicio: parseFloat(novoFatorDesperdicio) || 0,
         inventario_especial: novoInventarioEspecial,
-        unidade_estoque: novoUnidadeEstoque.trim(),
-        unidade_consumo: novoUnidadeConsumo.trim()
+        unidade_estoque: habilitarConversao ? novoUnidadeEstoque.trim() : novaUnidadeConversao.trim(),
+        unidade_consumo: habilitarConversao ? novoUnidadeEstoque.trim() : novaUnidadeConversao.trim()
       };
 
       if (editingId) {
@@ -194,15 +206,15 @@ function CadastroInsumos() {
     setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       setLoading(true);
-      
+
       const [entradas, movimentacoes, inventario] = await Promise.all([
         supabase.from("entradas_mercadoria").select("insumo_id").eq("insumo_id", id).limit(1),
         supabase.from("movimentacoes_estoque").select("insumo_id").eq("insumo_id", id).limit(1),
         supabase.from("inventario_insumos").select("insumo_id").eq("insumo_id", id).limit(1)
       ]);
 
-      const temHistorico = 
-        (entradas.data && entradas.data.length > 0) || 
+      const temHistorico =
+        (entradas.data && entradas.data.length > 0) ||
         (movimentacoes.data && movimentacoes.data.length > 0) ||
         (inventario.data && inventario.data.length > 0);
 
@@ -220,7 +232,7 @@ function CadastroInsumos() {
         const { error } = await supabase.from("cadastro_insumos").delete().eq("id", id);
         if (error) throw error;
       }
-      
+
       fetchInsumos();
     } catch (err) {
       console.error("Erro ao deletar:", err);
@@ -341,9 +353,8 @@ function CadastroInsumos() {
                     <th>Fornecedor</th>
                     <th style={{ width: "90px" }}>Qtd Compra</th>
                     <th style={{ width: "90px" }}>Unid. Compra</th>
-                    <th style={{ width: "90px" }}>Unid. Estoque</th>
+                    <th style={{ width: "90px" }}>Unid. Conversão</th>
                     <th style={{ textAlign: "center", width: "60px" }}>Inv. Esp.</th>
-                    <th style={{ width: "90px" }}>Unid. Consumo</th>
                     <th style={{ width: "90px", textAlign: "center" }}>Desperd. (%)</th>
                     <th style={{ width: "100px" }}>Custo Emb.</th>
                     <th style={{ width: "100px" }}>Custo Unit.</th>
@@ -383,8 +394,8 @@ function CadastroInsumos() {
                             cursor: "pointer"
                           }}
                         >
-                          <td 
-                            style={{ textAlign: "center", cursor: "grab", color: "#cbd5e1" }} 
+                          <td
+                            style={{ textAlign: "center", cursor: "grab", color: "#cbd5e1" }}
                             title="Arraste para reordenar"
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -418,11 +429,10 @@ function CadastroInsumos() {
                               "-"
                             )}
                           </td>
-                          <td>{insumo.unidade_consumo || "-"}</td>
                           <td style={{ textAlign: "center" }}>{insumo.fator_desperdicio}%</td>
                           <td>{insumo.custo_considerado !== null && insumo.custo_considerado !== undefined ? `R$ ${insumo.custo_considerado.toFixed(2)}` : "-"}</td>
                           <td>{insumo.custo_considerado_unitario !== null && insumo.custo_considerado_unitario !== undefined ? `R$ ${insumo.custo_considerado_unitario.toFixed(2)}` : "-"}</td>
-                          <td 
+                          <td
                             style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}
                             onClick={(e) => e.stopPropagation()}
                           >
@@ -472,6 +482,117 @@ function CadastroInsumos() {
         </div>
       )}
 
+      {conversaoInfoModalOpen && (
+        <div className="modal-overlay" onClick={() => setConversaoInfoModalOpen(false)} style={{ zIndex: 1100, backdropFilter: "blur(4px)" }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px", textAlign: "left", padding: "32px 24px", borderRadius: "16px", border: "none", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
+            <h3 style={{ margin: "0 0 16px 0", color: "var(--secondary-color)", fontSize: "1.8rem", fontWeight: 700, textAlign: "center" }}>Conversão de Unidades</h3>
+            <p style={{ fontSize: "1.3rem", color: "#475569", lineHeight: "1.6", margin: "0 0 16px 0" }}>
+              Utilize a conversão de unidade quando você compra um insumo em uma embalagem (ex: Caixa, Pacote, Saco) mas precisa calcular o valor em outra unidade (ex: Unidade, Kg, g, L).
+            </p>
+            <p style={{ fontSize: "1.3rem", color: "#475569", lineHeight: "1.6", margin: "0 0 8px 0" }}>
+              <strong>Exemplo prático:</strong>
+            </p>
+            <p style={{ fontSize: "1.3rem", color: "#475569", lineHeight: "1.6", margin: "0 0 16px 0", paddingLeft: "12px", borderLeft: "3px solid var(--primary-color)" }}>
+              Se você compra uma <strong>Caixa</strong> de Leite que contém <strong>12un</strong>:<br />
+              • <strong>Unidade de Compra:</strong> Caixa<br />
+              • <strong>Qtd. por Embalagem:</strong> 12<br />
+              • <strong>Unidade de Conversão:</strong> un
+            </p>
+            <div style={{
+              margin: "0 0 24px 0",
+              padding: "12px 16px",
+              backgroundColor: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              borderLeft: "4px solid #3b82f6",
+              borderRadius: "8px",
+              fontSize: "1.2rem",
+              color: "#1e40af",
+              lineHeight: "1.5"
+            }}>
+              <strong style={{ display: "block", marginBottom: "4px", color: "#1e3a8a" }}>💡 Exemplo de Custo:</strong>
+              Ao realizar a compra de 1 caixa de leite com 12 unidades por R$ 60,00, o sistema vai calcular cada un do leite a R$ 5,00.
+            </div>
+            <button
+              onClick={() => setConversaoInfoModalOpen(false)}
+              style={{ width: "100%", padding: "14px", backgroundColor: "var(--primary-color)", color: "white", border: "none", borderRadius: "10px", fontSize: "1.1rem", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease" }}
+              onMouseOver={(e) => e.currentTarget.style.opacity = "0.9"}
+              onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      )}
+
+      {nomeSimplesInfoModalOpen && (
+        <div className="modal-overlay" onClick={() => setNomeSimplesInfoModalOpen(false)} style={{ zIndex: 1100, backdropFilter: "blur(4px)" }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px", textAlign: "left", padding: "32px 24px", borderRadius: "16px", border: "none", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
+            <h3 style={{ margin: "0 0 16px 0", color: "var(--secondary-color)", fontSize: "1.8rem", fontWeight: 700, textAlign: "center" }}>Nome Simples e Unitário</h3>
+            <p style={{ fontSize: "1.3rem", color: "#475569", lineHeight: "1.6", margin: "0 0 16px 0" }}>
+              É o nome simplificado e no singular do insumo. Ele é utilizado para exibição em fichas técnicas e receitas, tornando a visualização mais limpa e organizada.
+            </p>
+            <div style={{
+              margin: "0 0 24px 0",
+              padding: "12px 16px",
+              backgroundColor: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              borderLeft: "4px solid #3b82f6",
+              borderRadius: "8px",
+              fontSize: "1.2rem",
+              color: "#1e40af",
+              lineHeight: "1.5"
+            }}>
+              <strong style={{ display: "block", marginBottom: "4px", color: "#1e3a8a" }}>💡 Exemplo:</strong>
+              Em vez de usar <strong>"Leite Integral UHT - 1L"</strong> na receita, o sistema exibirá apenas <strong>"Leite"</strong>.
+            </div>
+            <button
+              onClick={() => setNomeSimplesInfoModalOpen(false)}
+              style={{ width: "100%", padding: "14px", backgroundColor: "var(--primary-color)", color: "white", border: "none", borderRadius: "10px", fontSize: "1.1rem", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease" }}
+              onMouseOver={(e) => e.currentTarget.style.opacity = "0.9"}
+              onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      )}
+
+      {custoManualInfoModalOpen && (
+        <div className="modal-overlay" onClick={() => setCustoManualInfoModalOpen(false)} style={{ zIndex: 1100, backdropFilter: "blur(4px)" }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "420px", textAlign: "left", padding: "32px 24px", borderRadius: "16px", border: "none", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)" }}>
+            <h3 style={{ margin: "0 0 16px 0", color: "var(--secondary-color)", fontSize: "1.8rem", fontWeight: 700, textAlign: "center" }}>Custo Considerado Manual</h3>
+            <p style={{ fontSize: "1.3rem", color: "#475569", lineHeight: "1.6", margin: "0 0 16px 0" }}>
+              Permite que você defina manualmente um valor de custo fixo para a embalagem/insumo.
+            </p>
+            <p style={{ fontSize: "1.3rem", color: "#475569", lineHeight: "1.6", margin: "0 0 16px 0" }}>
+              Quando este campo é preenchido, o valor inserido aqui poderá ser usado nos cálculos de custos das fichas técnicas e receitas, e irá servir de comparativo com o custo dinâmico das compras.
+            </p>
+            <div style={{
+              margin: "0 0 24px 0",
+              padding: "12px 16px",
+              backgroundColor: "#eff6ff",
+              border: "1px solid #bfdbfe",
+              borderLeft: "4px solid #3b82f6",
+              borderRadius: "8px",
+              fontSize: "1.2rem",
+              color: "#1e40af",
+              lineHeight: "1.5"
+            }}>
+              <strong style={{ display: "block", marginBottom: "4px", color: "#1e3a8a" }}>💡 Utilidade:</strong>
+              Ideal para quando o preço de compra oscila muito.
+            </div>
+            <button
+              onClick={() => setCustoManualInfoModalOpen(false)}
+              style={{ width: "100%", padding: "14px", backgroundColor: "var(--primary-color)", color: "white", border: "none", borderRadius: "10px", fontSize: "1.1rem", fontWeight: 600, cursor: "pointer", transition: "opacity 0.2s ease" }}
+              onMouseOver={(e) => e.currentTarget.style.opacity = "0.9"}
+              onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      )}
+
       {isModalOpen && (
         <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "680px", minHeight: "80vh", maxHeight: "90vh", overflowY: "auto", paddingBottom: "100px" }}>
@@ -491,7 +612,9 @@ function CadastroInsumos() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                   <div style={{ display: "flex", gap: "16px" }}>
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block" }}>Nome do Insumo *</label>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "8px" }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", margin: 0 }}>Nome do Insumo *</label>
+                      </div>
                       <input
                         type="text"
                         required
@@ -504,7 +627,17 @@ function CadastroInsumos() {
                     </div>
 
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block" }}>Nome Simples e Unitário</label>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "8px" }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", margin: 0 }}>Nome Simples e Unitário</label>
+                        <button
+                          type="button"
+                          onClick={() => setNomeSimplesInfoModalOpen(true)}
+                          style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", display: "inline-flex", alignItems: "center", padding: 0 }}
+                          title="O que é o Nome Simples e Unitário?"
+                        >
+                          <Icons.BsQuestionCircle size={15} />
+                        </button>
+                      </div>
                       <input
                         type="text"
                         className="frequencia-select"
@@ -518,7 +651,9 @@ function CadastroInsumos() {
 
                   <div style={{ display: "flex", gap: "16px" }}>
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Tipo</label>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "8px" }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", margin: 0 }}>Tipo</label>
+                      </div>
                       <Select
                         isClearable
                         menuPosition="fixed"
@@ -561,7 +696,9 @@ function CadastroInsumos() {
                       />
                     </div>
                     <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block" }}>Fornecedor Padrão</label>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "8px" }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", margin: 0 }}>Fornecedor Padrão</label>
+                      </div>
                       <input
                         type="text"
                         className="frequencia-select"
@@ -575,9 +712,19 @@ function CadastroInsumos() {
 
                   <div style={{ display: "flex", gap: "16px" }}>
                     <div className="form-group" style={{ flex: "0 0 calc(50% - 8px)", maxWidth: "calc(50% - 8px)", marginBottom: 0 }}>
-                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>
-                        Custo Considerado Manual
-                      </label>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "8px" }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", margin: 0 }}>
+                          Custo Considerado Manual
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setCustoManualInfoModalOpen(true)}
+                          style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", display: "inline-flex", alignItems: "center", padding: 0 }}
+                          title="O que é o Custo Considerado Manual?"
+                        >
+                          <Icons.BsQuestionCircle size={15} />
+                        </button>
+                      </div>
                       <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
                         <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>R$</span>
                         <input
@@ -600,124 +747,232 @@ function CadastroInsumos() {
                   <Icons.BsCart3 /> Compras
                 </h3>
 
-                <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Compra</label>
-                    <CreatableSelect
-                      isClearable
-                      menuPosition="fixed"
-                      menuPortalTarget={document.body}
-                      placeholder="Ex: Unidade"
-                      options={[
-                        { value: 'Unidade', label: 'Unidade' },
-                        { value: 'Pacote', label: 'Pacote' },
-                        { value: 'Caixa', label: 'Caixa' },
-                        { value: 'Saco', label: 'Saco' },
-                        { value: 'Kg', label: 'Kg' }
-                      ]}
-                      value={novaUnidadeConversao ? { value: novaUnidadeConversao, label: novaUnidadeConversao } : null}
-                      onChange={(selectedOption) => setNovaUnidadeConversao(selectedOption?.value || "")}
-                      formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          fontSize: '1.2rem',
-                          minHeight: '42px',
-                          borderRadius: '8px',
-                          borderColor: '#cbd5e1',
-                          backgroundColor: '#fff',
-                          textAlign: 'center'
-                        }),
-                        singleValue: (base) => ({
-                          ...base,
-                          textAlign: 'center'
-                        }),
-                        menu: (base) => ({
-                          ...base,
-                          fontSize: '1.2rem',
-                          zIndex: 9999
-                        }),
-                        menuPortal: (base) => ({
-                          ...base,
-                          zIndex: 9999
-                        })
-                      }}
-                    />
-                  </div>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>
-                      {novaUnidadeConversao && novoUnidadeEstoque && novaUnidadeConversao.trim().toLowerCase() === novoUnidadeEstoque.trim().toLowerCase()
-                        ? "Qntd de Compra"
-                        : `Qntd que vem no(a) ${novaUnidadeConversao || "Embalagem"} em ${novoUnidadeEstoque || "Unidade de Estoque"}`}
-                    </label>
+                {/* Toggle switch for enabling/disabling unit conversion */}
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
+                  <label className="switch" style={{ position: "relative", display: "inline-block", width: "40px", height: "22px", margin: 0 }}>
                     <input
-                      type="number"
-                      step="0.0001"
-                      className="frequencia-select"
-                      placeholder="Ex: 5"
-                      value={novaQtdConversao}
-                      onChange={(e) => setNovaQtdConversao(e.target.value)}
-                      style={{ textAlign: "center", width: "100%", boxSizing: "border-box" }}
-                    />
-                  </div>
-                </div>
-
-                <div style={{ display: "flex", gap: "16px", marginBottom: "8px" }}>
-                  <div className="form-group" style={{ flex: "0 0 calc(50% - 8px)", maxWidth: "calc(50% - 8px)", marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Estoque</label>
-                    <CreatableSelect
-                      isClearable
-                      menuPosition="fixed"
-                      menuPortalTarget={document.body}
-                      placeholder="Ex: Kg"
-                      options={[
-                        { value: 'Unidade', label: 'Unidade' },
-                        { value: 'Kg', label: 'Kg' },
-                        { value: 'g', label: 'g' },
-                        { value: 'L', label: 'L' },
-                        { value: 'ml', label: 'ml' }
-                      ]}
-                      value={novoUnidadeEstoque ? { value: novoUnidadeEstoque, label: novoUnidadeEstoque } : null}
-                      onChange={(selectedOption) => setNovoUnidadeEstoque(selectedOption?.value || "")}
-                      formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          fontSize: '1.2rem',
-                          minHeight: '42px',
-                          borderRadius: '8px',
-                          borderColor: '#cbd5e1',
-                          backgroundColor: '#fff',
-                          textAlign: 'center'
-                        }),
-                        singleValue: (base) => ({
-                          ...base,
-                          textAlign: 'center'
-                        }),
-                        menu: (base) => ({
-                          ...base,
-                          fontSize: '1.2rem',
-                          zIndex: 9999
-                        }),
-                        menuPortal: (base) => ({
-                          ...base,
-                          zIndex: 9999
-                        })
+                      type="checkbox"
+                      checked={habilitarConversao}
+                      onChange={(e) => {
+                        setHabilitarConversao(e.target.checked);
                       }}
+                      style={{ opacity: 0, width: 0, height: 0 }}
                     />
-                  </div>
+                    <span style={{
+                      position: "absolute",
+                      cursor: "pointer",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: habilitarConversao ? "var(--primary-color, #3b82f6)" : "#cbd5e1",
+                      transition: "0.3s",
+                      borderRadius: "22px"
+                    }}>
+                      <span style={{
+                        position: "absolute",
+                        content: '""',
+                        height: "16px",
+                        width: "16px",
+                        left: "3px",
+                        bottom: "3px",
+                        backgroundColor: "white",
+                        transition: "0.3s",
+                        borderRadius: "50%",
+                        transform: habilitarConversao ? "translateX(18px)" : "translateX(0)"
+                      }} />
+                    </span>
+                  </label>
+                  <span
+                    style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", cursor: "pointer" }}
+                    onClick={() => {
+                      setHabilitarConversao(!habilitarConversao);
+                    }}
+                  >
+                    Habilitar conversão de Unidade
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setConversaoInfoModalOpen(true)}
+                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", display: "flex", alignItems: "center", padding: 0 }}
+                    title="O que é a conversão de unidade?"
+                  >
+                    <Icons.BsQuestionCircle size={18} />
+                  </button>
                 </div>
 
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", padding: "12px 16px", borderRadius: "8px", marginTop: "16px", color: "#1e40af", fontSize: "1.1rem" }}>
-                  <Icons.BsInfoCircleFill style={{ flexShrink: 0, fontSize: "1.2rem" }} />
-                  <div>
-                    {novaUnidadeConversao && novoUnidadeEstoque && novaUnidadeConversao.trim().toLowerCase() === novoUnidadeEstoque.trim().toLowerCase() ? (
-                      <span><strong>Sem necessidade de conversão:</strong> As unidades de compra e estoque são iguais.</span>
-                    ) : (
-                      <span><strong>Relação de Transformação:</strong> 1 {novaUnidadeConversao || "[Unidade de Compra]"} equivale a {novaQtdConversao || "[Quantidade]"} {novoUnidadeEstoque || "[Unidade de Estoque]"}.</span>
-                    )}
+                {!habilitarConversao ? (
+                  <div style={{ display: "flex", gap: "16px", marginBottom: "8px" }}>
+                    <div className="form-group" style={{ flex: "0 0 calc(50% - 8px)", maxWidth: "calc(50% - 8px)", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Compra</label>
+                      <CreatableSelect
+                        isClearable
+                        menuPosition="fixed"
+                        menuPortalTarget={document.body}
+                        placeholder="Ex: Unidade"
+                        options={[
+                          { value: 'Unidade', label: 'Unidade' },
+                          { value: 'Pacote', label: 'Pacote' },
+                          { value: 'Pote', label: 'Pote' },
+                          { value: 'Caixa', label: 'Caixa' },
+                          { value: 'Saco', label: 'Saco' },
+                          { value: 'Balde', label: 'Balde' },
+                          { value: 'Litro', label: 'Litro' },
+                          { value: 'Kg', label: 'Kg' }
+                        ]}
+                        value={novaUnidadeConversao ? { value: novaUnidadeConversao, label: novaUnidadeConversao } : null}
+                        onChange={(selectedOption) => {
+                          const val = selectedOption?.value || "";
+                          setNovaUnidadeConversao(val);
+                          setNovoUnidadeEstoque(val);
+                        }}
+                        formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
+                        styles={{
+                          control: (base) => ({
+                            ...base,
+                            fontSize: '1.2rem',
+                            minHeight: '42px',
+                            borderRadius: '8px',
+                            borderColor: '#cbd5e1',
+                            backgroundColor: '#fff',
+                            textAlign: 'center'
+                          }),
+                          singleValue: (base) => ({
+                            ...base,
+                            textAlign: 'center'
+                          }),
+                          menu: (base) => ({
+                            ...base,
+                            fontSize: '1.2rem',
+                            zIndex: 9999
+                          }),
+                          menuPortal: (base) => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <>
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+                      <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Compra</label>
+                        <CreatableSelect
+                          isClearable
+                          menuPosition="fixed"
+                          menuPortalTarget={document.body}
+                          placeholder="Ex: Unidade"
+                          options={[
+                            { value: 'Unidade', label: 'Unidade' },
+                            { value: 'Pacote', label: 'Pacote' },
+                            { value: 'Caixa', label: 'Caixa' },
+                            { value: 'Saco', label: 'Saco' },
+                            { value: 'Balde', label: 'Balde' },
+                            { value: 'Litro', label: 'Litro' },
+                            { value: 'Kg', label: 'Kg' }
+                          ]}
+                          value={novaUnidadeConversao ? { value: novaUnidadeConversao, label: novaUnidadeConversao } : null}
+                          onChange={(selectedOption) => setNovaUnidadeConversao(selectedOption?.value || "")}
+                          formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              fontSize: '1.2rem',
+                              minHeight: '42px',
+                              borderRadius: '8px',
+                              borderColor: '#cbd5e1',
+                              backgroundColor: '#fff',
+                              textAlign: 'center'
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              textAlign: 'center'
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              fontSize: '1.2rem',
+                              zIndex: 9999
+                            }),
+                            menuPortal: (base) => ({
+                              ...base,
+                              zIndex: 9999
+                            })
+                          }}
+                        />
+                      </div>
+
+                      <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>
+                          Qtd. por {novaUnidadeConversao || "Embalagem"} ({novoUnidadeEstoque || "Conversão"})
+                        </label>
+                        <input
+                          type="number"
+                          step="0.0001"
+                          className="frequencia-select"
+                          placeholder="Ex: 5"
+                          value={novaQtdConversao}
+                          onChange={(e) => setNovaQtdConversao(e.target.value)}
+                          style={{ textAlign: "center", width: "100%", boxSizing: "border-box", height: "42px" }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "16px", marginBottom: "8px" }}>
+                      <div className="form-group" style={{ flex: "0 0 calc(50% - 8px)", maxWidth: "calc(50% - 8px)", marginBottom: 0 }}>
+                        <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Conversão</label>
+                        <CreatableSelect
+                          isClearable
+                          menuPosition="fixed"
+                          menuPortalTarget={document.body}
+                          placeholder="Ex: Kg"
+                          options={[
+                            { value: 'Unidade', label: 'Unidade' },
+                            { value: 'Kg', label: 'Kg' },
+                            { value: 'g', label: 'g' },
+                            { value: 'L', label: 'L' },
+                            { value: 'ml', label: 'ml' }
+                          ]}
+                          value={novoUnidadeEstoque ? { value: novoUnidadeEstoque, label: novoUnidadeEstoque } : null}
+                          onChange={(selectedOption) => setNovoUnidadeEstoque(selectedOption?.value || "")}
+                          formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
+                          styles={{
+                            control: (base) => ({
+                              ...base,
+                              fontSize: '1.2rem',
+                              minHeight: '42px',
+                              borderRadius: '8px',
+                              borderColor: '#cbd5e1',
+                              backgroundColor: '#fff',
+                              textAlign: 'center'
+                            }),
+                            singleValue: (base) => ({
+                              ...base,
+                              textAlign: 'center'
+                            }),
+                            menu: (base) => ({
+                              ...base,
+                              fontSize: '1.2rem',
+                              zIndex: 9999
+                            }),
+                            menuPortal: (base) => ({
+                              ...base,
+                              zIndex: 9999
+                            })
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", padding: "12px 16px", borderRadius: "8px", marginTop: "16px", color: "#1e40af", fontSize: "1.1rem" }}>
+                      <Icons.BsInfoCircleFill style={{ flexShrink: 0, fontSize: "1.2rem" }} />
+                      <div>
+                        <span><strong>Relação de Transformação:</strong> 1 {novaUnidadeConversao || "[Unidade de Compra]"} equivale a {novaQtdConversao || "[Quantidade]"} {novoUnidadeEstoque || "[Unidade de Conversão]"}.</span>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
@@ -735,7 +990,7 @@ function CadastroInsumos() {
                   />
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <label htmlFor="inventarioEspecial" style={{ fontSize: "1rem", fontWeight: 700, color: "var(--secondary-color)", cursor: "pointer", margin: 0, textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                      Inventário Especial (Controlar estoque por % de volume)
+                      Inventário Especial (Controlar estoque por %)
                     </label>
                     <button
                       type="button"
@@ -755,52 +1010,10 @@ function CadastroInsumos() {
                 </h3>
 
                 <div style={{ display: "flex", gap: "16px" }}>
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Consumo/Produção</label>
-                    <CreatableSelect
-                      isClearable
-                      menuPosition="fixed"
-                      menuPortalTarget={document.body}
-                      placeholder="Ex: g"
-                      options={[
-                        { value: 'Unidade', label: 'Unidade' },
-                        { value: 'Kg', label: 'Kg' },
-                        { value: 'g', label: 'g' },
-                        { value: 'L', label: 'L' },
-                        { value: 'ml', label: 'ml' }
-                      ]}
-                      value={novoUnidadeConsumo ? { value: novoUnidadeConsumo, label: novoUnidadeConsumo } : null}
-                      onChange={(selectedOption) => setNovoUnidadeConsumo(selectedOption?.value || "")}
-                      formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
-                      styles={{
-                        control: (base) => ({
-                          ...base,
-                          fontSize: '1.2rem',
-                          minHeight: '42px',
-                          borderRadius: '8px',
-                          borderColor: '#cbd5e1',
-                          backgroundColor: '#fff',
-                          textAlign: 'center'
-                        }),
-                        singleValue: (base) => ({
-                          ...base,
-                          textAlign: 'center'
-                        }),
-                        menu: (base) => ({
-                          ...base,
-                          fontSize: '1.2rem',
-                          zIndex: 9999
-                        }),
-                        menuPortal: (base) => ({
-                          ...base,
-                          zIndex: 9999
-                        })
-                      }}
-                    />
-                  </div>
-
-                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Fator de Desperdício (%)</label>
+                  <div className="form-group" style={{ flex: "0 0 calc(50% - 8px)", maxWidth: "calc(50% - 8px)", marginBottom: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", marginBottom: "8px" }}>
+                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", margin: 0 }}>Fator de Desperdício (%)</label>
+                    </div>
                     <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
                       <input
                         type="number"

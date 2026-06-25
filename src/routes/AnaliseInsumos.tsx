@@ -30,7 +30,7 @@ function AnaliseInsumos() {
       // Fetch insumos ativos
       const { data: insumosData, error: insumosError } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, tipo, nome_simples_unitario, custo_considerado_unitario, quantidade_conversao, unidade_conversao")
+        .select("id, nome, tipo, nome_simples_unitario, custo_considerado_unitario, quantidade_conversao, unidade_conversao, unidade_estoque")
         .eq("ativo", true)
         .order("nome", { ascending: true });
 
@@ -348,10 +348,10 @@ function AnaliseInsumos() {
                         </td>
                         <td style={{ color: "#64748b" }}>{insumo.ultima_compra_fornecedor}</td>
                         <td style={{ textAlign: "left", color: "#64748b", whiteSpace: "nowrap" }}>
-                          {formatCurrency(insumo.preco_anterior_unit)} <span style={{ fontSize: "0.9em", color: "#94a3b8", marginLeft: "4px" }}>/ {insumo.unidade_conversao || "un"}</span>
+                          {formatCurrency(insumo.preco_anterior_unit)} <span style={{ fontSize: "0.9em", color: "#94a3b8", marginLeft: "4px" }}>/ {insumo.unidade_estoque || "un"}</span>
                         </td>
                         <td style={{ textAlign: "left", fontWeight: "bold", color: "var(--primary-color)", whiteSpace: "nowrap" }}>
-                          {formatCurrency(insumo.preco_atual_unit)} <span style={{ fontSize: "0.9em", color: "#94a3b8", fontWeight: "normal", marginLeft: "4px" }}>/ {insumo.unidade_conversao || "un"}</span>
+                          {formatCurrency(insumo.preco_atual_unit)} <span style={{ fontSize: "0.9em", color: "#94a3b8", fontWeight: "normal", marginLeft: "4px" }}>/ {insumo.unidade_estoque || "un"}</span>
                         </td>
                         <td style={{ textAlign: "center" }}>
                           {insumo.variacao === 0 ? (
@@ -419,7 +419,7 @@ function AnaliseInsumos() {
                 <p style={{ margin: "0 0 8px 0", color: "#64748b", fontSize: "1.1rem", fontWeight: 500 }}>Preço Atual</p>
                 <p style={{ margin: 0, fontSize: "2.2rem", fontWeight: 800, color: "#0f172a", display: "flex", alignItems: "baseline", gap: "8px" }}>
                   {formatCurrency(selectedInsumo.preco_atual_unit)} 
-                  <span style={{ fontSize: "1.1rem", color: "#94a3b8", fontWeight: 500 }}>/ {selectedInsumo.unidade_conversao || "un"}</span>
+                  <span style={{ fontSize: "1.1rem", color: "#94a3b8", fontWeight: 500 }}>/ {selectedInsumo.unidade_estoque || "un"}</span>
                 </p>
               </div>
               <div style={{ flex: "1 1 200px", backgroundColor: "#fff", padding: "24px", borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)" }}>

@@ -39,15 +39,15 @@ export function AuthProvider({ children }) {
       console.log("initAuth started");
       try {
         console.log("Calling getSession()...");
-        
+
         // Timeout de 5 segundos para evitar que o app trave se a requisição do Supabase pendurar
         const sessionPromise = supabase.auth.getSession();
-        const timeoutPromise = new Promise((resolve, reject) => 
+        const timeoutPromise = new Promise((resolve, reject) =>
           setTimeout(() => reject(new Error("Supabase getSession timeout após 5 segundos")), 5000)
         );
 
         const response = await Promise.race([sessionPromise, timeoutPromise]);
-        
+
         const currentSession = response?.data?.session;
         const error = response?.error;
 
