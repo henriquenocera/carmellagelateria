@@ -31,6 +31,8 @@ function CadastroInsumos() {
   const [novoFornecedor, setNovoFornecedor] = useState("");
   const [novoFatorDesperdicio, setNovoFatorDesperdicio] = useState("0");
   const [novoInventarioEspecial, setNovoInventarioEspecial] = useState(false);
+  const [novoUnidadeEstoque, setNovoUnidadeEstoque] = useState("");
+  const [novoUnidadeConsumo, setNovoUnidadeConsumo] = useState("");
   const [ativo, setAtivo] = useState(true);
   const [infoModalOpen, setInfoModalOpen] = useState(false);
   const [filtroTexto, setFiltroTexto] = useState("");
@@ -75,6 +77,8 @@ function CadastroInsumos() {
       setNovoCustoConsiderado(insumo.custo_considerado !== null ? insumo.custo_considerado.toString() : "");
       setNovoFatorDesperdicio(insumo.fator_desperdicio !== null ? insumo.fator_desperdicio.toString() : "0");
       setNovoInventarioEspecial(insumo.inventario_especial || false);
+      setNovoUnidadeEstoque(insumo.unidade_estoque || "");
+      setNovoUnidadeConsumo(insumo.unidade_consumo || "");
       setAtivo(insumo.ativo ?? true);
     } else {
       setEditingId(null);
@@ -87,6 +91,8 @@ function CadastroInsumos() {
       setNovoCustoConsiderado("");
       setNovoFatorDesperdicio("0");
       setNovoInventarioEspecial(false);
+      setNovoUnidadeEstoque("");
+      setNovoUnidadeConsumo("");
       setAtivo(true);
     }
     setIsModalOpen(true);
@@ -143,7 +149,9 @@ function CadastroInsumos() {
         tipo: novoTipo.trim(),
         fornecedor_padrao: novoFornecedor.trim(),
         fator_desperdicio: parseFloat(novoFatorDesperdicio) || 0,
-        inventario_especial: novoInventarioEspecial
+        inventario_especial: novoInventarioEspecial,
+        unidade_estoque: novoUnidadeEstoque.trim(),
+        unidade_consumo: novoUnidadeConsumo.trim()
       };
 
       if (editingId) {
@@ -322,7 +330,7 @@ function CadastroInsumos() {
             <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>Nenhum insumo registrado.</p>
           ) : (
             <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
-              <table className="freq-table" style={{ minWidth: "1100px" }}>
+              <table className="freq-table" style={{ minWidth: "1300px" }}>
                 <thead>
                   <tr>
                     <th style={{ width: "30px" }}></th>
@@ -331,12 +339,14 @@ function CadastroInsumos() {
                     <th>Nome Simples</th>
                     <th>Tipo</th>
                     <th>Fornecedor</th>
-                    <th style={{ width: "90px" }}>Qtd Conv.</th>
-                    <th style={{ width: "90px" }}>Embalagem</th>
+                    <th style={{ width: "90px" }}>Qtd Compra</th>
+                    <th style={{ width: "90px" }}>Unid. Compra</th>
+                    <th style={{ width: "90px" }}>Unid. Estoque</th>
+                    <th style={{ textAlign: "center", width: "60px" }}>Inv. Esp.</th>
+                    <th style={{ width: "90px" }}>Unid. Consumo</th>
                     <th style={{ width: "90px", textAlign: "center" }}>Desperd. (%)</th>
                     <th style={{ width: "100px" }}>Custo Emb.</th>
                     <th style={{ width: "100px" }}>Custo Unit.</th>
-                    <th style={{ textAlign: "center", width: "60px" }}>Inv. Esp.</th>
                     <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
                   </tr>
                 </thead>
@@ -400,9 +410,7 @@ function CadastroInsumos() {
                           <td>{insumo.fornecedor_padrao || "-"}</td>
                           <td>{insumo.quantidade_conversao}</td>
                           <td>{insumo.unidade_conversao || "-"}</td>
-                          <td style={{ textAlign: "center" }}>{insumo.fator_desperdicio}%</td>
-                          <td>{insumo.custo_considerado !== null && insumo.custo_considerado !== undefined ? `R$ ${insumo.custo_considerado.toFixed(2)}` : "-"}</td>
-                          <td>{insumo.custo_considerado_unitario !== null && insumo.custo_considerado_unitario !== undefined ? `R$ ${insumo.custo_considerado_unitario.toFixed(2)}` : "-"}</td>
+                          <td>{insumo.unidade_estoque || "-"}</td>
                           <td style={{ textAlign: "center" }}>
                             {insumo.inventario_especial ? (
                               <Icons.BsCheckCircleFill style={{ color: "#22c55e", fontSize: "1.2rem" }} />
@@ -410,6 +418,10 @@ function CadastroInsumos() {
                               "-"
                             )}
                           </td>
+                          <td>{insumo.unidade_consumo || "-"}</td>
+                          <td style={{ textAlign: "center" }}>{insumo.fator_desperdicio}%</td>
+                          <td>{insumo.custo_considerado !== null && insumo.custo_considerado !== undefined ? `R$ ${insumo.custo_considerado.toFixed(2)}` : "-"}</td>
+                          <td>{insumo.custo_considerado_unitario !== null && insumo.custo_considerado_unitario !== undefined ? `R$ ${insumo.custo_considerado_unitario.toFixed(2)}` : "-"}</td>
                           <td 
                             style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px", alignItems: "center", height: "100%", padding: "12px 8px" }}
                             onClick={(e) => e.stopPropagation()}
@@ -560,17 +572,37 @@ function CadastroInsumos() {
                       />
                     </div>
                   </div>
+
+                  <div style={{ display: "flex", gap: "16px" }}>
+                    <div className="form-group" style={{ flex: "0 0 calc(50% - 8px)", maxWidth: "calc(50% - 8px)", marginBottom: 0 }}>
+                      <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>
+                        Custo Considerado Manual
+                      </label>
+                      <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
+                        <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>R$</span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          className="frequencia-select"
+                          placeholder="0,00"
+                          value={novoCustoConsiderado}
+                          onChange={(e) => setNovoCustoConsiderado(e.target.value)}
+                          style={{ paddingLeft: "36px", textAlign: "center", width: "100%", boxSizing: "border-box" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
                 <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <Icons.BsCalculator /> Cálculo de Custo
+                  <Icons.BsCart3 /> Compras
                 </h3>
 
                 <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Embalagem de Compra</label>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Compra</label>
                     <CreatableSelect
                       isClearable
                       menuPosition="fixed"
@@ -613,18 +645,16 @@ function CadastroInsumos() {
                     />
                   </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block" }}>
-                      {novaUnidadeConversao === "Unidade"
-                        ? "Qntd de Unidades"
-                        : novaUnidadeConversao === "Kg"
-                          ? "Qntd de Kgs"
-                          : `Qtd que vem ${novaUnidadeConversao ? `no(a) ${novaUnidadeConversao}` : "na Embalagem"}`}
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>
+                      {novaUnidadeConversao && novoUnidadeEstoque && novaUnidadeConversao.trim().toLowerCase() === novoUnidadeEstoque.trim().toLowerCase()
+                        ? "Qntd de Compra"
+                        : `Qntd que vem no(a) ${novaUnidadeConversao || "Embalagem"} em ${novoUnidadeEstoque || "Unidade de Estoque"}`}
                     </label>
                     <input
                       type="number"
                       step="0.0001"
                       className="frequencia-select"
-                      placeholder="Ex: 1000"
+                      placeholder="Ex: 5"
                       value={novaQtdConversao}
                       onChange={(e) => setNovaQtdConversao(e.target.value)}
                       style={{ textAlign: "center", width: "100%", boxSizing: "border-box" }}
@@ -632,43 +662,70 @@ function CadastroInsumos() {
                   </div>
                 </div>
 
-                <div style={{ display: "flex", gap: "16px", marginBottom: "16px", justifyContent: "flex-start" }}>
-                  <div className="form-group" style={{ flex: "0 0 220px", maxWidth: "220px", marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block" }}>
-                      Custo Considerado Manual
-                    </label>
-                    <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
-                      <span style={{ position: "absolute", left: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>R$</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="frequencia-select"
-                        placeholder="0,00"
-                        value={novoCustoConsiderado}
-                        onChange={(e) => setNovoCustoConsiderado(e.target.value)}
-                        style={{ paddingLeft: "36px", textAlign: "center", width: "100%", boxSizing: "border-box" }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="form-group" style={{ flex: "0 0 220px", maxWidth: "220px", marginBottom: 0 }}>
-                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block" }}>Fator de Desperdício (%)</label>
-                    <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
-                      <input
-                        type="number"
-                        step="0.01"
-                        className="frequencia-select"
-                        placeholder="0"
-                        value={novoFatorDesperdicio}
-                        onChange={(e) => setNovoFatorDesperdicio(e.target.value)}
-                        style={{ paddingRight: "36px", textAlign: "center", width: "100%", boxSizing: "border-box" }}
-                      />
-                      <span style={{ position: "absolute", right: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>%</span>
-                    </div>
+                <div style={{ display: "flex", gap: "16px", marginBottom: "8px" }}>
+                  <div className="form-group" style={{ flex: "0 0 calc(50% - 8px)", maxWidth: "calc(50% - 8px)", marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Estoque</label>
+                    <CreatableSelect
+                      isClearable
+                      menuPosition="fixed"
+                      menuPortalTarget={document.body}
+                      placeholder="Ex: Kg"
+                      options={[
+                        { value: 'Unidade', label: 'Unidade' },
+                        { value: 'Kg', label: 'Kg' },
+                        { value: 'g', label: 'g' },
+                        { value: 'L', label: 'L' },
+                        { value: 'ml', label: 'ml' }
+                      ]}
+                      value={novoUnidadeEstoque ? { value: novoUnidadeEstoque, label: novoUnidadeEstoque } : null}
+                      onChange={(selectedOption) => setNovoUnidadeEstoque(selectedOption?.value || "")}
+                      formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          fontSize: '1.2rem',
+                          minHeight: '42px',
+                          borderRadius: '8px',
+                          borderColor: '#cbd5e1',
+                          backgroundColor: '#fff',
+                          textAlign: 'center'
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          textAlign: 'center'
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          fontSize: '1.2rem',
+                          zIndex: 9999
+                        }),
+                        menuPortal: (base) => ({
+                          ...base,
+                          zIndex: 9999
+                        })
+                      }}
+                    />
                   </div>
                 </div>
 
-                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: "10px", marginBottom: "20px", marginTop: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "10px", backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", padding: "12px 16px", borderRadius: "8px", marginTop: "16px", color: "#1e40af", fontSize: "1.1rem" }}>
+                  <Icons.BsInfoCircleFill style={{ flexShrink: 0, fontSize: "1.2rem" }} />
+                  <div>
+                    {novaUnidadeConversao && novoUnidadeEstoque && novaUnidadeConversao.trim().toLowerCase() === novoUnidadeEstoque.trim().toLowerCase() ? (
+                      <span><strong>Sem necessidade de conversão:</strong> As unidades de compra e estoque são iguais.</span>
+                    ) : (
+                      <span><strong>Relação de Transformação:</strong> 1 {novaUnidadeConversao || "[Unidade de Compra]"} equivale a {novaQtdConversao || "[Quantidade]"} {novoUnidadeEstoque || "[Unidade de Estoque]"}.</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsBoxSeam /> Estoque
+                </h3>
+
+                <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", gap: "10px" }}>
                   <input
                     type="checkbox"
                     id="inventarioEspecial"
@@ -688,6 +745,74 @@ function CadastroInsumos() {
                     >
                       <Icons.BsQuestionCircle size={18} />
                     </button>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+                <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.4rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsLayers /> Consumo/Produção
+                </h3>
+
+                <div style={{ display: "flex", gap: "16px" }}>
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Unidade de Consumo/Produção</label>
+                    <CreatableSelect
+                      isClearable
+                      menuPosition="fixed"
+                      menuPortalTarget={document.body}
+                      placeholder="Ex: g"
+                      options={[
+                        { value: 'Unidade', label: 'Unidade' },
+                        { value: 'Kg', label: 'Kg' },
+                        { value: 'g', label: 'g' },
+                        { value: 'L', label: 'L' },
+                        { value: 'ml', label: 'ml' }
+                      ]}
+                      value={novoUnidadeConsumo ? { value: novoUnidadeConsumo, label: novoUnidadeConsumo } : null}
+                      onChange={(selectedOption) => setNovoUnidadeConsumo(selectedOption?.value || "")}
+                      formatCreateLabel={(inputValue) => `Criar "${inputValue}"`}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          fontSize: '1.2rem',
+                          minHeight: '42px',
+                          borderRadius: '8px',
+                          borderColor: '#cbd5e1',
+                          backgroundColor: '#fff',
+                          textAlign: 'center'
+                        }),
+                        singleValue: (base) => ({
+                          ...base,
+                          textAlign: 'center'
+                        }),
+                        menu: (base) => ({
+                          ...base,
+                          fontSize: '1.2rem',
+                          zIndex: 9999
+                        }),
+                        menuPortal: (base) => ({
+                          ...base,
+                          zIndex: 9999
+                        })
+                      }}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
+                    <label style={{ fontSize: "1.2rem", fontWeight: 600, color: "var(--secondary-color)", width: "100%", textAlign: "center", display: "block", marginBottom: "8px" }}>Fator de Desperdício (%)</label>
+                    <div style={{ position: "relative", display: "flex", alignItems: "center", width: "100%" }}>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="frequencia-select"
+                        placeholder="0"
+                        value={novoFatorDesperdicio}
+                        onChange={(e) => setNovoFatorDesperdicio(e.target.value)}
+                        style={{ paddingRight: "36px", textAlign: "center", width: "100%", boxSizing: "border-box" }}
+                      />
+                      <span style={{ position: "absolute", right: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "1.1rem" }}>%</span>
+                    </div>
                   </div>
                 </div>
               </div>
