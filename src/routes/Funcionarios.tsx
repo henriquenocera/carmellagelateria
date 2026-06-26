@@ -207,6 +207,14 @@ function Funcionarios() {
             <table className="pessoas-table">
               <thead>
                 <tr>
+                  {isAdmin && (
+                    <th style={{ textAlign: "center", verticalAlign: "middle" }}>
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+                        <span style={{ background: "#fef3c7", color: "#d97706", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold", width: "fit-content" }}>Admin</span>
+                        <span>ID</span>
+                      </div>
+                    </th>
+                  )}
                   <th>Nome</th>
                   <th>E-mail</th>
                   <th>Data Registro</th>
@@ -307,6 +315,11 @@ function Funcionarios() {
 
                   return (
                     <tr key={p.id} className={p.ativo === false ? "inactive-row" : ""}>
+                      {isAdmin && (
+                        <td style={{ textAlign: "center", fontWeight: "bold", color: "#64748b" }}>
+                          {p.short_id || "-"}
+                        </td>
+                      )}
                       <td style={{ fontWeight: 600 }}>
                         <Link to={`/configuracoes/cadastro-pessoas/${p.id}`} className="employee-link" style={{ textDecoration: 'none', color: 'var(--primary-color)' }}>
                           {p.name || "-"}

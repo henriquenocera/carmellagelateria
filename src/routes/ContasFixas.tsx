@@ -793,56 +793,60 @@ function ContasFixas() {
                         ) : (
                           <>
                             <td>
-                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
+                                {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited) && (
+                                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                                    {l.status_revisao === 'admin_only' && (
+                                      <span style={{
+                                        backgroundColor: "#3b82f6",
+                                        color: "#ffffff",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-block",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        Somente Admin
+                                      </span>
+                                    )}
+                                    {isRowNew && (
+                                      <span style={{
+                                        backgroundColor: "#10b981",
+                                        color: "#ffffff",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-block",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        Novo
+                                      </span>
+                                    )}
+                                    {isRowEdited && (
+                                      <span style={{
+                                        backgroundColor: "#f97316",
+                                        color: "#ffffff",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-block",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        Editado
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                                 <span>{l.descricao}</span>
-                                {l.status_revisao === 'admin_only' && (
-                                  <span style={{
-                                    backgroundColor: "#3b82f6",
-                                    color: "#ffffff",
-                                    fontSize: "0.9rem",
-                                    fontWeight: "bold",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                    textTransform: "uppercase",
-                                    lineHeight: "1.1",
-                                    display: "inline-block",
-                                    letterSpacing: "0.03em"
-                                  }}>
-                                    Somente Admin
-                                  </span>
-                                )}
-                                {isRowNew && (
-                                  <span style={{
-                                    backgroundColor: "#10b981",
-                                    color: "#ffffff",
-                                    fontSize: "0.9rem",
-                                    fontWeight: "bold",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                    textTransform: "uppercase",
-                                    lineHeight: "1.1",
-                                    display: "inline-block",
-                                    letterSpacing: "0.03em"
-                                  }}>
-                                    Novo
-                                  </span>
-                                )}
-                                {isRowEdited && (
-                                  <span style={{
-                                    backgroundColor: "#f97316",
-                                    color: "#ffffff",
-                                    fontSize: "0.9rem",
-                                    fontWeight: "bold",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                    textTransform: "uppercase",
-                                    lineHeight: "1.1",
-                                    display: "inline-block",
-                                    letterSpacing: "0.03em"
-                                  }}>
-                                    Editado
-                                  </span>
-                                )}
                               </div>
                             </td>
                             <td style={{ textAlign: "center", fontSize: "1.3rem", fontWeight: "bold" }}>{l.dia_vencimento}</td>

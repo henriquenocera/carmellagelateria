@@ -731,7 +731,7 @@ function HistoricoFuncionario() {
                   {employee.short_id && <span className="employee-badge">ID: {employee.short_id}</span>}
                   {employee.email}
                 </p>
-                <button onClick={() => navigate(`/cadastro-pessoas?edit=${id}`)} className="primary-btn" style={{ marginTop: '12px', padding: '8px 16px', alignSelf: 'flex-start' }}>
+                <button onClick={() => navigate(`/configuracoes/cadastro-pessoas?edit=${id}`)} className="primary-btn" style={{ marginTop: '12px', padding: '8px 16px', alignSelf: 'flex-start' }}>
                   <Icons.BsPencil /> Editar Dados Cadastrais
                 </button>
               </>

@@ -21,9 +21,11 @@ function DashboardFinanceiro() {
   });
 
   const [pagarReceberStatus, setPagarReceberStatus] = useState({
-    aPagar: { total: 0, vencido: 0, hoje: 0, proximos: 0 },
-    aReceber: { total: 0, vencido: 0, hoje: 0, proximos: 0 }
+    aPagar: { total: 0, vencido: 0, hoje: 0, proximos: 0, proximos14: 0, proximos21: 0, proximos30: 0 },
+    aReceber: { total: 0, vencido: 0, hoje: 0, proximos: 0, proximos14: 0, proximos21: 0, proximos30: 0 }
   });
+
+  const [modalDetails, setModalDetails] = useState<{ title: string; color: string; items: any[] } | null>(null);
 
   const getLocalDateString = (d: Date) => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -86,7 +88,7 @@ function DashboardFinanceiro() {
         const [contasRes, lancamentosData, pendentesRes, caixaLancamentosData] = await Promise.all([
           supabase.from("contas").select("id, banco, agencia, conta_corrente, descricao").eq("ativo", true).order("banco", { ascending: true }),
           fetchAllLancamentos(),
-          supabase.from("contas_pagar_receber").select("data, valor, categoria"),
+          supabase.from("contas_pagar_receber").select("data, valor, categoria, descricao"),
           fetchAllCaixaLancamentos()
         ]);
 
@@ -159,8 +161,8 @@ function DashboardFinanceiro() {
         const sumSaldos = listSaldos.reduce((acc, curr) => acc + curr.valor, 0);
 
         // Calcular Pagar/Receber
-        let aPagar = { total: 0, vencido: 0, hoje: 0, proximos: 0 };
-        let aReceber = { total: 0, vencido: 0, hoje: 0, proximos: 0 };
+        let aPagar = { total: 0, vencido: 0, hoje: 0, proximos: 0, proximos14: 0, proximos21: 0, proximos30: 0 };
+        let aReceber = { total: 0, vencido: 0, hoje: 0, proximos: 0, proximos14: 0, proximos21: 0, proximos30: 0 };
 
         pendentesData.forEach(p => {
           if (!p.data || !p.valor) return;
@@ -183,6 +185,12 @@ function DashboardFinanceiro() {
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             if (diffDays <= 7) {
               targetObj.proximos += absValor;
+            } else if (diffDays <= 14) {
+              targetObj.proximos14 += absValor;
+            } else if (diffDays <= 21) {
+              targetObj.proximos21 += absValor;
+            } else if (diffDays <= 30) {
+              targetObj.proximos30 += absValor;
             }
           }
         });
@@ -204,6 +212,33 @@ function DashboardFinanceiro() {
     fetchData();
     return () => { isMounted = false; };
   }, [isAdmin]);
+
+  const handleShowDetails = (tipo: "PAGAR" | "RECEBER", periodo: "vencido" | "hoje" | "proximos" | "proximos14" | "proximos21" | "proximos30", title: string, color: string) => {
+    const d = new Date();
+    const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const todayZero = new Date(todayStr + "T00:00:00");
+    const items = allPendentes.filter(p => {
+      if (!p.data || !p.valor) return false;
+      const val = parseFloat(p.valor);
+      if (isNaN(val)) return false;
+      if (tipo === "PAGAR" && val > 0) return false;
+      if (tipo === "RECEBER" && val < 0) return false;
+      
+      if (periodo === "vencido") return p.data < todayStr;
+      if (periodo === "hoje") return p.data === todayStr;
+      
+      const pDate = new Date(p.data + "T00:00:00");
+      const diffTime = pDate.getTime() - todayZero.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (periodo === "proximos") return diffDays > 0 && diffDays <= 7;
+      if (periodo === "proximos14") return diffDays > 7 && diffDays <= 14;
+      if (periodo === "proximos21") return diffDays > 14 && diffDays <= 21;
+      if (periodo === "proximos30") return diffDays > 21 && diffDays <= 30;
+      return false;
+    });
+    setModalDetails({ title, color, items });
+  };
 
   const formatCurrency = (val: number) => {
     return `R$ ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -338,17 +373,29 @@ function DashboardFinanceiro() {
                     </div>
                   </div>
                   <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#64748b", fontSize: "1.4rem" }}>Atrasado:</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "vencido", "Atrasado (A Pagar)", "#ef4444")}>
+                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Atrasado: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
                       <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.vencido)}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#64748b", fontSize: "1.4rem" }}>Para Hoje:</span>
-                      <span style={{ color: "#d97706", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.hoje)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "hoje", "Para Hoje (A Pagar)", "#ef4444")}>
+                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Para Hoje: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.hoje)}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#64748b", fontSize: "1.4rem" }}>Próximos 7 dias:</span>
-                      <span style={{ color: "#3b82f6", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos", "Próximos 7 dias (A Pagar)", "#ef4444")}>
+                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 7 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos14", "Próximos 14 dias (A Pagar)", "#ef4444")}>
+                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 14 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos14)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos21", "Próximos 21 dias (A Pagar)", "#ef4444")}>
+                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 21 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos21)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos30", "Próximos 30 dias (A Pagar)", "#ef4444")}>
+                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 30 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos30)}</span>
                     </div>
                   </div>
                 </div>
@@ -364,17 +411,29 @@ function DashboardFinanceiro() {
                     </div>
                   </div>
                   <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#64748b", fontSize: "1.4rem" }}>Atrasado:</span>
-                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.vencido)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "vencido", "Atrasado (A Receber)", "#10b981")}>
+                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Atrasado: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.vencido)}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#64748b", fontSize: "1.4rem" }}>Para Hoje:</span>
-                      <span style={{ color: "#d97706", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.hoje)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "hoje", "Para Hoje (A Receber)", "#10b981")}>
+                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Para Hoje: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.hoje)}</span>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ color: "#64748b", fontSize: "1.4rem" }}>Próximos 7 dias:</span>
-                      <span style={{ color: "#3b82f6", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos)}</span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos", "Próximos 7 dias (A Receber)", "#10b981")}>
+                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 7 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos14", "Próximos 14 dias (A Receber)", "#10b981")}>
+                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 14 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos14)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos21", "Próximos 21 dias (A Receber)", "#10b981")}>
+                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 21 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos21)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos30", "Próximos 30 dias (A Receber)", "#10b981")}>
+                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 30 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos30)}</span>
                     </div>
                   </div>
                 </div>
@@ -426,6 +485,102 @@ function DashboardFinanceiro() {
           </div>
         )}
       </div>
+
+      {/* Modal de Detalhes de Contas */}
+      {modalDetails && (
+        <div style={{
+          position: "fixed",
+          top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 9999,
+          padding: "20px"
+        }}>
+          <div style={{
+            background: "#fff",
+            borderRadius: "16px",
+            width: "100%",
+            maxWidth: "600px",
+            maxHeight: "80vh",
+            display: "flex",
+            flexDirection: "column",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+          }}>
+            <div style={{
+              padding: "20px",
+              borderBottom: "1px solid #e2e8f0",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center"
+            }}>
+              <h2 style={{ margin: 0, fontSize: "1.6rem", color: modalDetails.color, display: "flex", alignItems: "center", gap: "8px" }}>
+                <Icons.BsListCheck /> {modalDetails.title}
+              </h2>
+              <button
+                onClick={() => setModalDetails(null)}
+                style={{ background: "transparent", border: "none", fontSize: "1.5rem", cursor: "pointer", color: "#64748b" }}
+              >
+                <Icons.BsX />
+              </button>
+            </div>
+            
+            <div style={{ padding: "20px", overflowY: "auto", flex: 1 }}>
+              {modalDetails.items.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "40px 20px", color: "#94a3b8" }}>
+                  <Icons.BsInbox style={{ fontSize: "3rem", marginBottom: "12px" }} />
+                  <p style={{ fontSize: "1.4rem", margin: 0 }}>Nenhuma conta encontrada para este período.</p>
+                </div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {modalDetails.items.map((item, idx) => (
+                    <div key={idx} style={{ 
+                      padding: "16px", 
+                      borderRadius: "12px", 
+                      border: "1px solid #e2e8f0",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      background: "#f8fafc"
+                    }}>
+                      <div>
+                        <div style={{ fontWeight: "bold", fontSize: "1.4rem", color: "#334155", marginBottom: "4px" }}>
+                          {item.descricao || "Sem descrição"}
+                        </div>
+                        <div style={{ fontSize: "1.2rem", color: "#64748b", display: "flex", gap: "12px" }}>
+                          <span>Venc.: {item.data ? item.data.split('-').reverse().join('/') : "-"}</span>
+                          <span>{item.categoria || "Sem categoria"}</span>
+                        </div>
+                      </div>
+                      <div style={{ fontWeight: "bold", fontSize: "1.5rem", color: modalDetails.color }}>
+                        {formatCurrency(Math.abs(parseFloat(item.valor || 0)))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end" }}>
+              <button 
+                onClick={() => setModalDetails(null)}
+                style={{
+                  background: modalDetails.color,
+                  color: "#fff",
+                  border: "none",
+                  padding: "8px 24px",
+                  borderRadius: "8px",
+                  fontSize: "1.3rem",
+                  fontWeight: "bold",
+                  cursor: "pointer"
+                }}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

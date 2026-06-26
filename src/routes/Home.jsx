@@ -230,7 +230,7 @@ function Home() {
           fetchInsumosStatus("Loja Ahú", "ahu"),
           fetchInsumosStatus("Loja Alto XV", "altoxv"),
           supabase.from("clientes_food_service").select("id, nome, data_proximo_contato, data_ultimo_contato, status, historico_crm(date)").eq("ativo", true),
-          supabase.from("contas_pagar_receber").select("id, data, valor")
+          supabase.from("contas_pagar_receber").select("id, data, valor").or("status_revisao.is.null,status_revisao.neq.admin_only")
         ]);
 
         const profiles = profilesRes.data || [];

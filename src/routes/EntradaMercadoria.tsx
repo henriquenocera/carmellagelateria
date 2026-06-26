@@ -962,10 +962,21 @@ function EntradaMercadoria() {
                   </tr>
                 ) : (
                   (() => {
-                    const duplicatesMap: Record<string, number> = {};
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+                    const duplicatesMap: Record<string, { count: number, hasRecent: boolean }> = {};
                     compras.forEach(c => {
                       const key = `${c.insumo_id}_${c.data_compra}_${c.quantidade_comprada}_${c.valor_unitario}`;
-                      duplicatesMap[key] = (duplicatesMap[key] || 0) + 1;
+                      const isRecent = c.created_at ? new Date(c.created_at) >= sevenDaysAgo : true;
+                      
+                      if (!duplicatesMap[key]) {
+                        duplicatesMap[key] = { count: 0, hasRecent: false };
+                      }
+                      duplicatesMap[key].count += 1;
+                      if (isRecent) {
+                        duplicatesMap[key].hasRecent = true;
+                      }
                     });
                     
                     return compras.map((comp, index) => {
@@ -973,7 +984,8 @@ function EntradaMercadoria() {
                       const total = comp.quantidade_comprada * comp.valor_unitario;
                       
                       const key = `${comp.insumo_id}_${comp.data_compra}_${comp.quantidade_comprada}_${comp.valor_unitario}`;
-                      const isDuplicate = duplicatesMap[key] > 1;
+                      const duplicateInfo = duplicatesMap[key];
+                      const isDuplicate = duplicateInfo ? (duplicateInfo.count > 1 && duplicateInfo.hasRecent) : false;
                       const isEditing = editingRowId === comp.id;
 
                       const diffMin = comp.created_at ? (new Date().getTime() - new Date(comp.created_at).getTime()) / (1000 * 60) : -1;
