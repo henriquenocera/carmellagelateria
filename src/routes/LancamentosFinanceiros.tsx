@@ -28,6 +28,9 @@ function LancamentosFinanceiros() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
   const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
+  const [limit, setLimit] = useState(100);
+  const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState(0);
 
   const getToday = () => {
     const d = new Date();
@@ -211,12 +214,12 @@ function LancamentosFinanceiros() {
 
   const fetchLancamentosRef = useRef<any>(null);
 
-  const fetchLancamentos = useCallback(async (fStatus = filterStatus, orderCreated = filterCreatedToday) => {
+  const fetchLancamentos = useCallback(async (fStatus = filterStatus, orderCreated = filterCreatedToday, currentLimit = limit) => {
     fetchLancamentosRef.current = fetchLancamentos;
     try {
       let query = supabase
         .from("lancamentos_financeiros")
-        .select("*");
+        .select("*", { count: "exact" });
 
       if (orderCreated) {
         query = query.order("created_at", { ascending: false }).order("data", { ascending: false });
@@ -238,15 +241,32 @@ function LancamentosFinanceiros() {
         }
       }
 
-      const { data, error } = await query;
+      // range is inclusive, so to fetch currentLimit + 1 rows we request range 0 to currentLimit
+      const { data, error, count } = await query.range(0, currentLimit);
       if (error) throw error;
-      setLancamentos(data || []);
+
+      if (data) {
+        if (data.length > currentLimit) {
+          setHasMore(true);
+          setLancamentos(data.slice(0, currentLimit));
+        } else {
+          setHasMore(false);
+          setLancamentos(data);
+        }
+      } else {
+        setLancamentos([]);
+        setHasMore(false);
+      }
+
+      if (count !== null) {
+        setTotalCount(count);
+      }
 
       checkPendingCounts();
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
     }
-  }, [isAdmin, filterStatus, filterCreatedToday, checkPendingCounts]);
+  }, [isAdmin, filterStatus, filterCreatedToday, checkPendingCounts, limit]);
 
   useEffect(() => {
     if (user) {
@@ -410,6 +430,10 @@ function LancamentosFinanceiros() {
       console.error("Erro ao alterar status de revisão:", err);
       alert("Erro ao alterar status.");
     }
+  };
+
+  const handleLoadMore = () => {
+    setLimit(prev => prev + 100);
   };
 
   return (
@@ -601,7 +625,8 @@ function LancamentosFinanceiros() {
                   setFilterCategoria(null);
                   setFilterConta(null);
                 }
-                fetchLancamentos(newStatus, filterCreatedToday);
+                setLimit(100);
+                fetchLancamentos(newStatus, filterCreatedToday, 100);
               }}
               style={{
                 padding: "6px 12px",
@@ -632,7 +657,8 @@ function LancamentosFinanceiros() {
                     setFilterCategoria(null);
                     setFilterConta(null);
                   }
-                  fetchLancamentos(newStatus, filterCreatedToday);
+                  setLimit(100);
+                  fetchLancamentos(newStatus, filterCreatedToday, 100);
                 }}
                 style={{
                   padding: "6px 12px",
@@ -661,7 +687,8 @@ function LancamentosFinanceiros() {
                 setFilterConta(null);
                 setFilterStatus('all');
                 setFilterCreatedToday(false);
-                fetchLancamentos('all', false);
+                setLimit(100);
+                fetchLancamentos('all', false, 100);
               }}
               style={{
                 padding: "6px 12px",
@@ -1207,6 +1234,39 @@ function LancamentosFinanceiros() {
                 })()}
               </tbody>
             </table>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginTop: "24px", marginBottom: "24px" }}>
+            <span style={{ fontSize: "1.3rem", color: "#64748b" }}>
+              Mostrando <strong style={{ fontWeight: "bold", color: "#334155" }}>{lancamentos.length}</strong> de <strong style={{ fontWeight: "bold", color: "#334155" }}>{totalCount}</strong> totais
+            </span>
+            {hasMore && (
+              <button
+                onClick={handleLoadMore}
+                style={{
+                  padding: "12px 32px",
+                  backgroundColor: "#f8fafc",
+                  color: "#78593e",
+                  border: "1px solid #cbd5e1",
+                  borderRadius: "12px",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  fontSize: "1.4rem",
+                  transition: "all 0.2s ease",
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#f1f5f9";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "#94a3b8";
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#f8fafc";
+                  (e.currentTarget as HTMLButtonElement).style.borderColor = "#cbd5e1";
+                }}
+              >
+                Carregar mais 100 linhas...
+              </button>
+            )}
           </div>
 
         </div>

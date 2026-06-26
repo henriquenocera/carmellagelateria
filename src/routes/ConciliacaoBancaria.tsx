@@ -24,16 +24,25 @@ function ConciliacaoBancaria() {
       try {
         const { data: contasData, error: contasError } = await supabase
           .from("contas")
-          .select("id, banco, agencia, conta_corrente")
+          .select("id, banco, agencia, conta_corrente, descricao")
           .eq("ativo", true)
           .order("banco", { ascending: true });
 
         if (contasError) throw contasError;
 
-        const contasFormatadas = (contasData || []).map(c => {
-          const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
-          return { ...c, label };
-        });
+        const contasFormatadas = (contasData || [])
+          .map(c => {
+            const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
+            const displayLabel = [c.descricao, c.banco, c.conta_corrente].filter(Boolean).join(" - ");
+            return { ...c, label, displayLabel };
+          })
+          .filter(c => {
+            const isCaixa = 
+              (c.banco && c.banco.toLowerCase().includes("caixa dinheiro")) ||
+              (c.descricao && c.descricao.toLowerCase().includes("caixa dinheiro")) ||
+              (c.label && c.label.toLowerCase().includes("caixa dinheiro"));
+            return !isCaixa;
+          });
 
         setContas(contasFormatadas);
       } catch (error) {
@@ -53,25 +62,56 @@ function ConciliacaoBancaria() {
       setLoadingBalances(true);
 
       try {
-        const { data: lancamentosData, error: lancamentosError } = await supabase
-          .from("lancamentos_financeiros")
-          .select("conta, valor, status_revisao")
-          .lte("data", dataFiltro);
+        const fetchAllLancamentos = async () => {
+          let list: any[] = [];
+          let from = 0;
+          const step = 1000;
+          let hasMore = true;
+          while (hasMore) {
+            const { data, error } = await supabase
+              .from("lancamentos_financeiros")
+              .select("conta, valor, status_revisao")
+              .lte("data", dataFiltro)
+              .range(from, from + step - 1);
+            if (error) throw error;
+            if (data && data.length > 0) {
+              list = [...list, ...data];
+              from += step;
+              if (data.length < step) hasMore = false;
+            } else {
+              hasMore = false;
+            }
+          }
+          return list;
+        };
 
-        if (lancamentosError) throw lancamentosError;
+        const lancamentosData = await fetchAllLancamentos();
 
         const balances: { [conta: string]: number } = {};
+        const displayToLabelMap: { [display: string]: string } = {};
         
         contas.forEach(c => {
           balances[c.label] = 0;
+          if (c.displayLabel) {
+            displayToLabelMap[c.displayLabel] = c.label;
+          }
         });
 
         if (lancamentosData) {
           lancamentosData.forEach((l: any) => {
             if (l.status_revisao === 'pending_delete') return;
 
-            if (l.conta && balances[l.conta] !== undefined) {
-              balances[l.conta] += parseFloat(l.valor || 0);
+            if (l.conta) {
+              let targetKey: string | undefined = undefined;
+              if (balances[l.conta] !== undefined) {
+                targetKey = l.conta;
+              } else if (displayToLabelMap[l.conta] !== undefined) {
+                targetKey = displayToLabelMap[l.conta];
+              }
+
+              if (targetKey !== undefined) {
+                balances[targetKey] += parseFloat(l.valor || 0);
+              }
             }
           });
         }
@@ -224,7 +264,7 @@ function ConciliacaoBancaria() {
                     return (
                       <tr key={index} style={{ borderBottom: "1px solid var(--border-color)" }}>
                         <td style={{ padding: "16px", fontWeight: "bold", color: "var(--text-primary)", fontSize: "1.3rem" }}>
-                          {conta.label}
+                          {conta.displayLabel || conta.label}
                         </td>
                         <td style={{ padding: "16px", textAlign: "center", fontSize: "1.4rem", fontWeight: "bold", color: loadingBalances ? "#94a3b8" : (saldoCalc < 0 ? "#ef4444" : "#10b981") }}>
                           {loadingBalances ? "Calculando..." : `R$ ${saldoCalc.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}

@@ -87,6 +87,7 @@ const MENU_CONFIG = [
     subItems: [
       { title: "Dashboard Financeiro", path: "/dashboard-financeiro", adminOnly: true },
       { title: "Lançamentos Financeiros", path: "/lancamentos-financeiros" },
+      { title: "Caixa Dinheiro", path: "/caixa-dinheiro", adminOnly: true },
       { title: "Conciliação bancária", path: "/conciliacao-bancaria" },
       { title: "Contas à pagar e receber", path: "/contas-pagar-receber" },
       { title: "Contas fixas", path: "/contas-fixas", adminOnly: true },

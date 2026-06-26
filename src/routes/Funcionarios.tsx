@@ -243,13 +243,15 @@ function Funcionarios() {
               <tbody>
                 {profiles.map((p) => {
                   const dataRegistro = p.data_registro ? new Date(p.data_registro + 'T00:00:00') : null;
-                  const diasDesdeRegistro = dataRegistro ? Math.floor((new Date().getTime() - dataRegistro.getTime()) / (1000 * 60 * 60 * 24)) : null;
+                  // O dia do registro conta como o 1º dia (Day 1), por isso adicionamos +1
+                  const diasDesdeRegistro = dataRegistro ? Math.floor((new Date().getTime() - dataRegistro.getTime()) / (1000 * 60 * 60 * 24)) + 1 : null;
 
                   let dataFim1 = "";
                   let dataFim2 = "";
                   if (dataRegistro) {
-                    const d1 = new Date(dataRegistro.getTime() + 45 * 24 * 60 * 60 * 1000);
-                    const d2 = new Date(dataRegistro.getTime() + 90 * 24 * 60 * 60 * 1000);
+                    // Como a data de registro conta como dia 1, a primeira etapa (45 dias) termina em D+44 e a segunda (90 dias) em D+89
+                    const d1 = new Date(dataRegistro.getTime() + 44 * 24 * 60 * 60 * 1000);
+                    const d2 = new Date(dataRegistro.getTime() + 89 * 24 * 60 * 60 * 1000);
                     dataFim1 = d1.toLocaleDateString('pt-BR');
                     dataFim2 = d2.toLocaleDateString('pt-BR');
                   }

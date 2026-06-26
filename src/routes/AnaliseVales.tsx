@@ -36,6 +36,7 @@ const AnaliseVales = () => {
   const [exportYear, setExportYear] = useState<number>(today.getFullYear());
   const [selectedExportEmployees, setSelectedExportEmployees] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportAllPeriod, setExportAllPeriod] = useState<boolean>(false);
 
   // Form State
   const [formDate, setFormDate] = useState('');
@@ -352,7 +353,10 @@ const AnaliseVales = () => {
       
       const startDate = new Date(exportYear, exportMonth - 1, 1, 0, 0, 0);
       const endDate = new Date(exportYear, exportMonth, 0, 23, 59, 59, 999);
-      query = query.gte('created_at', startDate.toISOString()).lte('created_at', endDate.toISOString());
+      
+      if (!exportAllPeriod) {
+        query = query.gte('created_at', startDate.toISOString()).lte('created_at', endDate.toISOString());
+      }
       query = query.in('Nome', selectedExportEmployees);
 
       let allExportData: any[] = [];
@@ -373,24 +377,26 @@ const AnaliseVales = () => {
         }
       }
 
-      let initQuery = supabase.from('Vales').select('Nome, valor').lt('created_at', startDate.toISOString());
-      initQuery = initQuery.in('Nome', selectedExportEmployees);
-
       let allInitData: any[] = [];
-      let initFrom = 0;
-      const initStep = 1000;
-      let initHasMore = true;
+      if (!exportAllPeriod) {
+        let initQuery = supabase.from('Vales').select('Nome, valor').lt('created_at', startDate.toISOString());
+        initQuery = initQuery.in('Nome', selectedExportEmployees);
 
-      while (initHasMore) {
-        const { data: iData, error: iError } = await initQuery.range(initFrom, initFrom + initStep - 1);
-        if (iError) throw iError;
+        let initFrom = 0;
+        const initStep = 1000;
+        let initHasMore = true;
 
-        if (iData && iData.length > 0) {
-          allInitData = [...allInitData, ...iData];
-          initFrom += initStep;
-          if (iData.length < initStep) initHasMore = false;
-        } else {
-          initHasMore = false;
+        while (initHasMore) {
+          const { data: iData, error: iError } = await initQuery.range(initFrom, initFrom + initStep - 1);
+          if (iError) throw iError;
+
+          if (iData && iData.length > 0) {
+            allInitData = [...allInitData, ...iData];
+            initFrom += initStep;
+            if (iData.length < initStep) initHasMore = false;
+          } else {
+            initHasMore = false;
+          }
         }
       }
 
@@ -402,12 +408,16 @@ const AnaliseVales = () => {
         const empVales = allExportData.filter(v => v.Nome === emp);
         const empInitVales = allInitData.filter(v => v.Nome === emp);
 
-        const initialBalance = empInitVales.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
+        const initialBalance = exportAllPeriod ? 0 : empInitVales.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
         const totalVal = empVales.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
         const finalBalance = initialBalance + totalVal;
 
         doc.setFontSize(18);
-        doc.text(`Relatório de Vales - ${monthName}/${exportYear}`, 14, 20);
+        if (exportAllPeriod) {
+          doc.text(`Relatório Geral de Vales (Todo o Período)`, 14, 20);
+        } else {
+          doc.text(`Relatório de Vales - ${monthName}/${exportYear}`, 14, 20);
+        }
         
         doc.setFontSize(12);
         doc.text(`Funcionário: ${emp}`, 14, 30);
@@ -438,7 +448,7 @@ const AnaliseVales = () => {
         } else {
           doc.setFontSize(11);
           doc.setFont("helvetica", "italic");
-          doc.text("Nenhum lançamento neste período.", 14, startY + 10);
+          doc.text("Nenhum lançamento registrado.", 14, startY + 10);
           startY += 20;
         }
 
@@ -449,16 +459,20 @@ const AnaliseVales = () => {
 
         doc.setFontSize(14);
         doc.setFont("helvetica", "bold");
-        doc.text("Balanço do Período:", 14, startY);
+        doc.text(exportAllPeriod ? "Balanço Geral:" : "Balanço do Período:", 14, startY);
         
         doc.setFont("helvetica", "normal");
-        doc.text(`Saldo Inicial (Anterior a ${monthName}/${exportYear}): R$ ${initialBalance.toFixed(2).replace('.', ',')}`, 14, startY + 10);
-        doc.text(`Total do Período Atual: R$ ${totalVal.toFixed(2).replace('.', ',')}`, 14, startY + 18);
-        
-        doc.setFont("helvetica", "bold");
-        doc.text(`Saldo Final: R$ ${finalBalance.toFixed(2).replace('.', ',')}`, 14, startY + 28);
+        if (exportAllPeriod) {
+          doc.text(`Saldo Total Acumulado: R$ ${totalVal.toFixed(2).replace('.', ',')}`, 14, startY + 10);
+        } else {
+          doc.text(`Saldo Inicial (Anterior a ${monthName}/${exportYear}): R$ ${initialBalance.toFixed(2).replace('.', ',')}`, 14, startY + 10);
+          doc.text(`Total do Período Atual: R$ ${totalVal.toFixed(2).replace('.', ',')}`, 14, startY + 18);
+          
+          doc.setFont("helvetica", "bold");
+          doc.text(`Saldo Final: R$ ${finalBalance.toFixed(2).replace('.', ',')}`, 14, startY + 28);
+        }
 
-        startY += 60;
+        startY += exportAllPeriod ? 40 : 60;
         if (startY > 280) {
           doc.addPage();
           startY = 40;
@@ -469,7 +483,10 @@ const AnaliseVales = () => {
         doc.text(`Assinatura - ${emp}`, 105, startY + 7, { align: "center" });
 
         // Save the individual document
-        doc.save(`Relatorio_Vales_${emp.replace(/\s+/g, '_')}_${monthName}_${exportYear}.pdf`);
+        const pdfName = exportAllPeriod 
+          ? `Relatorio_Vales_${emp.replace(/\s+/g, '_')}_Todo_Periodo.pdf`
+          : `Relatorio_Vales_${emp.replace(/\s+/g, '_')}_${monthName}_${exportYear}.pdf`;
+        doc.save(pdfName);
         
         // Pequeno delay para evitar que o navegador bloqueie por "Spam" de downloads simultâneos
         if (i < selectedExportEmployees.length - 1) {
@@ -513,6 +530,7 @@ const AnaliseVales = () => {
                 setExportMonth(month);
                 setExportYear(year);
                 setSelectedExportEmployees(activeEmployees);
+                setExportAllPeriod(false);
                 setIsExportModalOpen(true);
               }} 
               style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem", backgroundColor: "#475569", display: "flex", alignItems: "center" }}
@@ -888,12 +906,25 @@ const AnaliseVales = () => {
             <form onSubmit={handleExportPDF} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
               
               <div className="form-group" style={{ marginBottom: 0 }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '1.4rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={exportAllPeriod}
+                    onChange={(e) => setExportAllPeriod(e.target.checked)}
+                    style={{ transform: 'scale(1.2)' }}
+                  />
+                  Exportar todo o período histórico (ignorar mês/ano)
+                </label>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: 0, opacity: exportAllPeriod ? 0.5 : 1 }}>
                 <label style={{ fontSize: "1.4rem", fontWeight: 600, color: "var(--secondary-color)" }}>Mês/Ano *</label>
                 <div style={{ display: "flex", gap: "10px" }}>
                   <select
                     className="frequencia-select"
                     value={exportMonth}
                     onChange={(e) => setExportMonth(Number(e.target.value))}
+                    disabled={exportAllPeriod}
                     style={{ flex: 2, background: "#f8fafc" }}
                   >
                     {monthsList.map((m) => (
@@ -904,6 +935,7 @@ const AnaliseVales = () => {
                     className="frequencia-select"
                     value={exportYear}
                     onChange={(e) => setExportYear(Number(e.target.value))}
+                    disabled={exportAllPeriod}
                     style={{ flex: 1, background: "#f8fafc" }}
                   >
                     {yearsList.map((y) => (

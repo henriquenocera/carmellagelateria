@@ -39,35 +39,123 @@ function DashboardFinanceiro() {
         const todayStr = getLocalDateString(today);
         const todayZero = new Date(todayStr + "T00:00:00");
 
-        const [contasRes, lancamentosRes, pendentesRes] = await Promise.all([
+        const fetchAllLancamentos = async () => {
+          let list: any[] = [];
+          let from = 0;
+          const step = 1000;
+          let hasMore = true;
+          while (hasMore) {
+            const { data, error } = await supabase
+              .from("lancamentos_financeiros")
+              .select("conta, valor, status_revisao, data")
+              .range(from, from + step - 1);
+            if (error) throw error;
+            if (data && data.length > 0) {
+              list = [...list, ...data];
+              from += step;
+              if (data.length < step) hasMore = false;
+            } else {
+              hasMore = false;
+            }
+          }
+          return list;
+        };
+
+        const fetchAllCaixaLancamentos = async () => {
+          let list: any[] = [];
+          let from = 0;
+          const step = 1000;
+          let hasMore = true;
+          while (hasMore) {
+            const { data, error } = await supabase
+              .from("caixa_dinheiro_lancamentos")
+              .select("tipo, valor_total, data")
+              .range(from, from + step - 1);
+            if (error) throw error;
+            if (data && data.length > 0) {
+              list = [...list, ...data];
+              from += step;
+              if (data.length < step) hasMore = false;
+            } else {
+              hasMore = false;
+            }
+          }
+          return list;
+        };
+
+        const [contasRes, lancamentosData, pendentesRes, caixaLancamentosData] = await Promise.all([
           supabase.from("contas").select("id, banco, agencia, conta_corrente, descricao").eq("ativo", true).order("banco", { ascending: true }),
-          supabase.from("lancamentos_financeiros").select("conta, valor, status_revisao, data"),
-          supabase.from("contas_pagar_receber").select("data, valor")
+          fetchAllLancamentos(),
+          supabase.from("contas_pagar_receber").select("data, valor"),
+          fetchAllCaixaLancamentos()
         ]);
 
         const contasData = contasRes.data || [];
-        const lancamentosData = lancamentosRes.data || [];
         const pendentesData = pendentesRes.data || [];
 
         // Calcular Saldos das Contas
         const balancesMap: { [label: string]: number } = {};
         const displayMap: { [label: string]: string } = {};
+        const displayToLabelMap: { [display: string]: string } = {};
+        let caixaKey: string | null = null;
+
         contasData.forEach(c => {
           const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
           const displayLabel = [c.descricao, c.banco, c.conta_corrente].filter(Boolean).join(" - ");
           balancesMap[label] = 0;
           displayMap[label] = displayLabel;
+          displayToLabelMap[displayLabel] = label;
+
+          // Check if this account corresponds to the physical cash box "Caixa Dinheiro"
+          const isCaixa = 
+            (c.banco && c.banco.toLowerCase().includes("caixa dinheiro")) ||
+            (c.descricao && c.descricao.toLowerCase().includes("caixa dinheiro")) ||
+            (label && label.toLowerCase().includes("caixa dinheiro"));
+          if (isCaixa) {
+            caixaKey = label;
+          }
         });
 
         lancamentosData.forEach(l => {
           if (l.status_revisao === 'pending_delete') return;
           // Somar apenas para saldos das contas o que for <= hoje
-          if (l.data && l.data <= todayStr && l.conta && balancesMap[l.conta] !== undefined) {
-            balancesMap[l.conta] += parseFloat(l.valor || 0);
+          if (l.data && l.data <= todayStr && l.conta) {
+            let targetKey: string | undefined = undefined;
+            if (balancesMap[l.conta] !== undefined) {
+              targetKey = l.conta;
+            } else if (displayToLabelMap[l.conta] !== undefined) {
+              targetKey = displayToLabelMap[l.conta];
+            }
+
+            if (targetKey !== undefined) {
+              balancesMap[targetKey] += parseFloat(l.valor || 0);
+            }
           }
         });
 
+        // Calcular Saldo do Caixa Dinheiro
+        let caixaBalance = 0;
+        if (caixaLancamentosData) {
+          caixaLancamentosData.forEach(l => {
+            if (l.data && l.data <= todayStr) {
+              const mult = l.tipo === "entrada" ? 1 : -1;
+              caixaBalance += parseFloat(l.valor_total || 0) * mult;
+            }
+          });
+        }
+
+        // Overwrite existing account card balance if found
+        if (caixaKey) {
+          balancesMap[caixaKey] = caixaBalance;
+        }
+
         const listSaldos = Object.keys(balancesMap).map(k => ({ label: displayMap[k] || k, valor: balancesMap[k] }));
+
+        // Fallback: only create a separate card if there was no Cash account in accounts list
+        if (!caixaKey) {
+          listSaldos.push({ label: "Caixa Dinheiro", valor: caixaBalance });
+        }
+
         const sumSaldos = listSaldos.reduce((acc, curr) => acc + curr.valor, 0);
 
         // Calcular Pagar/Receber
