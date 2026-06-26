@@ -20,10 +20,22 @@ function LancamentosFinanceiros() {
 
   const [filterData, setFilterData] = useState("");
   const [filterDescricao, setFilterDescricao] = useState("");
+  const [debouncedDescricao, setDebouncedDescricao] = useState("");
   const [filterFornecedor, setFilterFornecedor] = useState<string | null>(null);
   const [filterCategoria, setFilterCategoria] = useState<string | null>(null);
   const [filterConta, setFilterConta] = useState<string | null>(null);
   const [filterCreatedToday, setFilterCreatedToday] = useState(false);
+  const [filterMes, setFilterMes] = useState("");
+  const [filterNoCategory, setFilterNoCategory] = useState(false);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedDescricao(filterDescricao);
+    }, 300);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [filterDescricao]);
 
   const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
@@ -214,7 +226,47 @@ function LancamentosFinanceiros() {
 
   const fetchLancamentosRef = useRef<any>(null);
 
-  const fetchLancamentos = useCallback(async (fStatus = filterStatus, orderCreated = filterCreatedToday, currentLimit = limit) => {
+  const getMonthRange = (monthStr: string) => {
+    if (!monthStr) return null;
+    const [year, month] = monthStr.split("-").map(Number);
+    const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
+    
+    let nextYear = year;
+    let nextMonth = month + 1;
+    if (nextMonth > 12) {
+      nextMonth = 1;
+      nextYear += 1;
+    }
+    const endDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
+    
+    return { startDate, endDate };
+  };
+
+  const fetchLancamentos = useCallback(async (options: {
+    currentLimit?: number;
+    fStatus?: 'all' | 'review' | 'deleted';
+    orderCreated?: boolean;
+    fData?: string;
+    fDesc?: string;
+    fForn?: string | null;
+    fCat?: string | null;
+    fConta?: string | null;
+    fMes?: string;
+    fNoCategory?: boolean;
+  } = {}) => {
+    const {
+      currentLimit = limit,
+      fStatus = filterStatus,
+      orderCreated = filterCreatedToday,
+      fData = filterData,
+      fDesc = debouncedDescricao,
+      fForn = filterFornecedor,
+      fCat = filterCategoria,
+      fConta = filterConta,
+      fMes = filterMes,
+      fNoCategory = filterNoCategory
+    } = options;
+
     fetchLancamentosRef.current = fetchLancamentos;
     try {
       let query = supabase
@@ -222,9 +274,9 @@ function LancamentosFinanceiros() {
         .select("*", { count: "exact" });
 
       if (orderCreated) {
-        query = query.order("created_at", { ascending: false }).order("data", { ascending: false });
+        query = query.order("created_at", { ascending: false }).order("data", { ascending: false }).order("id", { ascending: false });
       } else {
-        query = query.order("data", { ascending: false }).order("created_at", { ascending: false });
+        query = query.order("data", { ascending: false }).order("created_at", { ascending: false }).order("id", { ascending: false });
       }
 
       if (fStatus === 'review') {
@@ -241,18 +293,39 @@ function LancamentosFinanceiros() {
         }
       }
 
+      // Apply DB filters
+      if (fData) {
+        query = query.eq('data', fData);
+      }
+      if (fDesc) {
+        query = query.ilike('descricao', `%${fDesc}%`);
+      }
+      if (fForn) {
+        query = query.eq('fornecedor', fForn);
+      }
+      if (fCat) {
+        query = query.eq('categoria', fCat);
+      }
+      if (fConta) {
+        query = query.eq('conta', fConta);
+      }
+      if (fMes) {
+        const range = getMonthRange(fMes);
+        if (range) {
+          query = query.gte('data', range.startDate).lt('data', range.endDate);
+        }
+      }
+      if (fNoCategory) {
+        query = query.is('categoria', null);
+      }
+
       // range is inclusive, so to fetch currentLimit + 1 rows we request range 0 to currentLimit
-      const { data, error, count } = await query.range(0, currentLimit);
+      const { data, error, count } = await query.range(0, currentLimit - 1);
       if (error) throw error;
 
       if (data) {
-        if (data.length > currentLimit) {
-          setHasMore(true);
-          setLancamentos(data.slice(0, currentLimit));
-        } else {
-          setHasMore(false);
-          setLancamentos(data);
-        }
+        setLancamentos(data);
+        setHasMore(data.length >= currentLimit);
       } else {
         setLancamentos([]);
         setHasMore(false);
@@ -266,13 +339,33 @@ function LancamentosFinanceiros() {
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
     }
-  }, [isAdmin, filterStatus, filterCreatedToday, checkPendingCounts, limit]);
+  }, [isAdmin, filterStatus, filterCreatedToday, limit, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, checkPendingCounts]);
+
+  const isFirstRender = useRef(true);
+
+  useEffect(() => {
+    fetchLancamentosRef.current = fetchLancamentos;
+  }, [fetchLancamentos]);
 
   useEffect(() => {
     if (user) {
-      fetchLancamentos();
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+        fetchLancamentosRef.current?.({ currentLimit: 100 });
+        return;
+      }
+      setLimit(100);
+      fetchLancamentosRef.current?.({ currentLimit: 100 });
     }
-  }, [fetchLancamentos, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterStatus, filterCreatedToday, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, user]);
+
+  useEffect(() => {
+    if (user && limit !== 100) {
+      fetchLancamentosRef.current?.({ currentLimit: limit });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [limit, user]);
 
   useEffect(() => {
     const channel = supabase.channel('realtime-lancamentos')
@@ -320,7 +413,7 @@ function LancamentosFinanceiros() {
       if (error) throw error;
 
       setNewRow({ data: getToday(), descricao: "", valor: "", fornecedor: "", categoria: "", conta: "" });
-      fetchLancamentos();
+      fetchLancamentosRef.current?.();
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
       alert("Erro ao salvar lançamento.");
@@ -377,7 +470,7 @@ function LancamentosFinanceiros() {
       if (error) throw error;
 
       setEditingId(null);
-      fetchLancamentos();
+      fetchLancamentosRef.current?.();
     } catch (err: any) {
       console.error("Erro ao salvar edição:", err);
       alert("Erro ao atualizar lançamento.");
@@ -404,11 +497,11 @@ function LancamentosFinanceiros() {
         if (isAdmin) {
           const { error } = await supabase.from("lancamentos_financeiros").delete().eq("id", id);
           if (error) throw error;
-          fetchLancamentos();
+          fetchLancamentosRef.current?.();
         } else {
           const { error } = await supabase.from("lancamentos_financeiros").update({ status_revisao: 'pending_delete' }).eq("id", id);
           if (error) throw error;
-          fetchLancamentos();
+          fetchLancamentosRef.current?.();
         }
       } catch (err) {
         console.error("Erro ao excluir:", err);
@@ -425,7 +518,7 @@ function LancamentosFinanceiros() {
         .eq("id", id);
 
       if (error) throw error;
-      fetchLancamentos();
+      fetchLancamentosRef.current?.();
     } catch (err) {
       console.error("Erro ao alterar status de revisão:", err);
       alert("Erro ao alterar status.");
@@ -589,12 +682,66 @@ function LancamentosFinanceiros() {
           </div>
 
           {/* Barra de Filtros e Ordenação Globais */}
-          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px" }}>
+          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px", alignItems: "center" }}>
+            
+            {/* Campo de Filtro de Mês */}
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "4px", padding: "4px 10px", height: "32px", boxSizing: "border-box" }}>
+              <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: "bold" }}>Mês:</span>
+              <input
+                type="month"
+                value={filterMes}
+                onChange={(e) => {
+                  setFilterMes(e.target.value);
+                  if (e.target.value) {
+                    setFilterData(""); // Limpa o filtro de data específica se selecionar um mês completo
+                  }
+                }}
+                style={{
+                  border: "none",
+                  outline: "none",
+                  fontSize: "0.85rem",
+                  color: "#334155",
+                  fontFamily: "inherit",
+                  cursor: "pointer",
+                  padding: 0,
+                  height: "100%"
+                }}
+              />
+            </div>
+
+            {/* Botão Sem Categoria */}
+            <button
+              onClick={() => {
+                const newNoCat = !filterNoCategory;
+                setFilterNoCategory(newNoCat);
+                if (newNoCat) {
+                  setFilterCategoria(null); // Limpa o filtro de categoria específica
+                }
+              }}
+              style={{
+                padding: "6px 12px",
+                backgroundColor: filterNoCategory ? "#fffbeb" : "#fff",
+                color: filterNoCategory ? "#b45309" : "#64748b",
+                border: `1px solid ${filterNoCategory ? "#fde68a" : "#e2e8f0"}`,
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: filterNoCategory ? "bold" : "normal",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontSize: "0.85rem",
+                transition: "0.2s"
+              }}
+              title="Filtrar lançamentos sem categoria"
+            >
+              <Icons.BsExclamationTriangleFill style={{ color: filterNoCategory ? "#d97706" : "#cbd5e1" }} />
+              Sem Categoria
+            </button>
+
             <button
               onClick={() => {
                 const newOrder = !filterCreatedToday;
                 setFilterCreatedToday(newOrder);
-                fetchLancamentos(filterStatus, newOrder);
               }}
               style={{
                 padding: "6px 12px",
@@ -614,6 +761,7 @@ function LancamentosFinanceiros() {
             >
               <Icons.BsSortDown /> {filterCreatedToday ? "Ordem: Criação" : "Ordem: Data"}
             </button>
+            
             <button
               onClick={() => {
                 const newStatus = filterStatus === 'review' ? 'all' : 'review';
@@ -624,9 +772,9 @@ function LancamentosFinanceiros() {
                   setFilterFornecedor(null);
                   setFilterCategoria(null);
                   setFilterConta(null);
+                  setFilterMes("");
+                  setFilterNoCategory(false);
                 }
-                setLimit(100);
-                fetchLancamentos(newStatus, filterCreatedToday, 100);
               }}
               style={{
                 padding: "6px 12px",
@@ -656,9 +804,9 @@ function LancamentosFinanceiros() {
                     setFilterFornecedor(null);
                     setFilterCategoria(null);
                     setFilterConta(null);
+                    setFilterMes("");
+                    setFilterNoCategory(false);
                   }
-                  setLimit(100);
-                  fetchLancamentos(newStatus, filterCreatedToday, 100);
                 }}
                 style={{
                   padding: "6px 12px",
@@ -687,8 +835,8 @@ function LancamentosFinanceiros() {
                 setFilterConta(null);
                 setFilterStatus('all');
                 setFilterCreatedToday(false);
-                setLimit(100);
-                fetchLancamentos('all', false, 100);
+                setFilterMes("");
+                setFilterNoCategory(false);
               }}
               style={{
                 padding: "6px 12px",
@@ -707,7 +855,7 @@ function LancamentosFinanceiros() {
               <Icons.BsXCircleFill /> Limpar
             </button>
             <button
-              onClick={() => fetchLancamentos(filterStatus, filterCreatedToday)}
+              onClick={() => fetchLancamentosRef.current?.()}
               style={{
                 padding: "6px 12px",
                 backgroundColor: "#f1f5f9",
@@ -727,21 +875,21 @@ function LancamentosFinanceiros() {
           </div>
 
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
-            <table className="freq-table" style={{ minWidth: "1000px" }}>
+            <table className="freq-table" style={{ minWidth: "1250px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "250px" }}>Descrição</th>
-                  <th style={{ textAlign: "center", width: "80px" }}>Data</th>
-                  <th style={{ textAlign: "center", width: "120px" }}>Valor</th>
-                  <th style={{ textAlign: "center", width: "150px" }}>Fornecedor</th>
-                  <th style={{ textAlign: "center", width: "150px" }}>Categoria</th>
-                  <th style={{ textAlign: "center", width: "150px" }}>Conta</th>
-                  <th style={{ textAlign: "center", width: "60px" }}>Tipo</th>
-                  {isAdmin && <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>}
-                  <th style={{ textAlign: "center", width: "60px" }}>Ações</th>
+                  <th style={{ width: "220px", minWidth: "220px" }}>Descrição</th>
+                  <th style={{ textAlign: "center", width: "130px", minWidth: "130px" }}>Data</th>
+                  <th style={{ textAlign: "center", width: "110px", minWidth: "110px" }}>Valor</th>
+                  <th style={{ textAlign: "center", width: "180px", minWidth: "180px" }}>Fornecedor</th>
+                  <th style={{ textAlign: "center", width: "180px", minWidth: "180px" }}>Categoria</th>
+                  <th style={{ textAlign: "center", width: "180px", minWidth: "180px" }}>Conta</th>
+                  <th style={{ textAlign: "center", width: "90px", minWidth: "90px" }}>Tipo</th>
+                  {isAdmin && <th style={{ textAlign: "center", width: "140px", minWidth: "140px" }}>Usuário</th>}
+                  <th style={{ textAlign: "center", width: "100px", minWidth: "100px" }}>Ações</th>
                 </tr>
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "8px", minWidth: "220px" }}>
                     <input
                       type="text"
                       placeholder="Descrição..."
@@ -750,63 +898,66 @@ function LancamentosFinanceiros() {
                       style={{ width: "100%", height: "38px", padding: "6px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.2rem", boxSizing: "border-box" }}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "8px", minWidth: "130px" }}>
                     <input
                       type="date"
                       value={filterData}
-                      onChange={(e) => setFilterData(e.target.value)}
+                      onChange={(e) => {
+                        setFilterData(e.target.value);
+                        if (e.target.value) {
+                          setFilterMes(""); // Limpa o filtro de mês se selecionar um dia específico
+                        }
+                      }}
                       style={{ width: "100%", height: "38px", padding: "6px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.2rem", boxSizing: "border-box" }}
                     />
                   </th>
-                  <th></th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ minWidth: "110px" }}></th>
+                  <th style={{ padding: "8px", minWidth: "180px" }}>
                     <Select
                       menuPortalTarget={document.body}
                       options={fornecedorOptions}
-                      value={filterFornecedor ? { value: filterFornecedor, label: filterFornecedor } : null}
+                      value={filterFornecedor ? (fornecedorOptions.find(o => o.value === filterFornecedor) || { value: filterFornecedor, label: filterFornecedor }) : null}
                       onChange={(sel: any) => setFilterFornecedor(sel ? sel.value : null)}
                       placeholder="Fornecedor..."
                       isClearable
                       styles={filterSelectStyles}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "8px", minWidth: "180px" }}>
                     <Select
                       menuPortalTarget={document.body}
                       options={categoriaOptions}
-                      value={filterCategoria ? { value: filterCategoria, label: filterCategoria } : null}
-                      onChange={(sel: any) => setFilterCategoria(sel ? sel.value : null)}
+                      value={filterCategoria ? (categoriaOptions.flatMap(g => g.options).find(o => o.value === filterCategoria) || { value: filterCategoria, label: filterCategoria }) : null}
+                      onChange={(sel: any) => {
+                        setFilterCategoria(sel ? sel.value : null);
+                        if (sel) {
+                          setFilterNoCategory(false); // Desmarca o filtro global "Sem Categoria" ao escolher uma categoria específica
+                        }
+                      }}
                       placeholder="Categoria..."
                       isClearable
                       styles={filterSelectStyles}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "8px", minWidth: "180px" }}>
                     <Select
                       menuPortalTarget={document.body}
                       options={contaOptions}
-                      value={filterConta ? { value: filterConta, label: filterConta } : null}
+                      value={filterConta ? (contaOptions.find(o => o.value === filterConta) || { value: filterConta, label: filterConta }) : null}
                       onChange={(sel: any) => setFilterConta(sel ? sel.value : null)}
                       placeholder="Conta..."
                       isClearable
                       styles={filterSelectStyles}
                     />
                   </th>
-                  <th></th>
-                  {isAdmin && <th></th>}
-                  <th></th>
+                  <th style={{ minWidth: "90px" }}></th>
+                  {isAdmin && <th style={{ minWidth: "140px" }}></th>}
+                  <th style={{ minWidth: "100px" }}></th>
                 </tr>
               </thead>
               <tbody>
                 {(() => {
-                  const lancamentosFiltrados = lancamentos.filter(l => {
-                    if (filterData && l.data !== filterData) return false;
-                    if (filterDescricao && !l.descricao.toLowerCase().includes(filterDescricao.toLowerCase())) return false;
-                    if (filterFornecedor && l.fornecedor !== filterFornecedor) return false;
-                    if (filterCategoria && l.categoria !== filterCategoria) return false;
-                    if (filterConta && l.conta !== filterConta) return false;
-                    return true;
-                  });
+                  const lancamentosFiltrados = lancamentos;
 
                   if (lancamentosFiltrados.length === 0) {
                     return (
@@ -923,56 +1074,60 @@ function LancamentosFinanceiros() {
                         ) : (
                           <>
                             <td>
-                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
+                                {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited) && (
+                                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                                    {l.status_revisao === 'admin_only' && (
+                                      <span style={{
+                                        backgroundColor: "#3b82f6",
+                                        color: "#ffffff",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-block",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        Somente Admin
+                                      </span>
+                                    )}
+                                    {isRowNew && (
+                                      <span style={{
+                                        backgroundColor: "#10b981",
+                                        color: "#ffffff",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-block",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        Novo
+                                      </span>
+                                    )}
+                                    {isRowEdited && (
+                                      <span style={{
+                                        backgroundColor: "#f97316",
+                                        color: "#ffffff",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-block",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        Editado
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                                 <span>{l.descricao}</span>
-                                {l.status_revisao === 'admin_only' && (
-                                  <span style={{
-                                    backgroundColor: "#3b82f6",
-                                    color: "#ffffff",
-                                    fontSize: "0.9rem",
-                                    fontWeight: "bold",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                    textTransform: "uppercase",
-                                    lineHeight: "1.1",
-                                    display: "inline-block",
-                                    letterSpacing: "0.03em"
-                                  }}>
-                                    Somente Admin
-                                  </span>
-                                )}
-                                {isRowNew && (
-                                  <span style={{
-                                    backgroundColor: "#10b981",
-                                    color: "#ffffff",
-                                    fontSize: "0.9rem",
-                                    fontWeight: "bold",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                    textTransform: "uppercase",
-                                    lineHeight: "1.1",
-                                    display: "inline-block",
-                                    letterSpacing: "0.03em"
-                                  }}>
-                                    Novo
-                                  </span>
-                                )}
-                                {isRowEdited && (
-                                  <span style={{
-                                    backgroundColor: "#f97316",
-                                    color: "#ffffff",
-                                    fontSize: "0.9rem",
-                                    fontWeight: "bold",
-                                    padding: "2px 6px",
-                                    borderRadius: "4px",
-                                    textTransform: "uppercase",
-                                    lineHeight: "1.1",
-                                    display: "inline-block",
-                                    letterSpacing: "0.03em"
-                                  }}>
-                                    Editado
-                                  </span>
-                                )}
                               </div>
                             </td>
                             <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
@@ -980,7 +1135,28 @@ function LancamentosFinanceiros() {
                               R$ {l.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
                             <td style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
-                            <td style={{ textAlign: "center" }}>{l.categoria || "-"}</td>
+                            <td style={{ textAlign: "center" }}>
+                               {l.categoria ? (
+                                 <span>{l.categoria}</span>
+                               ) : (
+                                 <span style={{
+                                   display: "inline-flex",
+                                   alignItems: "center",
+                                   gap: "6px",
+                                   backgroundColor: "#fffbeb",
+                                   color: "#b45309",
+                                   border: "1px solid #fde68a",
+                                   padding: "4px 10px",
+                                   borderRadius: "6px",
+                                   fontWeight: "bold",
+                                   fontSize: "1.1rem",
+                                   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.02)"
+                                 }} title="Este lançamento precisa ser categorizado.">
+                                   <Icons.BsExclamationTriangleFill style={{ color: "#d97706", fontSize: "1.2rem" }} />
+                                   Sem Categoria
+                                 </span>
+                                )}
+                             </td>
                             <td style={{ textAlign: "center" }}>{contaOptions.find(o => o.value === l.conta)?.label || l.conta}</td>
                             <td style={{ textAlign: "center" }}>
                               <span style={{

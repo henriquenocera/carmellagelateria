@@ -7,11 +7,11 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 function DashboardFinanceiro() {
   const { isAdmin } = useAuth();
-  
+
   const [loading, setLoading] = useState(true);
   const [saldosContas, setSaldosContas] = useState<any[]>([]);
   const [saldoTotal, setSaldoTotal] = useState(0);
-  
+
   const [allLancamentos, setAllLancamentos] = useState<any[]>([]);
   const [allPendentes, setAllPendentes] = useState<any[]>([]);
 
@@ -31,7 +31,7 @@ function DashboardFinanceiro() {
 
   useEffect(() => {
     let isMounted = true;
-    
+
     async function fetchData() {
       if (!isAdmin) return;
       try {
@@ -47,7 +47,7 @@ function DashboardFinanceiro() {
           while (hasMore) {
             const { data, error } = await supabase
               .from("lancamentos_financeiros")
-              .select("conta, valor, status_revisao, data")
+              .select("conta, valor, status_revisao, data, categoria")
               .range(from, from + step - 1);
             if (error) throw error;
             if (data && data.length > 0) {
@@ -86,7 +86,7 @@ function DashboardFinanceiro() {
         const [contasRes, lancamentosData, pendentesRes, caixaLancamentosData] = await Promise.all([
           supabase.from("contas").select("id, banco, agencia, conta_corrente, descricao").eq("ativo", true).order("banco", { ascending: true }),
           fetchAllLancamentos(),
-          supabase.from("contas_pagar_receber").select("data, valor"),
+          supabase.from("contas_pagar_receber").select("data, valor, categoria"),
           fetchAllCaixaLancamentos()
         ]);
 
@@ -107,7 +107,7 @@ function DashboardFinanceiro() {
           displayToLabelMap[displayLabel] = label;
 
           // Check if this account corresponds to the physical cash box "Caixa Dinheiro"
-          const isCaixa = 
+          const isCaixa =
             (c.banco && c.banco.toLowerCase().includes("caixa dinheiro")) ||
             (c.descricao && c.descricao.toLowerCase().includes("caixa dinheiro")) ||
             (label && label.toLowerCase().includes("caixa dinheiro"));
@@ -178,12 +178,12 @@ function DashboardFinanceiro() {
           } else if (p.data === todayStr) {
             targetObj.hoje += absValor;
           } else {
-             const pDate = new Date(p.data + "T00:00:00");
-             const diffTime = pDate.getTime() - todayZero.getTime();
-             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-             if (diffDays <= 7) {
-               targetObj.proximos += absValor;
-             }
+            const pDate = new Date(p.data + "T00:00:00");
+            const diffTime = pDate.getTime() - todayZero.getTime();
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays <= 7) {
+              targetObj.proximos += absValor;
+            }
           }
         });
 
@@ -214,33 +214,48 @@ function DashboardFinanceiro() {
     const [yearStr, monthStr] = mesFiltro.split("-");
     const year = parseInt(yearStr);
     const month = parseInt(monthStr);
-    
+
     const daysInMonth = new Date(year, month, 0).getDate();
     const dataMap: any = {};
-    
+
     for (let i = 1; i <= daysInMonth; i++) {
       const dStr = `${yearStr}-${monthStr}-${String(i).padStart(2, '0')}`;
       dataMap[dStr] = { dia: `${String(i).padStart(2, '0')}/${monthStr}`, receitas: 0, despesas: 0, saldoDia: 0 };
     }
-    
+
+    const isTransferencia = (categoria?: string) => {
+      if (!categoria) return false;
+      const normalized = categoria
+        .toLowerCase()
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\./g, "");
+      // Como a variável 'normalized' é convertida para minúsculas e remove pontos,
+      // a comparação deve ser feita com strings totalmente minúsculas e sem pontuação.
+      return normalized === "transferencia entre contas" || normalized === "transf entre contas";
+    };
+
     // Historico confirmado
     allLancamentos.forEach(l => {
       if (l.status_revisao === 'pending_delete' || !l.data || !l.data.startsWith(mesFiltro)) return;
+      if (isTransferencia(l.categoria)) return;
       const val = parseFloat(l.valor || 0);
       if (val > 0) dataMap[l.data].receitas += val;
       else if (val < 0) dataMap[l.data].despesas += Math.abs(val);
       dataMap[l.data].saldoDia += val;
     });
-    
+
     // Pendente / Projetado
     allPendentes.forEach(p => {
       if (!p.data || !p.data.startsWith(mesFiltro)) return;
+      if (isTransferencia(p.categoria)) return;
       const val = parseFloat(p.valor || 0);
       if (val > 0) dataMap[p.data].receitas += val;
       else if (val < 0) dataMap[p.data].despesas += Math.abs(val);
       dataMap[p.data].saldoDia += val;
     });
-    
+
     return Object.values(dataMap);
   }, [mesFiltro, allLancamentos, allPendentes]);
 
@@ -274,7 +289,7 @@ function DashboardFinanceiro() {
           </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-            
+
             {/* SALDO TOTAL */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px" }}>
               <div style={{ background: "linear-gradient(135deg, #475569, #1e293b)", borderRadius: "12px", padding: "24px", color: "#fff", boxShadow: "0 4px 6px -1px rgba(30, 41, 59, 0.3)" }}>
@@ -307,11 +322,11 @@ function DashboardFinanceiro() {
 
             {/* CONTAS A PAGAR E RECEBER */}
             <div>
-               <h2 style={{ fontSize: "1.8rem", color: "#334155", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <h2 style={{ fontSize: "1.8rem", color: "#334155", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
                 <Icons.BsCalendarX /> Compromissos (A Pagar / A Receber)
               </h2>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "24px" }}>
-                
+
                 {/* A PAGAR */}
                 <div style={{ background: "#fff", border: "1px solid #fecaca", borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 6px -1px rgba(239, 68, 68, 0.1)" }}>
                   <div style={{ background: "#fef2f2", padding: "20px", borderBottom: "1px solid #fecaca" }}>
@@ -373,8 +388,8 @@ function DashboardFinanceiro() {
                 <h2 style={{ fontSize: "1.8rem", color: "#334155", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
                   <Icons.BsBarChartFill style={{ color: "var(--primary-color)" }} /> Fluxo de Caixa Diário
                 </h2>
-                <input 
-                  type="month" 
+                <input
+                  type="month"
                   value={mesFiltro}
                   onChange={(e) => setMesFiltro(e.target.value)}
                   style={{
@@ -395,7 +410,7 @@ function DashboardFinanceiro() {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis dataKey="dia" stroke="#94a3b8" fontSize={12} tickMargin={10} />
                     <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(value) => `R$ ${value}`} width={80} />
-                    <Tooltip 
+                    <Tooltip
                       formatter={(value: any) => formatCurrency(Number(value))}
                       labelStyle={{ color: '#334155', fontWeight: 'bold', marginBottom: '8px' }}
                       contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}

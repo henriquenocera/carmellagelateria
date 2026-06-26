@@ -253,10 +253,10 @@ function CaixaDinheiro() {
 
       handleResetInputs();
       fetchCaixaLancamentos();
-      alert("Lançamento de caixa registrado e sincronizado com sucesso!");
     } catch (err: any) {
       console.error("Erro ao registrar lançamento de caixa:", err);
-      alert("Erro ao registrar lançamento de caixa.");
+      const errorMsg = err?.message || err?.details || JSON.stringify(err) || "";
+      alert(`Erro ao registrar lançamento de caixa:\n${errorMsg}`);
     } finally {
       setSubmitting(false);
     }
