@@ -12,8 +12,9 @@ function LancamentosFinanceiros() {
   const [contasDb, setContasDb] = useState<any[]>([]);
   const [categoriasDb, setCategoriasDb] = useState<any[]>([]);
   const [fornecedoresDb, setFornecedoresDb] = useState<any[]>([]);
+  const [clientesDb, setClientesDb] = useState<any[]>([]);
   const [lancamentos, setLancamentos] = useState<any[]>([]);
-  const [profilesMap, setProfilesMap] = useState<{[key: string]: string}>({});
+  const [profilesMap, setProfilesMap] = useState<{ [key: string]: string }>({});
   const [savingRow, setSavingRow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
@@ -140,6 +141,7 @@ function LancamentosFinanceiros() {
   };
 
   const fornecedorOptions = fornecedoresDb.map(f => ({ value: f.nome, label: f.nome }));
+  const clienteOptions = clientesDb.map(c => ({ value: c.nome, label: c.nome }));
 
   const categoriaOptions = categoriasDb.filter(c => !c.parent_id).map(pai => ({
     label: pai.nome,
@@ -187,12 +189,22 @@ function LancamentosFinanceiros() {
           setFornecedoresDb(fornData);
         }
 
+        const { data: cliData, error: cliError } = await supabase
+          .from("clientes_food_service")
+          .select("id, nome")
+          .eq("ativo", true)
+          .order("nome", { ascending: true });
+
+        if (!cliError && cliData) {
+          setClientesDb(cliData);
+        }
+
         const { data: profilesData, error: profilesError } = await supabase
           .from("profiles")
           .select("id, name");
 
         if (!profilesError && profilesData) {
-          const map: {[key: string]: string} = {};
+          const map: { [key: string]: string } = {};
           profilesData.forEach((p: any) => {
             map[p.id] = p.name || "";
           });
@@ -230,7 +242,7 @@ function LancamentosFinanceiros() {
     if (!monthStr) return null;
     const [year, month] = monthStr.split("-").map(Number);
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
-    
+
     let nextYear = year;
     let nextMonth = month + 1;
     if (nextMonth > 12) {
@@ -238,7 +250,7 @@ function LancamentosFinanceiros() {
       nextYear += 1;
     }
     const endDate = `${nextYear}-${String(nextMonth).padStart(2, '0')}-01`;
-    
+
     return { startDate, endDate };
   };
 
@@ -616,12 +628,18 @@ function LancamentosFinanceiros() {
               </div>
 
               <div style={{ flex: "2 1 220px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Fornecedor</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>
+                  {parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0 ? "Cliente" : "Fornecedor"}
+                </label>
                 <Select
-                  options={fornecedorOptions}
-                  value={fornecedorOptions.find(o => o.value === newRow.fornecedor) || null}
-                  onChange={(option: any) => setNewRow({ ...newRow, fornecedor: option ? option.value : "" })}
-                  placeholder="Buscar Fornecedor..."
+                  options={parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0 ? clienteOptions : fornecedorOptions}
+                  value={
+                    (parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0
+                      ? clienteOptions.find(o => o.value === newRow.fornecedor)
+                      : fornecedorOptions.find(o => o.value === newRow.fornecedor)) || null
+                  }
+                  onChange={(option: any) => setNewRow({ ...newRow, fornecedor: option ? option.value : null })}
+                  placeholder={parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0 ? "Buscar Cliente..." : "Buscar Fornecedor..."}
                   isClearable
                   styles={selectStyles}
                   menuPortalTarget={document.body}
@@ -633,7 +651,7 @@ function LancamentosFinanceiros() {
                 <Select
                   options={categoriaOptions}
                   value={categoriaOptions.flatMap(g => g.options).find(o => o.value === newRow.categoria) || null}
-                  onChange={(option: any) => setNewRow({ ...newRow, categoria: option ? option.value : "" })}
+                  onChange={(option: any) => setNewRow({ ...newRow, categoria: option ? option.value : null })}
                   placeholder="Buscar Categoria..."
                   isClearable
                   styles={selectStyles}
@@ -683,7 +701,7 @@ function LancamentosFinanceiros() {
 
           {/* Barra de Filtros e Ordenação Globais */}
           <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px", alignItems: "center" }}>
-            
+
             {/* Campo de Filtro de Mês */}
             <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "4px", padding: "4px 10px", height: "32px", boxSizing: "border-box" }}>
               <span style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: "bold" }}>Mês:</span>
@@ -761,7 +779,7 @@ function LancamentosFinanceiros() {
             >
               <Icons.BsSortDown /> {filterCreatedToday ? "Ordem: Criação" : "Ordem: Data"}
             </button>
-            
+
             <button
               onClick={() => {
                 const newStatus = filterStatus === 'review' ? 'all' : 'review';
@@ -1014,20 +1032,27 @@ function LancamentosFinanceiros() {
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
                             </td>
+                             <td style={{ textAlign: "center" }}>
+                               <Select
+                                 isClearable
+                                 options={parseFloat(String(editRowData.valor || "0").replace(",", ".")) >= 0 ? clienteOptions : fornecedorOptions}
+                                 value={
+                                   (parseFloat(String(editRowData.valor || "0").replace(",", ".")) >= 0
+                                     ? clienteOptions.find(o => o.value === editRowData.fornecedor)
+                                     : fornecedorOptions.find(o => o.value === editRowData.fornecedor)) || null
+                                 }
+                                 onChange={(option: any) => setEditRowData({ ...editRowData, fornecedor: option ? option.value : null })}
+                                 menuPortalTarget={document.body}
+                                 placeholder={parseFloat(String(editRowData.valor || "0").replace(",", ".")) >= 0 ? "Cliente..." : "Fornecedor..."}
+                                 styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                               />
+                             </td>
                             <td style={{ textAlign: "center" }}>
                               <Select
-                                options={fornecedorOptions}
-                                value={fornecedorOptions.find(o => o.value === editRowData.fornecedor) || null}
-                                onChange={(option: any) => setEditRowData({ ...editRowData, fornecedor: option ? option.value : "" })}
-                                menuPortalTarget={document.body}
-                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
-                              />
-                            </td>
-                            <td style={{ textAlign: "center" }}>
-                              <Select
+                                isClearable
                                 options={categoriaOptions}
                                 value={categoriaOptions.flatMap(g => g.options).find(o => o.value === editRowData.categoria) || null}
-                                onChange={(option: any) => setEditRowData({ ...editRowData, categoria: option ? option.value : "" })}
+                                onChange={(option: any) => setEditRowData({ ...editRowData, categoria: option ? option.value : null })}
                                 menuPortalTarget={document.body}
                                 styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
                               />
@@ -1050,7 +1075,7 @@ function LancamentosFinanceiros() {
                                 fontWeight: "bold",
                                 fontSize: "1.1rem"
                               }}>
-                               {parseFloat(editRowData.valor || 0) >= 0 ? "Entrada" : "Saída"}
+                                {parseFloat(editRowData.valor || 0) >= 0 ? "Entrada" : "Saída"}
                               </span>
                             </td>
                             {isAdmin && <td></td>}
@@ -1075,7 +1100,7 @@ function LancamentosFinanceiros() {
                           <>
                             <td>
                               <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
-                                {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited) && (
+                                {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited || l.conciliado) && (
                                   <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                                     {l.status_revisao === 'admin_only' && (
                                       <span style={{
@@ -1125,6 +1150,26 @@ function LancamentosFinanceiros() {
                                         Editado
                                       </span>
                                     )}
+                                    {l.conciliado && (
+                                      <span style={{
+                                        backgroundColor: "#e0f2fe",
+                                        color: "#0369a1",
+                                        border: "1px solid #bae6fd",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        <Icons.BsCheckCircleFill style={{ fontSize: "0.95rem", color: "#0284c7" }} />
+                                        Conciliado
+                                      </span>
+                                    )}
                                   </div>
                                 )}
                                 <span>{l.descricao}</span>
@@ -1136,27 +1181,27 @@ function LancamentosFinanceiros() {
                             </td>
                             <td style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
                             <td style={{ textAlign: "center" }}>
-                               {l.categoria ? (
-                                 <span>{l.categoria}</span>
-                               ) : (
-                                 <span style={{
-                                   display: "inline-flex",
-                                   alignItems: "center",
-                                   gap: "6px",
-                                   backgroundColor: "#fffbeb",
-                                   color: "#b45309",
-                                   border: "1px solid #fde68a",
-                                   padding: "4px 10px",
-                                   borderRadius: "6px",
-                                   fontWeight: "bold",
-                                   fontSize: "1.1rem",
-                                   boxShadow: "0 1px 2px rgba(0, 0, 0, 0.02)"
-                                 }} title="Este lançamento precisa ser categorizado.">
-                                   <Icons.BsExclamationTriangleFill style={{ color: "#d97706", fontSize: "1.2rem" }} />
-                                   Sem Categoria
-                                 </span>
-                                )}
-                             </td>
+                              {l.categoria ? (
+                                <span>{l.categoria}</span>
+                              ) : (
+                                <span style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  backgroundColor: "#fffbeb",
+                                  color: "#b45309",
+                                  border: "1px solid #fde68a",
+                                  padding: "4px 10px",
+                                  borderRadius: "6px",
+                                  fontWeight: "bold",
+                                  fontSize: "1.1rem",
+                                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.02)"
+                                }} title="Este lançamento precisa ser categorizado.">
+                                  <Icons.BsExclamationTriangleFill style={{ color: "#d97706", fontSize: "1.2rem" }} />
+                                  Sem Categoria
+                                </span>
+                              )}
+                            </td>
                             <td style={{ textAlign: "center" }}>{contaOptions.find(o => o.value === l.conta)?.label || l.conta}</td>
                             <td style={{ textAlign: "center" }}>
                               <span style={{
@@ -1172,7 +1217,7 @@ function LancamentosFinanceiros() {
                             </td>
                             {isAdmin && (
                               <td style={{ textAlign: "center" }}>
-                                <span 
+                                <span
                                   title={l.created_at ? new Date(l.created_at).toLocaleString("pt-BR") : ""}
                                   style={{
                                     background: "#f1f5f9",
@@ -1363,7 +1408,7 @@ function LancamentosFinanceiros() {
                                         )}
                                       </>
                                     )}
-                                    {!( !isAdmin && (l.status_revisao === 'pending_user' || l.status_revisao === 'pending_admin') ) && (
+                                    {!(!isAdmin && (l.status_revisao === 'pending_user' || l.status_revisao === 'pending_admin')) && (
                                       <button
                                         onClick={() => handleDelete(l.id)}
                                         className="delete-record-btn"

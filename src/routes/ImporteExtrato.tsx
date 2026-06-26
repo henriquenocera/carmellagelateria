@@ -1,16 +1,141 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
+import { useAuth } from "../AuthProvider";
 import "../css/Frequencia.css";
 
 function ImporteExtrato() {
+  const { user } = useAuth();
+  
   const [file, setFile] = useState<File | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [contas, setContas] = useState<any[]>([]);
+  const [selectedConta, setSelectedConta] = useState<string>("");
+  const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
+
+  // Fetch Contas on mount
+  useEffect(() => {
+    async function fetchContas() {
+      try {
+        const { data: contasData, error: contasError } = await supabase
+          .from("contas")
+          .select("id, banco, agencia, conta_corrente, descricao")
+          .eq("ativo", true)
+          .order("banco", { ascending: true });
+
+        if (contasError) throw contasError;
+
+        const contasFormatadas = (contasData || [])
+          .map(c => {
+            const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
+            const displayLabel = [c.descricao, c.banco, c.conta_corrente].filter(Boolean).join(" - ");
+            return { ...c, label, displayLabel };
+          })
+          .filter(c => {
+            const isCaixa = 
+              (c.banco && c.banco.toLowerCase().includes("caixa dinheiro")) ||
+              (c.descricao && c.descricao.toLowerCase().includes("caixa dinheiro")) ||
+              (c.label && c.label.toLowerCase().includes("caixa dinheiro"));
+            return !isCaixa;
+          });
+
+        setContas(contasFormatadas);
+      } catch (error) {
+        console.error("Erro ao buscar contas bancárias:", error);
+      }
+    }
+    fetchContas();
+  }, []);
+
+  const toggleSelectTx = (id: string) => {
+    setSelectedTxIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const selectableTxs = transactions.filter(t => t.status === "Não Encontrado");
+  const allSelected = selectableTxs.length > 0 && selectableTxs.every(t => selectedTxIds.has(t.id));
+
+  const handleSelectAll = () => {
+    if (allSelected) {
+      setSelectedTxIds(prev => {
+        const next = new Set(prev);
+        selectableTxs.forEach(t => next.delete(t.id));
+        return next;
+      });
+    } else {
+      setSelectedTxIds(prev => {
+        const next = new Set(prev);
+        selectableTxs.forEach(t => next.add(t.id));
+        return next;
+      });
+    }
+  };
+
+  const handleImportSelected = async () => {
+    if (!selectedConta) {
+      alert("Por favor, selecione a conta bancária no topo da tabela.");
+      return;
+    }
+
+    const selectedTxs = transactions.filter(t => selectedTxIds.has(t.id) && t.status === "Não Encontrado");
+    if (selectedTxs.length === 0) {
+      alert("Nenhuma transação 'Não Encontrado' selecionada para importação.");
+      return;
+    }
+
+    if (!window.confirm(`Deseja lançar as ${selectedTxs.length} transações selecionadas na conta "${selectedConta}"?`)) {
+      return;
+    }
+
+    setSyncing(true);
+    try {
+      const payloads = selectedTxs.map(t => ({
+        data: t.date,
+        descricao: t.memo || "Lançamento via Importação OFX",
+        valor: t.amount,
+        conta: selectedConta,
+        categoria: null,
+        fornecedor: null,
+        user_id: user?.id,
+        status_revisao: null,
+        conciliado: true
+      }));
+
+      const { error } = await supabase
+        .from("lancamentos_financeiros")
+        .insert(payloads);
+
+      if (error) throw error;
+
+      setTransactions(prev => prev.map(t => {
+        if (selectedTxIds.has(t.id) && t.status === "Não Encontrado") {
+          return { ...t, status: "Importado" };
+        }
+        return t;
+      }));
+
+      setSelectedTxIds(new Set());
+      alert(`${payloads.length} lançamentos importados com sucesso!`);
+    } catch (err: any) {
+      console.error("Erro ao importar lançamentos:", err);
+      alert("Erro ao importar lançamentos: " + (err.message || "Erro desconhecido."));
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const parseOFX = (data: string) => {
     const txs: any[] = [];
@@ -48,6 +173,7 @@ function ImporteExtrato() {
     if (selected.name.toLowerCase().endsWith(".ofx")) {
       setFile(selected);
       setTransactions([]); // reset on new file
+      setSelectedTxIds(new Set()); // reset selection
     } else {
       alert("Por favor, selecione apenas arquivos .OFX");
       setFile(null);
@@ -168,47 +294,6 @@ function ImporteExtrato() {
     reader.readAsText(file);
   };
 
-  const handleSyncToDb = async () => {
-    const toSync = transactions.filter(t => t.status === "Encontrado" && t.dbId);
-    if (toSync.length === 0) {
-      alert("Nenhum lançamento pendente de sincronização (Status 'Encontrado').");
-      return;
-    }
-
-    setSyncing(true);
-    try {
-      // Update one by one or in batch
-      for (const t of toSync) {
-        const { error } = await supabase
-          .from("lancamentos_financeiros")
-          .update({ conciliado: true })
-          .eq("id", t.dbId);
-
-        if (error) {
-          if (error.message?.includes("column \"conciliado\" of relation")) {
-            throw new Error("A coluna 'conciliado' (booleana) não existe na tabela 'lancamentos_financeiros'. Por favor, crie esta coluna no banco de dados.");
-          }
-          throw error;
-        }
-      }
-
-      // Update local state to show them as synchronized
-      setTransactions(prev => prev.map(t => {
-        if (t.status === "Encontrado" && t.dbId) {
-          return { ...t, status: "Sincronizado" };
-        }
-        return t;
-      }));
-      
-      alert(`Sincronização concluída! ${toSync.length} lançamentos foram marcados como conciliados no banco.`);
-    } catch (err: any) {
-      console.error("Erro ao sincronizar:", err);
-      alert("Erro ao sincronizar: " + (err.message || "Verifique a conexão e tente novamente."));
-    } finally {
-      setSyncing(false);
-    }
-  };
-
   const formatCurrency = (val: number) => {
     return val.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   };
@@ -218,16 +303,13 @@ function ImporteExtrato() {
     return dateStr.split("-").reverse().join("/");
   };
 
-  const foundCount = transactions.filter(t => t.status === "Encontrado").length;
-  const synchronizedCount = transactions.filter(t => t.status === "Sincronizado").length;
-
   return (
     <>
       <Helmet>
         <title>Importe de Extrato - Carmella</title>
       </Helmet>
 
-      <div className="container" style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      <div className="frequencia-container" style={{ padding: "20px 24px", paddingLeft: "95px", maxWidth: "1200px", margin: "0 auto" }}>
         <h1 style={{ display: "flex", alignItems: "center", gap: "12px", color: "#334155", marginBottom: "24px", fontSize: "2.4rem" }}>
           <Icons.BsFileEarmarkArrowUp /> Importe de Extrato
         </h1>
@@ -290,56 +372,100 @@ function ImporteExtrato() {
 
         {transactions.length > 0 && (
           <div style={{ background: "#fff", padding: "24px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", flexWrap: "wrap", gap: "12px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
               <h2 style={{ fontSize: "1.8rem", color: "#334155", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
                 <Icons.BsListCheck /> Transações OFX ({transactions.length})
               </h2>
 
-              {(foundCount > 0 || synchronizedCount > 0) && (
-                <button 
-                  onClick={handleSyncToDb}
-                  disabled={foundCount === 0 || syncing}
+              {/* Seletor de Conta Bancária */}
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <label style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#475569" }}>Conta Bancária:</label>
+                <select
+                  value={selectedConta}
+                  onChange={(e) => setSelectedConta(e.target.value)}
                   style={{
-                    backgroundColor: (foundCount === 0 || syncing) ? "#94a3b8" : "#3b82f6",
-                    color: "#fff",
-                    padding: "10px 20px",
-                    borderRadius: "8px",
-                    border: "none",
-                    fontWeight: "bold",
-                    cursor: (foundCount === 0 || syncing) ? "not-allowed" : "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    fontSize: "1.4rem"
+                    padding: "8px 12px",
+                    borderRadius: "6px",
+                    border: "1px solid #cbd5e1",
+                    fontSize: "1.4rem",
+                    color: "#334155",
+                    height: "40px",
+                    minWidth: "250px"
                   }}
                 >
-                  {syncing ? <Icons.BsArrowRepeat className="spin" /> : <Icons.BsCloudCheck />}
-                  {syncing ? "Sincronizando..." : `Sincronizar no Banco (${foundCount})`}
-                </button>
-              )}
+                  <option value="">Selecione uma conta bancária...</option>
+                  {contas.map(c => (
+                    <option key={c.id} value={c.label}>
+                      {c.displayLabel || c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                {selectedTxIds.size > 0 && (
+                  <button 
+                    onClick={handleImportSelected}
+                    disabled={syncing}
+                    style={{
+                      backgroundColor: "#10b981",
+                      color: "#fff",
+                      padding: "10px 20px",
+                      borderRadius: "8px",
+                      border: "none",
+                      fontWeight: "bold",
+                      cursor: syncing ? "not-allowed" : "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      fontSize: "1.4rem"
+                    }}
+                  >
+                    {syncing ? <Icons.BsArrowRepeat className="spin" /> : <Icons.BsPlusCircle />}
+                    {`Lançar Selecionados (${selectedTxIds.size})`}
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="table-responsive" style={{ maxHeight: "60vh", overflowY: "auto" }}>
               <table className="frequencia-table">
                 <thead>
                   <tr>
+                    <th style={{ width: "50px", textAlign: "center" }}>
+                      <input 
+                        type="checkbox" 
+                        onChange={handleSelectAll} 
+                        checked={allSelected} 
+                        style={{ cursor: "pointer" }}
+                      />
+                    </th>
                     <th style={{ width: "120px" }}>Data</th>
-                    <th>Descrição (MEMO)</th>
+                    <th style={{ textAlign: "left", paddingLeft: "12px" }}>Descrição (MEMO)</th>
                     <th style={{ width: "150px" }}>Status</th>
-                    <th style={{ width: "150px", textAlign: "right" }}>Valor</th>
+                    <th style={{ width: "150px", textAlign: "center" }}>Valor</th>
                   </tr>
                 </thead>
                 <tbody>
                   {transactions.map((t, idx) => {
                     let statusColor = "#64748b";
                     if (t.status === "Encontrado") statusColor = "#d97706";
-                    if (t.status === "Sincronizado" || t.status === "Já Conciliado") statusColor = "#10b981";
+                    if (t.status === "Sincronizado" || t.status === "Já Conciliado" || t.status === "Importado") statusColor = "#10b981";
                     if (t.status === "Não Encontrado") statusColor = "#ef4444";
 
                     return (
                       <tr key={idx}>
+                        <td style={{ textAlign: "center" }}>
+                          <input 
+                            type="checkbox" 
+                            checked={selectedTxIds.has(t.id)} 
+                            onChange={() => toggleSelectTx(t.id)} 
+                            disabled={t.status !== "Não Encontrado"} 
+                            style={{ cursor: t.status === "Não Encontrado" ? "pointer" : "not-allowed" }}
+                          />
+                        </td>
                         <td>{formatDate(t.date)}</td>
-                        <td>{t.memo || "Sem descrição"}</td>
+                        <td style={{ textAlign: "left", paddingLeft: "12px" }}>{t.memo || "Sem descrição"}</td>
                         <td>
                           <span style={{ 
                             backgroundColor: statusColor + "1a", // light background
@@ -354,7 +480,7 @@ function ImporteExtrato() {
                           </span>
                         </td>
                         <td style={{ 
-                          textAlign: "right", 
+                          textAlign: "center", 
                           fontWeight: "bold",
                           color: t.amount >= 0 ? "#10b981" : "#ef4444" 
                         }}>

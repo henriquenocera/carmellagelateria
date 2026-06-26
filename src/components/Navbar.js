@@ -23,10 +23,10 @@ const MENU_CONFIG = [
     icon: <Icons.BsBriefcase />,
     id: "operacoes",
     subItems: [
+      { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },
       { title: "Checklists", path: "/lojas-checklist" },
-      { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
     ]
   },
   {
@@ -75,9 +75,9 @@ const MENU_CONFIG = [
     icon: <Icons.BsGraphUp />,
     id: "analise",
     subItems: [
+      { title: "Análise de Vales", path: "/analise-vales", adminOnly: true },
       { title: "Análise de Insumos", path: "/analise-insumos" },
       { title: "Análise de Produtos", path: "/analise-produtos" },
-      { title: "Análise de Vales", path: "/analise-vales", adminOnly: true },
     ]
   },
   {
@@ -86,24 +86,23 @@ const MENU_CONFIG = [
     id: "financeiro",
     subItems: [
       { title: "Dashboard Financeiro", path: "/dashboard-financeiro", adminOnly: true },
-      { title: "Lançamentos Financeiros", path: "/lancamentos-financeiros" },
       { title: "Caixa Dinheiro", path: "/caixa-dinheiro", adminOnly: true },
+      { title: "Contas fixas", path: "/contas-fixas", adminOnly: true },
+      { title: "Lançamentos Financeiros", path: "/lancamentos-financeiros" },
       { title: "Conciliação bancária", path: "/conciliacao-bancaria" },
       { title: "Importe de Extrato", path: "/importe-extrato" },
       { title: "Contas à pagar e receber", path: "/contas-pagar-receber" },
-      { title: "Contas fixas", path: "/contas-fixas", adminOnly: true },
     ]
   },
-
   {
     title: "RH",
     icon: <Icons.BsPerson />,
     id: "rh",
     subItems: [
-      { title: "Funcionários", path: "/funcionarios" },
-      { title: "Frequência", path: "/frequencia" },
       { title: "Cálculo de Vales", path: "/calculo-vales", adminOnly: true },
       { title: "Histórico de Vales", subtitle: "VT / VR", subtitleColor: "#10b981", path: "/historico-vt-vr", adminOnly: true },
+      { title: "Funcionários", path: "/funcionarios" },
+      { title: "Frequência", path: "/frequencia" },
     ]
   },
   {
@@ -217,7 +216,10 @@ function NavBar() {
 
             const isOpen = openMenus[item.id];
             const isChildActive = item.subItems.some(sub => location.pathname === sub.path || location.pathname.startsWith(sub.path + "/"));
-            const visibleSubItems = item.subItems.filter(sub => !sub.adminOnly || isAdmin);
+            const visibleSubItems = [
+              ...item.subItems.filter(sub => sub.adminOnly && isAdmin),
+              ...item.subItems.filter(sub => !sub.adminOnly)
+            ];
 
             const submenuHeight = visibleSubItems.reduce((acc, sub) => {
               const hasBadge = sub.adminOnly || isItemAdminOnly;
