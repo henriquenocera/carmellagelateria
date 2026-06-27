@@ -717,7 +717,8 @@ CREATE TABLE IF NOT EXISTS "public"."lancamentos_financeiros" (
     "user_id" "uuid" DEFAULT "auth"."uid"(),
     "status_revisao" "text",
     "revisao_observacao" "text",
-    "updated_at" timestamp with time zone
+    "updated_at" timestamp with time zone,
+    "conciliado" boolean DEFAULT false
 );
 
 
