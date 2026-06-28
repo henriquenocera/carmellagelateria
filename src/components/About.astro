@@ -1,0 +1,164 @@
+---
+---
+<section id="sobre" class="about-section">
+  <div class="container about-section__inner">
+    <div class="about-section__image">
+      <img src="https://placehold.co/600x800/eeeeee/a17550?text=Producao+Artesanal" alt="Produção Artesanal" />
+      <div class="about-section__floating-badge">
+        <span>100%</span>
+        Artesanal
+      </div>
+    </div>
+    
+    <div class="about-section__content">
+      <span class="about-section__subtitle">Tradição & Qualidade</span>
+      <h2 class="about-section__title">Nossa História em Cada Colher</h2>
+      <p class="about-section__text">
+        Com uma máquina <strong>Italiana</strong> original, realizamos a produção do Gelato de forma totalmente artesanal. Nos preocupamos com cada detalhe, desde a seleção dos ingredientes até a textura final.
+      </p>
+      <p class="about-section__text">
+        Tudo começa na escolha da matéria prima. Sem corantes, sem conservantes, apenas o verdadeiro sabor da Itália na sua cidade.
+      </p>
+      <ul class="about-section__features">
+        <li>Produção diária e fresca</li>
+        <li>Ingredientes importados e locais premium</li>
+        <li>Receitas exclusivas de família</li>
+      </ul>
+      <a href="#lojas" class="button button--outline">Venha nos Visitar</a>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/global/variables" as *;
+
+  .about-section {
+    padding: 10rem 0;
+    background-color: $white;
+
+    &__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    &__image {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.5s ease;
+
+        &:hover {
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    &__floating-badge {
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      background-color: $mainColor;
+      color: $white;
+      padding: 3rem;
+      border-radius: 50%;
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.4rem;
+      text-transform: uppercase;
+      box-shadow: 0 10px 20px rgba(161, 117, 80, 0.3);
+
+      span {
+        display: block;
+        font-size: 3.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    &__content {
+      padding: 2rem 0;
+    }
+
+    &__subtitle {
+      color: $mainColor;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      display: block;
+      font-size: 1.4rem;
+    }
+
+    &__title {
+      font-size: clamp(3rem, 4vw, 4.5rem);
+      color: $black;
+      margin-bottom: 2.5rem;
+      line-height: 1.2;
+    }
+
+    &__text {
+      color: $textColor;
+      font-size: 1.7rem;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+    }
+
+    &__features {
+      margin: 3rem 0;
+      
+      li {
+        font-size: 1.6rem;
+        color: $textColor;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        
+        &::before {
+          content: '✓';
+          color: $mainColor;
+          font-weight: bold;
+          margin-right: 1.5rem;
+          font-size: 1.8rem;
+        }
+      }
+    }
+
+    @media (max-width: 900px) {
+      &__inner {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+      }
+
+      &__floating-badge {
+        bottom: 20px;
+        right: 20px;
+      }
+    }
+  }
+
+  .button--outline {
+    display: inline-block;
+    padding: 1.5rem 4rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: $mainColor;
+    border: 2px solid $mainColor;
+    border-radius: 4px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: $mainColor;
+      color: $white;
+    }
+  }
+</style>

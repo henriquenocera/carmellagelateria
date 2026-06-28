@@ -1,0 +1,113 @@
+---
+---
+<section id="eventos" class="events-section">
+  <div class="container events-section__inner">
+    <div class="events-section__content">
+      <span class="events-section__subtitle">Celebre Conosco</span>
+      <h2 class="events-section__title">Eventos & Casamentos</h2>
+      <p class="events-section__desc">Leve o autêntico gelato italiano para o seu evento. Carrinhos personalizados, menus exclusivos e um atendimento que vai encantar seus convidados.</p>
+      
+      <ul class="events-section__list">
+        <li>Carrinhos Vintage (Carretinos)</li>
+        <li>Eventos Corporativos e Casamentos</li>
+        <li>Sabores personalizados para a sua festa</li>
+      </ul>
+
+      <a href="https://wa.me/+554188259047" class="button button--main">Solicitar Orçamento</a>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/global/variables" as *;
+
+  .events-section {
+    position: relative;
+    padding: 12rem 0;
+    background-color: $secondColor;
+    background-image: url('https://placehold.co/1920x800/f8e6c2/a17550?text=Background+Eventos');
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: overlay; // Blends the image with the background color
+    
+    &__inner {
+      position: relative;
+      z-index: 2;
+    }
+
+    &__content {
+      background: rgba($white, 0.95);
+      padding: 5rem;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    &__subtitle {
+      color: $mainColor;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      display: block;
+      font-size: 1.4rem;
+    }
+
+    &__title {
+      font-size: clamp(3rem, 4vw, 4.5rem);
+      color: $black;
+      margin-bottom: 2rem;
+      line-height: 1.2;
+    }
+
+    &__desc {
+      color: $textColor;
+      font-size: 1.8rem;
+      margin-bottom: 3rem;
+      line-height: 1.6;
+    }
+
+    &__list {
+      margin-bottom: 4rem;
+      
+      li {
+        font-size: 1.6rem;
+        color: $textColor;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        
+        &::before {
+          content: '★';
+          color: $mainColor;
+          margin-right: 1.5rem;
+          font-size: 1.8rem;
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      &__content {
+        padding: 3rem;
+      }
+    }
+  }
+
+  .button--main {
+    display: inline-block;
+    padding: 1.5rem 4rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: $white;
+    background-color: $mainColor;
+    border-radius: 4px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    border: 2px solid $mainColor;
+
+    &:hover {
+      background-color: transparent;
+      color: $mainColor;
+    }
+  }
+</style>

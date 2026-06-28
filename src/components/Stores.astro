@@ -1,0 +1,117 @@
+---
+---
+<section id="lojas" class="stores-section">
+  <div class="container stores-section__inner">
+    <div class="stores-section__content">
+      <span class="stores-section__subtitle">Visite-nos</span>
+      <h2 class="stores-section__title">Onde Encontrar</h2>
+      <p class="stores-section__desc">Venha viver a experiência do autêntico gelato italiano em um ambiente aconchegante e familiar.</p>
+      
+      <div class="store-card">
+        <h3>Matriz - Curitiba</h3>
+        <p class="address">Rua dos Gelatos, 123 - Centro<br/>Curitiba - PR</p>
+        <p class="hours">Aberto todos os dias: 11h às 22h</p>
+        <a href="https://maps.google.com" target="_blank" rel="noopener noreferrer" class="link-btn">Como Chegar &rarr;</a>
+      </div>
+      
+    </div>
+    
+    <div class="stores-section__map">
+      <img src="https://placehold.co/800x600/eeeeee/a17550?text=Mapa+da+Loja" alt="Mapa da Loja" />
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/global/variables" as *;
+
+  .stores-section {
+    padding: 10rem 0;
+    background-color: $white;
+
+    &__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6rem;
+      align-items: center;
+    }
+
+    &__subtitle {
+      color: $mainColor;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      display: block;
+      font-size: 1.4rem;
+    }
+
+    &__title {
+      font-size: clamp(3rem, 4vw, 4.5rem);
+      color: $black;
+      margin-bottom: 2.5rem;
+      line-height: 1.2;
+    }
+
+    &__desc {
+      color: $grey;
+      font-size: 1.8rem;
+      margin-bottom: 4rem;
+      line-height: 1.6;
+    }
+
+    &__map {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      
+      img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+    }
+
+    @media (max-width: 900px) {
+      &__inner {
+        grid-template-columns: 1fr;
+        gap: 4rem;
+      }
+    }
+  }
+
+  .store-card {
+    background: #fafafa;
+    padding: 3rem;
+    border-radius: 8px;
+    border-left: 4px solid $mainColor;
+    
+    h3 {
+      font-size: 2.2rem;
+      color: $black;
+      margin-bottom: 1.5rem;
+    }
+    
+    .address, .hours {
+      font-size: 1.6rem;
+      color: $grey;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+    
+    .link-btn {
+      display: inline-block;
+      margin-top: 1.5rem;
+      color: $mainColor;
+      font-weight: 700;
+      font-size: 1.6rem;
+      text-decoration: none;
+      transition: color 0.3s ease;
+      
+      &:hover {
+        color: $black;
+      }
+    }
+  }
+</style>

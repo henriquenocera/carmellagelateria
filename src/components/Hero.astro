@@ -1,0 +1,104 @@
+---
+---
+<section class="hero-section">
+  <div class="hero-section__bg">
+    <img src="https://placehold.co/1920x800/f8e6c2/a17550?text=Banner+Hero+Principal" alt="Gelato Artesanal" />
+  </div>
+  <div class="container hero-section__content">
+    <div class="hero-section__text">
+      <span class="hero-section__subtitle">Autêntico e Artesanal</span>
+      <h1 class="hero-section__title">La Fabbrica<br/>della Felicità</h1>
+      <p class="hero-section__desc">Venha desfrutar de um autêntico Gelato Italiano feito com os melhores ingredientes da cidade.</p>
+      <a href="#sabores" class="hero-section__btn">Ver Sabores</a>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/global/variables" as *;
+
+  .hero-section {
+    position: relative;
+    height: 80vh;
+    min-height: 600px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+
+    &__bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba($black, 0.4);
+      }
+    }
+
+    &__content {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+    }
+
+    &__text {
+      max-width: 600px;
+      color: $white;
+      padding-top: 5rem; // offset header
+    }
+
+    &__subtitle {
+      font-size: 1.6rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 1.5rem;
+      display: block;
+      color: $secondColor;
+      font-weight: 600;
+    }
+
+    &__title {
+      font-size: clamp(4rem, 6vw, 7.5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 2rem;
+      color: $white;
+    }
+
+    &__desc {
+      font-size: 1.8rem;
+      line-height: 1.6;
+      margin-bottom: 4rem;
+      font-weight: 400;
+    }
+
+    &__btn {
+      background-color: $mainColor;
+      color: $white;
+      padding: 1.5rem 4rem;
+      font-size: 1.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      display: inline-block;
+      
+      &:hover {
+        background-color: $secondColor;
+        color: $mainColor;
+      }
+    }
+  }
+</style>

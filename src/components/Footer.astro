@@ -1,220 +1,152 @@
+---
+---
 <footer class="footer">
-  <section class="container">
-    <div class="left">
-      <img class="logo" src="/assets/logo-carmella.svg" alt="">
-      <p class="footerText">Carmella Gelateria, gelato de verdade e uma qualidade indiscutível.
-      </p>
-      <div class="icons">
-        <a target="_blank" href="https://www.instagram.com/carmellagelateria/"><img src="/assets/instagram.svg"
-            alt=""></a>
-        <a target="_blank" class="facebook" href="https://www.facebook.com/carmellagelateria"><img
-            src="/assets/facebook.svg" alt=""></a>
-        <a target="_blank"
-          href="https://www.ifood.com.br/delivery/curitiba-pr/olga-cafe--carmella-gelateria---alto-xv-alto-da-rua-xv/02625ea1-bc47-4f29-9d84-ab9e275206e6"><img
-            src="/assets/ifood.svg" alt=""></a>
-        <a target="_blank" class="whatsapp" href="https://wa.me/+554188259047"><img src="/assets/whatsapp.svg"
-            alt=""></a>
+  <div class="container footer__inner">
+    <div class="footer__col">
+      <h3 class="footer__logo">Carmella</h3>
+      <p class="footer__desc">Gelatos de raízes italianas feitos artesanalmente e com ingredientes de altíssima qualidade.</p>
+      <div class="footer__socials">
+        <!-- Substituir por ícones SVG reais posteriormente -->
+        <a href="#" aria-label="Instagram">IG</a>
+        <a href="#" aria-label="Facebook">FB</a>
+        <a href="#" aria-label="WhatsApp">WA</a>
+      </div>
+    </div>
 
-      </div>
-      <!-- <span class="dev">Desenvolvido por Henrique Nocera</span> -->
+    <div class="footer__col">
+      <h4>Links Rápidos</h4>
+      <ul>
+        <li><a href="#sobre">Sobre Nós</a></li>
+        <li><a href="#sabores">Menu de Sabores</a></li>
+        <li><a href="#lojas">Onde Encontrar</a></li>
+        <li><a href="#eventos">Eventos e Encomendas</a></li>
+      </ul>
     </div>
-    <div class="middle">
-      <p class="title">Menu Fácil</p>
-      <span class="line"></span>
-      <div class="menu">
-        <a href="https://www.carmellagelateria.com.br">Início</a>
-        <a href="https://sabores.carmellagelateria.com.br/">Sabores do Dia</a>
-        <!-- <a href="#">Nossas Lojas</a>
-        <a href="#">Cardápio</a> -->
-      </div>
+
+    <div class="footer__col">
+      <h4>Contato</h4>
+      <ul>
+        <li>Rua dos Gelatos, 123 - Centro, Curitiba/PR</li>
+        <li>(41) 3000-0000</li>
+        <li>contato@carmellagelateria.com.br</li>
+      </ul>
     </div>
-    <div class="right">
-      <p class="title">Carmella Gelateria Artigianale</p>
-      <span class="line"></span>
-      <p>Venha Experimentar!</p>
-      <span class="copyright">Copyright © 2024.</span>
+  </div>
+  
+  <div class="footer__bottom">
+    <div class="container">
+      <p>&copy; {new Date().getFullYear()} Carmella Gelateria. Todos os direitos reservados.</p>
     </div>
-  </section>
+  </div>
 </footer>
-
 
 <style lang="scss">
   @use "../styles/global/variables" as *;
 
   .footer {
+    background-color: $black;
+    color: $white;
+    padding-top: 8rem;
 
+    &__inner {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1.5fr;
+      gap: 4rem;
+      margin-bottom: 6rem;
+    }
 
-    width: 100%;
+    &__logo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 700;
+      color: $mainColor;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 2rem;
+    }
 
-    background: #FCF9EF;
+    &__desc {
+      color: #999;
+      font-size: 1.5rem;
+      line-height: 1.6;
+      margin-bottom: 3rem;
+      max-width: 350px;
+    }
 
-    .container {
-
+    &__socials {
       display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    .left {
-      width: 35%;
-
-      .logo {
-        margin-bottom: 40px;
-      }
-
-      .footerText {
-        font-size: 1.6rem;
-        font-weight: 400;
-        max-width: 260px;
-      }
-
-      .icons {
-        display: flex;
-        margin-top: 30px;
-        margin-bottom: 30px;
-
-        .facebook {
-          margin-left: 15px;
-          margin-right: 15px;
-        }
-
-        .whatsapp {
-          margin-left: 15px;
-        }
-      }
-
-      .dev {
-        font-size: 1.4rem;
-        font-weight: 400;
-      }
-    }
-
-    .middle {
-      width: 25%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: flex-start;
-
-      .title {
-        font-size: 2.2rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-      }
-
-      .line {
-        width: 100px;
-        height: 4px;
-        background: $mainColor;
-        border-radius: 10px;
-        margin-bottom: 30px;
-
-      }
-
-      .menu {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-
-        a {
-          text-decoration: none;
-          color: $textColor;
-          font-size: 1.6rem;
-          font-weight: 400;
-          margin-bottom: 15px;
-        }
-      }
-    }
-
-    .right {
-      width: 40%;
-
-
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      align-items: flex-start;
-
-      .title {
-        font-size: 2.2rem;
-        font-weight: 600;
-        margin-bottom: 20px;
-        max-width: 100%;
-      }
-
-      .line {
-        width: 100px;
-        height: 4px;
-        background: $mainColor;
-        border-radius: 10px;
-        margin-bottom: 30px;
-
-      }
-
-      p {
-        font-size: 1.6rem;
-        font-weight: 400;
-        max-width: 260px;
-        margin-bottom: 25px;
-      }
-
-      .copyright {
-        font-size: 1.6rem;
-        font-weight: 400;
-      }
-    }
-
-    @media (max-width: 1092px) {
-      .left {
-        width: 30%;
-      }
-
-      .middle {
-        width: 20%;
-      }
-
-      .right {
-        width: 40%;
-      }
-    }
-
-    @media (max-width: 868px) {
-      .container {
-        flex-direction: column;
+      gap: 1.5rem;
+      
+      a {
+        display: inline-flex;
         align-items: center;
-      }
-
-      .left,
-      .middle,
-      .right {
-        width: 55%;
-      }
-
-      .left,
-      .middle {
-        margin-bottom: 45px;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: #333;
+        color: $white;
+        border-radius: 50%;
+        text-decoration: none;
+        font-size: 1.2rem;
+        font-weight: 700;
+        transition: background 0.3s ease;
+        
+        &:hover {
+          background-color: $mainColor;
+        }
       }
     }
 
-    @media (max-width: 500px) {
-
-      .left,
-      .middle,
-      .right {
-        width: 60%;
+    &__col {
+      h4 {
+        font-size: 1.8rem;
+        color: $white;
+        margin-bottom: 2.5rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
       }
 
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        
+        li {
+          margin-bottom: 1.5rem;
+          color: #999;
+          font-size: 1.5rem;
+          line-height: 1.5;
+
+          a {
+            color: #999;
+            text-decoration: none;
+            transition: color 0.3s;
+
+            &:hover {
+              color: $mainColor;
+            }
+          }
+        }
+      }
     }
 
-    @media (max-width: 400px) {
-
-      .left,
-      .middle,
-      .right {
-        width: 70%;
+    &__bottom {
+      border-top: 1px solid #333;
+      padding: 2.5rem 0;
+      text-align: center;
+      
+      p {
+        color: #777;
+        font-size: 1.4rem;
+        margin: 0;
       }
+    }
 
+    @media (max-width: 768px) {
+      &__inner {
+        grid-template-columns: 1fr;
+        gap: 5rem;
+      }
     }
   }
 </style>

@@ -1,0 +1,190 @@
+---
+---
+<section id="sabores" class="flavors-section">
+  <div class="container">
+    <div class="flavors-section__header">
+      <span class="flavors-section__subtitle">Menu</span>
+      <h2 class="flavors-section__title">Sabores Inesquecíveis</h2>
+      <p class="flavors-section__desc">Nossas vitrines estão sempre repletas de opções clássicas e sazonais. Descubra os favoritos.</p>
+    </div>
+
+    <div class="flavors-section__grid">
+      <!-- Item 1 -->
+      <div class="flavor-card">
+        <div class="flavor-card__img">
+          <img src="https://placehold.co/400x400/f8e6c2/a17550?text=Pistache" alt="Pistache" />
+        </div>
+        <div class="flavor-card__info">
+          <h3>Pistache Puro</h3>
+          <p>Feito com pistaches selecionados de Bronte, Sicília.</p>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="flavor-card">
+        <div class="flavor-card__img">
+          <img src="https://placehold.co/400x400/f8e6c2/a17550?text=Cioccolato" alt="Cioccolato Belga" />
+        </div>
+        <div class="flavor-card__info">
+          <h3>Cioccolato Belga</h3>
+          <p>Chocolate amargo intenso e cremoso, receita secreta.</p>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="flavor-card">
+        <div class="flavor-card__img">
+          <img src="https://placehold.co/400x400/f8e6c2/a17550?text=Fior+di+Latte" alt="Fior di Latte" />
+        </div>
+        <div class="flavor-card__info">
+          <h3>Fior di Latte</h3>
+          <p>O clássico creme de leite fresco italiano.</p>
+        </div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="flavor-card">
+        <div class="flavor-card__img">
+          <img src="https://placehold.co/400x400/f8e6c2/a17550?text=Frutas+Vermelhas" alt="Frutas Vermelhas" />
+          <span class="flavor-card__badge">Vegano</span>
+        </div>
+        <div class="flavor-card__info">
+          <h3>Frutas Vermelhas</h3>
+          <p>Sorbet refrescante 100% à base de água e frutas.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="flavors-section__footer">
+      <a href="https://sabores.carmellagelateria.com.br/" class="button button--main">Peça Agora (Delivery)</a>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/global/variables" as *;
+
+  .flavors-section {
+    padding: 10rem 0;
+    background-color: #fafafa; // Very light grey background for contrast
+
+    &__header {
+      text-align: center;
+      margin-bottom: 6rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    &__subtitle {
+      color: $mainColor;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 1.5rem;
+      display: block;
+      font-size: 1.4rem;
+    }
+
+    &__title {
+      font-size: clamp(3rem, 4vw, 4.5rem);
+      color: $black;
+      margin-bottom: 2rem;
+    }
+
+    &__desc {
+      color: $grey;
+      font-size: 1.8rem;
+    }
+
+    &__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 4rem;
+      margin-bottom: 6rem;
+    }
+
+    &__footer {
+      text-align: center;
+    }
+  }
+
+  .flavor-card {
+    background: $white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+      
+      .flavor-card__img img {
+        transform: scale(1.05);
+      }
+    }
+
+    &__img {
+      position: relative;
+      height: 250px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+      }
+    }
+
+    &__badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: $mainColor;
+      color: $white;
+      padding: 0.5rem 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      border-radius: 4px;
+    }
+
+    &__info {
+      padding: 2.5rem;
+      text-align: center;
+
+      h3 {
+        font-size: 2rem;
+        color: $black;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        font-size: 1.5rem;
+        color: $grey;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .button--main {
+    display: inline-block;
+    padding: 1.5rem 5rem;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: $white;
+    background-color: $mainColor;
+    border-radius: 4px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+    border: 2px solid $mainColor;
+
+    &:hover {
+      background-color: transparent;
+      color: $mainColor;
+    }
+  }
+</style>
