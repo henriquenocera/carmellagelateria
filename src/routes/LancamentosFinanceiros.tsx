@@ -1184,19 +1184,35 @@ function LancamentosFinanceiros() {
                               {l.categoria ? (
                                 <span>{l.categoria}</span>
                               ) : (
-                                <span style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "6px",
-                                  backgroundColor: "#fffbeb",
-                                  color: "#b45309",
-                                  border: "1px solid #fde68a",
-                                  padding: "4px 10px",
-                                  borderRadius: "6px",
-                                  fontWeight: "bold",
-                                  fontSize: "1.1rem",
-                                  boxShadow: "0 1px 2px rgba(0, 0, 0, 0.02)"
-                                }} title="Este lançamento precisa ser categorizado.">
+                                <span 
+                                  onClick={() => handleEdit(l)}
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    backgroundColor: "#fffbeb",
+                                    color: "#b45309",
+                                    border: "1px solid #fde68a",
+                                    padding: "4px 10px",
+                                    borderRadius: "6px",
+                                    fontWeight: "bold",
+                                    fontSize: "1.1rem",
+                                    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.02)",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease-in-out"
+                                  }} 
+                                  onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = "#fef3c7";
+                                    e.currentTarget.style.borderColor = "#fcd34d";
+                                    e.currentTarget.style.transform = "scale(1.03)";
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = "#fffbeb";
+                                    e.currentTarget.style.borderColor = "#fde68a";
+                                    e.currentTarget.style.transform = "scale(1)";
+                                  }}
+                                  title="Clique para definir uma categoria para este lançamento."
+                                >
                                   <Icons.BsExclamationTriangleFill style={{ color: "#d97706", fontSize: "1.2rem" }} />
                                   Sem Categoria
                                 </span>

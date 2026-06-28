@@ -228,29 +228,6 @@ function CaixaDinheiro() {
 
       if (errCaixa) throw errCaixa;
 
-      const caixaId = insertedRows?.[0]?.id;
-
-      // 2. Insert corresponding record into lancamentos_financeiros
-      // If it's a saida, valor is negative; if entrada, positive.
-      const valFinal = tipo === "saida" ? -Math.abs(currentInputSum) : Math.abs(currentInputSum);
-      const financeiroPayload = {
-        data: formData.data,
-        descricao: `${formData.descricao} (Ref Caixa: ${caixaId})`,
-        valor: valFinal,
-        conta: "Caixa Dinheiro",
-        categoria: "Ajuste de Caixa",
-        user_id: user?.id,
-        status_revisao: null
-      };
-
-      const { error: errFin } = await supabase
-        .from("lancamentos_financeiros")
-        .insert([financeiroPayload]);
-
-      if (errFin) {
-        console.error("Erro ao sincronizar com lançamentos financeiros:", errFin);
-      }
-
       handleResetInputs();
       fetchCaixaLancamentos();
     } catch (err: any) {
@@ -263,7 +240,7 @@ function CaixaDinheiro() {
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm("Tem certeza que deseja excluir esta movimentação de caixa? Isso também reverterá a soma no controle financeiro geral.")) {
+    if (window.confirm("Tem certeza que deseja excluir esta movimentação de caixa?")) {
       try {
         setLoading(true);
 
@@ -274,17 +251,6 @@ function CaixaDinheiro() {
           .eq("id", id);
 
         if (errCaixa) throw errCaixa;
-
-        // Delete from lancamentos_financeiros linked by ID
-        const { error: errFin } = await supabase
-          .from("lancamentos_financeiros")
-          .delete()
-          .eq("conta", "Caixa Dinheiro")
-          .like("descricao", `% (Ref Caixa: ${id})`);
-
-        if (errFin) {
-          console.error("Erro ao excluir lançamento financeiro correspondente:", errFin);
-        }
 
         fetchCaixaLancamentos();
         alert("Lançamento removido com sucesso!");

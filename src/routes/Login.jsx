@@ -26,35 +26,79 @@ function Login() {
     setSubmitting(true);
     hasAttemptedLogin.current = true;
 
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const withTimeout = (promise, ms, errorMessage) => {
+      return Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error(errorMessage)), ms)
+        ),
+      ]);
+    };
 
-    if (signInError) {
-      setError(signInError.message);
-      setSubmitting(false);
-      return;
-    }
+    try {
+      const response = await withTimeout(
+        supabase.auth.signInWithPassword({
+          email,
+          password,
+        }),
+        10000,
+        "Tempo limite esgotado ao tentar autenticar. Verifique sua conexão."
+      );
 
-    const loggedUser = signInData?.user;
-    if (loggedUser) {
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("ativo")
-        .eq("id", loggedUser.id)
-        .single();
+      const { data: signInData, error: signInError } = response;
 
-      if (profileData && profileData.ativo === false) {
-        await supabase.auth.signOut();
-        setError("Sua conta está inativa no sistema. Entre em contato com o administrador.");
+      if (signInError) {
+        setError(signInError.message);
         setSubmitting(false);
         return;
       }
-    }
 
-    setSubmitting(false);
-    navigate("/", { replace: true });
+      const loggedUser = signInData?.user;
+      if (loggedUser) {
+        const profileResponse = await withTimeout(
+          supabase
+            .from("profiles")
+            .select("ativo")
+            .eq("id", loggedUser.id)
+            .single(),
+          5000,
+          "Tempo limite esgotado ao verificar os dados da sua conta."
+        );
+
+        const { data: profileData, error: profileError } = profileResponse;
+
+        if (profileError) {
+          throw profileError;
+        }
+
+        if (profileData && profileData.ativo === false) {
+          await supabase.auth.signOut();
+          setError("Sua conta está inativa no sistema. Entre em contato com o administrador.");
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      setSubmitting(false);
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error("Erro no processo de login:", err);
+      
+      // Desloga por segurança para não deixar sessão pendente corrompida
+      try {
+        await supabase.auth.signOut();
+      } catch (signOutErr) {
+        console.error("Erro ao limpar sessão após falha no login:", signOutErr);
+      }
+
+      const userMessage = err.message || "";
+      if (userMessage.includes("Tempo limite")) {
+        setError(userMessage);
+      } else {
+        setError("Erro de conexão com o banco de dados. Verifique se o projeto Supabase está ativo.");
+      }
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
