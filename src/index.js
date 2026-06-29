@@ -62,6 +62,7 @@ import ConciliacaoBancaria from "./routes/ConciliacaoBancaria.tsx";
 import ContasPagarReceber from "./routes/ContasPagarReceber.tsx";
 import ContasFixas from "./routes/ContasFixas.tsx";
 import ImporteExtrato from "./routes/ImporteExtrato.tsx";
+import ImporteVendasRede from "./routes/ImporteVendasRede.tsx";
 import DashboardFinanceiro from "./routes/DashboardFinanceiro.tsx";
 import CaixaDinheiro from "./routes/CaixaDinheiro.tsx";
 import supabase from "./services/supabase-client";
@@ -176,6 +177,7 @@ const router = createBrowserRouter(
         <Route path="/contas-pagar-receber" element={<ContasPagarReceber />} />
         <Route path="/contas-fixas" element={<ContasFixas />} />
         <Route path="/importe-extrato" element={<ImporteExtrato />} />
+        <Route path="/importe-vendas-rede" element={<ImporteVendasRede />} />
       </Route>
     </>
   )

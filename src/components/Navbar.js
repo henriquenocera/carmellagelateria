@@ -91,6 +91,7 @@ const MENU_CONFIG = [
       { title: "Lançamentos Financeiros", path: "/lancamentos-financeiros" },
       { title: "Conciliação bancária", path: "/conciliacao-bancaria" },
       { title: "Importe de Extrato", path: "/importe-extrato" },
+      { title: "Importe Vendas Rede", path: "/importe-vendas-rede" },
       { title: "Contas à pagar e receber", path: "/contas-pagar-receber" },
     ]
   },
