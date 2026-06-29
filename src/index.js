@@ -65,6 +65,7 @@ import ImporteExtrato from "./routes/ImporteExtrato.tsx";
 import ImporteVendasRede from "./routes/ImporteVendasRede.tsx";
 import DashboardFinanceiro from "./routes/DashboardFinanceiro.tsx";
 import CaixaDinheiro from "./routes/CaixaDinheiro.tsx";
+import VendasRealizadas from "./routes/VendasRealizadas.tsx";
 import supabase from "./services/supabase-client";
 
 const ProtectedLayout = () => {
@@ -178,6 +179,7 @@ const router = createBrowserRouter(
         <Route path="/contas-fixas" element={<ContasFixas />} />
         <Route path="/importe-extrato" element={<ImporteExtrato />} />
         <Route path="/importe-vendas-rede" element={<ImporteVendasRede />} />
+        <Route path="/vendas-realizadas" element={<VendasRealizadas />} />
       </Route>
     </>
   )

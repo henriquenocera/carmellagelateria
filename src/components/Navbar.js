@@ -96,6 +96,14 @@ const MENU_CONFIG = [
     ]
   },
   {
+    title: "Vendas Lojas",
+    icon: <Icons.BsShopWindow />,
+    id: "vendas-lojas",
+    subItems: [
+      { title: "Vendas Realizadas", path: "/vendas-realizadas" }
+    ]
+  },
+  {
     title: "RH",
     icon: <Icons.BsPerson />,
     id: "rh",

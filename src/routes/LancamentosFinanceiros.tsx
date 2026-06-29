@@ -34,6 +34,7 @@ function LancamentosFinanceiros() {
   const [filterCreatedToday, setFilterCreatedToday] = useState(false);
   const [filterMes, setFilterMes] = useState("");
   const [filterNoCategory, setFilterNoCategory] = useState(false);
+  const [activeTab, setActiveTab] = useState<'normal' | 'vendas'>('normal');
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -149,7 +150,27 @@ function LancamentosFinanceiros() {
   const fornecedorOptions = fornecedoresDb.map(f => ({ value: f.nome, label: f.nome }));
   const clienteOptions = clientesDb.map(c => ({ value: c.nome, label: c.nome }));
 
-  const categoriaOptions = categoriasDb.filter(c => !c.parent_id).map(pai => ({
+  const categoriaOptions = categoriasDb
+    .filter(c => !c.parent_id)
+    .map(pai => {
+      const subOptions = categoriasDb
+        .filter(sub => sub.parent_id === pai.id)
+        .filter(sub => {
+          const isVenda = sub.nome && sub.nome.toLowerCase().includes("vendas loja");
+          return activeTab === 'vendas' ? isVenda : !isVenda;
+        })
+        .map(sub => ({
+          value: cleanCategoryName(sub.nome),
+          label: sub.nome
+        }));
+      return {
+        label: pai.nome,
+        options: subOptions
+      };
+    })
+    .filter(group => group.options.length > 0);
+
+  const categoriaOptionsAll = categoriasDb.filter(c => !c.parent_id).map(pai => ({
     label: pai.nome,
     options: categoriasDb.filter(sub => sub.parent_id === pai.id).map(sub => ({
       value: cleanCategoryName(sub.nome),
@@ -271,6 +292,7 @@ function LancamentosFinanceiros() {
     fConta?: string | null;
     fMes?: string;
     fNoCategory?: boolean;
+    fTab?: 'normal' | 'vendas';
   } = {}) => {
     const {
       currentLimit = limit,
@@ -282,7 +304,8 @@ function LancamentosFinanceiros() {
       fCat = filterCategoria,
       fConta = filterConta,
       fMes = filterMes,
-      fNoCategory = filterNoCategory
+      fNoCategory = filterNoCategory,
+      fTab = activeTab
     } = options;
 
     fetchLancamentosRef.current = fetchLancamentos;
@@ -337,6 +360,13 @@ function LancamentosFinanceiros() {
         query = query.is('categoria', null);
       }
 
+      // Tab filter (separar lançamentos normais das vendas das lojas)
+      if (fTab === 'vendas') {
+        query = query.ilike('categoria', '%Vendas Loja%');
+      } else {
+        query = query.or('categoria.is.null,categoria.not.ilike.%Vendas Loja%');
+      }
+
       // range is inclusive, so to fetch currentLimit + 1 rows we request range 0 to currentLimit
       const { data, error, count } = await query.range(0, currentLimit - 1);
       if (error) throw error;
@@ -357,7 +387,7 @@ function LancamentosFinanceiros() {
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
     }
-  }, [isAdmin, filterStatus, filterCreatedToday, limit, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, checkPendingCounts]);
+  }, [isAdmin, filterStatus, filterCreatedToday, limit, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, checkPendingCounts]);
 
   const isFirstRender = useRef(true);
 
@@ -369,14 +399,14 @@ function LancamentosFinanceiros() {
     if (user) {
       if (isFirstRender.current) {
         isFirstRender.current = false;
-        fetchLancamentosRef.current?.({ currentLimit: 100 });
+        fetchLancamentosRef.current?.({ currentLimit: 100, fTab: activeTab });
         return;
       }
       setLimit(100);
-      fetchLancamentosRef.current?.({ currentLimit: 100 });
+      fetchLancamentosRef.current?.({ currentLimit: 100, fTab: activeTab });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStatus, filterCreatedToday, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, user]);
+  }, [filterStatus, filterCreatedToday, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, user]);
 
   useEffect(() => {
     if (user && limit !== 100) {
@@ -734,33 +764,35 @@ function LancamentosFinanceiros() {
             </div>
 
             {/* Botão Sem Categoria */}
-            <button
-              onClick={() => {
-                const newNoCat = !filterNoCategory;
-                setFilterNoCategory(newNoCat);
-                if (newNoCat) {
-                  setFilterCategoria(null); // Limpa o filtro de categoria específica
-                }
-              }}
-              style={{
-                padding: "6px 12px",
-                backgroundColor: filterNoCategory ? "#fffbeb" : "#fff",
-                color: filterNoCategory ? "#b45309" : "#64748b",
-                border: `1px solid ${filterNoCategory ? "#fde68a" : "#e2e8f0"}`,
-                borderRadius: "4px",
-                cursor: "pointer",
-                fontWeight: filterNoCategory ? "bold" : "normal",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "0.85rem",
-                transition: "0.2s"
-              }}
-              title="Filtrar lançamentos sem categoria"
-            >
-              <Icons.BsExclamationTriangleFill style={{ color: filterNoCategory ? "#d97706" : "#cbd5e1" }} />
-              Sem Categoria
-            </button>
+            {activeTab === 'normal' && (
+              <button
+                onClick={() => {
+                  const newNoCat = !filterNoCategory;
+                  setFilterNoCategory(newNoCat);
+                  if (newNoCat) {
+                    setFilterCategoria(null); // Limpa o filtro de categoria específica
+                  }
+                }}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: filterNoCategory ? "#fffbeb" : "#fff",
+                  color: filterNoCategory ? "#b45309" : "#64748b",
+                  border: `1px solid ${filterNoCategory ? "#fde68a" : "#e2e8f0"}`,
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontWeight: filterNoCategory ? "bold" : "normal",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  fontSize: "0.85rem",
+                  transition: "0.2s"
+                }}
+                title="Filtrar lançamentos sem categoria"
+              >
+                <Icons.BsExclamationTriangleFill style={{ color: filterNoCategory ? "#d97706" : "#cbd5e1" }} />
+                Sem Categoria
+              </button>
+            )}
 
             <button
               onClick={() => {
@@ -895,6 +927,61 @@ function LancamentosFinanceiros() {
               }}
             >
               <Icons.BsArrowClockwise /> Atualizar
+            </button>
+          </div>
+
+          {/* Tabs para separar lançamentos normais das vendas das lojas */}
+          <div style={{
+            display: "flex",
+            gap: "8px",
+            borderBottom: "2px solid #e2e8f0",
+            marginBottom: "16px",
+            marginTop: "16px",
+            padding: "0 4px"
+          }}>
+            <button
+              onClick={() => {
+                setActiveTab('normal');
+                setFilterCategoria(null); // Limpa o filtro de categoria específica que possa pertencer à outra aba
+              }}
+              style={{
+                padding: "10px 20px",
+                fontSize: "1.4rem",
+                fontWeight: "bold",
+                backgroundColor: "transparent",
+                border: "none",
+                borderBottom: activeTab === 'normal' ? "3px solid var(--primary-color)" : "3px solid transparent",
+                color: activeTab === 'normal' ? "var(--primary-color)" : "#64748b",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              }}
+            >
+              <Icons.BsFileText /> Lançamentos Normais
+            </button>
+            <button
+              onClick={() => {
+                setActiveTab('vendas');
+                setFilterCategoria(null); // Limpa o filtro de categoria específica que possa pertencer à outra aba
+              }}
+              style={{
+                padding: "10px 20px",
+                fontSize: "1.4rem",
+                fontWeight: "bold",
+                backgroundColor: "transparent",
+                border: "none",
+                borderBottom: activeTab === 'vendas' ? "3px solid var(--primary-color)" : "3px solid transparent",
+                color: activeTab === 'vendas' ? "var(--primary-color)" : "#64748b",
+                cursor: "pointer",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              }}
+            >
+              <Icons.BsShop /> Vendas das Lojas
             </button>
           </div>
 
@@ -1056,8 +1143,8 @@ function LancamentosFinanceiros() {
                             <td style={{ textAlign: "center" }}>
                               <Select
                                 isClearable
-                                options={categoriaOptions}
-                                value={categoriaOptions.flatMap(g => g.options).find(o => o.value === editRowData.categoria) || null}
+                                options={categoriaOptionsAll}
+                                value={categoriaOptionsAll.flatMap(g => g.options).find(o => o.value === editRowData.categoria) || null}
                                 onChange={(option: any) => setEditRowData({ ...editRowData, categoria: option ? option.value : null })}
                                 menuPortalTarget={document.body}
                                 styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
