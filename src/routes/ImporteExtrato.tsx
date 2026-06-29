@@ -65,7 +65,11 @@ function ImporteExtrato() {
     });
   };
 
-  const selectableTxs = transactions.filter(t => t.status === "Não Encontrado");
+  const selectableTxs = transactions.filter(t => 
+    t.status === "Não Encontrado" || 
+    t.status === "Encontrado" || 
+    t.status === "Encontrado (Agrupado)"
+  );
   const allSelected = selectableTxs.length > 0 && selectableTxs.every(t => selectedTxIds.has(t.id));
 
   const handleSelectAll = () => {
@@ -90,48 +94,90 @@ function ImporteExtrato() {
       return;
     }
 
-    const selectedTxs = transactions.filter(t => selectedTxIds.has(t.id) && t.status === "Não Encontrado");
+    const selectedTxs = transactions.filter(t => selectedTxIds.has(t.id));
+    const txsToInsert = selectedTxs.filter(t => t.status === "Não Encontrado");
+    const txsToReconcile = selectedTxs.filter(t => t.status === "Encontrado" || t.status === "Encontrado (Agrupado)");
+
     if (selectedTxs.length === 0) {
-      alert("Nenhuma transação 'Não Encontrado' selecionada para importação.");
+      alert("Nenhuma transação selecionada para importação ou conciliação.");
       return;
     }
 
-    if (!window.confirm(`Deseja lançar as ${selectedTxs.length} transações selecionadas na conta "${selectedConta}"?`)) {
+    let confirmationMsg = "";
+    if (txsToInsert.length > 0 && txsToReconcile.length > 0) {
+      confirmationMsg = `Deseja lançar ${txsToInsert.length} novas transações e conciliar ${txsToReconcile.length} transações existentes na conta "${selectedConta}"?`;
+    } else if (txsToInsert.length > 0) {
+      confirmationMsg = `Deseja lançar as ${txsToInsert.length} novas transações na conta "${selectedConta}"?`;
+    } else {
+      confirmationMsg = `Deseja conciliar as ${txsToReconcile.length} transações existentes na conta "${selectedConta}"?`;
+    }
+
+    if (!window.confirm(confirmationMsg)) {
       return;
     }
 
     setSyncing(true);
     try {
-      const payloads = selectedTxs.map(t => ({
-        data: t.date,
-        descricao: t.memo || "Lançamento via Importação OFX",
-        valor: t.amount,
-        conta: selectedConta,
-        categoria: null,
-        fornecedor: null,
-        user_id: user?.id,
-        status_revisao: null,
-        conciliado: true
-      }));
+      // 1. Lança as novas transações
+      if (txsToInsert.length > 0) {
+        const payloads = txsToInsert.map(t => ({
+          data: t.date,
+          descricao: t.memo || "Lançamento via Importação OFX",
+          valor: t.amount,
+          conta: selectedConta,
+          categoria: null,
+          fornecedor: null,
+          user_id: user?.id,
+          status_revisao: null,
+          conciliado: true
+        }));
 
-      const { error } = await supabase
-        .from("lancamentos_financeiros")
-        .insert(payloads);
+        const { error } = await supabase
+          .from("lancamentos_financeiros")
+          .insert(payloads);
 
-      if (error) throw error;
+        if (error) throw error;
+      }
 
+      // 2. Concilia os lançamentos existentes no banco de dados
+      if (txsToReconcile.length > 0) {
+        const dbIdsToUpdate = txsToReconcile.map(t => t.dbId).filter(Boolean);
+
+        const { error } = await supabase
+          .from("lancamentos_financeiros")
+          .update({ conciliado: true, conta: selectedConta })
+          .in("id", dbIdsToUpdate);
+
+        if (error) throw error;
+      }
+
+      // Atualiza o estado visual das transações na interface local
       setTransactions(prev => prev.map(t => {
-        if (selectedTxIds.has(t.id) && t.status === "Não Encontrado") {
-          return { ...t, status: "Importado" };
+        if (selectedTxIds.has(t.id)) {
+          if (t.status === "Não Encontrado") {
+            return { ...t, status: "Importado" };
+          }
+          if (t.status === "Encontrado" || t.status === "Encontrado (Agrupado)") {
+            return { ...t, status: t.status.includes("Agrupado") ? "Já Conciliado (Agrupado)" : "Já Conciliado" };
+          }
         }
         return t;
       }));
 
       setSelectedTxIds(new Set());
-      alert(`${payloads.length} lançamentos importados com sucesso!`);
+
+      let successMsg = "";
+      if (txsToInsert.length > 0 && txsToReconcile.length > 0) {
+        successMsg = `${txsToInsert.length} novos lançamentos importados e ${txsToReconcile.length} lançamentos existentes conciliados!`;
+      } else if (txsToInsert.length > 0) {
+        successMsg = `${txsToInsert.length} lançamentos importados com sucesso!`;
+      } else {
+        successMsg = `${txsToReconcile.length} lançamentos existentes conciliados com sucesso!`;
+      }
+      alert(successMsg);
     } catch (err: any) {
-      console.error("Erro ao importar lançamentos:", err);
-      alert("Erro ao importar lançamentos: " + (err.message || "Erro desconhecido."));
+      console.error("Erro ao importar/conciliar lançamentos:", err);
+      alert("Erro ao importar/conciliar lançamentos: " + (err.message || "Erro desconhecido."));
     } finally {
       setSyncing(false);
     }
@@ -246,7 +292,7 @@ function ImporteExtrato() {
 
         const availableDb = dbData ? [...dbData] : [];
 
-        // Match algorithm
+        // Match algorithm - Passo 1: Busca individual por transação
         parsed.forEach(ofx => {
           const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
           const ofxAmount = Math.abs(ofx.amount);
@@ -279,6 +325,66 @@ function ImporteExtrato() {
               availableDb.splice(alreadyIdx, 1);
             } else {
               ofx.status = "Não Encontrado";
+            }
+          }
+        });
+
+        // Match algorithm - Passo 2: Busca por soma agregada para a mesma data
+        // Agrupa as transações "Não Encontrado" por data
+        const unmatchedByDate: { [dateStr: string]: any[] } = {};
+        parsed.forEach(ofx => {
+          if (ofx.status === "Não Encontrado") {
+            if (!unmatchedByDate[ofx.date]) {
+              unmatchedByDate[ofx.date] = [];
+            }
+            unmatchedByDate[ofx.date].push(ofx);
+          }
+        });
+
+        // Para cada data com múltiplas transações não encontradas, tenta achar um lançamento com a soma correspondente
+        Object.keys(unmatchedByDate).forEach(dateStr => {
+          const groupTxs = unmatchedByDate[dateStr];
+          if (groupTxs.length > 1) {
+            const groupSum = groupTxs.reduce((sum, tx) => sum + tx.amount, 0);
+
+            // Procura lançamentos não conciliados cujo valor seja igual à soma (com sinal e tolerância)
+            let matchIdx = availableDb.findIndex(db => {
+              if (db.conciliado) return false;
+              const dbAmount = parseFloat(db.valor || "0");
+              if (Math.abs(dbAmount - groupSum) > 0.01) return false;
+              
+              const dbDate = new Date(db.data + "T00:00:00").getTime();
+              const ofxDate = new Date(dateStr + "T00:00:00").getTime();
+              const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
+              return diffDays <= 3;
+            });
+
+            if (matchIdx !== -1) {
+              const matchedDb = availableDb[matchIdx];
+              groupTxs.forEach(ofx => {
+                ofx.dbId = matchedDb.id;
+                ofx.status = "Encontrado (Agrupado)";
+              });
+              availableDb.splice(matchIdx, 1); // consome da lista de disponíveis
+            } else {
+              // Procura entre os lançamentos já conciliados
+              let alreadyIdx = availableDb.findIndex(db => {
+                if (!db.conciliado) return false;
+                const dbAmount = parseFloat(db.valor || "0");
+                if (Math.abs(dbAmount - groupSum) > 0.01) return false;
+                
+                const dbDate = new Date(db.data + "T00:00:00").getTime();
+                const ofxDate = new Date(dateStr + "T00:00:00").getTime();
+                const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
+                return diffDays <= 3;
+              });
+
+              if (alreadyIdx !== -1) {
+                groupTxs.forEach(ofx => {
+                  ofx.status = "Já Conciliado (Agrupado)";
+                });
+                availableDb.splice(alreadyIdx, 1);
+              }
             }
           }
         });
@@ -449,8 +555,8 @@ function ImporteExtrato() {
                 <tbody>
                   {transactions.map((t, idx) => {
                     let statusColor = "#64748b";
-                    if (t.status === "Encontrado") statusColor = "#d97706";
-                    if (t.status === "Sincronizado" || t.status === "Já Conciliado" || t.status === "Importado") statusColor = "#10b981";
+                    if (t.status && t.status.includes("Encontrado")) statusColor = "#d97706";
+                    if (t.status && (t.status.includes("Já Conciliado") || t.status.includes("Importado") || t.status === "Sincronizado")) statusColor = "#10b981";
                     if (t.status === "Não Encontrado") statusColor = "#ef4444";
 
                     return (
@@ -460,22 +566,29 @@ function ImporteExtrato() {
                             type="checkbox" 
                             checked={selectedTxIds.has(t.id)} 
                             onChange={() => toggleSelectTx(t.id)} 
-                            disabled={t.status !== "Não Encontrado"} 
-                            style={{ cursor: t.status === "Não Encontrado" ? "pointer" : "not-allowed" }}
+                            disabled={t.status !== "Não Encontrado" && t.status !== "Encontrado" && t.status !== "Encontrado (Agrupado)"} 
+                            style={{ 
+                              cursor: (t.status === "Não Encontrado" || t.status === "Encontrado" || t.status === "Encontrado (Agrupado)") 
+                                ? "pointer" 
+                                : "not-allowed" 
+                            }}
                           />
                         </td>
                         <td>{formatDate(t.date)}</td>
                         <td style={{ textAlign: "left", paddingLeft: "12px" }}>{t.memo || "Sem descrição"}</td>
                         <td>
-                          <span style={{ 
-                            backgroundColor: statusColor + "1a", // light background
-                            color: statusColor, 
-                            padding: "4px 8px", 
-                            borderRadius: "12px",
-                            fontWeight: "bold",
-                            fontSize: "1.2rem",
-                            display: "inline-block"
-                          }}>
+                          <span 
+                            style={{ 
+                              backgroundColor: statusColor + "1a", // light background
+                              color: statusColor, 
+                              padding: "4px 8px", 
+                              borderRadius: "12px",
+                              fontWeight: "bold",
+                              fontSize: "1.2rem",
+                              display: "inline-block"
+                            }}
+                            title={t.status.includes("Agrupado") ? "Este valor foi encontrado agrupado com outros do mesmo dia em um único lançamento no sistema." : undefined}
+                          >
                             {t.status}
                           </span>
                         </td>
