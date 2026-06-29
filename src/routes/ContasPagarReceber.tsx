@@ -6,6 +6,12 @@ import { useAuth } from "../AuthProvider";
 import supabase from "../services/supabase-client";
 import "../css/Frequencia.css";
 
+const cleanCategoryName = (name: string | null | undefined): string => {
+  if (!name) return "";
+  const cleaned = name.replace(/^\d+(?:\.\d+)*[\s\-\.]*/, "").trim();
+  return cleaned || name;
+};
+
 function ContasPagarReceber() {
   const { isAdmin, user } = useAuth();
 
@@ -151,7 +157,7 @@ function ContasPagarReceber() {
   const categoriaOptions = categoriasDb.filter(c => !c.parent_id).map(pai => ({
     label: pai.nome,
     options: categoriasDb.filter(sub => sub.parent_id === pai.id).map(sub => ({
-      value: sub.nome,
+      value: cleanCategoryName(sub.nome),
       label: sub.nome
     }))
   }));
