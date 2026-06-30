@@ -71,12 +71,206 @@ function VendasRealizadas() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
   const [dbData, setDbData] = useState<DbConciliacaoRow[]>([]);
+  const [checklistData, setChecklistData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingCell, setEditingCell] = useState<{ dateStr: string; field: string } | null>(null);
 
-  const fetchConciliacao = useCallback(async () => {
+  const handleMonthNavigation = (direction: "prev" | "next") => {
+    if (!selectedMonth) return;
+    const [year, month] = selectedMonth.split("-").map(Number);
+    let newYear = year;
+    let newMonth = month;
+    
+    if (direction === "prev") {
+      if (month === 1) {
+        newMonth = 12;
+        newYear = year - 1;
+      } else {
+        newMonth = month - 1;
+      }
+    } else {
+      if (month === 12) {
+        newMonth = 1;
+        newYear = year + 1;
+      } else {
+        newMonth = month + 1;
+      }
+    }
+    
+    setSelectedMonth(`${newYear}-${String(newMonth).padStart(2, "0")}`);
+  };
+
+  const handleGoToToday = () => {
+    const now = new Date();
+    setSelectedMonth(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`);
+  };
+
+  const todayStr = (() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  })();
+
+  const handleCellClick = (dateStr: string, field: string) => {
+    setEditingCell({ dateStr, field });
+  };
+
+  async function handleSaveField(dateStr: string, fieldName: string, value: number) {
+    // 1. Optimistically update local state instantly
+    setDbData(prevData => {
+      const existingIdx = prevData.findIndex(item => item.date === dateStr);
+      const matched = existingIdx >= 0 ? prevData[existingIdx] : null;
+
+      const currentAbertura = fieldName === "caixa_abertura" ? value : (matched?.caixa_abertura || 0);
+      const currentVendas = fieldName === "caixa_vendas" ? value : (matched?.caixa_vendas || 0);
+      const currentAjustes = fieldName === "caixa_ajustes" ? value : (matched?.caixa_ajustes || 0);
+      const newCalculado = currentAbertura + currentVendas + currentAjustes;
+
+      const updatedRow: any = {
+        ...(matched || {
+          date: dateStr,
+          store: selectedStore,
+          status: "Aberto",
+          caixa_abertura: 0,
+          caixa_vendas: 0,
+          caixa_ajustes: 0,
+          caixa_informado: 0,
+          caixa_real: 0,
+          pix_calculado: 0,
+          pix_realizado: 0,
+          cartao_calculado: 0,
+          cartao_realizado: 0,
+          ifood_calculado: 0,
+          ifood_realizado: 0
+        }),
+        [fieldName]: value,
+        caixa_calculado: newCalculado
+      };
+
+      if (existingIdx >= 0) {
+        const newData = [...prevData];
+        newData[existingIdx] = updatedRow;
+        return newData;
+      } else {
+        return [...prevData, updatedRow];
+      }
+    });
+
+    const matched = dbData.find(item => item.date === dateStr);
+    const payload: any = {
+      date: dateStr,
+      store: selectedStore,
+      [fieldName]: value
+    };
+
+    const currentAbertura = fieldName === "caixa_abertura" ? value : (matched?.caixa_abertura || 0);
+    const currentVendas = fieldName === "caixa_vendas" ? value : (matched?.caixa_vendas || 0);
+    const currentAjustes = fieldName === "caixa_ajustes" ? value : (matched?.caixa_ajustes || 0);
+    payload.caixa_calculado = currentAbertura + currentVendas + currentAjustes;
+
+    if (matched) {
+      payload.status = matched.status || "Aberto";
+    }
+
     try {
-      setLoading(true);
+      const { error } = await supabase
+        .from("conciliacao_vendas")
+        .upsert(payload, { onConflict: "store,date" });
+
+      if (error) throw error;
+      fetchConciliacao(true); // Sync in background
+    } catch (err) {
+      console.error("Erro ao salvar conciliação:", err);
+      alert("Erro ao salvar dados no banco.");
+      fetchConciliacao(); // Rollback to DB state
+    }
+  }
+
+  async function handleStatusChange(dateStr: string, newStatus: string) {
+    // 1. Optimistically update local state instantly
+    setDbData(prevData => {
+      const existingIdx = prevData.findIndex(item => item.date === dateStr);
+      const matched = existingIdx >= 0 ? prevData[existingIdx] : null;
+
+      const updatedRow: any = {
+        ...(matched || {
+          date: dateStr,
+          store: selectedStore,
+          status: "Aberto",
+          caixa_abertura: 0,
+          caixa_vendas: 0,
+          caixa_ajustes: 0,
+          caixa_calculado: 0,
+          caixa_informado: 0,
+          caixa_real: 0,
+          pix_calculado: 0,
+          pix_realizado: 0,
+          cartao_calculado: 0,
+          cartao_realizado: 0,
+          ifood_calculado: 0,
+          ifood_realizado: 0
+        }),
+        status: newStatus
+      };
+
+      if (existingIdx >= 0) {
+        const newData = [...prevData];
+        newData[existingIdx] = updatedRow;
+        return newData;
+      } else {
+        return [...prevData, updatedRow];
+      }
+    });
+
+    try {
+      const { error } = await supabase
+        .from("conciliacao_vendas")
+        .upsert({
+          date: dateStr,
+          store: selectedStore,
+          status: newStatus
+        }, { onConflict: "store,date" });
+
+      if (error) throw error;
+      fetchConciliacao(true); // Sync in background
+    } catch (err) {
+      console.error("Erro ao salvar status:", err);
+      alert("Erro ao alterar status.");
+      fetchConciliacao(); // Rollback on failure
+    }
+  }
+
+  const getLocalDateOnlyString = (timestamptzStr: string) => {
+    if (!timestamptzStr) return "";
+    const date = new Date(timestamptzStr);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
+
+  const getChecklistTotal = (moneyData: any): number => {
+    if (!moneyData) return 0;
+    if (typeof moneyData === "object") {
+      if (moneyData.total !== undefined && moneyData.total !== null) {
+        return Number(moneyData.total);
+      }
+    }
+    try {
+      const parsed = typeof moneyData === "string" ? JSON.parse(moneyData) : moneyData;
+      if (parsed && parsed.total !== undefined && parsed.total !== null) {
+        return Number(parsed.total);
+      }
+    } catch (e) {}
+    const num = Number(moneyData);
+    return isNaN(num) ? 0 : num;
+  };
+
+  const fetchConciliacao = useCallback(async (isBackground = false) => {
+    try {
+      if (!isBackground) {
+        setLoading(true);
+      }
       setError(null);
       
       const startOfMonth = `${selectedMonth}-01`;
@@ -84,7 +278,8 @@ function VendasRealizadas() {
       const lastDay = new Date(year, month, 0).getDate();
       const endOfMonth = `${selectedMonth}-${String(lastDay).padStart(2, '0')}`;
 
-      const { data, error: dbError } = await supabase
+      // Fetch conciliacao_vendas
+      const { data: vendasData, error: dbError } = await supabase
         .from("conciliacao_vendas")
         .select("*")
         .eq("store", selectedStore)
@@ -92,12 +287,30 @@ function VendasRealizadas() {
         .lte("date", endOfMonth);
 
       if (dbError) throw dbError;
-      setDbData(data || []);
+
+      // Fetch checklists
+      const startTimestamptz = `${startOfMonth}T00:00:00.000Z`;
+      const endTimestamptz = `${endOfMonth}T23:59:59.999Z`;
+      const { data: chData, error: chError } = await supabase
+        .from("Checklist")
+        .select("*")
+        .eq("store", selectedStore)
+        .gte("created_at", startTimestamptz)
+        .lte("created_at", endTimestamptz);
+
+      if (chError) throw chError;
+
+      setDbData(vendasData || []);
+      setChecklistData(chData || []);
     } catch (err: any) {
       console.error("Erro ao carregar conciliações:", err);
-      setError("Falha ao carregar dados do banco de dados.");
+      if (!isBackground) {
+        setError("Falha ao carregar dados do banco de dados.");
+      }
     } finally {
-      setLoading(false);
+      if (!isBackground) {
+        setLoading(false);
+      }
     }
   }, [selectedStore, selectedMonth]);
 
@@ -110,6 +323,217 @@ function VendasRealizadas() {
       style: "currency",
       currency: "BRL"
     });
+  };
+
+  const renderStatusCell = (
+    row: any,
+    cellBg: string,
+    todayBorder: React.CSSProperties
+  ) => {
+    const isEditing = editingCell && editingCell.dateStr === row.dateStr && editingCell.field === "status";
+    const isAberto = row.status === "Aberto";
+
+    const statusCellStyle = {
+      ...cellStyle,
+      width: "110px",
+      minWidth: "110px",
+      maxWidth: "110px"
+    };
+
+    if (isEditing) {
+      return (
+        <td style={{ ...statusCellStyle, backgroundColor: cellBg, ...todayBorder, padding: "4px 8px" }}>
+          <select
+            value={row.status}
+            onChange={(e) => {
+              handleStatusChange(row.dateStr, e.target.value);
+              setEditingCell(null);
+            }}
+            onBlur={() => setEditingCell(null)}
+            autoFocus
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "4px 2px",
+              margin: "0",
+              fontSize: "1.3rem",
+              border: "1px solid var(--primary-color)",
+              borderRadius: "4px",
+              textAlign: "center",
+              cursor: "pointer",
+              outline: "none"
+            }}
+          >
+            <option value="Aberto">Aberto</option>
+            <option value="Fechado">Fechado</option>
+          </select>
+        </td>
+      );
+    }
+
+    return (
+      <td
+        onClick={() => handleCellClick(row.dateStr, "status")}
+        style={{
+          ...statusCellStyle,
+          backgroundColor: cellBg,
+          ...todayBorder,
+          cursor: "pointer",
+          transition: "background-color 0.2s"
+        }}
+        title="Clique para alterar o status"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "#f1f5f9";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = cellBg;
+        }}
+      >
+        <span style={{
+          padding: "4px 10px",
+          borderRadius: "12px",
+          fontSize: "1.1rem",
+          fontWeight: "bold",
+          backgroundColor: isAberto ? "#eff6ff" : "#f1f5f9",
+          color: isAberto ? "#2563eb" : "#475569",
+          border: `1px solid ${isAberto ? "#bfdbfe" : "#cbd5e1"}`
+        }}>
+          {row.status}
+        </span>
+      </td>
+    );
+  };
+
+  const renderEditableCell = (
+    row: any,
+    fieldName: string,
+    value: number,
+    cellBg: string,
+    cellColor: string,
+    todayBorder: React.CSSProperties,
+    hasDiscrepancy?: boolean
+  ) => {
+    const isEditing = editingCell && editingCell.dateStr === row.dateStr && editingCell.field === fieldName;
+
+    const actualBg = hasDiscrepancy ? "#fee2e2" : cellBg;
+    const actualColor = hasDiscrepancy ? "#b91c1c" : cellColor;
+    const fontWeight = hasDiscrepancy ? "bold" : "normal";
+
+    const currentCellStyle = {
+      ...cellStyle,
+      width: "125px",
+      minWidth: "125px",
+      maxWidth: "125px"
+    };
+
+    if (isEditing) {
+      return (
+        <td style={{ ...currentCellStyle, backgroundColor: actualBg, ...todayBorder, padding: "4px 8px" }}>
+          <input
+            type="text"
+            defaultValue={value === 0 ? "" : value.toString().replace(".", ",")}
+            placeholder="0,00"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                const rawVal = e.currentTarget.value.replace(",", ".");
+                const parsedVal = parseFloat(rawVal);
+                handleSaveField(row.dateStr, fieldName, isNaN(parsedVal) ? 0 : parsedVal);
+                setEditingCell(null);
+              } else if (e.key === "Escape") {
+                setEditingCell(null);
+              }
+            }}
+            onBlur={(e) => {
+              const rawVal = e.currentTarget.value.replace(",", ".");
+              const parsedVal = parseFloat(rawVal);
+              handleSaveField(row.dateStr, fieldName, isNaN(parsedVal) ? 0 : parsedVal);
+              setEditingCell(null);
+            }}
+            autoFocus
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              padding: "4px 2px",
+              margin: "0",
+              fontSize: "1.3rem",
+              border: "1px solid var(--primary-color)",
+              borderRadius: "4px",
+              textAlign: "center",
+              outline: "none",
+              fontFamily: "inherit"
+            }}
+          />
+        </td>
+      );
+    }
+
+    return (
+      <td
+        onClick={() => handleCellClick(row.dateStr, fieldName)}
+        style={{
+          ...currentCellStyle,
+          backgroundColor: actualBg,
+          color: actualColor,
+          fontWeight,
+          ...todayBorder,
+          cursor: "pointer",
+          transition: "background-color 0.2s"
+        }}
+        title="Clique para editar"
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "#f1f5f9";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = actualBg;
+        }}
+      >
+        {formatCurrency(value)}
+      </td>
+    );
+  };
+
+  const renderMatchIcon = (checkVal: number, cloudVal: number, dateStr: string) => {
+    const isFuture = dateStr > todayStr;
+    if (isFuture) return null;
+
+    const isMatch = checkVal === cloudVal;
+    if (isMatch) {
+      return (
+        <Icons.BsCheckCircleFill 
+          style={{ color: "#10b981", fontSize: "1.4rem", display: "inline-block", verticalAlign: "middle" }} 
+          title="Valores de abertura coincidem" 
+        />
+      );
+    } else {
+      return (
+        <Icons.BsExclamationTriangleFill 
+          style={{ color: "#d97706", fontSize: "1.4rem", display: "inline-block", verticalAlign: "middle" }} 
+          title={`Divergência: Checklist (${formatCurrency(checkVal)}) vs Cloudfy (${formatCurrency(cloudVal)})`}
+        />
+      );
+    }
+  };
+
+  const renderClosingMatchIcon = (calcVal: number, infVal: number, dateStr: string) => {
+    const isFuture = dateStr > todayStr;
+    if (isFuture) return null;
+
+    const isMatch = calcVal === infVal;
+    if (isMatch) {
+      return (
+        <Icons.BsCheckCircleFill 
+          style={{ color: "#10b981", fontSize: "1.4rem", display: "inline-block", verticalAlign: "middle" }} 
+          title="Valores de fechamento coincidem" 
+        />
+      );
+    } else {
+      return (
+        <Icons.BsExclamationTriangleFill 
+          style={{ color: "#d97706", fontSize: "1.4rem", display: "inline-block", verticalAlign: "middle" }} 
+          title={`Divergência: Calculado (${formatCurrency(calcVal)}) vs Informado (${formatCurrency(infVal)})`}
+        />
+      );
+    }
   };
 
   // Header styles
@@ -126,28 +550,75 @@ function VendasRealizadas() {
     fontSize: "1.1rem",
     fontWeight: "bold",
     border: "1px solid #cbd5e1",
-    textAlign: "center"
+    textAlign: "center",
+    width: "125px",
+    minWidth: "125px",
+    maxWidth: "125px",
+    boxSizing: "border-box"
   };
 
   const cellStyle: React.CSSProperties = {
     padding: "10px",
     border: "1px solid #e2e8f0",
     textAlign: "center",
-    fontSize: "1.3rem"
+    fontSize: "1.3rem",
+    boxSizing: "border-box"
+  };
+
+  const numericCellStyle: React.CSSProperties = {
+    ...cellStyle,
+    width: "125px",
+    minWidth: "125px",
+    maxWidth: "125px"
+  };
+
+  const iconHeaderStyle: React.CSSProperties = {
+    padding: "8px 4px",
+    border: "1px solid #cbd5e1",
+    textAlign: "center",
+    width: "45px",
+    minWidth: "45px",
+    maxWidth: "45px",
+    boxSizing: "border-box"
+  };
+
+  const iconCellStyle: React.CSSProperties = {
+    padding: "10px 4px",
+    border: "1px solid #e2e8f0",
+    textAlign: "center",
+    fontSize: "1.3rem",
+    width: "45px",
+    minWidth: "45px",
+    maxWidth: "45px",
+    boxSizing: "border-box"
   };
 
   // Generate days and merge with fetched data
   const days = getDaysInMonth(selectedMonth);
   days.reverse(); // Latest first
 
+  // Build a map of opening checklist values indexed by dateStr (YYYY-MM-DD)
+  const openingChecklistsMap: { [dateStr: string]: number } = {};
+  checklistData.forEach(item => {
+    if (item.checklist?.toLowerCase().includes("abertura")) {
+      const dateStr = getLocalDateOnlyString(item.created_at);
+      const total = getChecklistTotal(item.money_data);
+      openingChecklistsMap[dateStr] = total;
+    }
+  });
+
   const rows = days.map((day) => {
     const matched = dbData.find((item) => item.date === day.dateStr);
+    const chAbertura = openingChecklistsMap[day.dateStr] || 0;
+
     if (matched) {
       return {
         diaSemana: day.diaSemana,
         data: day.formattedDate,
+        dateStr: day.dateStr,
         status: matched.status || "Aberto",
-        caixaAbertura: matched.caixa_abertura || 0,
+        caixaAberturaChecklist: chAbertura,
+        caixaAberturaCloudfy: matched.caixa_abertura || 0,
         caixaVendas: matched.caixa_vendas || 0,
         caixaAjustes: matched.caixa_ajustes || 0,
         caixaCalculado: matched.caixa_calculado || 0,
@@ -165,8 +636,10 @@ function VendasRealizadas() {
       return {
         diaSemana: day.diaSemana,
         data: day.formattedDate,
+        dateStr: day.dateStr,
         status: "Aberto",
-        caixaAbertura: 0,
+        caixaAberturaChecklist: chAbertura,
+        caixaAberturaCloudfy: 0,
         caixaVendas: 0,
         caixaAjustes: 0,
         caixaCalculado: 0,
@@ -256,20 +729,49 @@ function VendasRealizadas() {
           {/* Month Selector */}
           <div>
             <label style={{ display: "block", fontSize: "1.3rem", fontWeight: "bold", color: "#475569", marginBottom: "6px" }}>Período</label>
-            <input
-              type="month"
-              value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-              style={{
-                padding: "8px 12px",
-                borderRadius: "6px",
-                border: "1px solid #cbd5e1",
-                fontSize: "1.3rem",
-                color: "#334155",
-                fontFamily: "inherit",
-                cursor: "pointer"
-              }}
-            />
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                className="nav-btn"
+                onClick={() => handleMonthNavigation("prev")}
+                title="Mês Anterior"
+                style={{ padding: "8px 12px" }}
+              >
+                <Icons.BsChevronLeft />
+              </button>
+              
+              <input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "6px",
+                  border: "1px solid #cbd5e1",
+                  fontSize: "1.3rem",
+                  color: "#334155",
+                  fontFamily: "inherit",
+                  cursor: "pointer"
+                }}
+              />
+              
+              <button
+                className="nav-btn"
+                onClick={() => handleMonthNavigation("next")}
+                title="Próximo Mês"
+                style={{ padding: "8px 12px" }}
+              >
+                <Icons.BsChevronRight />
+              </button>
+
+              <button
+                className="nav-btn"
+                onClick={handleGoToToday}
+                title="Ir para o dia de hoje"
+                style={{ fontWeight: "bold", padding: "8px 12px" }}
+              >
+                Hoje
+              </button>
+            </div>
           </div>
 
           {/* Reload Button */}
@@ -324,11 +826,11 @@ function VendasRealizadas() {
               <thead>
                 {/* Group Headers */}
                 <tr style={{ backgroundColor: "#f8fafc", color: "#334155" }}>
-                  <th rowSpan={2} style={{ ...headerStyle, textAlign: "left", paddingLeft: "16px", position: "sticky", left: 0, backgroundColor: "#f8fafc", zIndex: 10 }}>Dia da Semana</th>
-                  <th rowSpan={2} style={{ ...headerStyle, position: "sticky", left: "150px", backgroundColor: "#f8fafc", zIndex: 10 }}>Data</th>
-                  <th rowSpan={2} style={headerStyle}>Status</th>
+                  <th rowSpan={2} style={{ ...headerStyle, textAlign: "left", paddingLeft: "16px", position: "sticky", left: 0, backgroundColor: "#f8fafc", zIndex: 10, width: "140px", minWidth: "140px", maxWidth: "140px", boxSizing: "border-box" }}>Dia da Semana</th>
+                  <th rowSpan={2} style={{ ...headerStyle, position: "sticky", left: "140px", backgroundColor: "#f8fafc", zIndex: 10, width: "120px", minWidth: "120px", maxWidth: "120px", boxSizing: "border-box" }}>Data</th>
+                  <th rowSpan={2} style={{ ...headerStyle, width: "110px", minWidth: "110px", maxWidth: "110px", boxSizing: "border-box" }}>Status</th>
                   
-                  <th colSpan={6} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#fffbeb", color: "#b45309", borderBottom: "2px solid #fcd34d" }}>
+                  <th colSpan={8} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#fffbeb", color: "#b45309", borderBottom: "2px solid #fcd34d" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                       <Icons.BsCashCoin /> Caixa Dinheiro
                     </span>
@@ -353,12 +855,14 @@ function VendasRealizadas() {
                 {/* Sub Columns */}
                 <tr style={{ backgroundColor: "#f8fafc", color: "#64748b" }}>
                   {/* Caixa Dinheiro subheaders */}
-                  <th style={subHeaderStyle}>Abertura</th>
+                  <th style={{ ...subHeaderStyle, borderLeft: "3px solid #cbd5e1" }}>Abertura<br />Checklist</th>
+                  <th style={subHeaderStyle}>Abertura<br />Cloudfy</th>
+                  <th style={{ ...iconHeaderStyle, borderRight: "3px solid #cbd5e1" }}></th>
                   <th style={subHeaderStyle}>Vendas</th>
                   <th style={subHeaderStyle}>Ajustes</th>
-                  <th style={subHeaderStyle}>Calculado</th>
-                  <th style={subHeaderStyle}>Informado</th>
-                  <th style={subHeaderStyle}>Real</th>
+                  <th style={{ ...subHeaderStyle, borderLeft: "3px solid #cbd5e1" }}>Calculado<br />Cloudfy</th>
+                  <th style={subHeaderStyle}>Informado<br />Cloudfy</th>
+                  <th style={{ ...iconHeaderStyle, borderRight: "3px solid #cbd5e1" }}></th>
                   
                   {/* Pix subheaders */}
                   <th style={subHeaderStyle}>Calculadas</th>
@@ -375,7 +879,9 @@ function VendasRealizadas() {
               </thead>
               <tbody>
                 {rows.map((row, idx) => {
-                  const isAberto = row.status === "Aberto";
+                  const isToday = row.dateStr === todayStr;
+                  const cellBg = idx % 2 === 0 ? "#ffffff" : "#f8fafc";
+                  const cellColor = "inherit";
                   
                   // Discrepancy checks (only when status is Fechado)
                   const hasCaixaDiscrepancy = row.status === "Fechado" && (row.caixaCalculado !== row.caixaInformado || row.caixaCalculado !== row.caixaReal);
@@ -383,87 +889,72 @@ function VendasRealizadas() {
                   const hasCartaoDiscrepancy = row.status === "Fechado" && row.cartaoCalculado !== row.cartaoRealizado;
                   const hasIfoodDiscrepancy = row.status === "Fechado" && row.ifoodCalculado !== row.ifoodRealizado;
 
+                  // Today borders
+                  const todayBorder = isToday ? { borderTop: "2px solid #eab308", borderBottom: "2px solid #eab308" } : {};
+
                   return (
-                    <tr key={idx} style={{ backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f8fafc", transition: "0.15s" }}>
+                    <tr key={idx} style={{ transition: "0.15s" }}>
                       {/* Fixed Left Columns */}
-                      <td style={{ ...cellStyle, textAlign: "left", paddingLeft: "16px", fontWeight: "600", color: "#475569", position: "sticky", left: 0, backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f8fafc", borderRight: "1px solid #cbd5e1" }}>
+                      <td style={{ 
+                        ...cellStyle, 
+                        textAlign: "left", 
+                        paddingLeft: "16px", 
+                        fontWeight: "600", 
+                        color: "#475569", 
+                        position: "sticky", 
+                        left: 0, 
+                        backgroundColor: cellBg, 
+                        borderRight: "1px solid #cbd5e1",
+                        width: "140px",
+                        minWidth: "140px",
+                        maxWidth: "140px",
+                        ...todayBorder
+                      }}>
                         {row.diaSemana}
                       </td>
-                      <td style={{ ...cellStyle, color: "#334155", position: "sticky", left: "150px", backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f8fafc", borderRight: "1px solid #cbd5e1" }}>
+                      <td style={{ 
+                        ...cellStyle, 
+                        color: "#334155", 
+                        position: "sticky", 
+                        left: "140px", 
+                        backgroundColor: cellBg, 
+                        borderRight: "1px solid #cbd5e1",
+                        width: "120px",
+                        minWidth: "120px",
+                        maxWidth: "120px",
+                        ...todayBorder
+                      }}>
                         {row.data}
                       </td>
                       
                       {/* Status badge */}
-                      <td style={cellStyle}>
-                        <span style={{
-                          padding: "4px 10px",
-                          borderRadius: "12px",
-                          fontSize: "1.1rem",
-                          fontWeight: "bold",
-                          backgroundColor: isAberto ? "#eff6ff" : "#f1f5f9",
-                          color: isAberto ? "#2563eb" : "#475569",
-                          border: `1px solid ${isAberto ? "#bfdbfe" : "#cbd5e1"}`
-                        }}>
-                          {row.status}
-                        </span>
-                      </td>
+                      {renderStatusCell(row, cellBg, todayBorder)}
 
                       {/* Caixa Dinheiro Cells */}
-                      <td style={cellStyle}>{formatCurrency(row.caixaAbertura)}</td>
-                      <td style={cellStyle}>{formatCurrency(row.caixaVendas)}</td>
-                      <td style={{ ...cellStyle, color: row.caixaAjustes < 0 ? "#ef4444" : row.caixaAjustes > 0 ? "#10b981" : "#64748b" }}>
-                        {formatCurrency(row.caixaAjustes)}
+                      <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cellColor, ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaAberturaChecklist)}</td>
+                      {renderEditableCell(row, "caixa_abertura", row.caixaAberturaCloudfy, cellBg, cellColor, todayBorder)}
+                      <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
+                        {renderMatchIcon(row.caixaAberturaChecklist, row.caixaAberturaCloudfy, row.dateStr)}
                       </td>
-                      <td style={cellStyle}>{formatCurrency(row.caixaCalculado)}</td>
-                      <td style={{
-                        ...cellStyle,
-                        backgroundColor: hasCaixaDiscrepancy ? "#fee2e2" : "transparent",
-                        color: hasCaixaDiscrepancy ? "#b91c1c" : "#334155",
-                        fontWeight: hasCaixaDiscrepancy ? "bold" : "normal"
-                      }}>
-                        {formatCurrency(row.caixaInformado)}
-                      </td>
-                      <td style={{
-                        ...cellStyle,
-                        backgroundColor: hasCaixaDiscrepancy ? "#fee2e2" : "transparent",
-                        color: hasCaixaDiscrepancy ? "#b91c1c" : "#334155",
-                        fontWeight: hasCaixaDiscrepancy ? "bold" : "normal"
-                      }}>
-                        {formatCurrency(row.caixaReal)}
+                      {renderEditableCell(row, "caixa_vendas", row.caixaVendas, cellBg, cellColor, todayBorder)}
+                      {renderEditableCell(row, "caixa_ajustes", row.caixaAjustes, cellBg, cellColor, todayBorder)}
+                      <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cellColor, ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaCalculado)}</td>
+                      {renderEditableCell(row, "caixa_informado", row.caixaInformado, cellBg, cellColor, todayBorder, hasCaixaDiscrepancy)}
+                      <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
+                        {renderClosingMatchIcon(row.caixaCalculado, row.caixaInformado, row.dateStr)}
                       </td>
 
                       {/* Vendas Pix Cells */}
-                      <td style={cellStyle}>{formatCurrency(row.pixCalculado)}</td>
-                      <td style={{
-                        ...cellStyle,
-                        backgroundColor: hasPixDiscrepancy ? "#fee2e2" : "transparent",
-                        color: hasPixDiscrepancy ? "#b91c1c" : "#334155",
-                        fontWeight: hasPixDiscrepancy ? "bold" : "normal"
-                      }}>
-                        {formatCurrency(row.pixRealizado)}
-                      </td>
+                      {renderEditableCell(row, "pix_calculado", row.pixCalculado, cellBg, cellColor, todayBorder)}
+                      {renderEditableCell(row, "pix_realizado", row.pixRealizado, cellBg, cellColor, todayBorder, hasPixDiscrepancy)}
 
                       {/* Vendas Cartão Cells */}
-                      <td style={cellStyle}>{formatCurrency(row.cartaoCalculado)}</td>
-                      <td style={{
-                        ...cellStyle,
-                        backgroundColor: hasCartaoDiscrepancy ? "#fee2e2" : "transparent",
-                        color: hasCartaoDiscrepancy ? "#b91c1c" : "#334155",
-                        fontWeight: hasCartaoDiscrepancy ? "bold" : "normal"
-                      }}>
-                        {formatCurrency(row.cartaoRealizado)}
-                      </td>
+                      {renderEditableCell(row, "cartao_calculado", row.cartaoCalculado, cellBg, cellColor, todayBorder)}
+                      {renderEditableCell(row, "cartao_realizado", row.cartaoRealizado, cellBg, cellColor, todayBorder, hasCartaoDiscrepancy)}
 
                       {/* Vendas iFood Cells */}
-                      <td style={cellStyle}>{formatCurrency(row.ifoodCalculado)}</td>
-                      <td style={{
-                        ...cellStyle,
-                        backgroundColor: hasIfoodDiscrepancy ? "#fee2e2" : "transparent",
-                        color: hasIfoodDiscrepancy ? "#b91c1c" : "#334155",
-                        fontWeight: hasIfoodDiscrepancy ? "bold" : "normal"
-                      }}>
-                        {formatCurrency(row.ifoodRealizado)}
-                      </td>
+                      {renderEditableCell(row, "ifood_calculado", row.ifoodCalculado, cellBg, cellColor, todayBorder)}
+                      {renderEditableCell(row, "ifood_realizado", row.ifoodRealizado, cellBg, cellColor, todayBorder, hasIfoodDiscrepancy)}
                     </tr>
                   );
                 })}
