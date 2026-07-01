@@ -500,6 +500,9 @@ function CadastroPessoas() {
                         <Link className="icon-btn" title="Histórico e Ocorrências" to={`/configuracoes/cadastro-pessoas/${p.id}`} style={{ backgroundColor: "rgba(139, 92, 246, 0.1)", color: "#8b5cf6" }}>
                           <Icons.BsFolder2Open />
                         </Link>
+                        <Link className="icon-btn" title="Onboarding" to={`/configuracoes/cadastro-pessoas/${p.id}/onboarding`} style={{ backgroundColor: "rgba(245, 158, 11, 0.1)", color: "#f59e0b" }}>
+                          <Icons.BsRocketTakeoff />
+                        </Link>
                         <button className="icon-btn" title="Alterar Senha" onClick={() => openPasswordModal(p.id)} style={{ backgroundColor: "rgba(16, 185, 129, 0.1)", color: "#10b981" }}>
                           <Icons.BsKey />
                         </button>

@@ -30,6 +30,7 @@ import Login from "./routes/Login.jsx";
 import CadastroPessoas from "./routes/configuracoes/CadastroPessoas.tsx";
 import Frequencia from "./routes/Frequencia.tsx";
 import HistoricoFuncionario from "./routes/HistoricoFuncionario.tsx";
+import OnboardingUsuario from "./routes/configuracoes/OnboardingUsuario.tsx";
 import CalculoVales from "./routes/CalculoVales.tsx";
 import Logs from "./routes/configuracoes/Logs.tsx";
 import FeriadosGlobais from "./routes/configuracoes/FeriadosGlobais.tsx";
@@ -144,6 +145,7 @@ const router = createBrowserRouter(
 
         <Route path="/configuracoes/cadastro-pessoas" element={<CadastroPessoas />} />
         <Route path="/configuracoes/cadastro-pessoas/:id" element={<HistoricoFuncionario />} />
+        <Route path="/configuracoes/cadastro-pessoas/:id/onboarding" element={<OnboardingUsuario />} />
         <Route path="/funcionarios" element={<Funcionarios />} />
         <Route path="/historico-vt-vr" element={<HistoricoVT_VR />} />
         <Route path="/frequencia" element={<Frequencia />} />
