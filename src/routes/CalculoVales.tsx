@@ -152,6 +152,7 @@ function CalculoVales() {
         "Atraso",
         "Registro Formal",
         "Rescisão de Contrato",
+        "Período de Teste",
         "Outro"
       ].includes(status);
 
@@ -187,18 +188,74 @@ function CalculoVales() {
       const startOfPrevStr = `${prevPeriod.year}-${String(prevPeriod.month).padStart(2, "0")}-01`;
       const endOfPrevStr = `${prevPeriod.year}-${String(prevPeriod.month).padStart(2, "0")}-${String(daysInPrevMonth).padStart(2, "0")}`;
 
-      const { data: attData, error: attError } = await supabase
-        .from("frequencia")
-        .select("employee_id, status")
-        .gte("date", startOfPrevStr)
-        .lte("date", endOfPrevStr)
-        .in("status", ["Falta Não Justificada", "Atestado", "Folga Compensatória", "Férias"]);
+      const [prevFreqRes, prevHistRes] = await Promise.all([
+        supabase
+          .from("frequencia")
+          .select("employee_id, date, status")
+          .gte("date", startOfPrevStr)
+          .lte("date", endOfPrevStr),
+        supabase
+          .from("historico_pagamentos_vt_vr")
+          .select("employee_id, dias_previstos")
+          .eq("mes_referencia", prevPeriod.month)
+          .eq("ano_referencia", prevPeriod.year)
+      ]);
 
-      if (attError) throw attError;
+      if (prevFreqRes.error) throw prevFreqRes.error;
+      if (prevHistRes.error) throw prevHistRes.error;
+
+      const prevAttMap: { [key: string]: string } = {};
+      (prevFreqRes.data || []).forEach(row => {
+        prevAttMap[`${row.employee_id}_${row.date}`] = row.status;
+      });
+
+      const prevHistMap: { [key: string]: number } = {};
+      (prevHistRes.data || []).forEach(row => {
+        prevHistMap[row.employee_id] = row.dias_previstos || 0;
+      });
 
       const counts: { [employeeId: string]: number } = {};
-      (attData || []).forEach((row) => {
-        counts[row.employee_id] = (counts[row.employee_id] || 0) + 1;
+      filtered.forEach((p) => {
+        let countPrev = 0;
+        const fixedOffDays = p.folgas_fixas ? p.folgas_fixas.split(",") : [];
+        const regDate = p.data_registro;
+
+        for (let d = 1; d <= daysInPrevMonth; d++) {
+          const dateObj = new Date(prevPeriod.year, prevPeriod.month - 1, d);
+          const yStr = dateObj.getFullYear();
+          const mStr = String(dateObj.getMonth() + 1).padStart(2, "0");
+          const dStr = String(dateObj.getDate()).padStart(2, "0");
+          const currentDateStr = `${yStr}-${mStr}-${dStr}`;
+
+          if (regDate && currentDateStr < regDate) continue;
+
+          const cellKey = `${p.id}_${currentDateStr}`;
+          const weekdayVal = String(dateObj.getDay());
+          const isFixedOff = fixedOffDays.includes(weekdayVal);
+          const defaultStatus = isFixedOff ? "Folga Fixa Semanal" : "Trabalhado";
+
+          const status = prevAttMap[cellKey] || defaultStatus;
+          const isWorked = [
+            "Trabalhado",
+            "Declaração de Horas",
+            "Saída Antecipada",
+            "Atraso",
+            "Registro Formal",
+            "Rescisão de Contrato",
+            "Período de Teste",
+            "Outro"
+          ].includes(status);
+
+          if (isWorked) countPrev++;
+        }
+
+        const previstos = prevHistMap[p.id] || 0;
+        let desconto = 0;
+        if (previstos > 0) {
+          desconto = previstos - countPrev;
+          if (desconto < 0) desconto = 0;
+        }
+        counts[p.id] = desconto;
       });
 
       setPrevMonthAttendance(counts);

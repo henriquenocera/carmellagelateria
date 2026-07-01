@@ -685,8 +685,8 @@ function LancamentosFinanceiros() {
               <div style={{ flex: "2 1 220px" }}>
                 <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Categoria</label>
                 <Select
-                  options={categoriaOptions}
-                  value={categoriaOptions.flatMap(g => g.options).find(o => o.value === newRow.categoria) || null}
+                  options={categoriaOptionsAll}
+                  value={categoriaOptionsAll.flatMap(g => g.options).find(o => o.value === newRow.categoria) || null}
                   onChange={(option: any) => setNewRow({ ...newRow, categoria: option ? option.value : null })}
                   placeholder="Buscar Categoria..."
                   isClearable

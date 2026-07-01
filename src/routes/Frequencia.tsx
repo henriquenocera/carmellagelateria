@@ -57,6 +57,8 @@ function Frequencia() {
 
   // Save status indicator: 'idle' | 'saving' | 'saved' | 'error'
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  
+  const [showStatusLegendModal, setShowStatusLegendModal] = useState(false);
 
   interface CommentData {
     text: string;
@@ -623,17 +625,28 @@ function Frequencia() {
               Hoje
             </button>
 
-            <select
-              className="frequencia-select"
-              style={{ marginLeft: "16px", maxWidth: "200px" }}
-              value={selectedEmployee}
-              onChange={(e) => setSelectedEmployee(e.target.value)}
-            >
-              <option value="all">Todos os Funcionários</option>
-              {profiles.map(p => (
-                <option key={p.id} value={p.id}>{p.name.split(" ")[0]}</option>
-              ))}
-            </select>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <select
+                className="frequencia-select"
+                style={{ marginLeft: "16px", minWidth: "190px" }}
+                value={selectedEmployee}
+                onChange={(e) => setSelectedEmployee(e.target.value)}
+              >
+                <option value="all">Todos os Funcionários</option>
+                {profiles.map(p => (
+                  <option key={p.id} value={p.id}>{p.name.split(" ")[0]}</option>
+                ))}
+              </select>
+
+              <div 
+                onClick={() => setShowStatusLegendModal(true)}
+                title="Clique para ver os detalhes"
+                style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-muted)", fontSize: "0.95rem", cursor: "pointer", backgroundColor: "#f8fafc", padding: "6px 12px", borderRadius: "20px", border: "1px solid #e2e8f0" }}
+              >
+                <Icons.BsInfoCircleFill style={{ color: "var(--primary-color)" }} />
+                <span>O que conta como dia trabalhado?</span>
+              </div>
+            </div>
           </div>
 
           <div className="actions-group">
@@ -897,6 +910,65 @@ function Frequencia() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Status de Dias Trabalhados */}
+      {showStatusLegendModal && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000
+        }}>
+          <div style={{ backgroundColor: "#fff", padding: "32px", borderRadius: "12px", width: "600px", maxWidth: "90%", boxShadow: "0 10px 25px rgba(0,0,0,0.2)" }}>
+            <h3 style={{ marginTop: 0, marginBottom: "16px", color: "var(--secondary-color)", display: "flex", alignItems: "center", gap: "10px", fontSize: "1.5rem" }}>
+              <Icons.BsInfoCircleFill color="var(--primary-color)" />
+              O que conta como dia trabalhado?
+            </h3>
+            
+            <p style={{ color: "#64748b", marginBottom: "24px", lineHeight: "1.6", fontSize: "1.1rem" }}>
+              Para o cálculo automático de previsão de <strong>Vale Transporte (VT)</strong> e <strong>Vale Refeição (VR)</strong>, os status de frequência são classificados da seguinte forma:
+            </p>
+
+            <div style={{ display: "flex", gap: "32px" }}>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ color: "#16a34a", marginBottom: "16px", borderBottom: "2px solid #bbf7d0", paddingBottom: "8px", fontSize: "1.35rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsCheckCircleFill /> Considerados (Sim)
+                </h4>
+                <ul style={{ paddingLeft: "0", color: "#475569", margin: 0, display: "flex", flexDirection: "column", gap: "12px", listStyle: "none", fontSize: "1.15rem" }}>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Trabalhado</li>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Declaração de Horas</li>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Saída Antecipada</li>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Atraso</li>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Registro Formal</li>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Rescisão de Contrato</li>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Período de Teste</li>
+                  <li><span style={{ color: "#16a34a", marginRight: "6px" }}>•</span> Outro</li>
+                </ul>
+              </div>
+              <div style={{ flex: 1 }}>
+                <h4 style={{ color: "#dc2626", marginBottom: "16px", borderBottom: "2px solid #fecaca", paddingBottom: "8px", fontSize: "1.35rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsXCircleFill /> Não Considerados (Não)
+                </h4>
+                <ul style={{ paddingLeft: "0", color: "#475569", margin: 0, display: "flex", flexDirection: "column", gap: "12px", listStyle: "none", fontSize: "1.15rem" }}>
+                  <li><span style={{ color: "#dc2626", marginRight: "6px" }}>•</span> Falta Não Justificada</li>
+                  <li><span style={{ color: "#dc2626", marginRight: "6px" }}>•</span> Atestado</li>
+                  <li><span style={{ color: "#dc2626", marginRight: "6px" }}>•</span> Folga Fixa Semanal</li>
+                  <li><span style={{ color: "#dc2626", marginRight: "6px" }}>•</span> Domingo de Folga</li>
+                  <li><span style={{ color: "#dc2626", marginRight: "6px" }}>•</span> Folga Compensatória</li>
+                  <li><span style={{ color: "#dc2626", marginRight: "6px" }}>•</span> Férias</li>
+                </ul>
+              </div>
+            </div>
+
+            <div style={{ marginTop: "32px", textAlign: "right", borderTop: "1px solid #e2e8f0", paddingTop: "16px" }}>
+              <button 
+                onClick={() => setShowStatusLegendModal(false)}
+                style={{ backgroundColor: "var(--primary-color)", color: "#fff", border: "none", padding: "10px 24px", borderRadius: "8px", cursor: "pointer", fontWeight: 600, fontSize: "1.1rem" }}
+              >
+                Entendi
+              </button>
+            </div>
           </div>
         </div>
       )}
