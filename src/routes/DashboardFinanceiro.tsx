@@ -223,14 +223,14 @@ function DashboardFinanceiro() {
       if (isNaN(val)) return false;
       if (tipo === "PAGAR" && val > 0) return false;
       if (tipo === "RECEBER" && val < 0) return false;
-      
+
       if (periodo === "vencido") return p.data < todayStr;
       if (periodo === "hoje") return p.data === todayStr;
-      
+
       const pDate = new Date(p.data + "T00:00:00");
       const diffTime = pDate.getTime() - todayZero.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       if (periodo === "proximos") return diffDays > 0 && diffDays <= 7;
       if (periodo === "proximos14") return diffDays > 7 && diffDays <= 14;
       if (periodo === "proximos21") return diffDays > 14 && diffDays <= 21;
@@ -294,6 +294,25 @@ function DashboardFinanceiro() {
     return Object.values(dataMap);
   }, [mesFiltro, allLancamentos, allPendentes]);
 
+  const handleMonthChange = (direction: 'prev' | 'next') => {
+    if (!mesFiltro) return;
+    let [year, month] = mesFiltro.split('-').map(Number);
+    if (direction === 'prev') {
+      month -= 1;
+      if (month < 1) {
+        month = 12;
+        year -= 1;
+      }
+    } else {
+      month += 1;
+      if (month > 12) {
+        month = 1;
+        year += 1;
+      }
+    }
+    setMesFiltro(`${year}-${String(month).padStart(2, '0')}`);
+  };
+
   if (!isAdmin) {
     return (
       <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
@@ -326,31 +345,55 @@ function DashboardFinanceiro() {
           <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
 
             {/* SALDO TOTAL */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px" }}>
-              <div style={{ background: "linear-gradient(135deg, #475569, #1e293b)", borderRadius: "12px", padding: "24px", color: "#fff", boxShadow: "0 4px 6px -1px rgba(30, 41, 59, 0.3)" }}>
-                <h2 style={{ margin: "0 0 4px 0", fontSize: "1.4rem", opacity: 0.9, fontWeight: 500 }}>Saldo Total (Todas as Contas)</h2>
-                <div style={{ fontSize: "3.0rem", fontWeight: "bold", letterSpacing: "-0.5px" }}>
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ background: "linear-gradient(135deg, #1e293b, #0f172a)", borderRadius: "12px", padding: "16px 20px", color: "#fff", boxShadow: "0 4px 6px -1px rgba(15, 23, 42, 0.4)", display: "flex", flexDirection: "column", justifyContent: "center", position: "relative", overflow: "hidden" }}>
+                <div style={{ position: "absolute", right: "-10px", top: "-10px", opacity: 0.1 }}>
+                  <Icons.BsWallet2 style={{ fontSize: "80px" }} />
+                </div>
+                <h2 style={{ margin: "0 0 4px 0", fontSize: "1.1rem", opacity: 0.8, fontWeight: 500, display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsCashCoin /> Saldo Total (Todas as Contas)
+                </h2>
+                <div style={{ fontSize: "2.2rem", fontWeight: "800", letterSpacing: "-0.5px", zIndex: 1 }}>
                   {formatCurrency(saldoTotal)}
                 </div>
               </div>
             </div>
 
-            {/* CONTAS BANCARIAS */}
+            {/* CONTAS BANCARIAS E CAIXA */}
             <div>
-              <h2 style={{ fontSize: "1.8rem", color: "#334155", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <h2 style={{ fontSize: "1.5rem", color: "#334155", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
                 <Icons.BsBank /> Saldos por Conta Bancária
               </h2>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
-                {saldosContas.map((c, i) => (
-                  <div key={i} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", padding: "20px", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                    <div style={{ fontSize: "1.3rem", color: "#64748b", marginBottom: "8px", fontWeight: 600 }}>{c.label}</div>
-                    <div style={{ fontSize: "2.2rem", fontWeight: "bold", color: c.valor < 0 ? "#ef4444" : "#10b981" }}>
-                      {formatCurrency(c.valor)}
+              <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
+                {[...saldosContas].sort((a, b) => {
+                  const aIsCaixa = a.label.toLowerCase().includes("caixa dinheiro");
+                  const bIsCaixa = b.label.toLowerCase().includes("caixa dinheiro");
+                  if (aIsCaixa && !bIsCaixa) return -1;
+                  if (!aIsCaixa && bIsCaixa) return 1;
+                  return 0;
+                }).map((c, i, arr) => {
+                  const isCaixa = c.label.toLowerCase().includes("caixa dinheiro");
+                  return (
+                    <div key={i} style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "12px 20px",
+                      borderBottom: i < arr.length - 1 ? "1px solid #f1f5f9" : "none",
+                      background: isCaixa ? "#f0fdf4" : "transparent",
+                      transition: "background 0.2s"
+                    }} onMouseEnter={(e) => e.currentTarget.style.background = isCaixa ? "#dcfce7" : "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.background = isCaixa ? "#f0fdf4" : "transparent"}>
+                      <div style={{ fontSize: "1.2rem", color: isCaixa ? "#16a34a" : "#475569", fontWeight: isCaixa ? 600 : 500, display: "flex", alignItems: "center", gap: "6px" }}>
+                        {isCaixa ? <Icons.BsSafe style={{ fontSize: "1.4rem" }} /> : <Icons.BsBank2 />} {c.label}
+                      </div>
+                      <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: isCaixa ? "#16a34a" : (c.valor < 0 ? "#ef4444" : "#10b981") }}>
+                        {formatCurrency(c.valor)}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {saldosContas.length === 0 && (
-                  <div style={{ color: "#94a3b8", fontSize: "1.4rem" }}>Nenhuma conta encontrada.</div>
+                  <div style={{ padding: "16px 20px", color: "#94a3b8", fontSize: "1.2rem" }}>Nenhuma conta encontrada.</div>
                 )}
               </div>
             </div>
@@ -447,18 +490,48 @@ function DashboardFinanceiro() {
                 <h2 style={{ fontSize: "1.8rem", color: "#334155", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
                   <Icons.BsBarChartFill style={{ color: "var(--primary-color)" }} /> Fluxo de Caixa Diário
                 </h2>
-                <input
-                  type="month"
-                  value={mesFiltro}
-                  onChange={(e) => setMesFiltro(e.target.value)}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: "8px",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "1.4rem",
-                    color: "#334155"
-                  }}
-                />
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <button
+                    type="button"
+                    onClick={() => handleMonthChange('prev')}
+                    title="Mês Anterior"
+                    style={{
+                      background: "#fff", border: "1px solid #cbd5e1", borderRadius: "8px",
+                      padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center",
+                      justifyContent: "center", color: "#64748b", transition: "all 0.2s"
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "var(--primary-color)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#64748b"; }}
+                  >
+                    <Icons.BsChevronLeft />
+                  </button>
+                  <input
+                    type="month"
+                    value={mesFiltro}
+                    onChange={(e) => setMesFiltro(e.target.value)}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      border: "1px solid #cbd5e1",
+                      fontSize: "1.4rem",
+                      color: "#334155"
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleMonthChange('next')}
+                    title="Próximo Mês"
+                    style={{
+                      background: "#fff", border: "1px solid #cbd5e1", borderRadius: "8px",
+                      padding: "8px 12px", cursor: "pointer", display: "flex", alignItems: "center",
+                      justifyContent: "center", color: "#64748b", transition: "all 0.2s"
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = "#f8fafc"; e.currentTarget.style.color = "var(--primary-color)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#64748b"; }}
+                  >
+                    <Icons.BsChevronRight />
+                  </button>
+                </div>
               </div>
               <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", height: "400px" }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -525,7 +598,7 @@ function DashboardFinanceiro() {
                 <Icons.BsX />
               </button>
             </div>
-            
+
             <div style={{ padding: "20px", overflowY: "auto", flex: 1 }}>
               {modalDetails.items.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px 20px", color: "#94a3b8" }}>
@@ -535,9 +608,9 @@ function DashboardFinanceiro() {
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {modalDetails.items.map((item, idx) => (
-                    <div key={idx} style={{ 
-                      padding: "16px", 
-                      borderRadius: "12px", 
+                    <div key={idx} style={{
+                      padding: "16px",
+                      borderRadius: "12px",
                       border: "1px solid #e2e8f0",
                       display: "flex",
                       justifyContent: "space-between",
@@ -562,7 +635,7 @@ function DashboardFinanceiro() {
               )}
             </div>
             <div style={{ padding: "16px 20px", borderTop: "1px solid #e2e8f0", display: "flex", justifyContent: "flex-end" }}>
-              <button 
+              <button
                 onClick={() => setModalDetails(null)}
                 style={{
                   background: modalDetails.color,
