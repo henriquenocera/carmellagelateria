@@ -12,6 +12,15 @@ const cleanCategoryName = (name: string | null | undefined): string => {
   return cleaned || name;
 };
 
+const getStoragePathFromUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  const parts = url.split('/comprovantes/');
+  if (parts.length > 1) {
+    return parts[parts.length - 1];
+  }
+  return null;
+};
+
 function ContasPagarReceber() {
   const { isAdmin, user } = useAuth();
 
@@ -24,9 +33,12 @@ function ContasPagarReceber() {
   const [savingRow, setSavingRow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [editRowFile, setEditRowFile] = useState<File | null>(null);
 
   const [confirmingLancamento, setConfirmingLancamento] = useState<any | null>(null);
   const [confirmData, setConfirmData] = useState<string>("");
+  const [confirmValor, setConfirmValor] = useState<string>("");
   const [selectedConta, setSelectedConta] = useState<string>("");
   const [confirmingLoading, setConfirmingLoading] = useState(false);
   const [importingLoading, setImportingLoading] = useState(false);
@@ -152,7 +164,8 @@ function ContasPagarReceber() {
 
   const contaOptions = contasDb.map(c => {
     const label = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
-    return { value: label, label: label };
+    const displayLabel = c.descricao ? `${label} (${c.descricao})` : label;
+    return { value: label, label: displayLabel };
   });
 
   const categoriaOptions = categoriasDb.filter(c => !c.parent_id).map(pai => ({
@@ -171,7 +184,7 @@ function ContasPagarReceber() {
 
         const { data: cData, error: cError } = await supabase
           .from("contas")
-          .select("id, banco, agencia, conta_corrente")
+          .select("id, banco, agencia, conta_corrente, descricao")
           .eq("ativo", true)
           .order("banco", { ascending: true });
 
@@ -237,7 +250,8 @@ function ContasPagarReceber() {
         .from("contas_pagar_receber")
         .select("*")
         .order("data", { ascending: true })
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: true });
 
       if (!isAdmin) {
         query = query.or('status_revisao.is.null,status_revisao.neq.admin_only');
@@ -288,6 +302,25 @@ function ContasPagarReceber() {
       setSavingRow(true);
       let val = parseFloat(newRow.valor.replace(",", "."));
 
+      let fileUrl = null;
+      if (selectedFile) {
+        const fileExt = selectedFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `comprovantes/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('comprovantes')
+          .upload(filePath, selectedFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('comprovantes')
+          .getPublicUrl(filePath);
+        
+        fileUrl = urlData.publicUrl;
+      }
+
       const payload = {
         data: newRow.data,
         descricao: newRow.descricao,
@@ -295,13 +328,19 @@ function ContasPagarReceber() {
         valor: val,
         categoria: newRow.categoria || null,
         user_id: user?.id,
-        is_recorrente: newRow.is_recorrente
+        is_recorrente: newRow.is_recorrente,
+        arquivo_url: fileUrl
       };
 
       const { error } = await supabase.from("contas_pagar_receber").insert([payload]);
       if (error) throw error;
 
       setNewRow({ data: getToday(), descricao: "", tipo: "pagar", valor: "", fornecedor: "", cliente: "", categoria: "", is_recorrente: false } as any);
+      setSelectedFile(null);
+      
+      const fileInput = document.getElementById("comprovante-upload-input") as HTMLInputElement;
+      if (fileInput) fileInput.value = "";
+
       fetchLancamentos();
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
@@ -320,11 +359,46 @@ function ContasPagarReceber() {
     try {
       setSavingRow(true);
       const originalRow = lancamentos.find(l => l.id === id);
+      
+      let fileUrl = originalRow?.arquivo_url || null;
+      if (editRowFile) {
+        // If there was an old file, delete it from storage!
+        if (originalRow?.arquivo_url) {
+          const oldPath = getStoragePathFromUrl(originalRow.arquivo_url);
+          console.log("Substituindo anexo: excluindo do Storage:", oldPath);
+          if (oldPath) {
+            const { data: delData, error: delError } = await supabase.storage.from('comprovantes').remove([oldPath]);
+            if (delError) {
+              console.error("Erro ao excluir arquivo substituído:", delError);
+            } else {
+              console.log("Sucesso ao excluir arquivo substituído:", delData);
+            }
+          }
+        }
+
+        const fileExt = editRowFile.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+        const filePath = `comprovantes/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('comprovantes')
+          .upload(filePath, editRowFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('comprovantes')
+          .getPublicUrl(filePath);
+        
+        fileUrl = urlData.publicUrl;
+      }
+
       const diffs = [];
       if (originalRow) {
         if (originalRow.descricao !== editRowData.descricao) diffs.push(`Descrição`);
         if (originalRow.data !== editRowData.data) diffs.push(`Data`);
         if (parseFloat(originalRow.valor).toFixed(2) !== parseFloat(editRowData.valor.toString().replace(",", ".")).toFixed(2)) diffs.push(`Valor`);
+        if (originalRow.arquivo_url !== fileUrl) diffs.push(`Arquivo`);
       }
 
       const hasChanges = diffs.length > 0;
@@ -337,7 +411,8 @@ function ContasPagarReceber() {
         fornecedor_cliente: editRowData.fornecedor_cliente || null,
         valor: val,
         categoria: editRowData.categoria || null,
-        is_recorrente: editRowData.is_recorrente
+        is_recorrente: editRowData.is_recorrente,
+        arquivo_url: fileUrl
       };
 
       if (hasChanges) {
@@ -348,6 +423,7 @@ function ContasPagarReceber() {
       if (error) throw error;
 
       setEditingId(null);
+      setEditRowFile(null);
       fetchLancamentos();
     } catch (err: any) {
       console.error("Erro ao salvar edição:", err);
@@ -359,6 +435,7 @@ function ContasPagarReceber() {
 
   const handleEdit = (lancamento: any) => {
     setEditingId(lancamento.id);
+    setEditRowFile(null);
     setEditRowData({
       data: lancamento.data,
       descricao: lancamento.descricao,
@@ -370,10 +447,27 @@ function ContasPagarReceber() {
   };
 
   const handleDelete = async (id: string) => {
+    const originalRow = lancamentos.find(l => l.id === id);
     if (window.confirm("Deseja excluir este lançamento?")) {
       try {
         const { error } = await supabase.from("contas_pagar_receber").delete().eq("id", id);
         if (error) throw error;
+
+        // If it had an attached file, delete it from Storage too!
+        if (originalRow?.arquivo_url) {
+          const path = getStoragePathFromUrl(originalRow.arquivo_url);
+          console.log("Excluindo lançamento: apagando do Storage:", path);
+          if (path) {
+            const { data: delData, error: delError } = await supabase.storage.from('comprovantes').remove([path]);
+            if (delError) {
+              console.error("Erro ao deletar arquivo do Storage:", delError);
+              alert("Lançamento deletado, mas erro ao apagar anexo do Storage: " + delError.message);
+            } else {
+              console.log("Arquivo do Storage deletado com sucesso:", delData);
+            }
+          }
+        }
+
         fetchLancamentos();
       } catch (err) {
         console.error("Erro ao excluir:", err);
@@ -398,14 +492,28 @@ function ContasPagarReceber() {
       alert("Selecione uma conta bancária para confirmar o lançamento.");
       return;
     }
+    if (!confirmValor) {
+      alert("Insira o valor confirmado.");
+      return;
+    }
 
     try {
       setConfirmingLoading(true);
+      const parsedVal = parseFloat(confirmValor.replace(",", "."));
+      if (isNaN(parsedVal)) {
+        alert("Valor inválido.");
+        return;
+      }
+
+      // Preserve the original sign (despesa is negative, receita is positive)
+      const sign = confirmingLancamento.valor < 0 ? -1 : 1;
+      const finalValor = parsedVal * sign;
+
       const payload = {
         data: confirmData,
         descricao: confirmingLancamento.descricao,
         fornecedor: confirmingLancamento.fornecedor_cliente,
-        valor: confirmingLancamento.valor,
+        valor: finalValor,
         categoria: confirmingLancamento.categoria,
         conta: selectedConta,
         user_id: user?.id,
@@ -675,15 +783,37 @@ function ContasPagarReceber() {
                 />
               </div>
 
-              <div style={{ flex: "0 0 130px", display: "flex", flexDirection: "column", justifyContent: "flex-end", marginBottom: "8px" }}>
-                <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "1.3rem", color: "#64748b", fontWeight: "bold" }}>
+              <div style={{ flex: "2 1 200px" }}>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Anexo / Comprovante</label>
+                <label 
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "0 12px",
+                    borderRadius: "4px",
+                    border: "1px dashed #cbd5e1",
+                    backgroundColor: "#f8fafc",
+                    color: "#64748b",
+                    fontSize: "1.3rem",
+                    cursor: "pointer",
+                    height: "54px",
+                    boxSizing: "border-box",
+                    transition: "all 0.2s"
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--primary-color)"; e.currentTarget.style.backgroundColor = "#fff"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#cbd5e1"; e.currentTarget.style.backgroundColor = "#f8fafc"; }}
+                >
+                  <Icons.BsUpload style={{ fontSize: "1.6rem", color: "var(--primary-color)", flexShrink: 0 }} />
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {selectedFile ? selectedFile.name : "Selecionar Arquivo..."}
+                  </span>
                   <input
-                    type="checkbox"
-                    checked={newRow.is_recorrente}
-                    onChange={(e) => setNewRow({ ...newRow, is_recorrente: e.target.checked })}
-                    style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                    id="comprovante-upload-input"
+                    type="file"
+                    onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                    style={{ display: "none" }}
                   />
-                  Recorrente
                 </label>
               </div>
 
@@ -903,8 +1033,39 @@ function ContasPagarReceber() {
                                 type="text"
                                 value={editRowData.descricao || ""}
                                 onChange={(e) => setEditRowData({ ...editRowData, descricao: e.target.value })}
-                                style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
+                                style={{ width: "100%", height: "32px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem", marginBottom: "4px" }}
                               />
+                              <label 
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  padding: "4px 8px",
+                                  borderRadius: "4px",
+                                  border: "1px dashed var(--primary-color)",
+                                  backgroundColor: "#fffbeb",
+                                  color: "var(--primary-color)",
+                                  fontSize: "1.1rem",
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                  transition: "all 0.2s",
+                                  width: "100%",
+                                  boxSizing: "border-box",
+                                  overflow: "hidden"
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#fee2e2"; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#fffbeb"; }}
+                              >
+                                <Icons.BsUpload style={{ flexShrink: 0 }} />
+                                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                  {editRowFile ? editRowFile.name : (editRowData.arquivo_url ? "Substituir Anexo" : "Adicionar Anexo")}
+                                </span>
+                                <input
+                                  type="file"
+                                  onChange={(e) => setEditRowFile(e.target.files?.[0] || null)}
+                                  style={{ display: "none" }}
+                                />
+                              </label>
                             </td>
                             <td style={{ textAlign: "center" }}>
                               <input
@@ -914,16 +1075,28 @@ function ContasPagarReceber() {
                                 style={{ width: "100%", height: "36px", padding: "4px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
                             </td>
-                            <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                              <label style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: "4px", fontSize: "1.2rem", color: "#64748b" }}>
-                                <input
-                                  type="checkbox"
-                                  checked={editRowData.is_recorrente}
-                                  onChange={(e) => setEditRowData({ ...editRowData, is_recorrente: e.target.checked })}
-                                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
-                                />
-                                <Icons.BsArrowRepeat size={18} />
-                              </label>
+                            <td style={{ textAlign: "center" }}>
+                              {(() => {
+                                const hojeDate = new Date();
+                                hojeDate.setHours(0,0,0,0);
+                                const vencDate = new Date(editRowData.data + 'T00:00:00');
+                                const isAtrasado = vencDate < hojeDate;
+                                const statusText = isAtrasado ? "Atrasado" : "Pendente";
+                                const statusBg = isAtrasado ? "#fee2e2" : "#fef08a";
+                                const statusColor = isAtrasado ? "#b91c1c" : "#a16207";
+                                return (
+                                  <span style={{
+                                    background: statusBg,
+                                    color: statusColor,
+                                    padding: "4px 8px",
+                                    borderRadius: "12px",
+                                    fontWeight: "bold",
+                                    fontSize: "1.1rem"
+                                  }}>
+                                    {statusText}
+                                  </span>
+                                );
+                              })()}
                             </td>
                             <td style={{ textAlign: "center" }}>
                               <input
@@ -1065,7 +1238,33 @@ function ContasPagarReceber() {
                                     )}
                                   </div>
                                 )}
-                                <span>{l.descricao}</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <span>{l.descricao}</span>
+                                  {l.arquivo_url && (
+                                    <a
+                                      href={l.arquivo_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      title="Ver Anexo / Comprovante"
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        color: "var(--primary-color)",
+                                        fontSize: "1.6rem",
+                                        padding: "4px",
+                                        borderRadius: "4px",
+                                        backgroundColor: "#f1f5f9",
+                                        transition: "background 0.2s"
+                                      }}
+                                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#e2e8f0"}
+                                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#f1f5f9"}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <Icons.BsPaperclip />
+                                    </a>
+                                  )}
+                                </div>
                               </div>
                             </td>
                             <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
@@ -1145,6 +1344,7 @@ function ContasPagarReceber() {
                                   onClick={() => {
                                     setConfirmData(getToday());
                                     setConfirmingLancamento(l);
+                                    setConfirmValor(Math.abs(l.valor).toString());
                                   }}
                                   className="nav-btn"
                                   title="Confirmar"
@@ -1235,9 +1435,25 @@ function ContasPagarReceber() {
               <Icons.BsCheck2Circle style={{ color: "#10b981" }} /> Confirmar {confirmingLancamento.valor < 0 ? "Pagamento" : "Recebimento"}
             </h3>
             <p style={{ marginBottom: "16px", color: "#64748b", fontSize: "1.2rem" }}>
-              <strong>Descrição:</strong> {confirmingLancamento.descricao} <br />
-              <strong>Valor:</strong> R$ {Math.abs(confirmingLancamento.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              <strong>Descrição:</strong> {confirmingLancamento.descricao}
             </p>
+
+            <div style={{ marginBottom: "16px" }}>
+              <label style={{ display: "block", fontSize: "1.2rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Valor do Lançamento (R$)</label>
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <span style={{ position: "absolute", left: "12px", color: "#94a3b8", zIndex: 1, pointerEvents: "none", fontSize: "1.2rem", fontWeight: "bold" }}>R$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  className="no-spinner"
+                  placeholder="0.00"
+                  value={confirmValor}
+                  onChange={(e) => setConfirmValor(e.target.value)}
+                  style={{ width: "100%", padding: "8px 8px 8px 36px", borderRadius: "4px", border: "1px solid #cbd5e1", fontSize: "1.2rem", boxSizing: "border-box" }}
+                  required
+                />
+              </div>
+            </div>
 
             <div style={{ marginBottom: "16px" }}>
               <label style={{ display: "block", fontSize: "1.2rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data do Lançamento</label>

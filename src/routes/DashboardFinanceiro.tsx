@@ -11,6 +11,7 @@ function DashboardFinanceiro() {
   const [loading, setLoading] = useState(true);
   const [saldosContas, setSaldosContas] = useState<any[]>([]);
   const [saldoTotal, setSaldoTotal] = useState(0);
+  const [dataUltimoLancamento, setDataUltimoLancamento] = useState("");
 
   const [allLancamentos, setAllLancamentos] = useState<any[]>([]);
   const [allPendentes, setAllPendentes] = useState<any[]>([]);
@@ -195,12 +196,38 @@ function DashboardFinanceiro() {
           }
         });
 
+        // Puxar a data do último lançamento (seja de entrada ou saída)
+        let maxDate = "";
+        lancamentosData.forEach(l => {
+          if (l.data && l.data > maxDate) {
+            maxDate = l.data;
+          }
+        });
+        if (caixaLancamentosData) {
+          caixaLancamentosData.forEach(l => {
+            if (l.data && l.data > maxDate) {
+              maxDate = l.data;
+            }
+          });
+        }
+
+        let formattedLastDate = "";
+        if (maxDate) {
+          const parts = maxDate.split("-");
+          if (parts.length === 3) {
+            formattedLastDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          } else {
+            formattedLastDate = maxDate;
+          }
+        }
+
         if (isMounted) {
           setAllLancamentos(lancamentosData);
           setAllPendentes(pendentesData);
           setSaldosContas(listSaldos);
           setSaldoTotal(sumSaldos);
           setPagarReceberStatus({ aPagar, aReceber });
+          setDataUltimoLancamento(formattedLastDate);
           setLoading(false);
         }
 
@@ -361,9 +388,16 @@ function DashboardFinanceiro() {
 
             {/* CONTAS BANCARIAS E CAIXA */}
             <div>
-              <h2 style={{ fontSize: "1.5rem", color: "#334155", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                <Icons.BsBank /> Saldos por Conta Bancária
-              </h2>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
+                <h2 style={{ fontSize: "1.5rem", color: "#334155", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsBank /> Saldos por Conta Bancária
+                </h2>
+                {dataUltimoLancamento && (
+                  <span style={{ fontSize: "1.2rem", color: "#64748b", fontWeight: 600, background: "#f1f5f9", padding: "4px 10px", borderRadius: "6px" }}>
+                    Atualizado até a data de: {dataUltimoLancamento}
+                  </span>
+                )}
+              </div>
               <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
                 {(() => {
                   const sortedContas = [...saldosContas].sort((a, b) => {

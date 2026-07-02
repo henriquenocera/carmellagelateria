@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../../services/supabase-client";
-import { useNavigate } from "react-router-dom";
 import "../../css/Frequencia.css";
 
 function CadastroFornecedores() {
-  const navigate = useNavigate();
 
   const [fornecedores, setFornecedores] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
