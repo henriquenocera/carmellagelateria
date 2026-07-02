@@ -77,7 +77,7 @@ function OrdemProducao() {
       const { data, error } = await supabase
         .from("cadastro_produtos")
         .select(`
-          id, nome, categoria, unidade_venda, codigo,
+          id, nome, categoria, unidade_venda, codigo, is_sabor,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             quantidade,
             insumo_id,
@@ -92,7 +92,6 @@ function OrdemProducao() {
           )
         `)
         .eq("ativo", true)
-        .eq("is_sabor", true)
         .order("nome", { ascending: true });
 
       if (error) throw error;
@@ -969,7 +968,7 @@ function OrdemProducao() {
                       style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.2rem" }}
                     >
                       <option value="">-- Escolha um sabor --</option>
-                      {produtos.map(p => (
+                      {produtos.filter(p => p.is_sabor).map(p => (
                         <option key={p.id} value={p.id}>{p.nome}</option>
                       ))}
                     </select>

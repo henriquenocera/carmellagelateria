@@ -49,7 +49,8 @@ function ContasPagarReceber() {
     descricao: "",
     fornecedor_cliente: "",
     valor: "",
-    categoria: ""
+    categoria: "",
+    is_recorrente: false
   });
 
   const selectStyles = {
@@ -293,13 +294,14 @@ function ContasPagarReceber() {
         fornecedor_cliente: newRow.fornecedor_cliente || null,
         valor: val,
         categoria: newRow.categoria || null,
-        user_id: user?.id
+        user_id: user?.id,
+        is_recorrente: newRow.is_recorrente
       };
 
       const { error } = await supabase.from("contas_pagar_receber").insert([payload]);
       if (error) throw error;
 
-      setNewRow({ data: getToday(), descricao: "", tipo: "pagar", valor: "", fornecedor: "", cliente: "", categoria: "" });
+      setNewRow({ data: getToday(), descricao: "", tipo: "pagar", valor: "", fornecedor: "", cliente: "", categoria: "", is_recorrente: false } as any);
       fetchLancamentos();
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
@@ -334,7 +336,8 @@ function ContasPagarReceber() {
         descricao: editRowData.descricao,
         fornecedor_cliente: editRowData.fornecedor_cliente || null,
         valor: val,
-        categoria: editRowData.categoria || null
+        categoria: editRowData.categoria || null,
+        is_recorrente: editRowData.is_recorrente
       };
 
       if (hasChanges) {
@@ -361,7 +364,8 @@ function ContasPagarReceber() {
       descricao: lancamento.descricao,
       fornecedor_cliente: lancamento.fornecedor_cliente || "",
       valor: lancamento.valor.toString(),
-      categoria: lancamento.categoria || ""
+      categoria: lancamento.categoria || "",
+      is_recorrente: lancamento.is_recorrente || false
     });
   };
 
@@ -411,8 +415,18 @@ function ContasPagarReceber() {
       const { error: insertError } = await supabase.from("lancamentos_financeiros").insert([payload]);
       if (insertError) throw insertError;
 
-      const { error: deleteError } = await supabase.from("contas_pagar_receber").delete().eq("id", confirmingLancamento.id);
-      if (deleteError) throw deleteError;
+      if (confirmingLancamento.is_recorrente) {
+        const parts = confirmingLancamento.data.split('-');
+        let nextMonth = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        const nextDateStr = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}-${String(nextMonth.getDate()).padStart(2, '0')}`;
+        
+        const { error: updateError } = await supabase.from("contas_pagar_receber").update({ data: nextDateStr }).eq("id", confirmingLancamento.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: deleteError } = await supabase.from("contas_pagar_receber").delete().eq("id", confirmingLancamento.id);
+        if (deleteError) throw deleteError;
+      }
 
       setConfirmingLancamento(null);
       setSelectedConta("");
@@ -661,6 +675,18 @@ function ContasPagarReceber() {
                 />
               </div>
 
+              <div style={{ flex: "0 0 130px", display: "flex", flexDirection: "column", justifyContent: "flex-end", marginBottom: "8px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "1.3rem", color: "#64748b", fontWeight: "bold" }}>
+                  <input
+                    type="checkbox"
+                    checked={newRow.is_recorrente}
+                    onChange={(e) => setNewRow({ ...newRow, is_recorrente: e.target.checked })}
+                    style={{ width: "18px", height: "18px", cursor: "pointer" }}
+                  />
+                  Recorrente
+                </label>
+              </div>
+
               <div style={{ flex: "0 0 130px", position: "relative" }}>
                 <button
                   type="submit"
@@ -888,8 +914,16 @@ function ContasPagarReceber() {
                                 style={{ width: "100%", height: "36px", padding: "4px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
                             </td>
-                            <td style={{ textAlign: "center", color: "#94a3b8" }}>
-                              -
+                            <td style={{ textAlign: "center", verticalAlign: "middle" }}>
+                              <label style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", gap: "4px", fontSize: "1.2rem", color: "#64748b" }}>
+                                <input
+                                  type="checkbox"
+                                  checked={editRowData.is_recorrente}
+                                  onChange={(e) => setEditRowData({ ...editRowData, is_recorrente: e.target.checked })}
+                                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                                />
+                                <Icons.BsArrowRepeat size={18} />
+                              </label>
                             </td>
                             <td style={{ textAlign: "center" }}>
                               <input
@@ -961,7 +995,7 @@ function ContasPagarReceber() {
                           <>
                             <td>
                               <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
-                                {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited) && (
+                                {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited || l.is_recorrente) && (
                                   <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                                     {l.status_revisao === 'admin_only' && (
                                       <span style={{
@@ -1009,6 +1043,24 @@ function ContasPagarReceber() {
                                         letterSpacing: "0.03em"
                                       }}>
                                         Editado
+                                      </span>
+                                    )}
+                                    {l.is_recorrente && (
+                                      <span style={{
+                                        backgroundColor: "#8b5cf6",
+                                        color: "#ffffff",
+                                        fontSize: "0.9rem",
+                                        fontWeight: "bold",
+                                        padding: "2px 6px",
+                                        borderRadius: "4px",
+                                        textTransform: "uppercase",
+                                        lineHeight: "1.1",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "4px",
+                                        letterSpacing: "0.03em"
+                                      }}>
+                                        <Icons.BsArrowRepeat /> Recorrente
                                       </span>
                                     )}
                                   </div>

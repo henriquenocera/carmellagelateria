@@ -118,20 +118,19 @@ const MENU_CONFIG = [
     title: "Configurações",
     icon: <Icons.BsGear />,
     id: "admin",
-    adminOnly: true,
     subItems: [
-      { title: "Cadastro Pessoas", path: "/configuracoes/cadastro-pessoas" },
-      { title: "Cadastro Feriados", path: "/configuracoes/feriados-globais" },
+      { title: "Cadastro Pessoas", path: "/configuracoes/cadastro-pessoas", adminOnly: true },
+      { title: "Cadastro Feriados", path: "/configuracoes/feriados-globais", adminOnly: true },
       { title: "Cadastro de Fornecedores", path: "/configuracoes/cadastro-fornecedores" },
-      { title: "Cadastro de Contas", path: "/configuracoes/cadastro-contas" },
-      { title: "Categorias Financeiras", path: "/configuracoes/categorias-financeiras" },
-      { title: "Clientes Food Service", path: "/configuracoes/cadastro-clientes" },
-      { title: "Cadastro de Insumos", path: "/configuracoes/cadastro-insumos" },
-      { title: "Cadastro de Produtos", path: "/configuracoes/cadastro-produtos" },
-      { title: "Cadastro Produtos Vale", path: "/configuracoes/produtos-vale" },
-      { title: "Cadastro de Voucher", path: "/configuracoes/cadastro-vouchers" },
-      { title: "Configuração de Estoque", path: "/configuracoes/configuracao-estoque" },
-      { title: "Logs", path: "/configuracoes/logs" },
+      { title: "Cadastro de Contas", path: "/configuracoes/cadastro-contas", adminOnly: true },
+      { title: "Categorias Financeiras", path: "/configuracoes/categorias-financeiras", adminOnly: true },
+      { title: "Clientes Food Service", path: "/configuracoes/cadastro-clientes", adminOnly: true },
+      { title: "Cadastro de Insumos", path: "/configuracoes/cadastro-insumos", adminOnly: true },
+      { title: "Cadastro de Produtos", path: "/configuracoes/cadastro-produtos", adminOnly: true },
+      { title: "Cadastro Produtos Vale", path: "/configuracoes/produtos-vale", adminOnly: true },
+      { title: "Cadastro de Voucher", path: "/configuracoes/cadastro-vouchers", adminOnly: true },
+      { title: "Configuração de Estoque", path: "/configuracoes/configuracao-estoque", adminOnly: true },
+      { title: "Logs", path: "/configuracoes/logs", adminOnly: true },
     ]
   }
 ];
@@ -232,10 +231,10 @@ function NavBar() {
 
             const submenuHeight = visibleSubItems.reduce((acc, sub) => {
               const hasBadge = sub.adminOnly || isItemAdminOnly;
-              let height = sub.subtitle ? 70 : 55;
-              if (hasBadge) height += 10;
+              let height = sub.subtitle ? 60 : 45;
+              if (hasBadge) height += 20;
               return acc + height;
-            }, 30);
+            }, 10);
 
             return (
               <li key={index} className={`nav-item accordion ${isOpen ? 'open' : ''} ${isChildActive ? 'child-active' : ''}`}>

@@ -365,33 +365,49 @@ function DashboardFinanceiro() {
                 <Icons.BsBank /> Saldos por Conta Bancária
               </h2>
               <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "12px", overflow: "hidden", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}>
-                {[...saldosContas].sort((a, b) => {
-                  const aIsCaixa = a.label.toLowerCase().includes("caixa dinheiro");
-                  const bIsCaixa = b.label.toLowerCase().includes("caixa dinheiro");
-                  if (aIsCaixa && !bIsCaixa) return -1;
-                  if (!aIsCaixa && bIsCaixa) return 1;
-                  return 0;
-                }).map((c, i, arr) => {
-                  const isCaixa = c.label.toLowerCase().includes("caixa dinheiro");
-                  return (
-                    <div key={i} style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "12px 20px",
-                      borderBottom: i < arr.length - 1 ? "1px solid #f1f5f9" : "none",
-                      background: isCaixa ? "#f0fdf4" : "transparent",
-                      transition: "background 0.2s"
-                    }} onMouseEnter={(e) => e.currentTarget.style.background = isCaixa ? "#dcfce7" : "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.background = isCaixa ? "#f0fdf4" : "transparent"}>
-                      <div style={{ fontSize: "1.2rem", color: isCaixa ? "#16a34a" : "#475569", fontWeight: isCaixa ? 600 : 500, display: "flex", alignItems: "center", gap: "6px" }}>
-                        {isCaixa ? <Icons.BsSafe style={{ fontSize: "1.4rem" }} /> : <Icons.BsBank2 />} {c.label}
+                {(() => {
+                  const sortedContas = [...saldosContas].sort((a, b) => {
+                    const aIsCaixa = a.label.toLowerCase().includes("caixa dinheiro");
+                    const bIsCaixa = b.label.toLowerCase().includes("caixa dinheiro");
+                    if (aIsCaixa && !bIsCaixa) return -1;
+                    if (!aIsCaixa && bIsCaixa) return 1;
+                    return 0;
+                  });
+
+                  const totalContas = saldosContas
+                    .filter(c => !c.label.toLowerCase().includes("caixa dinheiro"))
+                    .reduce((acc, curr) => acc + curr.valor, 0);
+
+                  const hasCaixa = sortedContas.some(c => c.label.toLowerCase().includes("caixa dinheiro"));
+                  
+                  const contasWithTotal = [...sortedContas];
+                  const insertIndex = hasCaixa ? 1 : 0;
+                  contasWithTotal.splice(insertIndex, 0, { label: "Total - Contas Bancárias", valor: totalContas, isTotal: true } as any);
+
+                  return contasWithTotal.map((c: any, i, arr) => {
+                    const isCaixa = c.label.toLowerCase().includes("caixa dinheiro");
+                    const isTotal = c.isTotal;
+                    
+                    return (
+                      <div key={i} style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "12px 20px",
+                        borderBottom: i < arr.length - 1 ? "1px solid #f1f5f9" : "none",
+                        background: isCaixa ? "#f0fdf4" : (isTotal ? "#f8fafc" : "transparent"),
+                        transition: "background 0.2s"
+                      }} onMouseEnter={(e) => e.currentTarget.style.background = isCaixa ? "#dcfce7" : (isTotal ? "#f1f5f9" : "#f8fafc")} onMouseLeave={(e) => e.currentTarget.style.background = isCaixa ? "#f0fdf4" : (isTotal ? "#f8fafc" : "transparent")}>
+                        <div style={{ fontSize: "1.2rem", color: isCaixa ? "#16a34a" : (isTotal ? "#3b82f6" : "#64748b"), fontWeight: isCaixa || isTotal ? 700 : 500, display: "flex", alignItems: "center", gap: "6px" }}>
+                          {isCaixa ? <Icons.BsSafe style={{ fontSize: "1.4rem" }} /> : (isTotal ? <Icons.BsPiggyBank style={{ fontSize: "1.4rem" }} /> : <Icons.BsBank2 />)} {c.label}
+                        </div>
+                        <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: isCaixa ? "#16a34a" : (isTotal ? "#3b82f6" : "#64748b") }}>
+                          {formatCurrency(c.valor)}
+                        </div>
                       </div>
-                      <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: isCaixa ? "#16a34a" : (c.valor < 0 ? "#ef4444" : "#10b981") }}>
-                        {formatCurrency(c.valor)}
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
                 {saldosContas.length === 0 && (
                   <div style={{ padding: "16px 20px", color: "#94a3b8", fontSize: "1.2rem" }}>Nenhuma conta encontrada.</div>
                 )}

@@ -481,7 +481,7 @@ function VendasRealizadas() {
         }}
         title="Clique para editar"
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "#f1f5f9";
+          e.currentTarget.style.backgroundColor = actualBg === "#ffedd5" ? "#fed7aa" : "#f1f5f9";
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = actualBg;
@@ -806,6 +806,7 @@ function VendasRealizadas() {
           border: "1px solid #e2e8f0",
           boxShadow: "0 4px 6px rgba(0,0,0,0.04)",
           overflowX: "auto",
+          overflowY: "auto",
           maxHeight: "70vh"
         }}>
           {loading ? (
@@ -823,7 +824,7 @@ function VendasRealizadas() {
             </div>
           ) : (
             <table style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0, minWidth: "1600px" }}>
-              <thead>
+              <thead style={{ position: "sticky", top: 0, zIndex: 20 }}>
                 {/* Group Headers */}
                 <tr style={{ backgroundColor: "#f8fafc", color: "#334155" }}>
                   <th rowSpan={2} style={{ ...headerStyle, textAlign: "left", paddingLeft: "16px", position: "sticky", left: 0, backgroundColor: "#f8fafc", zIndex: 10, width: "140px", minWidth: "140px", maxWidth: "140px", boxSizing: "border-box" }}>Dia da Semana</th>
@@ -880,7 +881,7 @@ function VendasRealizadas() {
               <tbody>
                 {rows.map((row, idx) => {
                   const isToday = row.dateStr === todayStr;
-                  const cellBg = idx % 2 === 0 ? "#ffffff" : "#f8fafc";
+                  const cellBg = "#ffffff";
                   const cellColor = "inherit";
                   
                   // Discrepancy checks (only when status is Fechado)
@@ -932,14 +933,14 @@ function VendasRealizadas() {
 
                       {/* Caixa Dinheiro Cells */}
                       <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cellColor, ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaAberturaChecklist)}</td>
-                      {renderEditableCell(row, "caixa_abertura", row.caixaAberturaCloudfy, cellBg, cellColor, todayBorder)}
+                      {renderEditableCell(row, "caixa_abertura", row.caixaAberturaCloudfy, "#ffedd5", cellColor, todayBorder)}
                       <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
                         {renderMatchIcon(row.caixaAberturaChecklist, row.caixaAberturaCloudfy, row.dateStr)}
                       </td>
-                      {renderEditableCell(row, "caixa_vendas", row.caixaVendas, cellBg, cellColor, todayBorder)}
-                      {renderEditableCell(row, "caixa_ajustes", row.caixaAjustes, cellBg, cellColor, todayBorder)}
+                      {renderEditableCell(row, "caixa_vendas", row.caixaVendas, "#ffedd5", cellColor, todayBorder)}
+                      {renderEditableCell(row, "caixa_ajustes", row.caixaAjustes, "#ffedd5", cellColor, todayBorder)}
                       <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cellColor, ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaCalculado)}</td>
-                      {renderEditableCell(row, "caixa_informado", row.caixaInformado, cellBg, cellColor, todayBorder, hasCaixaDiscrepancy)}
+                      {renderEditableCell(row, "caixa_informado", row.caixaInformado, "#ffedd5", cellColor, todayBorder, hasCaixaDiscrepancy)}
                       <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
                         {renderClosingMatchIcon(row.caixaCalculado, row.caixaInformado, row.dateStr)}
                       </td>
