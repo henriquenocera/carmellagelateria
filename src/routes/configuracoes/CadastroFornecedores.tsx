@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../../services/supabase-client";
-import { useAuth } from "../../AuthProvider";
 import { useNavigate } from "react-router-dom";
 import "../../css/Frequencia.css";
 
 function CadastroFornecedores() {
-  const { isAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [fornecedores, setFornecedores] = useState<any[]>([]);
@@ -29,12 +27,8 @@ function CadastroFornecedores() {
   const [observacoes, setObservacoes] = useState("");
 
   useEffect(() => {
-    if (isAdmin === false) {
-      navigate("/");
-    } else if (isAdmin === true) {
-      fetchFornecedores();
-    }
-  }, [isAdmin, navigate]);
+    fetchFornecedores();
+  }, []);
 
   async function fetchFornecedores() {
     try {
