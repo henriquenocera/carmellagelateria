@@ -446,7 +446,10 @@ function VendasRealizadas() {
   ) => {
     const isEditing = editingCell && editingCell.dateStr === row.dateStr && editingCell.field === fieldName;
 
-    const actualBg = hasDiscrepancy ? "#fee2e2" : cellBg;
+    const isHandled = value !== 0 || isImported;
+    const baseBg = (cellBg === "#ffedd5" && isHandled) ? "#ffffff" : cellBg;
+
+    const actualBg = hasDiscrepancy ? "#fee2e2" : baseBg;
     const actualColor = hasDiscrepancy ? "#b91c1c" : cellColor;
     const fontWeight = hasDiscrepancy ? "bold" : "normal";
 
