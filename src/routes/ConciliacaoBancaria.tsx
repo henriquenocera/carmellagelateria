@@ -24,7 +24,7 @@ function ConciliacaoBancaria() {
       try {
         const { data: contasData, error: contasError } = await supabase
           .from("contas")
-          .select("id, banco, agencia, conta_corrente, descricao")
+          .select("id, banco, agencia, conta_corrente, descricao, saldo_informado, data_saldo_informado")
           .eq("ativo", true)
           .order("banco", { ascending: true });
 
@@ -127,27 +127,57 @@ function ConciliacaoBancaria() {
     computeBalances();
   }, [dataFiltro, contas]);
 
-  // Load Saldos from LocalStorage when date changes
+  const [dataSaldosBanco, setDataSaldosBanco] = useState<{ [conta: string]: string }>({});
+
+  // Initialize saldosBanco from contas Data
   useEffect(() => {
-    if (!dataFiltro) return;
-    const saved = localStorage.getItem(`saldos_banco_${dataFiltro}`);
-    if (saved) {
-      try {
-        setSaldosBanco(JSON.parse(saved));
-      } catch {
-        setSaldosBanco({});
-      }
-    } else {
-      setSaldosBanco({});
+    if (contas.length > 0) {
+      const saldos: { [conta: string]: string } = {};
+      const datas: { [conta: string]: string } = {};
+      contas.forEach(c => {
+        if (c.saldo_informado !== null && c.saldo_informado !== undefined) {
+          saldos[c.label] = c.saldo_informado.toString();
+          datas[c.label] = c.data_saldo_informado;
+        }
+      });
+      setSaldosBanco(saldos);
+      setDataSaldosBanco(datas);
     }
-  }, [dataFiltro]);
+  }, [contas]);
 
   const handleSaldoBancoChange = (contaLabel: string, value: string) => {
-    setSaldosBanco(prev => {
-      const next = { ...prev, [contaLabel]: value };
-      localStorage.setItem(`saldos_banco_${dataFiltro}`, JSON.stringify(next));
-      return next;
-    });
+    setSaldosBanco(prev => ({ ...prev, [contaLabel]: value }));
+  };
+
+  const handleSaldoBancoBlur = async (conta: any, value: string) => {
+    const numValue = parseFloat(value.replace(",", "."));
+    const dataAtual = new Date().toISOString();
+    
+    if (!isNaN(numValue)) {
+      setDataSaldosBanco(prev => ({ ...prev, [conta.label]: dataAtual }));
+      try {
+        await supabase.from("contas").update({ 
+          saldo_informado: numValue, 
+          data_saldo_informado: dataAtual 
+        }).eq("id", conta.id);
+      } catch (err) {
+        console.error("Erro ao atualizar saldo no banco:", err);
+      }
+    } else if (value === "") {
+      setDataSaldosBanco(prev => {
+        const next = { ...prev };
+        delete next[conta.label];
+        return next;
+      });
+      try {
+        await supabase.from("contas").update({ 
+          saldo_informado: null, 
+          data_saldo_informado: null 
+        }).eq("id", conta.id);
+      } catch (err) {
+        console.error("Erro ao limpar saldo no banco:", err);
+      }
+    }
   };
 
   const renderStatus = (contaLabel: string) => {
@@ -277,6 +307,7 @@ function ConciliacaoBancaria() {
                             placeholder="0.00"
                             value={saldosBanco[conta.label] || ""}
                             onChange={(e) => handleSaldoBancoChange(conta.label, e.target.value)}
+                            onBlur={(e) => handleSaldoBancoBlur(conta, e.target.value)}
                             style={{
                               width: "100%",
                               padding: "8px",
@@ -284,9 +315,15 @@ function ConciliacaoBancaria() {
                               border: "1px solid var(--border-color)",
                               textAlign: "center",
                               fontSize: "1.3rem",
-                              height: "40px"
+                              height: "40px",
+                              marginBottom: "4px"
                             }}
                           />
+                          {dataSaldosBanco[conta.label] && (
+                            <div style={{ fontSize: "1.0rem", color: "#64748b" }}>
+                              Atualizado:<br/>{new Date(dataSaldosBanco[conta.label]).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                            </div>
+                          )}
                         </td>
                         <td style={{ padding: "16px", textAlign: "center" }}>
                           {loadingBalances ? <span style={{ color: "var(--text-secondary)" }}>...</span> : renderStatus(conta.label)}

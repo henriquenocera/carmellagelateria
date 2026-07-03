@@ -27,6 +27,7 @@ function DashboardFinanceiro() {
   });
 
   const [modalDetails, setModalDetails] = useState<{ title: string; color: string; items: any[] } | null>(null);
+  const [expandedModalItems, setExpandedModalItems] = useState<{ [key: string]: boolean }>({});
 
   const getLocalDateString = (d: Date) => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -244,7 +245,7 @@ function DashboardFinanceiro() {
     const d = new Date();
     const todayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const todayZero = new Date(todayStr + "T00:00:00");
-    const items = allPendentes.filter(p => {
+    const filteredItems = allPendentes.filter(p => {
       if (!p.data || !p.valor) return false;
       const val = parseFloat(p.valor);
       if (isNaN(val)) return false;
@@ -264,7 +265,39 @@ function DashboardFinanceiro() {
       if (periodo === "proximos30") return diffDays > 21 && diffDays <= 30;
       return false;
     });
-    setModalDetails({ title, color, items });
+
+    const groupedMap: { [key: string]: any } = {};
+    filteredItems.forEach(p => {
+      const dateKey = p.data;
+      if (!groupedMap[dateKey]) {
+        groupedMap[dateKey] = {
+          data: p.data,
+          valorTotal: 0,
+          descricoes: [],
+          categorias: [],
+          originalItems: []
+        };
+      }
+      groupedMap[dateKey].valorTotal += Math.abs(parseFloat(p.valor));
+      groupedMap[dateKey].descricoes.push(p.descricao || "Sem descrição");
+      if (p.categoria && !groupedMap[dateKey].categorias.includes(p.categoria)) {
+        groupedMap[dateKey].categorias.push(p.categoria);
+      }
+      groupedMap[dateKey].originalItems.push(p);
+    });
+
+    const finalItems = Object.values(groupedMap).map((g: any) => ({
+      data: g.data,
+      valor: g.valorTotal,
+      descricao: g.descricoes.length > 1 ? `${g.descricoes.length} lançamentos (${g.descricoes.join(", ")})` : g.descricoes[0],
+      categoria: g.categorias.length > 1 ? "Várias categorias" : (g.categorias[0] || "Sem categoria"),
+      subItems: g.originalItems
+    }));
+
+    finalItems.sort((a, b) => a.data.localeCompare(b.data));
+
+    setExpandedModalItems({});
+    setModalDetails({ title, color, items: finalItems });
   };
 
   const formatCurrency = (val: number) => {
@@ -659,26 +692,73 @@ function DashboardFinanceiro() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
                   {modalDetails.items.map((item, idx) => (
                     <div key={idx} style={{
-                      padding: "16px",
-                      borderRadius: "12px",
+                      borderRadius: "8px",
                       border: "1px solid #e2e8f0",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      background: "#f8fafc"
+                      background: "#f8fafc",
+                      overflow: "hidden"
                     }}>
-                      <div>
-                        <div style={{ fontWeight: "bold", fontSize: "1.4rem", color: "#334155", marginBottom: "4px" }}>
-                          {item.descricao || "Sem descrição"}
+                      <div 
+                        style={{
+                          padding: "8px 12px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          cursor: item.subItems && item.subItems.length > 1 ? "pointer" : "default"
+                        }}
+                        onClick={() => {
+                          if (item.subItems && item.subItems.length > 1) {
+                            setExpandedModalItems(prev => ({ ...prev, [idx]: !prev[idx] }));
+                          }
+                        }}
+                      >
+                        <div style={{ flex: 1, marginRight: "12px", overflow: "hidden" }}>
+                          <div style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#334155", marginBottom: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: "6px" }} title={item.descricao || "Sem descrição"}>
+                            {item.subItems && item.subItems.length > 1 && (
+                              expandedModalItems[idx] ? <Icons.BsChevronUp style={{flexShrink: 0}} /> : <Icons.BsChevronDown style={{flexShrink: 0}} />
+                            )}
+                            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              {item.descricao || "Sem descrição"}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: "1.1rem", color: "#64748b", display: "flex", gap: "8px" }}>
+                            <span>Venc.: {item.data ? item.data.split('-').reverse().join('/') : "-"}</span>
+                            <span>|</span>
+                            <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={item.categoria || "Sem categoria"}>{item.categoria || "Sem categoria"}</span>
+                          </div>
                         </div>
-                        <div style={{ fontSize: "1.2rem", color: "#64748b", display: "flex", gap: "12px" }}>
-                          <span>Venc.: {item.data ? item.data.split('-').reverse().join('/') : "-"}</span>
-                          <span>{item.categoria || "Sem categoria"}</span>
+                        <div style={{ fontWeight: "bold", fontSize: "1.3rem", color: modalDetails.color, whiteSpace: "nowrap" }}>
+                          {formatCurrency(Math.abs(parseFloat(item.valor || 0)))}
                         </div>
                       </div>
-                      <div style={{ fontWeight: "bold", fontSize: "1.5rem", color: modalDetails.color }}>
-                        {formatCurrency(Math.abs(parseFloat(item.valor || 0)))}
-                      </div>
+                      
+                      {expandedModalItems[idx] && item.subItems && item.subItems.length > 1 && (
+                        <div style={{ padding: "0 12px 12px 12px", borderTop: "1px solid #e2e8f0", background: "#fff" }}>
+                          <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                            {item.subItems.map((sub: any, sIdx: number) => (
+                              <div key={sIdx} style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                padding: "8px 12px",
+                                background: "#f1f5f9",
+                                borderRadius: "6px"
+                              }}>
+                                <div style={{ flex: 1, marginRight: "12px", overflow: "hidden" }}>
+                                  <div style={{ fontWeight: "600", fontSize: "1.1rem", color: "#475569", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={sub.descricao || "Sem descrição"}>
+                                    {sub.descricao || "Sem descrição"}
+                                  </div>
+                                  <div style={{ fontSize: "1.0rem", color: "#94a3b8", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }} title={sub.categoria || "Sem categoria"}>
+                                    {sub.categoria || "Sem categoria"}
+                                  </div>
+                                </div>
+                                <div style={{ fontWeight: "bold", fontSize: "1.2rem", color: modalDetails.color, whiteSpace: "nowrap" }}>
+                                  {formatCurrency(Math.abs(parseFloat(sub.valor || 0)))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

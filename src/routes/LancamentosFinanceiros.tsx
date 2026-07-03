@@ -348,7 +348,16 @@ function LancamentosFinanceiros() {
         query = query.eq('categoria', fCat);
       }
       if (fConta) {
-        query = query.eq('conta', fConta);
+        const matchingConta = contasDb.find(c => {
+          const val = [c.banco, c.agencia, c.conta_corrente].filter(Boolean).join(" - ");
+          return val === fConta;
+        });
+        if (matchingConta) {
+          const label = [matchingConta.descricao, matchingConta.banco, matchingConta.conta_corrente].filter(Boolean).join(" - ");
+          query = query.in('conta', [fConta, label]);
+        } else {
+          query = query.eq('conta', fConta);
+        }
       }
       if (fMes) {
         const range = getMonthRange(fMes);
@@ -387,7 +396,7 @@ function LancamentosFinanceiros() {
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
     }
-  }, [isAdmin, filterStatus, filterCreatedToday, limit, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, checkPendingCounts]);
+  }, [isAdmin, filterStatus, filterCreatedToday, limit, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, checkPendingCounts, contasDb]);
 
   const isFirstRender = useRef(true);
 
