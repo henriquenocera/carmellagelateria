@@ -20,10 +20,12 @@ function App() {
     <div className="app-layout">
       <header className="app-header">
         <div className="flex items-center" style={{ gap: '12px' }}>
-          {/* Lado esquerdo do header agora vazio */}
+          <h1 style={{ margin: 0, fontSize: '18px', color: '#fff', fontWeight: 'bold' }}>Alto XV</h1>
         </div>
         <div className="header-actions">
-          <SessionTimer />
+          <div className="hide-on-mobile">
+            <SessionTimer />
+          </div>
           <span className="user-email" style={{ fontSize: '14px', color: '#e2e8f0', fontWeight: '500' }}>{user.email}</span>
 
 
