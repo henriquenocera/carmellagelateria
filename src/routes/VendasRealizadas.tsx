@@ -78,6 +78,7 @@ function VendasRealizadas() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [editingCell, setEditingCell] = useState<{ dateStr: string; field: string } | null>(null);
+  const [showCopyModal, setShowCopyModal] = useState<boolean>(false);
 
   const handleMonthNavigation = (direction: "prev" | "next") => {
     if (!selectedMonth) return;
@@ -887,6 +888,7 @@ function VendasRealizadas() {
                   <th rowSpan={2} style={{ ...headerStyle, textAlign: "left", paddingLeft: "16px", position: "sticky", left: 0, backgroundColor: "#f8fafc", zIndex: 10, width: "140px", minWidth: "140px", maxWidth: "140px", boxSizing: "border-box" }}>Dia da Semana</th>
                   <th rowSpan={2} style={{ ...headerStyle, position: "sticky", left: "140px", backgroundColor: "#f8fafc", zIndex: 10, width: "120px", minWidth: "120px", maxWidth: "120px", boxSizing: "border-box" }}>Data</th>
                   <th rowSpan={2} style={{ ...headerStyle, width: "110px", minWidth: "110px", maxWidth: "110px", boxSizing: "border-box" }}>Status</th>
+                  <th rowSpan={2} style={{ ...headerStyle, width: "90px", minWidth: "90px", maxWidth: "90px", boxSizing: "border-box", textAlign: "center" }}>Mensagem</th>
                   
                   <th colSpan={8} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#fffbeb", color: "#b45309", borderBottom: "2px solid #fcd34d" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
@@ -988,6 +990,41 @@ function VendasRealizadas() {
                       {/* Status badge */}
                       {renderStatusCell(row, cellBg, todayBorder)}
 
+                      {/* Mensagem icon */}
+                      <td style={{ ...cellStyle, backgroundColor: cellBg, ...todayBorder, textAlign: "center", cursor: "pointer", width: "90px", minWidth: "90px", maxWidth: "90px" }}
+                          onClick={() => {
+                            const diffCaixa = row.caixaInformado - row.caixaCalculado;
+                            const diffPix = row.pixRealizado - row.pixCalculado;
+                            const diffCartao = row.cartaoRealizado - row.cartaoCalculado;
+
+                            const formatDiff = (diff: number, prefix: string = "") => {
+                              if (diff === 0) return "✅ Ok!";
+                              const sign = diff < 0 ? "-" : "+";
+                              return `❌ ${prefix}divergente ( ${sign} ${formatCurrency(Math.abs(diff))} )`.trim();
+                            };
+
+                            const message = [
+                              `*Conciliador de Caixa Diário*`,
+                              `📅 *Data:* ${row.data}`,
+                              ``,
+                              `💵 *Caixa Dinheiro:* ${formatDiff(diffCaixa, "Caixa ")}`,
+                              `📱 *Pix:* ${formatDiff(diffPix)}`,
+                              `💳 *Cartão:* ${formatDiff(diffCartao)}`
+                            ].join("\n");
+                            
+                            navigator.clipboard.writeText(message).then(() => {
+                              setShowCopyModal(true);
+                              setTimeout(() => setShowCopyModal(false), 2000);
+                            }).catch(err => {
+                              console.error("Erro ao copiar:", err);
+                              alert("Erro ao copiar mensagem.");
+                            });
+                          }}
+                          title="Copiar mensagem de resumo"
+                      >
+                        <Icons.BsChatSquareText style={{ color: "var(--primary-color)", fontSize: "1.4rem", display: "inline-block", verticalAlign: "middle" }} />
+                      </td>
+
                       {/* Caixa Dinheiro Cells */}
                       <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cellColor, ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaAberturaChecklist)}</td>
                       {renderEditableCell(row, "caixa_abertura", row.caixaAberturaCloudfy, "#ffedd5", cellColor, todayBorder)}
@@ -1026,6 +1063,29 @@ function VendasRealizadas() {
           )}
         </div>
       </div>
+
+      {showCopyModal && (
+        <div style={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          backgroundColor: "rgba(0, 0, 0, 0.8)",
+          color: "white",
+          padding: "20px 40px",
+          borderRadius: "12px",
+          zIndex: 9999,
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          fontSize: "1.6rem",
+          fontWeight: "bold",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+        }}>
+          <Icons.BsCheckCircleFill style={{ color: "#4ade80", fontSize: "2rem" }} />
+          <span>Mensagem Copiada!</span>
+        </div>
+      )}
     </>
   );
 }

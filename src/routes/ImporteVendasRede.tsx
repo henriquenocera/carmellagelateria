@@ -49,6 +49,8 @@ function ImporteVendasRede() {
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedStore, setSelectedStore] = useState<string>("ahu");
@@ -368,9 +370,62 @@ function ImporteVendasRede() {
         </h1>
 
         <div style={{ background: "#fff", padding: "24px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", marginBottom: "32px" }}>
-          <p style={{ color: "#64748b", fontSize: "1.4rem", marginBottom: "20px", textAlign: "center" }}>
-            Selecione o arquivo CSV de vendas da Rede (delimitador <strong>ponto e vírgula</strong>) para visualizar e conciliar os lançamentos.
-          </p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+            <p style={{ color: "#64748b", fontSize: "1.4rem", margin: 0 }}>
+              Selecione o arquivo CSV de vendas da Rede (delimitador <strong>ponto e vírgula</strong>) para visualizar e conciliar os lançamentos.
+            </p>
+            <button 
+              onClick={() => setShowTutorial(!showTutorial)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 16px",
+                backgroundColor: "#eff6ff",
+                color: "#2563eb",
+                border: "1px solid #bfdbfe",
+                borderRadius: "6px",
+                fontWeight: "bold",
+                cursor: "pointer",
+                transition: "all 0.2s"
+              }}
+            >
+              <Icons.BsInfoCircle />
+              {showTutorial ? "Ocultar Tutorial" : "Como exportar da Rede?"}
+            </button>
+          </div>
+
+          {showTutorial && (
+            <div style={{ backgroundColor: "#f8fafc", padding: "20px", borderRadius: "8px", border: "1px solid #e2e8f0", marginBottom: "24px" }}>
+              <h3 style={{ marginTop: 0, color: "#334155", fontSize: "1.6rem", display: "flex", alignItems: "center", gap: "8px" }}>
+                <Icons.BsQuestionCircle /> Passo a passo
+              </h3>
+              <ol style={{ fontSize: "1.4rem", color: "#475569", lineHeight: "1.6", margin: "0 0 16px 20px", padding: 0 }}>
+                <li>Acesse o portal da Rede e selecione o menu <strong>Vendas &gt; Relatório de Vendas</strong>.</li>
+                <li>Confirme a loja selecionada no menu do topo (ícone de perfil/estabelecimento).</li>
+                <li>Selecione as <strong>Datas inicial e final</strong> desejadas e clique em aplicar.</li>
+                <li>No final da página, clique no link azul <strong>CSV</strong> para exportar o relatório.</li>
+              </ol>
+              <div style={{ display: "flex", flexDirection: "column", gap: "32px", marginTop: "24px", alignItems: "center" }}>
+                <div style={{ textAlign: "center", width: "100%", maxWidth: "600px" }}>
+                  <h4 style={{ margin: "0 0 12px 0", color: "#475569", fontSize: "1.4rem" }}>Passo 1: Relatório de Vendas</h4>
+                  <img src="/rede_tutorial_1.png" alt="Passo 1" style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", objectFit: "contain", cursor: "zoom-in", transition: "transform 0.2s", backgroundColor: "#fff" }} onClick={() => setEnlargedImage("/rede_tutorial_1.png")} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.02)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} />
+                </div>
+                <div style={{ textAlign: "center", width: "100%", maxWidth: "600px" }}>
+                  <h4 style={{ margin: "0 0 12px 0", color: "#475569", fontSize: "1.4rem" }}>Passo 2: Seleção de Loja</h4>
+                  <img src="/rede_tutorial_2.png" alt="Passo 2" style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", objectFit: "contain", cursor: "zoom-in", transition: "transform 0.2s", backgroundColor: "#fff" }} onClick={() => setEnlargedImage("/rede_tutorial_2.png")} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.02)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} />
+                </div>
+                <div style={{ textAlign: "center", width: "100%", maxWidth: "600px" }}>
+                  <h4 style={{ margin: "0 0 12px 0", color: "#475569", fontSize: "1.4rem" }}>Passo 3: Seleção de Datas</h4>
+                  <img src="/rede_tutorial_3.png" alt="Passo 3" style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", objectFit: "contain", cursor: "zoom-in", transition: "transform 0.2s", backgroundColor: "#fff" }} onClick={() => setEnlargedImage("/rede_tutorial_3.png")} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.02)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} />
+                </div>
+                <div style={{ textAlign: "center", width: "100%", maxWidth: "600px" }}>
+                  <h4 style={{ margin: "0 0 12px 0", color: "#475569", fontSize: "1.4rem" }}>Passo 4: Exportar CSV</h4>
+                  <img src="/rede_tutorial_4.png" alt="Passo 4" style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: "6px", objectFit: "contain", cursor: "zoom-in", transition: "transform 0.2s", backgroundColor: "#fff" }} onClick={() => setEnlargedImage("/rede_tutorial_4.png")} onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.02)"} onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1)"} />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "500px", margin: "0 auto" }}>
             <div 
@@ -566,6 +621,38 @@ function ImporteVendasRede() {
           </div>
         )}
       </div>
+
+      {enlargedImage && (
+        <div 
+          onClick={() => setEnlargedImage(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            backgroundColor: "rgba(0, 0, 0, 0.8)",
+            zIndex: 9999,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            cursor: "zoom-out",
+            padding: "40px",
+            boxSizing: "border-box"
+          }}
+        >
+          <img 
+            src={enlargedImage} 
+            alt="Ampliada" 
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              borderRadius: "8px",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+            }} 
+          />
+        </div>
+      )}
     </>
   );
 }
