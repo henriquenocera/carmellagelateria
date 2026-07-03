@@ -39,7 +39,18 @@ export function Card({ card, onClick, movedCardId, moveDirection, isConflict }: 
     today.setHours(0, 0, 0, 0);
     const diffTime = today.getTime() - prodDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 10 ? diffDays : null;
+    return diffDays >= 0 ? diffDays : null;
+  };
+
+  const calculateDaysInVitrine = () => {
+    if (card.status !== 'vitrine-atual') return null;
+    if (!card.entryDate) return null;
+    const entryDate = new Date(`${card.entryDate}T00:00:00`);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffTime = today.getTime() - entryDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 7 ? diffDays : null; // O usuário pediu 'a mais de 7 dias', vamos exibir a partir do dia 7
   };
 
   const daysOld = calculateDaysInFreezer();
@@ -71,11 +82,18 @@ export function Card({ card, onClick, movedCardId, moveDirection, isConflict }: 
   const entryBadge = getEntryBadge();
 
   const getBadgeClass = (days: number) => {
-    if (days > 20) return 'age-red';
+    if (days > 30) return 'age-red';
     if (days >= 15) return 'age-yellow';
-    if (days >= 10) return 'age-green';
-    return '';
+    return 'age-green';
   };
+
+  const getVitrineBadgeClass = (days: number) => {
+    if (days >= 21) return 'age-red';
+    if (days >= 14) return 'age-yellow';
+    return 'age-green';
+  };
+
+  const vitrineDaysOld = calculateDaysInVitrine();
 
   return (
     <div
@@ -97,6 +115,11 @@ export function Card({ card, onClick, movedCardId, moveDirection, isConflict }: 
         {daysOld !== null && (
           <div className={`card-age-badge ${getBadgeClass(daysOld)}`} title={`${daysOld} dias desde a produção`}>
             {daysOld}d
+          </div>
+        )}
+        {vitrineDaysOld !== null && (
+          <div className={`card-age-badge ${getVitrineBadgeClass(vitrineDaysOld)}`} title={`${vitrineDaysOld} dias na vitrine`}>
+            {vitrineDaysOld}d (vitrine)
           </div>
         )}
         {entryBadge && (

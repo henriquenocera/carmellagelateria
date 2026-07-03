@@ -22,7 +22,7 @@
   .app-header {
     padding: 12px 16px;
   }
-  
+
   .header-actions {
     flex-wrap: wrap;
     gap: 8px;
@@ -32,11 +32,15 @@
   .user-email {
     display: none;
   }
-  
-  .header-actions button, 
+
+  .header-actions button,
   #header-warnings-portal-target button {
     font-size: 11px !important;
     padding: 6px 10px !important;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
   }
 }
 

@@ -1,12 +1,41 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import './LoginPage.css';
 
 export function LoginPage() {
   const [email, setEmail] = useState('');
+  const [selectedName, setSelectedName] = useState('');
+  const [showUsers, setShowUsers] = useState(false);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [registeredUsers, setRegisteredUsers] = useState<{name: string, email: string}[]>([]);
+  const [isFetchingUsers, setIsFetchingUsers] = useState(true);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      setIsFetchingUsers(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('name, email')
+          .or('and(ativo.eq.true,controlar_frequencia.eq.true),name.ilike.%henrique%,name.ilike.%marina%')
+          .order('name');
+        
+        if (error) {
+          console.error("Erro Supabase:", error.message);
+        }
+        if (data) {
+          setRegisteredUsers(data);
+        }
+      } catch (err) {
+        console.error("Erro ao buscar usuários do banco", err);
+      } finally {
+        setIsFetchingUsers(false);
+      }
+    };
+    fetchUsers();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,16 +65,56 @@ export function LoginPage() {
         <form onSubmit={handleLogin} className="login-form">
           {error && <div className="login-error">{error}</div>}
 
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
+          <div className="form-group" style={{ position: 'relative' }}>
+            <label htmlFor="email">Usuário / Email</label>
             <input
               id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Seu e-mail"
+              type="text"
+              value={selectedName || email}
+              onChange={(e) => {
+                setSelectedName('');
+                setEmail(e.target.value);
+              }}
+              onFocus={() => setShowUsers(true)}
+              onBlur={() => setTimeout(() => setShowUsers(false), 200)}
+              placeholder="Selecione ou digite seu e-mail"
               required
+              autoComplete="off"
             />
+            {showUsers && (
+              <ul style={{
+                position: 'absolute', top: '100%', left: 0, right: 0, 
+                backgroundColor: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px',
+                listStyle: 'none', padding: 0, margin: '4px 0 0 0', zIndex: 10,
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)', overflow: 'hidden'
+              }}>
+                {isFetchingUsers ? (
+                  <li style={{ padding: '12px 16px', color: '#94a3b8', fontStyle: 'italic', textAlign: 'center' }}>
+                    Carregando usuários...
+                  </li>
+                ) : registeredUsers.length === 0 ? (
+                  <li style={{ padding: '12px 16px', color: '#ef4444', fontStyle: 'italic', textAlign: 'center' }}>
+                    Nenhum usuário listado.
+                  </li>
+                ) : (
+                  registeredUsers.map(u => (
+                    <li 
+                      key={u.email} 
+                      style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', color: '#334155', fontWeight: '500' }}
+                      onClick={() => {
+                        setSelectedName(u.name);
+                        setEmail(u.email);
+                        setShowUsers(false);
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                      onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#fff'}
+                    >
+                      {u.name}
+                    </li>
+                  ))
+                )}
+              </ul>
+            )}
           </div>
 
           <div className="form-group">

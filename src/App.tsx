@@ -23,7 +23,10 @@ function App() {
           {/* Lado esquerdo do header agora vazio */}
         </div>
         <div className="header-actions">
-          <SessionTimer />
+          <h1 style={{ margin: 0, fontSize: '18px', color: '#fff', fontWeight: 'bold', paddingRight: '8px' }}>Loja Ahú</h1>
+          <div className="hide-on-mobile">
+            <SessionTimer />
+          </div>
           <span className="user-email" style={{ fontSize: '14px', color: '#e2e8f0', fontWeight: '500' }}>{user.email}</span>
 
 
