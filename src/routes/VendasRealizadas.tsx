@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
@@ -22,6 +22,8 @@ interface DbConciliacaoRow {
   cartao_realizado: number;
   ifood_calculado: number;
   ifood_realizado: number;
+  pix_importado?: boolean;
+  cartao_importado?: boolean;
 }
 
 // Function to generate all days in a month YYYY-MM
@@ -66,6 +68,7 @@ function getDaysInMonth(yearMonth: string) {
 
 function VendasRealizadas() {
   const [selectedStore, setSelectedStore] = useState<string>("ahu");
+  const todayRowRef = useRef<HTMLTableRowElement>(null);
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -162,6 +165,25 @@ function VendasRealizadas() {
       store: selectedStore,
       [fieldName]: value
     };
+
+    if (fieldName === "pix_realizado") {
+      payload.pix_importado = false;
+    }
+    if (fieldName === "cartao_realizado") {
+      payload.cartao_importado = false;
+    }
+    if (fieldName === "pix_calculado") {
+      payload.pix_cloudfy_importado = false;
+    }
+    if (fieldName === "cartao_calculado") {
+      payload.cartao_cloudfy_importado = false;
+    }
+    if (fieldName === "caixa_vendas") {
+      payload.caixa_cloudfy_importado = false;
+    }
+    if (fieldName === "ifood_calculado") {
+      payload.ifood_cloudfy_importado = false;
+    }
 
     const currentAbertura = fieldName === "caixa_abertura" ? value : (matched?.caixa_abertura || 0);
     const currentVendas = fieldName === "caixa_vendas" ? value : (matched?.caixa_vendas || 0);
@@ -318,6 +340,14 @@ function VendasRealizadas() {
     fetchConciliacao();
   }, [fetchConciliacao]);
 
+  useEffect(() => {
+    if (!loading && todayRowRef.current) {
+      setTimeout(() => {
+        todayRowRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 100);
+    }
+  }, [loading, selectedStore, selectedMonth]);
+
   const formatCurrency = (val: number) => {
     return val.toLocaleString("pt-BR", {
       style: "currency",
@@ -411,7 +441,8 @@ function VendasRealizadas() {
     cellBg: string,
     cellColor: string,
     todayBorder: React.CSSProperties,
-    hasDiscrepancy?: boolean
+    hasDiscrepancy?: boolean,
+    isImported?: boolean
   ) => {
     const isEditing = editingCell && editingCell.dateStr === row.dateStr && editingCell.field === fieldName;
 
@@ -437,7 +468,10 @@ function VendasRealizadas() {
               if (e.key === "Enter") {
                 const rawVal = e.currentTarget.value.replace(",", ".");
                 const parsedVal = parseFloat(rawVal);
-                handleSaveField(row.dateStr, fieldName, isNaN(parsedVal) ? 0 : parsedVal);
+                const finalVal = isNaN(parsedVal) ? 0 : parsedVal;
+                if (finalVal !== value) {
+                  handleSaveField(row.dateStr, fieldName, finalVal);
+                }
                 setEditingCell(null);
               } else if (e.key === "Escape") {
                 setEditingCell(null);
@@ -446,7 +480,10 @@ function VendasRealizadas() {
             onBlur={(e) => {
               const rawVal = e.currentTarget.value.replace(",", ".");
               const parsedVal = parseFloat(rawVal);
-              handleSaveField(row.dateStr, fieldName, isNaN(parsedVal) ? 0 : parsedVal);
+              const finalVal = isNaN(parsedVal) ? 0 : parsedVal;
+              if (finalVal !== value) {
+                handleSaveField(row.dateStr, fieldName, finalVal);
+              }
               setEditingCell(null);
             }}
             autoFocus
@@ -479,7 +516,7 @@ function VendasRealizadas() {
           cursor: "pointer",
           transition: "background-color 0.2s"
         }}
-        title="Clique para editar"
+        title={isImported ? "Importado via CSV. Clique para editar manualmente." : "Clique para editar"}
         onMouseEnter={(e) => {
           e.currentTarget.style.backgroundColor = actualBg === "#ffedd5" ? "#fed7aa" : "#f1f5f9";
         }}
@@ -487,7 +524,12 @@ function VendasRealizadas() {
           e.currentTarget.style.backgroundColor = actualBg;
         }}
       >
-        {formatCurrency(value)}
+        <div style={{ display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", gap: "6px" }}>
+          {formatCurrency(value)}
+          {isImported && (
+            <Icons.BsCloudCheckFill style={{ color: "#10b981", fontSize: "1.1rem" }} title="Importado via CSV" />
+          )}
+        </div>
       </td>
     );
   };
@@ -630,6 +672,12 @@ function VendasRealizadas() {
         cartaoRealizado: matched.cartao_realizado || 0,
         ifoodCalculado: matched.ifood_calculado || 0,
         ifoodRealizado: matched.ifood_realizado || 0,
+        pixImportado: matched.pix_importado || false,
+        cartaoImportado: matched.cartao_importado || false,
+        pixCloudfyImportado: matched.pix_cloudfy_importado || false,
+        cartaoCloudfyImportado: matched.cartao_cloudfy_importado || false,
+        caixaCloudfyImportado: matched.caixa_cloudfy_importado || false,
+        ifoodCloudfyImportado: matched.ifood_cloudfy_importado || false,
         isDbRecord: true
       };
     } else {
@@ -651,6 +699,12 @@ function VendasRealizadas() {
         cartaoRealizado: 0,
         ifoodCalculado: 0,
         ifoodRealizado: 0,
+        pixImportado: false,
+        cartaoImportado: false,
+        pixCloudfyImportado: false,
+        cartaoCloudfyImportado: false,
+        caixaCloudfyImportado: false,
+        ifoodCloudfyImportado: false,
         isDbRecord: false
       };
     }
@@ -836,17 +890,17 @@ function VendasRealizadas() {
                       <Icons.BsCashCoin /> Caixa Dinheiro
                     </span>
                   </th>
-                  <th colSpan={2} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#eff6ff", color: "#1e40af", borderBottom: "2px solid #bfdbfe" }}>
+                  <th colSpan={3} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#eff6ff", color: "#1e40af", borderBottom: "2px solid #bfdbfe" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                       <Icons.BsQrCode /> Vendas Pix
                     </span>
                   </th>
-                  <th colSpan={2} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#f0fdf4", color: "#166534", borderBottom: "2px solid #bbf7d0" }}>
+                  <th colSpan={3} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#fff7ed", color: "#c2410c", borderBottom: "2px solid #fed7aa" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                       <Icons.BsCreditCard2Back /> Vendas Cartão
                     </span>
                   </th>
-                  <th colSpan={2} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#faf5ff", color: "#6b21a8", borderBottom: "2px solid #e9d5ff" }}>
+                  <th colSpan={1} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#fef2f2", color: "#b91c1c", borderBottom: "2px solid #fecaca" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                       <Icons.BsBicycle /> Vendas iFood
                     </span>
@@ -866,16 +920,17 @@ function VendasRealizadas() {
                   <th style={{ ...iconHeaderStyle, borderRight: "3px solid #cbd5e1" }}></th>
                   
                   {/* Pix subheaders */}
-                  <th style={subHeaderStyle}>Calculadas</th>
-                  <th style={subHeaderStyle}>Realizadas</th>
+                  <th style={subHeaderStyle}>Calculadas<br />Cloudfy</th>
+                  <th style={subHeaderStyle}>Realizadas<br />Rede</th>
+                  <th style={{ ...iconHeaderStyle, borderRight: "3px solid #cbd5e1" }}></th>
 
                   {/* Cartão subheaders */}
-                  <th style={subHeaderStyle}>Calculadas</th>
-                  <th style={subHeaderStyle}>Realizadas</th>
+                  <th style={subHeaderStyle}>Calculadas<br />Cloudfy</th>
+                  <th style={subHeaderStyle}>Realizadas<br />Rede</th>
+                  <th style={{ ...iconHeaderStyle, borderRight: "3px solid #cbd5e1" }}></th>
 
                   {/* iFood subheaders */}
-                  <th style={subHeaderStyle}>Calculadas</th>
-                  <th style={subHeaderStyle}>Realizadas</th>
+                  <th style={subHeaderStyle}>Realizadas<br />iFood</th>
                 </tr>
               </thead>
               <tbody>
@@ -888,13 +943,12 @@ function VendasRealizadas() {
                   const hasCaixaDiscrepancy = row.status === "Fechado" && (row.caixaCalculado !== row.caixaInformado || row.caixaCalculado !== row.caixaReal);
                   const hasPixDiscrepancy = row.status === "Fechado" && row.pixCalculado !== row.pixRealizado;
                   const hasCartaoDiscrepancy = row.status === "Fechado" && row.cartaoCalculado !== row.cartaoRealizado;
-                  const hasIfoodDiscrepancy = row.status === "Fechado" && row.ifoodCalculado !== row.ifoodRealizado;
 
                   // Today borders
                   const todayBorder = isToday ? { borderTop: "2px solid #eab308", borderBottom: "2px solid #eab308" } : {};
 
                   return (
-                    <tr key={idx} style={{ transition: "0.15s" }}>
+                    <tr key={idx} style={{ transition: "0.15s" }} ref={isToday ? todayRowRef : null}>
                       {/* Fixed Left Columns */}
                       <td style={{ 
                         ...cellStyle, 
@@ -937,7 +991,7 @@ function VendasRealizadas() {
                       <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
                         {renderMatchIcon(row.caixaAberturaChecklist, row.caixaAberturaCloudfy, row.dateStr)}
                       </td>
-                      {renderEditableCell(row, "caixa_vendas", row.caixaVendas, "#ffedd5", cellColor, todayBorder)}
+                      {renderEditableCell(row, "caixa_vendas", row.caixaVendas, "#ffedd5", cellColor, todayBorder, false, row.caixaCloudfyImportado)}
                       {renderEditableCell(row, "caixa_ajustes", row.caixaAjustes, "#ffedd5", cellColor, todayBorder)}
                       <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cellColor, ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaCalculado)}</td>
                       {renderEditableCell(row, "caixa_informado", row.caixaInformado, "#ffedd5", cellColor, todayBorder, hasCaixaDiscrepancy)}
@@ -946,16 +1000,21 @@ function VendasRealizadas() {
                       </td>
 
                       {/* Vendas Pix Cells */}
-                      {renderEditableCell(row, "pix_calculado", row.pixCalculado, cellBg, cellColor, todayBorder)}
-                      {renderEditableCell(row, "pix_realizado", row.pixRealizado, cellBg, cellColor, todayBorder, hasPixDiscrepancy)}
+                      {renderEditableCell(row, "pix_calculado", row.pixCalculado, "#ffedd5", cellColor, todayBorder, false, row.pixCloudfyImportado)}
+                      {renderEditableCell(row, "pix_realizado", row.pixRealizado, "#ffedd5", cellColor, todayBorder, hasPixDiscrepancy, row.pixImportado)}
+                      <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
+                        {renderClosingMatchIcon(row.pixCalculado, row.pixRealizado, row.dateStr)}
+                      </td>
 
                       {/* Vendas Cartão Cells */}
-                      {renderEditableCell(row, "cartao_calculado", row.cartaoCalculado, cellBg, cellColor, todayBorder)}
-                      {renderEditableCell(row, "cartao_realizado", row.cartaoRealizado, cellBg, cellColor, todayBorder, hasCartaoDiscrepancy)}
+                      {renderEditableCell(row, "cartao_calculado", row.cartaoCalculado, "#ffedd5", cellColor, todayBorder, false, row.cartaoCloudfyImportado)}
+                      {renderEditableCell(row, "cartao_realizado", row.cartaoRealizado, "#ffedd5", cellColor, todayBorder, hasCartaoDiscrepancy, row.cartaoImportado)}
+                      <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
+                        {renderClosingMatchIcon(row.cartaoCalculado, row.cartaoRealizado, row.dateStr)}
+                      </td>
 
                       {/* Vendas iFood Cells */}
-                      {renderEditableCell(row, "ifood_calculado", row.ifoodCalculado, cellBg, cellColor, todayBorder)}
-                      {renderEditableCell(row, "ifood_realizado", row.ifoodRealizado, cellBg, cellColor, todayBorder, hasIfoodDiscrepancy)}
+                      {renderEditableCell(row, "ifood_realizado", row.ifoodRealizado, "#ffedd5", cellColor, todayBorder, false, row.ifoodCloudfyImportado)}
                     </tr>
                   );
                 })}

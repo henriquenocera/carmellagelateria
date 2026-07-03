@@ -9,39 +9,35 @@ const groupTransactions = (individualTxs: any[]) => {
   const groups: { [key: string]: any } = {};
 
   individualTxs.forEach(tx => {
-    const key = `${tx.date}_${tx.category}`;
+    const key = `${tx.store}_${tx.date}_${tx.category}`;
     if (!groups[key]) {
       groups[key] = {
         id: key,
+        store: tx.store,
         date: tx.date,
         category: tx.category,
         amount: 0,
         taxAmount: 0,
         netAmount: 0,
         modalidades: new Set(),
-        bandeiras: new Set(),
-        memo: tx.category === "Vendas Loja - Pix" ? "Vendas Rede - Pix" : "Vendas Rede - Cartão",
+        memo: `Vendas Cloudfy - ${tx.category}`,
         status: "Analisando..."
       };
     }
 
     groups[key].amount += tx.amount;
-    groups[key].taxAmount += tx.taxAmount;
-    groups[key].netAmount += tx.netAmount;
+    groups[key].netAmount += tx.amount;
     if (tx.modalidade) groups[key].modalidades.add(tx.modalidade);
-    if (tx.bandeira) groups[key].bandeiras.add(tx.bandeira);
   });
 
   return Object.values(groups).map(g => {
     const mods = Array.from(g.modalidades).map(m => String(m).trim()).filter(Boolean).join("/");
-    const bands = Array.from(g.bandeiras).map(b => String(b).trim()).filter(Boolean).join("/");
-    const details = [mods, bands].filter(Boolean).join(" - ");
-    g.memo = `${g.memo}${details ? ` (${details})` : ""}`;
+    g.memo = `${g.memo}${mods ? ` (${mods})` : ""}`;
     return g;
   });
 };
 
-function ImporteVendasRede() {
+function ImporteVendasCloudfy() {
   const { user } = useAuth();
 
   const [file, setFile] = useState<File | null>(null);
@@ -49,9 +45,9 @@ function ImporteVendasRede() {
   const [loading, setLoading] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [selectedStore, setSelectedStore] = useState<string>("ahu");
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
 
   const toggleSelectTx = (id: string) => {
@@ -86,18 +82,13 @@ function ImporteVendasRede() {
   };
 
   const handleImportSelected = async () => {
-    if (!selectedStore) {
-      alert("Por favor, selecione a loja no topo da tabela.");
-      return;
-    }
-
     const selectedTxs = transactions.filter(t => selectedTxIds.has(t.id) && t.status === "Não Encontrado");
     if (selectedTxs.length === 0) {
       alert("Nenhuma transação 'Não Encontrado' selecionada para importação.");
       return;
     }
 
-    if (!window.confirm(`Deseja lançar as ${selectedTxs.length} transações selecionadas na loja "${selectedStore === 'ahu' ? 'Ahú' : 'Alto da XV'}"?`)) {
+    if (!window.confirm(`Deseja lançar as ${selectedTxs.length} transações selecionadas nas suas respectivas lojas?`)) {
       return;
     }
 
@@ -105,29 +96,39 @@ function ImporteVendasRede() {
     try {
       const updatesByDate: Record<string, any> = {};
       selectedTxs.forEach(t => {
-        if (!updatesByDate[t.date]) {
-          updatesByDate[t.date] = { date: t.date, store: selectedStore };
+        const key = `${t.store}_${t.date}`;
+        if (!updatesByDate[key]) {
+          updatesByDate[key] = { date: t.date, store: t.store };
         }
-        if (t.category === "Vendas Loja - Pix") {
-          updatesByDate[t.date].pix_realizado = t.amount;
-          updatesByDate[t.date].pix_importado = true;
-        } else {
-          updatesByDate[t.date].cartao_realizado = t.amount;
-          updatesByDate[t.date].cartao_importado = true;
+        if (t.category === "Pix") {
+          updatesByDate[key].pix_calculado = t.amount;
+          updatesByDate[key].pix_cloudfy_importado = true;
+        } else if (t.category === "Cartão") {
+          updatesByDate[key].cartao_calculado = t.amount;
+          updatesByDate[key].cartao_cloudfy_importado = true;
+        } else if (t.category === "Dinheiro") {
+          updatesByDate[key].caixa_vendas = t.amount;
+          updatesByDate[key].caixa_cloudfy_importado = true;
+        } else if (t.category === "iFood") {
+          updatesByDate[key].ifood_realizado = t.amount;
+          updatesByDate[key].ifood_cloudfy_importado = true;
         }
       });
 
-      const dates = Object.keys(updatesByDate);
+      const updatesList = Object.values(updatesByDate);
+      const dates = Array.from(new Set(updatesList.map(u => u.date)));
+      const stores = Array.from(new Set(updatesList.map(u => u.store)));
+
       const { data: existingData, error: fetchErr } = await supabase
         .from("conciliacao_vendas")
         .select("*")
-        .eq("store", selectedStore)
+        .in("store", stores)
         .in("date", dates);
 
       if (fetchErr) throw fetchErr;
 
-      const payloads = dates.map(date => {
-        const existing = (existingData || []).find(e => e.date === date);
+      const payloads = updatesList.map(update => {
+        const existing = (existingData || []).find(e => e.date === update.date && e.store === update.store);
         const base = existing ? { ...existing } : { 
           status: "Aberto",
           caixa_abertura: 0,
@@ -146,10 +147,8 @@ function ImporteVendasRede() {
         delete base.created_at;
 
         return {
-           store: selectedStore,
-           date: date,
            ...base,
-           ...updatesByDate[date]
+           ...update
         };
       });
 
@@ -167,7 +166,7 @@ function ImporteVendasRede() {
       }));
 
       setSelectedTxIds(new Set());
-      alert(`Lançamentos importados com sucesso para a loja!`);
+      alert(`Lançamentos importados com sucesso!`);
     } catch (err: any) {
       console.error("Erro ao importar lançamentos:", err);
       alert("Erro ao importar lançamentos: " + (err.message || "Erro desconhecido."));
@@ -180,59 +179,53 @@ function ImporteVendasRede() {
     const lines = content.split(/\r?\n/);
     if (lines.length < 2) return [];
 
-    const headers = lines[0].toLowerCase().split(';').map(h => h.trim());
-    const colData = headers.indexOf("data da venda");
-    const colStatus = headers.indexOf("status da venda");
-    const colValorOriginal = headers.indexOf("valor da venda original");
-    const colModalidade = headers.indexOf("modalidade");
-    const colBandeira = headers.indexOf("bandeira");
-    const colNsu = headers.indexOf("nsu/cv");
-    const colTaxas = headers.findIndex(h => h.includes("valor total das taxas") || h.includes("total das taxas"));
-
     const parsed: any[] = [];
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
 
-      const cols = line.split(';');
-      const dateRaw = cols[colData !== -1 ? colData : 0]?.trim();
+      const cols = line.split('\t').map(c => c.replace(/^"|"$/g, '').trim());
+      if (cols.length < 4) continue;
+
+      const filialRaw = cols[0]?.toUpperCase() || "";
+      const store = filialRaw.includes("ALTO") ? "altoxv" : "ahu";
+
+      const dateRaw = cols[1];
       if (!dateRaw) continue;
 
       const parts = dateRaw.split('/');
       if (parts.length !== 3) continue;
       const date = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
 
-      const statusVenda = cols[colStatus !== -1 ? colStatus : 2]?.trim() || "";
-      const valorRaw = cols[colValorOriginal !== -1 ? colValorOriginal : 3]?.trim() || "0";
+      const formaPagamento = cols[2].toUpperCase();
+      const valorRaw = cols[3] || "0";
       const amount = parseFloat(valorRaw.replace(/\./g, "").replace(",", ".")) || 0;
 
-      const taxasRaw = colTaxas !== -1 ? (cols[colTaxas]?.trim() || "0") : "0";
-      const taxAmount = parseFloat(taxasRaw.replace(/\./g, "").replace(",", ".")) || 0;
-      const netAmount = Math.max(0, amount - taxAmount);
+      if (amount <= 0) continue;
 
-      const modalidade = cols[colModalidade !== -1 ? colModalidade : 5]?.trim() || "";
-      const bandeira = cols[colBandeira !== -1 ? colBandeira : 9]?.trim() || "";
-      const nsu = cols[colNsu !== -1 ? colNsu : 17]?.trim() || "";
-
-      // Ignora transações negadas
-      if (statusVenda.toLowerCase() === "negada" || amount <= 0) {
-        continue;
+      let category = "Outros";
+      if (formaPagamento.includes("PIX")) {
+        category = "Pix";
+      } else if (formaPagamento.includes("CARTAO") || formaPagamento.includes("TEF")) {
+        category = "Cartão";
+      } else if (formaPagamento.includes("DINHEIRO")) {
+        category = "Dinheiro";
+      } else if (formaPagamento.includes("IFOOD") || formaPagamento.includes("RAPPI")) {
+        category = "iFood";
       }
 
-      const category = modalidade.toLowerCase() === "pix" ? "Vendas Loja - Pix" : "Vendas Loja - Cartão";
-      const memo = `Venda Rede - ${modalidade} ${bandeira}`.trim() + (nsu ? ` - NSU ${nsu}` : "");
+      if (category === "Outros") continue;
 
       parsed.push({
-        id: nsu || `${date}-${amount}-${i}`,
+        id: `${store}-${date}-${formaPagamento}-${i}`,
+        store,
         date,
         amount,
-        taxAmount,
-        netAmount,
-        modalidade,
-        bandeira,
-        nsu,
-        memo,
+        taxAmount: 0,
+        netAmount: amount,
+        modalidade: formaPagamento,
+        memo: `Cloudfy - ${formaPagamento}`,
         category,
         status: "Analisando..."
       });
@@ -244,8 +237,8 @@ function ImporteVendasRede() {
   const handleFileSelection = (selected: File) => {
     if (selected.name.toLowerCase().endsWith(".csv")) {
       setFile(selected);
-      setTransactions([]); // reset on new file
-      setSelectedTxIds(new Set()); // reset selection
+      setTransactions([]); 
+      setSelectedTxIds(new Set()); 
     } else {
       alert("Por favor, selecione apenas arquivos .CSV");
       setFile(null);
@@ -297,20 +290,16 @@ function ImporteVendasRede() {
           return;
         }
 
-        // Determine min and max dates
         const dates = grouped.map(t => new Date(t.date + "T00:00:00").getTime());
         const minTime = Math.min(...dates);
         const maxTime = Math.max(...dates);
 
-        // Exact dates for conciliacao_vendas
         const boundsMin = new Date(minTime).toLocaleDateString("en-CA");
         const boundsMax = new Date(maxTime).toLocaleDateString("en-CA");
 
-        // Fetch DB Conciliacao
         const { data: dbData, error } = await supabase
           .from("conciliacao_vendas")
-          .select("date, store, pix_realizado, cartao_realizado, status")
-          .eq("store", selectedStore)
+          .select("*")
           .gte("date", boundsMin)
           .lte("date", boundsMax);
 
@@ -318,13 +307,15 @@ function ImporteVendasRede() {
 
         const availableDb = dbData || [];
 
-        // Match algorithm for grouped transactions
         grouped.forEach(group => {
-          const isPix = group.category === "Vendas Loja - Pix";
-          const matchRecord = availableDb.find(db => db.date === group.date);
+          const matched = availableDb.find(d => d.date === group.date && d.store === group.store);
           
-          if (matchRecord) {
-            const dbValue = isPix ? (matchRecord.pix_realizado || 0) : (matchRecord.cartao_realizado || 0);
+          if (matched) {
+            let dbValue = 0;
+            if (group.category === "Pix") dbValue = matched.pix_calculado || 0;
+            else if (group.category === "Cartão") dbValue = matched.cartao_calculado || 0;
+            else if (group.category === "Dinheiro") dbValue = matched.caixa_vendas || 0;
+            else if (group.category === "iFood") dbValue = matched.ifood_calculado || 0;
             
             if (Math.abs(dbValue - group.amount) <= 0.05) {
                group.status = "Já Conciliado";
@@ -359,18 +350,48 @@ function ImporteVendasRede() {
   return (
     <>
       <Helmet>
-        <title>Importe Vendas Rede - Carmella</title>
+        <title>Importe Vendas Cloudfy - Carmella</title>
       </Helmet>
 
       <div className="frequencia-container" style={{ padding: "20px 24px", paddingLeft: "95px", maxWidth: "1200px", margin: "0 auto" }}>
         <h1 style={{ display: "flex", alignItems: "center", gap: "12px", color: "#334155", marginBottom: "24px", fontSize: "2.4rem" }}>
-          <Icons.BsFileEarmarkSpreadsheet /> Importe Vendas Rede
+          <Icons.BsFileEarmarkSpreadsheet /> Importe Vendas Cloudfy
         </h1>
 
         <div style={{ background: "#fff", padding: "24px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", marginBottom: "32px" }}>
-          <p style={{ color: "#64748b", fontSize: "1.4rem", marginBottom: "20px", textAlign: "center" }}>
-            Selecione o arquivo CSV de vendas da Rede (delimitador <strong>ponto e vírgula</strong>) para visualizar e conciliar os lançamentos.
-          </p>
+          
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+            <p style={{ color: "#64748b", fontSize: "1.4rem", margin: 0, flex: 1, minWidth: "300px" }}>
+              Selecione o arquivo CSV de vendas da Cloudfy para visualizar e conciliar os lançamentos.
+            </p>
+            <button 
+              onClick={() => setShowTutorial(!showTutorial)}
+              style={{ backgroundColor: "#f8fafc", color: "#3b82f6", border: "1px solid #bfdbfe", padding: "8px 12px", borderRadius: "8px", fontWeight: "bold", fontSize: "1.2rem", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", transition: "all 0.2s" }}
+            >
+              <Icons.BsInfoCircle /> {showTutorial ? "Ocultar Tutorial" : "Como exportar esse relatório?"}
+            </button>
+          </div>
+
+          {showTutorial && (
+            <div style={{ backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", padding: "20px", borderRadius: "8px", marginBottom: "24px" }}>
+              <h3 style={{ margin: "0 0 16px 0", color: "#1e40af", fontSize: "1.5rem" }}>Passo a Passo para Exportar o Relatório na Cloudfy:</h3>
+              <ol style={{ paddingLeft: "20px", color: "#334155", fontSize: "1.3rem", lineHeight: "1.6", marginBottom: "16px" }}>
+                <li>No menu lateral esquerdo, acesse <strong>Relatórios gerais</strong> &gt; <strong>Vendas</strong> &gt; <strong>Relatório de vendas</strong>.</li>
+                <li>Na tela do relatório, selecione as <strong>Datas inicial e final</strong>.</li>
+                <li>No campo "Tipo de relatório" (1), escolha a opção <strong>Forma de pagamento - por dia</strong>.</li>
+                <li>Deixe a opção "Consolidar filiais?" marcada como <strong>Não</strong>.</li>
+                <li>No final da página (2), clique no botão azul <strong>CSV</strong> para baixar o arquivo correto.</li>
+              </ol>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "16px", alignItems: "flex-start" }}>
+                <div style={{ flex: "1 1 250px", textAlign: "center" }}>
+                  <img src="/cloudfy_tutorial_1.png" alt="Passo 1" style={{ maxWidth: "100%", maxHeight: "400px", border: "1px solid #cbd5e1", borderRadius: "6px", objectFit: "contain" }} />
+                </div>
+                <div style={{ flex: "2 1 400px", textAlign: "center" }}>
+                  <img src="/cloudfy_tutorial_2.png" alt="Passo 2" style={{ maxWidth: "100%", maxHeight: "400px", border: "1px solid #cbd5e1", borderRadius: "6px", objectFit: "contain" }} />
+                </div>
+              </div>
+            </div>
+          )}
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "500px", margin: "0 auto" }}>
             <div 
@@ -430,31 +451,6 @@ function ImporteVendasRede() {
                 <Icons.BsListCheck /> Transações CSV ({transactions.length})
               </h2>
 
-              {/* Seletor de Loja */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <label style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#475569" }}>Loja:</label>
-                <select
-                  value={selectedStore}
-                  onChange={(e) => { 
-                    setSelectedStore(e.target.value); 
-                    setTransactions([]); 
-                    setSelectedTxIds(new Set()); 
-                  }}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: "6px",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "1.4rem",
-                    color: "#334155",
-                    height: "40px",
-                    minWidth: "200px"
-                  }}
-                >
-                  <option value="ahu">Ahú</option>
-                  <option value="altoxv">Alto da XV</option>
-                </select>
-              </div>
-
               <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                 {selectedTxIds.size > 0 && (
                   <button 
@@ -493,13 +489,12 @@ function ImporteVendasRede() {
                         style={{ cursor: "pointer" }}
                       />
                     </th>
+                    <th style={{ width: "100px" }}>Loja</th>
                     <th style={{ width: "120px" }}>Data</th>
                     <th style={{ textAlign: "left", paddingLeft: "12px" }}>Descrição do Lançamento</th>
                     <th style={{ width: "120px" }}>Modalidade</th>
                     <th style={{ width: "130px" }}>Status</th>
                     <th style={{ width: "120px", textAlign: "center" }}>Valor Bruto</th>
-                    <th style={{ width: "110px", textAlign: "center" }}>Taxa</th>
-                    <th style={{ width: "120px", textAlign: "center" }}>Valor Líquido</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -520,9 +515,10 @@ function ImporteVendasRede() {
                             style={{ cursor: t.status === "Não Encontrado" ? "pointer" : "not-allowed" }}
                           />
                         </td>
+                        <td>{t.store === "altoxv" ? "Alto da XV" : "Ahú"}</td>
                         <td>{formatDate(t.date)}</td>
                         <td style={{ textAlign: "left", paddingLeft: "12px" }}>{t.memo}</td>
-                        <td>{t.category === "Vendas Loja - Pix" ? "Pix" : "Cartão"}</td>
+                        <td>{t.category}</td>
                         <td>
                           <span style={{ 
                             backgroundColor: statusColor + "1a", // light background
@@ -543,20 +539,6 @@ function ImporteVendasRede() {
                         }}>
                           {formatCurrency(t.amount)}
                         </td>
-                        <td style={{ 
-                          textAlign: "center", 
-                          color: t.taxAmount > 0 ? "#ef4444" : "#64748b",
-                          fontWeight: t.taxAmount > 0 ? "bold" : "normal"
-                        }}>
-                          {t.taxAmount > 0 ? `-${formatCurrency(t.taxAmount)}` : formatCurrency(0)}
-                        </td>
-                        <td style={{ 
-                          textAlign: "center", 
-                          fontWeight: "bold",
-                          color: "#10b981" 
-                        }}>
-                          {formatCurrency(t.netAmount)}
-                        </td>
                       </tr>
                     );
                   })}
@@ -570,4 +552,4 @@ function ImporteVendasRede() {
   );
 }
 
-export default ImporteVendasRede;
+export default ImporteVendasCloudfy;

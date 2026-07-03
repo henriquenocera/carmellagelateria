@@ -91,7 +91,6 @@ const MENU_CONFIG = [
       { title: "Lançamentos Financeiros", path: "/lancamentos-financeiros" },
       { title: "Conciliação bancária", path: "/conciliacao-bancaria" },
       { title: "Importe de Extrato", path: "/importe-extrato" },
-      { title: "Importe Vendas Rede", path: "/importe-vendas-rede" },
       { title: "Contas à pagar e receber", path: "/contas-pagar-receber" },
     ]
   },
@@ -100,7 +99,9 @@ const MENU_CONFIG = [
     icon: <Icons.BsShopWindow />,
     id: "vendas-lojas",
     subItems: [
-      { title: "Vendas Realizadas", path: "/vendas-realizadas" }
+      { title: "Vendas Realizadas", path: "/vendas-realizadas" },
+      { title: "Importe Vendas Rede", path: "/importe-vendas-rede" },
+      { title: "Importe Vendas Cloudfy", path: "/importe-vendas-cloudfy" }
     ]
   },
   {
