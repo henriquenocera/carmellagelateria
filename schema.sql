@@ -470,7 +470,13 @@ CREATE TABLE IF NOT EXISTS "public"."conciliacao_vendas" (
     "cartao_calculado" numeric(10,2) DEFAULT 0.00 NOT NULL,
     "cartao_realizado" numeric(10,2) DEFAULT 0.00 NOT NULL,
     "ifood_calculado" numeric(10,2) DEFAULT 0.00 NOT NULL,
-    "ifood_realizado" numeric(10,2) DEFAULT 0.00 NOT NULL
+    "ifood_realizado" numeric(10,2) DEFAULT 0.00 NOT NULL,
+    "pix_importado" boolean DEFAULT false,
+    "cartao_importado" boolean DEFAULT false,
+    "pix_cloudfy_importado" boolean DEFAULT false,
+    "cartao_cloudfy_importado" boolean DEFAULT false,
+    "caixa_cloudfy_importado" boolean DEFAULT false,
+    "ifood_cloudfy_importado" boolean DEFAULT false
 );
 
 
@@ -533,7 +539,8 @@ CREATE TABLE IF NOT EXISTS "public"."contas_pagar_receber" (
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "updated_at" timestamp with time zone,
     "status_revisao" "text",
-    "is_recorrente" boolean DEFAULT false
+    "is_recorrente" boolean DEFAULT false,
+    "arquivo_url" "text"
 );
 
 
