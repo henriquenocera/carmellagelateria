@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
+import html2canvas from "html2canvas";
 import * as Icons from "react-icons/bs";
 import supabase from "../../services/supabase-client";
 import { useAuth } from "../../AuthProvider";
@@ -29,6 +30,9 @@ function CadastroVouchers() {
   const [novoVoucherId, setNovoVoucherId] = useState("");
   const [novoValor, setNovoValor] = useState("");
   const [novoAtivo, setNovoAtivo] = useState(true);
+
+  const [generatingVoucher, setGeneratingVoucher] = useState<Voucher | null>(null);
+  const ticketRef = useRef<HTMLDivElement>(null);
 
   // Edit states
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -76,8 +80,8 @@ function CadastroVouchers() {
       const { error } = await supabase
         .from("Vouchers")
         .insert([
-          { 
-            voucher_id: novoVoucherId.trim(), 
+          {
+            voucher_id: novoVoucherId.trim(),
             value: novoValor.trim(),
             active: novoAtivo
           }
@@ -152,9 +156,9 @@ function CadastroVouchers() {
           active: editData.active
         })
         .eq("id", id);
-        
+
       if (error) throw error;
-      
+
       setEditingId(null);
       fetchVouchers();
     } catch (err: any) {
@@ -164,16 +168,42 @@ function CadastroVouchers() {
     }
   };
 
+  const handleGenerateImage = (voucher: Voucher) => {
+    setGeneratingVoucher(voucher);
+  };
+
+  useEffect(() => {
+    if (generatingVoucher && ticketRef.current) {
+      setTimeout(() => {
+        if (ticketRef.current) {
+          html2canvas(ticketRef.current, { backgroundColor: null, scale: 2 }).then((canvas) => {
+            const imgData = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = imgData;
+            link.download = `Voucher_${generatingVoucher.voucher_id}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setGeneratingVoucher(null);
+          }).catch(err => {
+            console.error("Erro ao gerar imagem", err);
+            alert("Erro ao gerar cupom.");
+            setGeneratingVoucher(null);
+          });
+        }
+      }, 500);
+    }
+  }, [generatingVoucher]);
+
   const formatDisplayDate = (dateStr: string | null) => {
     if (!dateStr) return "-";
     const date = new Date(dateStr);
-    return date.toLocaleDateString("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+    return (
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <span style={{ fontWeight: 600, fontSize: "1.1rem" }}>{date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" })}</span>
+        <span style={{ fontSize: "0.95rem", color: "#64748b" }}>{date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>
+      </div>
+    );
   };
 
   if (isAdmin === false) {
@@ -204,12 +234,12 @@ function CadastroVouchers() {
               <tr key={voucher.id}>
                 {editingId === voucher.id ? (
                   <>
-                    <td style={{ fontSize: "0.9rem" }}>{formatDisplayDate(voucher.created_at)}</td>
+                    <td>{formatDisplayDate(voucher.created_at)}</td>
                     <td>
                       <input
                         type="text"
                         value={editData.voucher_id}
-                        onChange={(e) => setEditData({...editData, voucher_id: e.target.value})}
+                        onChange={(e) => setEditData({ ...editData, voucher_id: e.target.value })}
                         style={{ width: "100%", padding: "4px", borderRadius: "4px", border: "1px solid #ccc" }}
                       />
                     </td>
@@ -217,7 +247,7 @@ function CadastroVouchers() {
                       <input
                         type="text"
                         value={editData.value}
-                        onChange={(e) => setEditData({...editData, value: e.target.value})}
+                        onChange={(e) => setEditData({ ...editData, value: e.target.value })}
                         style={{ width: "100%", padding: "4px", borderRadius: "4px", border: "1px solid #ccc" }}
                       />
                     </td>
@@ -225,11 +255,11 @@ function CadastroVouchers() {
                       <input
                         type="checkbox"
                         checked={editData.active}
-                        onChange={(e) => setEditData({...editData, active: e.target.checked})}
+                        onChange={(e) => setEditData({ ...editData, active: e.target.checked })}
                         style={{ width: "20px", height: "20px", cursor: "pointer" }}
                       />
                     </td>
-                    <td style={{ fontSize: "0.9rem" }}>{formatDisplayDate(voucher.date_consumed)}</td>
+                    <td>{formatDisplayDate(voucher.date_consumed)}</td>
                     <td>{voucher.store_consumed || "-"}</td>
                     <td>{voucher.person_consumed || "-"}</td>
                     <td style={{ textAlign: "center", display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", minHeight: "42px" }}>
@@ -243,16 +273,16 @@ function CadastroVouchers() {
                   </>
                 ) : (
                   <>
-                    <td style={{ fontSize: "0.9rem" }}>{formatDisplayDate(voucher.created_at)}</td>
+                    <td>{formatDisplayDate(voucher.created_at)}</td>
                     <td style={{ fontWeight: 600 }}>{voucher.voucher_id}</td>
                     <td>{voucher.value}</td>
                     <td>
-                      <span 
+                      <span
                         onClick={() => toggleActive(voucher.id, voucher.active)}
-                        style={{ 
-                          padding: "4px 8px", 
-                          borderRadius: "12px", 
-                          fontSize: "0.85rem", 
+                        style={{
+                          padding: "4px 8px",
+                          borderRadius: "12px",
+                          fontSize: "0.85rem",
                           fontWeight: "bold",
                           cursor: "pointer",
                           backgroundColor: voucher.active ? "#d1fae5" : "#fee2e2",
@@ -263,10 +293,17 @@ function CadastroVouchers() {
                         {voucher.active ? "Ativo" : "Inativo"}
                       </span>
                     </td>
-                    <td style={{ fontSize: "0.9rem" }}>{formatDisplayDate(voucher.date_consumed)}</td>
+                    <td>{formatDisplayDate(voucher.date_consumed)}</td>
                     <td>{voucher.store_consumed || "-"}</td>
                     <td>{voucher.person_consumed || "-"}</td>
                     <td style={{ textAlign: "center", display: "flex", gap: "8px", justifyContent: "center", alignItems: "center", minHeight: "42px" }}>
+                      <button
+                        onClick={() => handleGenerateImage(voucher)}
+                        title="Gerar Imagem do Cupom"
+                        style={{ background: "transparent", border: "none", color: "#10b981", cursor: "pointer", fontSize: "1.2rem", padding: 0 }}
+                      >
+                        <Icons.BsImage />
+                      </button>
                       <button
                         onClick={() => startEditing(voucher)}
                         title="Editar Voucher"
@@ -358,15 +395,185 @@ function CadastroVouchers() {
             <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>Nenhum voucher registrado.</p>
           ) : (
             <>
-              <h4 style={{ marginTop: "20px", marginBottom: "12px", color: "var(--secondary-color)", fontSize: "1.2rem", fontWeight: "600" }}>Vouchers Ativos</h4>
+              <h4 style={{ marginTop: "20px", marginBottom: "12px", color: "var(--secondary-color)", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
+                Vouchers Ativos <span style={{ backgroundColor: "#d1fae5", color: "#065f46", padding: "2px 8px", borderRadius: "12px", fontSize: "0.9rem" }}>{vouchers.filter(v => v.active).length}</span>
+              </h4>
               {renderTable(vouchers.filter(v => v.active))}
 
-              <h4 style={{ marginTop: "20px", marginBottom: "12px", color: "var(--secondary-color)", fontSize: "1.2rem", fontWeight: "600" }}>Vouchers Inativos</h4>
+              <h4 style={{ marginTop: "20px", marginBottom: "12px", color: "var(--secondary-color)", fontSize: "1.2rem", fontWeight: "600", display: "flex", alignItems: "center", gap: "8px" }}>
+                Vouchers Inativos <span style={{ backgroundColor: "#fee2e2", color: "#991b1b", padding: "2px 8px", borderRadius: "12px", fontSize: "0.9rem" }}>{vouchers.filter(v => !v.active).length}</span>
+              </h4>
               {renderTable(vouchers.filter(v => !v.active))}
             </>
           )}
         </div>
       </div>
+
+      {generatingVoucher && (
+        <div style={{ position: "absolute", left: "-9999px", top: "-9999px" }}>
+          <div ref={ticketRef} style={{
+            padding: "40px",
+            backgroundColor: "#eedbb5",
+            boxSizing: "border-box",
+            display: "inline-block",
+            fontFamily: "'Inter', 'Roboto', sans-serif"
+          }}>
+            <div style={{
+              display: "flex",
+              width: "800px",
+              height: "360px",
+              filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.15))"
+            }}>
+
+              <div style={{
+                width: "20px",
+                height: "100%",
+                backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='40'%3E%3Cpath d='M20 0v40H0v-10a10 10 0 0 1 0-20V0z' fill='%23eedbb5'/%3E%3C/svg%3E\")",
+                backgroundRepeat: "repeat-y",
+                backgroundPosition: "left top"
+              }}></div>
+
+              <div style={{
+                flex: 1,
+                backgroundColor: "#eedbb5",
+                padding: "24px 4px",
+                display: "flex",
+                boxSizing: "border-box"
+              }}>
+                <div style={{
+                  flex: 1,
+                  backgroundColor: "#fffdf3",
+                  borderRadius: "16px",
+                  display: "flex",
+                  border: "5px solid #dfc79b",
+                  position: "relative"
+                }}>
+
+                  {/* Left Side */}
+                  <div style={{
+                    flex: "0 0 70%",
+                    padding: "40px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    textAlign: "center",
+                    position: "relative"
+                  }}>
+                    <img
+                      src="/logo.svg"
+                      alt="Carmella Gelateria"
+                      style={{ height: "70px", marginBottom: "32px" }}
+                    />
+                    <p style={{ color: "#6a5c55", fontSize: "1.3rem", margin: "0 0 24px 0", maxWidth: "90%" }}>
+                      Apresente este voucher no caixa e aproveite nossa autêntica experiência.
+                    </p>
+                    <div style={{
+                      backgroundColor: "#2e1511",
+                      padding: "16px 48px",
+                      borderRadius: "12px",
+                      color: "#fff",
+                      fontSize: "2rem",
+                      fontWeight: "900",
+                      letterSpacing: "8px",
+                      boxShadow: "0 4px 10px rgba(46, 21, 17, 0.3)",
+                      fontFamily: "monospace"
+                    }}>
+                      {generatingVoucher.voucher_id}
+                    </div>
+
+                    {/* Decorative diamonds */}
+                    <div style={{ position: "absolute", width: "16px", height: "16px", backgroundColor: "#f69d3c", transform: "rotate(45deg)", top: "40px", left: "60px" }}></div>
+                    <div style={{ position: "absolute", width: "10px", height: "10px", backgroundColor: "#f69d3c", transform: "rotate(45deg)", top: "20px", left: "100px" }}></div>
+                    <div style={{ position: "absolute", width: "14px", height: "14px", backgroundColor: "#f69d3c", transform: "rotate(45deg)", bottom: "40px", right: "60px" }}></div>
+                    <div style={{ position: "absolute", width: "8px", height: "8px", backgroundColor: "#f69d3c", transform: "rotate(45deg)", bottom: "60px", right: "100px" }}></div>
+                  </div>
+
+                  {/* Dashed Separator */}
+                  <div style={{
+                    borderLeft: "2px dashed #dfc79b",
+                    height: "100%",
+                    position: "relative"
+                  }}>
+                    {/* Top Cutout */}
+                    <div style={{
+                      position: "absolute",
+                      top: "-20px",
+                      left: "-16px",
+                      width: "28px",
+                      height: "28px",
+                      backgroundColor: "#eedbb5",
+                      borderRadius: "50%",
+                      zIndex: 1
+                    }}></div>
+
+                    {/* Bottom Cutout */}
+                    <div style={{
+                      position: "absolute",
+                      bottom: "-20px",
+                      left: "-16px",
+                      width: "28px",
+                      height: "28px",
+                      backgroundColor: "#eedbb5",
+                      borderRadius: "50%",
+                      zIndex: 1
+                    }}></div>
+                  </div>
+
+                  {/* Right Side */}
+                  <div style={{
+                    flex: "1",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "24px",
+                    position: "relative",
+                    backgroundColor: "#fffdf3"
+                  }}>
+                    <h2 style={{
+                      color: "#543831",
+                      fontSize: "2.6rem",
+                      margin: 0,
+                      fontWeight: "900",
+                      textAlign: "center",
+                      lineHeight: "1.1",
+                      zIndex: 2
+                    }}>
+                      {generatingVoucher.value}
+                    </h2>
+
+                    <div style={{
+                      position: "absolute",
+                      bottom: "30px",
+                      right: "-20px",
+                      transform: "rotate(-90deg)",
+                      transformOrigin: "bottom right",
+                      color: "#a49481",
+                      fontSize: "0.85rem",
+                      fontWeight: "bold",
+                      letterSpacing: "3px",
+                      whiteSpace: "nowrap"
+                    }}>
+                      VÁLIDO SOMENTE NA LOJA FÍSICA
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div style={{
+                width: "20px",
+                height: "100%",
+                backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='40'%3E%3Cpath d='M0 0v40h20v-10a10 10 0 0 0 0-20V0z' fill='%23eedbb5'/%3E%3C/svg%3E\")",
+                backgroundRepeat: "repeat-y",
+                backgroundPosition: "right top"
+              }}></div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
