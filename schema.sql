@@ -504,7 +504,9 @@ CREATE TABLE IF NOT EXISTS "public"."contas" (
     "cnpj" "text",
     "descricao" "text",
     "ativo" boolean DEFAULT true,
-    "created_at" timestamp with time zone DEFAULT "now"()
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "saldo_informado" numeric,
+    "data_saldo_informado" timestamp with time zone
 );
 
 
@@ -1964,6 +1966,10 @@ CREATE POLICY "Permitir leitura para usuários autenticados" ON "public"."contas
 
 
 CREATE POLICY "Permitir leitura para usuários logados" ON "public"."Vales" FOR SELECT TO "authenticated" USING (true);
+
+
+
+CREATE POLICY "Permitir leitura publica dos perfis" ON "public"."profiles" FOR SELECT USING (true);
 
 
 
