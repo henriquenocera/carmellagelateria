@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import './LoginPage.css';
 
@@ -9,9 +9,9 @@ export function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [registeredUsers, setRegisteredUsers] = useState<{name: string, email: string}[]>([]);
+  const [registeredUsers, setRegisteredUsers] = useState<{ name: string, email: string }[]>([]);
   const [isFetchingUsers, setIsFetchingUsers] = useState(true);
-  
+
   useEffect(() => {
     const fetchUsers = async () => {
       setIsFetchingUsers(true);
@@ -21,7 +21,7 @@ export function LoginPage() {
           .select('name, email')
           .or('and(ativo.eq.true,controlar_frequencia.eq.true),name.ilike.%henrique%,name.ilike.%marina%')
           .order('name');
-        
+
         if (error) {
           console.error("Erro Supabase:", error.message);
         }
@@ -81,9 +81,9 @@ export function LoginPage() {
               required
             />
             {showUsers && (
-              <ul style={{ 
-                position: 'absolute', top: '100%', left: 0, right: 0, 
-                backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', 
+              <ul style={{
+                position: 'absolute', top: '100%', left: 0, right: 0,
+                backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px',
                 listStyle: 'none', padding: 0, margin: '4px 0 0 0', zIndex: 10,
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)', overflow: 'hidden'
               }}>
@@ -97,8 +97,8 @@ export function LoginPage() {
                   </li>
                 ) : (
                   registeredUsers.map(u => (
-                    <li 
-                      key={u.email} 
+                    <li
+                      key={u.email}
                       style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', color: '#334155', fontWeight: '500' }}
                       onClick={() => {
                         setSelectedName(u.name);
