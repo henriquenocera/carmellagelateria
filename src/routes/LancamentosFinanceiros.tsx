@@ -1274,7 +1274,14 @@ function LancamentosFinanceiros() {
                                     )}
                                   </div>
                                 )}
-                                <span>{l.descricao}</span>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                  <span>{l.descricao}</span>
+                                  {l.status_revisao === 'pending_admin' && l.revisao_observacao && (
+                                    <span style={{ fontSize: "0.9rem", color: "#ea580c", backgroundColor: "#fff7ed", padding: "4px 8px", borderRadius: "4px", border: "1px solid #ffedd5", marginTop: "4px", display: "inline-block" }}>
+                                      <strong>Alterações pendentes:</strong> {l.revisao_observacao}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </td>
                             <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>

@@ -18,6 +18,37 @@ function ImporteExtrato() {
   const [contas, setContas] = useState<any[]>([]);
   const [selectedConta, setSelectedConta] = useState<string>("");
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
+  const [selectedBankMode, setSelectedBankMode] = useState<"Inter" | "Itau" | null>(null);
+
+  useEffect(() => {
+    if (file && selectedConta) {
+      processFile();
+    }
+  }, [file, selectedConta]);
+
+  useEffect(() => {
+    if (selectedBankMode) {
+      const filtered = contas.filter(c => {
+        const searchString = `${c.banco} ${c.descricao} ${c.label}`.toLowerCase();
+        if (selectedBankMode === "Inter") return searchString.includes("inter");
+        if (selectedBankMode === "Itau") return searchString.includes("itau") || searchString.includes("itaú");
+        return false;
+      });
+      if (filtered.length === 1) {
+        setSelectedConta(filtered[0].label);
+      } else {
+        setSelectedConta("");
+      }
+    }
+  }, [selectedBankMode, contas]);
+
+  const filteredContas = contas.filter(c => {
+    if (!selectedBankMode) return false;
+    const searchString = `${c.banco} ${c.descricao} ${c.label}`.toLowerCase();
+    if (selectedBankMode === "Inter") return searchString.includes("inter");
+    if (selectedBankMode === "Itau") return searchString.includes("itau") || searchString.includes("itaú");
+    return false;
+  });
 
   // Fetch Contas on mount
   useEffect(() => {
@@ -120,17 +151,27 @@ function ImporteExtrato() {
     try {
       // 1. Lança as novas transações
       if (txsToInsert.length > 0) {
-        const payloads = txsToInsert.map(t => ({
-          data: t.date,
-          descricao: t.memo || "Lançamento via Importação OFX",
-          valor: t.amount,
-          conta: selectedConta,
-          categoria: null,
-          fornecedor: null,
-          user_id: user?.id,
-          status_revisao: null,
-          conciliado: true
-        }));
+        const payloads = txsToInsert.map(t => {
+          let cat = null;
+          let memoUpper = (t.memo || "").toUpperCase();
+          if (memoUpper.includes("RECEBIMENTO REDE")) {
+            cat = "Vendas Loja - Cartão";
+          } else if (memoUpper.includes("PIX QRS")) {
+            cat = "Vendas Loja - PIX";
+          }
+
+          return {
+            data: t.date,
+            descricao: t.memo || "Lançamento via Importação OFX",
+            valor: t.amount,
+            conta: selectedConta,
+            categoria: cat,
+            fornecedor: null,
+            user_id: user?.id,
+            status_revisao: null,
+            conciliado: true
+          };
+        });
 
         const { error } = await supabase
           .from("lancamentos_financeiros")
@@ -198,6 +239,10 @@ function ImporteExtrato() {
       let date = "";
       if (dtposted) {
         date = `${dtposted.substring(0, 4)}-${dtposted.substring(4, 6)}-${dtposted.substring(6, 8)}`;
+      }
+
+      if (memo.toLowerCase().includes("saldo total dispon") || memo.trim().toUpperCase() === "SALDO ANTERIOR") {
+        continue;
       }
 
       if (dtposted || trnamt || memo) {
@@ -279,12 +324,18 @@ function ImporteExtrato() {
         const boundsMin = new Date(minTime - 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
         const boundsMax = new Date(maxTime + 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
 
-        // Fetch DB Lancamentos
-        const { data: dbData, error } = await supabase
+        // Fetch DB Lancamentos apenas para a conta selecionada
+        let query = supabase
           .from("lancamentos_financeiros")
           .select("id, data, valor, conciliado")
           .gte("data", boundsMin)
           .lte("data", boundsMax);
+          
+        if (selectedConta) {
+          query = query.eq("conta", selectedConta);
+        }
+
+        const { data: dbData, error } = await query;
 
         if (error) {
           throw error;
@@ -292,62 +343,76 @@ function ImporteExtrato() {
 
         const availableDb = dbData ? [...dbData] : [];
 
-        // Match algorithm - Passo 1: Busca individual por transação
-        parsed.forEach(ofx => {
-          const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
-          const ofxAmount = Math.abs(ofx.amount);
+        // Match algorithm - Novo Algoritmo de 4 Passos
+        // 1. Busca individual exata (mesmo dia)
+        // 2. Busca por soma agregada exata (mesmo dia, mesmo sinal)
+        // 3. Busca individual com tolerância (até 3 dias)
+        // 4. Busca por soma agregada com tolerância (até 3 dias, mesmo sinal)
 
-          let matchIdx = availableDb.findIndex(db => {
-            const dbAmount = Math.abs(parseFloat(db.valor || "0"));
-            if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
-            
-            const dbDate = new Date(db.data + "T00:00:00").getTime();
-            const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-            return diffDays <= 3 && !db.conciliado;
-          });
+        // Inicializa todos como "Não Encontrado"
+        parsed.forEach(ofx => ofx.status = "Não Encontrado");
 
-          if (matchIdx !== -1) {
-            ofx.dbId = availableDb[matchIdx].id;
-            ofx.status = "Encontrado";
-            availableDb.splice(matchIdx, 1); // consumed
-          } else {
-            // Check if already reconciled
-            const alreadyIdx = availableDb.findIndex(db => {
+        const matchIndividual = (maxDiffDays: number) => {
+          parsed.forEach(ofx => {
+            if (ofx.status !== "Não Encontrado") return;
+            const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
+            const ofxAmount = Math.abs(ofx.amount);
+
+            let matchIdx = availableDb.findIndex(db => {
               const dbAmount = Math.abs(parseFloat(db.valor || "0"));
               if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
               
               const dbDate = new Date(db.data + "T00:00:00").getTime();
               const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-              return diffDays <= 3 && db.conciliado;
+              return diffDays <= maxDiffDays && !db.conciliado;
             });
-            if (alreadyIdx !== -1) {
-              ofx.status = "Já Conciliado";
-              availableDb.splice(alreadyIdx, 1);
+
+            if (matchIdx !== -1) {
+              ofx.dbId = availableDb[matchIdx].id;
+              ofx.status = "Encontrado";
+              availableDb.splice(matchIdx, 1);
             } else {
-              ofx.status = "Não Encontrado";
+              // Verifica nos já conciliados apenas para marcar o status visual
+              const alreadyIdx = availableDb.findIndex(db => {
+                const dbAmount = Math.abs(parseFloat(db.valor || "0"));
+                if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
+                
+                const dbDate = new Date(db.data + "T00:00:00").getTime();
+                const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
+                return diffDays <= maxDiffDays && db.conciliado;
+              });
+              if (alreadyIdx !== -1) {
+                ofx.status = "Já Conciliado";
+                availableDb.splice(alreadyIdx, 1);
+              }
             }
-          }
-        });
+          });
+        };
 
-        // Match algorithm - Passo 2: Busca por soma agregada para a mesma data
-        // Agrupa as transações "Não Encontrado" por data
-        const unmatchedByDate: { [dateStr: string]: any[] } = {};
-        parsed.forEach(ofx => {
-          if (ofx.status === "Não Encontrado") {
-            if (!unmatchedByDate[ofx.date]) {
-              unmatchedByDate[ofx.date] = [];
+        const matchGrouped = (maxDiffDays: number) => {
+          const groupsToTest: any[][] = [];
+          const unmatchedPositivesByDate: { [dateStr: string]: any[] } = {};
+          const unmatchedNegativesByDate: { [dateStr: string]: any[] } = {};
+          
+          parsed.forEach(ofx => {
+            if (ofx.status === "Não Encontrado") {
+              if (ofx.amount >= 0) {
+                if (!unmatchedPositivesByDate[ofx.date]) unmatchedPositivesByDate[ofx.date] = [];
+                unmatchedPositivesByDate[ofx.date].push(ofx);
+              } else {
+                if (!unmatchedNegativesByDate[ofx.date]) unmatchedNegativesByDate[ofx.date] = [];
+                unmatchedNegativesByDate[ofx.date].push(ofx);
+              }
             }
-            unmatchedByDate[ofx.date].push(ofx);
-          }
-        });
+          });
 
-        // Para cada data com múltiplas transações não encontradas, tenta achar um lançamento com a soma correspondente
-        Object.keys(unmatchedByDate).forEach(dateStr => {
-          const groupTxs = unmatchedByDate[dateStr];
-          if (groupTxs.length > 1) {
+          Object.values(unmatchedPositivesByDate).forEach(g => { if (g.length > 1) groupsToTest.push(g); });
+          Object.values(unmatchedNegativesByDate).forEach(g => { if (g.length > 1) groupsToTest.push(g); });
+
+          groupsToTest.forEach(groupTxs => {
             const groupSum = groupTxs.reduce((sum, tx) => sum + tx.amount, 0);
-
-            // Procura lançamentos não conciliados cujo valor seja igual à soma (com sinal e tolerância)
+            const dateStr = groupTxs[0].date;
+            
             let matchIdx = availableDb.findIndex(db => {
               if (db.conciliado) return false;
               const dbAmount = parseFloat(db.valor || "0");
@@ -356,7 +421,7 @@ function ImporteExtrato() {
               const dbDate = new Date(db.data + "T00:00:00").getTime();
               const ofxDate = new Date(dateStr + "T00:00:00").getTime();
               const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-              return diffDays <= 3;
+              return diffDays <= maxDiffDays;
             });
 
             if (matchIdx !== -1) {
@@ -365,9 +430,8 @@ function ImporteExtrato() {
                 ofx.dbId = matchedDb.id;
                 ofx.status = "Encontrado (Agrupado)";
               });
-              availableDb.splice(matchIdx, 1); // consome da lista de disponíveis
+              availableDb.splice(matchIdx, 1);
             } else {
-              // Procura entre os lançamentos já conciliados
               let alreadyIdx = availableDb.findIndex(db => {
                 if (!db.conciliado) return false;
                 const dbAmount = parseFloat(db.valor || "0");
@@ -376,7 +440,7 @@ function ImporteExtrato() {
                 const dbDate = new Date(db.data + "T00:00:00").getTime();
                 const ofxDate = new Date(dateStr + "T00:00:00").getTime();
                 const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-                return diffDays <= 3;
+                return diffDays <= maxDiffDays;
               });
 
               if (alreadyIdx !== -1) {
@@ -386,8 +450,14 @@ function ImporteExtrato() {
                 availableDb.splice(alreadyIdx, 1);
               }
             }
-          }
-        });
+          });
+        };
+
+        // Executa os 4 passos em ordem de prioridade
+        matchIndividual(0);
+        matchGrouped(0);
+        matchIndividual(3);
+        matchGrouped(3);
 
         setTransactions(parsed);
       } catch (err: any) {
@@ -420,61 +490,151 @@ function ImporteExtrato() {
           <Icons.BsFileEarmarkArrowUp /> Importe de Extrato
         </h1>
 
-        <div style={{ background: "#fff", padding: "24px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", marginBottom: "32px" }}>
-          <p style={{ color: "#64748b", fontSize: "1.4rem", marginBottom: "20px", textAlign: "center" }}>
-            Selecione o arquivo de extrato bancário (formato <strong>.OFX</strong>) para visualizar os lançamentos.
-          </p>
+        <input 
+          type="file" 
+          accept=".ofx" 
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "500px", margin: "0 auto" }}>
-            <div 
-              style={{ 
-                border: `2px dashed ${isDragging ? "#3b82f6" : "#cbd5e1"}`, 
-                borderRadius: "8px", 
-                padding: "32px", 
-                textAlign: "center",
-                backgroundColor: isDragging ? "#eff6ff" : "#f8fafc",
-                cursor: "pointer",
-                transition: "all 0.2s ease"
-              }}
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-            >
-              <Icons.BsCloudUpload style={{ fontSize: "3rem", color: isDragging ? "#3b82f6" : "#94a3b8", marginBottom: "12px" }} />
-              <div style={{ fontSize: "1.4rem", color: "#475569", fontWeight: "bold" }}>
-                {file ? file.name : "Clique para selecionar ou arraste um arquivo .OFX"}
+        {!selectedBankMode ? (
+          <div style={{ background: "#fff", padding: "40px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", marginBottom: "32px", textAlign: "center" }}>
+            <h2 style={{ fontSize: "2rem", color: "#334155", marginBottom: "12px" }}>De qual banco você deseja importar o extrato?</h2>
+            <p style={{ fontSize: "1.4rem", color: "#64748b", marginBottom: "40px" }}>Escolha o banco para iniciarmos o processo de leitura do arquivo OFX.</p>
+            
+            <div style={{ display: "flex", justifyContent: "center", gap: "24px", flexWrap: "wrap" }}>
+              {/* Card Inter */}
+              <div 
+                onClick={() => {
+                  setSelectedBankMode("Inter");
+                  fileInputRef.current?.click();
+                }}
+                style={{
+                  width: "240px",
+                  height: "160px",
+                  borderRadius: "16px",
+                  backgroundColor: "#FF7A00",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 10px 15px -3px rgba(255, 122, 0, 0.4)",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = "0 20px 25px -5px rgba(255, 122, 0, 0.5)"; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(255, 122, 0, 0.4)"; }}
+              >
+                <img src="/Logo-Inter.png" alt="Banco Inter" style={{ width: "120px", filter: "brightness(0) invert(1)" }} onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentElement!.innerHTML = '<span style="color: white; font-size: 2.5rem; font-weight: 800; font-family: Inter, sans-serif;">inter</span>' }} />
               </div>
-              <input 
-                type="file" 
-                accept=".ofx" 
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-              />
+
+              <div 
+                onClick={() => {
+                  setSelectedBankMode("Itau");
+                  fileInputRef.current?.click();
+                }}
+                style={{
+                  width: "240px",
+                  height: "160px",
+                  borderRadius: "16px",
+                  backgroundColor: "#fff",
+                  border: "1px solid #e2e8f0",
+                  cursor: "pointer",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: "0 10px 15px -3px rgba(0, 39, 118, 0.1)",
+                  transition: "transform 0.2s, box-shadow 0.2s",
+                  borderBottom: "8px solid #002776"
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = "0 20px 25px -5px rgba(0, 39, 118, 0.2)"; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 39, 118, 0.1)"; }}
+              >
+                <img src="/logo_itau.png" alt="Itaú" style={{ width: "160px", objectFit: "contain" }} onError={(e) => { e.currentTarget.style.display='none'; e.currentTarget.parentElement!.innerHTML = '<span style="color: #002776; font-size: 2.5rem; font-weight: 800; font-family: Arial, sans-serif; background: #FFCC00; padding: 4px 12px; border-radius: 4px;">Itaú</span>' }} />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ background: "#fff", padding: "24px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)", marginBottom: "32px" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button 
+                  onClick={() => {
+                    setSelectedBankMode(null);
+                    setFile(null);
+                    setTransactions([]);
+                    setSelectedTxIds(new Set());
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#64748b",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontSize: "1.3rem",
+                    fontWeight: "bold",
+                  }}
+                >
+                  <Icons.BsArrowLeft /> Voltar
+                </button>
+                <span style={{ fontSize: "1.4rem", fontWeight: "bold", color: selectedBankMode === "Inter" ? "#FF7A00" : "#EC7000", backgroundColor: selectedBankMode === "Inter" ? "#fff7ed" : "#ffedd5", padding: "4px 12px", borderRadius: "20px" }}>
+                  Banco {selectedBankMode === "Itau" ? "Itaú" : "Inter"}
+                </span>
+              </div>
             </div>
 
-            <button 
-              className="primary-btn"
-              onClick={processFile}
-              disabled={!file || loading}
-              style={{
-                width: "100%",
-                padding: "12px",
-                fontSize: "1.4rem",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                gap: "8px",
-                opacity: (!file || loading) ? 0.6 : 1,
-                cursor: (!file || loading) ? "not-allowed" : "pointer"
-              }}
-            >
-              {loading ? <Icons.BsHourglassSplit /> : <Icons.BsPlayCircle />}
-              {loading ? "Lendo arquivo e cruzando dados..." : "Importar e Analisar"}
-            </button>
+            <p style={{ color: "#64748b", fontSize: "1.4rem", marginBottom: "20px", textAlign: "center" }}>
+              Selecione o arquivo de extrato bancário (formato <strong>.OFX</strong>) para visualizar os lançamentos.
+            </p>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "500px", margin: "0 auto" }}>
+              <div 
+                style={{ 
+                  border: `2px dashed ${isDragging ? "#3b82f6" : "#cbd5e1"}`, 
+                  borderRadius: "8px", 
+                  padding: "32px", 
+                  textAlign: "center",
+                  backgroundColor: isDragging ? "#eff6ff" : "#f8fafc",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease"
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <Icons.BsCloudUpload style={{ fontSize: "3rem", color: isDragging ? "#3b82f6" : "#94a3b8", marginBottom: "12px" }} />
+                <div style={{ fontSize: "1.4rem", color: "#475569", fontWeight: "bold" }}>
+                  {file ? file.name : "Clique para selecionar ou arraste um arquivo .OFX"}
+                </div>
+              </div>
+
+              <button 
+                className="primary-btn"
+                onClick={processFile}
+                disabled={!file || loading}
+                style={{
+                  width: "100%",
+                  padding: "12px",
+                  fontSize: "1.4rem",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: "8px",
+                  opacity: (!file || loading) ? 0.6 : 1,
+                  cursor: (!file || loading) ? "not-allowed" : "pointer"
+                }}
+              >
+                {loading ? <Icons.BsHourglassSplit /> : <Icons.BsPlayCircle />}
+                {loading ? "Lendo arquivo e cruzando dados..." : "Importar e Analisar"}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {transactions.length > 0 && (
           <div style={{ background: "#fff", padding: "24px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }}>
@@ -500,7 +660,7 @@ function ImporteExtrato() {
                   }}
                 >
                   <option value="">Selecione uma conta bancária...</option>
-                  {contas.map(c => (
+                  {filteredContas.map(c => (
                     <option key={c.id} value={c.label}>
                       {c.displayLabel || c.label}
                     </option>
