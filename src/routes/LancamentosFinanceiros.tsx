@@ -998,18 +998,19 @@ function LancamentosFinanceiros() {
             <table className="freq-table" style={{ minWidth: "1250px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "220px", minWidth: "220px" }}>Descrição</th>
+                  <th style={{ width: "260px", minWidth: "260px" }}>Descrição</th>
                   <th style={{ textAlign: "center", width: "130px", minWidth: "130px" }}>Data</th>
                   <th style={{ textAlign: "center", width: "110px", minWidth: "110px" }}>Valor</th>
                   <th style={{ textAlign: "center", width: "180px", minWidth: "180px" }}>Fornecedor</th>
                   <th style={{ textAlign: "center", width: "180px", minWidth: "180px" }}>Categoria</th>
                   <th style={{ textAlign: "center", width: "180px", minWidth: "180px" }}>Conta</th>
                   <th style={{ textAlign: "center", width: "90px", minWidth: "90px" }}>Tipo</th>
+                  <th style={{ textAlign: "center", width: "80px", minWidth: "80px" }}>Conciliado</th>
                   {isAdmin && <th style={{ textAlign: "center", width: "140px", minWidth: "140px" }}>Usuário</th>}
                   <th style={{ textAlign: "center", width: "100px", minWidth: "100px" }}>Ações</th>
                 </tr>
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                  <th style={{ padding: "8px", minWidth: "220px" }}>
+                  <th style={{ padding: "8px", minWidth: "260px" }}>
                     <input
                       type="text"
                       placeholder="Descrição..."
@@ -1071,6 +1072,7 @@ function LancamentosFinanceiros() {
                     />
                   </th>
                   <th style={{ minWidth: "90px" }}></th>
+                  <th style={{ minWidth: "80px" }}></th>
                   {isAdmin && <th style={{ minWidth: "140px" }}></th>}
                   <th style={{ minWidth: "100px" }}></th>
                 </tr>
@@ -1082,7 +1084,7 @@ function LancamentosFinanceiros() {
                   if (lancamentosFiltrados.length === 0) {
                     return (
                       <tr>
-                        <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "24px", color: "#94a3b8", fontSize: "1.3rem" }}>
+                        <td colSpan={isAdmin ? 10 : 9} style={{ textAlign: "center", padding: "24px", color: "#94a3b8", fontSize: "1.3rem" }}>
                           Nenhum lançamento encontrado.
                         </td>
                       </tr>
@@ -1180,6 +1182,7 @@ function LancamentosFinanceiros() {
                                 {parseFloat(editRowData.valor || 0) >= 0 ? "Entrada" : "Saída"}
                               </span>
                             </td>
+                            <td></td>
                             {isAdmin && <td></td>}
                             <td style={{ textAlign: "center", display: "flex", justifyContent: "center", gap: "8px" }}>
                               <button
@@ -1252,26 +1255,6 @@ function LancamentosFinanceiros() {
                                         Editado
                                       </span>
                                     )}
-                                    {l.conciliado && (
-                                      <span style={{
-                                        backgroundColor: "#e0f2fe",
-                                        color: "#0369a1",
-                                        border: "1px solid #bae6fd",
-                                        fontSize: "0.9rem",
-                                        fontWeight: "bold",
-                                        padding: "2px 6px",
-                                        borderRadius: "4px",
-                                        textTransform: "uppercase",
-                                        lineHeight: "1.1",
-                                        display: "inline-flex",
-                                        alignItems: "center",
-                                        gap: "4px",
-                                        letterSpacing: "0.03em"
-                                      }}>
-                                        <Icons.BsCheckCircleFill style={{ fontSize: "0.95rem", color: "#0284c7" }} />
-                                        Conciliado
-                                      </span>
-                                    )}
                                   </div>
                                 )}
                                 <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
@@ -1339,6 +1322,11 @@ function LancamentosFinanceiros() {
                               }}>
                                 {l.valor >= 0 ? "Entrada" : "Saída"}
                               </span>
+                            </td>
+                            <td style={{ textAlign: "center" }}>
+                              {l.conciliado && (
+                                <Icons.BsCheckCircleFill title="Conciliado" style={{ fontSize: "1.4rem", color: "#0284c7" }} />
+                              )}
                             </td>
                             {isAdmin && (
                               <td style={{ textAlign: "center" }}>
@@ -1558,7 +1546,7 @@ function LancamentosFinanceiros() {
                       {hoje.length > 0 && (
                         <>
                           <tr style={{ backgroundColor: "#f0fdf4", borderBottom: "1px solid #bbf7d0", borderTop: "1px solid #bbf7d0" }}>
-                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#166534", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                            <td colSpan={isAdmin ? 10 : 9} style={{ textAlign: "center", padding: "10px", color: "#166534", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                               Lançamentos de Hoje
                             </td>
                           </tr>
@@ -1568,7 +1556,7 @@ function LancamentosFinanceiros() {
                       {anteriores.length > 0 && (
                         <>
                           <tr style={{ backgroundColor: "#f1f5f9", borderBottom: "1px solid #cbd5e1", borderTop: "1px solid #cbd5e1" }}>
-                            <td colSpan={isAdmin ? 9 : 8} style={{ textAlign: "center", padding: "10px", color: "#475569", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
+                            <td colSpan={isAdmin ? 10 : 9} style={{ textAlign: "center", padding: "10px", color: "#475569", fontWeight: "bold", fontSize: "1.15rem", letterSpacing: "0.05em", textTransform: "uppercase" }}>
                               Lançamentos Anteriores
                             </td>
                           </tr>
