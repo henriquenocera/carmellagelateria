@@ -45,7 +45,7 @@ function LojaEstoqueInsumos() {
       setLoading(true);
       const { data, error } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, tipo, ativo, config_estoque, ordem, inventario_especial")
+        .select("id, nome, tipo, ativo, config_estoque, ordem, inventario_especial, estoque_nome")
         .eq("ativo", true)
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
@@ -367,7 +367,7 @@ function LojaEstoqueInsumos() {
 
                     return (
                       <tr key={insumo.id} style={{ backgroundColor: rowBg, transition: "background 0.2s" }}>
-                        <td style={{ fontWeight: 600, fontSize: "1.3rem" }}>{insumo.nome}</td>
+                        <td style={{ fontWeight: 600, fontSize: "1.3rem" }}>{insumo.estoque_nome || insumo.nome}</td>
                         <td>
                             <span style={{
                               padding: "6px 12px", 

@@ -20,6 +20,7 @@ function ConfiguracaoEstoque() {
   const [insumos, setInsumos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [cellStatus, setCellStatus] = useState<Record<string, 'editing' | 'saving' | 'saved' | 'error'>>({});
+  const [modalInfoInsumo, setModalInfoInsumo] = useState<any>(null);
 
   useEffect(() => {
     if (isAdmin === false) {
@@ -34,7 +35,7 @@ function ConfiguracaoEstoque() {
       setLoading(true);
       const { data, error } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, ativo, config_estoque, inventario_especial")
+        .select("id, nome, ativo, config_estoque, inventario_especial, estoque_nome, unidade_conversao, quantidade_conversao, estoque_unidade, estoque_quantidade, unidade_consumo")
         .eq("ativo", true)
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
@@ -255,7 +256,18 @@ function ConfiguracaoEstoque() {
                 <tbody>
                   {insumos.map((insumo) => (
                     <tr key={insumo.id} style={{ transition: "background 0.2s" }}>
-                      <td style={{ fontWeight: 500, paddingLeft: "16px" }}>{insumo.nome}</td>
+                      <td style={{ fontWeight: 500, paddingLeft: "16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          {insumo.estoque_nome || insumo.nome}
+                          {insumo.estoque_nome && (
+                            <Icons.BsInfoCircleFill
+                              style={{ cursor: "pointer", color: "var(--primary-color)", fontSize: "1.1rem" }}
+                              onClick={() => setModalInfoInsumo(insumo)}
+                              title="Ver detalhes originais"
+                            />
+                          )}
+                        </div>
+                      </td>
                       
                       {STORES.map(store => {
                         const isActive = insumo.config_estoque?.[store.id]?.ativo;
@@ -284,6 +296,49 @@ function ConfiguracaoEstoque() {
           )}
         </div>
       </div>
+
+      {modalInfoInsumo && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", zIndex: 99999,
+          display: "flex", justifyContent: "center", alignItems: "center"
+        }} onClick={() => setModalInfoInsumo(null)}>
+          <div style={{
+            backgroundColor: "#fff", padding: "24px", borderRadius: "12px", width: "450px", maxWidth: "90%",
+            boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ marginTop: 0, display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid #e2e8f0", paddingBottom: "12px", color: "#1e293b" }}>
+              <Icons.BsInfoCircleFill style={{ color: "var(--primary-color)" }} /> Detalhes da Conversão
+            </h3>
+            
+            <div style={{ marginTop: "20px", fontSize: "1.1rem", color: "#334155", display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
+                <strong>Nome Original:</strong> {modalInfoInsumo.nome}
+              </div>
+              <div>
+                <strong>Comprado como:</strong> {modalInfoInsumo.unidade_conversao || "-"} ({modalInfoInsumo.quantidade_conversao || "-"} {modalInfoInsumo.unidade_consumo || ""} por {modalInfoInsumo.unidade_conversao || "pacote"})
+              </div>
+              <div style={{ backgroundColor: "#eff6ff", border: "1px solid #bfdbfe", padding: "16px", borderRadius: "8px", color: "#1e40af" }}>
+                <strong style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "10px" }}>
+                  <Icons.BsArrowRight /> Transformação para Estoque
+                </strong>
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginLeft: "4px" }}>
+                  <span><Icons.BsArrowReturnRight style={{ marginRight: "4px" }} /> Nome no Estoque: <strong>{modalInfoInsumo.estoque_nome}</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: "24px", textAlign: "right" }}>
+              <button
+                onClick={() => setModalInfoInsumo(null)}
+                style={{ padding: "10px 20px", backgroundColor: "var(--primary-color)", color: "#fff", border: "none", borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "1.1rem" }}
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

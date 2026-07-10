@@ -69,7 +69,7 @@ function Inventario() {
     try {
       const { data: insumosData, error: insumosError } = await supabase
         .from("cadastro_insumos")
-        .select("id, nome, config_estoque, ordem, tipo, unidade_conversao, inventario_especial")
+        .select("id, nome, config_estoque, ordem, tipo, unidade_conversao, inventario_especial, estoque_nome, estoque_unidade")
         .eq("ativo", true)
         .order("ordem", { ascending: true })
         .order("nome", { ascending: true });
@@ -390,9 +390,9 @@ function Inventario() {
       const savedValue = inventoryMap[insumo.id];
       if (savedValue !== undefined && savedValue !== "") {
         tableData.push([
-          insumo.nome,
+          insumo.estoque_nome || insumo.nome,
           insumo.tipo || "-",
-          insumo.unidade_conversao || "-",
+          insumo.estoque_unidade || insumo.unidade_conversao || "-",
           insumo.inventario_especial ? `${savedValue}%` : savedValue
         ]);
       }
@@ -426,9 +426,9 @@ function Inventario() {
     
     insumos.forEach((insumo) => {
       tableData.push([
-        insumo.nome,
+        insumo.estoque_nome || insumo.nome,
         insumo.tipo || "-",
-        insumo.unidade_conversao || "-",
+        insumo.estoque_unidade || insumo.unidade_conversao || "-",
         "" // Empty cell for manual writing
       ]);
     });
@@ -795,9 +795,9 @@ function Inventario() {
                   <tbody>
                     {insumos.map((insumo) => (
                       <tr key={insumo.id} style={{ transition: "background 0.2s" }}>
-                        <td style={{ fontWeight: 500 }}>{insumo.nome}</td>
+                        <td style={{ fontWeight: 500 }}>{insumo.estoque_nome || insumo.nome}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{insumo.tipo || "-"}</td>
-                        <td style={{ textAlign: "center", color: "#64748b" }}>{insumo.unidade_conversao || "-"}</td>
+                        <td style={{ textAlign: "center", color: "#64748b" }}>{insumo.estoque_unidade || insumo.unidade_conversao || "-"}</td>
                         <td style={{ textAlign: "center", padding: "12px 8px" }}>
                           {renderEditableInput(insumo)}
                         </td>

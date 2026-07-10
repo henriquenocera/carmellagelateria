@@ -157,7 +157,7 @@ function MovimentacoesEstoque() {
           // Fetch insumos only on initial load
           const { data: insumosData, error: insumosError } = await supabase
             .from("cadastro_insumos")
-            .select("id, nome, ativo")
+            .select("id, nome, ativo, estoque_nome")
             .order("nome", { ascending: true });
 
           if (insumosError) throw insumosError;
@@ -184,7 +184,7 @@ function MovimentacoesEstoque() {
           user_id,
           status_revisao,
           revisao_observacao,
-          cadastro_insumos!inner(nome),
+          cadastro_insumos!inner(nome, estoque_nome),
           profiles(name)
         `, { count: 'exact' });
 
@@ -299,7 +299,7 @@ function MovimentacoesEstoque() {
           user_id,
           status_revisao,
           revisao_observacao,
-          cadastro_insumos(nome),
+          cadastro_insumos(nome, estoque_nome),
           profiles(name)
         `)
         .single();
@@ -377,8 +377,9 @@ function MovimentacoesEstoque() {
       if (originalRow && originalRow.status_revisao === 'pending_user') {
         const diffs = [];
         if (originalRow.insumo_id !== editRowData.insumo_id) {
-           const nomeAntigo = originalRow.cadastro_insumos?.nome || "Desconhecido";
-           const nomeNovo = insumos.find(i => i.id === editRowData.insumo_id)?.nome || "Desconhecido";
+           const nomeAntigo = originalRow.cadastro_insumos?.estoque_nome || originalRow.cadastro_insumos?.nome || "Desconhecido";
+           const novoInsumoObj = insumos.find(i => i.id === editRowData.insumo_id);
+           const nomeNovo = novoInsumoObj ? (novoInsumoObj.estoque_nome || novoInsumoObj.nome) : "Desconhecido";
            diffs.push(`Insumo: ${nomeAntigo} ➔ ${nomeNovo}`);
         }
         if (originalRow.data_movimentacao !== editRowData.data_movimentacao) diffs.push(`Data: ${originalRow.data_movimentacao} ➔ ${editRowData.data_movimentacao}`);
@@ -430,7 +431,7 @@ function MovimentacoesEstoque() {
           user_id,
           status_revisao,
           revisao_observacao,
-          cadastro_insumos(nome),
+          cadastro_insumos(nome, estoque_nome),
           profiles(name)
         `)
         .single();
@@ -573,8 +574,8 @@ function MovimentacoesEstoque() {
                   autoFocus
                   menuPortalTarget={document.body}
                   maxMenuHeight={350}
-                  options={insumos.filter(ins => ins.ativo !== false).map(ins => ({ value: ins.id, label: ins.nome }))}
-                  value={newRow.insumo_id ? { value: newRow.insumo_id, label: insumos.find(i => i.id === newRow.insumo_id)?.nome } : null}
+                  options={insumos.filter(ins => ins.ativo !== false).map(ins => ({ value: ins.id, label: ins.estoque_nome || ins.nome }))}
+                  value={newRow.insumo_id ? { value: newRow.insumo_id, label: (() => { const i = insumos.find(i => i.id === newRow.insumo_id); return i ? (i.estoque_nome || i.nome) : ""; })() } : null}
                   onChange={(selectedOption) => setNewRow({ ...newRow, insumo_id: selectedOption ? selectedOption.value : "" })}
                   placeholder="Buscar Insumo..."
                   isClearable
@@ -696,8 +697,8 @@ function MovimentacoesEstoque() {
                     <Select
                       menuPortalTarget={document.body}
                       maxMenuHeight={350}
-                      options={insumos.map(ins => ({ value: ins.id, label: ins.nome }))}
-                      value={filterInsumoId ? { value: filterInsumoId, label: insumos.find(i => i.id === filterInsumoId)?.nome } : null}
+                      options={insumos.map(ins => ({ value: ins.id, label: ins.estoque_nome || ins.nome }))}
+                      value={filterInsumoId ? { value: filterInsumoId, label: (() => { const i = insumos.find(i => i.id === filterInsumoId); return i ? (i.estoque_nome || i.nome) : ""; })() } : null}
                       onChange={(selectedOption) => setFilterInsumoId(selectedOption ? selectedOption.value : null)}
                       placeholder="Filtrar Insumo..."
                       isClearable
@@ -924,8 +925,8 @@ function MovimentacoesEstoque() {
                               <Select
                                 menuPortalTarget={document.body}
                                 maxMenuHeight={250}
-                                options={insumos.map(ins => ({ value: ins.id, label: ins.nome }))}
-                                value={editRowData.insumo_id ? { value: editRowData.insumo_id, label: insumos.find((i: any) => i.id === editRowData.insumo_id)?.nome } : null}
+                                options={insumos.map(ins => ({ value: ins.id, label: ins.estoque_nome || ins.nome }))}
+                                value={editRowData.insumo_id ? { value: editRowData.insumo_id, label: (() => { const i = insumos.find((i: any) => i.id === editRowData.insumo_id); return i ? (i.estoque_nome || i.nome) : ""; })() } : null}
                                 onChange={(sel) => setEditRowData({ ...editRowData, insumo_id: sel ? sel.value : "" })}
                                 styles={{
                                   control: (base) => ({ ...base, minHeight: '38px', fontSize: '1.1rem' }),
@@ -1024,7 +1025,7 @@ function MovimentacoesEstoque() {
                         content = (
                           <tr key={`view-${mov.id}`} className={mov.id === newlyAddedId ? "new-row-animation" : ""} style={mov.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : mov.status_revisao === 'pending_user' ? { backgroundColor: "#fca5a5" } : mov.status_revisao === 'pending_admin' ? { backgroundColor: "#fed7aa" } : (isDuplicate ? { backgroundColor: "#fef08a" } : {})}>
                             <td style={{ opacity: mov.status_revisao === 'pending_delete' ? 0.6 : 1 }}>
-                              {mov.cadastro_insumos?.nome || "Insumo Excluído"}
+                              {mov.cadastro_insumos?.estoque_nome || mov.cadastro_insumos?.nome || "Insumo Excluído"}
                               {mov.status_revisao === 'pending_delete' && (
                                 <span style={{ marginLeft: "8px", fontSize: "0.75rem", backgroundColor: "#ef4444", color: "white", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase" }}>Deletado</span>
                               )}
