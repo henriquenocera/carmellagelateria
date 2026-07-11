@@ -315,8 +315,10 @@ CREATE TABLE IF NOT EXISTS "public"."cadastro_insumos" (
     "custo_considerado_unitario" numeric,
     "fator_desperdicio" numeric DEFAULT 0,
     "inventario_especial" boolean DEFAULT false,
-    "unidade_estoque" "text",
-    "unidade_consumo" "text"
+    "unidade_consumo" "text",
+    "estoque_nome" "text",
+    "estoque_unidade" "text",
+    "estoque_quantidade" numeric
 );
 
 
