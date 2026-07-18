@@ -53,8 +53,21 @@ const getFolgaStyle = (status) => {
   }
 };
 
+const getAlertaCategoria = (notif) => {
+  const id = (notif.id || "").toLowerCase();
+  const title = (notif.titulo || "").toLowerCase();
+  
+  if (id.includes("freezer") || id.includes("cuba-velha") || id.includes("estoque-baixo") || title.includes("freezer")) {
+    return "Freezer";
+  }
+  if (id.includes("vitrine") || title.includes("vitrine")) {
+    return "Vitrine";
+  }
+  return "Estoque";
+};
+
 function Home() {
-  const { user } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(true);
 
   // Data states
@@ -66,8 +79,183 @@ function Home() {
   const [saldosVales, setSaldosVales] = useState([]);
   const [crmStatus, setCrmStatus] = useState({ atrasados: 0, hoje: 0, proximos: 0 });
   const [financeiroStatus, setFinanceiroStatus] = useState({ vencidos: 0, hoje: 0, proximos: 0 });
+  const [revisoes, setRevisoes] = useState({ entradas: [], movimentacoes: [], lancamentos: [] });
+
+  const handleApproveReview = async (table, id) => {
+    try {
+      const isFinance = table === "lancamentos_financeiros";
+      const { error } = await supabase
+        .from(table)
+        .update({ status_revisao: isFinance ? null : "none", revisao_observacao: null })
+        .eq("id", id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setRevisoes(prev => {
+        const key = table === "entradas_mercadoria" ? "entradas" 
+                  : table === "movimentacoes_estoque" ? "movimentacoes" 
+                  : "lancamentos";
+        return {
+          ...prev,
+          [key]: prev[key].filter(item => item.id !== id)
+        };
+      });
+    } catch (err) {
+      console.error("Erro ao aprovar revisão:", err);
+      alert("Erro ao aprovar a revisão.");
+    }
+  };
+
+  const handleConfirmDelete = async (table, id) => {
+    if (!window.confirm("Deseja realmente confirmar a exclusão definitiva deste registro?")) return;
+    try {
+      const { error } = await supabase
+        .from(table)
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setRevisoes(prev => {
+        const key = table === "entradas_mercadoria" ? "entradas" 
+                  : table === "movimentacoes_estoque" ? "movimentacoes" 
+                  : "lancamentos";
+        return {
+          ...prev,
+          [key]: prev[key].filter(item => item.id !== id)
+        };
+      });
+    } catch (err) {
+      console.error("Erro ao confirmar exclusão:", err);
+      alert("Erro ao excluir o registro.");
+    }
+  };
+
+  const handleRestoreDelete = async (table, id) => {
+    try {
+      const isFinance = table === "lancamentos_financeiros";
+      const { error } = await supabase
+        .from(table)
+        .update({ status_revisao: isFinance ? null : "none", revisao_observacao: null })
+        .eq("id", id);
+      
+      if (error) throw error;
+      
+      // Update local state
+      setRevisoes(prev => {
+        const key = table === "entradas_mercadoria" ? "entradas" 
+                  : table === "movimentacoes_estoque" ? "movimentacoes" 
+                  : "lancamentos";
+        return {
+          ...prev,
+          [key]: prev[key].filter(item => item.id !== id)
+        };
+      });
+    } catch (err) {
+      console.error("Erro ao restaurar registro:", err);
+      alert("Erro ao restaurar o registro.");
+    }
+  };
+
+  const renderStatusBadge = (status) => {
+    switch (status) {
+      case "pending_user":
+        return (
+          <span style={{ fontSize: "1.1rem", color: "#b45309", backgroundColor: "#fffbeb", border: "1px solid #fde68a", padding: "3px 8px", borderRadius: "12px", fontWeight: "700" }}>
+            Revisão Usuário
+          </span>
+        );
+      case "pending_admin":
+        return (
+          <span style={{ fontSize: "1.1rem", color: "#c2410c", backgroundColor: "#ffedd5", border: "1px solid #fed7aa", padding: "3px 8px", borderRadius: "12px", fontWeight: "700" }}>
+            Revisão Admin
+          </span>
+        );
+      case "pending_delete":
+        return (
+          <span style={{ fontSize: "1.1rem", color: "#b91c1c", backgroundColor: "#fee2e2", border: "1px solid #fecaca", padding: "3px 8px", borderRadius: "12px", fontWeight: "700" }}>
+            Exclusão Pendente
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderActionButtons = (table, id, status) => {
+    if (status === "pending_delete") {
+      return (
+        <div style={{ display: "flex", gap: "8px" }}>
+          <button
+            onClick={() => handleConfirmDelete(table, id)}
+            style={{
+              padding: "6px 12px",
+              fontSize: "1.2rem",
+              color: "#fff",
+              backgroundColor: "#ef4444",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "600",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              margin: 0
+            }}
+          >
+            <Icons.BsTrash /> Confirmar
+          </button>
+          <button
+            onClick={() => handleRestoreDelete(table, id)}
+            style={{
+              padding: "6px 12px",
+              fontSize: "1.2rem",
+              color: "#334155",
+              backgroundColor: "#e2e8f0",
+              border: "none",
+              borderRadius: "6px",
+              cursor: "pointer",
+              fontWeight: "600",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              margin: 0
+            }}
+          >
+            <Icons.BsArrowCounterclockwise /> Restaurar
+          </button>
+        </div>
+      );
+    } else {
+      return (
+        <button
+          onClick={() => handleApproveReview(table, id)}
+          style={{
+            padding: "6px 12px",
+            fontSize: "1.2rem",
+            color: "#fff",
+            backgroundColor: "#10b981",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontWeight: "600",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            margin: 0
+          }}
+        >
+          <Icons.BsCheck /> Aprovar
+        </button>
+      );
+    }
+  };
 
   useEffect(() => {
+    if (authLoading) return;
+
     let isMounted = true;
     const fetchDashboardData = async () => {
       try {
@@ -233,6 +421,63 @@ function Home() {
           supabase.from("contas_pagar_receber").select("id, data, valor").or("status_revisao.is.null,status_revisao.neq.admin_only")
         ]);
 
+        let reviewData = { entradas: [], movimentacoes: [], lancamentos: [] };
+        if (isAdmin) {
+          try {
+            const [entradasRes, movRes, lanRes] = await Promise.all([
+              supabase
+                .from("entradas_mercadoria")
+                .select(`
+                  id,
+                  data_compra,
+                  fornecedor,
+                  quantidade_comprada,
+                  valor_unitario,
+                  insumo_id,
+                  status_revisao,
+                  revisao_observacao,
+                  cadastro_insumos(nome)
+                `)
+                .in("status_revisao", ["pending_user", "pending_admin", "pending_delete"]),
+              supabase
+                .from("movimentacoes_estoque")
+                .select(`
+                  id,
+                  data_movimentacao,
+                  quantidade,
+                  origem,
+                  destino,
+                  insumo_id,
+                  status_revisao,
+                  revisao_observacao,
+                  cadastro_insumos(nome)
+                `)
+                .in("status_revisao", ["pending_user", "pending_admin", "pending_delete"]),
+              supabase
+                .from("lancamentos_financeiros")
+                .select(`
+                  id,
+                  data,
+                  valor,
+                  fornecedor,
+                  categoria,
+                  conta,
+                  status_revisao,
+                  revisao_observacao
+                `)
+                .in("status_revisao", ["pending_user", "pending_admin", "pending_delete"])
+            ]);
+            
+            reviewData = {
+              entradas: entradasRes.data || [],
+              movimentacoes: movRes.data || [],
+              lancamentos: lanRes.data || []
+            };
+          } catch (err) {
+            console.error("Erro ao buscar dados de revisão:", err);
+          }
+        }
+
         const profiles = profilesRes.data || [];
         const frequencias = freqRes.data || [];
         const folgasHoje = [];
@@ -359,6 +604,9 @@ function Home() {
           setSaldosVales(listaSaldosVales);
           setCrmStatus({ atrasados: crmAtrasados, hoje: crmHoje, proximos: crmProximos });
           setFinanceiroStatus({ vencidos: finVencidos, hoje: finHoje, proximos: finProximos });
+          if (isAdmin) {
+            setRevisoes(reviewData);
+          }
           setLoading(false);
         }
       } catch (err) {
@@ -369,7 +617,7 @@ function Home() {
 
     fetchDashboardData();
     return () => { isMounted = false; };
-  }, []);
+  }, [authLoading, isAdmin]);
 
   // Components for the UI
   const ChecklistCard = ({ title, data }) => {
@@ -480,7 +728,7 @@ function Home() {
     );
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return <div style={{ padding: "40px", textAlign: "center", color: "#a17550", fontSize: "2rem" }}><Icons.BsArrowClockwise className="spin" /> Carregando Dashboard...</div>;
   }
 
@@ -506,6 +754,181 @@ function Home() {
         <p style={{ color: "#78716c", fontSize: "1.4rem", margin: 0 }}>Visão geral das operações da Carmella Gelateria.</p>
       </div>
 
+      {isAdmin && (
+        <section style={{
+          background: "#fff",
+          borderLeft: "6px solid #e11d48",
+          borderRadius: "12px",
+          padding: "24px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+          border: "1px solid #f1f5f9",
+          marginBottom: "32px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "20px"
+        }}>
+          <h2 style={{ fontSize: "2rem", color: "#e11d48", margin: 0, display: "flex", alignItems: "center", gap: "8px", fontWeight: "700" }}>
+            <Icons.BsShieldLock /> Controle de Revisões Pendentes
+          </h2>
+          <p style={{ color: "#64748b", fontSize: "1.3rem", margin: 0 }}>
+            Como administrador, aprove revisões enviadas pelos usuários ou confirme exclusões de registros.
+          </p>
+
+          {revisoes.entradas.length === 0 && revisoes.movimentacoes.length === 0 && revisoes.lancamentos.length === 0 ? (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#16a34a", fontSize: "1.4rem", fontWeight: "600", padding: "8px 0" }}>
+              <Icons.BsCheckCircleFill />
+              <span>Nenhuma revisão ou exclusão pendente. Tudo em dia!</span>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+              
+              {/* Entradas */}
+              {revisoes.entradas.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: "1.5rem", color: "#475569", borderBottom: "2px solid #f1f5f9", paddingBottom: "6px", margin: "0 0 12px 0", fontWeight: "700" }}>
+                    Entrada de Mercadoria ({revisoes.entradas.length})
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {revisoes.entradas.map(item => {
+                      const totalVal = (item.quantidade_comprada || 0) * (item.valor_unitario || 0);
+                      const insumoNome = item.cadastro_insumos?.nome || "Insumo Desconhecido";
+                      return (
+                        <div key={item.id} style={{ display: "flex", flexDirection: "column", gap: "12px", background: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                              <span style={{ fontWeight: "600", color: "#334155", fontSize: "1.35rem" }}>
+                                Compra de {item.quantidade_comprada}x {insumoNome} ({item.fornecedor || "Sem Fornecedor"})
+                              </span>
+                              <span style={{ fontSize: "1.2rem", color: "#64748b" }}>
+                                Data: {new Date(item.data_compra).toLocaleDateString("pt-BR", { timeZone: "UTC" })} | Total: R$ {totalVal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                              </span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px" }}>
+                              {renderStatusBadge(item.status_revisao)}
+                              {renderActionButtons("entradas_mercadoria", item.id, item.status_revisao)}
+                            </div>
+                          </div>
+                          {item.revisao_observacao && item.revisao_observacao !== "Sem alterações" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#fffbeb", borderRadius: "6px", border: "1px dashed #fcd34d", fontSize: "1.25rem", color: "#7c2d12" }}>
+                              <strong>Alterações (Antes ➔ Depois):</strong> {item.revisao_observacao}
+                            </div>
+                          )}
+                          {(!item.revisao_observacao || item.revisao_observacao === "Sem alterações") && item.status_revisao !== "pending_delete" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#f0fdf4", borderRadius: "6px", border: "1px dashed #bbf7d0", fontSize: "1.25rem", color: "#166534" }}>
+                              <strong>Ação:</strong> Novo registro criado pendente de aprovação.
+                            </div>
+                          )}
+                          {item.status_revisao === "pending_delete" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#fef2f2", borderRadius: "6px", border: "1px dashed #fecaca", fontSize: "1.25rem", color: "#991b1b" }}>
+                              <strong>Ação:</strong> Este registro será excluído definitivamente.
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Movimentações */}
+              {revisoes.movimentacoes.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: "1.5rem", color: "#475569", borderBottom: "2px solid #f1f5f9", paddingBottom: "6px", margin: "0 0 12px 0", fontWeight: "700" }}>
+                    Movimentações de Estoque ({revisoes.movimentacoes.length})
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {revisoes.movimentacoes.map(item => {
+                      const insumoNome = item.cadastro_insumos?.nome || "Insumo Desconhecido";
+                      return (
+                        <div key={item.id} style={{ display: "flex", flexDirection: "column", gap: "12px", background: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                              <span style={{ fontWeight: "600", color: "#334155", fontSize: "1.35rem" }}>
+                                Mover {item.quantidade}x {insumoNome} de {item.origem || "Sem Origem"} para {item.destino || "Sem Destino"}
+                              </span>
+                              <span style={{ fontSize: "1.2rem", color: "#64748b" }}>
+                                Data: {new Date(item.data_movimentacao).toLocaleDateString("pt-BR", { timeZone: "UTC" })}
+                              </span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px" }}>
+                              {renderStatusBadge(item.status_revisao)}
+                              {renderActionButtons("movimentacoes_estoque", item.id, item.status_revisao)}
+                            </div>
+                          </div>
+                          {item.revisao_observacao && item.revisao_observacao !== "Sem alterações" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#fffbeb", borderRadius: "6px", border: "1px dashed #fcd34d", fontSize: "1.25rem", color: "#7c2d12" }}>
+                              <strong>Alterações (Antes ➔ Depois):</strong> {item.revisao_observacao}
+                            </div>
+                          )}
+                          {(!item.revisao_observacao || item.revisao_observacao === "Sem alterações") && item.status_revisao !== "pending_delete" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#f0fdf4", borderRadius: "6px", border: "1px dashed #bbf7d0", fontSize: "1.25rem", color: "#166534" }}>
+                              <strong>Ação:</strong> Novo registro criado pendente de aprovação.
+                            </div>
+                          )}
+                          {item.status_revisao === "pending_delete" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#fef2f2", borderRadius: "6px", border: "1px dashed #fecaca", fontSize: "1.25rem", color: "#991b1b" }}>
+                              <strong>Ação:</strong> Este registro será excluído definitivamente.
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Lançamentos */}
+              {revisoes.lancamentos.length > 0 && (
+                <div>
+                  <h3 style={{ fontSize: "1.5rem", color: "#475569", borderBottom: "2px solid #f1f5f9", paddingBottom: "6px", margin: "0 0 12px 0", fontWeight: "700" }}>
+                    Lançamentos Financeiros ({revisoes.lancamentos.length})
+                  </h3>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {revisoes.lancamentos.map(item => {
+                      const isDespesa = item.valor < 0;
+                      return (
+                        <div key={item.id} style={{ display: "flex", flexDirection: "column", gap: "12px", background: "#f8fafc", padding: "16px", borderRadius: "8px", border: "1px solid #e2e8f0" }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
+                            <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                              <span style={{ fontWeight: "600", color: "#334155", fontSize: "1.35rem" }}>
+                                {item.fornecedor || "Lançamento Sem Fornecedor"} - Conta: {item.conta} {item.categoria && `(${item.categoria})`}
+                              </span>
+                              <span style={{ fontSize: "1.2rem", color: "#64748b" }}>
+                                Data: {new Date(item.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })} | Valor: <span style={{ fontWeight: "bold", color: isDespesa ? "#ef4444" : "#16a34a" }}>R$ {item.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</span>
+                              </span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px" }}>
+                              {renderStatusBadge(item.status_revisao)}
+                              {renderActionButtons("lancamentos_financeiros", item.id, item.status_revisao)}
+                            </div>
+                          </div>
+                          {item.revisao_observacao && item.revisao_observacao !== "Sem alterações" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#fffbeb", borderRadius: "6px", border: "1px dashed #fcd34d", fontSize: "1.25rem", color: "#7c2d12" }}>
+                              <strong>Alterações (Antes ➔ Depois):</strong> {item.revisao_observacao}
+                            </div>
+                          )}
+                          {(!item.revisao_observacao || item.revisao_observacao === "Sem alterações") && item.status_revisao !== "pending_delete" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#f0fdf4", borderRadius: "6px", border: "1px dashed #bbf7d0", fontSize: "1.25rem", color: "#166534" }}>
+                              <strong>Ação:</strong> Novo registro criado pendente de aprovação.
+                            </div>
+                          )}
+                          {item.status_revisao === "pending_delete" && (
+                            <div style={{ padding: "8px 12px", backgroundColor: "#fef2f2", borderRadius: "6px", border: "1px dashed #fecaca", fontSize: "1.25rem", color: "#991b1b" }}>
+                              <strong>Ação:</strong> Este registro será excluído definitivamente.
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Main Grid */}
       <div className="dashboard-main-grid">
 
@@ -528,28 +951,65 @@ function Home() {
                   </div>
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  {notificacoes.map((notif, idx) => {
-                    const isLast = idx === notificacoes.length - 1;
+                <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                  {[
+                    {
+                      key: "Freezer",
+                      titulo: "Freezer",
+                      icon: <Icons.BsSnow style={{ fontSize: "1.8rem", color: "#3b82f6", marginTop: "2px" }} />
+                    },
+                    {
+                      key: "Vitrine",
+                      titulo: "Vitrine",
+                      icon: <Icons.BsShop style={{ fontSize: "1.8rem", color: "#ca8a04", marginTop: "2px" }} />
+                    },
+                    {
+                      key: "Estoque",
+                      titulo: "Estoque",
+                      icon: <Icons.BsBoxSeam style={{ fontSize: "1.8rem", color: "#16a34a", marginTop: "2px" }} />
+                    }
+                  ].map((subcat) => {
+                    const subcatNotifs = notificacoes.filter(n => getAlertaCategoria(n) === subcat.key);
                     return (
-                      <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "12px 0", borderBottom: isLast ? "none" : "1px solid #f8fafc" }}>
-                        {notif.tipo === 'info' ? (
-                          <Icons.BsInfoCircle style={{ fontSize: "1.8rem", color: "#3b82f6", flexShrink: 0, marginTop: "2px" }} />
-                        ) : notif.tipo === 'aviso' ? (
-                          <Icons.BsExclamationCircle style={{ fontSize: "1.8rem", color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
-                        ) : (
-                          <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
-                        )}
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <span style={{
-                            color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444",
-                            fontSize: "1.4rem",
-                            fontWeight: "600"
-                          }}>
-                            {notif.titulo}
+                      <div key={subcat.key} style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", borderBottom: "1px solid #f1f5f9", paddingBottom: "6px" }}>
+                          {subcat.icon}
+                          <span style={{ fontSize: "1.5rem", fontWeight: "700", color: "#475569" }}>{subcat.titulo}</span>
+                          <span style={{ fontSize: "1.1rem", color: "#94a3b8", fontWeight: "normal", marginLeft: "4px" }}>
+                            ({subcatNotifs.length} {subcatNotifs.length === 1 ? "aviso" : "avisos"})
                           </span>
-                          {notif.mensagem && <span style={{ color: "#64748b", fontSize: "1.3rem", lineHeight: "1.4" }}>{notif.mensagem}</span>}
                         </div>
+                        
+                        {subcatNotifs.length === 0 ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", color: "#10b981", fontSize: "1.3rem" }}>
+                            <Icons.BsCheckCircle style={{ fontSize: "1.4rem" }} />
+                            <span style={{ color: "#64748b" }}>Nenhum aviso nesta categoria.</span>
+                          </div>
+                        ) : (
+                          <div style={{ display: "flex", flexDirection: "column", gap: "12px", paddingLeft: "4px" }}>
+                            {subcatNotifs.map((notif) => (
+                              <div key={notif.id} style={{ display: "flex", alignItems: "flex-start", gap: "12px", padding: "4px 0" }}>
+                                {notif.tipo === 'info' ? (
+                                  <Icons.BsInfoCircle style={{ fontSize: "1.8rem", color: "#3b82f6", flexShrink: 0, marginTop: "2px" }} />
+                                ) : notif.tipo === 'aviso' ? (
+                                  <Icons.BsExclamationCircle style={{ fontSize: "1.8rem", color: "#f59e0b", flexShrink: 0, marginTop: "2px" }} />
+                                ) : (
+                                  <Icons.BsExclamationTriangle style={{ fontSize: "1.8rem", color: "#ef4444", flexShrink: 0, marginTop: "2px" }} />
+                                )}
+                                <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                  <span style={{
+                                    color: notif.tipo === 'info' ? "#3b82f6" : notif.tipo === 'aviso' ? "#d97706" : "#ef4444",
+                                    fontSize: "1.4rem",
+                                    fontWeight: "600"
+                                  }}>
+                                    {notif.titulo}
+                                  </span>
+                                  {notif.mensagem && <span style={{ color: "#64748b", fontSize: "1.3rem", lineHeight: "1.4" }}>{notif.mensagem}</span>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     );
                   })}

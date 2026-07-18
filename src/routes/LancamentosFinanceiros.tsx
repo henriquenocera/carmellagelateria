@@ -499,13 +499,13 @@ function LancamentosFinanceiros() {
       }
 
       const hasChanges = diffs.length > 0;
-      let observacaoAdicional = null;
-      if (originalRow && originalRow.status_revisao === 'pending_user' && hasChanges) {
-        const prev = originalRow.revisao_observacao;
-        const prefix = (prev && prev !== "Sem alterações") ? prev + " | " : "";
+      let observacaoAdicional = originalRow ? originalRow.revisao_observacao : null;
+      if (!isAdmin && hasChanges) {
+        const prev = originalRow ? originalRow.revisao_observacao : null;
+        const prefix = (prev && prev !== "Sem alterações" && prev !== "") ? prev + " | " : "";
         observacaoAdicional = prefix + diffs.join(", ");
-      } else if (originalRow) {
-        observacaoAdicional = originalRow.revisao_observacao;
+      } else if (isAdmin) {
+        observacaoAdicional = null;
       }
 
       const payload: any = {
