@@ -3,7 +3,7 @@ import { Helmet } from "react-helmet";
 import { useAuth } from "../AuthProvider";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 function DashboardFinanceiro() {
   const { isAdmin } = useAuth();
@@ -12,6 +12,8 @@ function DashboardFinanceiro() {
   const [saldosContas, setSaldosContas] = useState<any[]>([]);
   const [saldoTotal, setSaldoTotal] = useState(0);
   const [dataUltimoLancamento, setDataUltimoLancamento] = useState("");
+  const [showContasBancarias, setShowContasBancarias] = useState(false);
+  const [showCompromissos, setShowCompromissos] = useState(false);
 
   const [allLancamentos, setAllLancamentos] = useState<any[]>([]);
   const [allPendentes, setAllPendentes] = useState<any[]>([]);
@@ -87,15 +89,17 @@ function DashboardFinanceiro() {
           return list;
         };
 
-        const [contasRes, lancamentosData, pendentesRes, caixaLancamentosData] = await Promise.all([
+        const [contasRes, lancamentosData, pendentesRes, caixaLancamentosData, latestConciliadoRes] = await Promise.all([
           supabase.from("contas").select("id, banco, agencia, conta_corrente, descricao").eq("ativo", true).order("banco", { ascending: true }),
           fetchAllLancamentos(),
           supabase.from("contas_pagar_receber").select("data, valor, categoria, descricao"),
-          fetchAllCaixaLancamentos()
+          fetchAllCaixaLancamentos(),
+          supabase.from("lancamentos_financeiros").select("created_at, data").eq("conciliado", true).order("created_at", { ascending: false }).limit(1)
         ]);
 
         const contasData = contasRes.data || [];
         const pendentesData = pendentesRes.data || [];
+        const latestConciliado = latestConciliadoRes?.data || [];
 
         // Calcular Saldos das Contas
         const balancesMap: { [label: string]: number } = {};
@@ -197,28 +201,42 @@ function DashboardFinanceiro() {
           }
         });
 
-        // Puxar a data do último lançamento (seja de entrada ou saída)
-        let maxDate = "";
-        lancamentosData.forEach(l => {
-          if (l.data && l.data > maxDate) {
-            maxDate = l.data;
+        // Puxar a data e horário do último lançamento conciliado
+        let formattedLastDate = "";
+        if (latestConciliado && latestConciliado.length > 0) {
+          const item = latestConciliado[0];
+          const timestamp = item.created_at || item.data;
+          if (timestamp) {
+            const dateObj = new Date(timestamp);
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const year = dateObj.getFullYear();
+            const hours = String(dateObj.getHours()).padStart(2, '0');
+            const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+            formattedLastDate = `${day}/${month}/${year} às ${hours}:${minutes}`;
           }
-        });
-        if (caixaLancamentosData) {
-          caixaLancamentosData.forEach(l => {
+        } else {
+          // Fallback to original calculation
+          let maxDate = "";
+          lancamentosData.forEach(l => {
             if (l.data && l.data > maxDate) {
               maxDate = l.data;
             }
           });
-        }
-
-        let formattedLastDate = "";
-        if (maxDate) {
-          const parts = maxDate.split("-");
-          if (parts.length === 3) {
-            formattedLastDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-          } else {
-            formattedLastDate = maxDate;
+          if (caixaLancamentosData) {
+            caixaLancamentosData.forEach(l => {
+              if (l.data && l.data > maxDate) {
+                maxDate = l.data;
+              }
+            });
+          }
+          if (maxDate) {
+            const parts = maxDate.split("-");
+            if (parts.length === 3) {
+              formattedLastDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+            } else {
+              formattedLastDate = maxDate;
+            }
           }
         }
 
@@ -315,7 +333,7 @@ function DashboardFinanceiro() {
 
     for (let i = 1; i <= daysInMonth; i++) {
       const dStr = `${yearStr}-${monthStr}-${String(i).padStart(2, '0')}`;
-      dataMap[dStr] = { dia: `${String(i).padStart(2, '0')}/${monthStr}`, receitas: 0, despesas: 0, saldoDia: 0 };
+      dataMap[dStr] = { dia: `${String(i).padStart(2, '0')}/${monthStr}`, receitas: 0, despesas: 0, saldoDia: 0, saldoAcumulado: 0 };
     }
 
     const isTransferencia = (categoria?: string) => {
@@ -326,33 +344,35 @@ function DashboardFinanceiro() {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\./g, "");
-      // Como a variável 'normalized' é convertida para minúsculas e remove pontos,
-      // a comparação deve ser feita com strings totalmente minúsculas e sem pontuação.
       return normalized === "transferencia entre contas" || normalized === "transf entre contas";
     };
 
-    // Historico confirmado
+    // 1. Calcular o saldo acumulado de todos os lançamentos antes do mês atual
+    const firstDayStr = `${yearStr}-${monthStr}-01`;
+    let saldoAcumulado = 0;
+
     allLancamentos.forEach(l => {
-      if (l.status_revisao === 'pending_delete' || !l.data || !l.data.startsWith(mesFiltro)) return;
+      if (l.status_revisao === 'pending_delete' || !l.data) return;
       if (isTransferencia(l.categoria)) return;
       const val = parseFloat(l.valor || 0);
-      if (val > 0) dataMap[l.data].receitas += val;
-      else if (val < 0) dataMap[l.data].despesas += Math.abs(val);
-      dataMap[l.data].saldoDia += val;
+      if (l.data < firstDayStr) {
+        saldoAcumulado += val;
+      } else if (l.data.startsWith(mesFiltro)) {
+        if (val > 0) dataMap[l.data].receitas += val;
+        else if (val < 0) dataMap[l.data].despesas += Math.abs(val);
+        dataMap[l.data].saldoDia += val;
+      }
     });
 
-    // Pendente / Projetado
-    allPendentes.forEach(p => {
-      if (!p.data || !p.data.startsWith(mesFiltro)) return;
-      if (isTransferencia(p.categoria)) return;
-      const val = parseFloat(p.valor || 0);
-      if (val > 0) dataMap[p.data].receitas += val;
-      else if (val < 0) dataMap[p.data].despesas += Math.abs(val);
-      dataMap[p.data].saldoDia += val;
+    // 2. Acumular o saldo dia a dia no mês atual
+    const sortedDays = Object.keys(dataMap).sort();
+    sortedDays.forEach(dayStr => {
+      saldoAcumulado += dataMap[dayStr].saldoDia;
+      dataMap[dayStr].saldoAcumulado = saldoAcumulado;
     });
 
     return Object.values(dataMap);
-  }, [mesFiltro, allLancamentos, allPendentes]);
+  }, [mesFiltro, allLancamentos]);
 
   const handleMonthChange = (direction: 'prev' | 'next') => {
     if (!mesFiltro) return;
@@ -427,7 +447,7 @@ function DashboardFinanceiro() {
                 </h2>
                 {dataUltimoLancamento && (
                   <span style={{ fontSize: "1.2rem", color: "#64748b", fontWeight: 600, background: "#f1f5f9", padding: "4px 10px", borderRadius: "6px" }}>
-                    Atualizado até a data de: {dataUltimoLancamento}
+                    Atualizado até: {dataUltimoLancamento}
                   </span>
                 )}
               </div>
@@ -445,35 +465,100 @@ function DashboardFinanceiro() {
                     .filter(c => !c.label.toLowerCase().includes("caixa dinheiro"))
                     .reduce((acc, curr) => acc + curr.valor, 0);
 
-                  const hasCaixa = sortedContas.some(c => c.label.toLowerCase().includes("caixa dinheiro"));
-                  
-                  const contasWithTotal = [...sortedContas];
-                  const insertIndex = hasCaixa ? 1 : 0;
-                  contasWithTotal.splice(insertIndex, 0, { label: "Total - Contas Bancárias", valor: totalContas, isTotal: true } as any);
+                  const caixaConta = sortedContas.find(c => c.label.toLowerCase().includes("caixa dinheiro"));
+                  const individualContas = sortedContas.filter(c => !c.label.toLowerCase().includes("caixa dinheiro"));
 
-                  return contasWithTotal.map((c: any, i, arr) => {
-                    const isCaixa = c.label.toLowerCase().includes("caixa dinheiro");
-                    const isTotal = c.isTotal;
-                    
-                    return (
-                      <div key={i} style={{
+                  return (
+                    <>
+                      {/* Caixa Dinheiro - Sempre Visível */}
+                      {caixaConta && (
+                        <div style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "16px 20px",
+                          borderBottom: "1px solid #f1f5f9",
+                          backgroundColor: "#f0fdf4",
+                          transition: "background 0.2s"
+                        }} onMouseEnter={(e) => e.currentTarget.style.background = "#dcfce7"} onMouseLeave={(e) => e.currentTarget.style.background = "#f0fdf4"}>
+                          <div style={{ fontSize: "1.2rem", color: "#16a34a", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                            <Icons.BsSafe style={{ fontSize: "1.4rem" }} /> {caixaConta.label}
+                          </div>
+                          <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#16a34a" }}>
+                            {formatCurrency(caixaConta.valor)}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Total - Contas Bancárias - Sempre Visível */}
+                      <div style={{
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        padding: "12px 20px",
-                        borderBottom: i < arr.length - 1 ? "1px solid #f1f5f9" : "none",
-                        background: isCaixa ? "#f0fdf4" : (isTotal ? "#f8fafc" : "transparent"),
+                        padding: "16px 20px",
+                        borderBottom: showContasBancarias ? "1px solid #f1f5f9" : "none",
+                        backgroundColor: "#f8fafc",
                         transition: "background 0.2s"
-                      }} onMouseEnter={(e) => e.currentTarget.style.background = isCaixa ? "#dcfce7" : (isTotal ? "#f1f5f9" : "#f8fafc")} onMouseLeave={(e) => e.currentTarget.style.background = isCaixa ? "#f0fdf4" : (isTotal ? "#f8fafc" : "transparent")}>
-                        <div style={{ fontSize: "1.2rem", color: isCaixa ? "#16a34a" : (isTotal ? "#3b82f6" : "#64748b"), fontWeight: isCaixa || isTotal ? 700 : 500, display: "flex", alignItems: "center", gap: "6px" }}>
-                          {isCaixa ? <Icons.BsSafe style={{ fontSize: "1.4rem" }} /> : (isTotal ? <Icons.BsPiggyBank style={{ fontSize: "1.4rem" }} /> : <Icons.BsBank2 />)} {c.label}
+                      }} onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"} onMouseLeave={(e) => e.currentTarget.style.background = "#f8fafc"}>
+                        <div style={{ fontSize: "1.2rem", color: "#3b82f6", fontWeight: 700, display: "flex", alignItems: "center", gap: "6px" }}>
+                          <Icons.BsPiggyBank style={{ fontSize: "1.4rem" }} /> Total - Contas Bancárias
                         </div>
-                        <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: isCaixa ? "#16a34a" : (isTotal ? "#3b82f6" : "#64748b") }}>
-                          {formatCurrency(c.valor)}
+                        <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#3b82f6" }}>
+                          {formatCurrency(totalContas)}
                         </div>
                       </div>
-                    );
-                  });
+
+                      {/* Contas Detalhadas - Colapsável */}
+                      {showContasBancarias && individualContas.map((c, i) => (
+                        <div key={i} style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          padding: "12px 20px",
+                          borderBottom: i < individualContas.length - 1 ? "1px solid #f1f5f9" : "none",
+                          backgroundColor: "transparent",
+                          transition: "background 0.2s"
+                        }} onMouseEnter={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}>
+                          <div style={{ fontSize: "1.2rem", color: "#64748b", fontWeight: 500, display: "flex", alignItems: "center", gap: "6px", paddingLeft: "8px" }}>
+                            <Icons.BsBank2 /> {c.label}
+                          </div>
+                          <div style={{ fontSize: "1.4rem", fontWeight: "bold", color: "#64748b" }}>
+                            {formatCurrency(c.valor)}
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Botão de Toggle */}
+                      {individualContas.length > 0 && (
+                        <div 
+                          style={{ 
+                            display: "flex", 
+                            justifyContent: "center", 
+                            alignItems: "center", 
+                            padding: "12px", 
+                            background: "#f8fafc", 
+                            cursor: "pointer", 
+                            color: "#3b82f6", 
+                            fontWeight: "bold",
+                            fontSize: "1.2rem",
+                            gap: "6px",
+                            userSelect: "none",
+                            borderTop: showContasBancarias ? "none" : "1px solid #f1f5f9",
+                            transition: "background 0.2s"
+                          }}
+                          onClick={() => setShowContasBancarias(!showContasBancarias)}
+                          onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+                          onMouseLeave={(e) => e.currentTarget.style.background = "#f8fafc"}
+                        >
+                          {showContasBancarias ? (
+                            <>Ocultar Contas Detalhadas <Icons.BsChevronUp /></>
+                          ) : (
+                            <>Ver Detalhes das Contas Bancárias <Icons.BsChevronDown /></>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  );
                 })()}
                 {saldosContas.length === 0 && (
                   <div style={{ padding: "16px 20px", color: "#94a3b8", fontSize: "1.2rem" }}>Nenhuma conta encontrada.</div>
@@ -490,7 +575,7 @@ function DashboardFinanceiro() {
 
                 {/* A PAGAR */}
                 <div style={{ background: "#fff", border: "1px solid #fecaca", borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 6px -1px rgba(239, 68, 68, 0.1)" }}>
-                  <div style={{ background: "#fef2f2", padding: "20px", borderBottom: "1px solid #fecaca" }}>
+                  <div style={{ background: "#fef2f2", padding: "20px", borderBottom: showCompromissos ? "1px solid #fecaca" : "none" }}>
                     <h3 style={{ margin: 0, color: "#b91c1c", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}>
                       <Icons.BsArrowDownCircleFill /> Total a Pagar
                     </h3>
@@ -498,37 +583,39 @@ function DashboardFinanceiro() {
                       {formatCurrency(pagarReceberStatus.aPagar.total)}
                     </div>
                   </div>
-                  <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "vencido", "Atrasado (A Pagar)", "#ef4444")}>
-                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Atrasado: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.vencido)}</span>
+                  {showCompromissos && (
+                    <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "vencido", "Atrasado (A Pagar)", "#ef4444")}>
+                        <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Atrasado: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.vencido)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "hoje", "Para Hoje (A Pagar)", "#ef4444")}>
+                        <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Para Hoje: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.hoje)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos", "Próximos 7 dias (A Pagar)", "#ef4444")}>
+                        <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 7 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos14", "Próximos 14 dias (A Pagar)", "#ef4444")}>
+                        <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 14 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos14)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos21", "Próximos 21 dias (A Pagar)", "#ef4444")}>
+                        <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 21 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos21)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos30", "Próximos 30 dias (A Pagar)", "#ef4444")}>
+                        <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 30 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos30)}</span>
+                      </div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "hoje", "Para Hoje (A Pagar)", "#ef4444")}>
-                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Para Hoje: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.hoje)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos", "Próximos 7 dias (A Pagar)", "#ef4444")}>
-                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 7 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos14", "Próximos 14 dias (A Pagar)", "#ef4444")}>
-                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 14 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos14)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos21", "Próximos 21 dias (A Pagar)", "#ef4444")}>
-                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 21 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos21)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#fef2f2"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("PAGAR", "proximos30", "Próximos 30 dias (A Pagar)", "#ef4444")}>
-                      <span style={{ color: "#ef4444", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 30 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aPagar.proximos30)}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* A RECEBER */}
                 <div style={{ background: "#fff", border: "1px solid #bbf7d0", borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 6px -1px rgba(34, 197, 94, 0.1)" }}>
-                  <div style={{ background: "#f0fdf4", padding: "20px", borderBottom: "1px solid #bbf7d0" }}>
+                  <div style={{ background: "#f0fdf4", padding: "20px", borderBottom: showCompromissos ? "1px solid #bbf7d0" : "none" }}>
                     <h3 style={{ margin: 0, color: "#15803d", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}>
                       <Icons.BsArrowUpCircleFill /> Total a Receber
                     </h3>
@@ -536,34 +623,64 @@ function DashboardFinanceiro() {
                       {formatCurrency(pagarReceberStatus.aReceber.total)}
                     </div>
                   </div>
-                  <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "vencido", "Atrasado (A Receber)", "#10b981")}>
-                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Atrasado: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.vencido)}</span>
+                  {showCompromissos && (
+                    <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "vencido", "Atrasado (A Receber)", "#10b981")}>
+                        <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Atrasado: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.vencido)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "hoje", "Para Hoje (A Receber)", "#10b981")}>
+                        <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Para Hoje: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.hoje)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos", "Próximos 7 dias (A Receber)", "#10b981")}>
+                        <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 7 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos14", "Próximos 14 dias (A Receber)", "#10b981")}>
+                        <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 14 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos14)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos21", "Próximos 21 dias (A Receber)", "#10b981")}>
+                        <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 21 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos21)}</span>
+                      </div>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos30", "Próximos 30 dias (A Receber)", "#10b981")}>
+                        <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 30 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
+                        <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos30)}</span>
+                      </div>
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "hoje", "Para Hoje (A Receber)", "#10b981")}>
-                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Para Hoje: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.hoje)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos", "Próximos 7 dias (A Receber)", "#10b981")}>
-                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 7 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos14", "Próximos 14 dias (A Receber)", "#10b981")}>
-                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 14 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos14)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos21", "Próximos 21 dias (A Receber)", "#10b981")}>
-                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 21 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos21)}</span>
-                    </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer", padding: "4px", borderRadius: "8px", transition: "background 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.background = "#f0fdf4"} onMouseLeave={(e) => e.currentTarget.style.background = "transparent"} onClick={() => handleShowDetails("RECEBER", "proximos30", "Próximos 30 dias (A Receber)", "#10b981")}>
-                      <span style={{ color: "#10b981", fontSize: "1.4rem", display: "flex", alignItems: "center" }}>Próximos 30 dias: <Icons.BsInfoCircle style={{ marginLeft: "6px", fontSize: "1.1rem" }} /></span>
-                      <span style={{ color: "#10b981", fontWeight: "bold", fontSize: "1.5rem" }}>{formatCurrency(pagarReceberStatus.aReceber.proximos30)}</span>
-                    </div>
-                  </div>
+                  )}
                 </div>
 
+              </div>
+              <div 
+                style={{ 
+                  display: "flex", 
+                  justifyContent: "center", 
+                  alignItems: "center", 
+                  padding: "12px", 
+                  background: "#f8fafc", 
+                  cursor: "pointer", 
+                  color: "#3b82f6", 
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                  gap: "6px",
+                  userSelect: "none",
+                  borderRadius: "8px",
+                  border: "1px solid #e2e8f0",
+                  marginTop: "16px",
+                  transition: "background 0.2s"
+                }}
+                onClick={() => setShowCompromissos(!showCompromissos)}
+                onMouseEnter={(e) => e.currentTarget.style.background = "#f1f5f9"}
+                onMouseLeave={(e) => e.currentTarget.style.background = "#f8fafc"}
+              >
+                {showCompromissos ? (
+                  <>Ocultar Detalhes dos Compromissos <Icons.BsChevronUp /></>
+                ) : (
+                  <>Ver Detalhes dos Compromissos <Icons.BsChevronDown /></>
+                )}
               </div>
             </div>
 
@@ -618,7 +735,7 @@ function DashboardFinanceiro() {
               </div>
               <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)", height: "400px" }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
+                  <ComposedChart
                     data={chartData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                   >
@@ -633,7 +750,8 @@ function DashboardFinanceiro() {
                     <Legend wrapperStyle={{ paddingTop: "20px" }} />
                     <Bar dataKey="receitas" name="Receitas" fill="#10b981" radius={[4, 4, 0, 0]} />
                     <Bar dataKey="despesas" name="Despesas" fill="#ef4444" radius={[4, 4, 0, 0]} />
-                  </BarChart>
+                    <Line type="monotone" dataKey="saldoAcumulado" name="Saldo Acumulado" stroke="#3b82f6" strokeWidth={3} dot={{ r: 3 }} activeDot={{ r: 6 }} />
+                  </ComposedChart>
                 </ResponsiveContainer>
               </div>
             </div>
@@ -697,7 +815,7 @@ function DashboardFinanceiro() {
                       background: "#f8fafc",
                       overflow: "hidden"
                     }}>
-                      <div 
+                      <div
                         style={{
                           padding: "8px 12px",
                           display: "flex",
@@ -714,7 +832,7 @@ function DashboardFinanceiro() {
                         <div style={{ flex: 1, marginRight: "12px", overflow: "hidden" }}>
                           <div style={{ fontWeight: "bold", fontSize: "1.2rem", color: "#334155", marginBottom: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: "6px" }} title={item.descricao || "Sem descrição"}>
                             {item.subItems && item.subItems.length > 1 && (
-                              expandedModalItems[idx] ? <Icons.BsChevronUp style={{flexShrink: 0}} /> : <Icons.BsChevronDown style={{flexShrink: 0}} />
+                              expandedModalItems[idx] ? <Icons.BsChevronUp style={{ flexShrink: 0 }} /> : <Icons.BsChevronDown style={{ flexShrink: 0 }} />
                             )}
                             <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                               {item.descricao || "Sem descrição"}
@@ -730,7 +848,7 @@ function DashboardFinanceiro() {
                           {formatCurrency(Math.abs(parseFloat(item.valor || 0)))}
                         </div>
                       </div>
-                      
+
                       {expandedModalItems[idx] && item.subItems && item.subItems.length > 1 && (
                         <div style={{ padding: "0 12px 12px 12px", borderTop: "1px solid #e2e8f0", background: "#fff" }}>
                           <div style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>

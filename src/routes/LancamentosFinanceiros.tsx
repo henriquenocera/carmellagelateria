@@ -24,6 +24,32 @@ function LancamentosFinanceiros() {
   const [savingRow, setSavingRow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
+  const saveTimeoutRef = useRef<any>(null);
+  const isSavingRef = useRef<boolean>(false);
+
+  const clearSaveTimeout = () => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+      saveTimeoutRef.current = null;
+    }
+  };
+
+  const resetSaveTimeout = (id: string, currentData: any) => {
+    clearSaveTimeout();
+    saveTimeoutRef.current = setTimeout(() => {
+      handleSaveInline(id, currentData);
+    }, 2000);
+  };
+
+  const handleImmediateSave = (id: string, currentData: any) => {
+    clearSaveTimeout();
+    handleSaveInline(id, currentData);
+  };
+
+  const handleCancelEdit = () => {
+    clearSaveTimeout();
+    setEditingId(null);
+  };
 
   const [filterData, setFilterData] = useState("");
   const [filterDescricao, setFilterDescricao] = useState("");
@@ -479,23 +505,27 @@ function LancamentosFinanceiros() {
     }
   };
 
-  const handleSaveInline = async (id: string) => {
-    if (!editRowData.descricao || !editRowData.valor || !editRowData.conta) {
+  const handleSaveInline = async (id: string, updatedFields?: any) => {
+    if (isSavingRef.current) return;
+    
+    const currentEditRowData = { ...editRowData, ...updatedFields };
+    if (!currentEditRowData.descricao || !currentEditRowData.valor || !currentEditRowData.conta) {
       alert("Preencha descrição, conta e valor.");
       return;
     }
 
     try {
+      isSavingRef.current = true;
       setSavingRow(true);
       const originalRow = lancamentos.find(l => l.id === id);
       const diffs = [];
       if (originalRow) {
-        if (originalRow.descricao !== editRowData.descricao) diffs.push(`Descrição: ${originalRow.descricao} ➔ ${editRowData.descricao}`);
-        if (originalRow.data !== editRowData.data) diffs.push(`Data: ${originalRow.data} ➔ ${editRowData.data}`);
-        if (parseFloat(originalRow.valor).toFixed(2) !== parseFloat(editRowData.valor.toString().replace(",", ".")).toFixed(2)) diffs.push(`Valor: R$ ${originalRow.valor} ➔ R$ ${editRowData.valor}`);
-        if ((originalRow.fornecedor || "") !== (editRowData.fornecedor || "")) diffs.push(`Fornecedor: ${originalRow.fornecedor || "-"} ➔ ${editRowData.fornecedor || "-"}`);
-        if ((originalRow.categoria || "") !== (editRowData.categoria || "")) diffs.push(`Categoria: ${originalRow.categoria || "-"} ➔ ${editRowData.categoria || "-"}`);
-        if (originalRow.conta !== editRowData.conta) diffs.push(`Conta: ${originalRow.conta} ➔ ${editRowData.conta}`);
+        if (originalRow.descricao !== currentEditRowData.descricao) diffs.push(`Descrição: ${originalRow.descricao} ➔ ${currentEditRowData.descricao}`);
+        if (originalRow.data !== currentEditRowData.data) diffs.push(`Data: ${originalRow.data} ➔ ${currentEditRowData.data}`);
+        if (parseFloat(originalRow.valor).toFixed(2) !== parseFloat(currentEditRowData.valor.toString().replace(",", ".")).toFixed(2)) diffs.push(`Valor: R$ ${originalRow.valor} ➔ R$ ${currentEditRowData.valor}`);
+        if ((originalRow.fornecedor || "") !== (currentEditRowData.fornecedor || "")) diffs.push(`Fornecedor: ${originalRow.fornecedor || "-"} ➔ ${currentEditRowData.fornecedor || "-"}`);
+        if ((originalRow.categoria || "") !== (currentEditRowData.categoria || "")) diffs.push(`Categoria: ${originalRow.categoria || "-"} ➔ ${currentEditRowData.categoria || "-"}`);
+        if (originalRow.conta !== currentEditRowData.conta) diffs.push(`Conta: ${originalRow.conta} ➔ ${currentEditRowData.conta}`);
       }
 
       const hasChanges = diffs.length > 0;
@@ -509,12 +539,12 @@ function LancamentosFinanceiros() {
       }
 
       const payload: any = {
-        data: editRowData.data,
-        descricao: editRowData.descricao,
-        fornecedor: editRowData.fornecedor || null,
-        valor: parseFloat(editRowData.valor.toString().replace(",", ".")),
-        categoria: editRowData.categoria || null,
-        conta: editRowData.conta,
+        data: currentEditRowData.data,
+        descricao: currentEditRowData.descricao,
+        fornecedor: currentEditRowData.fornecedor || null,
+        valor: parseFloat(currentEditRowData.valor.toString().replace(",", ".")),
+        categoria: currentEditRowData.categoria || null,
+        conta: currentEditRowData.conta,
         status_revisao: isAdmin ? null : (hasChanges ? 'pending_admin' : (originalRow.status_revisao || 'pending_user')),
         revisao_observacao: observacaoAdicional
       };
@@ -533,6 +563,7 @@ function LancamentosFinanceiros() {
       alert("Erro ao atualizar lançamento.");
     } finally {
       setSavingRow(false);
+      isSavingRef.current = false;
     }
   };
 
@@ -595,6 +626,14 @@ function LancamentosFinanceiros() {
             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
             70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          }
+          .clickable-cell {
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+          }
+          .clickable-cell:hover {
+            background-color: #fffbeb !important;
+            color: #b45309 !important;
           }
         `}</style>
       </Helmet>
@@ -1109,7 +1148,23 @@ function LancamentosFinanceiros() {
                               <input
                                 type="text"
                                 value={editRowData.descricao || ""}
-                                onChange={(e) => setEditRowData({ ...editRowData, descricao: e.target.value })}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditRowData({ ...editRowData, descricao: val });
+                                  resetSaveTimeout(l.id, { ...editRowData, descricao: val });
+                                }}
+                                onBlur={(e) => {
+                                  const val = e.target.value;
+                                  setEditRowData({ ...editRowData, descricao: val });
+                                  handleImmediateSave(l.id, { ...editRowData, descricao: val });
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    const val = e.currentTarget.value;
+                                    setEditRowData({ ...editRowData, descricao: val });
+                                    handleImmediateSave(l.id, { ...editRowData, descricao: val });
+                                  }
+                                }}
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
                             </td>
@@ -1117,7 +1172,23 @@ function LancamentosFinanceiros() {
                               <input
                                 type="date"
                                 value={editRowData.data || ""}
-                                onChange={(e) => setEditRowData({ ...editRowData, data: e.target.value })}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditRowData({ ...editRowData, data: val });
+                                  resetSaveTimeout(l.id, { ...editRowData, data: val });
+                                }}
+                                onBlur={(e) => {
+                                  const val = e.target.value;
+                                  setEditRowData({ ...editRowData, data: val });
+                                  handleImmediateSave(l.id, { ...editRowData, data: val });
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    const val = e.currentTarget.value;
+                                    setEditRowData({ ...editRowData, data: val });
+                                    handleImmediateSave(l.id, { ...editRowData, data: val });
+                                  }
+                                }}
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
                               />
                             </td>
@@ -1127,10 +1198,27 @@ function LancamentosFinanceiros() {
                                 step="0.01"
                                 className="no-spinner"
                                 value={editRowData.valor || ""}
-                                onChange={(e) => setEditRowData({ ...editRowData, valor: e.target.value })}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  setEditRowData({ ...editRowData, valor: val });
+                                  resetSaveTimeout(l.id, { ...editRowData, valor: val });
+                                }}
                                 onBlur={(e) => {
+                                  let finalVal = editRowData.valor;
                                   if (e.target.value) {
-                                    setEditRowData({ ...editRowData, valor: parseFloat(e.target.value).toFixed(2) });
+                                    finalVal = parseFloat(e.target.value).toFixed(2);
+                                    setEditRowData({ ...editRowData, valor: finalVal });
+                                  }
+                                  handleImmediateSave(l.id, { ...editRowData, valor: finalVal });
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    let finalVal = editRowData.valor;
+                                    if (e.currentTarget.value) {
+                                      finalVal = parseFloat(e.currentTarget.value).toFixed(2);
+                                      setEditRowData({ ...editRowData, valor: finalVal });
+                                    }
+                                    handleImmediateSave(l.id, { ...editRowData, valor: finalVal });
                                   }
                                 }}
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}
@@ -1145,7 +1233,11 @@ function LancamentosFinanceiros() {
                                      ? clienteOptions.find(o => o.value === editRowData.fornecedor)
                                      : fornecedorOptions.find(o => o.value === editRowData.fornecedor)) || null
                                  }
-                                 onChange={(option: any) => setEditRowData({ ...editRowData, fornecedor: option ? option.value : null })}
+                                 onChange={(option: any) => {
+                                   const val = option ? option.value : null;
+                                   setEditRowData({ ...editRowData, fornecedor: val });
+                                   handleSaveInline(l.id, { fornecedor: val });
+                                 }}
                                  menuPortalTarget={document.body}
                                  placeholder={parseFloat(String(editRowData.valor || "0").replace(",", ".")) >= 0 ? "Cliente..." : "Fornecedor..."}
                                  styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
@@ -1156,7 +1248,11 @@ function LancamentosFinanceiros() {
                                 isClearable
                                 options={categoriaOptionsAll}
                                 value={categoriaOptionsAll.flatMap(g => g.options).find(o => o.value === editRowData.categoria) || null}
-                                onChange={(option: any) => setEditRowData({ ...editRowData, categoria: option ? option.value : null })}
+                                onChange={(option: any) => {
+                                  const val = option ? option.value : null;
+                                  setEditRowData({ ...editRowData, categoria: val });
+                                  handleSaveInline(l.id, { categoria: val });
+                                }}
                                 menuPortalTarget={document.body}
                                 styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
                               />
@@ -1165,7 +1261,11 @@ function LancamentosFinanceiros() {
                               <Select
                                 options={contaOptions}
                                 value={contaOptions.find(o => o.value === editRowData.conta) || null}
-                                onChange={(option: any) => setEditRowData({ ...editRowData, conta: option ? option.value : "" })}
+                                onChange={(option: any) => {
+                                  const val = option ? option.value : "";
+                                  setEditRowData({ ...editRowData, conta: val });
+                                  handleSaveInline(l.id, { conta: val });
+                                }}
                                 menuPortalTarget={document.body}
                                 styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
                               />
@@ -1193,7 +1293,7 @@ function LancamentosFinanceiros() {
                                 <Icons.BsCheckCircleFill />
                               </button>
                               <button
-                                onClick={() => setEditingId(null)}
+                                onClick={handleCancelEdit}
                                 style={{ backgroundColor: "transparent", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "1.6rem", padding: "4px", margin: 0 }}
                                 title="Cancelar"
                               >
@@ -1203,7 +1303,7 @@ function LancamentosFinanceiros() {
                           </>
                         ) : (
                           <>
-                            <td>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
                                 {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited || l.conciliado) && (
                                   <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
@@ -1267,17 +1367,16 @@ function LancamentosFinanceiros() {
                                 </div>
                               </div>
                             </td>
-                            <td style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
-                            <td style={{ textAlign: "center", fontWeight: "bold", color: l.valor < 0 ? "#ef4444" : "#334155", fontSize: "1.3rem" }}>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center", fontWeight: "bold", color: l.valor < 0 ? "#ef4444" : "#334155", fontSize: "1.3rem" }}>
                               R$ {l.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
-                            <td style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
-                            <td style={{ textAlign: "center" }}>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>
                               {l.categoria ? (
                                 <span>{l.categoria}</span>
                               ) : (
                                 <span 
-                                  onClick={() => handleEdit(l)}
                                   style={{
                                     display: "inline-flex",
                                     alignItems: "center",
@@ -1290,19 +1389,8 @@ function LancamentosFinanceiros() {
                                     fontWeight: "bold",
                                     fontSize: "1.1rem",
                                     boxShadow: "0 1px 2px rgba(0, 0, 0, 0.02)",
-                                    cursor: "pointer",
                                     transition: "all 0.2s ease-in-out"
                                   }} 
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = "#fef3c7";
-                                    e.currentTarget.style.borderColor = "#fcd34d";
-                                    e.currentTarget.style.transform = "scale(1.03)";
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = "#fffbeb";
-                                    e.currentTarget.style.borderColor = "#fde68a";
-                                    e.currentTarget.style.transform = "scale(1)";
-                                  }}
                                   title="Clique para definir uma categoria para este lançamento."
                                 >
                                   <Icons.BsExclamationTriangleFill style={{ color: "#d97706", fontSize: "1.2rem" }} />
@@ -1310,8 +1398,8 @@ function LancamentosFinanceiros() {
                                 </span>
                               )}
                             </td>
-                            <td style={{ textAlign: "center" }}>{contaOptions.find(o => o.value === l.conta)?.label || l.conta}</td>
-                            <td style={{ textAlign: "center" }}>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>{contaOptions.find(o => o.value === l.conta)?.label || l.conta}</td>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>
                               <span style={{
                                 background: l.valor >= 0 ? "#dcfce7" : "#fee2e2",
                                 color: l.valor >= 0 ? "#15803d" : "#b91c1c",
@@ -1323,13 +1411,13 @@ function LancamentosFinanceiros() {
                                 {l.valor >= 0 ? "Entrada" : "Saída"}
                               </span>
                             </td>
-                            <td style={{ textAlign: "center" }}>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>
                               {l.conciliado && (
                                 <Icons.BsCheckCircleFill title="Conciliado" style={{ fontSize: "1.4rem", color: "#0284c7" }} />
                               )}
                             </td>
                             {isAdmin && (
-                              <td style={{ textAlign: "center" }}>
+                              <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>
                                 <span
                                   title={l.created_at ? new Date(l.created_at).toLocaleString("pt-BR") : ""}
                                   style={{
@@ -1341,8 +1429,7 @@ function LancamentosFinanceiros() {
                                     alignItems: "center",
                                     gap: "6px",
                                     fontSize: "1.2rem",
-                                    color: "#334155",
-                                    cursor: "pointer"
+                                    color: "#334155"
                                   }}
                                 >
                                   <Icons.BsPerson style={{ fontSize: "1.4rem", color: "#64748b" }} />
@@ -1420,14 +1507,6 @@ function LancamentosFinanceiros() {
                                         >
                                           <Icons.BsArrowCounterclockwise />
                                         </button>
-                                        <button
-                                          onClick={() => handleEdit(l)}
-                                          className="nav-btn"
-                                          title="Editar"
-                                          style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                        >
-                                          <Icons.BsPencil />
-                                        </button>
                                       </>
                                     ) : isAdmin && filterStatus === 'review' ? (
                                       <>
@@ -1440,14 +1519,6 @@ function LancamentosFinanceiros() {
                                             <Icons.BsXCircle /> Cancelar
                                           </button>
                                         )}
-                                        <button
-                                          onClick={() => handleEdit(l)}
-                                          className="nav-btn"
-                                          title="Editar"
-                                          style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                        >
-                                          <Icons.BsPencil />
-                                        </button>
                                       </>
                                     ) : (
                                       <>
@@ -1460,14 +1531,6 @@ function LancamentosFinanceiros() {
                                                 style={{ padding: "4px 8px", fontSize: "0.85rem", color: "#b91c1c", backgroundColor: "#fca5a5", border: "1px solid #b91c1c", borderRadius: "4px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontWeight: "bold", margin: 0 }}
                                               >
                                                 <Icons.BsXCircle /> Cancelar
-                                              </button>
-                                              <button
-                                                onClick={() => handleEdit(l)}
-                                                className="nav-btn"
-                                                title="Editar"
-                                                style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                              >
-                                                <Icons.BsPencil />
                                               </button>
                                             </>
                                           ) : (
@@ -1509,14 +1572,6 @@ function LancamentosFinanceiros() {
                                                 <Icons.BsExclamationCircleFill />
                                               </button>
                                             )}
-                                            <button
-                                              onClick={() => handleEdit(l)}
-                                              className="nav-btn"
-                                              title="Editar"
-                                              style={{ padding: "4px 8px", fontSize: "0.9rem" }}
-                                            >
-                                              <Icons.BsPencil />
-                                            </button>
                                           </>
                                         )}
                                       </>
