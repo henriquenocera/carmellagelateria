@@ -96,7 +96,7 @@ function AnaliseProdutos() {
               nome,
               nome_simples_unitario,
               unidade_conversao,
-              unidade_estoque,
+              unidade_consumo,
               custo_considerado_unitario,
               quantidade_conversao,
               fator_desperdicio
@@ -153,7 +153,7 @@ function AnaliseProdutos() {
                 isProduto: false,
                 nome: groupKey,
                 quantidade: item.quantidade,
-                unidade: item.cadastro_insumos?.unidade_estoque || item.cadastro_insumos?.unidade_conversao || "un",
+                unidade: item.cadastro_insumos?.unidade_consumo || item.cadastro_insumos?.unidade_conversao || "un",
                 fator_desperdicio: item.cadastro_insumos?.fator_desperdicio || 0,
                 custo_unit: custoUnit,
                 custo_calc: parseFloat(item.quantidade) * custoUnit

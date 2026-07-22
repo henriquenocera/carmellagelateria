@@ -11,6 +11,7 @@ const Etiquetas: React.FC = () => {
   const [currentFlavor, setCurrentFlavor] = useState<{ value: string; label: string } | null>(null);
   const [customName, setCustomName] = useState("");
   const [dataProducao, setDataProducao] = useState(new Date().toISOString().split('T')[0]);
+  const [quantidade, setQuantidade] = useState<number>(1);
 
   const flavorOptions = React.useMemo(() => 
     GELATO_FLAVORS.map(flavor => ({ value: flavor, label: flavor })),
@@ -20,15 +21,17 @@ const Etiquetas: React.FC = () => {
     const flavorName = customName.trim() || (currentFlavor ? currentFlavor.label : "");
     if (!flavorName) return;
 
-    const newItem = {
+    const count = Math.max(1, quantidade);
+    const newItems = Array.from({ length: count }, () => ({
       flavor: flavorName,
       date: dataProducao,
       id: Math.random().toString(36).substr(2, 9)
-    };
+    }));
 
-    setSelectedItems([...selectedItems, newItem]);
+    setSelectedItems([...selectedItems, ...newItems]);
     setCustomName("");
     setCurrentFlavor(null);
+    setQuantidade(1);
   };
 
   const removeItem = (id: string) => {
@@ -191,6 +194,18 @@ const Etiquetas: React.FC = () => {
                 value={dataProducao}
                 onChange={(e) => setDataProducao(e.target.value)}
                 className="date-input"
+              />
+            </div>
+            
+            <div className="quantity-input-part" style={{ flex: "0 0 110px" }}>
+              <label>Qtd:</label>
+              <input
+                type="number"
+                min="1"
+                value={quantidade}
+                onChange={(e) => setQuantidade(e.target.value === "" ? "" as any : Math.max(1, parseInt(e.target.value) || 1))}
+                className="date-input"
+                style={{ textAlign: "center" }}
               />
             </div>
           </div>

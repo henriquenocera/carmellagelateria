@@ -86,7 +86,7 @@ function OrdemProducao() {
               nome,
               nome_simples_unitario,
               unidade_conversao,
-              unidade_estoque,
+              unidade_consumo,
               quantidade_conversao
             )
           )
@@ -595,7 +595,7 @@ function OrdemProducao() {
             aggregation[key] = {
               id: item.insumo_id,
               nome: item.cadastro_insumos.nome_simples_unitario || item.cadastro_insumos.nome || "Desconhecido",
-              unidade: item.cadastro_insumos.unidade_estoque || item.cadastro_insumos.unidade_conversao || "un",
+              unidade: item.cadastro_insumos.unidade_consumo || item.cadastro_insumos.unidade_conversao || "un",
               quantidade: 0,
               quantidade_conversao: item.cadastro_insumos.quantidade_conversao
             };

@@ -158,7 +158,7 @@ function CadastroProdutos() {
           id, nome, categoria, preco_venda, preco_venda_food_service, ativo, unidade_venda, metodo_preparo, is_sabor, is_preparacao, codigo, rendimento, tipo_gelato,
           ficha_tecnica!ficha_tecnica_produto_id_fkey (
             id, insumo_id, quantidade, produto_base_id, subgrupo,
-            cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, unidade_estoque, fator_desperdicio ),
+            cadastro_insumos ( id, nome_simples_unitario, nome, custo_considerado_unitario, quantidade_conversao, unidade_conversao, unidade_consumo, fator_desperdicio ),
             cadastro_produtos!ficha_tecnica_produto_base_id_fkey ( id, nome )
           )
         `)
@@ -352,7 +352,7 @@ function CadastroProdutos() {
           nome_simples_unitario: insumoFound.nome_simples_unitario,
           custo_considerado_unitario: insumoFound.custo_considerado_unitario,
           unidade_conversao: insumoFound.unidade_conversao,
-          unidade_estoque: insumoFound.unidade_estoque,
+          unidade_consumo: insumoFound.unidade_consumo,
           fator_desperdicio: insumoFound.fator_desperdicio
         }
       }
@@ -1299,7 +1299,7 @@ function CadastroProdutos() {
                       <span style={{ position: "absolute", right: "12px", color: "var(--text-muted)", zIndex: 1, pointerEvents: "none", fontSize: "0.9rem", fontWeight: "bold" }}>
                         {(() => {
                           const foundInsumo = selectedInsumo ? insumosList.find(i => i.id === selectedInsumo) : null;
-                          const unit = foundInsumo ? (foundInsumo.unidade_estoque || foundInsumo.unidade_conversao) : "";
+                          const unit = foundInsumo ? (foundInsumo.unidade_consumo || foundInsumo.unidade_conversao) : "";
                           if (!unit) return "";
                           const u = String(unit).toLowerCase();
                           if (u === "unidade" || u === "unidades") return "un";
@@ -1455,7 +1455,7 @@ function CadastroProdutos() {
                               nomeItem = insumoData?.nome_simples_unitario || insumoData?.nome || "Insumo Desconhecido";
                               unitario = insumoData?.custo_considerado_unitario || 0;
 
-                              const u = String(insumoData?.unidade_estoque || insumoData?.unidade_conversao || "un").toLowerCase();
+                              const u = String(insumoData?.unidade_consumo || insumoData?.unidade_conversao || "un").toLowerCase();
                               if (u === "gramas" || u === "grama") unidade = "g";
                               else if (u === "quilogramas" || u === "quilograma" || u === "quilo" || u === "kg") unidade = "kg";
                               else if (u === "mililitros" || u === "mililitro") unidade = "ml";
