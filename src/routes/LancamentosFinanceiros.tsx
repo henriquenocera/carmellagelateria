@@ -24,30 +24,9 @@ function LancamentosFinanceiros() {
   const [savingRow, setSavingRow] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
-  const saveTimeoutRef = useRef<any>(null);
   const isSavingRef = useRef<boolean>(false);
 
-  const clearSaveTimeout = () => {
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
-      saveTimeoutRef.current = null;
-    }
-  };
-
-  const resetSaveTimeout = (id: string, currentData: any) => {
-    clearSaveTimeout();
-    saveTimeoutRef.current = setTimeout(() => {
-      handleSaveInline(id, currentData);
-    }, 2000);
-  };
-
-  const handleImmediateSave = (id: string, currentData: any) => {
-    clearSaveTimeout();
-    handleSaveInline(id, currentData);
-  };
-
   const handleCancelEdit = () => {
-    clearSaveTimeout();
     setEditingId(null);
   };
 
@@ -263,8 +242,6 @@ function LancamentosFinanceiros() {
           });
           setProfilesMap(map);
         }
-
-        // fetchLancamentos will be handled by the useEffect below
       } catch (err) {
         console.error("Erro ao buscar dados iniciais:", err);
       }
@@ -360,7 +337,6 @@ function LancamentosFinanceiros() {
         }
       }
 
-      // Apply DB filters
       if (fData) {
         query = query.eq('data', fData);
       }
@@ -395,14 +371,12 @@ function LancamentosFinanceiros() {
         query = query.is('categoria', null);
       }
 
-      // Tab filter (separar lançamentos normais das vendas das lojas)
       if (fTab === 'vendas') {
         query = query.ilike('categoria', '%Vendas Loja%');
       } else {
         query = query.or('categoria.is.null,categoria.not.ilike.%Vendas Loja%');
       }
 
-      // range is inclusive, so to fetch currentLimit + 1 rows we request range 0 to currentLimit
       const { data, error, count } = await query.range(0, currentLimit - 1);
       if (error) throw error;
 
@@ -440,14 +414,12 @@ function LancamentosFinanceiros() {
       setLimit(100);
       fetchLancamentosRef.current?.({ currentLimit: 100, fTab: activeTab });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterStatus, filterCreatedToday, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, user]);
 
   useEffect(() => {
     if (user && limit !== 100) {
       fetchLancamentosRef.current?.({ currentLimit: limit });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [limit, user]);
 
   useEffect(() => {
@@ -1151,18 +1123,17 @@ function LancamentosFinanceiros() {
                                 onChange={(e) => {
                                   const val = e.target.value;
                                   setEditRowData({ ...editRowData, descricao: val });
-                                  resetSaveTimeout(l.id, { ...editRowData, descricao: val });
                                 }}
                                 onBlur={(e) => {
                                   const val = e.target.value;
                                   setEditRowData({ ...editRowData, descricao: val });
-                                  handleImmediateSave(l.id, { ...editRowData, descricao: val });
+                                  handleSaveInline(l.id, { ...editRowData, descricao: val });
                                 }}
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter") {
                                     const val = e.currentTarget.value;
                                     setEditRowData({ ...editRowData, descricao: val });
-                                    handleImmediateSave(l.id, { ...editRowData, descricao: val });
+                                    handleSaveInline(l.id, { ...editRowData, descricao: val });
                                   }
                                 }}
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
@@ -1175,18 +1146,17 @@ function LancamentosFinanceiros() {
                                 onChange={(e) => {
                                   const val = e.target.value;
                                   setEditRowData({ ...editRowData, data: val });
-                                  resetSaveTimeout(l.id, { ...editRowData, data: val });
                                 }}
                                 onBlur={(e) => {
                                   const val = e.target.value;
                                   setEditRowData({ ...editRowData, data: val });
-                                  handleImmediateSave(l.id, { ...editRowData, data: val });
+                                  handleSaveInline(l.id, { ...editRowData, data: val });
                                 }}
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter") {
                                     const val = e.currentTarget.value;
                                     setEditRowData({ ...editRowData, data: val });
-                                    handleImmediateSave(l.id, { ...editRowData, data: val });
+                                    handleSaveInline(l.id, { ...editRowData, data: val });
                                   }
                                 }}
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", boxSizing: "border-box", fontSize: "1.3rem" }}
@@ -1201,7 +1171,6 @@ function LancamentosFinanceiros() {
                                 onChange={(e) => {
                                   const val = e.target.value;
                                   setEditRowData({ ...editRowData, valor: val });
-                                  resetSaveTimeout(l.id, { ...editRowData, valor: val });
                                 }}
                                 onBlur={(e) => {
                                   let finalVal = editRowData.valor;
@@ -1209,7 +1178,7 @@ function LancamentosFinanceiros() {
                                     finalVal = parseFloat(e.target.value).toFixed(2);
                                     setEditRowData({ ...editRowData, valor: finalVal });
                                   }
-                                  handleImmediateSave(l.id, { ...editRowData, valor: finalVal });
+                                  handleSaveInline(l.id, { ...editRowData, valor: finalVal });
                                 }}
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter") {
@@ -1218,7 +1187,7 @@ function LancamentosFinanceiros() {
                                       finalVal = parseFloat(e.currentTarget.value).toFixed(2);
                                       setEditRowData({ ...editRowData, valor: finalVal });
                                     }
-                                    handleImmediateSave(l.id, { ...editRowData, valor: finalVal });
+                                    handleSaveInline(l.id, { ...editRowData, valor: finalVal });
                                   }
                                 }}
                                 style={{ width: "100%", height: "36px", padding: "4px 8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", boxSizing: "border-box", fontSize: "1.3rem" }}

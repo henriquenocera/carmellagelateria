@@ -184,6 +184,62 @@ function Home() {
     }
   };
 
+  const renderRevisaoObservacao = (observacao) => {
+    if (!observacao || observacao === "Sem alterações") return null;
+
+    const revisions = observacao.split(" | ").map(rev => rev.trim()).filter(Boolean);
+
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+        {revisions.map((revision, revIdx) => {
+          const parts = revision.split(", ").map(p => p.trim()).filter(Boolean);
+          return (
+            <div key={revIdx} style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignItems: "center" }}>
+              {parts.map((part, partIdx) => {
+                const colonIndex = part.indexOf(":");
+                if (colonIndex === -1) {
+                  return (
+                    <span key={partIdx} style={{ padding: "4px 8px", backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "6px", fontSize: "1.15rem", color: "#64748b", fontWeight: "500" }}>
+                      {part}
+                    </span>
+                  );
+                }
+
+                const field = part.substring(0, colonIndex).trim();
+                const values = part.substring(colonIndex + 1).trim();
+                const arrowIndex = values.indexOf("➔");
+
+                if (arrowIndex === -1) {
+                  return (
+                    <span key={partIdx} style={{ padding: "4px 8px", backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "6px", fontSize: "1.15rem", color: "#64748b", fontWeight: "500" }}>
+                      <strong>{field}:</strong> {values}
+                    </span>
+                  );
+                }
+
+                const antes = values.substring(0, arrowIndex).trim();
+                const depois = values.substring(arrowIndex + 1).trim();
+
+                return (
+                  <div key={partIdx} style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#fff", border: "1px solid #e2e8f0", padding: "4px 10px", borderRadius: "8px", fontSize: "1.2rem", boxShadow: "0 1px 2px rgba(0,0,0,0.02)" }}>
+                    <span style={{ fontWeight: "600", color: "#64748b" }}>{field}</span>
+                    <span style={{ color: "#ef4444", textDecoration: "line-through", backgroundColor: "#fef2f2", padding: "2px 6px", borderRadius: "4px", fontSize: "1.15rem" }}>
+                      {antes}
+                    </span>
+                    <span style={{ color: "#94a3b8", display: "inline-flex", alignItems: "center" }}>➔</span>
+                    <span style={{ color: "#16a34a", fontWeight: "600", backgroundColor: "#f0fdf4", padding: "2px 6px", borderRadius: "4px", fontSize: "1.15rem" }}>
+                      {depois}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
+
   const renderActionButtons = (table, id, status) => {
     if (status === "pending_delete") {
       return (
@@ -809,8 +865,9 @@ function Home() {
                             </div>
                           </div>
                           {item.revisao_observacao && item.revisao_observacao !== "Sem alterações" && (
-                            <div style={{ padding: "8px 12px", backgroundColor: "#fffbeb", borderRadius: "6px", border: "1px dashed #fcd34d", fontSize: "1.25rem", color: "#7c2d12" }}>
-                              <strong>Alterações (Antes ➔ Depois):</strong> {item.revisao_observacao}
+                            <div style={{ padding: "12px 16px", backgroundColor: "#fffbeb", borderRadius: "8px", border: "1px dashed #fcd34d", display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#7c2d12" }}>Alterações Pendentes:</span>
+                              {renderRevisaoObservacao(item.revisao_observacao)}
                             </div>
                           )}
                           {(!item.revisao_observacao || item.revisao_observacao === "Sem alterações") && item.status_revisao !== "pending_delete" && (
@@ -856,8 +913,9 @@ function Home() {
                             </div>
                           </div>
                           {item.revisao_observacao && item.revisao_observacao !== "Sem alterações" && (
-                            <div style={{ padding: "8px 12px", backgroundColor: "#fffbeb", borderRadius: "6px", border: "1px dashed #fcd34d", fontSize: "1.25rem", color: "#7c2d12" }}>
-                              <strong>Alterações (Antes ➔ Depois):</strong> {item.revisao_observacao}
+                            <div style={{ padding: "12px 16px", backgroundColor: "#fffbeb", borderRadius: "8px", border: "1px dashed #fcd34d", display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#7c2d12" }}>Alterações Pendentes:</span>
+                              {renderRevisaoObservacao(item.revisao_observacao)}
                             </div>
                           )}
                           {(!item.revisao_observacao || item.revisao_observacao === "Sem alterações") && item.status_revisao !== "pending_delete" && (
@@ -903,8 +961,9 @@ function Home() {
                             </div>
                           </div>
                           {item.revisao_observacao && item.revisao_observacao !== "Sem alterações" && (
-                            <div style={{ padding: "8px 12px", backgroundColor: "#fffbeb", borderRadius: "6px", border: "1px dashed #fcd34d", fontSize: "1.25rem", color: "#7c2d12" }}>
-                              <strong>Alterações (Antes ➔ Depois):</strong> {item.revisao_observacao}
+                            <div style={{ padding: "12px 16px", backgroundColor: "#fffbeb", borderRadius: "8px", border: "1px dashed #fcd34d", display: "flex", flexDirection: "column", gap: "8px" }}>
+                              <span style={{ fontSize: "1.2rem", fontWeight: "700", color: "#7c2d12" }}>Alterações Pendentes:</span>
+                              {renderRevisaoObservacao(item.revisao_observacao)}
                             </div>
                           )}
                           {(!item.revisao_observacao || item.revisao_observacao === "Sem alterações") && item.status_revisao !== "pending_delete" && (
