@@ -946,7 +946,8 @@ CREATE TABLE IF NOT EXISTS "public"."pedidos_food_service" (
     "created_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
     "quantidade_produzida" numeric,
-    "data_entrega" "date"
+    "data_entrega" "date",
+    "codigo_pedido" "text"
 );
 
 
