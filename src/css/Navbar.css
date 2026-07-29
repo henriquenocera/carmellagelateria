@@ -128,7 +128,7 @@ body {
   border-radius: 10px;
   transition: 0.3s;
   cursor: pointer;
-  height: 55px;
+  height: 58px;
 }
 
 .nav-link:hover {
@@ -137,22 +137,44 @@ body {
 
 .nav-link .icon {
   min-width: 55px;
+  width: 55px;
   height: 55px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 2.2rem;
-  color: #222;
+  font-size: 1.8rem;
+  color: #ffffff;
   transition: 0.3s;
   border-radius: 10px;
   background: #a17550;
   position: relative;
+  gap: 2px;
+  padding: 3px 2px;
+}
+
+.nav-link .icon svg {
+  font-size: 1.8rem;
+  color: #ffffff;
+}
+
+.nav-link .icon .icon-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-align: center;
+  white-space: nowrap;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1;
+  letter-spacing: -0.3px;
 }
 
 .nav-link.active .icon,
 .nav-item.child-active>.nav-link .icon {
   color: #fff;
-  box-shadow: 0 4px 10px rgba(161, 117, 80, 0.3);
+  box-shadow: 0 4px 10px rgba(161, 117, 80, 0.4);
 }
 
 .nav-link .icon::before {

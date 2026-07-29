@@ -7,11 +7,13 @@ import { useAuth } from "../AuthProvider";
 const MENU_CONFIG = [
   {
     title: "Início",
+    shortTitle: "Início",
     icon: <Icons.BsHouseDoor />,
     path: "/",
   },
   {
     title: "Checklists",
+    shortTitle: "Checklist",
     icon: <Icons.BsCardChecklist />,
     id: "checklists",
     subItems: [
@@ -20,6 +22,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Operações",
+    shortTitle: "Operações",
     icon: <Icons.BsBriefcase />,
     id: "operacoes",
     subItems: [
@@ -31,6 +34,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Comercial",
+    shortTitle: "Comercial",
     icon: <Icons.BsShop />,
     id: "comercial",
     subItems: [
@@ -41,6 +45,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Produção",
+    shortTitle: "Produção",
     icon: <Icons.BsClipboardData />,
     id: "producao",
     subItems: [
@@ -51,6 +56,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Estoque",
+    shortTitle: "Estoque",
     icon: <Icons.BsBoxSeam />,
     id: "estoque",
     subItems: [
@@ -62,6 +68,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Compras",
+    shortTitle: "Compras",
     icon: <Icons.BsCart3 />,
     id: "compras",
     subItems: [
@@ -72,6 +79,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Análise",
+    shortTitle: "Análise",
     icon: <Icons.BsGraphUp />,
     id: "analise",
     subItems: [
@@ -82,6 +90,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Financeiro",
+    shortTitle: "Finan.",
     icon: <Icons.BsCurrencyDollar />,
     id: "financeiro",
     subItems: [
@@ -96,6 +105,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Vendas Lojas",
+    shortTitle: "Vendas",
     icon: <Icons.BsShopWindow />,
     id: "vendas-lojas",
     subItems: [
@@ -106,6 +116,7 @@ const MENU_CONFIG = [
   },
   {
     title: "RH",
+    shortTitle: "RH",
     icon: <Icons.BsPerson />,
     id: "rh",
     subItems: [
@@ -117,6 +128,7 @@ const MENU_CONFIG = [
   },
   {
     title: "Configurações",
+    shortTitle: "Config.",
     icon: <Icons.BsGear />,
     id: "admin",
     subItems: [
@@ -211,7 +223,10 @@ function NavBar() {
               return (
                 <li key={index} className="nav-item">
                   <NavLink to={item.path} className={({ isActive }) => isActive ? "nav-link active" : "nav-link"}>
-                    <span className="icon">{item.icon}</span>
+                    <span className="icon" title={item.title}>
+                      {item.icon}
+                      <span className="icon-label">{item.shortTitle || item.title}</span>
+                    </span>
                     <span className="text">
                       <span className="text-container">
                         <span>{item.title}</span>
@@ -240,7 +255,10 @@ function NavBar() {
             return (
               <li key={index} className={`nav-item accordion ${isOpen ? 'open' : ''} ${isChildActive ? 'child-active' : ''}`}>
                 <div className="nav-link accordion-header" onClick={() => toggleMenu(item.id)}>
-                  <span className="icon">{item.icon}</span>
+                  <span className="icon" title={item.title}>
+                    {item.icon}
+                    <span className="icon-label">{item.shortTitle || item.title}</span>
+                  </span>
                   <span className="text">
                     <span className="text-container">
                       <span>{item.title}</span>

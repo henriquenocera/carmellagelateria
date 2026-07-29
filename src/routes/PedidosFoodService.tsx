@@ -68,6 +68,34 @@ function PedidosFoodService() {
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
   const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
 
+  const [allClientes, setAllClientes] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function loadClientes() {
+      try {
+        const { data } = await supabase
+          .from("pedidos_food_service")
+          .select("cliente");
+        if (data) {
+          const unique = Array.from(new Set(data.map(i => i.cliente).filter(Boolean))) as string[];
+          unique.sort((a, b) => a.localeCompare(b));
+          setAllClientes(unique);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar lista de clientes:", err);
+      }
+    }
+    loadClientes();
+  }, []);
+
+  const clienteOptions = React.useMemo(() => {
+    const set = new Set<string>(allClientes);
+    pedidos?.forEach(p => {
+      if (p.cliente && p.cliente.trim() !== "") set.add(p.cliente.trim());
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b)).map(c => ({ value: c, label: c }));
+  }, [allClientes, pedidos]);
+
   const isFirstRender = useRef(true);
 
   const [inputMode, setInputMode] = useState<'unit' | 'total'>('unit');
@@ -88,36 +116,75 @@ function PedidosFoodService() {
     }
 
     const groups: Record<string, any[]> = {};
+
     pedidos.forEach(p => {
       if (!p) return;
-      const code = p.codigo_pedido || `Ordem-${p.id}`;
-      if (!groups[code]) {
-        groups[code] = [];
+      const rawCode = p.codigo_pedido ? String(p.codigo_pedido).trim() : "";
+      let groupKey = rawCode;
+
+      // Se o item não possui código de pedido, verifica se já existe um pedido do mesmo cliente na mesma data e horário de criação
+      if (!groupKey) {
+        const clientName = p.cliente ? String(p.cliente).trim() : "";
+        const orderDate = p.data_pedido || "";
+        const timeMinute = p.created_at ? p.created_at.slice(0, 16) : "";
+
+        const existingKey = Object.keys(groups).find(k => {
+          const firstItem = groups[k][0];
+          if (!firstItem) return false;
+          const firstClient = firstItem.cliente ? String(firstItem.cliente).trim() : "";
+          const firstDate = firstItem.data_pedido || "";
+          const firstTime = firstItem.created_at ? firstItem.created_at.slice(0, 16) : "";
+
+          return firstClient === clientName && firstDate === orderDate && (
+            (timeMinute && firstTime && timeMinute === firstTime) ||
+            (!timeMinute && !firstTime)
+          );
+        });
+
+        if (existingKey) {
+          groupKey = existingKey;
+        } else {
+          groupKey = `PED-${clientName}-${orderDate}-${timeMinute || p.id}`;
+        }
       }
-      groups[code].push(p);
+
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(p);
     });
 
-    const orderedCodes: string[] = [];
+    const orderedKeys: string[] = [];
     pedidos.forEach(p => {
       if (!p) return;
-      const code = p.codigo_pedido || `Ordem-${p.id}`;
-      if (!orderedCodes.includes(code)) {
-        orderedCodes.push(code);
+      const rawCode = p.codigo_pedido ? String(p.codigo_pedido).trim() : "";
+      let matchedKey = rawCode && groups[rawCode] ? rawCode : "";
+
+      if (!matchedKey) {
+        matchedKey = Object.keys(groups).find(k => groups[k].includes(p)) || "";
+      }
+
+      if (matchedKey && !orderedKeys.includes(matchedKey)) {
+        orderedKeys.push(matchedKey);
       }
     });
 
-    const result = orderedCodes.map(code => {
-      const items = groups[code] || [];
+    const result = orderedKeys.map(groupKey => {
+      const items = groups[groupKey] || [];
       if (items.length === 0) return null;
+
+      const validCodeItem = items.find(i => i.codigo_pedido && String(i.codigo_pedido).trim() !== "");
+      const displayCode = validCodeItem ? String(validCodeItem.codigo_pedido).trim() : (items[0]?.codigo_pedido || `Ordem-${items[0]?.id || groupKey}`);
+
       return {
-        codigo_pedido: code,
+        codigo_pedido: displayCode,
         items,
         id: items[0]?.id || 0,
         data_pedido: items[0]?.data_pedido || "",
         cliente: items[0]?.cliente || "",
         user_id: items[0]?.user_id || "",
         created_at: items[0]?.created_at || "",
-        status_revisao: items[0]?.status_revisao || "none"
+        status_revisao: items.find(i => i.status_revisao && i.status_revisao !== 'none')?.status_revisao || "none"
       };
     }).filter((item): item is any => item !== null);
 
@@ -503,13 +570,14 @@ function PedidosFoodService() {
           user_id,
           status_revisao,
           revisao_observacao,
+          codigo_pedido,
           cadastro_produtos!inner(nome)
         `)
         .single();
 
       if (error) throw error;
 
-      setCompras(pedidos.map(c => c.id === editingRowId ? data : c));
+      setCompras(pedidos.map(c => c.id === editingRowId ? { ...c, ...data } : c));
       setEditingRowId(null);
     } catch (err: any) {
       console.error("Erro ao atualizar:", err);
@@ -539,11 +607,12 @@ function PedidosFoodService() {
           user_id,
           status_revisao,
           revisao_observacao,
+          codigo_pedido,
           cadastro_produtos!inner(nome)
         `)
         .single();
       if (error) throw error;
-      setCompras(prev => prev.map(c => c.id === id ? data : c));
+      setCompras(prev => prev.map(c => c.id === id ? { ...c, ...data } : c));
     } catch (err) {
       console.error("Erro ao atualizar campo rapidamente:", err);
       alert("Erro ao salvar o campo.");
@@ -609,7 +678,7 @@ function PedidosFoodService() {
     }
   };
 
-  const handleUpdateReviewStatus = async (id: number, newStatus: string) => {
+  const handleUpdateReviewStatus = async (id: any, newStatus: string) => {
     try {
       const updateData: any = { status_revisao: newStatus };
       if (newStatus === 'none' || newStatus === 'pending_user') {
@@ -627,6 +696,134 @@ function PedidosFoodService() {
       console.error("Erro ao alterar status de revisão:", err);
       alert("Erro ao alterar o status de revisão da linha.");
     }
+  };
+
+  const handleRemoveFromReview = async (id: any) => {
+    try {
+      const updateData = { status_revisao: null, revisao_observacao: null };
+      const { error } = await supabase
+        .from("pedidos_food_service")
+        .update(updateData)
+        .eq("id", id);
+
+      if (error) throw error;
+      setCompras(prev => prev.map(c => c.id === id ? { ...c, ...updateData } : c));
+      if (filterStatus === 'review' || filterStatus === 'deleted') {
+        setCompras(prev => prev.filter(c => c.id !== id));
+      }
+    } catch (err) {
+      console.error("Erro ao remover registro da revisão:", err);
+      alert("Erro ao remover a linha da revisão.");
+    }
+  };
+
+  const handleApproveReview = async (id: any, currentStatus: string) => {
+    try {
+      if (currentStatus === 'pending_delete') {
+        const { error } = await supabase
+          .from("pedidos_food_service")
+          .delete()
+          .eq("id", id);
+        if (error) throw error;
+        setCompras(prev => prev.filter(c => c.id !== id));
+      } else {
+        const updateData = { status_revisao: null, revisao_observacao: null };
+        const { error } = await supabase
+          .from("pedidos_food_service")
+          .update(updateData)
+          .eq("id", id);
+        if (error) throw error;
+        setCompras(prev => prev.map(c => c.id === id ? { ...c, ...updateData } : c));
+        if (filterStatus === 'review') {
+          setCompras(prev => prev.filter(c => c.id !== id));
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao aprovar alteração:", err);
+      alert("Erro ao aprovar a alteração.");
+    }
+  };
+
+  const handleRejectReview = async (id: any, currentStatus: string) => {
+    try {
+      const updateData = { status_revisao: null, revisao_observacao: null };
+      const { error } = await supabase
+        .from("pedidos_food_service")
+        .update(updateData)
+        .eq("id", id);
+      if (error) throw error;
+      setCompras(prev => prev.map(c => c.id === id ? { ...c, ...updateData } : c));
+      if (filterStatus === 'review' || filterStatus === 'deleted') {
+        setCompras(prev => prev.filter(c => c.id !== id));
+      }
+    } catch (err) {
+      console.error("Erro ao rejeitar alteração:", err);
+      alert("Erro ao rejeitar a alteração.");
+    }
+  };
+
+  const renderStatusBadge = (type: 'pendente_prod' | 'aguardando_entrega' | 'entregue') => {
+    if (type === 'pendente_prod') {
+      return (
+        <span
+          title="Pendente Produção"
+          style={{
+            backgroundColor: "#ef4444",
+            color: "#ffffff",
+            width: "30px",
+            height: "30px",
+            borderRadius: "50%",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 2px 4px rgba(239,68,68,0.3)",
+            cursor: "pointer"
+          }}
+        >
+          <Icons.BsHourglassSplit style={{ fontSize: "1.3rem" }} />
+        </span>
+      );
+    }
+    if (type === 'aguardando_entrega') {
+      return (
+        <span
+          title="Aguardando Entrega"
+          style={{
+            backgroundColor: "#d97706",
+            color: "#ffffff",
+            width: "30px",
+            height: "30px",
+            borderRadius: "50%",
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: "0 2px 4px rgba(217,119,6,0.3)",
+            cursor: "pointer"
+          }}
+        >
+          <Icons.BsTruck style={{ fontSize: "1.3rem" }} />
+        </span>
+      );
+    }
+    return (
+      <span
+        title="Entregue"
+        style={{
+          backgroundColor: "#16a34a",
+          color: "#ffffff",
+          width: "30px",
+          height: "30px",
+          borderRadius: "50%",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 2px 4px rgba(22,163,74,0.3)",
+          cursor: "pointer"
+        }}
+      >
+        <Icons.BsCheckCircleFill style={{ fontSize: "1.3rem" }} />
+      </span>
+    );
   };
 
   const handleProdutoSelect = (selectedOption: any) => {
@@ -1086,17 +1283,26 @@ function PedidosFoodService() {
                 </tr>
                 {/* Linha de Filtros */}
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                  <th style={{ padding: "8px" }}></th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "6px" }}></th>
+                  <th style={{ padding: "6px" }}>
                     <input
                       type="text"
                       placeholder="Nº Pedido..."
                       value={filterCodigoPedido}
                       onChange={(e) => setFilterCodigoPedido(e.target.value)}
-                      style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px 8px",
+                        borderRadius: "6px",
+                        border: "1px solid #cbd5e1",
+                        outline: "none",
+                        fontSize: "0.95rem",
+                        backgroundColor: "#ffffff",
+                        height: "36px"
+                      }}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "6px" }}>
                     <Select
                       isClearable
                       menuPortalTarget={document.body}
@@ -1108,54 +1314,89 @@ function PedidosFoodService() {
                       ]}
                       value={filterStatusPedido ? { value: filterStatusPedido, label: filterStatusPedido === 'pendente_prod' ? 'Pendente Prod.' : filterStatusPedido === 'aguardando_entrega' ? 'Aguardando Entrega' : 'Entregue' } : null}
                       onChange={(sel: any) => setFilterStatusPedido(sel ? sel.value : "")}
-                      placeholder="Filtrar Status..."
+                      placeholder="Status..."
                       styles={{
-                        control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '38px', borderRadius: '4px', fontSize: '1.1rem' }),
-                        menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.1rem' })
+                        control: (base) => ({
+                          ...base,
+                          borderColor: '#cbd5e1',
+                          minHeight: '36px',
+                          height: '36px',
+                          borderRadius: '6px',
+                          fontSize: '0.95rem',
+                          backgroundColor: '#ffffff'
+                        }),
+                        menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '0.95rem' })
                       }}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}>
-                    <input
-                      type="text"
+                  <th style={{ padding: "6px" }}>
+                    <Select
+                      isClearable
+                      isSearchable
+                      menuPortalTarget={document.body}
+                      maxMenuHeight={250}
+                      options={clienteOptions}
+                      value={filterCliente ? { value: filterCliente, label: filterCliente } : null}
+                      onChange={(sel: any) => setFilterCliente(sel ? sel.value : "")}
                       placeholder="Cliente..."
-                      value={filterCliente}
-                      onChange={(e) => setFilterCliente(e.target.value)}
-                      style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
+                      noOptionsMessage={() => "Nenhum cliente"}
+                      styles={{
+                        control: (base) => ({
+                          ...base,
+                          borderColor: '#cbd5e1',
+                          minHeight: '36px',
+                          height: '36px',
+                          borderRadius: '6px',
+                          fontSize: '0.95rem',
+                          backgroundColor: '#ffffff'
+                        }),
+                        menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '0.95rem' })
+                      }}
                     />
                   </th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "6px" }}>
                     <input
                       type="date"
                       value={filterData}
                       onChange={(e) => setFilterData(e.target.value)}
-                      style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
+                      style={{
+                        width: "100%",
+                        padding: "5px 8px",
+                        borderRadius: "6px",
+                        border: "1px solid #cbd5e1",
+                        outline: "none",
+                        fontSize: "0.95rem",
+                        backgroundColor: "#ffffff",
+                        height: "36px"
+                      }}
                     />
                   </th>
-                  <th colSpan={isAdmin ? 5 : 4} style={{ padding: "8px", textAlign: "right" }}>
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap", alignItems: "center" }}>
-                      <div style={{ width: "180px", textAlign: "left" }}>
+                  <th colSpan={isAdmin ? 5 : 4} style={{ padding: "6px", textAlign: "right" }}>
+                    <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end", flexWrap: "nowrap", alignItems: "center" }}>
+                      <div style={{ width: "170px", textAlign: "left" }}>
                         <Select
                           menuPortalTarget={document.body}
                           maxMenuHeight={350}
                           options={produtos.map(ins => ({ value: ins.id, label: ins.nome }))}
                           value={filterProdutoId ? { value: filterProdutoId, label: produtos.find(i => i.id === filterProdutoId)?.nome } : null}
                           onChange={(selectedOption) => setFilterProdutoId(selectedOption ? selectedOption.value : null)}
-                          placeholder="Filtrar Produto..."
+                          placeholder="Produto..."
                           isClearable
-                          noOptionsMessage={() => "Nenhum produto encontrado"}
+                          noOptionsMessage={() => "Nenhum produto"}
                           styles={{
                             control: (base) => ({
                               ...base,
                               borderColor: '#cbd5e1',
-                              minHeight: '34px',
-                              borderRadius: '4px',
-                              fontSize: '1.1rem'
+                              minHeight: '36px',
+                              height: '36px',
+                              borderRadius: '6px',
+                              fontSize: '0.95rem',
+                              backgroundColor: '#ffffff'
                             }),
                             menuPortal: (base) => ({
                               ...base,
                               zIndex: 9999,
-                              fontSize: '1.1rem'
+                              fontSize: '0.95rem'
                             })
                           }}
                         />
@@ -1374,15 +1615,9 @@ function PedidosFoodService() {
                             </span>
                           </td>
                           <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                            {isPendenteProducao && (
-                              <span style={{ backgroundColor: "#ef4444", color: "#ffffff", fontSize: "0.70rem", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", display: "inline-block" }}>Pendente Prod.</span>
-                            )}
-                            {isPendenteEntrega && (
-                              <span style={{ backgroundColor: "#eab308", color: "#ffffff", fontSize: "0.70rem", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", display: "inline-block" }}>Aguardando Entrega</span>
-                            )}
-                            {isEntregue && (
-                              <span style={{ backgroundColor: "#22c55e", color: "#ffffff", fontSize: "0.70rem", fontWeight: "bold", padding: "2px 6px", borderRadius: "4px", textTransform: "uppercase", display: "inline-block" }}>Entregue</span>
-                            )}
+                            {isPendenteProducao && renderStatusBadge('pendente_prod')}
+                            {isPendenteEntrega && renderStatusBadge('aguardando_entrega')}
+                            {isEntregue && renderStatusBadge('entregue')}
                           </td>
                           <td style={{ verticalAlign: "middle", fontWeight: 600 }}>{order.cliente || "-"}</td>
                           <td style={{ textAlign: "center", verticalAlign: "middle" }}>{dataFormatada}</td>
@@ -1446,7 +1681,7 @@ function PedidosFoodService() {
                                     <th style={{ padding: "10px 14px", textAlign: "center", color: "#64748b", fontWeight: "bold", width: "100px" }}>Qtd (L)</th>
                                     <th style={{ padding: "10px 14px", textAlign: "center", color: "#64748b", fontWeight: "bold", width: "180px" }}>Qtd Produzida</th>
                                     <th style={{ padding: "10px 14px", textAlign: "center", color: "#64748b", fontWeight: "bold", width: "180px" }}>Data Entrega</th>
-                                    <th style={{ padding: "10px 14px", textAlign: "center", color: "#64748b", fontWeight: "bold", width: "120px" }}>Status</th>
+                                    <th style={{ padding: "10px 14px", textAlign: "center", color: "#64748b", fontWeight: "bold", width: "170px" }}>Status</th>
                                     {isAdmin && <th style={{ padding: "10px 14px", textAlign: "center", color: "#64748b", fontWeight: "bold", width: "140px" }}>Usuário</th>}
                                     <th style={{ padding: "10px 14px", textAlign: "center", color: "#64748b", fontWeight: "bold", width: "120px" }}>Ações</th>
                                   </tr>
@@ -1506,15 +1741,9 @@ function PedidosFoodService() {
                                             />
                                           </td>
                                           <td style={{ textAlign: "center" }}>
-                                            {(!editRowData.quantidade_produzida && !editRowData.data_entrega) && (
-                                              <span style={{ backgroundColor: "#ef4444", color: "#ffffff", fontSize: "0.65rem", fontWeight: "bold", padding: "2px 4px", borderRadius: "4px", textTransform: "uppercase" }}>Pendente Prod.</span>
-                                            )}
-                                            {(editRowData.quantidade_produzida && !editRowData.data_entrega) && (
-                                              <span style={{ backgroundColor: "#eab308", color: "#ffffff", fontSize: "0.65rem", fontWeight: "bold", padding: "2px 4px", borderRadius: "4px", textTransform: "uppercase" }}>Aguardando Entrega</span>
-                                            )}
-                                            {(editRowData.quantidade_produzida && editRowData.data_entrega) && (
-                                              <span style={{ backgroundColor: "#22c55e", color: "#ffffff", fontSize: "0.65rem", fontWeight: "bold", padding: "2px 4px", borderRadius: "4px", textTransform: "uppercase" }}>Entregue</span>
-                                            )}
+                                             {(!editRowData.quantidade_produzida && !editRowData.data_entrega) && renderStatusBadge('pendente_prod')}
+                                             {(editRowData.quantidade_produzida && !editRowData.data_entrega) && renderStatusBadge('aguardando_entrega')}
+                                             {(editRowData.quantidade_produzida && editRowData.data_entrega) && renderStatusBadge('entregue')}
                                           </td>
                                           {isAdmin && <td style={{ textAlign: "center", color: "#94a3b8" }}>-</td>}
                                           <td style={{ textAlign: "center" }}>
@@ -1604,15 +1833,9 @@ function PedidosFoodService() {
                                           )}
                                         </td>
                                         <td style={{ padding: "10px 14px", textAlign: "center" }}>
-                                          {isPendenteProducaoItem && (
-                                            <span style={{ backgroundColor: "#ef4444", color: "#ffffff", fontSize: "0.65rem", fontWeight: "bold", padding: "2px 4px", borderRadius: "4px", textTransform: "uppercase" }}>Pendente Prod.</span>
-                                          )}
-                                          {isPendenteEntregaItem && (
-                                            <span style={{ backgroundColor: "#eab308", color: "#ffffff", fontSize: "0.65rem", fontWeight: "bold", padding: "2px 4px", borderRadius: "4px", textTransform: "uppercase" }}>Aguardando Entrega</span>
-                                          )}
-                                          {isEntregueItem && (
-                                            <span style={{ backgroundColor: "#22c55e", color: "#ffffff", fontSize: "0.65rem", fontWeight: "bold", padding: "2px 4px", borderRadius: "4px", textTransform: "uppercase" }}>Entregue</span>
-                                          )}
+                                          {isPendenteProducaoItem && renderStatusBadge('pendente_prod')}
+                                          {isPendenteEntregaItem && renderStatusBadge('aguardando_entrega')}
+                                          {isEntregueItem && renderStatusBadge('entregue')}
                                         </td>
                                         {isAdmin && (
                                           <td style={{ padding: "10px 14px", textAlign: "center" }}>
@@ -1633,11 +1856,11 @@ function PedidosFoodService() {
                                               </button>
                                             )}
                                             {comp.status_revisao && comp.status_revisao !== 'none' && (
-                                              <div style={{ display: "flex", gap: "2px" }}>
+                                              <div style={{ display: "flex", gap: "4px", alignItems: "center" }}>
                                                 {isAdmin && (comp.status_revisao === 'pending_admin' || comp.status_revisao === 'pending_delete') && (
                                                   <button
                                                     onClick={() => handleApproveReview(comp.id, comp.status_revisao)}
-                                                    title="Aprovar Alteração"
+                                                    title="Aprovar Alteração / Exclusão"
                                                     style={{ background: "#22c55e", color: "white", border: "none", borderRadius: "4px", padding: "4px", cursor: "pointer" }}
                                                   >
                                                     <Icons.BsCheck />
@@ -1646,10 +1869,20 @@ function PedidosFoodService() {
                                                 {isAdmin && (comp.status_revisao === 'pending_admin' || comp.status_revisao === 'pending_delete') && (
                                                   <button
                                                     onClick={() => handleRejectReview(comp.id, comp.status_revisao)}
-                                                    title="Rejeitar Alteração"
+                                                    title="Rejeitar Alteração / Exclusão"
                                                     style={{ background: "#ef4444", color: "white", border: "none", borderRadius: "4px", padding: "4px", cursor: "pointer" }}
                                                   >
                                                     <Icons.BsX />
+                                                  </button>
+                                                )}
+                                                {isAdmin && (
+                                                  <button
+                                                    onClick={() => handleRemoveFromReview(comp.id)}
+                                                    title="Remover linha da revisão"
+                                                    style={{ background: "#64748b", color: "white", border: "none", borderRadius: "4px", padding: "4px 6px", cursor: "pointer", fontSize: "0.85rem", display: "flex", alignItems: "center", gap: "2px" }}
+                                                  >
+                                                    <Icons.BsXCircle style={{ fontSize: "1rem" }} />
+                                                    Remover da Revisão
                                                   </button>
                                                 )}
                                                 {!isAdmin && comp.status_revisao === 'pending_user' && (
