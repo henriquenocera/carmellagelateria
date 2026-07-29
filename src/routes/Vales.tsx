@@ -232,18 +232,20 @@ function Vales() {
       setUserEmail("");
       setCurrentBalance(null);
     } else {
-      setUser(data.name);
+      const cleanName = (data.name || "").trim();
+      setUser(cleanName);
       setUserEmail(data.email);
 
-      let query = supabase.from("Vales").select("valor, created_at, Item").eq("Nome", data.name);
+      let query = supabase.from("Vales").select("valor, created_at, Item, Nome").ilike("Nome", `%${cleanName}%`);
       if (data.data_registro) {
         query = query.gte("created_at", data.data_registro);
       }
-      const { data: valesData, error: valesError } = await query;
+      const { data: rawValesData, error: valesError } = await query;
 
       setIsCheckingId(false);
 
-      if (!valesError && valesData) {
+      if (!valesError && rawValesData) {
+        const valesData = rawValesData.filter(v => v.Nome && v.Nome.trim().toLowerCase() === cleanName.toLowerCase());
         const now = new Date();
         let currTotal = 0;
         let futureTot = 0;
@@ -299,18 +301,20 @@ function Vales() {
       setConsultView(false);
       setCurrentBalance(null);
     } else {
-      setUser(data.name);
+      const cleanName = (data.name || "").trim();
+      setUser(cleanName);
       setUserEmail(data.email);
 
-      let query = supabase.from("Vales").select("*").eq("Nome", data.name).order('created_at', { ascending: false });
+      let query = supabase.from("Vales").select("*").ilike("Nome", `%${cleanName}%`).order('created_at', { ascending: false });
       if (data.data_registro) {
         query = query.gte("created_at", data.data_registro);
       }
-      const { data: valesData, error: valesError } = await query;
+      const { data: rawValesData, error: valesError } = await query;
 
       setIsCheckingId(false);
 
-      if (!valesError && valesData) {
+      if (!valesError && rawValesData) {
+        const valesData = rawValesData.filter(v => v.Nome && v.Nome.trim().toLowerCase() === cleanName.toLowerCase());
         setConsultingVales(valesData);
         const now = new Date();
         let currTotal = 0;
@@ -351,7 +355,7 @@ function Vales() {
     if (validItems.length === 0) return;
 
     const newdatas = validItems.map((i) => ({
-      Nome: user,
+      Nome: user.trim(),
       Unidade: unidadeText,
       Item: i.name,
       valor: -Math.abs(i.valor)
@@ -474,7 +478,9 @@ function Vales() {
   const filteredConsultingVales = consultingVales.filter((vale) => {
     if (showAllConsult) return true;
     const d = new Date(vale.created_at);
-    return d.getUTCMonth() + 1 === filterMonth && d.getUTCFullYear() === filterYear;
+    const matchesLocal = (d.getMonth() + 1 === filterMonth && d.getFullYear() === filterYear);
+    const matchesUTC = (d.getUTCMonth() + 1 === filterMonth && d.getUTCFullYear() === filterYear);
+    return matchesLocal || matchesUTC;
   });
 
   return (
@@ -723,7 +729,9 @@ function Vales() {
                       {futureVales.map((fv, idx) => (
                         <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: "1.3rem", color: "#64748b", marginBottom: "6px", paddingLeft: "8px", borderLeft: "2px solid #fbbf24" }}>
                           <span>{new Date(fv.created_at).toLocaleDateString('pt-BR')} - {fv.Item}</span>
-                          <span style={{ color: Number(fv.valor) < 0 ? "#ef4444" : "#16a34a", fontWeight: 600 }}>R$ {Math.abs(Number(fv.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          <span style={{ color: Number(fv.valor) < 0 ? "#ef4444" : "#16a34a", fontWeight: 600 }}>
+                            {Number(fv.valor) > 0 ? '+ ' : Number(fv.valor) < 0 ? '- ' : ''}R$ {Math.abs(Number(fv.valor)).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
                         </div>
                       ))}
                       <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", paddingTop: "8px", borderTop: "1px dashed #fcd34d" }}>
