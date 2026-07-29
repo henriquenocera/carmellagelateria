@@ -56,7 +56,7 @@ const getFolgaStyle = (status) => {
 const getAlertaCategoria = (notif) => {
   const id = (notif.id || "").toLowerCase();
   const title = (notif.titulo || "").toLowerCase();
-  
+
   if (id.includes("freezer") || id.includes("cuba-velha") || id.includes("estoque-baixo") || title.includes("freezer")) {
     return "Freezer";
   }
@@ -88,14 +88,14 @@ function Home() {
         .from(table)
         .update({ status_revisao: isFinance ? null : "none", revisao_observacao: null })
         .eq("id", id);
-      
+
       if (error) throw error;
-      
+
       // Update local state
       setRevisoes(prev => {
-        const key = table === "entradas_mercadoria" ? "entradas" 
-                  : table === "movimentacoes_estoque" ? "movimentacoes" 
-                  : "lancamentos";
+        const key = table === "entradas_mercadoria" ? "entradas"
+          : table === "movimentacoes_estoque" ? "movimentacoes"
+            : "lancamentos";
         return {
           ...prev,
           [key]: prev[key].filter(item => item.id !== id)
@@ -114,14 +114,14 @@ function Home() {
         .from(table)
         .delete()
         .eq("id", id);
-      
+
       if (error) throw error;
-      
+
       // Update local state
       setRevisoes(prev => {
-        const key = table === "entradas_mercadoria" ? "entradas" 
-                  : table === "movimentacoes_estoque" ? "movimentacoes" 
-                  : "lancamentos";
+        const key = table === "entradas_mercadoria" ? "entradas"
+          : table === "movimentacoes_estoque" ? "movimentacoes"
+            : "lancamentos";
         return {
           ...prev,
           [key]: prev[key].filter(item => item.id !== id)
@@ -140,14 +140,14 @@ function Home() {
         .from(table)
         .update({ status_revisao: isFinance ? null : "none", revisao_observacao: null })
         .eq("id", id);
-      
+
       if (error) throw error;
-      
+
       // Update local state
       setRevisoes(prev => {
-        const key = table === "entradas_mercadoria" ? "entradas" 
-                  : table === "movimentacoes_estoque" ? "movimentacoes" 
-                  : "lancamentos";
+        const key = table === "entradas_mercadoria" ? "entradas"
+          : table === "movimentacoes_estoque" ? "movimentacoes"
+            : "lancamentos";
         return {
           ...prev,
           [key]: prev[key].filter(item => item.id !== id)
@@ -523,7 +523,7 @@ function Home() {
                 `)
                 .in("status_revisao", ["pending_user", "pending_admin", "pending_delete"])
             ]);
-            
+
             reviewData = {
               entradas: entradasRes.data || [],
               movimentacoes: movRes.data || [],
@@ -837,7 +837,7 @@ function Home() {
             </div>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-              
+
               {/* Entradas */}
               {revisoes.entradas.length > 0 && (
                 <div>
@@ -1038,7 +1038,7 @@ function Home() {
                             ({subcatNotifs.length} {subcatNotifs.length === 1 ? "aviso" : "avisos"})
                           </span>
                         </div>
-                        
+
                         {subcatNotifs.length === 0 ? (
                           <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 12px", color: "#10b981", fontSize: "1.3rem" }}>
                             <Icons.BsCheckCircle style={{ fontSize: "1.4rem" }} />

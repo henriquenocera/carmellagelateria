@@ -323,11 +323,11 @@ const AnaliseVales = () => {
   }
 
   // Extract unique lists for filters based on what is in the DB
-  const uniqueEmployees = Array.from(new Set([...profiles.map(p => p.name.split(" ")[0]), ...vales.map(v => v.Nome)])).filter(Boolean).sort();
+  const uniqueEmployees = Array.from(new Set([...profiles.map(p => p.name ? p.name.trim() : ""), ...vales.map(v => v.Nome)])).filter(Boolean).sort();
   const activeEmployees = Array.from(new Set(
     profiles
-      .filter(p => p.controlar_frequencia !== false && p.ativo !== false)
-      .map(p => p.name.split(" ")[0])
+      .filter(p => p.ativo !== false)
+      .map(p => p.name ? p.name.trim() : "")
   )).filter(Boolean).sort();
   const uniqueUnidades = Array.from(new Set([...unidadesList, ...vales.map(v => v.Unidade)])).filter(Boolean).sort();
 
