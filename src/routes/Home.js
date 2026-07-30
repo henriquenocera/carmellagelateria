@@ -71,19 +71,14 @@ function Home() {
             >
               Todos
             </button>
-            {manualData.map(major => (
-              <div key={major.id} className="desktop-filter-group">
-                <span className="major-category-tag filter-tag">{major.icon} {major.title}</span>
-                {major.categories.map(cat => (
-                  <button 
-                    key={cat.id}
-                    className={`tab-btn ${activeCategory === cat.id ? "active" : ""}`}
-                    onClick={() => setActiveCategory(cat.id)}
-                  >
-                    {cat.icon} {cat.title}
-                  </button>
-                ))}
-              </div>
+            {allSubCategories.map(cat => (
+              <button 
+                key={cat.id}
+                className={`tab-btn ${activeCategory === cat.id ? "active" : ""}`}
+                onClick={() => setActiveCategory(cat.id)}
+              >
+                {cat.icon} {cat.title}
+              </button>
             ))}
           </div>
 
@@ -116,19 +111,14 @@ function Home() {
                   >
                     Todos
                   </button>
-                  {manualData.map(major => (
-                    <div key={major.id} className="modal-filter-group">
-                      <span className="major-category-tag filter-tag">{major.icon} {major.title}</span>
-                      {major.categories.map(cat => (
-                        <button 
-                          key={cat.id}
-                          className={`tab-btn full-width ${activeCategory === cat.id ? "active" : ""}`}
-                          onClick={() => { setActiveCategory(cat.id); setFilterOpen(false); }}
-                        >
-                          {cat.icon} {cat.title}
-                        </button>
-                      ))}
-                    </div>
+                  {allSubCategories.map(cat => (
+                    <button 
+                      key={cat.id}
+                      className={`tab-btn full-width ${activeCategory === cat.id ? "active" : ""}`}
+                      onClick={() => { setActiveCategory(cat.id); setFilterOpen(false); }}
+                    >
+                      {cat.icon} {cat.title}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -145,7 +135,6 @@ function Home() {
                 major.categories.map(category => (
                   <div key={category.id} className="category-section">
                     <div className="category-header-wrapper">
-                      <span className="major-category-tag">{major.icon} {major.title}</span>
                       <h2 className="category-heading">{category.icon} {category.title}</h2>
                     </div>
                     <div className="products-grid">

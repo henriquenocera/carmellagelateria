@@ -1,36 +1,36 @@
 export const manualData = [
-  {
-    id: "operacional",
-    title: "Operacional",
-    icon: "⚙️",
-    categories: [
-      {
-        id: "sistema-pdv",
-        title: "Sistema PDV",
-        icon: "📋",
-        products: [
-          {
-            id: 100,
-            name: "Abertura de Loja",
-            portions: [
-              {
-                size: "Checklist de Abertura",
-                description: "Tarefas para iniciar o dia",
-                container: "Uso interno",
-                steps: [
-                  "1. Ligar as luzes e o ar condicionado",
-                  "2. Ligar a máquina de café espresso",
-                  "3. Verificar a temperatura da vitrine de gelatos (-12ºC a -15ºC)",
-                  "4. Conferir o fundo de caixa e iniciar o PDV",
-                  "5. Preparar a vitrine (alinhar as cubas e limpar os vidros)",
-                ],
-              },
-            ],
-          },
-        ],
-      },
-    ],
-  },
+  /*   {
+      id: "operacional",
+      title: "Operacional",
+      icon: "⚙️",
+      categories: [
+        {
+          id: "sistema-pdv",
+          title: "Sistema PDV",
+          icon: "📋",
+          products: [
+            {
+              id: 100,
+              name: "Abertura de Loja",
+              portions: [
+                {
+                  size: "Checklist de Abertura",
+                  description: "Tarefas para iniciar o dia",
+                  container: "Uso interno",
+                  steps: [
+                    "1. Ligar as luzes e o ar condicionado",
+                    "2. Ligar a máquina de café espresso",
+                    "3. Verificar a temperatura da vitrine de gelatos (-12ºC a -15ºC)",
+                    "4. Conferir o fundo de caixa e iniciar o PDV",
+                    "5. Preparar a vitrine (alinhar as cubas e limpar os vidros)",
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    }, */
   {
     id: "produtos",
     title: "Produtos",
@@ -93,13 +93,14 @@ export const manualData = [
                 ],
               },
               {
-                size: "Pote 480ml",
-                grams: 400,
+                size: "Pote 550ml",
+                grams: 450,
                 description: "até 2 sabores",
-                container: "Pote 480ml",
+                container: "Pote 550ml",
                 finishedImage: "/images/manual/copo-grande.jpg",
                 steps: [
-                  "Pegar o pote de 480ml e servir uma porção de cada lado",
+                  "Pegar o pote de 550ml e servir uma porção de cada lado",
+                  "Colocar dentro da embalagem metálica protetora",
                   "Entregar ao cliente dentro da Sacola",
                 ],
               },
@@ -151,7 +152,7 @@ export const manualData = [
             ],
             steps: [
               "Desenformar da embalagem de alumínio em um prato de cerâmica",
-              "Aquecer por 45 segundos no microondas",
+              "Aquecer por 60 segundos no microondas",
               "Servir com uma colher",
               "Caso tenha uma bola de sorvete para acompanhar, servir a bola de sorvete com o boleador em cima do brownie",
               "Finalizar com a calda de chocolate",
