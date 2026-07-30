@@ -302,6 +302,20 @@
   transition: background-color 0.2s, color 0.2s;
 }
 
+.category-action-btn.move, .topic-action-btn.move {
+  color: #64748b;
+}
+
+.category-action-btn.move:hover:not(:disabled), .topic-action-btn.move:hover:not(:disabled) {
+  background-color: rgba(100, 116, 139, 0.15);
+  color: var(--primary-color);
+}
+
+.category-action-btn:disabled, .topic-action-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
 .category-action-btn.edit, .topic-action-btn.edit {
   color: #3b82f6;
 }
@@ -410,7 +424,7 @@
   align-items: center;
   gap: 4px;
   margin-left: 8px;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s;
 }
 

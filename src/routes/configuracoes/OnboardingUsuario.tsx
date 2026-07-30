@@ -345,6 +345,102 @@ function OnboardingUsuario() {
     }
   };
 
+  // Reorder Categories
+  const handleMoveCategory = async (catId: number, direction: 'up' | 'down') => {
+    const index = categories.findIndex(c => c.id === catId);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === categories.length - 1) return;
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const newCategories = [...categories];
+    const temp = newCategories[index];
+    newCategories[index] = newCategories[targetIndex];
+    newCategories[targetIndex] = temp;
+
+    const reordered = newCategories.map((cat, i) => ({
+      ...cat,
+      ordem: i
+    }));
+
+    setCategories(reordered);
+    setSaveStatus("salvando");
+
+    try {
+      if (isSimulated) {
+        localStorage.setItem("onboarding_categories_simulated", JSON.stringify(reordered));
+        setSaveStatus("salvo");
+      } else {
+        const updates = reordered.map(c => 
+          supabase
+            .from("onboarding_categories")
+            .update({ ordem: c.ordem })
+            .eq("id", c.id)
+        );
+
+        await Promise.all(updates);
+        setSaveStatus("salvo");
+      }
+    } catch (err) {
+      console.error("Erro ao reordenar categorias:", err);
+      setSaveStatus("erro");
+    }
+  };
+
+  // Reorder Topics within Category
+  const handleMoveTopic = async (topicId: number, direction: 'up' | 'down') => {
+    const targetTopic = topics.find(t => t.id === topicId);
+    if (!targetTopic) return;
+
+    const catTopics = topics.filter(t => t.category_id === targetTopic.category_id);
+    const index = catTopics.findIndex(t => t.id === topicId);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === catTopics.length - 1) return;
+
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    const newCatTopics = [...catTopics];
+    const temp = newCatTopics[index];
+    newCatTopics[index] = newCatTopics[targetIndex];
+    newCatTopics[targetIndex] = temp;
+
+    const reorderedCatTopics = newCatTopics.map((top, i) => ({
+      ...top,
+      ordem: i
+    }));
+
+    const updatedTopics = topics.map(t => {
+      if (t.category_id === targetTopic.category_id) {
+        const found = reorderedCatTopics.find(rt => rt.id === t.id);
+        return found || t;
+      }
+      return t;
+    });
+
+    setTopics(updatedTopics);
+    setSaveStatus("salvando");
+
+    try {
+      if (isSimulated) {
+        localStorage.setItem("onboarding_topics_simulated", JSON.stringify(updatedTopics));
+        setSaveStatus("salvo");
+      } else {
+        const updates = reorderedCatTopics.map(t =>
+          supabase
+            .from("onboarding_topics")
+            .update({ ordem: t.ordem })
+            .eq("id", t.id)
+        );
+
+        await Promise.all(updates);
+        setSaveStatus("salvo");
+      }
+    } catch (err) {
+      console.error("Erro ao reordenar tópicos:", err);
+      setSaveStatus("erro");
+    }
+  };
+
   // Update Category
   const handleSaveCategoryName = async (catId: number) => {
     if (!editingCategoryName.trim()) return;
@@ -773,7 +869,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.onboarding;`;
         </div>
 
         <div className="onboarding-grid">
-          {categories.map((category) => {
+          {categories.map((category, catIndex) => {
             const categoryTopics = topics.filter(t => t.category_id === category.id);
             return (
               <div key={category.id} className="onboarding-card">
@@ -797,6 +893,23 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.onboarding;`;
                       )}
                       
                       <div className="category-actions">
+                        <button 
+                          className="category-action-btn move"
+                          title="Mover Categoria para Cima"
+                          disabled={catIndex === 0}
+                          onClick={() => handleMoveCategory(category.id, 'up')}
+                        >
+                          <Icons.BsArrowUp />
+                        </button>
+                        <button 
+                          className="category-action-btn move"
+                          title="Mover Categoria para Baixo"
+                          disabled={catIndex === categories.length - 1}
+                          onClick={() => handleMoveCategory(category.id, 'down')}
+                        >
+                          <Icons.BsArrowDown />
+                        </button>
+
                         <select
                           value={category.type || 'checklist'}
                           onChange={(e) => handleUpdateCategoryType(category.id, e.target.value as 'checklist' | 'text')}
@@ -854,7 +967,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.onboarding;`;
                 </h2>
 
                 <div className="checklist-list">
-                  {categoryTopics.map(topic => (
+                  {categoryTopics.map((topic, topicIndex) => (
                     <div 
                       key={topic.id} 
                       className={`checklist-item ${completions[topic.id] ? "completed" : ""} ${category.type === 'text' ? "text-block" : ""}`}
@@ -880,6 +993,22 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.onboarding;`;
                           )}
 
                           <div className="topic-edit-controls">
+                            <button 
+                              className="topic-action-btn move"
+                              title="Mover Tópico para Cima"
+                              disabled={topicIndex === 0}
+                              onClick={() => handleMoveTopic(topic.id, 'up')}
+                            >
+                              <Icons.BsArrowUp />
+                            </button>
+                            <button 
+                              className="topic-action-btn move"
+                              title="Mover Tópico para Baixo"
+                              disabled={topicIndex === categoryTopics.length - 1}
+                              onClick={() => handleMoveTopic(topic.id, 'down')}
+                            >
+                              <Icons.BsArrowDown />
+                            </button>
                             {editingTopicId === topic.id ? (
                               <button 
                                 className="topic-action-btn save"
