@@ -303,17 +303,6 @@ function Onboarding() {
       </Helmet>
 
       <div className="onboarding-page-container">
-        {/* Header Title Bar */}
-        <div className="onboarding-top-bar">
-          <div className="title-group">
-            <h1>
-              <Icons.BsCheck2Square className="header-icon" />
-              Tarefas de Onboarding
-            </h1>
-            <p>Acompanhe e conclua seu plano de integração</p>
-          </div>
-        </div>
-
         {/* User Card & Progress Overview */}
         <div className="user-overview-card">
           <div className="user-details-section">
@@ -321,6 +310,9 @@ function Onboarding() {
               {selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : "U"}
             </div>
             <div className="user-info">
+              <span className="welcome-subtitle">
+                Bem-vindo(a) {selectedUser.name} ao seu onboarding da Carmella Gelateria
+              </span>
               <h2>{selectedUser.name}</h2>
               <p className="user-meta">
                 <span><Icons.BsEnvelope /> {selectedUser.email}</span>
@@ -340,41 +332,6 @@ function Onboarding() {
                   ? "Em Andamento"
                   : "Pendente"}
               </span>
-            </div>
-          </div>
-
-          {/* Statistics Grid Cards */}
-          <div className="stats-cards-grid">
-            <div className="stat-card">
-              <span className="stat-icon total"><Icons.BsListTask /></span>
-              <div className="stat-info">
-                <span className="stat-value">{stats.total}</span>
-                <span className="stat-label">Total de Tarefas</span>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <span className="stat-icon done"><Icons.BsCheckCircle /></span>
-              <div className="stat-info">
-                <span className="stat-value">{stats.completedCount}</span>
-                <span className="stat-label">Concluídas</span>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <span className="stat-icon pending"><Icons.BsClockHistory /></span>
-              <div className="stat-info">
-                <span className="stat-value">{stats.pendingCount}</span>
-                <span className="stat-label">Pendentes</span>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <span className="stat-icon percent"><Icons.BsPieChart /></span>
-              <div className="stat-info">
-                <span className="stat-value">{stats.percentage}%</span>
-                <span className="stat-label">Progresso Geral</span>
-              </div>
             </div>
           </div>
 

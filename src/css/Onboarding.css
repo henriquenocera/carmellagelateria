@@ -133,6 +133,14 @@
   min-width: 240px;
 }
 
+.welcome-subtitle {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #784e21;
+  margin-bottom: 4px;
+}
+
 .user-info h2 {
   font-size: 22px;
   font-weight: 700;
