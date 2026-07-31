@@ -47,6 +47,7 @@ const router = createBrowserRouter(
         <Route path="/regras" element={<Regras />} />
         <Route path="/regulamento-interno" element={<RegulamentoInterno />} />
         <Route path="/onboarding" element={<Onboarding />} />
+        <Route path="/onboarding/:username" element={<Onboarding />} />
       </Route>
     </Route>
   )

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import "../css/Onboarding.css";
+import { useParams } from "react-router-dom";
 import { supabase } from "../supabaseClient";
 import { useAuth } from "../auth/AuthContext";
 
@@ -75,10 +76,131 @@ const DEFAULT_TOPICS = [
   { id: 601, category_id: 6, title: "Sempre receba nossos clientes com um sorriso, ofereça amostras de gelatos com cortesia e mantenha a bancada limpa e organizada em todos os momentos.", ordem: 0 },
 ];
 
+const parseInlineFormatting = (str) => {
+  if (!str) return "";
+
+  let line = String(str);
+
+  // Handle unclosed ** (e.g. **Frases que valorizamos:)
+  if (line.startsWith("**") && (line.match(/\*\*/g) || []).length % 2 !== 0) {
+    line = line + "**";
+  }
+
+  const parts = line.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length >= 4) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length >= 2) {
+      const inner = part.slice(1, -1).trim();
+      return <em key={i}>{inner}</em>;
+    }
+    return part;
+  });
+};
+
+const renderFormattedText = (text) => {
+  if (!text) return null;
+
+  // 1. Convert all forms of newlines (\r\n, \r, literal \n, escaped \\n) into real \n
+  let normalized = String(text)
+    .replace(/\\n/g, "\n")
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "");
+
+  // 2. Insert line breaks before inline headings (# or ##) if joined without newlines
+  normalized = normalized.replace(/([^\n])\s+(?=#+\s)/g, "$1\n");
+
+  // 3. Insert line breaks before inline bold labels (**Text:) if joined without newlines
+  normalized = normalized.replace(/([^\n])\s+(?=\*\*[^*]+\*\*?:?)/g, "$1\n");
+
+  // 4. Insert line breaks before inline bullet items (*- or -) if joined without newlines
+  normalized = normalized.replace(/([^\n])\s+(?=\*?\s*-\s+)/g, "$1\n");
+
+  // 5. Insert line breaks before inline numbered list items (2. 3. 4.) if joined without newlines
+  normalized = normalized.replace(/(\d+\.\s+.*?)(?=\s+\d+\.\s+)/g, "$1\n");
+
+  // 6. Separate Heading from paragraph if joined like "## O Cliente O cliente não sabe pedir..."
+  normalized = normalized.replace(/^(##?\s+O Cliente)\s+(O cliente)/gm, "$1\n$2");
+
+  const lines = normalized.split("\n");
+
+  return (
+    <div className="formatted-text-block">
+      {lines.map((line, idx) => {
+        let trimmed = line.trim();
+        if (!trimmed) {
+          return <div key={idx} className="onboarding-text-spacer" />;
+        }
+
+        // H1 Heading (# Heading or #Heading or H1: Heading)
+        if (/^#(?!#)\s*|^H1:\s*/i.test(trimmed)) {
+          const content = trimmed.replace(/^#\s*|^H1:\s*/i, "");
+          return (
+            <h1 key={idx} className="onboarding-text-h1">
+              {parseInlineFormatting(content)}
+            </h1>
+          );
+        }
+
+        // H2 Heading (## Heading or ##Heading or H2: Heading)
+        if (/^##\s*|^H2:\s*/i.test(trimmed)) {
+          const content = trimmed.replace(/^##\s*|^H2:\s*/i, "");
+          return (
+            <h1 key={idx} className="onboarding-text-h1">
+              {parseInlineFormatting(content)}
+            </h1>
+          );
+        }
+
+        // H3 Heading (### Heading or H3: Heading)
+        if (/^###\s*|^H3:\s*/i.test(trimmed)) {
+          const content = trimmed.replace(/^###\s*|^H3:\s*/i, "");
+          return (
+            <h3 key={idx} className="onboarding-text-h3">
+              {parseInlineFormatting(content)}
+            </h3>
+          );
+        }
+
+        // Bullet / Italic list item starting with *- or * - or -
+        if (/^\*?\s*-\s*/.test(trimmed)) {
+          let content = trimmed.replace(/^\*?\s*-\s*/, "");
+          if (content.endsWith("*")) content = content.slice(0, -1);
+          return (
+            <p key={idx} className="onboarding-text-p list-item-italic">
+              <em>- {parseInlineFormatting(content)}</em>
+            </p>
+          );
+        }
+
+        // Normal paragraph line
+        return (
+          <p key={idx} className="onboarding-text-p">
+            {parseInlineFormatting(trimmed)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
+const normalizeSlug = (str) => {
+  if (!str) return "";
+  return String(str)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+};
+
 function Onboarding() {
+  const { username } = useParams();
   const { user } = useAuth();
 
   const [currentUserProfile, setCurrentUserProfile] = useState(null);
+  const [targetProfile, setTargetProfile] = useState(null);
+  const [userNotFound, setUserNotFound] = useState(false);
   const [categories, setCategories] = useState([]);
   const [topics, setTopics] = useState([]);
   const [completions, setCompletions] = useState({});
@@ -95,7 +217,7 @@ function Onboarding() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, name, email, cargo, data_registro")
+        .select("id, name, email, cargo, data_registro, is_admin, is_lider")
         .eq("id", user.id)
         .single();
 
@@ -107,6 +229,8 @@ function Onboarding() {
           name: user.user_metadata?.full_name || user.email?.split("@")[0] || "Usuário Logado",
           email: user.email || "usuario@carmellagelateria.com.br",
           cargo: "Colaborador",
+          is_admin: false,
+          is_lider: false,
           data_registro: new Date().toISOString().split("T")[0],
         };
         setCurrentUserProfile(fallback);
@@ -117,6 +241,8 @@ function Onboarding() {
         name: user?.email?.split("@")[0] || "Usuário Logado",
         email: user?.email || "usuario@carmellagelateria.com.br",
         cargo: "Colaborador",
+        is_admin: false,
+        is_lider: false,
       };
       setCurrentUserProfile(fallback);
     }
@@ -204,19 +330,74 @@ function Onboarding() {
   }, [fetchUserProfile]);
 
   useEffect(() => {
-    const targetId = user?.id || "current-user";
-    loadUserTasks(targetId);
-  }, [user, loadUserTasks]);
+    const resolveTargetUser = async () => {
+      if (!username) {
+        if (currentUserProfile) {
+          setTargetProfile(currentUserProfile);
+          setUserNotFound(false);
+          loadUserTasks(currentUserProfile.id);
+        } else if (user) {
+          loadUserTasks(user.id);
+        }
+        return;
+      }
 
-  // Logged-in User Object
+      const searchSlug = normalizeSlug(username);
+      setLoading(true);
+
+      try {
+        const { data: profilesData, error } = await supabase
+          .from("profiles")
+          .select("id, name, email, cargo, data_registro, is_admin, is_lider, short_id");
+
+        if (!error && profilesData && profilesData.length > 0) {
+          const found = profilesData.find((p) => {
+            const nameSlug = normalizeSlug(p.name);
+            if (nameSlug === searchSlug) return true;
+            if (p.short_id && p.short_id.toString().toLowerCase() === searchSlug) return true;
+            if (p.id === username) return true;
+            const emailSlug = normalizeSlug(p.email ? p.email.split("@")[0] : "");
+            if (emailSlug === searchSlug) return true;
+            return false;
+          }) || profilesData.find((p) => {
+            const nameSlug = normalizeSlug(p.name);
+            return nameSlug.includes(searchSlug) || searchSlug.includes(nameSlug);
+          });
+
+          if (found) {
+            setTargetProfile(found);
+            setUserNotFound(false);
+            loadUserTasks(found.id);
+          } else {
+            setTargetProfile(null);
+            setUserNotFound(true);
+            setLoading(false);
+          }
+        } else {
+          setTargetProfile(null);
+          setUserNotFound(true);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error("Erro ao resolver colaborador por username:", err);
+        setTargetProfile(null);
+        setUserNotFound(true);
+        setLoading(false);
+      }
+    };
+
+    resolveTargetUser();
+  }, [username, currentUserProfile, user, loadUserTasks, fetchUserProfile]);
+
+  // Logged-in or Target User Object
   const selectedUser = useMemo(() => {
-    return currentUserProfile || {
+    return targetProfile || currentUserProfile || {
       id: user?.id || "current-user",
       name: user?.email?.split("@")[0] || "Colaborador",
       email: user?.email || "colaborador@carmellagelateria.com.br",
       cargo: "Colaborador",
     };
-  }, [currentUserProfile, user]);
+  }, [targetProfile, currentUserProfile, user]);
 
   // Calculate Progress & Statistics
   const stats = useMemo(() => {
@@ -240,8 +421,19 @@ function Onboarding() {
     return { total, completedCount, pendingCount, percentage, status };
   }, [categories, topics, completions]);
 
+  // Check if current logged in user can edit onboarding checklist (Leader or Admin only)
+  const canEditChecklist = useMemo(() => {
+    if (!currentUserProfile) return false;
+    return !!(currentUserProfile.is_admin || currentUserProfile.is_lider);
+  }, [currentUserProfile]);
+
   // Toggle Completion Handler
   const handleToggleCompletion = async (topicId) => {
+    if (!canEditChecklist) {
+      alert("Apenas usuários líderes e administradores podem marcar ou desmarcar tarefas de onboarding.");
+      return;
+    }
+
     const targetUserId = selectedUser.id;
     if (!targetUserId) return;
 
@@ -295,6 +487,20 @@ function Onboarding() {
 
     return true;
   };
+
+  if (userNotFound) {
+    return (
+      <div className="onboarding-page-container" style={{ padding: "60px 20px", textAlign: "center" }}>
+        <div className="user-overview-card" style={{ maxWidth: "600px", margin: "0 auto", padding: "40px 20px", alignItems: "center" }}>
+          <Icons.BsPersonX style={{ fontSize: "3.5rem", color: "#ef4444", marginBottom: "12px" }} />
+          <h2 style={{ color: "#784e21", marginBottom: "8px" }}>Colaborador Não Encontrado</h2>
+          <p style={{ color: "#666", marginBottom: "20px" }}>
+            Não encontramos nenhum colaborador cadastrado correspondente a <strong>"{username}"</strong>.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -434,11 +640,19 @@ function Onboarding() {
                   <div className="topics-list">
                     {categoryTopics.map((topic) => {
                       const isDone = !!completions[topic.id];
+                      const titleStr = topic.title ? String(topic.title).trim() : "";
 
-                      if (category.type === "text") {
+                      const isTextType =
+                        category.type === "text" ||
+                        titleStr.startsWith("#") ||
+                        titleStr.includes("\n") ||
+                        titleStr.includes("\\n") ||
+                        /^\d+\.\s+/.test(titleStr);
+
+                      if (isTextType) {
                         return (
                           <div key={topic.id} className="text-topic-item">
-                            <p>{topic.title}</p>
+                            {renderFormattedText(topic.title)}
                           </div>
                         );
                       }
@@ -446,13 +660,16 @@ function Onboarding() {
                       return (
                         <div
                           key={topic.id}
-                          className={`task-row-item ${isDone ? "completed" : ""}`}
+                          className={`task-row-item ${isDone ? "completed" : ""} ${!canEditChecklist ? "disabled" : ""}`}
                           onClick={() => handleToggleCompletion(topic.id)}
+                          style={!canEditChecklist ? { cursor: "not-allowed" } : {}}
+                          title={!canEditChecklist ? "Apenas líderes e administradores podem alterar o status das tarefas." : ""}
                         >
                           <div className="checkbox-custom">
                             <input
                               type="checkbox"
                               checked={isDone}
+                              disabled={!canEditChecklist}
                               onChange={() => {}} // Click handled by row
                             />
                             <span className="checkmark">

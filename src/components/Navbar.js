@@ -7,7 +7,6 @@ import { useAuth } from "../auth/AuthContext";
 
 const navItems = [
   { to: "/", icon: Icons.BsHouseDoor, label: "Início" },
-  { to: "/onboarding", icon: Icons.BsCheck2Square, label: "Onboarding" },
   { to: "/regras", icon: Icons.BsJournalCheck, label: "Regras da Loja" },
 ];
 
