@@ -213,6 +213,32 @@ const formatDateBR = (dateStr) => {
   }
 };
 
+const getCompletionData = (comp) => {
+  if (!comp) return { completed: false };
+  if (typeof comp === "boolean") return { completed: comp };
+  return {
+    completed: !!comp.completed,
+    updated_at: comp.updated_at || null,
+    completed_by_name: comp.completed_by_name || null,
+  };
+};
+
+const formatDateTimeBR = (isoString) => {
+  if (!isoString) return "";
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return "";
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    const hours = String(d.getHours()).padStart(2, "0");
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    return `${day}/${month}/${year} às ${hours}:${minutes}`;
+  } catch (e) {
+    return "";
+  }
+};
+
 function Onboarding() {
   const { username } = useParams();
   const { user } = useAuth();
@@ -306,12 +332,16 @@ function Onboarding() {
       let compMap = {};
       const { data: dbComps, error: compError } = await supabase
         .from("onboarding_completions")
-        .select("topic_id, completed")
+        .select("topic_id, completed, updated_at, completed_by_name")
         .eq("profile_id", profileId);
 
       if (!compError && dbComps) {
         dbComps.forEach((c) => {
-          compMap[c.topic_id] = c.completed;
+          compMap[c.topic_id] = {
+            completed: c.completed,
+            updated_at: c.updated_at,
+            completed_by_name: c.completed_by_name,
+          };
         });
       } else {
         // Fallback to localStorage
@@ -426,7 +456,9 @@ function Onboarding() {
     const checklistTopics = topics.filter((t) => checklistCatIds.has(t.category_id));
     
     const total = checklistTopics.length;
-    const completedCount = checklistTopics.filter((t) => completions[t.id] === true).length;
+    const completedCount = checklistTopics.filter(
+      (t) => getCompletionData(completions[t.id]).completed
+    ).length;
     const pendingCount = total - completedCount;
     const percentage = total > 0 ? Math.round((completedCount / total) * 100) : 0;
 
@@ -456,9 +488,30 @@ function Onboarding() {
     const targetUserId = selectedUser.id;
     if (!targetUserId) return;
 
+    const currentCompData = getCompletionData(completions[topicId]);
+    const isNowCompleted = !currentCompData.completed;
+
+    const updaterName = currentUserProfile?.name || user?.email?.split("@")[0] || "Líder";
+    const nowIso = new Date().toISOString();
+
+    let newEntry = null;
+    if (isNowCompleted) {
+      newEntry = {
+        completed: true,
+        updated_at: nowIso,
+        completed_by_name: updaterName,
+      };
+    } else {
+      newEntry = {
+        completed: false,
+        updated_at: null,
+        completed_by_name: null,
+      };
+    }
+
     const newCompletions = {
       ...completions,
-      [topicId]: !completions[topicId],
+      [topicId]: newEntry,
     };
 
     setCompletions(newCompletions);
@@ -476,8 +529,9 @@ function Onboarding() {
           {
             profile_id: targetUserId,
             topic_id: topicId,
-            completed: newCompletions[topicId],
-            updated_at: new Date().toISOString(),
+            completed: isNowCompleted,
+            updated_at: isNowCompleted ? nowIso : null,
+            completed_by_name: isNowCompleted ? updaterName : null,
           },
         ],
         { onConflict: "profile_id,topic_id" }
@@ -671,7 +725,8 @@ function Onboarding() {
 
                   <div className="topics-list">
                     {categoryTopics.map((topic) => {
-                      const isDone = !!completions[topic.id];
+                      const compData = getCompletionData(completions[topic.id]);
+                      const isDone = compData.completed;
                       const titleStr = topic.title ? String(topic.title).trim() : "";
 
                       const isTextType =
@@ -688,6 +743,9 @@ function Onboarding() {
                           </div>
                         );
                       }
+
+                      const timeFormatted = compData.updated_at ? formatDateTimeBR(compData.updated_at) : "";
+                      const completedByText = compData.completed_by_name || "";
 
                       return (
                         <div
@@ -708,7 +766,18 @@ function Onboarding() {
                               {isDone && <Icons.BsCheckLg />}
                             </span>
                           </div>
-                          <span className="task-title">{topic.title}</span>
+
+                          <div className="task-content-wrapper">
+                            <span className="task-title">{topic.title}</span>
+                            {isDone && (timeFormatted || completedByText) && (
+                              <span className="task-completion-info">
+                                <Icons.BsCheckCircleFill className="completion-info-icon" />
+                                Concluído
+                                {completedByText ? ` por ${completedByText}` : ""}
+                                {timeFormatted ? ` em ${timeFormatted}` : ""}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       );
                     })}
