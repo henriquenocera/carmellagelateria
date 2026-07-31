@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap');
+
 .onboarding-page-container {
   max-width: 1200px;
   margin: 30px auto;
@@ -91,6 +93,22 @@
   box-shadow: 0 0 0 3px rgba(120, 78, 33, 0.12);
 }
 
+/* Top Welcome Standalone Text */
+.welcome-top-standalone {
+  margin-bottom: 22px;
+  padding: 4px 2px;
+}
+
+.welcome-top-text-chic {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-size: 21px;
+  font-weight: 600;
+  color: #6b431e;
+  letter-spacing: -0.2px;
+  line-height: 1.35;
+  display: block;
+}
+
 /* User Overview Card */
 .user-overview-card {
   background: #fff;
@@ -113,19 +131,36 @@
   flex-wrap: wrap;
 }
 
-.user-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+.user-name-inline-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 16px;
+}
+
+.user-avatar-inline {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
   background: linear-gradient(135deg, #784e21, #a17550);
   color: #fff;
   font-weight: 800;
-  font-size: 24px;
-  display: flex;
+  font-size: 22px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(120, 78, 33, 0.25);
+  box-shadow: 0 3px 8px rgba(120, 78, 33, 0.25);
+  margin-right: 2px;
   flex-shrink: 0;
+}
+
+.user-name-inline {
+  font-size: 24px;
+  font-weight: 800;
+  color: #2c2117;
+  letter-spacing: -0.4px;
+  margin: 0;
+  line-height: 1;
 }
 
 .user-info {
@@ -133,29 +168,14 @@
   min-width: 240px;
 }
 
-.welcome-subtitle {
-  display: block;
-  font-size: 15px;
-  font-weight: 700;
-  color: #784e21;
-  margin-bottom: 4px;
-}
-
-.user-info h2 {
-  font-size: 22px;
-  font-weight: 700;
-  color: #2c2117;
-  margin: 0 0 4px 0;
-}
-
 .user-meta {
   font-size: 13px;
   color: #666;
   margin: 0;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
 }
 
 .status-badge-container {

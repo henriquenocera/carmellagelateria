@@ -28,11 +28,14 @@ const ScrollToTop = () => {
 
 const AppLayout = () => {
   const { user } = useAuth();
+  const location = useLocation();
+
+  const hideNavbar = location.pathname.startsWith("/onboarding");
 
   return (
-    <div className={user ? "layout-with-sidebar" : ""}>
+    <div className={user && !hideNavbar ? "layout-with-sidebar" : ""}>
       <ScrollToTop />
-      {user && <NavBar />}
+      {user && !hideNavbar && <NavBar />}
       <Outlet />
     </div>
   );

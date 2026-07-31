@@ -194,6 +194,25 @@ const normalizeSlug = (str) => {
     .replace(/[^a-z0-9]/g, "");
 };
 
+const formatDateBR = (dateStr) => {
+  if (!dateStr) return "";
+  const str = String(dateStr).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+    const [year, month, day] = str.split("T")[0].split("-");
+    return `${day}/${month}/${year}`;
+  }
+  try {
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return str;
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  } catch (e) {
+    return str;
+  }
+};
+
 function Onboarding() {
   const { username } = useParams();
   const { user } = useAuth();
@@ -505,28 +524,41 @@ function Onboarding() {
   return (
     <>
       <Helmet>
-        <title>Tarefas de Onboarding - Carmella Gelateria</title>
+        <title>{`Onboarding ${selectedUser.name ? `- ${selectedUser.name}` : ""} | Carmella Gelateria`}</title>
+        <meta name="title" content={`Onboarding ${selectedUser.name ? `- ${selectedUser.name}` : ""} | Carmella Gelateria`} />
+        <meta name="description" content={`Portal de onboarding e acompanhamento de integração de ${selectedUser.name || "colaborador"} na Carmella Gelateria.`} />
+        <meta property="og:title" content={`Onboarding ${selectedUser.name ? `- ${selectedUser.name}` : ""} | Carmella Gelateria`} />
+        <meta property="og:description" content={`Portal de onboarding e acompanhamento de integração de ${selectedUser.name || "colaborador"} na Carmella Gelateria.`} />
+        <meta property="og:image" content="https://manual.carmellagelateria.com.br/logo512.png" />
       </Helmet>
 
       <div className="onboarding-page-container">
+        {/* Top Welcome Standalone Text */}
+        <div className="welcome-top-standalone">
+          <span className="welcome-top-text-chic">
+            Bem-vindo(a) ao seu onboarding da Carmella Gelateria
+          </span>
+        </div>
+
         {/* User Card & Progress Overview */}
         <div className="user-overview-card">
           <div className="user-details-section">
-            <div className="user-avatar">
-              {selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : "U"}
-            </div>
             <div className="user-info">
-              <span className="welcome-subtitle">
-                Bem-vindo(a) {selectedUser.name} ao seu onboarding da Carmella Gelateria
-              </span>
-              <h2>{selectedUser.name}</h2>
+              <div className="user-name-inline-row">
+                <div className="user-avatar-inline">
+                  {selectedUser.name ? selectedUser.name.charAt(0).toUpperCase() : "U"}
+                </div>
+                <h2 className="user-name-inline">
+                  {selectedUser.name ? selectedUser.name.slice(1) : ""}
+                </h2>
+              </div>
               <p className="user-meta">
                 <span><Icons.BsEnvelope /> {selectedUser.email}</span>
                 {selectedUser.cargo && (
-                  <span> • <Icons.BsBriefcase /> {selectedUser.cargo}</span>
+                  <span><Icons.BsBriefcase /> {selectedUser.cargo}</span>
                 )}
                 {selectedUser.data_registro && (
-                  <span> • <Icons.BsCalendar3 /> Admissão: {selectedUser.data_registro}</span>
+                  <span><Icons.BsCalendar3 /> Admissão: {formatDateBR(selectedUser.data_registro)}</span>
                 )}
               </p>
             </div>
