@@ -236,7 +236,57 @@ function ImporteExtrato() {
     const matched = tx.matchedDbRecord;
 
     try {
-      if (matched.sourceTable === "contas_pagar_receber") {
+      if (matched.isGroup && matched.dbRecords) {
+        // Concilia múltiplos lançamentos do sistema que compõem essa transação do extrato
+        for (const subRec of matched.dbRecords) {
+          if (subRec.sourceTable === "contas_pagar_receber") {
+            const orig = subRec.originalData || subRec;
+            const payload = {
+              data: tx.date,
+              descricao: orig.descricao || tx.memo || "Lançamento via Importação OFX",
+              fornecedor: orig.fornecedor_cliente || null,
+              valor: parseFloat(subRec.valor || "0"),
+              categoria: orig.categoria || null,
+              conta: selectedConta,
+              user_id: user?.id,
+              status_revisao: orig.status_revisao || null,
+              conciliado: true
+            };
+
+            const { error: insertErr } = await supabase
+              .from("lancamentos_financeiros")
+              .insert([payload]);
+
+            if (insertErr) throw insertErr;
+
+            await supabase
+              .from("contas_pagar_receber")
+              .delete()
+              .eq("id", subRec.id);
+          } else {
+            const { error } = await supabase
+              .from("lancamentos_financeiros")
+              .update({ conciliado: true, conta: selectedConta })
+              .eq("id", subRec.id);
+
+            if (error) throw error;
+          }
+        }
+
+        setTransactions(prev => prev.map(item => {
+          if (item.id === tx.id) {
+            return { 
+              ...item, 
+              status: "Já Conciliado",
+              matchedDbRecord: {
+                ...matched,
+                conciliado: true
+              }
+            };
+          }
+          return item;
+        }));
+      } else if (matched.sourceTable === "contas_pagar_receber") {
         // Lançamento vem do Contas a Pagar -> Insere em lancamentos_financeiros e REMOVE do contas_pagar_receber
         const orig = matched.originalData || {};
         
@@ -398,6 +448,36 @@ function ImporteExtrato() {
       }
       return t;
     }));
+  };
+
+  const findDbSubsetForAmount = (candidates: any[], targetAmount: number): any[] | null => {
+    const target = Math.round(Math.abs(targetAmount) * 100);
+    const items = candidates.map(c => ({
+      record: c,
+      cents: Math.round(Math.abs(parseFloat(c.valor || "0")) * 100)
+    })).filter(i => i.cents > 0 && i.cents <= target);
+
+    const maxCombinationSize = Math.min(items.length, 8);
+    let bestMatch: any[] | null = null;
+
+    function search(startIndex: number, currentSubset: any[], currentSum: number) {
+      if (bestMatch) return;
+      if (Math.abs(currentSum - target) <= 2 && currentSubset.length > 1) {
+        bestMatch = currentSubset;
+        return;
+      }
+      if (currentSum > target || currentSubset.length >= maxCombinationSize) {
+        return;
+      }
+
+      for (let i = startIndex; i < items.length; i++) {
+        search(i + 1, [...currentSubset, items[i].record], currentSum + items[i].cents);
+        if (bestMatch) return;
+      }
+    }
+
+    search(0, [], 0);
+    return bestMatch;
   };
 
   const parseOFX = (data: string) => {
@@ -669,9 +749,60 @@ function ImporteExtrato() {
           });
         };
 
-        // Executa os 4 passos em ordem de prioridade
+        const matchDbSubsetGroup = (maxDiffDays: number) => {
+          parsed.forEach(ofx => {
+            if (ofx.status !== "Não Encontrado") return;
+
+            const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
+            const ofxAmount = ofx.amount;
+            const isExpense = ofxAmount < 0;
+
+            const candidateDbs = availableDb.filter(db => {
+              if (db.conciliado) return false;
+              const dbVal = parseFloat(db.valor || "0");
+              if ((isExpense && dbVal >= 0) || (!isExpense && dbVal < 0)) return false;
+
+              const dbDate = new Date(db.data + "T00:00:00").getTime();
+              const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
+              return diffDays <= maxDiffDays;
+            });
+
+            if (candidateDbs.length < 2) return;
+
+            const subset = findDbSubsetForAmount(candidateDbs, ofxAmount);
+
+            if (subset && subset.length > 1) {
+              ofx.status = "Encontrado (Agrupado)";
+              ofx.matchedDbRecords = subset;
+
+              const hasCpr = subset.some((s: any) => s.sourceTable === "contas_pagar_receber");
+
+              ofx.matchedDbRecord = {
+                id: "group-" + subset.map((s: any) => s.id).join("-"),
+                data: subset[0].data,
+                valor: ofxAmount,
+                descricao: `Soma de ${subset.length} lançamentos`,
+                sourceTable: hasCpr ? "contas_pagar_receber" : "lancamentos_financeiros",
+                sourceLabel: hasCpr ? `Contas a Pagar (${subset.length} itens)` : `Soma de Lançamentos (${subset.length} itens)`,
+                isGroup: true,
+                dbRecords: subset
+              };
+
+              subset.forEach((subItem: any) => {
+                const idx = availableDb.findIndex(d => d.id === subItem.id && d.sourceTable === subItem.sourceTable);
+                if (idx !== -1) {
+                  availableDb.splice(idx, 1);
+                }
+              });
+            }
+          });
+        };
+
+        // Executa os passos em ordem de prioridade (soma de lançamentos da mesma data tem prioridade máxima)
+        matchDbSubsetGroup(0);
         matchIndividual(0);
         matchGrouped(0);
+        matchDbSubsetGroup(3);
         matchIndividual(3);
         matchGrouped(3);
 
@@ -1113,26 +1244,65 @@ function ImporteExtrato() {
                         <td style={{ textAlign: "left", paddingLeft: "12px" }}>
                           {dbRec ? (
                             <div>
-                              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-                                <span style={{ fontWeight: "500", color: "#334155" }}>{dbRec.descricao || "Lançamento Financeiro"}</span>
-                                {dbRec.sourceTable === "contas_pagar_receber" && (
-                                  <span 
-                                    style={{ 
-                                      backgroundColor: "#fef3c7", 
-                                      color: "#92400e", 
-                                      padding: "2px 6px", 
-                                      borderRadius: "4px", 
-                                      fontSize: "1.0rem", 
-                                      fontWeight: "bold" 
-                                    }}
-                                  >
-                                    Contas a Pagar
+                              {dbRec.isGroup && dbRec.dbRecords ? (
+                                <div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap", marginBottom: "4px" }}>
+                                    <span 
+                                      style={{ 
+                                        backgroundColor: "#e0f2fe", 
+                                        color: "#0369a1", 
+                                        padding: "2px 6px", 
+                                        borderRadius: "4px", 
+                                        fontSize: "1.1rem", 
+                                        fontWeight: "bold" 
+                                      }}
+                                    >
+                                      Soma de {dbRec.dbRecords.length} lançamentos
+                                    </span>
+                                  </div>
+                                  <ul style={{ margin: "4px 0", paddingLeft: "16px", fontSize: "1.2rem", color: "#334155" }}>
+                                    {dbRec.dbRecords.map((sub: any, sIdx: number) => (
+                                      <li key={sIdx} style={{ marginBottom: "2px" }}>
+                                        <span>{sub.descricao || "Lançamento"}</span>
+                                        <span style={{ fontWeight: "bold", marginLeft: "6px", color: parseFloat(sub.valor) >= 0 ? "#059669" : "#dc2626" }}>
+                                          ({formatCurrency(parseFloat(sub.valor || "0"))})
+                                        </span>
+                                        {sub.sourceTable === "contas_pagar_receber" && (
+                                          <span style={{ backgroundColor: "#fef3c7", color: "#92400e", padding: "1px 4px", borderRadius: "3px", fontSize: "0.95rem", marginLeft: "4px" }}>
+                                            Contas a Pagar
+                                          </span>
+                                        )}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                  <span style={{ display: "block", fontSize: "1.2rem", fontWeight: "bold", color: parseFloat(dbRec.valor) >= 0 ? "#059669" : "#dc2626" }}>
+                                    Total: {formatCurrency(parseFloat(dbRec.valor || "0"))}
                                   </span>
-                                )}
-                              </div>
-                              <span style={{ display: "block", fontSize: "1.2rem", fontWeight: "bold", color: parseFloat(dbRec.valor) >= 0 ? "#059669" : "#dc2626" }}>
-                                {formatCurrency(parseFloat(dbRec.valor || "0"))}
-                              </span>
+                                </div>
+                              ) : (
+                                <div>
+                                  <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                    <span style={{ fontWeight: "500", color: "#334155" }}>{dbRec.descricao || "Lançamento Financeiro"}</span>
+                                    {dbRec.sourceTable === "contas_pagar_receber" && (
+                                      <span 
+                                        style={{ 
+                                          backgroundColor: "#fef3c7", 
+                                          color: "#92400e", 
+                                          padding: "2px 6px", 
+                                          borderRadius: "4px", 
+                                          fontSize: "1.0rem", 
+                                          fontWeight: "bold" 
+                                        }}
+                                      >
+                                        Contas a Pagar
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span style={{ display: "block", fontSize: "1.2rem", fontWeight: "bold", color: parseFloat(dbRec.valor) >= 0 ? "#059669" : "#dc2626" }}>
+                                    {formatCurrency(parseFloat(dbRec.valor || "0"))}
+                                  </span>
+                                </div>
+                              )}
                             </div>
                           ) : (
                             <span style={{ color: "#94a3b8", fontStyle: "italic", fontSize: "1.3rem" }}>
@@ -1162,9 +1332,9 @@ function ImporteExtrato() {
                                   width: "100%",
                                   justifyContent: "center"
                                 }}
-                                title="Conciliar com este lançamento existente no sistema"
+                                title="Conciliar com estes lançamentos existentes no sistema"
                               >
-                                <Icons.BsCheck2Circle /> Conciliar Lançamento
+                                <Icons.BsCheck2Circle /> {t.matchedDbRecord?.isGroup && t.matchedDbRecord?.dbRecords ? `Conciliar ${t.matchedDbRecord.dbRecords.length} Lançamentos` : "Conciliar Lançamento"}
                               </button>
 
                               <button
