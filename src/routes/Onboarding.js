@@ -529,7 +529,7 @@ function Onboarding() {
         <meta name="description" content={`Portal de onboarding e acompanhamento de integração de ${selectedUser.name || "colaborador"} na Carmella Gelateria.`} />
         <meta property="og:title" content={`Onboarding ${selectedUser.name ? `- ${selectedUser.name}` : ""} | Carmella Gelateria`} />
         <meta property="og:description" content={`Portal de onboarding e acompanhamento de integração de ${selectedUser.name || "colaborador"} na Carmella Gelateria.`} />
-        <meta property="og:image" content="https://manual.carmellagelateria.com.br/logo512.png" />
+        <meta property="og:image" content="https://manual.carmellagelateria.com.br/logo.svg" />
       </Helmet>
 
       <div className="onboarding-page-container">
