@@ -19,6 +19,7 @@ function ImporteExtrato() {
   const [selectedConta, setSelectedConta] = useState<string>("");
   const [selectedTxIds, setSelectedTxIds] = useState<Set<string>>(new Set());
   const [selectedBankMode, setSelectedBankMode] = useState<"Inter" | "Itau" | null>(null);
+  const [accountWarning, setAccountWarning] = useState<boolean>(false);
 
   useEffect(() => {
     if (file && selectedConta) {
@@ -121,7 +122,8 @@ function ImporteExtrato() {
 
   const handleImportSelected = async () => {
     if (!selectedConta) {
-      alert("Por favor, selecione a conta bancária no topo da tabela.");
+      setAccountWarning(true);
+      alert("Por favor, selecione a conta bancária no campo destacado no topo da tabela.");
       return;
     }
 
@@ -224,6 +226,180 @@ function ImporteExtrato() {
     }
   };
 
+  const handleReconcileSingleItem = async (tx: any) => {
+    if (!selectedConta) {
+      alert("Por favor, selecione a conta bancária no topo.");
+      return;
+    }
+    if (!tx.dbId || !tx.matchedDbRecord) return;
+
+    const matched = tx.matchedDbRecord;
+
+    try {
+      if (matched.sourceTable === "contas_pagar_receber") {
+        // Lançamento vem do Contas a Pagar -> Insere em lancamentos_financeiros e REMOVE do contas_pagar_receber
+        const orig = matched.originalData || {};
+        
+        const payload = {
+          data: tx.date,
+          descricao: orig.descricao || tx.memo || "Lançamento via Importação OFX",
+          fornecedor: orig.fornecedor_cliente || null,
+          valor: tx.amount,
+          categoria: orig.categoria || null,
+          conta: selectedConta,
+          user_id: user?.id,
+          status_revisao: orig.status_revisao || null,
+          conciliado: true
+        };
+
+        const { data: insertedData, error: insertErr } = await supabase
+          .from("lancamentos_financeiros")
+          .insert([payload])
+          .select();
+
+        if (insertErr) throw insertErr;
+
+        // Deleta o registro da tabela contas_pagar_receber para remover de Contas a Pagar
+        const { error: deleteErr } = await supabase
+          .from("contas_pagar_receber")
+          .delete()
+          .eq("id", orig.id);
+
+        if (deleteErr) {
+          console.warn("Aviso ao remover do contas_pagar_receber:", deleteErr);
+        }
+
+        const newDbId = insertedData && insertedData.length > 0 ? insertedData[0].id : tx.dbId;
+
+        setTransactions(prev => prev.map(item => {
+          if (item.id === tx.id) {
+            return { 
+              ...item, 
+              dbId: newDbId,
+              status: "Já Conciliado",
+              matchedDbRecord: {
+                id: newDbId,
+                data: tx.date,
+                valor: tx.amount,
+                descricao: orig.descricao || tx.memo,
+                conciliado: true,
+                sourceTable: "lancamentos_financeiros",
+                sourceLabel: "Lançamento Financeiro"
+              }
+            };
+          }
+          return item;
+        }));
+      } else {
+        // Lançamento vem do Lançamentos Financeiros -> atualiza conciliado = true e conta = selectedConta
+        const { error } = await supabase
+          .from("lancamentos_financeiros")
+          .update({ conciliado: true, conta: selectedConta })
+          .eq("id", tx.dbId);
+
+        if (error) throw error;
+
+        setTransactions(prev => prev.map(item => {
+          if (item.id === tx.id) {
+            return { 
+              ...item, 
+              status: item.status.includes("Agrupado") ? "Já Conciliado (Agrupado)" : "Já Conciliado" 
+            };
+          }
+          return item;
+        }));
+      }
+
+      setSelectedTxIds(prev => {
+        const next = new Set(prev);
+        next.delete(tx.id);
+        return next;
+      });
+    } catch (err: any) {
+      console.error("Erro ao conciliar:", err);
+      alert("Erro ao conciliar: " + (err.message || "Erro desconhecido"));
+    }
+  };
+
+  const handleCreateSingleItem = async (tx: any) => {
+    if (!selectedConta) {
+      alert("Por favor, selecione a conta bancária no topo.");
+      return;
+    }
+
+    let cat = null;
+    const memoUpper = (tx.memo || "").toUpperCase();
+    if (memoUpper.includes("RECEBIMENTO REDE")) {
+      cat = "Vendas Loja - Cartão";
+    } else if (memoUpper.includes("PIX QRS")) {
+      cat = "Vendas Loja - PIX";
+    }
+
+    const payload = {
+      data: tx.date,
+      descricao: tx.memo || "Lançamento via Importação OFX",
+      valor: tx.amount,
+      conta: selectedConta,
+      categoria: cat,
+      fornecedor: null,
+      user_id: user?.id,
+      status_revisao: null,
+      conciliado: true,
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from("lancamentos_financeiros")
+        .insert([payload])
+        .select();
+
+      if (error) throw error;
+
+      const createdRecord = data && data.length > 0 ? data[0] : null;
+
+      setTransactions(prev => prev.map(item => {
+        if (item.id === tx.id) {
+          return {
+            ...item,
+            dbId: createdRecord?.id || null,
+            status: "Importado",
+            matchedDbRecord: createdRecord || {
+              data: tx.date,
+              valor: tx.amount,
+              descricao: tx.memo || "Lançamento via Importação OFX",
+              conciliado: true
+            }
+          };
+        }
+        return item;
+      }));
+
+      setSelectedTxIds(prev => {
+        const next = new Set(prev);
+        next.delete(tx.id);
+        return next;
+      });
+    } catch (err: any) {
+      console.error("Erro ao criar lançamento:", err);
+      alert("Erro ao criar lançamento: " + (err.message || "Erro desconhecido"));
+    }
+  };
+
+  const handleRejectMatch = (txId: string) => {
+    setTransactions(prev => prev.map(t => {
+      if (t.id === txId) {
+        return {
+          ...t,
+          status: "Não Encontrado",
+          dbId: null,
+          matchedDbRecord: null,
+          rejectedMatch: true
+        };
+      }
+      return t;
+    }));
+  };
+
   const parseOFX = (data: string) => {
     const txs: any[] = [];
     const stmttrnRegex = /<STMTTRN>([\s\S]*?)(?=<\/?STMTTRN>|<\/BANKTRANLIST>)/g;
@@ -298,6 +474,11 @@ function ImporteExtrato() {
 
   const processFile = () => {
     if (!file) return;
+    if (!selectedConta) {
+      setAccountWarning(true);
+    } else {
+      setAccountWarning(false);
+    }
     setLoading(true);
 
     const reader = new FileReader();
@@ -324,33 +505,59 @@ function ImporteExtrato() {
         const boundsMin = new Date(minTime - 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
         const boundsMax = new Date(maxTime + 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
 
-        // Fetch DB Lancamentos apenas para a conta selecionada
-        let query = supabase
+        // 1. Fetch DB Lancamentos estritamente filtrados pela conta bancária selecionada
+        let queryLf = supabase
           .from("lancamentos_financeiros")
-          .select("id, data, valor, conciliado")
+          .select("id, data, valor, descricao, conciliado, conta, categoria, fornecedor")
           .gte("data", boundsMin)
           .lte("data", boundsMax);
           
         if (selectedConta) {
-          query = query.eq("conta", selectedConta);
+          queryLf = queryLf.eq("conta", selectedConta);
         }
 
-        const { data: dbData, error } = await query;
+        // 2. Fetch Contas a Pagar / Receber (contas_pagar_receber) para incluir na pesquisa de conciliação
+        let queryCpr = supabase
+          .from("contas_pagar_receber")
+          .select("id, data, valor, descricao, fornecedor_cliente, categoria, is_recorrente, status_revisao")
+          .gte("data", boundsMin)
+          .lte("data", boundsMax);
 
-        if (error) {
-          throw error;
-        }
+        const [{ data: dbLfData, error: errorLf }, { data: dbCprData, error: errorCpr }] = await Promise.all([
+          queryLf,
+          queryCpr
+        ]);
 
-        const availableDb = dbData ? [...dbData] : [];
+        if (errorLf) throw errorLf;
+        if (errorCpr) throw errorCpr;
 
-        // Match algorithm - Novo Algoritmo de 4 Passos
-        // 1. Busca individual exata (mesmo dia)
-        // 2. Busca por soma agregada exata (mesmo dia, mesmo sinal)
-        // 3. Busca individual com tolerância (até 3 dias)
-        // 4. Busca por soma agregada com tolerância (até 3 dias, mesmo sinal)
+        // Formata os lançamentos financeiros da conta selecionada
+        const formattedLf = (dbLfData || []).map((db: any) => ({
+          ...db,
+          sourceTable: "lancamentos_financeiros",
+          sourceLabel: "Lançamento Financeiro",
+          originalData: db
+        }));
+
+        // Formata as contas a pagar / receber
+        const formattedCpr = (dbCprData || []).map((db: any) => ({
+          id: db.id,
+          data: db.data,
+          valor: db.valor,
+          descricao: [db.descricao, db.fornecedor_cliente].filter(Boolean).join(" - "),
+          conciliado: false,
+          sourceTable: "contas_pagar_receber",
+          sourceLabel: "Contas a Pagar",
+          originalData: db
+        }));
+
+        const availableDb = [...formattedLf, ...formattedCpr];
 
         // Inicializa todos como "Não Encontrado"
-        parsed.forEach(ofx => ofx.status = "Não Encontrado");
+        parsed.forEach(ofx => {
+          ofx.status = "Não Encontrado";
+          ofx.matchedDbRecord = null;
+        });
 
         const matchIndividual = (maxDiffDays: number) => {
           parsed.forEach(ofx => {
@@ -368,8 +575,10 @@ function ImporteExtrato() {
             });
 
             if (matchIdx !== -1) {
-              ofx.dbId = availableDb[matchIdx].id;
+              const matched = availableDb[matchIdx];
+              ofx.dbId = matched.id;
               ofx.status = "Encontrado";
+              ofx.matchedDbRecord = matched;
               availableDb.splice(matchIdx, 1);
             } else {
               // Verifica nos já conciliados apenas para marcar o status visual
@@ -382,7 +591,10 @@ function ImporteExtrato() {
                 return diffDays <= maxDiffDays && db.conciliado;
               });
               if (alreadyIdx !== -1) {
+                const matched = availableDb[alreadyIdx];
+                ofx.dbId = matched.id;
                 ofx.status = "Já Conciliado";
+                ofx.matchedDbRecord = matched;
                 availableDb.splice(alreadyIdx, 1);
               }
             }
@@ -429,6 +641,7 @@ function ImporteExtrato() {
               groupTxs.forEach(ofx => {
                 ofx.dbId = matchedDb.id;
                 ofx.status = "Encontrado (Agrupado)";
+                ofx.matchedDbRecord = matchedDb;
               });
               availableDb.splice(matchIdx, 1);
             } else {
@@ -444,8 +657,11 @@ function ImporteExtrato() {
               });
 
               if (alreadyIdx !== -1) {
+                const matchedDb = availableDb[alreadyIdx];
                 groupTxs.forEach(ofx => {
+                  ofx.dbId = matchedDb.id;
                   ofx.status = "Já Conciliado (Agrupado)";
+                  ofx.matchedDbRecord = matchedDb;
                 });
                 availableDb.splice(alreadyIdx, 1);
               }
@@ -485,7 +701,7 @@ function ImporteExtrato() {
         <title>Importe de Extrato - Carmella</title>
       </Helmet>
 
-      <div className="frequencia-container" style={{ padding: "20px 24px", paddingLeft: "95px", maxWidth: "1200px", margin: "0 auto" }}>
+      <div className="frequencia-container" style={{ padding: "20px 32px", paddingLeft: "100px", width: "100%", maxWidth: "100%" }}>
         <h1 style={{ display: "flex", alignItems: "center", gap: "12px", color: "#334155", marginBottom: "24px", fontSize: "2.4rem" }}>
           <Icons.BsFileEarmarkArrowUp /> Importe de Extrato
         </h1>
@@ -636,27 +852,112 @@ function ImporteExtrato() {
           </div>
         )}
 
-        {transactions.length > 0 && (
-          <div style={{ background: "#fff", padding: "24px", borderRadius: "12px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" }}>
+        {/* Prompt amigável para selecionar a conta bancária */}
+        {transactions.length > 0 && !selectedConta && (
+          <div style={{ background: "#fff", padding: "40px 24px", borderRadius: "16px", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05)", marginBottom: "32px" }}>
+            <div 
+              style={{ 
+                backgroundColor: "#f8fafc", 
+                border: "1px solid #e2e8f0", 
+                borderRadius: "16px", 
+                padding: "32px 24px", 
+                maxWidth: "580px",
+                margin: "0 auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                textAlign: "center",
+                gap: "16px"
+              }}
+            >
+              <div 
+                style={{ 
+                  width: "64px", 
+                  height: "64px", 
+                  borderRadius: "50%", 
+                  backgroundColor: "#eff6ff", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  color: "#3b82f6"
+                }}
+              >
+                <Icons.BsBuildingCheck style={{ fontSize: "2.8rem" }} />
+              </div>
+
+              <div>
+                <h3 style={{ fontSize: "2rem", color: "#1e293b", margin: "0 0 8px 0", fontWeight: "bold" }}>
+                  Quase lá! Selecione a Conta Bancária
+                </h3>
+                <p style={{ fontSize: "1.4rem", color: "#64748b", margin: 0, lineHeight: 1.5 }}>
+                  Seu extrato foi lido com sucesso (<strong>{transactions.length} transações encontradas</strong>).<br />
+                  Para visualizar a tabela de lançamentos, escolha a conta bancária desejada:
+                </p>
+              </div>
+
+              <div style={{ marginTop: "8px", width: "100%", maxWidth: "380px" }}>
+                <select
+                  value={selectedConta}
+                  onChange={(e) => {
+                    setSelectedConta(e.target.value);
+                    if (e.target.value) setAccountWarning(false);
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "12px 16px",
+                    borderRadius: "10px",
+                    border: "2px solid #3b82f6",
+                    backgroundColor: "#fff",
+                    boxShadow: "0 4px 12px rgba(59, 130, 246, 0.15)",
+                    fontSize: "1.5rem",
+                    color: "#1e293b",
+                    height: "48px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                    outline: "none"
+                  }}
+                >
+                  <option value="">Selecione uma conta bancária...</option>
+                  {filteredContas.map(c => (
+                    <option key={c.id} value={c.label}>
+                      {c.displayLabel || c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Tabela de Comparação de 2 Colunas - Exibida somente quando a Conta Bancária estiver selecionada */}
+        {transactions.length > 0 && selectedConta && (
+          <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05)", width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
               <h2 style={{ fontSize: "1.8rem", color: "#334155", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-                <Icons.BsListCheck /> Transações OFX ({transactions.length})
+                <Icons.BsListCheck /> Comparativo de Extrato OFX ({transactions.length} Lançamentos)
               </h2>
 
               {/* Seletor de Conta Bancária */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <label style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#475569" }}>Conta Bancária:</label>
+                <label style={{ fontSize: "1.3rem", fontWeight: "bold", color: "#475569" }}>
+                  Conta Bancária:
+                </label>
                 <select
                   value={selectedConta}
-                  onChange={(e) => setSelectedConta(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedConta(e.target.value);
+                    if (e.target.value) setAccountWarning(false);
+                  }}
                   style={{
-                    padding: "8px 12px",
-                    borderRadius: "6px",
+                    padding: "8px 14px",
+                    borderRadius: "8px",
                     border: "1px solid #cbd5e1",
+                    backgroundColor: "#fff",
                     fontSize: "1.4rem",
                     color: "#334155",
-                    height: "40px",
-                    minWidth: "250px"
+                    height: "42px",
+                    minWidth: "260px",
+                    cursor: "pointer"
                   }}
                 >
                   <option value="">Selecione uma conta bancária...</option>
@@ -684,21 +985,54 @@ function ImporteExtrato() {
                       display: "flex",
                       alignItems: "center",
                       gap: "8px",
-                      fontSize: "1.4rem"
+                      fontSize: "1.4rem",
+                      boxShadow: "0 4px 12px rgba(16, 185, 129, 0.2)"
                     }}
                   >
                     {syncing ? <Icons.BsArrowRepeat className="spin" /> : <Icons.BsPlusCircle />}
-                    {`Lançar Selecionados (${selectedTxIds.size})`}
+                    {`Processar Selecionados (${selectedTxIds.size})`}
                   </button>
                 )}
               </div>
             </div>
 
-            <div className="table-responsive" style={{ maxHeight: "60vh", overflowY: "auto" }}>
-              <table className="frequencia-table">
+            <div className="table-responsive" style={{ maxHeight: "68vh", overflowY: "auto", border: "1px solid #e2e8f0", borderRadius: "10px" }}>
+              <table className="frequencia-table" style={{ width: "100%", borderCollapse: "separate", borderSpacing: 0 }}>
                 <thead>
+                  {/* Super Header com 2 Colunas Grandes */}
                   <tr>
-                    <th style={{ width: "50px", textAlign: "center" }}>
+                    <th 
+                      colSpan={4} 
+                      style={{ 
+                        backgroundColor: "#eff6ff", 
+                        color: "#1e40af", 
+                        padding: "12px 16px", 
+                        fontSize: "1.4rem", 
+                        fontWeight: "bold",
+                        borderRight: "3px solid #cbd5e1",
+                        textAlign: "left"
+                      }}
+                    >
+                      🏦 1. Lançamentos no Extrato Bancário (OFX)
+                    </th>
+                    <th 
+                      colSpan={3} 
+                      style={{ 
+                        backgroundColor: "#f0fdf4", 
+                        color: "#166534", 
+                        padding: "12px 16px", 
+                        fontSize: "1.4rem", 
+                        fontWeight: "bold",
+                        textAlign: "left"
+                      }}
+                    >
+                      💻 2. Lançamentos no Sistema (Carmella) & Ações
+                    </th>
+                  </tr>
+
+                  {/* Sub Header com Nomes das Colunas */}
+                  <tr style={{ backgroundColor: "#f8fafc", color: "#475569", fontSize: "1.2rem", textTransform: "uppercase" }}>
+                    <th style={{ width: "40px", textAlign: "center", borderBottom: "2px solid #e2e8f0" }}>
                       <input 
                         type="checkbox" 
                         onChange={handleSelectAll} 
@@ -706,58 +1040,195 @@ function ImporteExtrato() {
                         style={{ cursor: "pointer" }}
                       />
                     </th>
-                    <th style={{ width: "120px" }}>Data</th>
-                    <th style={{ textAlign: "left", paddingLeft: "12px" }}>Descrição (MEMO)</th>
-                    <th style={{ width: "150px" }}>Status</th>
-                    <th style={{ width: "150px", textAlign: "center" }}>Valor</th>
+                    <th style={{ width: "110px", borderBottom: "2px solid #e2e8f0" }}>Data Extrato</th>
+                    <th style={{ textAlign: "left", paddingLeft: "12px", borderBottom: "2px solid #e2e8f0" }}>Descrição (MEMO)</th>
+                    <th style={{ width: "140px", textAlign: "right", borderRight: "3px solid #cbd5e1", paddingRight: "16px", borderBottom: "2px solid #e2e8f0" }}>Valor Extrato</th>
+
+                    <th style={{ width: "130px", borderBottom: "2px solid #e2e8f0", paddingLeft: "12px" }}>Data Sistema</th>
+                    <th style={{ textAlign: "left", paddingLeft: "12px", borderBottom: "2px solid #e2e8f0" }}>Descrição no Sistema</th>
+                    <th style={{ width: "240px", textAlign: "center", borderBottom: "2px solid #e2e8f0" }}>Ação Recomendada</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {transactions.map((t, idx) => {
-                    let statusColor = "#64748b";
-                    if (t.status && t.status.includes("Encontrado")) statusColor = "#d97706";
-                    if (t.status && (t.status.includes("Já Conciliado") || t.status.includes("Importado") || t.status === "Sincronizado")) statusColor = "#10b981";
-                    if (t.status === "Não Encontrado") statusColor = "#ef4444";
+                    const isMatched = t.status === "Encontrado" || t.status === "Encontrado (Agrupado)";
+                    const isAlreadyDone = t.status === "Já Conciliado" || t.status === "Já Conciliado (Agrupado)" || t.status === "Importado";
+                    const isNotFound = t.status === "Não Encontrado";
+                    const dbRec = t.matchedDbRecord;
 
                     return (
-                      <tr key={idx}>
+                      <tr 
+                        key={idx}
+                        style={{
+                          backgroundColor: idx % 2 === 0 ? "#ffffff" : "#f8fafc",
+                          transition: "background-color 0.15s ease"
+                        }}
+                      >
+                        {/* --- ESQUERDA: EXTRATO OFX --- */}
                         <td style={{ textAlign: "center" }}>
                           <input 
                             type="checkbox" 
                             checked={selectedTxIds.has(t.id)} 
                             onChange={() => toggleSelectTx(t.id)} 
-                            disabled={t.status !== "Não Encontrado" && t.status !== "Encontrado" && t.status !== "Encontrado (Agrupado)"} 
-                            style={{ 
-                              cursor: (t.status === "Não Encontrado" || t.status === "Encontrado" || t.status === "Encontrado (Agrupado)") 
-                                ? "pointer" 
-                                : "not-allowed" 
-                            }}
+                            disabled={isAlreadyDone}
+                            style={{ cursor: isAlreadyDone ? "not-allowed" : "pointer" }}
                           />
                         </td>
-                        <td>{formatDate(t.date)}</td>
-                        <td style={{ textAlign: "left", paddingLeft: "12px" }}>{t.memo || "Sem descrição"}</td>
-                        <td>
-                          <span 
-                            style={{ 
-                              backgroundColor: statusColor + "1a", // light background
-                              color: statusColor, 
-                              padding: "4px 8px", 
-                              borderRadius: "12px",
-                              fontWeight: "bold",
-                              fontSize: "1.2rem",
-                              display: "inline-block"
-                            }}
-                            title={t.status.includes("Agrupado") ? "Este valor foi encontrado agrupado com outros do mesmo dia em um único lançamento no sistema." : undefined}
-                          >
-                            {t.status}
-                          </span>
+                        <td style={{ fontWeight: "bold", color: "#334155" }}>
+                          {formatDate(t.date)}
                         </td>
-                        <td style={{ 
-                          textAlign: "center", 
-                          fontWeight: "bold",
-                          color: t.amount >= 0 ? "#10b981" : "#ef4444" 
-                        }}>
+                        <td style={{ textAlign: "left", paddingLeft: "12px", color: "#1e293b", fontWeight: 500 }}>
+                          {t.memo || "Sem descrição"}
+                        </td>
+                        <td 
+                          style={{ 
+                            textAlign: "right", 
+                            fontWeight: "bold", 
+                            fontSize: "1.4rem",
+                            color: t.amount >= 0 ? "#059669" : "#dc2626",
+                            borderRight: "3px solid #cbd5e1",
+                            paddingRight: "16px"
+                          }}
+                        >
                           {formatCurrency(t.amount)}
+                        </td>
+
+                        {/* --- DIREITA: SISTEMA CARMELLA & AÇÕES --- */}
+                        <td style={{ paddingLeft: "12px", fontSize: "1.3rem", color: "#475569" }}>
+                          {dbRec ? (
+                            <div>
+                              <span style={{ fontWeight: "bold", color: "#1e293b" }}>{formatDate(dbRec.data)}</span>
+                              {t.date !== dbRec.data && (
+                                <span style={{ display: "block", fontSize: "1.1rem", color: "#d97706", fontWeight: "bold" }}>
+                                  ⚠️ Tolerância até 3 dias
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span style={{ color: "#cbd5e1" }}>-</span>
+                          )}
+                        </td>
+
+                        <td style={{ textAlign: "left", paddingLeft: "12px" }}>
+                          {dbRec ? (
+                            <div>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                <span style={{ fontWeight: "500", color: "#334155" }}>{dbRec.descricao || "Lançamento Financeiro"}</span>
+                                {dbRec.sourceTable === "contas_pagar_receber" && (
+                                  <span 
+                                    style={{ 
+                                      backgroundColor: "#fef3c7", 
+                                      color: "#92400e", 
+                                      padding: "2px 6px", 
+                                      borderRadius: "4px", 
+                                      fontSize: "1.0rem", 
+                                      fontWeight: "bold" 
+                                    }}
+                                  >
+                                    Contas a Pagar
+                                  </span>
+                                )}
+                              </div>
+                              <span style={{ display: "block", fontSize: "1.2rem", fontWeight: "bold", color: parseFloat(dbRec.valor) >= 0 ? "#059669" : "#dc2626" }}>
+                                {formatCurrency(parseFloat(dbRec.valor || "0"))}
+                              </span>
+                            </div>
+                          ) : (
+                            <span style={{ color: "#94a3b8", fontStyle: "italic", fontSize: "1.3rem" }}>
+                              Nenhum lançamento idêntico no sistema
+                            </span>
+                          )}
+                        </td>
+
+                        <td style={{ textAlign: "center", padding: "8px 12px" }}>
+                          {isMatched && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "center" }}>
+                              <button
+                                onClick={() => handleReconcileSingleItem(t)}
+                                style={{
+                                  backgroundColor: "#10b981",
+                                  color: "#fff",
+                                  border: "none",
+                                  borderRadius: "6px",
+                                  padding: "8px 14px",
+                                  fontSize: "1.3rem",
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  boxShadow: "0 2px 4px rgba(16, 185, 129, 0.2)",
+                                  width: "100%",
+                                  justifyContent: "center"
+                                }}
+                                title="Conciliar com este lançamento existente no sistema"
+                              >
+                                <Icons.BsCheck2Circle /> Conciliar Lançamento
+                              </button>
+
+                              <button
+                                onClick={() => handleRejectMatch(t.id)}
+                                style={{
+                                  backgroundColor: "transparent",
+                                  color: "#ef4444",
+                                  border: "1px solid #fca5a5",
+                                  borderRadius: "6px",
+                                  padding: "4px 10px",
+                                  fontSize: "1.15rem",
+                                  fontWeight: "600",
+                                  cursor: "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px"
+                                }}
+                                title="Marcar que esta sugestão está incorreta para realizar o lançamento correto"
+                              >
+                                <Icons.BsXCircle /> Não é este lançamento
+                              </button>
+                            </div>
+                          )}
+
+                          {isNotFound && (
+                            <button
+                              onClick={() => handleCreateSingleItem(t)}
+                              style={{
+                                backgroundColor: "#3b82f6",
+                                color: "#fff",
+                                border: "none",
+                                borderRadius: "6px",
+                                padding: "8px 14px",
+                                fontSize: "1.3rem",
+                                fontWeight: "bold",
+                                cursor: "pointer",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                boxShadow: "0 2px 4px rgba(59, 130, 246, 0.2)"
+                              }}
+                              title="Nenhum lançamento equivalente no sistema. Criar agora?"
+                            >
+                              <Icons.BsPlusLg /> Criar no Sistema
+                            </button>
+                          )}
+
+                          {isAlreadyDone && (
+                            <span 
+                              style={{ 
+                                backgroundColor: "#d1fae5", 
+                                color: "#065f46", 
+                                padding: "6px 12px", 
+                                borderRadius: "20px", 
+                                fontWeight: "bold", 
+                                fontSize: "1.2rem",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "4px"
+                              }}
+                            >
+                              <Icons.BsCheckLg /> {t.status}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     );
