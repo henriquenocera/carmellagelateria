@@ -43,6 +43,7 @@ interface Profile {
   email: string;
   updated_at: string;
   is_admin: boolean | null;
+  is_lider?: boolean | null;
   controlar_frequencia?: boolean | null;
   folgas_fixas?: string | null;
   ativo?: boolean | null;
@@ -80,7 +81,7 @@ function CadastroPessoas() {
   const [saving, setSaving] = useState(false);
   
   const initialFormData = {
-    id: "", name: "", email: "", short_id: "", is_admin: false, controlar_frequencia: true, folgas_fixas: "", ativo: true, data_registro: "", passagens_urbs: 0, passagens_metrocard: 0,
+    id: "", name: "", email: "", short_id: "", is_admin: false, is_lider: false, controlar_frequencia: true, folgas_fixas: "", ativo: true, data_registro: "", passagens_urbs: 0, passagens_metrocard: 0,
     data_demissao: "", cpf: "", rg: "", cargo: "", telefone: "", endereco: "", sexo: "", data_nascimento: "", cidade_nascimento: "", estado_civil: "", dependentes: 0, ctps: "", unidade_registrada: "", chaves: "", uniformes: ""
   };
   const [formData, setFormData] = useState(initialFormData);
@@ -178,6 +179,7 @@ function CadastroPessoas() {
         email: profile.email || "",
         short_id: profile.short_id || "",
         is_admin: profile.is_admin || false,
+        is_lider: profile.is_lider || false,
         controlar_frequencia: profile.controlar_frequencia !== false,
         folgas_fixas: profile.folgas_fixas || "",
         ativo: profile.ativo !== false,
@@ -235,6 +237,7 @@ function CadastroPessoas() {
             email: formData.email,
             short_id: formData.short_id,
             is_admin: formData.is_admin,
+            is_lider: formData.is_lider,
             controlar_frequencia: formData.controlar_frequencia,
             folgas_fixas: formData.folgas_fixas,
             ativo: formData.ativo,
@@ -295,6 +298,7 @@ function CadastroPessoas() {
                 email: formData.email,
                 short_id: formData.short_id,
                 is_admin: formData.is_admin,
+                is_lider: formData.is_lider,
                 controlar_frequencia: formData.controlar_frequencia,
                 folgas_fixas: formData.folgas_fixas,
                 ativo: formData.ativo,
@@ -334,6 +338,7 @@ function CadastroPessoas() {
               email: formData.email,
               short_id: formData.short_id,
               is_admin: formData.is_admin,
+              is_lider: formData.is_lider,
               controlar_frequencia: formData.controlar_frequencia,
               folgas_fixas: formData.folgas_fixas,
               ativo: formData.ativo,
@@ -492,6 +497,7 @@ function CadastroPessoas() {
                     <td style={{ fontWeight: 600 }}>
                       {p.name || "-"}
                       {p.is_admin && <span style={{ marginLeft: "8px", background: "#fef3c7", color: "#d97706", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Admin</span>}
+                      {p.is_lider && <span style={{ marginLeft: "8px", background: "#dbeafe", color: "#2563eb", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Líder</span>}
                       {p.ativo === false && <span style={{ marginLeft: "8px", background: "#fee2e2", color: "#ef4444", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Inativo</span>}
                     </td>
                     <td>{p.email || "-"}</td>
@@ -724,6 +730,10 @@ function CadastroPessoas() {
                   <div className="checkbox-group">
                     <input type="checkbox" id="isAdminCheckbox" checked={formData.is_admin} onChange={(e) => setFormData({ ...formData, is_admin: e.target.checked })} />
                     <label htmlFor="isAdminCheckbox">Administrador</label>
+                  </div>
+                  <div className="checkbox-group">
+                    <input type="checkbox" id="isLiderCheckbox" checked={formData.is_lider} onChange={(e) => setFormData({ ...formData, is_lider: e.target.checked })} />
+                    <label htmlFor="isLiderCheckbox">Líder</label>
                   </div>
                   {!formData.id && (
                     <div className="checkbox-group">

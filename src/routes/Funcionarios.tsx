@@ -12,6 +12,7 @@ interface Profile {
   name: string;
   email: string;
   ativo?: boolean | null;
+  is_lider?: boolean | null;
   data_registro?: string | null;
   feriadosAbertos?: number;
   total_vales?: number;
@@ -324,6 +325,7 @@ function Funcionarios() {
                         <Link to={`/configuracoes/cadastro-pessoas/${p.id}`} className="employee-link" style={{ textDecoration: 'none', color: 'var(--primary-color)' }}>
                           {p.name || "-"}
                         </Link>
+                        {p.is_lider && <span style={{ marginLeft: "8px", background: "#dbeafe", color: "#2563eb", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Líder</span>}
                         {p.ativo === false && <span style={{ marginLeft: "8px", background: "#fee2e2", color: "#ef4444", fontSize: "11px", padding: "2px 6px", borderRadius: "10px", fontWeight: "bold" }}>Inativo</span>}
                       </td>
                       <td>{p.email || "-"}</td>

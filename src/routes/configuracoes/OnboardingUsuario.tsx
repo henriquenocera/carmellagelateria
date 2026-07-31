@@ -35,6 +35,57 @@ interface OnboardingStatus {
   status: 'pendente' | 'em_andamento' | 'concluido';
 }
 
+const parseInlineFormatting = (str: string) => {
+  const parts = str.split(/(\*\*.*?\*\*|\*.*?\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    }
+    if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    }
+    return part;
+  });
+};
+
+const renderFormattedText = (text: string) => {
+  if (!text) return null;
+  const lines = text.split("\n");
+
+  return (
+    <div className="formatted-text-block">
+      {lines.map((line, idx) => {
+        const trimmed = line.trim();
+
+        if (trimmed.startsWith("# ") || /^H1:\s*/i.test(trimmed)) {
+          const content = trimmed.replace(/^(#\s*|H1:\s*)/i, "");
+          return <h1 key={idx} className="onboarding-text-h1">{parseInlineFormatting(content)}</h1>;
+        }
+
+        if (trimmed.startsWith("## ") || /^H2:\s*/i.test(trimmed)) {
+          const content = trimmed.replace(/^(##\s*|H2:\s*)/i, "");
+          return <h2 key={idx} className="onboarding-text-h2">{parseInlineFormatting(content)}</h2>;
+        }
+
+        if (trimmed.startsWith("### ") || /^H3:\s*/i.test(trimmed)) {
+          const content = trimmed.replace(/^(###\s*|H3:\s*)/i, "");
+          return <h3 key={idx} className="onboarding-text-h3">{parseInlineFormatting(content)}</h3>;
+        }
+
+        if (!trimmed) {
+          return <div key={idx} className="onboarding-text-spacer" />;
+        }
+
+        return (
+          <p key={idx} className="onboarding-text-p">
+            {parseInlineFormatting(line)}
+          </p>
+        );
+      })}
+    </div>
+  );
+};
+
 // No default categories or topics - dynamic management only
 
 function OnboardingUsuario() {
@@ -977,19 +1028,49 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.onboarding;`;
                       {isEditingStructure ? (
                         <div className="topic-item-row" onClick={(e) => e.stopPropagation()}>
                           {editingTopicId === topic.id ? (
-                            <input 
-                              type="text"
-                              className="topic-title-edit"
-                              value={editingTopicTitle}
-                              onChange={(e) => setEditingTopicTitle(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") handleSaveTopicTitle(topic.id);
-                                if (e.key === "Escape") setEditingTopicId(null);
-                              }}
-                              autoFocus
-                            />
+                            category.type === 'text' ? (
+                              <div className="text-editor-container">
+                                <div className="text-editor-toolbar">
+                                  <button type="button" onClick={() => setEditingTopicTitle(prev => "# " + prev)}>
+                                    <strong>H1</strong> Título
+                                  </button>
+                                  <button type="button" onClick={() => setEditingTopicTitle(prev => "## " + prev)}>
+                                    <strong>H2</strong> Subtítulo
+                                  </button>
+                                  <button type="button" onClick={() => setEditingTopicTitle(prev => "**" + prev + "**")}>
+                                    <strong>B</strong> Negrito
+                                  </button>
+                                </div>
+                                <textarea
+                                  className="topic-title-edit-textarea"
+                                  rows={4}
+                                  value={editingTopicTitle}
+                                  onChange={(e) => setEditingTopicTitle(e.target.value)}
+                                  placeholder="Digite o texto. Use # para Título H1, ## para Subtítulo H2, Shift+Enter para quebra de linha."
+                                  autoFocus
+                                />
+                              </div>
+                            ) : (
+                              <input 
+                                type="text"
+                                className="topic-title-edit"
+                                value={editingTopicTitle}
+                                onChange={(e) => setEditingTopicTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") handleSaveTopicTitle(topic.id);
+                                  if (e.key === "Escape") setEditingTopicId(null);
+                                }}
+                                autoFocus
+                              />
+                            )
                           ) : (
-                            <span>{topic.title}</span>
+                            category.type === 'text' ? (
+                              <div style={{ flex: 1 }}>
+                                {renderFormattedText(topic.title)}
+                              </div>
+                            ) : (
+                              <span>{topic.title}</span>
+                            )
                           )}
 
                           <div className="topic-edit-controls">
@@ -1040,10 +1121,8 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.onboarding;`;
                         </div>
                       ) : (
                         category.type === 'text' ? (
-                          <div className="topic-item-left" style={{ cursor: "default" }}>
-                            <p style={{ margin: 0, padding: "4px 8px", color: "var(--text-dark)", lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
-                              {topic.title}
-                            </p>
+                          <div className="topic-item-left" style={{ cursor: "default", width: "100%" }}>
+                            {renderFormattedText(topic.title)}
                           </div>
                         ) : (
                           <div className="topic-item-left">
@@ -1061,27 +1140,63 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.onboarding;`;
                   ))}
 
                   {isEditingStructure && (
-                    <div className="add-topic-inline" onClick={(e) => e.stopPropagation()}>
-                      <input 
-                        type="text"
-                        placeholder={category.type === 'text' ? "+ Novo Bloco de Texto" : "+ Novo Tópico"}
-                        className="add-topic-input"
-                        value={newTopicInputs[category.id] || ""}
-                        onChange={(e) => setNewTopicInputs({
-                          ...newTopicInputs,
-                          [category.id]: e.target.value
-                        })}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handleAddTopic(category.id);
-                        }}
-                      />
-                      <button 
-                        className="add-topic-inline-btn"
-                        onClick={() => handleAddTopic(category.id)}
-                      >
-                        <Icons.BsPlusLg />
-                      </button>
-                    </div>
+                    category.type === 'text' ? (
+                      <div className="add-topic-inline text-block-add" onClick={(e) => e.stopPropagation()}>
+                        <div className="text-editor-toolbar">
+                          <button type="button" onClick={() => setNewTopicInputs(prev => ({ ...prev, [category.id]: "# " + (prev[category.id] || "") }))}>
+                            <strong>H1</strong> Título
+                          </button>
+                          <button type="button" onClick={() => setNewTopicInputs(prev => ({ ...prev, [category.id]: "## " + (prev[category.id] || "") }))}>
+                            <strong>H2</strong> Subtítulo
+                          </button>
+                          <button type="button" onClick={() => setNewTopicInputs(prev => ({ ...prev, [category.id]: "**" + (prev[category.id] || "") + "**" }))}>
+                            <strong>B</strong> Negrito
+                          </button>
+                        </div>
+                        <div style={{ display: "flex", gap: "8px", width: "100%" }}>
+                          <textarea 
+                            rows={3}
+                            placeholder="+ Novo Bloco de Texto (Shift+Enter para quebra de linha)"
+                            className="add-topic-textarea"
+                            value={newTopicInputs[category.id] || ""}
+                            onChange={(e) => setNewTopicInputs({
+                              ...newTopicInputs,
+                              [category.id]: e.target.value
+                            })}
+                          />
+                          <button 
+                            className="add-topic-inline-btn"
+                            onClick={() => handleAddTopic(category.id)}
+                            style={{ alignSelf: "flex-end", height: "42px" }}
+                            title="Adicionar Bloco de Texto"
+                          >
+                            <Icons.BsPlusLg />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="add-topic-inline" onClick={(e) => e.stopPropagation()}>
+                        <input 
+                          type="text"
+                          placeholder="+ Novo Tópico"
+                          className="add-topic-input"
+                          value={newTopicInputs[category.id] || ""}
+                          onChange={(e) => setNewTopicInputs({
+                            ...newTopicInputs,
+                            [category.id]: e.target.value
+                          })}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleAddTopic(category.id);
+                          }}
+                        />
+                        <button 
+                          className="add-topic-inline-btn"
+                          onClick={() => handleAddTopic(category.id)}
+                        >
+                          <Icons.BsPlusLg />
+                        </button>
+                      </div>
+                    )
                   )}
                 </div>
               </div>

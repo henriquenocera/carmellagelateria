@@ -574,3 +574,112 @@
   color: var(--text-muted);
   margin-bottom: 20px;
 }
+
+/* Formatted Text Block Styling */
+.formatted-text-block {
+  padding: 4px 0;
+  width: 100%;
+}
+
+.onboarding-text-h1 {
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--secondary-color, #784e21);
+  margin: 10px 0 6px 0;
+  border-bottom: 2px solid #f0e6dc;
+  padding-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+
+.onboarding-text-h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: #a17550;
+  margin: 8px 0 4px 0;
+}
+
+.onboarding-text-h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333;
+  margin: 6px 0 4px 0;
+}
+
+.onboarding-text-p {
+  font-size: 14px;
+  color: #334155;
+  line-height: 1.6;
+  margin: 4px 0;
+  white-space: pre-wrap;
+}
+
+.onboarding-text-spacer {
+  height: 8px;
+}
+
+/* Text Editor Toolbar */
+.text-editor-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.text-editor-toolbar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.text-editor-toolbar button {
+  background: #fdfaf6;
+  border: 1px solid #e2d7cd;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #784e21;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.text-editor-toolbar button:hover {
+  background: #784e21;
+  color: #fff;
+  border-color: #784e21;
+}
+
+.topic-title-edit-textarea,
+.add-topic-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text-dark);
+  line-height: 1.5;
+  resize: vertical;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.topic-title-edit-textarea:focus,
+.add-topic-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(120, 78, 33, 0.1);
+}
+
+.text-block-add {
+  flex-direction: column;
+  align-items: stretch !important;
+  gap: 8px;
+  background: #faf6f1;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed #e2d7cd;
+}
