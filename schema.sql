@@ -1042,7 +1042,8 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "chaves" integer,
     "uniformes" integer,
     "total_vales" numeric DEFAULT 0,
-    "rules_confirmed_at" timestamp with time zone
+    "rules_confirmed_at" timestamp with time zone,
+    "is_lider" boolean DEFAULT false
 );
 
 
