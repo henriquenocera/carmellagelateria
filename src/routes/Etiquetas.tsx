@@ -1,31 +1,109 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import Select from "react-select";
+import supabase from "../services/supabase-client";
 import { GELATO_FLAVORS } from "../Sabores.ts";
 import "../css/Etiquetas.css";
 import { jsPDF } from "jspdf";
-import { BsPrinterFill, BsPlusLg, BsXLg } from "react-icons/bs";
+import { BsPrinterFill, BsPlusLg, BsXLg, BsShop } from "react-icons/bs";
 
 const Etiquetas: React.FC = () => {
-  const [selectedItems, setSelectedItems] = useState<{ flavor: string; date: string; id: string }[]>([]);
+  const [selectedItems, setSelectedItems] = useState<{
+    flavor: string;
+    date: string;
+    id: string;
+    isFoodService?: boolean;
+    clientName?: string;
+  }[]>([]);
   const [currentFlavor, setCurrentFlavor] = useState<{ value: string; label: string } | null>(null);
   const [customName, setCustomName] = useState("");
   const [dataProducao, setDataProducao] = useState(new Date().toISOString().split('T')[0]);
   const [quantidade, setQuantidade] = useState<number>(1);
+  const [flavorOptions, setFlavorOptions] = useState<{ value: string; label: string }[]>([]);
+  const [loadingFlavors, setLoadingFlavors] = useState<boolean>(true);
 
-  const flavorOptions = React.useMemo(() => 
-    GELATO_FLAVORS.map(flavor => ({ value: flavor, label: flavor })),
-  []);
+  // Food Service states
+  const [isFoodService, setIsFoodService] = useState<boolean>(false);
+  const [clientOptions, setClientOptions] = useState<{ value: string; label: string }[]>([]);
+  const [selectedClientOption, setSelectedClientOption] = useState<{ value: string; label: string } | null>(null);
+  const [customClientName, setCustomClientName] = useState<string>("");
+  const [loadingClients, setLoadingClients] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function fetchSabores() {
+      try {
+        setLoadingFlavors(true);
+        const { data, error } = await supabase
+          .from("cadastro_produtos")
+          .select("id, nome, is_sabor, ativo")
+          .eq("ativo", true)
+          .order("nome", { ascending: true });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const saboresDb = data.filter((p: any) => p.is_sabor);
+          const listSource = saboresDb.length > 0 ? saboresDb : data;
+          const list = listSource.map((p: any) => ({ value: p.nome, label: p.nome }));
+          setFlavorOptions(list);
+        } else {
+          setFlavorOptions(GELATO_FLAVORS.map(f => ({ value: f, label: f })));
+        }
+      } catch (err) {
+        console.error("Erro ao buscar sabores no cadastro de produtos:", err);
+        setFlavorOptions(GELATO_FLAVORS.map(f => ({ value: f, label: f })));
+      } finally {
+        setLoadingFlavors(false);
+      }
+    }
+
+    fetchSabores();
+  }, []);
+
+  useEffect(() => {
+    if (isFoodService) {
+      async function fetchClientes() {
+        try {
+          setLoadingClients(true);
+          const { data, error } = await supabase
+            .from("clientes_food_service")
+            .select("id, nome, status")
+            .ilike("status", "%Neg%cio Fechado%")
+            .order("nome", { ascending: true });
+
+          if (!error && data) {
+            setClientOptions(data.map((c: any) => ({ value: c.nome, label: c.nome })));
+          }
+        } catch (err) {
+          console.error("Erro ao buscar clientes food service:", err);
+        } finally {
+          setLoadingClients(false);
+        }
+      }
+      fetchClientes();
+    }
+  }, [isFoodService]);
 
   const addItem = () => {
     const flavorName = customName.trim() || (currentFlavor ? currentFlavor.label : "");
     if (!flavorName) return;
 
+    const clientName = isFoodService
+      ? (customClientName.trim() || (selectedClientOption ? selectedClientOption.label : ""))
+      : "";
+
+    if (isFoodService && !clientName) {
+      alert("Por favor, selecione ou digite o nome do cliente para o Pedido Food Service.");
+      return;
+    }
+
     const count = Math.max(1, quantidade);
     const newItems = Array.from({ length: count }, () => ({
       flavor: flavorName,
       date: dataProducao,
-      id: Math.random().toString(36).substr(2, 9)
+      id: Math.random().toString(36).substr(2, 9),
+      isFoodService: isFoodService,
+      clientName: clientName
     }));
 
     setSelectedItems([...selectedItems, ...newItems]);
@@ -97,9 +175,6 @@ const Etiquetas: React.FC = () => {
         fullCode += `-${counter}`;
       }
 
-      // We don't need a border since the page itself is the label size
-      // but let's add a subtle one if desired or just content
-
       // 1. Flavor Name (Top, Centered, Bold)
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11); // Slightly smaller for 80mm
@@ -125,25 +200,37 @@ const Etiquetas: React.FC = () => {
       doc.text("Código:", labelColX, startY + rowHeight * 2);
       doc.text(fullCode, valueColX, startY + rowHeight * 2, { align: "right" });
 
-      // 3. Peso and Tara
+      // 3. Peso e Tara OU Cliente
       const lineStartY = startY + rowHeight * 3.5;
-      const kgPadding = 6;
-      const lineLength = 30;
-      const lineX = pageWidth - 5 - lineLength - kgPadding;
-      const lineEndX = pageWidth - 5 - kgPadding;
-      const kgX = pageWidth - 5;
 
-      const verticalGap = 10; // Increased spacing between lines
+      if (item.isFoodService && item.clientName) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.text("Cliente:", labelColX, lineStartY);
 
-      // Peso Row
-      doc.text("Peso:", labelColX, lineStartY);
-      doc.line(lineX, lineStartY + 1, lineEndX, lineStartY + 1);
-      doc.text("kg", kgX, lineStartY, { align: "right" });
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        const clientLines = doc.splitTextToSize(item.clientName.toUpperCase(), pageWidth - 10);
+        doc.text(clientLines, labelColX, lineStartY + 5);
+      } else {
+        const kgPadding = 6;
+        const lineLength = 30;
+        const lineX = pageWidth - 5 - lineLength - kgPadding;
+        const lineEndX = pageWidth - 5 - kgPadding;
+        const kgX = pageWidth - 5;
 
-      // Tara Row
-      doc.text("Tara:", labelColX, lineStartY + verticalGap);
-      doc.line(lineX, lineStartY + verticalGap + 1, lineEndX, lineStartY + verticalGap + 1);
-      doc.text("kg", kgX, lineStartY + verticalGap, { align: "right" });
+        const verticalGap = 10; // Increased spacing between lines
+
+        // Peso Row
+        doc.text("Peso:", labelColX, lineStartY);
+        doc.line(lineX, lineStartY + 1, lineEndX, lineStartY + 1);
+        doc.text("kg", kgX, lineStartY, { align: "right" });
+
+        // Tara Row
+        doc.text("Tara:", labelColX, lineStartY + verticalGap);
+        doc.line(lineX, lineStartY + verticalGap + 1, lineEndX, lineStartY + verticalGap + 1);
+        doc.text("kg", kgX, lineStartY + verticalGap, { align: "right" });
+      }
     });
 
     doc.save(`etiquetas_carmella_${new Date().toISOString().split('T')[0]}.pdf`);
@@ -160,6 +247,73 @@ const Etiquetas: React.FC = () => {
         <p>Selecione os sabores ou digite nomes personalizados para gerar o PDF de impressão.</p>
 
         <div className="selection-section">
+          <label
+            className={`food-service-toggle-card ${isFoodService ? "active" : ""}`}
+            htmlFor="foodServiceCheckbox"
+          >
+            <div className="toggle-card-content">
+              <div className="toggle-icon-title">
+                <BsShop className="food-service-icon" />
+                <div>
+                  <span className="food-service-title">Pedido Food Service</span>
+                  <span className="food-service-subtitle">Exibe o nome do cliente na etiqueta (substitui peso e tara)</span>
+                </div>
+              </div>
+              <div className="custom-switch">
+                <input
+                  type="checkbox"
+                  id="foodServiceCheckbox"
+                  checked={isFoodService}
+                  onChange={(e) => {
+                    setIsFoodService(e.target.checked);
+                    if (!e.target.checked) {
+                      setSelectedClientOption(null);
+                      setCustomClientName("");
+                    }
+                  }}
+                />
+                <span className="switch-slider"></span>
+              </div>
+            </div>
+          </label>
+
+          {isFoodService && (
+            <div className="client-input-container" style={{ marginBottom: "20px", background: "#fdfaf7", padding: "20px", borderRadius: "15px", border: "1px solid #f0e6dd", textAlign: "left" }}>
+              <label style={{ display: "block", fontWeight: 700, color: "#5a432c", marginBottom: "12px", fontSize: "1.1rem" }}>
+                Cliente Food Service:
+              </label>
+              <div style={{ display: "flex", gap: "15px", alignItems: "center", flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: "240px" }}>
+                  <Select
+                    options={clientOptions}
+                    value={selectedClientOption}
+                    onChange={(option) => {
+                      setSelectedClientOption(option as { value: string; label: string });
+                      setCustomClientName("");
+                    }}
+                    placeholder={loadingClients ? "Carregando clientes..." : "Buscar cliente..."}
+                    isLoading={loadingClients}
+                    classNamePrefix="react-select"
+                    isClearable
+                  />
+                </div>
+                <div className="custom-or">ou</div>
+                <div style={{ flex: 1, minWidth: "240px" }}>
+                  <input
+                    type="text"
+                    className="custom-name-input"
+                    value={customClientName}
+                    onChange={(e) => {
+                      setCustomClientName(e.target.value);
+                      setSelectedClientOption(null);
+                    }}
+                    placeholder="Nome do cliente (texto livre)..."
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="input-group-container">
             <div className="flavor-input-part">
               <label>Sabor:</label>
@@ -170,7 +324,8 @@ const Etiquetas: React.FC = () => {
                   setCurrentFlavor(option as { value: string; label: string });
                   setCustomName("");
                 }}
-                placeholder="Buscar sabor..."
+                placeholder={loadingFlavors ? "Carregando sabores..." : "Buscar sabor..."}
+                isLoading={loadingFlavors}
                 classNamePrefix="react-select"
                 isClearable
               />
@@ -224,6 +379,11 @@ const Etiquetas: React.FC = () => {
                   <div className="tag-info">
                     <span className="tag-flavor">{item.flavor}</span>
                     <span className="tag-date">Produção: {item.date.split('-').reverse().join('/')}</span>
+                    {item.isFoodService && item.clientName && (
+                      <span className="tag-client" style={{ fontSize: "0.95rem", color: "#d97706", fontWeight: 700, marginTop: "4px" }}>
+                        Cliente: {item.clientName}
+                      </span>
+                    )}
                   </div>
                   <button className="remove-btn" onClick={() => removeItem(item.id)}>
                     <BsXLg size={12} />

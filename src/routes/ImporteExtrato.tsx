@@ -3,7 +3,25 @@ import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
-import "../css/Frequencia.css";
+function parseBRNumber(val: any): number {
+  if (val === null || val === undefined || val === "") return 0;
+  if (typeof val === "number") return isNaN(val) ? 0 : val;
+  const strVal = val.toString().trim();
+  if (!strVal) return 0;
+
+  if (strVal.includes(".") && strVal.includes(",")) {
+    const cleanStr = strVal.replace(/\./g, "").replace(",", ".");
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? 0 : num;
+  }
+  if (strVal.includes(",")) {
+    const cleanStr = strVal.replace(",", ".");
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? 0 : num;
+  }
+  const num = parseFloat(strVal);
+  return isNaN(num) ? 0 : num;
+}
 
 function ImporteExtrato() {
   const { user } = useAuth();
@@ -184,14 +202,9 @@ function ImporteExtrato() {
 
       // 2. Concilia os lançamentos existentes no banco de dados
       if (txsToReconcile.length > 0) {
-        const dbIdsToUpdate = txsToReconcile.map(t => t.dbId).filter(Boolean);
-
-        const { error } = await supabase
-          .from("lancamentos_financeiros")
-          .update({ conciliado: true, conta: selectedConta })
-          .in("id", dbIdsToUpdate);
-
-        if (error) throw error;
+        for (const t of txsToReconcile) {
+          await reconcileSingleTransaction(t, selectedConta, user?.id);
+        }
       }
 
       // Atualiza o estado visual das transações na interface local
@@ -226,139 +239,137 @@ function ImporteExtrato() {
     }
   };
 
+  const reconcileSingleTransaction = async (tx: any, conta: string, userId?: string) => {
+    const matched = tx.matchedDbRecord;
+    if (!matched) return null;
+
+    if (matched.isGroup && matched.dbRecords) {
+      // Concilia múltiplos lançamentos do sistema que compõem essa transação do extrato
+      for (const subRec of matched.dbRecords) {
+        if (subRec.sourceTable === "contas_pagar_receber") {
+          const orig = subRec.originalData || subRec;
+          const payload = {
+            data: tx.date,
+            descricao: orig.descricao || tx.memo || "Lançamento via Importação OFX",
+            fornecedor: orig.fornecedor_cliente || null,
+            valor: parseFloat(subRec.valor || "0"),
+            categoria: orig.categoria || null,
+            conta: conta,
+            user_id: userId,
+            status_revisao: orig.status_revisao || null,
+            conciliado: true
+          };
+
+          const { error: insertErr } = await supabase
+            .from("lancamentos_financeiros")
+            .insert([payload]);
+
+          if (insertErr) throw insertErr;
+
+          await supabase
+            .from("contas_pagar_receber")
+            .delete()
+            .eq("id", subRec.id);
+        } else {
+          const { error } = await supabase
+            .from("lancamentos_financeiros")
+            .update({ conciliado: true, conta: conta })
+            .eq("id", subRec.id);
+
+          if (error) throw error;
+        }
+      }
+      return {
+        dbId: tx.dbId || matched.id,
+        matchedDbRecord: {
+          ...matched,
+          conciliado: true
+        }
+      };
+    } else if (matched.sourceTable === "contas_pagar_receber") {
+      // Lançamento vem do Contas a Pagar -> Insere em lancamentos_financeiros e REMOVE do contas_pagar_receber
+      const orig = matched.originalData || {};
+      const payload = {
+        data: tx.date,
+        descricao: orig.descricao || tx.memo || "Lançamento via Importação OFX",
+        fornecedor: orig.fornecedor_cliente || null,
+        valor: tx.amount,
+        categoria: orig.categoria || null,
+        conta: conta,
+        user_id: userId,
+        status_revisao: orig.status_revisao || null,
+        conciliado: true
+      };
+
+      const { data: insertedData, error: insertErr } = await supabase
+        .from("lancamentos_financeiros")
+        .insert([payload])
+        .select();
+
+      if (insertErr) throw insertErr;
+
+      const { error: deleteErr } = await supabase
+        .from("contas_pagar_receber")
+        .delete()
+        .eq("id", orig.id);
+
+      if (deleteErr) {
+        console.warn("Aviso ao remover do contas_pagar_receber:", deleteErr);
+      }
+
+      const newDbId = insertedData && insertedData.length > 0 ? insertedData[0].id : (tx.dbId || matched.id);
+      return {
+        dbId: newDbId,
+        matchedDbRecord: {
+          id: newDbId,
+          data: tx.date,
+          valor: tx.amount,
+          descricao: orig.descricao || tx.memo,
+          conciliado: true,
+          sourceTable: "lancamentos_financeiros",
+          sourceLabel: "Lançamento Financeiro"
+        }
+      };
+    } else {
+      // Lançamento vem do Lançamentos Financeiros -> atualiza conciliado = true e conta = selectedConta
+      const targetId = tx.dbId || matched.id;
+      const { error } = await supabase
+        .from("lancamentos_financeiros")
+        .update({ conciliado: true, conta: conta })
+        .eq("id", targetId);
+
+      if (error) throw error;
+      return {
+        dbId: targetId,
+        matchedDbRecord: {
+          ...matched,
+          conciliado: true
+        }
+      };
+    }
+  };
+
   const handleReconcileSingleItem = async (tx: any) => {
     if (!selectedConta) {
       alert("Por favor, selecione a conta bancária no topo.");
       return;
     }
-    if (!tx.dbId || !tx.matchedDbRecord) return;
-
-    const matched = tx.matchedDbRecord;
+    if (!tx.matchedDbRecord) return;
 
     try {
-      if (matched.isGroup && matched.dbRecords) {
-        // Concilia múltiplos lançamentos do sistema que compõem essa transação do extrato
-        for (const subRec of matched.dbRecords) {
-          if (subRec.sourceTable === "contas_pagar_receber") {
-            const orig = subRec.originalData || subRec;
-            const payload = {
-              data: tx.date,
-              descricao: orig.descricao || tx.memo || "Lançamento via Importação OFX",
-              fornecedor: orig.fornecedor_cliente || null,
-              valor: parseFloat(subRec.valor || "0"),
-              categoria: orig.categoria || null,
-              conta: selectedConta,
-              user_id: user?.id,
-              status_revisao: orig.status_revisao || null,
-              conciliado: true
-            };
+      const result = await reconcileSingleTransaction(tx, selectedConta, user?.id);
 
-            const { error: insertErr } = await supabase
-              .from("lancamentos_financeiros")
-              .insert([payload]);
-
-            if (insertErr) throw insertErr;
-
-            await supabase
-              .from("contas_pagar_receber")
-              .delete()
-              .eq("id", subRec.id);
-          } else {
-            const { error } = await supabase
-              .from("lancamentos_financeiros")
-              .update({ conciliado: true, conta: selectedConta })
-              .eq("id", subRec.id);
-
-            if (error) throw error;
-          }
+      setTransactions(prev => prev.map(item => {
+        if (item.id === tx.id) {
+          return { 
+            ...item, 
+            dbId: result?.dbId || item.dbId,
+            status: item.status.includes("Agrupado") ? "Já Conciliado (Agrupado)" : "Já Conciliado",
+            matchedDbRecord: result?.matchedDbRecord || item.matchedDbRecord
+          };
         }
-
-        setTransactions(prev => prev.map(item => {
-          if (item.id === tx.id) {
-            return { 
-              ...item, 
-              status: "Já Conciliado",
-              matchedDbRecord: {
-                ...matched,
-                conciliado: true
-              }
-            };
-          }
-          return item;
-        }));
-      } else if (matched.sourceTable === "contas_pagar_receber") {
-        // Lançamento vem do Contas a Pagar -> Insere em lancamentos_financeiros e REMOVE do contas_pagar_receber
-        const orig = matched.originalData || {};
-        
-        const payload = {
-          data: tx.date,
-          descricao: orig.descricao || tx.memo || "Lançamento via Importação OFX",
-          fornecedor: orig.fornecedor_cliente || null,
-          valor: tx.amount,
-          categoria: orig.categoria || null,
-          conta: selectedConta,
-          user_id: user?.id,
-          status_revisao: orig.status_revisao || null,
-          conciliado: true
-        };
-
-        const { data: insertedData, error: insertErr } = await supabase
-          .from("lancamentos_financeiros")
-          .insert([payload])
-          .select();
-
-        if (insertErr) throw insertErr;
-
-        // Deleta o registro da tabela contas_pagar_receber para remover de Contas a Pagar
-        const { error: deleteErr } = await supabase
-          .from("contas_pagar_receber")
-          .delete()
-          .eq("id", orig.id);
-
-        if (deleteErr) {
-          console.warn("Aviso ao remover do contas_pagar_receber:", deleteErr);
-        }
-
-        const newDbId = insertedData && insertedData.length > 0 ? insertedData[0].id : tx.dbId;
-
-        setTransactions(prev => prev.map(item => {
-          if (item.id === tx.id) {
-            return { 
-              ...item, 
-              dbId: newDbId,
-              status: "Já Conciliado",
-              matchedDbRecord: {
-                id: newDbId,
-                data: tx.date,
-                valor: tx.amount,
-                descricao: orig.descricao || tx.memo,
-                conciliado: true,
-                sourceTable: "lancamentos_financeiros",
-                sourceLabel: "Lançamento Financeiro"
-              }
-            };
-          }
-          return item;
-        }));
-      } else {
-        // Lançamento vem do Lançamentos Financeiros -> atualiza conciliado = true e conta = selectedConta
-        const { error } = await supabase
-          .from("lancamentos_financeiros")
-          .update({ conciliado: true, conta: selectedConta })
-          .eq("id", tx.dbId);
-
-        if (error) throw error;
-
-        setTransactions(prev => prev.map(item => {
-          if (item.id === tx.id) {
-            return { 
-              ...item, 
-              status: item.status.includes("Agrupado") ? "Já Conciliado (Agrupado)" : "Já Conciliado" 
-            };
-          }
-          return item;
-        }));
-      }
+        return item;
+      }));
 
       setSelectedTxIds(prev => {
         const next = new Set(prev);
@@ -585,7 +596,12 @@ function ImporteExtrato() {
         const boundsMin = new Date(minTime - 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
         const boundsMax = new Date(maxTime + 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
 
-        // 1. Fetch DB Lancamentos estritamente filtrados pela conta bancária selecionada
+        // 1. Fetch DB Lancamentos filtrados por todas as variações da conta bancária (label e displayLabel)
+        const matchingConta = contas.find(c => c.label === selectedConta || c.displayLabel === selectedConta);
+        const contaPossibleValues = matchingConta 
+          ? Array.from(new Set([matchingConta.label, matchingConta.displayLabel].filter(Boolean)))
+          : [selectedConta];
+
         let queryLf = supabase
           .from("lancamentos_financeiros")
           .select("id, data, valor, descricao, conciliado, conta, categoria, fornecedor")
@@ -593,7 +609,7 @@ function ImporteExtrato() {
           .lte("data", boundsMax);
           
         if (selectedConta) {
-          queryLf = queryLf.eq("conta", selectedConta);
+          queryLf = queryLf.in("conta", contaPossibleValues);
         }
 
         // 2. Fetch Contas a Pagar / Receber (contas_pagar_receber) para incluir na pesquisa de conciliação
@@ -646,7 +662,7 @@ function ImporteExtrato() {
             const ofxAmount = Math.abs(ofx.amount);
 
             let matchIdx = availableDb.findIndex(db => {
-              const dbAmount = Math.abs(parseFloat(db.valor || "0"));
+              const dbAmount = Math.abs(parseBRNumber(db.valor));
               if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
               
               const dbDate = new Date(db.data + "T00:00:00").getTime();
@@ -663,7 +679,7 @@ function ImporteExtrato() {
             } else {
               // Verifica nos já conciliados apenas para marcar o status visual
               const alreadyIdx = availableDb.findIndex(db => {
-                const dbAmount = Math.abs(parseFloat(db.valor || "0"));
+                const dbAmount = Math.abs(parseBRNumber(db.valor));
                 if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
                 
                 const dbDate = new Date(db.data + "T00:00:00").getTime();
@@ -707,7 +723,7 @@ function ImporteExtrato() {
             
             let matchIdx = availableDb.findIndex(db => {
               if (db.conciliado) return false;
-              const dbAmount = parseFloat(db.valor || "0");
+              const dbAmount = parseBRNumber(db.valor);
               if (Math.abs(dbAmount - groupSum) > 0.01) return false;
               
               const dbDate = new Date(db.data + "T00:00:00").getTime();
@@ -727,7 +743,7 @@ function ImporteExtrato() {
             } else {
               let alreadyIdx = availableDb.findIndex(db => {
                 if (!db.conciliado) return false;
-                const dbAmount = parseFloat(db.valor || "0");
+                const dbAmount = parseBRNumber(db.valor);
                 if (Math.abs(dbAmount - groupSum) > 0.01) return false;
                 
                 const dbDate = new Date(db.data + "T00:00:00").getTime();
@@ -759,7 +775,7 @@ function ImporteExtrato() {
 
             const candidateDbs = availableDb.filter(db => {
               if (db.conciliado) return false;
-              const dbVal = parseFloat(db.valor || "0");
+              const dbVal = parseBRNumber(db.valor);
               if ((isExpense && dbVal >= 0) || (!isExpense && dbVal < 0)) return false;
 
               const dbDate = new Date(db.data + "T00:00:00").getTime();
@@ -787,6 +803,7 @@ function ImporteExtrato() {
                 isGroup: true,
                 dbRecords: subset
               };
+              ofx.dbId = ofx.matchedDbRecord.id;
 
               subset.forEach((subItem: any) => {
                 const idx = availableDb.findIndex(d => d.id === subItem.id && d.sourceTable === subItem.sourceTable);

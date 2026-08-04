@@ -4,6 +4,39 @@ import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
 import "../css/Frequencia.css";
 
+function formatBRNumber(val: number | string | null | undefined): string {
+  if (val === null || val === undefined || val === "") return "";
+  if (typeof val === "number") {
+    return val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+  const strVal = val.toString().trim();
+  if (!strVal) return "";
+  const cleanStr = strVal.replace(/\./g, "").replace(",", ".");
+  const num = parseFloat(cleanStr);
+  if (isNaN(num)) return strVal;
+  return num.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseBRNumber(val: any): number | null {
+  if (val === null || val === undefined || val === "") return null;
+  if (typeof val === "number") return isNaN(val) ? null : val;
+  const strVal = val.toString().trim();
+  if (!strVal) return null;
+
+  if (strVal.includes(".") && strVal.includes(",")) {
+    const cleanStr = strVal.replace(/\./g, "").replace(",", ".");
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? null : num;
+  }
+  if (strVal.includes(",")) {
+    const cleanStr = strVal.replace(",", ".");
+    const num = parseFloat(cleanStr);
+    return isNaN(num) ? null : num;
+  }
+  const num = parseFloat(strVal);
+  return isNaN(num) ? null : num;
+}
+
 function ConciliacaoBancaria() {
   const [contas, setContas] = useState<any[]>([]);
   const [saldosCalculados, setSaldosCalculados] = useState<{ [conta: string]: number }>({});
@@ -18,7 +51,7 @@ function ConciliacaoBancaria() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   });
 
-  // Fetch Contas on mount
+  // Fetch Contas on mount - ordenado por ordem de cadastro (id)
   useEffect(() => {
     async function fetchContas() {
       try {
@@ -26,7 +59,7 @@ function ConciliacaoBancaria() {
           .from("contas")
           .select("id, banco, agencia, conta_corrente, descricao, saldo_informado, data_saldo_informado")
           .eq("ativo", true)
-          .order("banco", { ascending: true });
+          .order("id", { ascending: true });
 
         if (contasError) throw contasError;
 
@@ -110,9 +143,13 @@ function ConciliacaoBancaria() {
               }
 
               if (targetKey !== undefined) {
-                balances[targetKey] += parseFloat(l.valor || 0);
+                balances[targetKey] += parseBRNumber(l.valor) ?? 0;
               }
             }
+          });
+
+          Object.keys(balances).forEach(key => {
+            balances[key] = Math.round((balances[key] + Number.EPSILON) * 100) / 100;
           });
         }
 
@@ -129,14 +166,14 @@ function ConciliacaoBancaria() {
 
   const [dataSaldosBanco, setDataSaldosBanco] = useState<{ [conta: string]: string }>({});
 
-  // Initialize saldosBanco from contas Data
+  // Initialize saldosBanco from contas Data (formatado em PT-BR)
   useEffect(() => {
     if (contas.length > 0) {
       const saldos: { [conta: string]: string } = {};
       const datas: { [conta: string]: string } = {};
       contas.forEach(c => {
         if (c.saldo_informado !== null && c.saldo_informado !== undefined) {
-          saldos[c.label] = c.saldo_informado.toString();
+          saldos[c.label] = formatBRNumber(c.saldo_informado);
           datas[c.label] = c.data_saldo_informado;
         }
       });
@@ -150,10 +187,12 @@ function ConciliacaoBancaria() {
   };
 
   const handleSaldoBancoBlur = async (conta: any, value: string) => {
-    const numValue = parseFloat(value.replace(",", "."));
+    const numValue = parseBRNumber(value);
     const dataAtual = new Date().toISOString();
     
-    if (!isNaN(numValue)) {
+    if (numValue !== null) {
+      const formatted = formatBRNumber(numValue);
+      setSaldosBanco(prev => ({ ...prev, [conta.label]: formatted }));
       setDataSaldosBanco(prev => ({ ...prev, [conta.label]: dataAtual }));
       try {
         await supabase.from("contas").update({ 
@@ -163,7 +202,12 @@ function ConciliacaoBancaria() {
       } catch (err) {
         console.error("Erro ao atualizar saldo no banco:", err);
       }
-    } else if (value === "") {
+    } else if (value.trim() === "") {
+      setSaldosBanco(prev => {
+        const next = { ...prev };
+        delete next[conta.label];
+        return next;
+      });
       setDataSaldosBanco(prev => {
         const next = { ...prev };
         delete next[conta.label];
@@ -188,7 +232,10 @@ function ConciliacaoBancaria() {
       return <span style={{ color: "var(--text-secondary)" }}>Aguardando...</span>;
     }
 
-    const informado = parseFloat(informadoStr.replace(",", "."));
+    const informado = parseBRNumber(informadoStr);
+    if (informado === null) {
+      return <span style={{ color: "var(--text-secondary)" }}>Aguardando...</span>;
+    }
     
     if (Math.abs(calculado - informado) < 0.01) {
       return (
@@ -301,10 +348,8 @@ function ConciliacaoBancaria() {
                         </td>
                         <td style={{ padding: "16px", textAlign: "center" }}>
                           <input
-                            type="number"
-                            step="0.01"
-                            className="no-spinner"
-                            placeholder="0.00"
+                            type="text"
+                            placeholder="0,00"
                             value={saldosBanco[conta.label] || ""}
                             onChange={(e) => handleSaldoBancoChange(conta.label, e.target.value)}
                             onBlur={(e) => handleSaldoBancoBlur(conta, e.target.value)}
