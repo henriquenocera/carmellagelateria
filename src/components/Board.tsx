@@ -185,7 +185,11 @@ export function Board() {
     const nextCards = cards.map((c) => {
       if (c.id === card.id) {
         const sourceStatus = c.status;
-        const entryDate = targetStatus === 'quebras' ? '' : (targetStatus === 'vitrine-atual' && sourceStatus !== 'vitrine-atual' ? getToday() : c.entryDate);
+        const entryDate = targetStatus === 'quebras' 
+          ? '' 
+          : (targetStatus === 'vitrine-atual' && sourceStatus !== 'vitrine-atual' 
+            ? (c.entryDate && c.entryDate.trim() !== '' ? c.entryDate : getToday()) 
+            : c.entryDate);
         const exitDate = targetStatus === 'cubas-saidas-vitrine' && sourceStatus === 'vitrine-atual' ? getToday() : c.exitDate;
         return {
           ...c,
