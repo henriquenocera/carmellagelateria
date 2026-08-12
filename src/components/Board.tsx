@@ -754,6 +754,15 @@ export function Board() {
                 return new Date(b.entryDate).getTime() - new Date(a.entryDate).getTime();
               });
             }
+            if (col.id === 'cubas-saidas-vitrine') {
+              columnCards = [...columnCards].sort((a, b) => {
+                if (a.id === movedCardId) return -1;
+                if (b.id === movedCardId) return 1;
+                const dateA = a.exitDate ? new Date(a.exitDate).getTime() : (a.entryDate ? new Date(a.entryDate).getTime() : new Date(a.productionDate).getTime());
+                const dateB = b.exitDate ? new Date(b.exitDate).getTime() : (b.entryDate ? new Date(b.entryDate).getTime() : new Date(b.productionDate).getTime());
+                return dateB - dateA;
+              });
+            }
 
             // Ordenar Histórico Excluídos por data de saída (mais recente primeiro)
             if (col.id === 'excluidos') {
