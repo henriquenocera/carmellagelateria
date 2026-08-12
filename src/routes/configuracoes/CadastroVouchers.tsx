@@ -543,20 +543,6 @@ function CadastroVouchers() {
                       {generatingVoucher.value}
                     </h2>
 
-                    <div style={{
-                      position: "absolute",
-                      bottom: "30px",
-                      right: "-20px",
-                      transform: "rotate(-90deg)",
-                      transformOrigin: "bottom right",
-                      color: "#a49481",
-                      fontSize: "0.85rem",
-                      fontWeight: "bold",
-                      letterSpacing: "3px",
-                      whiteSpace: "nowrap"
-                    }}>
-                      VÁLIDO SOMENTE NA LOJA FÍSICA
-                    </div>
                   </div>
 
                 </div>

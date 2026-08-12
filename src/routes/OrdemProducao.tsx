@@ -794,29 +794,42 @@ function OrdemProducao() {
                 </div>
               )}
 
-              <button
-                onClick={handleExportEmptyPDF}
-                style={{
-                  display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px",
-                  backgroundColor: "#fff", color: "#3b82f6", border: "2px solid #3b82f6",
-                  borderRadius: "8px", fontWeight: "bold", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
-                }}
-              >
-                <Icons.BsPrinter style={{ strokeWidth: "1" }} />
-                Imprimir em Branco
-              </button>
+              {viewMode === 'detail' && (!isAlreadySaved || editMode) && (
+                <button
+                  onClick={handleSaveAll}
+                  disabled={isSavingAll}
+                  style={{
+                    padding: "10px 20px",
+                    backgroundColor: "var(--primary-color)",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontSize: "1rem",
+                    fontWeight: "bold",
+                    cursor: isSavingAll ? "not-allowed" : "pointer",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    transition: "all 0.2s ease"
+                  }}
+                  onMouseOver={(e) => { if(!isSavingAll) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.15)"; } }}
+                  onMouseOut={(e) => { if(!isSavingAll) { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 4px rgba(0,0,0,0.1)"; } }}
+                >
+                  {isSavingAll ? (
+                    <>
+                      <Icons.BsArrowClockwise className="spin" />
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <Icons.BsCheck style={{ strokeWidth: "1", fontSize: "1.3rem" }} />
+                      Salvar Ordem de Produção
+                    </>
+                  )}
+                </button>
+              )}
 
-              <button
-                onClick={handleCreateNew}
-                style={{
-                  display: "flex", alignItems: "center", gap: "8px", padding: "10px 16px",
-                  backgroundColor: "#fff", color: "var(--primary-color)", border: "2px solid var(--primary-color)",
-                  borderRadius: "8px", fontWeight: "bold", cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.05)"
-                }}
-              >
-                <Icons.BsPlus style={{ strokeWidth: "1", fontSize: "1.2rem" }} />
-                Nova Ordem de Produção
-              </button>
             </div>
           </div>
 
@@ -1164,44 +1177,6 @@ function OrdemProducao() {
                   </div>
                 );
               })()}
-              
-              {(!isAlreadySaved || editMode) && (
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "24px" }}>
-                  <button
-                    onClick={handleSaveAll}
-                    disabled={isSavingAll}
-                    style={{
-                      padding: "14px 32px",
-                      backgroundColor: "var(--primary-color)",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "8px",
-                      fontSize: "1.2rem",
-                      fontWeight: "bold",
-                      cursor: isSavingAll ? "not-allowed" : "pointer",
-                      boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                      transition: "all 0.2s ease"
-                    }}
-                    onMouseOver={(e) => { if(!isSavingAll) { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 6px 12px rgba(0,0,0,0.15)"; } }}
-                    onMouseOut={(e) => { if(!isSavingAll) { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 6px rgba(0,0,0,0.1)"; } }}
-                  >
-                    {isSavingAll ? (
-                      <>
-                        <Icons.BsArrowClockwise className="spin" />
-                        Salvando...
-                      </>
-                    ) : (
-                      <>
-                        <Icons.BsCheck style={{ strokeWidth: "1", fontSize: "1.4rem" }} />
-                        Salvar Ordem de Produção
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
             </>
           )}
         </div>
