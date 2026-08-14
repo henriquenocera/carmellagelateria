@@ -9,6 +9,72 @@ import Select from "react-select";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../css/Frequencia.css";
 
+const PositionInput = ({
+  originalIndex,
+  totalItems,
+  disabled,
+  onReorder
+}: {
+  originalIndex: number;
+  totalItems: number;
+  disabled: boolean;
+  onReorder: (from: number, to: number) => void;
+}) => {
+  const [value, setValue] = useState(String(originalIndex + 1));
+
+  useEffect(() => {
+    setValue(String(originalIndex + 1));
+  }, [originalIndex]);
+
+  const handleCommit = () => {
+    const parsed = parseInt(value, 10);
+    if (!isNaN(parsed)) {
+      const clamped = Math.max(1, Math.min(totalItems, parsed));
+      const targetIndex = clamped - 1;
+      if (targetIndex !== originalIndex) {
+        onReorder(originalIndex, targetIndex);
+      } else {
+        setValue(String(originalIndex + 1));
+      }
+    } else {
+      setValue(String(originalIndex + 1));
+    }
+  };
+
+  return (
+    <input
+      type="number"
+      min={1}
+      max={totalItems}
+      value={value}
+      disabled={disabled}
+      title={disabled ? "Limpe a busca para alterar a ordem" : "Digite o número para alterar a posição do insumo"}
+      onChange={(e) => setValue(e.target.value)}
+      onBlur={handleCommit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.currentTarget.blur();
+        }
+      }}
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        width: "52px",
+        height: "32px",
+        textAlign: "center",
+        borderRadius: "6px",
+        border: "1px solid #cbd5e1",
+        fontWeight: 600,
+        fontSize: "0.95rem",
+        color: "#1e293b",
+        backgroundColor: disabled ? "#f1f5f9" : "#ffffff",
+        outline: "none",
+        cursor: disabled ? "not-allowed" : "text",
+        boxSizing: "border-box"
+      }}
+    />
+  );
+};
+
 function CadastroInsumos() {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -286,14 +352,12 @@ function CadastroInsumos() {
     setDragOverItemIndex(null);
   };
 
-  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
-    e.preventDefault();
-    if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+  const handleReorder = async (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || fromIndex >= insumos.length || toIndex >= insumos.length) return;
 
     const items = [...insumos];
-    const draggedItem = items[draggedItemIndex];
-    items.splice(draggedItemIndex, 1);
-    items.splice(targetIndex, 0, draggedItem);
+    const [draggedItem] = items.splice(fromIndex, 1);
+    items.splice(toIndex, 0, draggedItem);
 
     const updatedItems = items.map((item, index) => ({
       ...item,
@@ -317,6 +381,12 @@ function CadastroInsumos() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedItemIndex === null || draggedItemIndex === targetIndex) return;
+    await handleReorder(draggedItemIndex, targetIndex);
   };
 
   return (
@@ -361,10 +431,11 @@ function CadastroInsumos() {
             <p style={{ textAlign: "center", color: "var(--text-muted)", padding: "20px" }}>Nenhum insumo registrado.</p>
           ) : (
             <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
-              <table className="freq-table" style={{ minWidth: "1300px" }}>
+              <table className="freq-table" style={{ minWidth: "1350px" }}>
                 <thead>
                   <tr>
-                    <th style={{ width: "30px" }}></th>
+                    <th style={{ textAlign: "center", width: "70px" }}>Ordem</th>
+                    <th style={{ textAlign: "center", width: "95px" }}>Reordenar</th>
                     <th style={{ textAlign: "center", width: "60px" }}>Ativo</th>
                     <th style={{ width: "350px", minWidth: "250px" }}>Nome</th>
                     <th>Nome Simples</th>
@@ -400,12 +471,12 @@ function CadastroInsumos() {
                         <tr
                           key={insumo.id}
                           onClick={() => openModal(insumo)}
-                          draggable={!filtroTexto}
-                          onDragStart={() => !filtroTexto && handleDragStart(originalIndex)}
-                          onDragEnter={(e) => !filtroTexto && handleDragEnter(e, originalIndex)}
+                          draggable
+                          onDragStart={() => handleDragStart(originalIndex)}
+                          onDragEnter={(e) => handleDragEnter(e, originalIndex)}
                           onDragOver={handleDragOver}
                           onDragEnd={handleDragEnd}
-                          onDrop={(e) => !filtroTexto && handleDrop(e, originalIndex)}
+                          onDrop={(e) => handleDrop(e, originalIndex)}
                           style={{
                             opacity: insumo.ativo ? (isDragged ? 0.5 : 1) : 0.6,
                             borderTop: isDragOver && draggedItemIndex !== null && draggedItemIndex > originalIndex ? "2px solid var(--primary-color)" : "",
@@ -414,11 +485,86 @@ function CadastroInsumos() {
                           }}
                         >
                           <td
-                            style={{ textAlign: "center", cursor: "grab", color: "#cbd5e1" }}
-                            title="Arraste para reordenar"
+                            style={{ textAlign: "center" }}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <Icons.BsGripVertical />
+                            <PositionInput
+                              originalIndex={originalIndex}
+                              totalItems={insumos.length}
+                              disabled={false}
+                              onReorder={handleReorder}
+                            />
+                          </td>
+                          <td
+                            style={{ textAlign: "center", whiteSpace: "nowrap" }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+                              <span
+                                style={{
+                                  cursor: "grab",
+                                  color: "#64748b",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  padding: "4px 2px"
+                                }}
+                                title="Arraste para reordenar"
+                              >
+                                <Icons.BsGripVertical style={{ fontSize: "1.2rem" }} />
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (originalIndex > 0) {
+                                    handleReorder(originalIndex, 0);
+                                  }
+                                }}
+                                disabled={originalIndex === 0}
+                                title={originalIndex === 0 ? "Já é a primeira posição" : "Enviar para a primeira posição"}
+                                style={{
+                                  background: "none",
+                                  border: "1px solid #cbd5e1",
+                                  borderRadius: "4px",
+                                  padding: "3px 5px",
+                                  cursor: originalIndex === 0 ? "not-allowed" : "pointer",
+                                  color: originalIndex === 0 ? "#cbd5e1" : "#475569",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  transition: "all 0.2s"
+                                }}
+                              >
+                                <Icons.BsArrowUp style={{ fontSize: "0.95rem" }} />
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (originalIndex < insumos.length - 1) {
+                                    handleReorder(originalIndex, insumos.length - 1);
+                                  }
+                                }}
+                                disabled={originalIndex === insumos.length - 1}
+                                title={originalIndex === insumos.length - 1 ? "Já é a última posição" : "Enviar para a última posição"}
+                                style={{
+                                  background: "none",
+                                  border: "1px solid #cbd5e1",
+                                  borderRadius: "4px",
+                                  padding: "3px 5px",
+                                  cursor: originalIndex === insumos.length - 1 ? "not-allowed" : "pointer",
+                                  color: originalIndex === insumos.length - 1 ? "#cbd5e1" : "#475569",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  transition: "all 0.2s"
+                                }}
+                              >
+                                <Icons.BsArrowDown style={{ fontSize: "0.95rem" }} />
+                              </button>
+                            </div>
                           </td>
                           <td
                             style={{ textAlign: "center", cursor: "pointer" }}
