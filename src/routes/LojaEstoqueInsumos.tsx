@@ -71,7 +71,9 @@ function LojaEstoqueInsumos() {
         .from("inventario_insumos")
         .select("insumo_id, data_inventario, quantidade")
         .eq("unidade", unitName)
-        .lte("data_inventario", selectedDate);
+        .lte("data_inventario", selectedDate)
+        .order("data_inventario", { ascending: false })
+        .limit(5000);
 
       if (invError) throw invError;
 

@@ -110,7 +110,9 @@ function OrdemProducao() {
         .from("inventario_insumos")
         .select("insumo_id, data_inventario, quantidade")
         .eq("unidade", unitName)
-        .lte("data_inventario", today);
+        .lte("data_inventario", today)
+        .order("data_inventario", { ascending: false })
+        .limit(5000);
 
       const latestInv: Record<string, { data: string, quantidade: number }> = {};
       (invData || []).forEach((inv: any) => {

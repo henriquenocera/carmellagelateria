@@ -93,7 +93,10 @@ function Inventario() {
           updated_at,
           profiles (name)
         `)
-        .eq("unidade", unitName);
+        .eq("unidade", unitName)
+        .order("data_inventario", { ascending: false })
+        .order("updated_at", { ascending: false })
+        .limit(5000);
 
       if (error) throw error;
       

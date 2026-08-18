@@ -401,7 +401,7 @@ function Home() {
         const fetchInsumosStatus = async (unitName, unitId) => {
           const [{ data: insData }, { data: invData }, { data: movData }] = await Promise.all([
             supabase.from("cadastro_insumos").select("id, nome, config_estoque").eq("ativo", true).order("ordem", { ascending: true }).order("nome", { ascending: true }),
-            supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade").eq("unidade", unitName),
+            supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade").eq("unidade", unitName).order("data_inventario", { ascending: false }).limit(5000),
             supabase.from("movimentacoes_estoque").select("insumo_id, data_movimentacao, quantidade, origem, destino").or(`origem.eq.${unitName},destino.eq.${unitName}`)
           ]);
 

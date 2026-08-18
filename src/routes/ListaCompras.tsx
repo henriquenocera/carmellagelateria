@@ -42,7 +42,7 @@ function ListaCompras() {
 
       const [resInsumos, resInv, resMov, resEntradas] = await Promise.all([
         supabase.from("cadastro_insumos").select("*").eq("ativo", true).order("nome", { ascending: true }),
-        supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade, unidade").lte("data_inventario", getToday()),
+        supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade, unidade").lte("data_inventario", getToday()).order("data_inventario", { ascending: false }).limit(5000),
         supabase.from("movimentacoes_estoque").select("insumo_id, data_movimentacao, quantidade, origem, destino").lte("data_movimentacao", getToday()),
         entradasPromise
       ]);
