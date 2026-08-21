@@ -26,6 +26,7 @@ const MENU_CONFIG = [
     icon: <Icons.BsBriefcase />,
     id: "operacoes",
     subItems: [
+      { title: "Revisões e Aprovações", path: "/revisoes-e-aprovacoes", adminOnly: true },
       { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },

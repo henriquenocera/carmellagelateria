@@ -24,6 +24,7 @@ import HistoricoCliente from "./routes/HistoricoCliente.tsx";
 
 import Etiquetas from "./routes/Etiquetas.tsx";
 import NotificacoesLoja from "./routes/NotificacoesLoja.tsx";
+import RevisoesAprovacoes from "./routes/RevisoesAprovacoes.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
 
@@ -136,6 +137,7 @@ const router = createBrowserRouter(
         <Route path="/crm/cliente/:id" element={<HistoricoCliente />} />
         <Route path="/pedidos-food-service" element={<PedidosFoodService />} />
         <Route path="/notificacoes-loja" element={<NotificacoesLoja />} />
+        <Route path="/revisoes-e-aprovacoes" element={<RevisoesAprovacoes />} />
         <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
 
         <Route path="/inventario" element={<Inventario />} />
