@@ -8,6 +8,8 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./routes/Home";
+import Checklist from "./routes/Checklist.tsx";
+import ConferenciaValesChecklist from "./routes/ConferenciaValesChecklist.jsx";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
@@ -40,6 +42,8 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/checklist" element={<Checklist />} />
+          <Route path="/conferencia-vales-checklist" element={<ConferenciaValesChecklist />} />
           <Route path="/vales" element={<Vales />} />
           <Route path="/afericao" element={<Afericao />} /> 
           <Route path="/salgados" element={<Salgados />} /> 

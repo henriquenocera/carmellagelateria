@@ -30,6 +30,23 @@ function NavBar() {
               <span className="text">Início</span>
             </NavLink>
           </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/checklist">
+              <span className="icon">
+                <Icons.BsListCheck />
+              </span>
+              <span className="text">Tarefas</span>
+            </NavLink>
+          </li>
+
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/conferencia-vales-checklist">
+              <span className="icon">
+                <Icons.BsCardChecklist />
+              </span>
+              <span className="text">Conferência vales e checklist</span>
+            </NavLink>
+          </li>
 {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/afericao">
               <span className="icon">
@@ -73,7 +90,7 @@ function NavBar() {
             </NavLink>
           </li>
 
-          <li className={activeMenu ? "list active" : "list"}>
+{/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-abertura">
               <span className="icon">
                 <Icons.BsArrowBarRight />
@@ -91,7 +108,7 @@ function NavBar() {
               </span>
               <span className="text">Checklist Fechamento</span>
             </NavLink>
-          </li>
+          </li> */}
 {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/checklist-conferencia">
               <span className="icon">

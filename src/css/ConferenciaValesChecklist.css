@@ -1,0 +1,126 @@
+.conferencia-vales-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px 80px 95px; /* Offset for left navigation bar */
+  box-sizing: border-box;
+}
+
+.conferencia-vales-page .logo {
+  max-width: 180px;
+  margin-bottom: 1rem;
+}
+
+.conferencia-vales-page .container {
+  width: 100%;
+  max-width: 1000px;
+  margin-right: auto;
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 2rem;
+}
+
+.conferencia-vales-page .container h2 {
+  margin: 1rem 0 0.25rem;
+  color: #5a432c;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.conferencia-vales-page .container p {
+  margin-top: 0.5rem;
+  color: #7a6a58;
+  text-align: center;
+}
+
+.vales-table {
+  width: 100%;
+  max-width: 900px;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vales-table thead {
+  background: #efe0c2;
+}
+
+.vales-table th,
+.vales-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #6a4908;
+  font-size: 14px;
+}
+
+.text-center {
+  text-align: center !important;
+}
+
+.vales-table th {
+  font-weight: 700;
+  color: #5a432c;
+  letter-spacing: 0.2px;
+}
+
+.vales-table tbody tr:hover {
+  background: #faf7f2;
+}
+
+.vales-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.vales-divider td {
+  background: #f2e4c7;
+  color: #5a432c;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.vales-divider.secondary td {
+  background: #f8f1df;
+}
+
+.new-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #2ecc71;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.previsto-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f39c12;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.future-row {
+  opacity: 0.6;
+}
+
+@media (max-width: 768px) {
+  .conferencia-vales-page {
+    padding: 30px 10px 40px 85px;
+  }
+}
