@@ -28,6 +28,7 @@ const MENU_CONFIG = [
     subItems: [
       { title: "Revisões e Aprovações", path: "/revisoes-e-aprovacoes", adminOnly: true },
       { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
+      { title: "Tarefas Lojas", path: "/tarefas-lojas" },
       { title: "Textos e Links", path: "/textos-e-links" },
       { title: "Etiquetas", path: "/etiquetas" },
       { title: "Checklists", path: "/lojas-checklist" },
