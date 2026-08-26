@@ -27,22 +27,6 @@ interface BatchType {
   date: string;
 }
 
-const ID_NAMES_MAP: { [key: string]: string } = {
-  "2703": "Henrique",
-  "6736": "Cassia",
-  "6943": "Amanda",
-  "2836": "Talita",
-  "2982": "Sthefani",
-  "7295": "Jhenifer Gabrieli Almeida da Silva",
-  "3298": "Anna Rafaella",
-  "9845": "Endryw",
-  "1727": "Marina",
-  "1": "Henrique",
-  "2": "Gerência",
-  "6": "Atendente",
-  "10": "Supervisão"
-};
-
 const ChecklistPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"abertura" | "fechamento">("abertura");
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
@@ -114,30 +98,38 @@ const ChecklistPage: React.FC = () => {
     localStorage.setItem(`carmella_interactive_check_${activeTab}`, JSON.stringify(updated));
   };
 
-  // Função auxiliar para consultar a coluna "name" no Supabase profiles pelo ID (short_id)
-  const fetchProfileName = async (shortId: string): Promise<string> => {
+  // Consulta 100% dinâmica da coluna "name" na tabela profiles do Supabase pelo ID (short_id)
+  const fetchProfileName = async (shortId: string): Promise<string | null> => {
     const cleanId = shortId.trim();
-    if (!cleanId) return "";
+    if (!cleanId) return null;
 
     try {
+      // 1. Busca por short_id exato
       const { data, error } = await supabase
         .from("profiles")
         .select("name")
         .eq("short_id", cleanId);
 
-      if (!error && data && data.length > 0 && data[0].name) {
+      if (!error && data && data.length > 0 && data[0]?.name) {
         const found = data[0].name.trim();
+        if (found) return found;
+      }
+
+      // 2. Tenta busca secundária por ilike ou id por garantia
+      const { data: data2, error: error2 } = await supabase
+        .from("profiles")
+        .select("name")
+        .or(`short_id.ilike.${cleanId},id.eq.${cleanId}`);
+
+      if (!error2 && data2 && data2.length > 0 && data2[0]?.name) {
+        const found = data2[0].name.trim();
         if (found) return found;
       }
     } catch (e) {
       console.warn("Erro ao consultar profiles no Supabase:", e);
     }
 
-    if (ID_NAMES_MAP[cleanId]) {
-      return ID_NAMES_MAP[cleanId];
-    }
-
-    return "Colaborador";
+    return null;
   };
 
   // Validar ID do Realizador/Executor
@@ -159,9 +151,13 @@ const ChecklistPage: React.FC = () => {
     try {
       setIsCheckingExecutor(true);
       const name = await fetchProfileName(executorId);
+      if (!name) {
+        setErrorMessage(`ID "${executorId.trim()}" não encontrado no banco de dados (tabela profiles).`);
+        return;
+      }
       setExecutorName(name);
     } catch (err) {
-      setErrorMessage("ID do realizador inválido ou não encontrado.");
+      setErrorMessage("Erro ao consultar ID no banco de dados.");
     } finally {
       setIsCheckingExecutor(false);
     }
@@ -247,16 +243,17 @@ const ChecklistPage: React.FC = () => {
       return;
     }
 
-    if (revisorId.trim() === executorId.trim()) {
-      setErrorMessage("O ID do revisor deve ser diferente do ID do realizador da tarefa.");
-      return;
-    }
-
     try {
       setIsCheckingRevisor(true);
       setSubmitting(true);
 
       const rName = await fetchProfileName(revisorId);
+      if (!rName) {
+        setErrorMessage(`ID do Revisor "${revisorId.trim()}" não encontrado no banco de dados.`);
+        setIsCheckingRevisor(false);
+        setSubmitting(false);
+        return;
+      }
       setRevisorName(rName);
 
       const now = new Date();
@@ -616,6 +613,13 @@ const ChecklistPage: React.FC = () => {
                   alignItems: "center"
                 }}
               >
+                {/* Mensagem de Erro Inline na caixa de confirmação */}
+                {errorMessage && (
+                  <div style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "0.75rem 1.25rem", borderRadius: "12px", width: "100%", maxWidth: "550px", fontWeight: 700, fontSize: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                    <Icons.BsExclamationTriangleFill size={18} color="#dc2626" /> {errorMessage}
+                  </div>
+                )}
+
                 {/* Passo 1: Confirmação de Quem Realizou */}
                 {!executorName ? (
                   <form onSubmit={handleValidateExecutor} style={{ width: "100%", maxWidth: "550px", textAlign: "center" }}>
