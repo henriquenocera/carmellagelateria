@@ -11,7 +11,7 @@ export const checklistAberturaSteps = [
 
       { id: "3", title: "Ligar a Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
 
-      { id: "300", title: "Ligar a Luz da Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "", new: "2026-03-19" },
+      { id: "300", title: "Ligar a Luz da Vitrine", subtitle1: "Utilizar o controlador", subtitle2: "" },
 
       { id: "4", title: "Ligar a máquina de café e o moedor", subtitle1: "Utilizar tomadas 220v 'tomadas vermelhas'", subtitle2: "Girar o controlador da máquina de café para a posição '1'" },
 
@@ -35,9 +35,8 @@ export const checklistAberturaSteps = [
 
     items: [
 
-      { id: "1006", title: "Repor as bebidas da Coca na Geladeira", subtitle1: "", subtitle2: "", new: "2026-03-31", weekday: 1 },
+      { id: "1006", title: "Repor as bebidas da Coca na Geladeira", subtitle1: "", subtitle2: "", new: "2026-03-31" },
 
-      { id: "1007", title: "Repor as bebidas da Coca na Geladeira", subtitle1: "", subtitle2: "", new: "2026-03-31", weekday: 5 },
 
       { id: "10", title: "Trocar papel toalha dos morangos", subtitle1: "", subtitle2: "" },
 
@@ -116,6 +115,7 @@ export const checklistAberturaSteps = [
       { id: "28", title: "Abrir loja do ifood", subtitle1: "Para abrir a loja basta entrar no app e deixar ele aberto durante o dia", subtitle2: "", new: "2026-03-31" },
 
       { id: "29", title: "Conferir toppings do ifood", subtitle1: "Se algum topping tiver em falta, desligar do ifood", subtitle2: "", new: "2026-03-31" },
+      { id: "290", title: "Conferir Sabores dos Gelatos do ifood", subtitle1: "Se algum sabor estiver em falta, desligar do ifood", subtitle2: "", new: "2026-03-31" },
 
       { id: "30", title: "Conferir quebras", subtitle1: "Se tiver alguma quebra que pode entrar hoje, já deixe separado", subtitle2: "" },
 
@@ -188,7 +188,7 @@ export const checklistFechamentoSteps = [
 
   {
 
-    title: `2ª Pré Fechamento - Horários: (18:45 ~ 19:00)`,
+    title: `2ª Pré Fechamento - Horários: (18:45 ~ 18:55)`,
 
     items: [
 
@@ -210,11 +210,11 @@ export const checklistFechamentoSteps = [
 
     items: [
 
+      { id: "1331", title: "Recolher o Cavalete", subtitle1: "", subtitle2: "", new: "2026-06-07" },
+      { id: "13", title: "Fechar os portões pretos com cadeado", subtitle1: "", subtitle2: "" },
       { id: "133", title: "Recolher mesas e cadeiras externas", subtitle1: "", subtitle2: "" },
 
-      { id: "1331", title: "Recolher o Cavalete", subtitle1: "", subtitle2: "", new: "2026-06-07" },
 
-      { id: "13", title: "Fechar as portas de enrolar", subtitle1: "", subtitle2: "" },
 
       { id: "14", title: "Guardar cubas da vitrine no freezer", subtitle1: "", subtitle2: "" },
 

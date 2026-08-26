@@ -8,6 +8,7 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./routes/Home";
+import Tarefas from "./routes/Tarefas.tsx";
 import Checklist from "./routes/Checklist.tsx";
 import ConferenciaValesChecklist from "./routes/ConferenciaValesChecklist.jsx";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
@@ -42,6 +43,7 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/tarefas" element={<Tarefas />} />
           <Route path="/checklist" element={<Checklist />} />
           <Route path="/conferencia-vales-checklist" element={<ConferenciaValesChecklist />} />
           <Route path="/vales" element={<Vales />} />

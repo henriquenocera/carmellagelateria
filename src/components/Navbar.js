@@ -31,11 +31,19 @@ function NavBar() {
             </NavLink>
           </li>
           <li className={activeMenu ? "list active" : "list"}>
-            <NavLink to="/checklist">
+            <NavLink to="/tarefas">
               <span className="icon">
                 <Icons.BsListCheck />
               </span>
               <span className="text">Tarefas</span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/checklist">
+              <span className="icon">
+                <Icons.BsCheck2Square />
+              </span>
+              <span className="text">Checklist</span>
             </NavLink>
           </li>
 

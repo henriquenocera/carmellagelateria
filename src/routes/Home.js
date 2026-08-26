@@ -500,8 +500,30 @@ function Home() {
                     </div>
 
                     <div className="task-detail-body">
-                      <div style={{ fontSize: "0.95rem", color: "#64748b" }}>
-                        Data de referência: <strong>{formattedDate}</strong>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.95rem", color: "#64748b" }}>
+                        <div>Data de referência: <strong>{formattedDate}</strong></div>
+                        {isDone && (() => {
+                          const completionRecord = conclusoes.find(
+                            (c) =>
+                              String(c.tarefa_id) === String(task.id) &&
+                              (c.loja || "").toLowerCase() === (task.lojaExibicao || "").toLowerCase() &&
+                              c.data_referencia === formatDateToKey(date)
+                          );
+                          const timestamp = completionRecord?.concluido_em || completionRecord?.created_at;
+
+                          if (!timestamp) return null;
+
+                          const d = new Date(timestamp);
+                          const dateStr = d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+                          const timeStr = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+                          return (
+                            <div style={{ color: "#15803d", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.4rem", marginTop: "0.2rem" }}>
+                              <Icons.BsClockHistory size={14} color="#16a34a" />
+                              Concluída em: <strong>{dateStr} às {timeStr}</strong>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {task.descricao ? (
