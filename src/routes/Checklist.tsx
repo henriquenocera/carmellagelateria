@@ -62,6 +62,17 @@ const ChecklistPage: React.FC = () => {
   const [brownieBatches, setBrownieBatches] = useState<BatchType[]>([{ quantity: "", date: "" }]);
   const [panosCount, setPanosCount] = useState<string>("");
 
+  // Estados para Contador de Dinheiro (Abertura)
+  const [moneyData, setMoneyData] = useState<{
+    notas: { [key: string]: string };
+    moedas: { [key: string]: string };
+    total: string;
+  }>({
+    notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+    moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+    total: ""
+  });
+
   const currentSteps: StepType[] = activeTab === "abertura" ? checklistPrincipaisAbertura : checklistPrincipaisFechamento;
   const todayWeekday = new Date().getDay(); // 0 = Dom, 1 = Seg, ..., 6 = Sáb
 
@@ -91,6 +102,12 @@ const ChecklistPage: React.FC = () => {
     }
     const savedPanos = localStorage.getItem("check_fechamento_panos");
     if (savedPanos) setPanosCount(savedPanos);
+    
+    // Carregar moneyData para abertura
+    const savedMoney = localStorage.getItem("check_abertura_money");
+    if (savedMoney) {
+      try { setMoneyData(JSON.parse(savedMoney)); } catch (e) {}
+    }
   }, [activeTab]);
 
   useEffect(() => {
@@ -108,6 +125,12 @@ const ChecklistPage: React.FC = () => {
     localStorage.setItem("check_fechamento_panos", panosCount);
   }, [panosCount, todayChecklist, isCheckingToday]);
 
+  useEffect(() => {
+    if (activeTab !== "abertura") return;
+    if (todayChecklist && !isCheckingToday) return;
+    localStorage.setItem("check_abertura_money", JSON.stringify(moneyData));
+  }, [moneyData, activeTab, todayChecklist, isCheckingToday]);
+
   // Verificar se já existe checklist feito hoje para esta aba
   useEffect(() => {
     const checkTodayChecklist = async () => {
@@ -123,6 +146,7 @@ const ChecklistPage: React.FC = () => {
           .from("Checklist")
           .select("id, person, reviewer, created_at, updated_at")
           .eq("checklist", checklistType)
+          .eq("store", STORE_CONFIG.key)
           .gte("created_at", startOfDay)
           .lte("created_at", endOfDay)
           .order("created_at", { ascending: false })
@@ -145,6 +169,26 @@ const ChecklistPage: React.FC = () => {
     checkTodayChecklist();
   }, [activeTab]);
 
+  // Verifica se o item é novo (mesma lógica do Tarefas.tsx)
+  const isNewItem = (item: ChecklistItemType): boolean => {
+    const val = item["new"];
+    if (!val) return false;
+    if (typeof val === "boolean") return val;
+
+    const parts = String(val).split("-").map(Number);
+    if (parts.length === 3) {
+      const [year, month, day] = parts;
+      const itemDate = new Date(year, month - 1, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const diffTime = today.getTime() - itemDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 && diffDays <= 30;
+    }
+    return true;
+  };
+
   const toggleItem = (id: string) => {
     // Bloquear se já existe checklist completado hoje
     if (todayChecklist && !isCheckingToday) return;
@@ -152,6 +196,22 @@ const ChecklistPage: React.FC = () => {
     const updated = { ...checkedItems, [id]: !checkedItems[id] };
     setCheckedItems(updated);
     localStorage.setItem(`carmella_interactive_check_${activeTab}`, JSON.stringify(updated));
+  };
+
+  const handleMoneyChange = (type: "notas" | "moedas", key: string, value: string) => {
+    if (todayChecklist && !isCheckingToday) return;
+    const updated = { ...moneyData, [type]: { ...moneyData[type], [key]: value } };
+    
+    // Calcular total
+    const notasTotal = Object.entries(updated.notas).reduce((acc, [k, v]) => acc + (parseInt(k) * parseInt(v || "0")), 0);
+    const moedasTotal = Object.entries(updated.moedas).reduce((acc, [k, v]) => {
+      const valor = k === "050" ? 0.50 : k === "025" ? 0.25 : k === "010" ? 0.10 : k === "005" ? 0.05 : parseInt(k);
+      return acc + (valor * parseInt(v || "0"));
+    }, 0);
+    updated.total = (notasTotal + moedasTotal).toFixed(2);
+    
+    setMoneyData(updated);
+    if (!checkedItems["p_money"]) toggleItem("p_money");
   };
 
   // Consulta 100% dinâmica da coluna "name" na tabela profiles do Supabase pelo ID (short_id)
@@ -227,6 +287,13 @@ const ChecklistPage: React.FC = () => {
         panos: `Panos: ${panosCount || "0"} total`
       } : null;
 
+      // Preparar money_data para abertura
+      const moneyDataPayload = activeTab === "abertura" ? {
+        notas: moneyData.notas,
+        moedas: moneyData.moedas,
+        total: parseFloat(moneyData.total || "0").toFixed(2)
+      } : null;
+
       const payload = {
         checklist: `Checklist de ${activeTab === "abertura" ? "Abertura" : "Fechamento"}`,
         person: name,
@@ -237,7 +304,8 @@ const ChecklistPage: React.FC = () => {
         created_at: now.toISOString(),
         items_count: completedCount,
         total_items: allCurrentItems.length,
-        inventory: inventoryDetails
+        inventory: inventoryDetails,
+        money_data: moneyDataPayload
       };
 
       const { data, error } = await supabase.from("Checklist").insert([payload]).select("id").single();
@@ -402,10 +470,18 @@ const ChecklistPage: React.FC = () => {
         panos: `Panos: ${panosCount || "0"} total`
       } : null;
 
+      // Preparar money_data para abertura
+      const moneyDataPayload = activeTab === "abertura" ? {
+        notas: moneyData.notas,
+        moedas: moneyData.moedas,
+        total: parseFloat(moneyData.total || "0").toFixed(2)
+      } : null;
+
       const updatePayload = {
         reviewer: rName,
         reviewer_id: revisorId.trim(),
-        updated_at: now.toISOString()
+        updated_at: now.toISOString(),
+        money_data: moneyDataPayload
       };
 
       // Atualizar checklist existente no Supabase
@@ -433,11 +509,17 @@ const ChecklistPage: React.FC = () => {
       // Limpar formulário e progresso
       setCheckedItems({});
       localStorage.removeItem(`carmella_interactive_check_${activeTab}`);
+      localStorage.removeItem("check_abertura_money");
       setExecutorId("");
       setExecutorName(null);
       setRevisorId("");
       setRevisorName(null);
       setChecklistDbId(null);
+      setMoneyData({
+        notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+        moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+        total: ""
+      });
       // Recarregar verificação do dia
       const today = new Date();
       const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
@@ -447,6 +529,7 @@ const ChecklistPage: React.FC = () => {
         .from("Checklist")
         .select("id, person, reviewer, created_at, updated_at")
         .eq("checklist", checklistType)
+        .eq("store", STORE_CONFIG.key)
         .gte("created_at", startOfDay)
         .lte("created_at", endOfDay)
         .order("created_at", { ascending: false })
@@ -502,6 +585,11 @@ const ChecklistPage: React.FC = () => {
                     setExecutorName(null);
                     setRevisorName(null);
                     setChecklistDbId(null);
+                    setMoneyData({
+                      notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+                      moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+                      total: ""
+                    });
                   }}
                 >
                   <Icons.BsSun size={18} /> Abertura
@@ -526,6 +614,11 @@ const ChecklistPage: React.FC = () => {
                     setExecutorName(null);
                     setRevisorName(null);
                     setChecklistDbId(null);
+                    setMoneyData({
+                      notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+                      moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+                      total: ""
+                    });
                   }}
                 >
                   <Icons.BsMoonStars size={18} /> Fechamento
@@ -679,10 +772,30 @@ const ChecklistPage: React.FC = () => {
                                       fontSize: "1.2rem",
                                       fontWeight: 700,
                                       color: isChecked ? "#166534" : "#1e293b",
-                                      textDecoration: isChecked ? "line-through" : "none"
+                                      textDecoration: isChecked ? "line-through" : "none",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "0.5rem",
+                                      flexWrap: "wrap"
                                     }}
                                   >
                                     {item.title}
+                                    {isNewItem(item) && (
+                                      <span
+                                        style={{
+                                          fontSize: "0.75rem",
+                                          background: "#22c55e",
+                                          color: "#fff",
+                                          padding: "2px 8px",
+                                          borderRadius: "10px",
+                                          fontWeight: 800,
+                                          verticalAlign: "middle",
+                                          lineHeight: 1
+                                        }}
+                                      >
+                                        NOVO
+                                      </span>
+                                    )}
                                   </div>
 
                                   {(item.subtitle1 || item.subtitle2) && (
@@ -690,6 +803,26 @@ const ChecklistPage: React.FC = () => {
                                       {item.subtitle1 && <div>• {item.subtitle1}</div>}
                                       {item.subtitle2 && <div>• {item.subtitle2}</div>}
                                     </div>
+                                  )}
+
+                                  {item.buttonLink && (
+                                    <a
+                                      href={item.buttonLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      style={{
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "0.4rem",
+                                        marginTop: "0.5rem",
+                                        fontSize: "0.9rem",
+                                        color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)",
+                                        fontWeight: 700,
+                                        textDecoration: "none"
+                                      }}
+                                    >
+                                      <Icons.BsBoxArrowUpRight size={14} /> {item.buttonText || "Acessar Link"}
+                                    </a>
                                   )}
                                 </div>
                               </div>
@@ -786,6 +919,69 @@ const ChecklistPage: React.FC = () => {
                                       if (!checkedItems["pf_panos"]) toggleItem("pf_panos");
                                     }}
                                   />
+                                </div>
+                              )}
+
+                              {item.id === "p_money" && activeTab === "abertura" && (
+                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "0.75rem", borderRadius: "10px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
+                                  <div style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "0.9rem", color: "#334155" }}>
+                                    Contador de Notas e Moedas:
+                                  </div>
+                                  
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                                    <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#64748b", padding: "0.2rem 0.5rem", background: "#e2e8f0", borderRadius: "4px", whiteSpace: "nowrap" }}>NOTAS</div>
+                                  </div>
+                                  
+                                  {Object.entries(moneyData.notas).map(([valor, qtd]) => (
+                                    <div key={`nota-${valor}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
+                                      <div style={{ fontWeight: 600, color: "#1e293b", fontSize: "0.85rem", minWidth: "70px" }}>R$ {parseInt(valor).toLocaleString("pt-BR")}</div>
+                                      <input
+                                        type="number"
+                                        min="0"
+                                        placeholder="0"
+                                        disabled={todayChecklist && !isCheckingToday}
+                                        style={{ width: "60px", padding: "0.3rem 0.4rem", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, fontSize: "0.85rem" }}
+                                        value={qtd}
+                                        onChange={(e) => handleMoneyChange("notas", valor, e.target.value)}
+                                      />
+                                      <div style={{ fontWeight: 700, color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)", fontSize: "0.85rem", minWidth: "70px", textAlign: "right" }}>
+                                        R$ {(parseInt(valor) * parseInt(qtd || "0")).toFixed(2)}
+                                      </div>
+                                    </div>
+                                  ))}
+                                  
+                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem", marginBottom: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid #e2e8f0" }}>
+                                    <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#64748b", padding: "0.2rem 0.5rem", background: "#e2e8f0", borderRadius: "4px", whiteSpace: "nowrap" }}>MOEDAS</div>
+                                  </div>
+                                  
+                                  {Object.entries(moneyData.moedas).map(([valor, qtd]) => {
+                                    const valorNum = valor === "050" ? 0.50 : valor === "025" ? 0.25 : valor === "010" ? 0.10 : valor === "005" ? 0.05 : parseInt(valor);
+                                    const valorLabel = valor === "050" ? "0,50" : valor === "025" ? "0,25" : valor === "010" ? "0,10" : valor === "005" ? "0,05" : `R$ ${parseInt(valor).toLocaleString("pt-BR")}`;
+                                    return (
+                                      <div key={`moeda-${valor}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
+                                        <div style={{ fontWeight: 600, color: "#1e293b", fontSize: "0.85rem", minWidth: "70px" }}>{valorLabel}</div>
+                                        <input
+                                          type="number"
+                                          min="0"
+                                          placeholder="0"
+                                          disabled={todayChecklist && !isCheckingToday}
+                                          style={{ width: "60px", padding: "0.3rem 0.4rem", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, fontSize: "0.85rem" }}
+                                          value={qtd}
+                                          onChange={(e) => handleMoneyChange("moedas", valor, e.target.value)}
+                                        />
+                                        <div style={{ fontWeight: 700, color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)", fontSize: "0.85rem", minWidth: "70px", textAlign: "right" }}>
+                                          R$ {(valorNum * parseInt(qtd || "0")).toFixed(2)}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                  
+                                  <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "0.5rem", marginTop: "0.5rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                    <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#1e293b" }}>Total no Malote:</span>
+                                    <span style={{ fontSize: "1.2rem", fontWeight: 800, color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)" }}>
+                                      R$ {parseFloat(moneyData.total || "0").toFixed(2)}
+                                    </span>
+                                  </div>
                                 </div>
                               )}
                             </div>
