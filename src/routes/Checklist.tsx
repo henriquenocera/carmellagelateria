@@ -44,6 +44,19 @@ const ChecklistPage: React.FC = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // ID do checklist salvo no banco (para atualização posterior)
+  const [checklistDbId, setChecklistDbId] = useState<string | null>(null);
+
+  // Verificação de checklist do dia
+  const [todayChecklist, setTodayChecklist] = useState<{
+    id: number;
+    person: string;
+    reviewer: string | null;
+    created_at: string;
+    updated_at: string | null;
+  } | null>(null);
+  const [isCheckingToday, setIsCheckingToday] = useState(false);
+
   // Estados de Inventário para Fechamento
   const [waffleBatches, setWaffleBatches] = useState<BatchType[]>([{ quantity: "", date: "" }]);
   const [brownieBatches, setBrownieBatches] = useState<BatchType[]>([{ quantity: "", date: "" }]);
@@ -92,6 +105,43 @@ const ChecklistPage: React.FC = () => {
     localStorage.setItem("check_fechamento_panos", panosCount);
   }, [panosCount]);
 
+  // Verificar se já existe checklist feito hoje para esta aba
+  useEffect(() => {
+    const checkTodayChecklist = async () => {
+      setIsCheckingToday(true);
+      try {
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+        const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).toISOString();
+        
+        const checklistType = activeTab === "abertura" ? "Checklist de Abertura" : "Checklist de Fechamento";
+        
+        const { data, error } = await supabase
+          .from("Checklist")
+          .select("id, person, reviewer, created_at, updated_at")
+          .eq("checklist", checklistType)
+          .gte("created_at", startOfDay)
+          .lte("created_at", endOfDay)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (!error && data) {
+          setTodayChecklist(data);
+        } else {
+          setTodayChecklist(null);
+        }
+      } catch (err) {
+        console.warn("Erro ao verificar checklist do dia:", err);
+        setTodayChecklist(null);
+      } finally {
+        setIsCheckingToday(false);
+      }
+    };
+
+    checkTodayChecklist();
+  }, [activeTab]);
+
   const toggleItem = (id: string) => {
     const updated = { ...checkedItems, [id]: !checkedItems[id] };
     setCheckedItems(updated);
@@ -132,11 +182,17 @@ const ChecklistPage: React.FC = () => {
     return null;
   };
 
-  // Validar ID do Realizador/Executor
+  // Validar ID do Realizador/Executor e salvar checklist no banco
   const handleValidateExecutor = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setSuccessMessage(null);
+
+    // Bloquear se já existe checklist hoje
+    if (todayChecklist && !isCheckingToday) {
+      setErrorMessage("Já existe um checklist completado hoje. Não é possível criar outro.");
+      return;
+    }
 
     if (!executorId.trim()) {
       setErrorMessage("Por favor, digite o ID do funcionário que realizou o checklist.");
@@ -156,8 +212,47 @@ const ChecklistPage: React.FC = () => {
         return;
       }
       setExecutorName(name);
+
+      // Salvar checklist no banco com apenas o executor
+      const now = new Date();
+      const inventoryDetails = activeTab === "fechamento" ? {
+        waffles: getFormattedInventoryMessage(waffleBatches, "Waffles"),
+        brownies: getFormattedInventoryMessage(brownieBatches, "Brownies"),
+        panos: `Panos: ${panosCount || "0"} total`
+      } : null;
+
+      const payload = {
+        checklist: `Checklist de ${activeTab === "abertura" ? "Abertura" : "Fechamento"}`,
+        person: name,
+        reviewer: null,
+        executor_id: executorId.trim(),
+        reviewer_id: null,
+        store: STORE_CONFIG.textName || STORE_CONFIG.name,
+        created_at: now.toISOString(),
+        items_count: completedCount,
+        total_items: allCurrentItems.length,
+        inventory: inventoryDetails
+      };
+
+      const { data, error } = await supabase.from("Checklist").insert([payload]).select("id").single();
+      if (error) {
+        console.error("Erro ao salvar checklist:", error);
+        setErrorMessage("Erro ao salvar checklist no banco de dados.");
+        return;
+      }
+      const newChecklistId = data.id;
+      setChecklistDbId(newChecklistId);
+
+      // Salvar histórico no localStorage
+      const historyKey = "carmella_checklist_historico";
+      const existingHistory = JSON.parse(localStorage.getItem(historyKey) || "[]");
+      const payloadWithId = { ...payload, id: newChecklistId };
+      localStorage.setItem(historyKey, JSON.stringify([payloadWithId, ...existingHistory]));
+
+      setSuccessMessage(`Checklist salvo! Realizado por "${name}". Aguardando revisão.`);
     } catch (err) {
-      setErrorMessage("Erro ao consultar ID no banco de dados.");
+      console.error(err);
+      setErrorMessage("Erro ao consultar ID ou salvar no banco de dados.");
     } finally {
       setIsCheckingExecutor(false);
     }
@@ -232,7 +327,7 @@ const ChecklistPage: React.FC = () => {
     return Math.round((completedCount / allCurrentItems.length) * 100);
   }, [completedCount, allCurrentItems]);
 
-  // Enviar confirmação final com ID do Revisor
+  // Enviar confirmação final com ID do Revisor (atualiza checklist existente)
   const handleConfirmFinal = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccessMessage(null);
@@ -240,6 +335,20 @@ const ChecklistPage: React.FC = () => {
 
     if (!revisorId.trim()) {
       setErrorMessage("Por favor, digite o ID do revisor para finalizar o checklist.");
+      return;
+    }
+
+    // Determinar qual checklist atualizar: o criado nesta sessão ou o de hoje pendente de revisão
+    const targetChecklistId = checklistDbId || (todayChecklist && !todayChecklist.reviewer ? todayChecklist.id : null);
+    
+    if (!targetChecklistId) {
+      setErrorMessage("Erro: Checklist original não encontrado. Tente novamente.");
+      return;
+    }
+
+    // Se há checklist de hoje já revisado, bloquear
+    if (todayChecklist && todayChecklist.reviewer) {
+      setErrorMessage("Este checklist já foi revisado hoje. Não é possível revisar novamente.");
       return;
     }
 
@@ -263,29 +372,32 @@ const ChecklistPage: React.FC = () => {
         panos: `Panos: ${panosCount || "0"} total`
       } : null;
 
-      const payload = {
-        checklist: `Checklist de ${activeTab === "abertura" ? "Abertura" : "Fechamento"}`,
-        person: executorName,
+      const updatePayload = {
         reviewer: rName,
-        executor_id: executorId.trim(),
         reviewer_id: revisorId.trim(),
-        store: STORE_CONFIG.textName || STORE_CONFIG.name,
-        created_at: now.toISOString(),
-        items_count: completedCount,
-        total_items: allCurrentItems.length,
-        inventory: inventoryDetails
+        updated_at: now.toISOString()
       };
 
-      // Enviar para o Supabase
-      await supabase.from("Checklist").insert([payload]).catch(() => {});
+      // Atualizar checklist existente no Supabase
+      const { error } = await supabase.from("Checklist").update(updatePayload).eq("id", targetChecklistId);
+      if (error) {
+        console.error("Erro ao atualizar checklist:", error);
+        setErrorMessage("Erro ao atualizar checklist com revisor.");
+        return;
+      }
 
-      // Salvar histórico no localStorage
+      // Atualizar histórico no localStorage
       const historyKey = "carmella_checklist_historico";
       const existingHistory = JSON.parse(localStorage.getItem(historyKey) || "[]");
-      localStorage.setItem(historyKey, JSON.stringify([payload, ...existingHistory]));
+      const updatedHistory = existingHistory.map((item: any) => 
+        item.id === targetChecklistId ? { ...item, ...updatePayload } : item
+      );
+      localStorage.setItem(historyKey, JSON.stringify(updatedHistory));
 
+      const executorDisplayName = executorName || (todayChecklist ? todayChecklist.person : "desconhecido");
+      
       setSuccessMessage(
-        `Checklist de ${activeTab === "abertura" ? "Abertura" : "Fechamento"} enviado com sucesso! Realizado por "${executorName}" e revisado por "${rName}" às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.`
+        `Checklist de ${activeTab === "abertura" ? "Abertura" : "Fechamento"} finalizado! Realizado por "${executorDisplayName}" e revisado por "${rName}" às ${now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}.`
       );
 
       // Limpar formulário e progresso
@@ -295,6 +407,22 @@ const ChecklistPage: React.FC = () => {
       setExecutorName(null);
       setRevisorId("");
       setRevisorName(null);
+      setChecklistDbId(null);
+      // Recarregar verificação do dia
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+      const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999).toISOString();
+      const checklistType = activeTab === "abertura" ? "Checklist de Abertura" : "Checklist de Fechamento";
+      const { data } = await supabase
+        .from("Checklist")
+        .select("id, person, reviewer, created_at, updated_at")
+        .eq("checklist", checklistType)
+        .gte("created_at", startOfDay)
+        .lte("created_at", endOfDay)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+      setTodayChecklist(data || null);
     } catch (err: any) {
       console.error(err);
       setErrorMessage("Ocorreu um erro ao salvar o envio. Verifique a conexão e tente novamente.");
@@ -343,6 +471,7 @@ const ChecklistPage: React.FC = () => {
                     setActiveTab("abertura");
                     setExecutorName(null);
                     setRevisorName(null);
+                    setChecklistDbId(null);
                   }}
                 >
                   <Icons.BsSun size={18} /> Abertura
@@ -366,6 +495,7 @@ const ChecklistPage: React.FC = () => {
                     setActiveTab("fechamento");
                     setExecutorName(null);
                     setRevisorName(null);
+                    setChecklistDbId(null);
                   }}
                 >
                   <Icons.BsMoonStars size={18} /> Fechamento
@@ -404,6 +534,31 @@ const ChecklistPage: React.FC = () => {
                 />
               </div>
             </div>
+
+            {/* Alerta de Checklist Já Realizado Hoje */}
+            {isCheckingToday && (
+              <div style={{ background: "#fff3cd", border: "1px solid #ffc107", color: "#856404", padding: "1rem 1.25rem", borderRadius: "12px", marginBottom: "1.5rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <Icons.BsHourglassSplit size={20} color="#ffc107" /> Verificando se já existe checklist hoje...
+              </div>
+            )}
+
+            {todayChecklist && !isCheckingToday && (
+              <div style={{ background: "#e7f3ff", border: "1px solid #90caf9", color: "#1565c0", padding: "1rem 1.25rem", borderRadius: "12px", marginBottom: "1.5rem", fontWeight: 700 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                  <Icons.BsInfoCircleFill size={20} color="#1976d2" />
+                  <span>Este checklist já foi completado hoje</span>
+                </div>
+                <div style={{ fontWeight: 400, fontSize: "0.95rem", lineHeight: 1.6 }}>
+                  <div>✅ Realizado por: <strong>{todayChecklist.person}</strong> às <strong>{new Date(todayChecklist.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</strong></div>
+                  {todayChecklist.reviewer && todayChecklist.updated_at && (
+                    <div>👁️ Revisado por: <strong>{todayChecklist.reviewer}</strong> às <strong>{new Date(todayChecklist.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</strong></div>
+                  )}
+                  {!todayChecklist.reviewer && (
+                    <div style={{ color: "#f57c00" }}>⏳ Aguardando revisão</div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Mensagens de Sucesso ou Erro */}
             {successMessage && (
@@ -621,7 +776,80 @@ const ChecklistPage: React.FC = () => {
                 )}
 
                 {/* Passo 1: Confirmação de Quem Realizou */}
-                {!executorName ? (
+                {todayChecklist && !isCheckingToday && todayChecklist.reviewer ? (
+                  /* Checklist já completado e revisado hoje - bloquear tudo */
+                  <div style={{ width: "100%", maxWidth: "550px", textAlign: "center", padding: "1rem", background: "#fef3c7", border: "1px solid #fcd34d", borderRadius: "12px" }}>
+                    <Icons.BsLockFill size={24} color="#f59e0b" />
+                    <p style={{ margin: "0.5rem 0 0", fontWeight: 700, color: "#92400e" }}>
+                      Não é possível realizar novo checklist. Já existe um completado e revisado hoje.
+                    </p>
+                  </div>
+                ) : todayChecklist && !isCheckingToday && !todayChecklist.reviewer ? (
+                  /* Checklist de hoje existe mas aguarda revisão - mostrar formulário de revisor diretamente */
+                  <form onSubmit={handleConfirmFinal} style={{ width: "100%", maxWidth: "550px", textAlign: "center" }}>
+                    <div
+                      style={{
+                        background: "#dcfce7",
+                        border: "1px solid #86efac",
+                        color: "#166534",
+                        padding: "0.85rem 1.25rem",
+                        borderRadius: "12px",
+                        marginBottom: "1.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        fontWeight: 700
+                      }}
+                    >
+                      <Icons.BsCheckCircleFill color="#16a34a" size={18} />
+                      Realizado por: <strong>{todayChecklist.person}</strong> às <strong>{new Date(todayChecklist.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</strong>
+                    </div>
+
+                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.35rem" }}>
+                      2. ID do Revisor do Checklist
+                    </div>
+                    <p style={{ fontSize: "0.95rem", color: "#64748b", marginBottom: "1.25rem" }}>
+                      Digite o ID do supervisor/revisor para validar e concluir o checklist.
+                    </p>
+
+                    <div style={{ display: "flex", gap: "0.75rem", justifyContent: "center", alignItems: "center", flexWrap: "wrap" }}>
+                      <input
+                        type="password"
+                        placeholder="ID do Revisor..."
+                        style={{
+                          padding: "0.85rem 1.25rem",
+                          borderRadius: "12px",
+                          border: "2px solid #cbd5e1",
+                          fontSize: "1.1rem",
+                          fontWeight: 700,
+                          textAlign: "center",
+                          outline: "none",
+                          width: "200px"
+                        }}
+                        value={revisorId}
+                        onChange={(e) => setRevisorId(e.target.value)}
+                        required
+                      />
+
+                      <button
+                        type="submit"
+                        className="btn-concluir"
+                        style={{
+                          padding: "0.85rem 1.75rem",
+                          fontSize: "1rem",
+                          borderRadius: "12px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.5rem"
+                        }}
+                        disabled={submitting || isCheckingRevisor}
+                      >
+                        <Icons.BsCheckCircleFill size={18} />
+                        {submitting || isCheckingRevisor ? "Enviando..." : "Finalizar & Enviar"}
+                      </button>
+                    </div>
+                  </form>
+                ) : !executorName ? (
                   <form onSubmit={handleValidateExecutor} style={{ width: "100%", maxWidth: "550px", textAlign: "center" }}>
                     <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.35rem" }}>
                       1. ID de Quem Realizou o Checklist
