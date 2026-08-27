@@ -227,7 +227,7 @@ const ChecklistPage: React.FC = () => {
         reviewer: null,
         executor_id: executorId.trim(),
         reviewer_id: null,
-        store: STORE_CONFIG.textName || STORE_CONFIG.name,
+        store: STORE_CONFIG.key || STORE_CONFIG.name,
         created_at: now.toISOString(),
         items_count: completedCount,
         total_items: allCurrentItems.length,
@@ -349,6 +349,24 @@ const ChecklistPage: React.FC = () => {
     // Se há checklist de hoje já revisado, bloquear
     if (todayChecklist && todayChecklist.reviewer) {
       setErrorMessage("Este checklist já foi revisado hoje. Não é possível revisar novamente.");
+      return;
+    }
+
+    // Buscar o executor_id do checklist para validar se não é o mesmo do revisor
+    let executorIdToCheck = executorId.trim();
+    if (!executorIdToCheck && todayChecklist) {
+      // Se não temos executorId da sessão, buscar do banco
+      const { data: checklistData } = await supabase
+        .from("Checklist")
+        .select("executor_id")
+        .eq("id", targetChecklistId)
+        .single();
+      executorIdToCheck = checklistData?.executor_id || "";
+    }
+
+    // Bloquear se o ID do revisor for igual ao do executor
+    if (executorIdToCheck && executorIdToCheck.toLowerCase() === revisorId.trim().toLowerCase()) {
+      setErrorMessage("O revisor não pode ser a mesma pessoa que realizou o checklist.");
       return;
     }
 
