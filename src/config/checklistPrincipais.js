@@ -5,8 +5,10 @@ export const checklistPrincipaisAbertura = [
   {
     title: "1ª - Equipamentos",
     items: [
-      { id: "p1", title: "Luz da Vitrine Ligada", subtitle1: "" },
-      { id: "p2", title: "Máquina de café Ligada", subtitle1: "" },
+      { id: "p1", title: "Luz da Vitrine Ligada", subtitle1: "", buttonText: "Acessar Relatório dos Salgados",
+
+        buttonLink: "https://altoxv.carmellagelateria.com.br/salgados" },
+      { id: "p2", title: "Máquina de café Ligada", subtitle1: "", weekday: 0 },
     ]
   },
   {

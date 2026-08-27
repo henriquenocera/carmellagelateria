@@ -94,16 +94,19 @@ const ChecklistPage: React.FC = () => {
   }, [activeTab]);
 
   useEffect(() => {
+    if (todayChecklist && !isCheckingToday) return;
     localStorage.setItem("check_fechamento_waffles", JSON.stringify(waffleBatches));
-  }, [waffleBatches]);
+  }, [waffleBatches, todayChecklist, isCheckingToday]);
 
   useEffect(() => {
+    if (todayChecklist && !isCheckingToday) return;
     localStorage.setItem("check_fechamento_brownies", JSON.stringify(brownieBatches));
-  }, [brownieBatches]);
+  }, [brownieBatches, todayChecklist, isCheckingToday]);
 
   useEffect(() => {
+    if (todayChecklist && !isCheckingToday) return;
     localStorage.setItem("check_fechamento_panos", panosCount);
-  }, [panosCount]);
+  }, [panosCount, todayChecklist, isCheckingToday]);
 
   // Verificar se já existe checklist feito hoje para esta aba
   useEffect(() => {
@@ -143,6 +146,9 @@ const ChecklistPage: React.FC = () => {
   }, [activeTab]);
 
   const toggleItem = (id: string) => {
+    // Bloquear se já existe checklist completado hoje
+    if (todayChecklist && !isCheckingToday) return;
+    
     const updated = { ...checkedItems, [id]: !checkedItems[id] };
     setCheckedItems(updated);
     localStorage.setItem(`carmella_interactive_check_${activeTab}`, JSON.stringify(updated));
@@ -260,6 +266,7 @@ const ChecklistPage: React.FC = () => {
 
   // Funções para manipular lotes de Waffles e Brownies
   const handleWaffleChange = (index: number, field: "quantity" | "date", value: string) => {
+    if (todayChecklist && !isCheckingToday) return;
     const updated = [...waffleBatches];
     updated[index][field] = value;
     setWaffleBatches(updated);
@@ -267,15 +274,18 @@ const ChecklistPage: React.FC = () => {
   };
 
   const addWaffleBatch = () => {
+    if (todayChecklist && !isCheckingToday) return;
     setWaffleBatches([...waffleBatches, { quantity: "", date: "" }]);
   };
 
   const removeWaffleBatch = (index: number) => {
+    if (todayChecklist && !isCheckingToday) return;
     if (waffleBatches.length === 1) return;
     setWaffleBatches(waffleBatches.filter((_, i) => i !== index));
   };
 
   const handleBrownieChange = (index: number, field: "quantity" | "date", value: string) => {
+    if (todayChecklist && !isCheckingToday) return;
     const updated = [...brownieBatches];
     updated[index][field] = value;
     setBrownieBatches(updated);
@@ -283,10 +293,12 @@ const ChecklistPage: React.FC = () => {
   };
 
   const addBrownieBatch = () => {
+    if (todayChecklist && !isCheckingToday) return;
     setBrownieBatches([...brownieBatches, { quantity: "", date: "" }]);
   };
 
   const removeBrownieBatch = (index: number) => {
+    if (todayChecklist && !isCheckingToday) return;
     if (brownieBatches.length === 1) return;
     setBrownieBatches(brownieBatches.filter((_, i) => i !== index));
   };
@@ -643,19 +655,21 @@ const ChecklistPage: React.FC = () => {
                               }}
                             >
                               <div
-                                style={{ display: "flex", alignItems: "flex-start", gap: "1rem", cursor: "pointer" }}
+                                style={{ display: "flex", alignItems: "center", gap: "1rem", cursor: todayChecklist && !isCheckingToday ? "not-allowed" : "pointer" }}
                                 onClick={() => toggleItem(item.id)}
                               >
                                 <input
                                   type="checkbox"
                                   checked={isChecked}
                                   onChange={() => { }}
+                                  disabled={todayChecklist && !isCheckingToday}
                                   style={{
                                     width: "22px",
                                     height: "22px",
-                                    marginTop: "3px",
+                                    marginTop: 0,
                                     accentColor: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)",
-                                    cursor: "pointer"
+                                    cursor: todayChecklist && !isCheckingToday ? "not-allowed" : "pointer",
+                                    opacity: todayChecklist && !isCheckingToday ? 0.6 : 1
                                   }}
                                 />
 
@@ -682,7 +696,7 @@ const ChecklistPage: React.FC = () => {
 
                               {/* Renderização Especial dos Inputs de Inventário para Waffles, Brownies e Panos */}
                               {item.id === "pf_waffles" && (
-                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem" }} onClick={(e) => e.stopPropagation()}>
+                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
                                   <div style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "0.95rem", color: "#334155" }}>
                                     Lotes de Waffles (Quantidade e Validade):
                                   </div>
@@ -691,31 +705,35 @@ const ChecklistPage: React.FC = () => {
                                       <input
                                         type="number"
                                         placeholder="Qtd"
-                                        style={{ width: "130px", padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                                        disabled={todayChecklist && !isCheckingToday}
+                                        style={{ width: "130px", padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }}
                                         value={batch.quantity}
                                         onChange={(e) => handleWaffleChange(bIdx, "quantity", e.target.value)}
                                       />
                                       <input
                                         type="date"
-                                        style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                                        disabled={todayChecklist && !isCheckingToday}
+                                        style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }}
                                         value={batch.date}
                                         onChange={(e) => handleWaffleChange(bIdx, "date", e.target.value)}
                                       />
-                                      {waffleBatches.length > 1 && (
+                                      {waffleBatches.length > 1 && !(!isCheckingToday && todayChecklist) && (
                                         <button type="button" onClick={() => removeWaffleBatch(bIdx)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
                                           <Icons.BsTrash size={16} />
                                         </button>
                                       )}
                                     </div>
                                   ))}
-                                  <button type="button" onClick={addWaffleBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.4rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
-                                    + Adicionar Lote de Waffle
-                                  </button>
+                                  {!(!isCheckingToday && todayChecklist) && (
+                                    <button type="button" onClick={addWaffleBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.4rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
+                                      + Adicionar Lote de Waffle
+                                    </button>
+                                  )}
                                 </div>
                               )}
 
                               {item.id === "pf_brownies" && (
-                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem" }} onClick={(e) => e.stopPropagation()}>
+                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
                                   <div style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "0.95rem", color: "#334155" }}>
                                     Lotes de Brownies (Quantidade e Validade):
                                   </div>
@@ -724,40 +742,46 @@ const ChecklistPage: React.FC = () => {
                                       <input
                                         type="number"
                                         placeholder="Qtd"
-                                        style={{ width: "130px", padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                                        disabled={todayChecklist && !isCheckingToday}
+                                        style={{ width: "130px", padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }}
                                         value={batch.quantity}
                                         onChange={(e) => handleBrownieChange(bIdx, "quantity", e.target.value)}
                                       />
                                       <input
                                         type="date"
-                                        style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                                        disabled={todayChecklist && !isCheckingToday}
+                                        style={{ padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }}
                                         value={batch.date}
                                         onChange={(e) => handleBrownieChange(bIdx, "date", e.target.value)}
                                       />
-                                      {brownieBatches.length > 1 && (
+                                      {brownieBatches.length > 1 && !(!isCheckingToday && todayChecklist) && (
                                         <button type="button" onClick={() => removeBrownieBatch(bIdx)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer" }}>
                                           <Icons.BsTrash size={16} />
                                         </button>
                                       )}
                                     </div>
                                   ))}
-                                  <button type="button" onClick={addBrownieBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.4rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
-                                    + Adicionar Lote de Brownie
-                                  </button>
+                                  {!(!isCheckingToday && todayChecklist) && (
+                                    <button type="button" onClick={addBrownieBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.4rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
+                                      + Adicionar Lote de Brownie
+                                    </button>
+                                  )}
                                 </div>
                               )}
 
                               {item.id === "pf_panos" && (
-                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem" }} onClick={(e) => e.stopPropagation()}>
+                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
                                   <div style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "0.95rem", color: "#334155" }}>
                                     Quantidade Total de Panos:
                                   </div>
                                   <input
                                     type="number"
                                     placeholder="Ex: 15"
-                                    style={{ width: "150px", padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                                    disabled={todayChecklist && !isCheckingToday}
+                                    style={{ width: "150px", padding: "0.5rem 0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }}
                                     value={panosCount}
                                     onChange={(e) => {
+                                      if (todayChecklist && !isCheckingToday) return;
                                       setPanosCount(e.target.value);
                                       if (!checkedItems["pf_panos"]) toggleItem("pf_panos");
                                     }}
