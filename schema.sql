@@ -202,7 +202,14 @@ CREATE TABLE IF NOT EXISTS "public"."Checklist" (
     "massas" "text",
     "brownies" "text",
     "panos" "text",
-    "money_data" "jsonb"
+    "money_data" "jsonb",
+    "reviewer" "text",
+    "executor_id" "text",
+    "reviewer_id" "text",
+    "updated_at" timestamp with time zone,
+    "items_count" integer DEFAULT 0,
+    "total_items" integer DEFAULT 0,
+    "inventory" "jsonb"
 );
 
 
@@ -1369,6 +1376,18 @@ ALTER TABLE ONLY "public"."frequencia"
 
 ALTER TABLE ONLY "public"."conciliacao_vendas"
     ADD CONSTRAINT "unique_store_date" UNIQUE ("store", "date");
+
+
+
+CREATE INDEX "idx_checklist_executor_id" ON "public"."Checklist" USING "btree" ("executor_id");
+
+
+
+CREATE INDEX "idx_checklist_reviewer_id" ON "public"."Checklist" USING "btree" ("reviewer_id");
+
+
+
+CREATE INDEX "idx_checklist_updated_at" ON "public"."Checklist" USING "btree" ("updated_at" DESC);
 
 
 
