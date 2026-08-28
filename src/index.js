@@ -24,6 +24,7 @@ import ChecklistConferencia from "./routes/ChecklistConferencia.tsx";
 import Voucher from "./routes/Voucher.tsx";
 import ChecklistTest from "./routes/ChecklistTest.tsx";
 import Afericao from "./routes/Afericao.tsx";
+import Senhas from "./routes/Senhas.tsx";
 
 import { AuthProvider } from "./components/AuthProvider.tsx";
 import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
@@ -57,6 +58,7 @@ const router = createBrowserRouter(
           <Route path="/checklist-conferencia" element={<ChecklistConferencia />} />
           <Route path="/voucher" element={<Voucher />} />
           <Route path="/checklist-test" element={<ChecklistTest />} />
+          <Route path="/senhas" element={<Senhas />} />
         </Route>
       </Route>
     </>

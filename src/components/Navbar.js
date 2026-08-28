@@ -134,6 +134,15 @@ function NavBar() {
             </NavLink>
           </li>
 
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/senhas">
+              <span className="icon">
+                <Icons.BsShieldLock />
+              </span>
+              <span className="text">Senhas</span>
+            </NavLink>
+          </li>
+
         </ul>
       </div>
     </>
