@@ -62,14 +62,14 @@ const ChecklistPage: React.FC = () => {
   const [brownieBatches, setBrownieBatches] = useState<BatchType[]>([{ quantity: "", date: "" }]);
   const [panosCount, setPanosCount] = useState<string>("");
 
-  // Estados para Contador de Dinheiro (Abertura)
+  // Estados para Contador de Dinheiro (Abertura) - igual à print (sem R$200, com R$0,01)
   const [moneyData, setMoneyData] = useState<{
     notas: { [key: string]: string };
     moedas: { [key: string]: string };
     total: string;
   }>({
-    notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
-    moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+    notas: { "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+    moedas: { "1": "", "050": "", "025": "", "010": "", "005": "", "001": "" },
     total: ""
   });
 
@@ -103,10 +103,23 @@ const ChecklistPage: React.FC = () => {
     const savedPanos = localStorage.getItem("check_fechamento_panos");
     if (savedPanos) setPanosCount(savedPanos);
     
-    // Carregar moneyData para abertura
+    // Carregar moneyData para abertura (com migração para layout da print)
     const savedMoney = localStorage.getItem("check_abertura_money");
     if (savedMoney) {
-      try { setMoneyData(JSON.parse(savedMoney)); } catch (e) {}
+      try {
+        const parsed = JSON.parse(savedMoney);
+        // migração: remover R$200 antigo e garantir R$0,01
+        if (parsed?.notas?.["200"] !== undefined) delete parsed.notas["200"];
+        // garantir todas as chaves do novo layout
+        const defaultNotas = { "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" };
+        const defaultMoedas = { "1": "", "050": "", "025": "", "010": "", "005": "", "001": "" };
+        parsed.notas = { ...defaultNotas, ...(parsed.notas || {}) };
+        parsed.moedas = { ...defaultMoedas, ...(parsed.moedas || {}) };
+        // remover chaves extras e manter apenas as esperadas
+        Object.keys(parsed.notas).forEach(k => { if (!(k in defaultNotas)) delete parsed.notas[k]; });
+        Object.keys(parsed.moedas).forEach(k => { if (!(k in defaultMoedas)) delete parsed.moedas[k]; });
+        setMoneyData(parsed);
+      } catch (e) {}
     }
   }, [activeTab]);
 
@@ -200,12 +213,23 @@ const ChecklistPage: React.FC = () => {
 
   const handleMoneyChange = (type: "notas" | "moedas", key: string, value: string) => {
     if (todayChecklist && !isCheckingToday) return;
-    const updated = { ...moneyData, [type]: { ...moneyData[type], [key]: value } };
+    // sanitizar: apenas dígitos ou vazio
+    let sanitized = value;
+    if (sanitized !== "") {
+      sanitized = sanitized.replace(/\D/g, "");
+      if (sanitized === "") sanitized = "";
+      else {
+        const n = parseInt(sanitized, 10);
+        if (isNaN(n) || n < 0) return;
+        sanitized = String(Math.min(n, 99999));
+      }
+    }
+    const updated = { ...moneyData, [type]: { ...moneyData[type], [key]: sanitized } };
     
     // Calcular total
     const notasTotal = Object.entries(updated.notas).reduce((acc, [k, v]) => acc + (parseInt(k) * parseInt(v || "0")), 0);
     const moedasTotal = Object.entries(updated.moedas).reduce((acc, [k, v]) => {
-      const valor = k === "050" ? 0.50 : k === "025" ? 0.25 : k === "010" ? 0.10 : k === "005" ? 0.05 : parseInt(k);
+      const valor = k === "050" ? 0.50 : k === "025" ? 0.25 : k === "010" ? 0.10 : k === "005" ? 0.05 : k === "001" ? 0.01 : parseInt(k);
       return acc + (valor * parseInt(v || "0"));
     }, 0);
     updated.total = (notasTotal + moedasTotal).toFixed(2);
@@ -516,8 +540,8 @@ const ChecklistPage: React.FC = () => {
       setRevisorName(null);
       setChecklistDbId(null);
       setMoneyData({
-        notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
-        moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+        notas: { "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+        moedas: { "1": "", "050": "", "025": "", "010": "", "005": "", "001": "" },
         total: ""
       });
       // Recarregar verificação do dia
@@ -586,8 +610,8 @@ const ChecklistPage: React.FC = () => {
                     setRevisorName(null);
                     setChecklistDbId(null);
                     setMoneyData({
-                      notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
-                      moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+                      notas: { "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+                      moedas: { "1": "", "050": "", "025": "", "010": "", "005": "", "001": "" },
                       total: ""
                     });
                   }}
@@ -615,8 +639,8 @@ const ChecklistPage: React.FC = () => {
                     setRevisorName(null);
                     setChecklistDbId(null);
                     setMoneyData({
-                      notas: { "200": "", "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
-                      moedas: { "1": "", "050": "", "025": "", "010": "", "005": "" },
+                      notas: { "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+                      moedas: { "1": "", "050": "", "025": "", "010": "", "005": "", "001": "" },
                       total: ""
                     });
                   }}
@@ -923,64 +947,70 @@ const ChecklistPage: React.FC = () => {
                               )}
 
                               {item.id === "p_money" && activeTab === "abertura" && (
-                                <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "0.75rem", borderRadius: "10px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
-                                  <div style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "0.9rem", color: "#334155" }}>
-                                    Contador de Notas e Moedas:
-                                  </div>
-                                  
-                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                                    <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#64748b", padding: "0.2rem 0.5rem", background: "#e2e8f0", borderRadius: "4px", whiteSpace: "nowrap" }}>NOTAS</div>
-                                  </div>
-                                  
-                                  {Object.entries(moneyData.notas).map(([valor, qtd]) => (
-                                    <div key={`nota-${valor}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                                      <div style={{ fontWeight: 600, color: "#1e293b", fontSize: "0.85rem", minWidth: "70px" }}>R$ {parseInt(valor).toLocaleString("pt-BR")}</div>
-                                      <input
-                                        type="number"
-                                        min="0"
-                                        placeholder="0"
-                                        disabled={todayChecklist && !isCheckingToday}
-                                        style={{ width: "60px", padding: "0.3rem 0.4rem", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, fontSize: "0.85rem" }}
-                                        value={qtd}
-                                        onChange={(e) => handleMoneyChange("notas", valor, e.target.value)}
-                                      />
-                                      <div style={{ fontWeight: 700, color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)", fontSize: "0.85rem", minWidth: "70px", textAlign: "right" }}>
-                                        R$ {(parseInt(valor) * parseInt(qtd || "0")).toFixed(2)}
-                                      </div>
-                                    </div>
-                                  ))}
-                                  
-                                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem", marginTop: "0.5rem", marginBottom: "0.5rem", paddingTop: "0.5rem", borderTop: "1px solid #e2e8f0" }}>
-                                    <div style={{ fontSize: "0.7rem", fontWeight: 700, color: "#64748b", padding: "0.2rem 0.5rem", background: "#e2e8f0", borderRadius: "4px", whiteSpace: "nowrap" }}>MOEDAS</div>
-                                  </div>
-                                  
-                                  {Object.entries(moneyData.moedas).map(([valor, qtd]) => {
-                                    const valorNum = valor === "050" ? 0.50 : valor === "025" ? 0.25 : valor === "010" ? 0.10 : valor === "005" ? 0.05 : parseInt(valor);
-                                    const valorLabel = valor === "050" ? "0,50" : valor === "025" ? "0,25" : valor === "010" ? "0,10" : valor === "005" ? "0,05" : `R$ ${parseInt(valor).toLocaleString("pt-BR")}`;
-                                    return (
-                                      <div key={`moeda-${valor}`} style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                                        <div style={{ fontWeight: 600, color: "#1e293b", fontSize: "0.85rem", minWidth: "70px" }}>{valorLabel}</div>
-                                        <input
-                                          type="number"
-                                          min="0"
-                                          placeholder="0"
-                                          disabled={todayChecklist && !isCheckingToday}
-                                          style={{ width: "60px", padding: "0.3rem 0.4rem", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, fontSize: "0.85rem" }}
-                                          value={qtd}
-                                          onChange={(e) => handleMoneyChange("moedas", valor, e.target.value)}
-                                        />
-                                        <div style={{ fontWeight: 700, color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)", fontSize: "0.85rem", minWidth: "70px", textAlign: "right" }}>
-                                          R$ {(valorNum * parseInt(qtd || "0")).toFixed(2)}
+                                <div style={{ marginLeft: "2.2rem", backgroundColor: "#fdfbf3", border: "1px solid #f0e6d8", borderRadius: "12px", padding: "18px 14px 14px", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", boxSizing: "border-box", maxWidth: "420px" }} onClick={(e) => e.stopPropagation()}>
+                                  <h2 style={{ color: "#9c7a4a", textAlign: "center", margin: "0 0 16px 0", fontSize: "16px", fontWeight: 500, letterSpacing: "0.2px", borderBottom: "1.5px solid #b08968", paddingBottom: "10px", lineHeight: 1.2 }}>
+                                    Contador de Cédulas e Moedas
+                                  </h2>
+                                  <div style={{ display: "flex", gap: "16px" }}>
+                                    {/* Cédulas */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <h3 style={{ color: "#9c7a4a", margin: "0 0 10px 0", fontSize: "13px", fontWeight: 600 }}>Cédulas</h3>
+                                      {[
+                                        { label: "R$ 100,00", key: "100" },
+                                        { label: "R$ 50,00", key: "50" },
+                                        { label: "R$ 20,00", key: "20" },
+                                        { label: "R$ 10,00", key: "10" },
+                                        { label: "R$ 5,00", key: "5" },
+                                        { label: "R$ 2,00", key: "2" },
+                                      ].map(({ label, key }) => (
+                                        <div key={key} style={{ marginBottom: "10px" }}>
+                                          <label style={{ display: "block", marginBottom: "4px", color: "#8a7360", fontSize: "11px", fontWeight: 500 }}>{label}</label>
+                                          <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            placeholder=""
+                                            disabled={todayChecklist && !isCheckingToday}
+                                            value={moneyData.notas[key] || ""}
+                                            onChange={(e) => handleMoneyChange("notas", key, e.target.value)}
+                                            style={{ width: "100%", height: "32px", padding: "6px 10px", border: "1px solid #e7ddd0", borderRadius: "6px", backgroundColor: "#ffffff", fontSize: "13px", color: "#3e3e3e", outline: "none", boxSizing: "border-box", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, transition: "border-color 0.2s ease" }}
+                                            onFocus={(e) => { e.target.style.borderColor = "#a17550"; }}
+                                            onBlur={(e) => { e.target.style.borderColor = "#e7ddd0"; }}
+                                          />
                                         </div>
-                                      </div>
-                                    );
-                                  })}
-                                  
-                                  <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "0.5rem", marginTop: "0.5rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                    <span style={{ fontSize: "0.95rem", fontWeight: 800, color: "#1e293b" }}>Total no Malote:</span>
-                                    <span style={{ fontSize: "1.2rem", fontWeight: 800, color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)" }}>
-                                      R$ {parseFloat(moneyData.total || "0").toFixed(2)}
-                                    </span>
+                                      ))}
+                                    </div>
+                                    {/* Moedas */}
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                      <h3 style={{ color: "#9c7a4a", margin: "0 0 10px 0", fontSize: "13px", fontWeight: 600 }}>Moedas</h3>
+                                      {[
+                                        { label: "R$ 1,00", key: "1" },
+                                        { label: "R$ 0,50", key: "050" },
+                                        { label: "R$ 0,25", key: "025" },
+                                        { label: "R$ 0,10", key: "010" },
+                                        { label: "R$ 0,05", key: "005" },
+                                        { label: "R$ 0,01", key: "001" },
+                                      ].map(({ label, key }) => (
+                                        <div key={key} style={{ marginBottom: "10px" }}>
+                                          <label style={{ display: "block", marginBottom: "4px", color: "#8a7360", fontSize: "11px", fontWeight: 500 }}>{label}</label>
+                                          <input
+                                            type="text"
+                                            inputMode="numeric"
+                                            pattern="[0-9]*"
+                                            placeholder=""
+                                            disabled={todayChecklist && !isCheckingToday}
+                                            value={moneyData.moedas[key] || ""}
+                                            onChange={(e) => handleMoneyChange("moedas", key, e.target.value)}
+                                            style={{ width: "100%", height: "32px", padding: "6px 10px", border: "1px solid #e7ddd0", borderRadius: "6px", backgroundColor: "#ffffff", fontSize: "13px", color: "#3e3e3e", outline: "none", boxSizing: "border-box", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, transition: "border-color 0.2s ease" }}
+                                            onFocus={(e) => { e.target.style.borderColor = "#a17550"; }}
+                                            onBlur={(e) => { e.target.style.borderColor = "#e7ddd0"; }}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div style={{ marginTop: "8px", padding: "12px 14px", backgroundColor: "#a4754a", borderRadius: "8px", color: "white", textAlign: "center", fontSize: "14px", fontWeight: 700, letterSpacing: "0.3px", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
+                                    Total: R$ {parseFloat(moneyData.total || "0").toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </div>
                                 </div>
                               )}

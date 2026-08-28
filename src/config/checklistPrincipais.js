@@ -56,6 +56,7 @@ export const checklistPrincipaisFechamento = [
     title: "3ª - Fechamento (19:00)",
     items: [
       { id: "pf7", title: "Cavalete Recolhido", subtitle1: "" },
+      { id: "pf12", title: "Travas Internas das 3 portas", subtitle1: "" },
       { id: "pf8", title: "Máquina de Café Desligada", subtitle1: "" },
       { id: "pf9", title: "Máquininha de Cartão Carregando", subtitle1: "" },
       { id: "pf10", title: "Conferir Geladeira", subtitle1: "Se não sobrou nenhuma cuba" }
