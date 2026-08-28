@@ -144,7 +144,7 @@ const Etiquetas: React.FC = () => {
       // Dates
       const prodDate = new Date(item.date + 'T12:00:00');
       const valDate = new Date(prodDate);
-      valDate.setDate(valDate.getDate() + 180);
+      valDate.setDate(valDate.getDate() + 90);
 
       const formattedProd = prodDate.toLocaleDateString('pt-BR');
       const formattedVal = valDate.toLocaleDateString('pt-BR');
