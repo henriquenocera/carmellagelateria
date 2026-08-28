@@ -82,67 +82,46 @@ const ChecklistPage: React.FC = () => {
     return item.weekday === todayWeekday;
   };
 
-  // Carregar progresso salvo
+  // NÃO persistir: ao trocar de página/aba ou atualizar, desmarcar tudo
+  // Remove qualquer progresso antigo e reseta estados para iniciar sempre limpo
   useEffect(() => {
-    const storageKey = `carmella_interactive_check_${activeTab}`;
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      try { setCheckedItems(JSON.parse(saved)); } catch (e) { setCheckedItems({}); }
-    } else {
-      setCheckedItems({});
-    }
-
-    const savedWaffles = localStorage.getItem("check_fechamento_waffles");
-    if (savedWaffles) {
-      try { setWaffleBatches(JSON.parse(savedWaffles)); } catch (e) {}
-    }
-    const savedBrownies = localStorage.getItem("check_fechamento_brownies");
-    if (savedBrownies) {
-      try { setBrownieBatches(JSON.parse(savedBrownies)); } catch (e) {}
-    }
-    const savedPanos = localStorage.getItem("check_fechamento_panos");
-    if (savedPanos) setPanosCount(savedPanos);
-    
-    // Carregar moneyData para abertura (com migração para layout da print)
-    const savedMoney = localStorage.getItem("check_abertura_money");
-    if (savedMoney) {
-      try {
-        const parsed = JSON.parse(savedMoney);
-        // migração: remover R$200 antigo e garantir R$0,01
-        if (parsed?.notas?.["200"] !== undefined) delete parsed.notas["200"];
-        // garantir todas as chaves do novo layout
-        const defaultNotas = { "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" };
-        const defaultMoedas = { "1": "", "050": "", "025": "", "010": "", "005": "", "001": "" };
-        parsed.notas = { ...defaultNotas, ...(parsed.notas || {}) };
-        parsed.moedas = { ...defaultMoedas, ...(parsed.moedas || {}) };
-        // remover chaves extras e manter apenas as esperadas
-        Object.keys(parsed.notas).forEach(k => { if (!(k in defaultNotas)) delete parsed.notas[k]; });
-        Object.keys(parsed.moedas).forEach(k => { if (!(k in defaultMoedas)) delete parsed.moedas[k]; });
-        setMoneyData(parsed);
-      } catch (e) {}
-    }
+    // limpar chaves antigas de progresso (se existirem de versões anteriores)
+    localStorage.removeItem(`carmella_interactive_check_abertura`);
+    localStorage.removeItem(`carmella_interactive_check_fechamento`);
+    localStorage.removeItem("check_fechamento_waffles");
+    localStorage.removeItem("check_fechamento_brownies");
+    localStorage.removeItem("check_fechamento_panos");
+    localStorage.removeItem("check_abertura_money");
+    // garantir que ao trocar de aba tudo inicie desmarcado/limpo
+    setCheckedItems({});
+    setWaffleBatches([{ quantity: "", date: "" }]);
+    setBrownieBatches([{ quantity: "", date: "" }]);
+    setPanosCount("");
+    setMoneyData({
+      notas: { "100": "", "50": "", "20": "", "10": "", "5": "", "2": "" },
+      moedas: { "1": "", "050": "", "025": "", "010": "", "005": "", "001": "" },
+      total: ""
+    });
   }, [activeTab]);
 
+  // Limpeza também ao montar/desmontar a página (caso venha de outra rota ou F5)
   useEffect(() => {
-    if (todayChecklist && !isCheckingToday) return;
-    localStorage.setItem("check_fechamento_waffles", JSON.stringify(waffleBatches));
-  }, [waffleBatches, todayChecklist, isCheckingToday]);
-
-  useEffect(() => {
-    if (todayChecklist && !isCheckingToday) return;
-    localStorage.setItem("check_fechamento_brownies", JSON.stringify(brownieBatches));
-  }, [brownieBatches, todayChecklist, isCheckingToday]);
-
-  useEffect(() => {
-    if (todayChecklist && !isCheckingToday) return;
-    localStorage.setItem("check_fechamento_panos", panosCount);
-  }, [panosCount, todayChecklist, isCheckingToday]);
-
-  useEffect(() => {
-    if (activeTab !== "abertura") return;
-    if (todayChecklist && !isCheckingToday) return;
-    localStorage.setItem("check_abertura_money", JSON.stringify(moneyData));
-  }, [moneyData, activeTab, todayChecklist, isCheckingToday]);
+    const keysToRemove = [
+      "carmella_interactive_check_abertura",
+      "carmella_interactive_check_fechamento",
+      "check_fechamento_waffles",
+      "check_fechamento_brownies",
+      "check_fechamento_panos",
+      "check_abertura_money",
+    ];
+    keysToRemove.forEach((k) => localStorage.removeItem(k));
+    // garantir estados limpos no mount
+    setCheckedItems({});
+    // cleanup ao sair da página também
+    return () => {
+      keysToRemove.forEach((k) => localStorage.removeItem(k));
+    };
+  }, []);
 
   // Verificar se já existe checklist feito hoje para esta aba
   useEffect(() => {
@@ -208,7 +187,6 @@ const ChecklistPage: React.FC = () => {
     
     const updated = { ...checkedItems, [id]: !checkedItems[id] };
     setCheckedItems(updated);
-    localStorage.setItem(`carmella_interactive_check_${activeTab}`, JSON.stringify(updated));
   };
 
   const handleMoneyChange = (type: "notas" | "moedas", key: string, value: string) => {
