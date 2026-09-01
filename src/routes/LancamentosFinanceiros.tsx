@@ -25,10 +25,41 @@ function LancamentosFinanceiros() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
   const isSavingRef = useRef<boolean>(false);
+  const editingRowRef = useRef<HTMLTableRowElement>(null);
 
   const handleCancelEdit = () => {
     setEditingId(null);
   };
+
+  // Sair do modo edição ao clicar fora ou apertar ESC
+  useEffect(() => {
+    if (editingId === null) return;
+
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setEditingId(null);
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // ignora cliques em dropdowns do react-select (portaled fora da linha)
+      if (target.closest('.react-select__menu') || target.closest('.react-select__control') || target.closest('[class*="react-select"]')) {
+        return;
+      }
+      if (editingRowRef.current && !editingRowRef.current.contains(target)) {
+        setEditingId(null);
+      }
+    };
+
+    document.addEventListener("keydown", handleEsc);
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [editingId]);
 
   const [filterData, setFilterData] = useState("");
   const [filterDescricao, setFilterDescricao] = useState("");
@@ -53,7 +84,7 @@ function LancamentosFinanceiros() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
   const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
-  const [limit, setLimit] = useState(100);
+  const [limit, setLimit] = useState(200);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -408,16 +439,16 @@ function LancamentosFinanceiros() {
     if (user) {
       if (isFirstRender.current) {
         isFirstRender.current = false;
-        fetchLancamentosRef.current?.({ currentLimit: 100, fTab: activeTab });
+        fetchLancamentosRef.current?.({ currentLimit: 200, fTab: activeTab });
         return;
       }
-      setLimit(100);
-      fetchLancamentosRef.current?.({ currentLimit: 100, fTab: activeTab });
+      setLimit(200);
+      fetchLancamentosRef.current?.({ currentLimit: 200, fTab: activeTab });
     }
   }, [filterStatus, filterCreatedToday, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, user]);
 
   useEffect(() => {
-    if (user && limit !== 100) {
+    if (user && limit !== 200) {
       fetchLancamentosRef.current?.({ currentLimit: limit });
     }
   }, [limit, user]);
@@ -586,7 +617,7 @@ function LancamentosFinanceiros() {
   };
 
   const handleLoadMore = () => {
-    setLimit(prev => prev + 100);
+    setLimit(prev => prev + 200);
   };
 
   return (
@@ -604,8 +635,11 @@ function LancamentosFinanceiros() {
             transition: background-color 0.15s ease, color 0.15s ease;
           }
           .clickable-cell:hover {
-            background-color: #fffbeb !important;
-            color: #b45309 !important;
+            background-color: #e8edf3 !important;
+            color: #1e293b !important;
+          }
+          .frequencia-container .freq-table tbody tr:hover td {
+            filter: brightness(0.93);
           }
           /* Linhas mais compactas */
           .frequencia-container .freq-table th {
@@ -1128,7 +1162,7 @@ function LancamentosFinanceiros() {
                     const isRowEdited = l.updated_at && diffEditMin >= 0 && diffEditMin < 60; // 1 hora de duração
 
                     return (
-                      <tr key={l.id} style={l.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : l.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : l.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : {}}>
+                      <tr key={l.id} ref={editingId === l.id ? editingRowRef : null} style={l.status_revisao === 'pending_delete' ? { backgroundColor: "#fecaca" } : l.status_revisao === 'pending_user' ? { backgroundColor: "#fee2e2" } : l.status_revisao === 'pending_admin' ? { backgroundColor: "#ffedd5" } : {}}>
                         {editingId === l.id ? (
                           <>
                             <td>
@@ -1344,18 +1378,17 @@ function LancamentosFinanceiros() {
                                     </span>
                                   )}
                                 </div>
-                                {l.status_revisao === 'pending_admin' && l.revisao_observacao && (
-                                  <span style={{ fontSize: "0.9rem", color: "#ea580c", backgroundColor: "#fff7ed", padding: "4px 8px", borderRadius: "4px", border: "1px solid #ffedd5", display: "inline-block" }}>
-                                    <strong>Alterações pendentes:</strong> {l.revisao_observacao}
-                                  </span>
-                                )}
                               </div>
                             </td>
                             <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
                             <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center", fontWeight: "bold", color: l.valor < 0 ? "#ef4444" : "#334155", fontSize: "1.3rem" }}>
                               R$ {l.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                             </td>
-                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>{l.fornecedor || "-"}</td>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} title={l.fornecedor || "-"} style={{ textAlign: "center", maxWidth: "180px", overflow: "hidden" }}>
+                              <span style={{ display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {l.fornecedor || "-"}
+                              </span>
+                            </td>
                             <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>
                               {l.categoria ? (
                                 <span>{l.categoria}</span>
