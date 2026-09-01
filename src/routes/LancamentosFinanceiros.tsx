@@ -1273,67 +1273,67 @@ function LancamentosFinanceiros() {
                         ) : (
                           <>
                             <td className="clickable-cell" onClick={() => handleEdit(l)}>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "6px", alignItems: "flex-start" }}>
-                                {(l.status_revisao === 'admin_only' || isRowNew || isRowEdited || l.conciliado) && (
-                                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-                                    {l.status_revisao === 'admin_only' && (
-                                      <span style={{
-                                        backgroundColor: "#3b82f6",
-                                        color: "#ffffff",
-                                        fontSize: "0.9rem",
-                                        fontWeight: "bold",
-                                        padding: "2px 6px",
-                                        borderRadius: "4px",
-                                        textTransform: "uppercase",
-                                        lineHeight: "1.1",
-                                        display: "inline-block",
-                                        letterSpacing: "0.03em"
-                                      }}>
-                                        Somente Admin
-                                      </span>
-                                    )}
-                                    {isRowNew && (
-                                      <span style={{
-                                        backgroundColor: "#10b981",
-                                        color: "#ffffff",
-                                        fontSize: "0.9rem",
-                                        fontWeight: "bold",
-                                        padding: "2px 6px",
-                                        borderRadius: "4px",
-                                        textTransform: "uppercase",
-                                        lineHeight: "1.1",
-                                        display: "inline-block",
-                                        letterSpacing: "0.03em"
-                                      }}>
-                                        Novo
-                                      </span>
-                                    )}
-                                    {isRowEdited && (
-                                      <span style={{
-                                        backgroundColor: "#f97316",
-                                        color: "#ffffff",
-                                        fontSize: "0.9rem",
-                                        fontWeight: "bold",
-                                        padding: "2px 6px",
-                                        borderRadius: "4px",
-                                        textTransform: "uppercase",
-                                        lineHeight: "1.1",
-                                        display: "inline-block",
-                                        letterSpacing: "0.03em"
-                                      }}>
-                                        Editado
-                                      </span>
-                                    )}
-                                  </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "3px", alignItems: "flex-start", width: "100%" }}>
+                                {l.status_revisao === 'admin_only' && (
+                                  <span style={{
+                                    backgroundColor: "#3b82f6",
+                                    color: "#ffffff",
+                                    fontSize: "0.68rem",
+                                    fontWeight: "800",
+                                    padding: "1px 4px",
+                                    borderRadius: "3px",
+                                    textTransform: "uppercase",
+                                    lineHeight: "1.1",
+                                    display: "inline-block",
+                                    letterSpacing: "0.02em"
+                                  }}>
+                                    Somente Admin
+                                  </span>
                                 )}
-                                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                                  <span>{l.descricao}</span>
-                                  {l.status_revisao === 'pending_admin' && l.revisao_observacao && (
-                                    <span style={{ fontSize: "0.9rem", color: "#ea580c", backgroundColor: "#fff7ed", padding: "4px 8px", borderRadius: "4px", border: "1px solid #ffedd5", marginTop: "4px", display: "inline-block" }}>
-                                      <strong>Alterações pendentes:</strong> {l.revisao_observacao}
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", width: "100%", minWidth: 0 }}>
+                                  <span title={l.descricao} style={{ flex: 1, minWidth: 0, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>{l.descricao}</span>
+                                  {(isRowNew || isRowEdited) && (
+                                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
+                                      {isRowNew && (
+                                        <span
+                                          title="Novo — criado há menos de 1 hora"
+                                          style={{
+                                            width: "9px",
+                                            height: "9px",
+                                            backgroundColor: "#10b981",
+                                            borderRadius: "50%",
+                                            display: "inline-block",
+                                            border: "2px solid #d1fae5",
+                                            cursor: "help",
+                                            flexShrink: 0,
+                                            boxSizing: "content-box"
+                                          }}
+                                        />
+                                      )}
+                                      {isRowEdited && (
+                                        <span
+                                          title="Editado — alterado há menos de 1 hora"
+                                          style={{
+                                            width: "9px",
+                                            height: "9px",
+                                            backgroundColor: "#f97316",
+                                            borderRadius: "50%",
+                                            display: "inline-block",
+                                            border: "2px solid #ffedd5",
+                                            cursor: "help",
+                                            flexShrink: 0,
+                                            boxSizing: "content-box"
+                                          }}
+                                        />
+                                      )}
                                     </span>
                                   )}
                                 </div>
+                                {l.status_revisao === 'pending_admin' && l.revisao_observacao && (
+                                  <span style={{ fontSize: "0.9rem", color: "#ea580c", backgroundColor: "#fff7ed", padding: "4px 8px", borderRadius: "4px", border: "1px solid #ffedd5", display: "inline-block" }}>
+                                    <strong>Alterações pendentes:</strong> {l.revisao_observacao}
+                                  </span>
+                                )}
                               </div>
                             </td>
                             <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>{new Date(l.data).toLocaleDateString("pt-BR", { timeZone: "UTC" })}</td>
