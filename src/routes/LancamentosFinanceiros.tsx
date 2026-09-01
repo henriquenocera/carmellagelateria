@@ -1006,10 +1006,10 @@ function LancamentosFinanceiros() {
           </div>
 
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
-            <table className="freq-table" style={{ minWidth: "1230px" }}>
+            <table className="freq-table" style={{ minWidth: "1290px" }}>
               <thead>
                 <tr>
-                  <th style={{ width: "240px", minWidth: "240px", maxWidth: "240px" }}>Descrição</th>
+                  <th style={{ width: "300px", minWidth: "300px", maxWidth: "300px" }}>Descrição</th>
                   <th style={{ textAlign: "center", width: "130px", minWidth: "130px" }}>Data</th>
                   <th style={{ textAlign: "center", width: "110px", minWidth: "110px" }}>Valor</th>
                   <th style={{ textAlign: "center", width: "180px", minWidth: "180px" }}>Fornecedor</th>
@@ -1021,7 +1021,7 @@ function LancamentosFinanceiros() {
                   <th style={{ textAlign: "center", width: "100px", minWidth: "100px" }}>Ações</th>
                 </tr>
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                  <th style={{ padding: "8px", minWidth: "240px", maxWidth: "240px" }}>
+                  <th style={{ padding: "8px", minWidth: "300px", maxWidth: "300px" }}>
                     <input
                       type="text"
                       placeholder="Descrição..."
@@ -1272,8 +1272,8 @@ function LancamentosFinanceiros() {
                           </>
                         ) : (
                           <>
-                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ maxWidth: "240px", width: "240px", overflow: "hidden" }}>
-                              <div style={{ display: "flex", flexDirection: "column", gap: "3px", alignItems: "flex-start", width: "100%", maxWidth: "240px", overflow: "hidden" }}>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ maxWidth: "300px", width: "300px", overflow: "hidden" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "3px", alignItems: "flex-start", width: "100%", maxWidth: "300px", overflow: "hidden" }}>
                                 {l.status_revisao === 'admin_only' && (
                                   <span style={{
                                     backgroundColor: "#3b82f6",
@@ -1290,8 +1290,8 @@ function LancamentosFinanceiros() {
                                     Somente Admin
                                   </span>
                                 )}
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", width: "100%", minWidth: 0, maxWidth: "240px", overflow: "hidden" }}>
-                                  <span title={l.descricao} style={{ flex: 1, minWidth: 0, maxWidth: "215px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>{l.descricao}</span>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", width: "100%", minWidth: 0, maxWidth: "300px", overflow: "hidden" }}>
+                                  <span title={l.descricao} style={{ flex: 1, minWidth: 0, maxWidth: "275px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "block" }}>{l.descricao}</span>
                                   {(isRowNew || isRowEdited) && (
                                     <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", flexShrink: 0 }}>
                                       {isRowNew && (
@@ -1367,7 +1367,11 @@ function LancamentosFinanceiros() {
                                 </span>
                               )}
                             </td>
-                            <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>{contaOptions.find(o => o.value === l.conta)?.label || l.conta}</td>
+                            <td className="clickable-cell" onClick={() => handleEdit(l)} title={contaOptions.find(o => o.value === l.conta)?.label || l.conta} style={{ textAlign: "center", maxWidth: "180px", overflow: "hidden" }}>
+                              <span style={{ display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                {contaOptions.find(o => o.value === l.conta)?.label || l.conta}
+                              </span>
+                            </td>
                             <td className="clickable-cell" onClick={() => handleEdit(l)} style={{ textAlign: "center" }}>
                               <span style={{
                                 background: l.valor >= 0 ? "#dcfce7" : "#fee2e2",
