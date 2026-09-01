@@ -9,12 +9,14 @@ interface Tarefa {
   id: number | string;
   titulo: string; // Nome da tarefa
   loja: "Todas" | "Ahú" | "Alto XV" | string; // Loja
-  tipo_repeticao: "diaria" | "dias_semana" | "dia_mes" | "sem_repeticao" | "personalizada" | "quinzenal" | string;
+  tipo_repeticao: "diaria" | "dias_semana" | "dia_mes" | "sem_repeticao" | "personalizada" | "quinzenal" | "n_semana_mes" | string;
   repeticao: string; // Ex: "Toda Segunda e Quinta", "Todo dia 10", "Todo dia"
   dias_semana?: number[]; // Ex: [1, 4] (1 = Seg, 4 = Qui)
   dia_mes?: number; // Ex: 10
   intervalo_semanas?: number; // Para quinzenal: 2 = semana sim/não, 3, 4...
   data_ancora?: string; // YYYY-MM-DD - primeira ocorrência para quinzenal
+  dia_semana_mes?: number; // Para n_semana_mes: 0=Dom...6=Sáb
+  semana_mes?: number; // Para n_semana_mes: 1=1ª, 2=2ª, 3=3ª, 4=4ª, -1=última
   descricao?: string;
   criado_por?: string;
   created_at?: string;
@@ -86,6 +88,9 @@ const TarefasLojas: React.FC = () => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
   });
+  // Nª semana do mês (ex: 1ª segunda)
+  const [selectedDiaSemanaMes, setSelectedDiaSemanaMes] = useState<number>(1); // 1=Segunda
+  const [selectedSemanaMes, setSelectedSemanaMes] = useState<number>(1); // 1=1ª, -1=última
 
   // Filters State
   const [filterLoja, setFilterLoja] = useState<string>("Todas");
@@ -153,7 +158,9 @@ const TarefasLojas: React.FC = () => {
     diaMes: number,
     custom: string,
     intervalo?: number,
-    dataAncora?: string
+    dataAncora?: string,
+    diaSemanaMes?: number,
+    semanaMes?: number
   ): string => {
     if (tipo === "diaria") return "Todo dia";
     if (tipo === "sem_repeticao") return "Sem repetição";
@@ -161,6 +168,13 @@ const TarefasLojas: React.FC = () => {
 
     if (tipo === "dia_mes") {
       return `Todo dia ${diaMes}`;
+    }
+
+    if (tipo === "n_semana_mes") {
+      const diaNome = DIAS_SEMANA_MAP.find((d) => d.id === diaSemanaMes)?.full || "";
+      const ordMap: Record<number, string> = { 1: "1ª", 2: "2ª", 3: "3ª", 4: "4ª", [-1]: "Última" };
+      const ord = ordMap[semanaMes ?? 1] || `${semanaMes}ª`;
+      return `Toda ${ord} ${diaNome} do mês`;
     }
 
     if (tipo === "quinzenal") {
@@ -234,6 +248,8 @@ const TarefasLojas: React.FC = () => {
     );
     setSelectedIntervalo(task.intervalo_semanas || 2);
     setSelectedDataAncora(task.data_ancora || new Date().toISOString().slice(0, 10));
+    setSelectedDiaSemanaMes(task.dia_semana_mes ?? 1);
+    setSelectedSemanaMes(task.semana_mes ?? 1);
     setDescricao(task.descricao || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -248,6 +264,8 @@ const TarefasLojas: React.FC = () => {
     setRepeticaoPersonalizada("");
     setSelectedIntervalo(2);
     setSelectedDataAncora(new Date().toISOString().slice(0, 10));
+    setSelectedDiaSemanaMes(1);
+    setSelectedSemanaMes(1);
     setDescricao("");
   };
 
@@ -279,7 +297,9 @@ const TarefasLojas: React.FC = () => {
       selectedDiaMes,
       repeticaoPersonalizada,
       selectedIntervalo,
-      selectedDataAncora
+      selectedDataAncora,
+      selectedDiaSemanaMes,
+      selectedSemanaMes
     );
 
     try {
@@ -294,6 +314,8 @@ const TarefasLojas: React.FC = () => {
         dia_mes: tipoRepeticao === "dia_mes" ? selectedDiaMes : null,
         intervalo_semanas: tipoRepeticao === "quinzenal" ? selectedIntervalo : null,
         data_ancora: tipoRepeticao === "quinzenal" ? selectedDataAncora : null,
+        dia_semana_mes: tipoRepeticao === "n_semana_mes" ? selectedDiaSemanaMes : null,
+        semana_mes: tipoRepeticao === "n_semana_mes" ? selectedSemanaMes : null,
         descricao: descricao.trim() || null,
         criado_por: userName,
       };
@@ -329,10 +351,10 @@ const TarefasLojas: React.FC = () => {
       resetForm();
       } catch (err: any) {
       console.error("Erro ao salvar tarefa:", err);
-      // Se a tabela ainda não tem as colunas intervalo_semanas/data_ancora, salva localmente e avisa
+      // Se a tabela ainda não tem as novas colunas, salva localmente e avisa
       const msg = (err?.message || "").toLowerCase();
-      const isMissingColumn = msg.includes("intervalo_semanas") || msg.includes("data_ancora") || msg.includes("column") || msg.includes("coluna");
-      if (!usingFallback && isMissingColumn && tipoRepeticao === "quinzenal") {
+      const isMissingColumn = msg.includes("intervalo_semanas") || msg.includes("data_ancora") || msg.includes("dia_semana_mes") || msg.includes("semana_mes") || msg.includes("column") || msg.includes("coluna");
+      if (!usingFallback && isMissingColumn && (tipoRepeticao === "quinzenal" || tipoRepeticao === "n_semana_mes")) {
         const newTask: Tarefa = {
           id: Date.now(),
           created_at: new Date().toISOString(),
@@ -340,16 +362,18 @@ const TarefasLojas: React.FC = () => {
           loja,
           tipo_repeticao: tipoRepeticao,
           repeticao: repeticaoText,
-          dias_semana: selectedDiasSemana,
-          intervalo_semanas: selectedIntervalo,
-          data_ancora: selectedDataAncora,
+          dias_semana: tipoRepeticao === "quinzenal" ? selectedDiasSemana : undefined,
+          intervalo_semanas: tipoRepeticao === "quinzenal" ? selectedIntervalo : undefined,
+          data_ancora: tipoRepeticao === "quinzenal" ? selectedDataAncora : undefined,
+          dia_semana_mes: tipoRepeticao === "n_semana_mes" ? selectedDiaSemanaMes : undefined,
+          semana_mes: tipoRepeticao === "n_semana_mes" ? selectedSemanaMes : undefined,
           descricao: descricao.trim() || null,
           criado_por: userName,
         } as Tarefa;
         const updatedLocal = editingId ? tarefas.map((t) => t.id === editingId ? { ...t, ...newTask, id: editingId } : t) : [newTask, ...tarefas];
         saveToLocal(updatedLocal);
         resetForm();
-        alert("Tarefa quinzenal salva localmente! Para salvar no banco, execute no Supabase:\n\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS intervalo_semanas INT;\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS data_ancora DATE;");
+        alert("Tarefa salva localmente! Para salvar no banco, execute no Supabase:\n\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS intervalo_semanas INT;\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS data_ancora DATE;\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS dia_semana_mes INT;\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS semana_mes INT;");
         return;
       }
       alert(`Erro ao salvar tarefa: ${err.message || "Tente novamente."}`);
@@ -406,7 +430,9 @@ const TarefasLojas: React.FC = () => {
     selectedDiaMes,
     repeticaoPersonalizada,
     selectedIntervalo,
-    selectedDataAncora
+    selectedDataAncora,
+    selectedDiaSemanaMes,
+    selectedSemanaMes
   );
 
   // Calendar Helpers
@@ -483,6 +509,23 @@ const TarefasLojas: React.FC = () => {
 
     if (task.tipo_repeticao === "dias_semana" && task.dias_semana) {
       return task.dias_semana.includes(dayOfWeek);
+    }
+
+    if (task.tipo_repeticao === "n_semana_mes" && task.dia_semana_mes !== undefined && task.semana_mes !== undefined) {
+      if (dayOfWeek !== task.dia_semana_mes) return false;
+      if (task.semana_mes === -1) {
+        // última ocorrência do dia da semana no mês
+        const nextWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 7);
+        return nextWeek.getMonth() !== date.getMonth();
+      } else {
+        // contar quantas ocorrências do mesmo dia da semana já houve no mês até esta data
+        let count = 0;
+        for (let d = 1; d <= dayOfMonth; d++) {
+          const tmp = new Date(date.getFullYear(), date.getMonth(), d);
+          if (tmp.getDay() === task.dia_semana_mes) count++;
+        }
+        return count === task.semana_mes;
+      }
     }
 
     if (task.tipo_repeticao === "dia_mes" && task.dia_mes) {
@@ -585,6 +628,7 @@ const TarefasLojas: React.FC = () => {
                   <option value="diaria">Todo dia (Diária)</option>
                   <option value="dias_semana">Dias da semana (ex: Toda Seg e Qui)</option>
                   <option value="quinzenal">Semana sim, semana não / Quinzenal (ex: Toda Quinta a cada 15 dias)</option>
+                  <option value="n_semana_mes">Dia da semana no mês (ex: Toda 1ª Segunda do mês)</option>
                   <option value="dia_mes">Dia fixo do mês (ex: Todo dia 10)</option>
                   <option value="sem_repeticao">Sem repetição (Única)</option>
                   <option value="personalizada">Personalizada</option>
@@ -672,6 +716,47 @@ const TarefasLojas: React.FC = () => {
                     <Icons.BsInfoCircle style={{ marginTop: "2px", flexShrink: 0 }} />
                     <span>
                       <strong>Como funciona:</strong> A tarefa vai aparecer apenas nas {DIAS_SEMANA_MAP.find((d) => d.id === selectedDiasSemana[0])?.full}s que estejam a cada {selectedIntervalo} semanas a partir de <strong>{selectedDataAncora ? new Date(selectedDataAncora + "T12:00:00").toLocaleDateString("pt-BR") : "data escolhida"}</strong>. As semanas intermediárias são puladas automaticamente.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {tipoRepeticao === "n_semana_mes" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                    <div className="form-group" style={{ minWidth: "180px", flex: 1 }}>
+                      <label>Qual ocorrência do mês?</label>
+                      <select
+                        className="form-select"
+                        value={selectedSemanaMes}
+                        onChange={(e) => setSelectedSemanaMes(Number(e.target.value))}
+                      >
+                        <option value={1}>1ª (primeira)</option>
+                        <option value={2}>2ª (segunda)</option>
+                        <option value={3}>3ª (terceira)</option>
+                        <option value={4}>4ª (quarta)</option>
+                        <option value={-1}>Última do mês</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ minWidth: "180px", flex: 1 }}>
+                      <label>Qual dia da semana?</label>
+                      <select
+                        className="form-select"
+                        value={selectedDiaSemanaMes}
+                        onChange={(e) => setSelectedDiaSemanaMes(Number(e.target.value))}
+                      >
+                        {DIAS_SEMANA_MAP.map((d) => (
+                          <option key={d.id} value={d.id}>{d.full}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={{ background: "#e0f2fe", border: "1px solid #bae6fd", color: "#075985", padding: "10px 12px", borderRadius: "8px", fontSize: "12.5px", display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                    <Icons.BsInfoCircle style={{ marginTop: "2px", flexShrink: 0 }} />
+                    <span>
+                      <strong>Exemplo:</strong> Selecione <strong>{({1:"1ª",2:"2ª",3:"3ª",4:"4ª",[-1]:"Última"} as any)[selectedSemanaMes]} {DIAS_SEMANA_MAP.find((d)=>d.id===selectedDiaSemanaMes)?.full}</strong> para criar "{computeRepeticaoText("n_semana_mes", [], 1, "", 2, undefined, selectedDiaSemanaMes, selectedSemanaMes)}". Vai aparecer só uma vez por mês, na data correta (ex: se escolher 1ª Segunda, só toda primeira segunda-feira de cada mês).
                     </span>
                   </div>
                 </div>
