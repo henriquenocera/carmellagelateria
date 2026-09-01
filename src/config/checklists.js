@@ -180,7 +180,6 @@ export const checklistFechamentoSteps = [
 
       { id: "7", title: "Foto das frutas", subtitle1: "Enviar uma foto das frutas na loja no grupo do whatsapp da loja", subtitle2: "" },
 
-      { id: "85", title: "Recolher cadeiras das mesas externas do gramado", subtitle1: "Empilhar as cadeiras encostadas na parede do pátio externo", subtitle2: "", new: "2026-03-31" }
 
     ]
 
@@ -199,6 +198,9 @@ export const checklistFechamentoSteps = [
       { id: "11", title: "Colocar para carregar tablet e máquininha POS", subtitle1: "", subtitle2: "" },
 
       { id: "12", title: "Limpar mesas e cadeiras do salão dos clientes", subtitle1: "", subtitle2: "" },
+      { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
+      { id: "28", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
+      { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
 
     ]
 
@@ -213,6 +215,7 @@ export const checklistFechamentoSteps = [
       { id: "1331", title: "Recolher o Cavalete", subtitle1: "", subtitle2: "", new: "2026-06-07" },
       { id: "13", title: "Fechar os portões pretos com cadeado", subtitle1: "", subtitle2: "" },
       { id: "133", title: "Recolher mesas e cadeiras externas", subtitle1: "", subtitle2: "" },
+      { id: "85", title: "Recolher cadeiras das mesas externas do gramado", subtitle1: "Empilhar as cadeiras encostadas na parede do pátio externo", subtitle2: "" },
 
 
 
@@ -269,11 +272,6 @@ export const checklistFechamentoSteps = [
 
       { id: "26", title: "Conferir freezer, geladeira e friobar", subtitle1: "Garantir que estão bem fechados", subtitle2: "" },
 
-      { id: "27", title: "Varrer o chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-
-      { id: "28", title: "Passar um mope no chão", subtitle1: "Salão dos clientes e parte interna da loja", subtitle2: "" },
-
-      { id: "29", title: "Esvaziar mope", subtitle1: "Não deixar ele cheio a noite inteira", subtitle2: "" },
 
       { id: "30", title: "Desligar todas as luzes", subtitle1: "", subtitle2: "" },
 
