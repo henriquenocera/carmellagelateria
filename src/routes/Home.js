@@ -404,15 +404,15 @@ function Home() {
               </div>
             ) : (
               <div className="home-calendar-grid">
-                {/* Dias da semana */}
-                {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d, i) => (
-                  <div key={i} className="home-calendar-day-header">
-                    {d}
-                  </div>
-                ))}
+                  {/* Dias da semana */}
+                  {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d, i) => (
+                    <div key={i} className="home-calendar-day-header">
+                      {d}
+                    </div>
+                  ))}
 
-                {/* Células do mês */}
-                {calendarDays.map((cell, idx) => {
+                  {/* Células do mês */}
+                  {calendarDays.map((cell, idx) => {
                   const dayTasks = tarefasLojaAtual.filter((t) => isTaskOnDate(t, cell.date));
 
                   return (
@@ -448,7 +448,7 @@ function Home() {
                               ) : (
                                 <Icons.BsCheck2Square size={11} />
                               )}
-                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                              <span style={{ whiteSpace: "normal", wordBreak: "break-word", lineHeight: 1.3, fontSize: "0.75rem" }}>
                                 {task.titulo}
                               </span>
                             </div>
