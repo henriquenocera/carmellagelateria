@@ -9,10 +9,12 @@ interface Tarefa {
   id: number | string;
   titulo: string; // Nome da tarefa
   loja: "Todas" | "Ahú" | "Alto XV" | string; // Loja
-  tipo_repeticao: "diaria" | "dias_semana" | "dia_mes" | "sem_repeticao" | "personalizada" | string;
+  tipo_repeticao: "diaria" | "dias_semana" | "dia_mes" | "sem_repeticao" | "personalizada" | "quinzenal" | string;
   repeticao: string; // Ex: "Toda Segunda e Quinta", "Todo dia 10", "Todo dia"
   dias_semana?: number[]; // Ex: [1, 4] (1 = Seg, 4 = Qui)
   dia_mes?: number; // Ex: 10
+  intervalo_semanas?: number; // Para quinzenal: 2 = semana sim/não, 3, 4...
+  data_ancora?: string; // YYYY-MM-DD - primeira ocorrência para quinzenal
   descricao?: string;
   criado_por?: string;
   created_at?: string;
@@ -78,10 +80,24 @@ const TarefasLojas: React.FC = () => {
   const [selectedDiaMes, setSelectedDiaMes] = useState<number>(10); // Dia 10 por padrão
   const [repeticaoPersonalizada, setRepeticaoPersonalizada] = useState<string>("");
   const [descricao, setDescricao] = useState<string>("");
+  // Quinzenal / Semana sim, semana não
+  const [selectedIntervalo, setSelectedIntervalo] = useState<number>(2);
+  const [selectedDataAncora, setSelectedDataAncora] = useState<string>(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  });
 
   // Filters State
   const [filterLoja, setFilterLoja] = useState<string>("Todas");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [calendarFilterLoja, setCalendarFilterLoja] = useState<string>("Todas");
+
+  // Ajusta seleção de dias quando muda para quinzenal (mantém só 1 dia)
+  useEffect(() => {
+    if (tipoRepeticao === "quinzenal" && selectedDiasSemana.length > 1) {
+      setSelectedDiasSemana([selectedDiasSemana[0]]);
+    }
+  }, [tipoRepeticao]);
 
   // Calendar State
   const [currentCalendarDate, setCurrentCalendarDate] = useState<Date>(new Date());
@@ -135,7 +151,9 @@ const TarefasLojas: React.FC = () => {
     tipo: string,
     dias: number[],
     diaMes: number,
-    custom: string
+    custom: string,
+    intervalo?: number,
+    dataAncora?: string
   ): string => {
     if (tipo === "diaria") return "Todo dia";
     if (tipo === "sem_repeticao") return "Sem repetição";
@@ -143,6 +161,19 @@ const TarefasLojas: React.FC = () => {
 
     if (tipo === "dia_mes") {
       return `Todo dia ${diaMes}`;
+    }
+
+    if (tipo === "quinzenal") {
+      if (!dias || dias.length === 0) return "Quinzenal";
+      const sorted = [...dias].sort((a, b) => {
+        const order = [1, 2, 3, 4, 5, 6, 0];
+        return order.indexOf(a) - order.indexOf(b);
+      });
+      const names = sorted.map((id) => DIAS_SEMANA_MAP.find((item) => item.id === id)?.full || "");
+      const diaNome = names.join(" e ");
+      const interv = intervalo || 2;
+      if (interv === 2) return `Toda ${diaNome} - Semana sim, semana não`;
+      return `Toda ${diaNome} - A cada ${interv} semanas`;
     }
 
     if (tipo === "dias_semana") {
@@ -178,6 +209,11 @@ const TarefasLojas: React.FC = () => {
   };
 
   const toggleDiaSemana = (diaId: number) => {
+    // Para quinzenal, permite apenas 1 dia (comportamento de rádio)
+    if (tipoRepeticao === "quinzenal") {
+      setSelectedDiasSemana([diaId]);
+      return;
+    }
     if (selectedDiasSemana.includes(diaId)) {
       if (selectedDiasSemana.length === 1) return;
       setSelectedDiasSemana(selectedDiasSemana.filter((d) => d !== diaId));
@@ -196,6 +232,8 @@ const TarefasLojas: React.FC = () => {
     setRepeticaoPersonalizada(
       task.tipo_repeticao === "personalizada" ? task.repeticao : ""
     );
+    setSelectedIntervalo(task.intervalo_semanas || 2);
+    setSelectedDataAncora(task.data_ancora || new Date().toISOString().slice(0, 10));
     setDescricao(task.descricao || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -208,6 +246,8 @@ const TarefasLojas: React.FC = () => {
     setSelectedDiasSemana([1, 4]);
     setSelectedDiaMes(10);
     setRepeticaoPersonalizada("");
+    setSelectedIntervalo(2);
+    setSelectedDataAncora(new Date().toISOString().slice(0, 10));
     setDescricao("");
   };
 
@@ -218,23 +258,42 @@ const TarefasLojas: React.FC = () => {
       return;
     }
 
+    if (tipoRepeticao === "quinzenal") {
+      if (!selectedDataAncora) {
+        alert("Informe a data da primeira ocorrência para o modo quinzenal.");
+        return;
+      }
+      const anc = new Date(selectedDataAncora + "T12:00:00");
+      const ancDay = anc.getDay();
+      if (!selectedDiasSemana.includes(ancDay)) {
+        const nomeDia = DIAS_SEMANA_MAP.find((d) => d.id === ancDay)?.full || "dia";
+        const nomeEscolhido = DIAS_SEMANA_MAP.find((d) => d.id === selectedDiasSemana[0])?.full || "";
+        alert(`A data da primeira ocorrência (${nomeDia}) não coincide com o dia selecionado (${nomeEscolhido}). Ajuste a data ou o dia da semana.`);
+        return;
+      }
+    }
+
     const repeticaoText = computeRepeticaoText(
       tipoRepeticao,
       selectedDiasSemana,
       selectedDiaMes,
-      repeticaoPersonalizada
+      repeticaoPersonalizada,
+      selectedIntervalo,
+      selectedDataAncora
     );
 
     try {
       setSaving(true);
 
-      const payload = {
+      const payload: any = {
         titulo: titulo.trim(),
         loja,
         tipo_repeticao: tipoRepeticao,
         repeticao: repeticaoText,
-        dias_semana: tipoRepeticao === "dias_semana" ? selectedDiasSemana : null,
+        dias_semana: tipoRepeticao === "dias_semana" || tipoRepeticao === "quinzenal" ? selectedDiasSemana : null,
         dia_mes: tipoRepeticao === "dia_mes" ? selectedDiaMes : null,
+        intervalo_semanas: tipoRepeticao === "quinzenal" ? selectedIntervalo : null,
+        data_ancora: tipoRepeticao === "quinzenal" ? selectedDataAncora : null,
         descricao: descricao.trim() || null,
         criado_por: userName,
       };
@@ -268,8 +327,31 @@ const TarefasLojas: React.FC = () => {
       }
 
       resetForm();
-    } catch (err: any) {
+      } catch (err: any) {
       console.error("Erro ao salvar tarefa:", err);
+      // Se a tabela ainda não tem as colunas intervalo_semanas/data_ancora, salva localmente e avisa
+      const msg = (err?.message || "").toLowerCase();
+      const isMissingColumn = msg.includes("intervalo_semanas") || msg.includes("data_ancora") || msg.includes("column") || msg.includes("coluna");
+      if (!usingFallback && isMissingColumn && tipoRepeticao === "quinzenal") {
+        const newTask: Tarefa = {
+          id: Date.now(),
+          created_at: new Date().toISOString(),
+          titulo: titulo.trim(),
+          loja,
+          tipo_repeticao: tipoRepeticao,
+          repeticao: repeticaoText,
+          dias_semana: selectedDiasSemana,
+          intervalo_semanas: selectedIntervalo,
+          data_ancora: selectedDataAncora,
+          descricao: descricao.trim() || null,
+          criado_por: userName,
+        } as Tarefa;
+        const updatedLocal = editingId ? tarefas.map((t) => t.id === editingId ? { ...t, ...newTask, id: editingId } : t) : [newTask, ...tarefas];
+        saveToLocal(updatedLocal);
+        resetForm();
+        alert("Tarefa quinzenal salva localmente! Para salvar no banco, execute no Supabase:\n\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS intervalo_semanas INT;\nALTER TABLE tarefas_lojas ADD COLUMN IF NOT EXISTS data_ancora DATE;");
+        return;
+      }
       alert(`Erro ao salvar tarefa: ${err.message || "Tente novamente."}`);
     } finally {
       setSaving(false);
@@ -322,7 +404,9 @@ const TarefasLojas: React.FC = () => {
     tipoRepeticao,
     selectedDiasSemana,
     selectedDiaMes,
-    repeticaoPersonalizada
+    repeticaoPersonalizada,
+    selectedIntervalo,
+    selectedDataAncora
   );
 
   // Calendar Helpers
@@ -380,6 +464,21 @@ const TarefasLojas: React.FC = () => {
 
     if (task.tipo_repeticao === "diaria" || task.repeticao === "Todo dia") {
       return true;
+    }
+
+    if (task.tipo_repeticao === "quinzenal" && task.dias_semana && task.data_ancora) {
+      if (!task.dias_semana.includes(dayOfWeek)) return false;
+      const intervalo = task.intervalo_semanas || 2;
+      // normalizar datas para meio-dia para evitar DST
+      const anc = new Date(task.data_ancora + "T12:00:00");
+      const cur = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
+      const ancMid = new Date(anc.getFullYear(), anc.getMonth(), anc.getDate(), 12, 0, 0);
+      if (cur < ancMid) return false;
+      const diffMs = cur.getTime() - ancMid.getTime();
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      if (diffDays % 7 !== 0) return false;
+      const weeksDiff = diffDays / 7;
+      return weeksDiff % intervalo === 0;
     }
 
     if (task.tipo_repeticao === "dias_semana" && task.dias_semana) {
@@ -485,6 +584,7 @@ const TarefasLojas: React.FC = () => {
                 >
                   <option value="diaria">Todo dia (Diária)</option>
                   <option value="dias_semana">Dias da semana (ex: Toda Seg e Qui)</option>
+                  <option value="quinzenal">Semana sim, semana não / Quinzenal (ex: Toda Quinta a cada 15 dias)</option>
                   <option value="dia_mes">Dia fixo do mês (ex: Todo dia 10)</option>
                   <option value="sem_repeticao">Sem repetição (Única)</option>
                   <option value="personalizada">Personalizada</option>
@@ -511,6 +611,68 @@ const TarefasLojas: React.FC = () => {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+              )}
+
+              {tipoRepeticao === "quinzenal" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                  <div className="form-group">
+                    <label>Selecione UM dia da semana (a tarefa ocorrerá só nesse dia, pulando semanas):</label>
+                    <div className="weekdays-picker">
+                      {DIAS_SEMANA_MAP.map((d) => {
+                        const isActive = selectedDiasSemana.includes(d.id);
+                        return (
+                          <div
+                            key={d.id}
+                            className={`weekday-pill ${isActive ? "active" : ""}`}
+                            onClick={() => toggleDiaSemana(d.id)}
+                          >
+                            {isActive ? <Icons.BsCheckLg size={12} /> : null}
+                            {d.full}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <small style={{ color: "#64748b", fontSize: "12px", marginTop: "4px", display: "block" }}>
+                      Ex.: escolha <strong>Quinta</strong> para "Toda quinta semana sim, semana não".
+                    </small>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                    <div className="form-group" style={{ minWidth: "200px", flex: 1 }}>
+                      <label>A cada quantas semanas?</label>
+                      <select
+                        className="form-select"
+                        value={selectedIntervalo}
+                        onChange={(e) => setSelectedIntervalo(Number(e.target.value))}
+                      >
+                        <option value={2}>A cada 2 semanas (semana sim, semana não)</option>
+                        <option value={3}>A cada 3 semanas</option>
+                        <option value={4}>A cada 4 semanas</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ minWidth: "220px", flex: 1 }}>
+                      <label>Data da primeira ocorrência *</label>
+                      <input
+                        type="date"
+                        className="form-input"
+                        value={selectedDataAncora}
+                        onChange={(e) => setSelectedDataAncora(e.target.value)}
+                        required
+                      />
+                      <small style={{ color: "#64748b", fontSize: "11px", marginTop: "4px", display: "block" }}>
+                        Deve ser uma <strong>{DIAS_SEMANA_MAP.find((d) => d.id === selectedDiasSemana[0])?.full || "Quinta"}</strong>. Ex.: se escolher Quinta, coloque uma quinta (ex: 2026-09-03).
+                      </small>
+                    </div>
+                  </div>
+
+                  <div style={{ background: "#fefce8", border: "1px solid #fde68a", color: "#854d0e", padding: "10px 12px", borderRadius: "8px", fontSize: "12.5px", display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                    <Icons.BsInfoCircle style={{ marginTop: "2px", flexShrink: 0 }} />
+                    <span>
+                      <strong>Como funciona:</strong> A tarefa vai aparecer apenas nas {DIAS_SEMANA_MAP.find((d) => d.id === selectedDiasSemana[0])?.full}s que estejam a cada {selectedIntervalo} semanas a partir de <strong>{selectedDataAncora ? new Date(selectedDataAncora + "T12:00:00").toLocaleDateString("pt-BR") : "data escolhida"}</strong>. As semanas intermediárias são puladas automaticamente.
+                    </span>
                   </div>
                 </div>
               )}
@@ -705,17 +867,48 @@ const TarefasLojas: React.FC = () => {
               <span>Calendário de Tarefas - {formattedMonthYear}</span>
             </div>
 
-            <div className="calendar-nav-btns">
-              <button className="btn-secondary" onClick={handlePrevMonth} title="Mês Anterior">
-                <Icons.BsChevronLeft /> Anterior
-              </button>
-              <button className="btn-secondary" onClick={handleTodayMonth} title="Mês Atual">
-                Hoje
-              </button>
-              <button className="btn-secondary" onClick={handleNextMonth} title="Próximo Mês">
-                Próximo <Icons.BsChevronRight />
-              </button>
+            <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "0.35rem 0.75rem" }}>
+                <Icons.BsShop size={14} color="#64748b" />
+                <label htmlFor="calendar-loja-filter" style={{ fontSize: "0.85rem", fontWeight: 700, color: "#475569", whiteSpace: "nowrap" }}>Filtrar loja:</label>
+                <select
+                  id="calendar-loja-filter"
+                  className="form-select"
+                  style={{ border: "none", background: "transparent", padding: "0.25rem 0.4rem", fontSize: "0.9rem", fontWeight: 700, color: "#1e293b", cursor: "pointer", outline: "none", minWidth: "120px" }}
+                  value={calendarFilterLoja}
+                  onChange={(e) => setCalendarFilterLoja(e.target.value)}
+                >
+                  <option value="Todas">Todas as lojas</option>
+                  <option value="Ahú">Ahú</option>
+                  <option value="Alto XV">Alto XV</option>
+                </select>
+              </div>
+
+              <div className="calendar-nav-btns">
+                <button className="btn-secondary" onClick={handlePrevMonth} title="Mês Anterior">
+                  <Icons.BsChevronLeft /> Anterior
+                </button>
+                <button className="btn-secondary" onClick={handleTodayMonth} title="Mês Atual">
+                  Hoje
+                </button>
+                <button className="btn-secondary" onClick={handleNextMonth} title="Próximo Mês">
+                  Próximo <Icons.BsChevronRight />
+                </button>
+              </div>
             </div>
+          </div>
+
+          <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center", fontSize: "0.85rem", color: "#64748b" }}>
+            <Icons.BsInfoCircle size={13} />
+            <span>
+              Exibindo <strong style={{ color: "#1e293b" }}>{calendarFilterLoja === "Todas" ? "todas as lojas" : `loja ${calendarFilterLoja}`}</strong>
+              {calendarFilterLoja !== "Todas" && " (inclui tarefas de \"Todas as lojas\")"}
+              {" — "}
+              {(() => {
+                const count = tarefas.filter((t) => calendarFilterLoja === "Todas" || t.loja === calendarFilterLoja || t.loja === "Todas").length;
+                return `${count} tarefa(s)`;
+              })()}
+            </span>
           </div>
 
           <div className="calendar-grid">
@@ -728,7 +921,12 @@ const TarefasLojas: React.FC = () => {
 
             {/* Grid dos dias do mês */}
             {calendarDays.map((cell, cellIdx) => {
-              const dayTasks = filteredTarefas.filter((t) => isTaskOnDate(t, cell.date));
+              const dayTasks = tarefas
+                .filter((t) => {
+                  if (calendarFilterLoja === "Todas") return true;
+                  return t.loja === calendarFilterLoja || t.loja === "Todas";
+                })
+                .filter((t) => isTaskOnDate(t, cell.date));
 
               return (
                 <div
