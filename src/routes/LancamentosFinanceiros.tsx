@@ -607,6 +607,21 @@ function LancamentosFinanceiros() {
             background-color: #fffbeb !important;
             color: #b45309 !important;
           }
+          /* Linhas mais compactas */
+          .frequencia-container .freq-table th {
+            padding: 6px 6px !important;
+            font-size: 1.1rem !important;
+            line-height: 1.2 !important;
+          }
+          .frequencia-container .freq-table td {
+            padding: 5px 6px !important;
+            font-size: 1.15rem !important;
+            line-height: 1.25 !important;
+            height: auto !important;
+          }
+          .frequencia-container .freq-table td .clickable-cell {
+            padding: 0 !important;
+          }
         `}</style>
       </Helmet>
 
