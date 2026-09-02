@@ -1080,7 +1080,11 @@ CREATE TABLE IF NOT EXISTS "public"."tarefas_lojas" (
     "dias_semana" "jsonb",
     "dia_mes" integer,
     "descricao" "text",
-    "criado_por" "text"
+    "criado_por" "text",
+    "intervalo_semanas" integer,
+    "data_ancora" "date",
+    "dia_semana_mes" integer,
+    "semana_mes" integer
 );
 
 
