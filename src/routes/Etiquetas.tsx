@@ -29,6 +29,9 @@ const Etiquetas: React.FC = () => {
   const [customClientName, setCustomClientName] = useState<string>("");
   const [loadingClients, setLoadingClients] = useState<boolean>(false);
 
+  // Impressão da data
+  const [imprimirData, setImprimirData] = useState<boolean>(true);
+
   useEffect(() => {
     async function fetchSabores() {
       try {
@@ -182,7 +185,7 @@ const Etiquetas: React.FC = () => {
       const flavorLines = doc.splitTextToSize(item.flavor.toUpperCase(), pageWidth - 10);
       doc.text(flavorLines, pageWidth / 2, 8, { align: "center" });
 
-      // 2. Data Fields
+      // 2. Data Fields (opcional)
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
       
@@ -191,17 +194,23 @@ const Etiquetas: React.FC = () => {
       const labelColX = 5;
       const valueColX = pageWidth - 5;
 
-      doc.text("Data de Produção", labelColX, startY);
-      doc.text(formattedProd, valueColX, startY, { align: "right" });
+      let currentY = startY;
+      if (imprimirData) {
+        doc.text("Data de Produção", labelColX, currentY);
+        doc.text(formattedProd, valueColX, currentY, { align: "right" });
+        currentY += rowHeight;
 
-      doc.text("Data de Validade", labelColX, startY + rowHeight);
-      doc.text(formattedVal, valueColX, startY + rowHeight, { align: "right" });
+        doc.text("Data de Validade", labelColX, currentY);
+        doc.text(formattedVal, valueColX, currentY, { align: "right" });
+        currentY += rowHeight;
+      }
 
-      doc.text("Código:", labelColX, startY + rowHeight * 2);
-      doc.text(fullCode, valueColX, startY + rowHeight * 2, { align: "right" });
+      doc.text("Código:", labelColX, currentY);
+      doc.text(fullCode, valueColX, currentY, { align: "right" });
+      currentY += rowHeight * 1.5;
 
       // 3. Peso e Tara OU Cliente
-      const lineStartY = startY + rowHeight * 3.5;
+      const lineStartY = currentY;
 
       if (item.isFoodService && item.clientName) {
         doc.setFont("helvetica", "normal");
@@ -364,6 +373,31 @@ const Etiquetas: React.FC = () => {
               />
             </div>
           </div>
+
+          <label
+            className={`food-service-toggle-card ${imprimirData ? "active" : ""}`}
+            htmlFor="imprimirDataCheckbox"
+            style={{ marginTop: "14px" }}
+          >
+            <div className="toggle-card-content">
+              <div className="toggle-icon-title">
+                <BsPrinterFill className="food-service-icon" style={{ color: imprimirData ? "#d97706" : "#94a3b8" }} />
+                <div>
+                  <span className="food-service-title">Imprimir data na etiqueta</span>
+                  <span className="food-service-subtitle">{imprimirData ? "Datas de produção e validade serão impressas" : "Datas não serão impressas (apenas sabor/código)"}</span>
+                </div>
+              </div>
+              <div className="custom-switch">
+                <input
+                  type="checkbox"
+                  id="imprimirDataCheckbox"
+                  checked={imprimirData}
+                  onChange={(e) => setImprimirData(e.target.checked)}
+                />
+                <span className="switch-slider"></span>
+              </div>
+            </div>
+          </label>
 
           <button className="add-to-list-btn" onClick={addItem}>
             <BsPlusLg /> Adicionar à Lista
