@@ -53,7 +53,7 @@ Qualquer dúvida, fico à disposição!`
       text: `Olá! 🍦
 
 Passando para saber se você gostaria de fazer um pedido para essa semana.
-Pedidos até as 16:00 entregamos até Quinta feira.
+
 
 Fico à disposição!`
     },

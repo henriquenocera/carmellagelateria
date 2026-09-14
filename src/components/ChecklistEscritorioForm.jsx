@@ -49,7 +49,6 @@ function ChecklistEscritorioForm({ handleSubmit }) {
         { id: "14", title: "(Terça Feira) - Verificar Inventário da loja Alto XV", subtitle1: "Fazer lançamentos de estoque", subtitle2: "Fazer separação do material", weekday: 2 },
         { id: "15", title: "Verificar Espelho Ponto das Atendentes", subtitle1: "Informar horas extras / faltantes do dia anterior", subtitle2: "" },
         { id: "20", title: "Ajustar relatório de Frequência", subtitle1: "Atrasos, faltas, atestados, etc", subtitle2: "" },
-
       ]
     },
     {
@@ -181,7 +180,7 @@ function ChecklistEscritorioForm({ handleSubmit }) {
       `Olá! 🍦
 
 Passando para saber se você gostaria de fazer um pedido para essa semana.
-Pedidos feitos hoje garantimos à entrega até *Quinta feira*.
+
 
 Fico à disposição!`;
 
