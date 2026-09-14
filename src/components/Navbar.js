@@ -26,6 +26,7 @@ const MENU_CONFIG = [
     icon: <Icons.BsBriefcase />,
     id: "operacoes",
     subItems: [
+      { title: "Conferência Roubos", path: "/conferencia-roubos", adminOnly: true },
       { title: "Revisões e Aprovações", path: "/revisoes-e-aprovacoes", adminOnly: true },
       { title: "Notificações Loja", path: "/notificacoes-loja", adminOnly: true },
       { title: "Tarefas Lojas", path: "/tarefas-lojas" },

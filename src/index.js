@@ -26,6 +26,7 @@ import Etiquetas from "./routes/Etiquetas.tsx";
 import NotificacoesLoja from "./routes/NotificacoesLoja.tsx";
 import TarefasLojas from "./routes/TarefasLojas.tsx";
 import RevisoesAprovacoes from "./routes/RevisoesAprovacoes.tsx";
+import ConferenciaRoubos from "./routes/ConferenciaRoubos.tsx";
 import { AuthProvider, useAuth } from "./AuthProvider";
 import Login from "./routes/Login.jsx";
 
@@ -140,6 +141,7 @@ const router = createBrowserRouter(
         <Route path="/notificacoes-loja" element={<NotificacoesLoja />} />
         <Route path="/tarefas-lojas" element={<TarefasLojas />} />
         <Route path="/revisoes-e-aprovacoes" element={<RevisoesAprovacoes />} />
+        <Route path="/conferencia-roubos" element={<ConferenciaRoubos />} />
         <Route path="/lojas-cubas-estoque" element={<EstoqueLojas />} />
 
         <Route path="/inventario" element={<Inventario />} />
