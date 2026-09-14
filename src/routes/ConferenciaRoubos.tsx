@@ -13,8 +13,14 @@ interface MapeamentoVales {
   qntd: string;
 }
 
+interface MapeamentoEntrada {
+  nomeEntrada: string;
+  qntd: string;
+}
+
 interface ConferenciaItem {
   id: string;
+  nome: string;
   ultimoInforme: string;
   vendas: string;
   vales: string;
@@ -23,6 +29,7 @@ interface ConferenciaItem {
   qntdReal: string;
   mapeamentos?: MapeamentoVenda[];
   mapeamentosVales?: MapeamentoVales[];
+  mapeamentosEntradas?: MapeamentoEntrada[];
 }
 
 const ConferenciaRoubos: React.FC = () => {
@@ -36,21 +43,22 @@ const ConferenciaRoubos: React.FC = () => {
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Tabela 6 colunas + mapeamentos por venda/vales
+  // Tabela 6 colunas + mapeamentos por venda/vales/entradas
   const [itens, setItens] = useState<ConferenciaItem[]>(() => {
     const stored = localStorage.getItem("conferencia_roubos_tabela");
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        // migração: garantir mapeamentos
-        return parsed.map((it: any) => ({ ...it, mapeamentos: it.mapeamentos || [], mapeamentosVales: it.mapeamentosVales || [] }));
+        // migração: garantir mapeamentos e nome
+        return parsed.map((it: any) => ({ nome: it.nome || it.ultimoInforme || "", mapeamentos: it.mapeamentos || [], mapeamentosVales: it.mapeamentosVales || [], mapeamentosEntradas: it.mapeamentosEntradas || [], ...it }));
       } catch { return []; }
     }
     return [];
   });
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [formData, setFormData] = useState<{ ultimoInforme: string; vendas: string; vales: string; entradas: string; previsto: string; qntdReal: string; mapeamentos: MapeamentoVenda[]; mapeamentosVales: MapeamentoVales[] }>({
+  const [formData, setFormData] = useState<{ nome: string; ultimoInforme: string; vendas: string; vales: string; entradas: string; previsto: string; qntdReal: string; mapeamentos: MapeamentoVenda[]; mapeamentosVales: MapeamentoVales[]; mapeamentosEntradas: MapeamentoEntrada[] }>({
+    nome: "",
     ultimoInforme: "",
     vendas: "",
     vales: "",
@@ -59,6 +67,7 @@ const ConferenciaRoubos: React.FC = () => {
     qntdReal: "",
     mapeamentos: [{ nomeVendas: "", qntd: "" }],
     mapeamentosVales: [{ nomeVales: "", qntd: "" }],
+    mapeamentosEntradas: [{ nomeEntrada: "", qntd: "" }],
   });
 
   const detectDelimiter = (line: string): string => {
@@ -180,13 +189,14 @@ const ConferenciaRoubos: React.FC = () => {
   }, [itens]);
 
   const handleOpenModal = () => {
-    setFormData({ ultimoInforme: "", vendas: "", vales: "", entradas: "", previsto: "", qntdReal: "", mapeamentos: [{ nomeVendas: "", qntd: "" }], mapeamentosVales: [{ nomeVales: "", qntd: "" }] });
+    setFormData({ nome: "", ultimoInforme: "", vendas: "", vales: "", entradas: "", previsto: "", qntdReal: "", mapeamentos: [{ nomeVendas: "", qntd: "" }], mapeamentosVales: [{ nomeVales: "", qntd: "" }], mapeamentosEntradas: [{ nomeEntrada: "", qntd: "" }] });
     setEditingId(null);
     setShowModal(true);
   };
 
   const handleEditItem = (item: ConferenciaItem) => {
     setFormData({
+      nome: (item as any).nome || "",
       ultimoInforme: item.ultimoInforme,
       vendas: item.vendas,
       vales: item.vales,
@@ -195,6 +205,7 @@ const ConferenciaRoubos: React.FC = () => {
       qntdReal: item.qntdReal,
       mapeamentos: item.mapeamentos && item.mapeamentos.length > 0 ? item.mapeamentos : [{ nomeVendas: "", qntd: "" }],
       mapeamentosVales: item.mapeamentosVales && item.mapeamentosVales.length > 0 ? item.mapeamentosVales : [{ nomeVales: "", qntd: "" }],
+      mapeamentosEntradas: (item as any).mapeamentosEntradas && (item as any).mapeamentosEntradas.length > 0 ? (item as any).mapeamentosEntradas : [{ nomeEntrada: "", qntd: "" }],
     });
     setEditingId(item.id);
     setShowModal(true);
@@ -232,12 +243,29 @@ const ConferenciaRoubos: React.FC = () => {
     });
   };
 
+  const handleAddMapeamentoEntradas = () => {
+    setFormData((prev) => ({ ...prev, mapeamentosEntradas: [...prev.mapeamentosEntradas, { nomeEntrada: "", qntd: "" }] }));
+  };
+
+  const handleRemoveMapeamentoEntradas = (idx: number) => {
+    setFormData((prev) => ({ ...prev, mapeamentosEntradas: prev.mapeamentosEntradas.filter((_, i) => i !== idx) }));
+  };
+
+  const handleChangeMapeamentoEntradas = (idx: number, field: keyof MapeamentoEntrada, value: string) => {
+    setFormData((prev) => {
+      const copy = [...prev.mapeamentosEntradas];
+      copy[idx] = { ...copy[idx], [field]: value };
+      return { ...prev, mapeamentosEntradas: copy };
+    });
+  };
+
   const handleSaveItem = (e: React.FormEvent) => {
     e.preventDefault();
     // filtra mapeamentos vazios
     const mapeamentosFiltrados = formData.mapeamentos.filter((m) => m.nomeVendas.trim() !== "" && m.qntd.trim() !== "");
     const mapeamentosValesFiltrados = formData.mapeamentosVales.filter((m) => m.nomeVales.trim() !== "" && m.qntd.trim() !== "");
-    const payload = { ...formData, mapeamentos: mapeamentosFiltrados, mapeamentosVales: mapeamentosValesFiltrados };
+    const mapeamentosEntradasFiltrados = formData.mapeamentosEntradas.filter((m) => m.nomeEntrada.trim() !== "" && m.qntd.trim() !== "");
+    const payload = { ...formData, mapeamentos: mapeamentosFiltrados, mapeamentosVales: mapeamentosValesFiltrados, mapeamentosEntradas: mapeamentosEntradasFiltrados };
     if (editingId) {
       setItens((prev) => prev.map((it) => (it.id === editingId ? { ...it, ...payload } : it)));
     } else {
@@ -246,7 +274,7 @@ const ConferenciaRoubos: React.FC = () => {
     }
     setShowModal(false);
     setEditingId(null);
-    setFormData({ ultimoInforme: "", vendas: "", vales: "", entradas: "", previsto: "", qntdReal: "", mapeamentos: [{ nomeVendas: "", qntd: "" }], mapeamentosVales: [{ nomeVales: "", qntd: "" }] });
+    setFormData({ nome: "", ultimoInforme: "", vendas: "", vales: "", entradas: "", previsto: "", qntdReal: "", mapeamentos: [{ nomeVendas: "", qntd: "" }], mapeamentosVales: [{ nomeVales: "", qntd: "" }], mapeamentosEntradas: [{ nomeEntrada: "", qntd: "" }] });
   };
 
   const handleDeleteItem = (id: string) => {
@@ -446,9 +474,10 @@ const ConferenciaRoubos: React.FC = () => {
           </div>
 
           <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "8px" }}>
-            <table className="freq-table" style={{ minWidth: "900px" }}>
+            <table className="freq-table" style={{ minWidth: "1050px" }}>
               <thead>
                 <tr>
+                  <th style={{ textAlign: "left", minWidth: "160px" }}>Nome</th>
                   <th style={{ textAlign: "left", minWidth: "160px" }}>Último Informe</th>
                   <th style={{ textAlign: "center", minWidth: "110px" }}>Vendas</th>
                   <th style={{ textAlign: "center", minWidth: "110px" }}>Vales</th>
@@ -461,29 +490,25 @@ const ConferenciaRoubos: React.FC = () => {
               <tbody>
                 {itens.length === 0 ? (
                   <tr>
-                    <td colSpan={7} style={{ textAlign: "center", padding: "28px", color: "#94a3b8" }}>
+                    <td colSpan={8} style={{ textAlign: "center", padding: "28px", color: "#94a3b8" }}>
                       Nenhum item cadastrado. Clique em "Cadastrar Novo Item" no topo da página.
                     </td>
                   </tr>
                 ) : (
                   itens.map((item) => (
                     <tr key={item.id}>
-                      <td style={{ padding: "10px 12px" }}>
-                        <div>{item.ultimoInforme || "-"}</div>
+                      <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1e293b" }}>{(item as any).nome || "-"}</td>
+                      <td style={{ padding: "10px 12px" }}>{item.ultimoInforme || "-"}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <div>{item.vendas || "-"}</div>
                         {item.mapeamentos && item.mapeamentos.length > 0 && (
-                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px" }}>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px", justifyContent: "center" }}>
                             {item.mapeamentos.map((m, i) => (
-                              <span key={i} title={`${m.nomeVendas} → ${m.qntd}`} style={{ background: "#fefce8", border: "1px solid #fde68a", padding: "2px 6px", borderRadius: "10px", fontSize: "1.0rem", color: "#92400e", fontWeight: 600 }}>
+                              <span key={i} title={`${m.nomeVendas} → ${m.qntd}`} style={{ background: "#fefce8", border: "1px solid #fde68a", padding: "2px 6px", borderRadius: "10px", fontSize: "0.95rem", color: "#92400e", fontWeight: 600 }}>
                                 {m.nomeVendas} → {m.qntd}
                               </span>
                             ))}
                           </div>
-                        )}
-                      </td>
-                      <td style={{ textAlign: "center" }}>
-                        <div>{item.vendas || "-"}</div>
-                        {item.mapeamentos && item.mapeamentos.length > 0 && (
-                          <div style={{ display: "none" }}>{/* mapeamentos de vendas já exibidos na coluna Último Informe */}</div>
                         )}
                       </td>
                       <td style={{ textAlign: "center" }}>
@@ -498,7 +523,18 @@ const ConferenciaRoubos: React.FC = () => {
                           </div>
                         )}
                       </td>
-                      <td style={{ textAlign: "center" }}>{item.entradas || "-"}</td>
+                      <td style={{ textAlign: "center" }}>
+                        <div>{item.entradas || "-"}</div>
+                        {(item as any).mapeamentosEntradas && (item as any).mapeamentosEntradas.length > 0 && (
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "6px", justifyContent: "center" }}>
+                            {(item as any).mapeamentosEntradas.map((m: any, i: number) => (
+                              <span key={i} title={`${m.nomeEntrada} → ${m.qntd}`} style={{ background: "#eff6ff", border: "1px solid #bfdbfe", padding: "2px 6px", borderRadius: "10px", fontSize: "0.95rem", color: "#1e40af", fontWeight: 600 }}>
+                                {m.nomeEntrada} → {m.qntd}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
                       <td style={{ textAlign: "center" }}>{item.previsto || "-"}</td>
                       <td style={{ textAlign: "center" }}>{item.qntdReal || "-"}</td>
                       <td style={{ textAlign: "center" }}>
@@ -533,6 +569,19 @@ const ConferenciaRoubos: React.FC = () => {
               </div>
 
               <form onSubmit={handleSaveItem} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "block", fontSize: "1.15rem", fontWeight: 700, color: "#1e293b", marginBottom: "4px" }}>Nome *</label>
+                  <input
+                    type="text"
+                    value={formData.nome}
+                    onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                    placeholder="Ex: Nutella 40gr - identifique o item na tabela"
+                    style={{ width: "100%", height: "38px", padding: "6px 10px", borderRadius: "8px", border: "1px solid #cbd5e1", fontWeight: 600 }}
+                    required
+                  />
+                  <small style={{ color: "#64748b", fontSize: "1.05rem" }}>Este nome aparece na primeira coluna da tabela para identificar o item.</small>
+                </div>
+
                 {/* Primeiro: mapeamento Nome no Vendas + Qntd (pode adicionar vários) */}
                 <div style={{ gridColumn: "1 / -1", background: "#fdfaf7", border: "1px solid #f0e6dd", borderRadius: "10px", padding: "14px" }}>
                   <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "1.2rem", fontWeight: 800, color: "#7c2d12", marginBottom: "6px" }}>
@@ -613,6 +662,47 @@ const ConferenciaRoubos: React.FC = () => {
                   ))}
                   <button type="button" onClick={handleAddMapeamentoVales} style={{ marginTop: "4px", padding: "7px 12px", background: "#fff", border: "1px dashed #a7f3d0", borderRadius: "8px", color: "#065f46", fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "1.15rem" }}>
                     <Icons.BsPlusLg /> Adicionar outro nome no vales
+                  </button>
+                </div>
+
+                <div style={{ gridColumn: "1 / -1", background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "10px", padding: "14px" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "1.2rem", fontWeight: 800, color: "#1e40af", marginBottom: "6px" }}>
+                    <Icons.BsBoxSeam /> Mapeamento — Entradas de Estoque e Qntd
+                  </label>
+                  <p style={{ fontSize: "1.1rem", color: "#57534e", margin: "0 0 10px 0", lineHeight: 1.4 }}>
+                    Cadastre os nomes como aparecem nas entradas de estoque e a quantidade correspondente. Pode adicionar vários.
+                  </p>
+                  {formData.mapeamentosEntradas.map((m, idx) => (
+                    <div key={idx} style={{ display: "flex", gap: "8px", marginBottom: "8px", alignItems: "flex-end" }}>
+                      <div style={{ flex: 2 }}>
+                        <label style={{ display: "block", fontSize: "1.05rem", fontWeight: 600, color: "#57534e", marginBottom: "4px" }}>Nome no Entradas</label>
+                        <input
+                          type="text"
+                          value={m.nomeEntrada}
+                          onChange={(e) => handleChangeMapeamentoEntradas(idx, "nomeEntrada", e.target.value)}
+                          placeholder="Ex: Nutella pote 350g"
+                          style={{ width: "100%", height: "36px", padding: "6px 10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                        />
+                      </div>
+                      <div style={{ flex: "0 0 120px" }}>
+                        <label style={{ display: "block", fontSize: "1.05rem", fontWeight: 600, color: "#57534e", marginBottom: "4px" }}>Qntd</label>
+                        <input
+                          type="text"
+                          value={m.qntd}
+                          onChange={(e) => handleChangeMapeamentoEntradas(idx, "qntd", e.target.value)}
+                          placeholder="Ex: 350gr"
+                          style={{ width: "100%", height: "36px", padding: "6px 10px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+                        />
+                      </div>
+                      {formData.mapeamentosEntradas.length > 1 && (
+                        <button type="button" onClick={() => handleRemoveMapeamentoEntradas(idx)} title="Remover" style={{ height: "36px", padding: "0 10px", background: "#fff", border: "1px solid #fecaca", color: "#dc2626", borderRadius: "8px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Icons.BsTrash />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button type="button" onClick={handleAddMapeamentoEntradas} style={{ marginTop: "4px", padding: "7px 12px", background: "#fff", border: "1px dashed #bfdbfe", borderRadius: "8px", color: "#1e40af", fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "1.15rem" }}>
+                    <Icons.BsPlusLg /> Adicionar outro nome em entradas
                   </button>
                 </div>
 
