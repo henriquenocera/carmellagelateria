@@ -58,6 +58,7 @@ const ConferenciaRoubos: React.FC = () => {
   const [dataInforme, setDataInforme] = useState(() => new Date().toISOString().split("T")[0]);
   const [qntdsInforme, setQntdsInforme] = useState<Record<string, string>>({});
   const [savingInforme, setSavingInforme] = useState(false);
+  const [informes, setInformes] = useState<any[]>([]);
   const [formData, setFormData] = useState<{ nome: string; mapeamentos: MapeamentoVenda[]; mapeamentosVales: MapeamentoVales[]; mapeamentosEntradas: MapeamentoEntrada[] }>({
     nome: "",
     mapeamentos: [{ nomeVendas: "", qntd: "" }],
@@ -246,9 +247,21 @@ const ConferenciaRoubos: React.FC = () => {
     }
   };
 
+  const fetchInformes = async () => {
+    try {
+      const { data, error } = await supabase.from("conferencia_roubos_informes").select("*").order("data", { ascending: false });
+      if (error) throw error;
+      setInformes(data || []);
+    } catch (err) {
+      console.error("Erro ao buscar informes:", err);
+    }
+  };
+
   useEffect(() => {
-    if (isAdmin) fetchItens();
-    else setLoadingItens(false);
+    if (isAdmin) {
+      fetchItens();
+      fetchInformes();
+    } else setLoadingItens(false);
   }, [isAdmin]);
 
   const handleOpenModal = () => {
@@ -427,12 +440,13 @@ const ConferenciaRoubos: React.FC = () => {
       }));
       const { error } = await supabase.from("conferencia_roubos_informes").insert(payload);
       if (error) throw error;
-      // atualiza Último Informe dos itens informados
+      // atualiza Último Informe dos itens informados (mantido para compatibilidade)
       await supabase
         .from("conferencia_roubos_itens")
         .update({ ultimo_informe: dataInforme })
         .in("id", preenchidos.map((it) => it.id));
       setItens((prev) => prev.map((it) => (qntdsInforme[it.id]?.trim() ? { ...it, ultimoInforme: dataInforme } : it)));
+      await fetchInformes();
       setShowInformarModal(false);
       setQntdsInforme({});
     } catch (err: any) {
@@ -441,6 +455,19 @@ const ConferenciaRoubos: React.FC = () => {
     } finally {
       setSavingInforme(false);
     }
+  };
+
+  const getQntdUltimoInforme = (itemId: string) => {
+    let filtered = informes.filter((inf: any) => inf.item_id === itemId);
+    if (lojaConferencia) filtered = filtered.filter((inf: any) => inf.loja === lojaConferencia);
+    if (dataInicial) filtered = filtered.filter((inf: any) => inf.data >= dataInicial);
+    if (dataFinal) filtered = filtered.filter((inf: any) => inf.data <= dataFinal);
+    if (filtered.length === 0) return "";
+    filtered.sort((a: any, b: any) => {
+      if (a.data !== b.data) return b.data.localeCompare(a.data);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+    return filtered[0].qntd;
   };
 
   if (!isAdmin) {
@@ -773,14 +800,11 @@ const ConferenciaRoubos: React.FC = () => {
                   itens.map((item) => (
                     <tr key={item.id}>
                       <td style={{ padding: "10px 12px", fontWeight: 700, color: "#1e293b" }}>{item.nome || "-"}</td>
-                      <td style={{ textAlign: "center" }}>
-                        <input
-                          type="text"
-                          value={item.ultimoInforme || ""}
-                          onChange={(e) => handleUpdateConferencia(item.id, "ultimoInforme", e.target.value)}
-                          placeholder="-"
-                          style={{ width: "100%", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "6px 8px", textAlign: "center" }}
-                        />
+                      <td style={{ textAlign: "center", fontWeight: 600 }}>
+                        {(() => {
+                          const qntd = getQntdUltimoInforme(item.id);
+                          return qntd ? <span>{qntd}</span> : <span style={{ color: "#94a3b8" }}>-</span>;
+                        })()}
                       </td>
                       <td style={{ textAlign: "center" }}>
                         <input
@@ -1020,7 +1044,10 @@ const ConferenciaRoubos: React.FC = () => {
                 </div>
                 <div style={{ flex: "1 1 160px" }}>
                   <label style={{ display: "block", fontSize: "1.15rem", fontWeight: 700, color: "#475569", marginBottom: "4px" }}>Loja</label>
-                  <input type="text" value={lojaConferencia} readOnly style={{ width: "100%", height: "38px", padding: "6px 10px", borderRadius: "8px", border: "1px solid #e2e8f0", background: "#f8fafc", color: "#475569" }} />
+                  <select value={lojaConferencia} onChange={(e) => setLojaConferencia(e.target.value)} style={{ padding: "6px 12px", borderRadius: "8px", border: "1px solid #cbd5e1", fontSize: "1.2rem", fontWeight: 600, background: "#fff", minWidth: "140px" }}>
+                  <option value="Ahu">Ahu</option>
+                  <option value="Alto da XV">Alto da XV</option>
+                </select>
                 </div>
               </div>
 
