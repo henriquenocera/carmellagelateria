@@ -59,6 +59,10 @@ const ConferenciaRoubos: React.FC = () => {
   const [qntdsInforme, setQntdsInforme] = useState<Record<string, string>>({});
   const [savingInforme, setSavingInforme] = useState(false);
   const [informes, setInformes] = useState<any[]>([]);
+  const [valesData, setValesData] = useState<any[]>([]);
+  const [loadingVales, setLoadingVales] = useState(false);
+  const [movimentacoesData, setMovimentacoesData] = useState<any[]>([]);
+  const [loadingMovimentacoes, setLoadingMovimentacoes] = useState(false);
   const [formData, setFormData] = useState<{ nome: string; mapeamentos: MapeamentoVenda[]; mapeamentosVales: MapeamentoVales[]; mapeamentosEntradas: MapeamentoEntrada[] }>({
     nome: "",
     mapeamentos: [{ nomeVendas: "", qntd: "" }],
@@ -257,10 +261,150 @@ const ConferenciaRoubos: React.FC = () => {
     }
   };
 
+  const fetchValesData = async () => {
+    try {
+      setLoadingVales(true);
+      let allData: any[] = [];
+      let from = 0;
+      const step = 1000;
+      while (true) {
+        const { data, error } = await supabase.from("Vales").select("id, Item, Unidade, created_at").order("created_at", { ascending: false }).range(from, from + step - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        allData = [...allData, ...data];
+        if (data.length < step) break;
+        from += step;
+        if (allData.length > 5000) break;
+      }
+      setValesData(allData);
+    } catch (err) {
+      console.error("Erro ao buscar vales:", err);
+    } finally {
+      setLoadingVales(false);
+    }
+  };
+
+  const parseQntd = (str: string) => {
+    const cleaned = (str || "").replace(",", ".").replace(/[^0-9.]/g, "");
+    const num = parseFloat(cleaned);
+    return isNaN(num) ? 1 : num;
+  };
+
+  const normalizeItem = (str: string) => (str || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+  const normalizeLoja = (str: string) => {
+    let s = (str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    s = s.replace(/^loja\s+/, "").replace(/\s+/g, " ").trim();
+    s = s.replace(/\bda\b|\bde\b|\bdo\b/g, "").replace(/\s+/g, " ").trim();
+    if (s.includes("alto") && s.includes("xv")) return "alto xv";
+    if (s.includes("ahu")) return "ahu";
+    return s;
+  };
+
+  const isItemMatch = (aRaw: string, bRaw: string) => {
+    const a = normalizeItem(aRaw);
+    const b = normalizeItem(bRaw);
+    if (!a || !b) return false;
+    if (a === b) return true;
+    if (a.includes(b) || b.includes(a)) return true;
+    const clean = (s: string) => s.replace(/\b\d+(\.\d+)?\s*(gr|g|kg|ml|l)\b/g, "").replace(/\bpote\b/g, "").replace(/[-_]/g, " ").replace(/\s+/g, " ").trim();
+    const aBase = clean(a);
+    const bBase = clean(b);
+    if (aBase && bBase && (aBase === bBase || aBase.includes(bBase) || bBase.includes(aBase))) return true;
+    const aFirst = aBase.split(" ")[0];
+    const bFirst = bBase.split(" ")[0];
+    if (aFirst && bFirst && aFirst === bFirst && aFirst.length >= 3) return true;
+    return false;
+  };
+
+  const getTotalValesForItem = (item: ConferenciaItem) => {
+    if (!item.mapeamentosVales || item.mapeamentosVales.length === 0) return 0;
+    let total = 0;
+    for (const map of item.mapeamentosVales) {
+      const target = map.nomeVales;
+      if (!target?.trim()) continue;
+      const qntdPerUnit = parseQntd(map.qntd);
+      const matchingRows = valesData.filter((v: any) => {
+        if (!isItemMatch(v.Item || "", target)) return false;
+        // loja: considera Unidade (Vales) vs lojaConferencia
+        if (lojaConferencia) {
+          const lojaNorm = normalizeLoja(lojaConferencia);
+          const unidadeNorm = normalizeLoja(v.Unidade || "");
+          if (lojaNorm && unidadeNorm && lojaNorm !== unidadeNorm) return false;
+        }
+        const rowDate = v.created_at ? v.created_at.slice(0, 10) : "";
+        if (dataInicial && rowDate < dataInicial) return false;
+        if (dataFinal && rowDate > dataFinal) return false;
+        return true;
+      });
+      total += matchingRows.length * qntdPerUnit;
+    }
+    return total;
+  };
+
+  const fetchMovimentacoesData = async () => {
+    try {
+      setLoadingMovimentacoes(true);
+      let allData: any[] = [];
+      let from = 0;
+      const step = 1000;
+      while (true) {
+        const { data, error } = await supabase
+          .from("movimentacoes_estoque")
+          .select("id, quantidade, data_movimentacao, origem, destino, insumo_id, cadastro_insumos(nome, estoque_nome)")
+          .order("data_movimentacao", { ascending: false })
+          .range(from, from + step - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        allData = [...allData, ...data];
+        if (data.length < step) break;
+        from += step;
+        if (allData.length > 5000) break;
+      }
+      setMovimentacoesData(allData);
+    } catch (err) {
+      console.error("Erro ao buscar movimentacoes:", err);
+    } finally {
+      setLoadingMovimentacoes(false);
+    }
+  };
+
+  const getTotalEntradasForItem = (item: ConferenciaItem) => {
+    const entradasList = (item as any).mapeamentosEntradas as MapeamentoEntrada[] | undefined;
+    if (!entradasList || entradasList.length === 0) return 0;
+    let total = 0;
+    for (const map of entradasList) {
+      const target = (map as any).nomeEntrada;
+      if (!target?.trim()) continue;
+      const qntdPerUnit = parseQntd((map as any).qntd);
+      const matchingRows = movimentacoesData.filter((m: any) => {
+        const insumoNome = m.cadastro_insumos?.estoque_nome || m.cadastro_insumos?.nome || "";
+        if (!isItemMatch(insumoNome, target)) return false;
+        // somente quando for destino da loja selecionada (ex: Estoque MH -> Loja Alto XV)
+        if (lojaConferencia) {
+          const lojaNorm = normalizeLoja(lojaConferencia);
+          const destinoNorm = normalizeLoja(m.destino || "");
+          if (lojaNorm !== destinoNorm) return false;
+        }
+        const rowDate = m.data_movimentacao ? m.data_movimentacao.slice(0, 10) : "";
+        if (dataInicial && rowDate < dataInicial) return false;
+        if (dataFinal && rowDate > dataFinal) return false;
+        return true;
+      });
+      for (const row of matchingRows) {
+        const qty = Number(row.quantidade) || 0;
+        total += qty * qntdPerUnit;
+      }
+    }
+    return total;
+  };
+
   useEffect(() => {
     if (isAdmin) {
       fetchItens();
       fetchInformes();
+      fetchValesData();
+      fetchMovimentacoesData();
     } else setLoadingItens(false);
   }, [isAdmin]);
 
@@ -815,23 +959,25 @@ const ConferenciaRoubos: React.FC = () => {
                           style={{ width: "100%", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "6px 8px", textAlign: "center" }}
                         />
                       </td>
-                      <td style={{ textAlign: "center" }}>
-                        <input
-                          type="text"
-                          value={item.vales || ""}
-                          onChange={(e) => handleUpdateConferencia(item.id, "vales", e.target.value)}
-                          placeholder="-"
-                          style={{ width: "100%", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "6px 8px", textAlign: "center" }}
-                        />
+                      <td style={{ textAlign: "center", fontWeight: 600 }}>
+                        {loadingVales ? (
+                          <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.2rem", color: "#64748b" }} />
+                        ) : (
+                          (() => {
+                            const total = getTotalValesForItem(item);
+                            return total ? <span>{total.toLocaleString("pt-BR")}</span> : <span style={{ color: "#94a3b8" }}>-</span>;
+                          })()
+                        )}
                       </td>
-                      <td style={{ textAlign: "center" }}>
-                        <input
-                          type="text"
-                          value={item.entradas || ""}
-                          onChange={(e) => handleUpdateConferencia(item.id, "entradas", e.target.value)}
-                          placeholder="-"
-                          style={{ width: "100%", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "6px 8px", textAlign: "center" }}
-                        />
+                      <td style={{ textAlign: "center", fontWeight: 600 }}>
+                        {loadingMovimentacoes ? (
+                          <Icons.BsArrowClockwise className="spin" style={{ fontSize: "1.2rem", color: "#64748b" }} />
+                        ) : (
+                          (() => {
+                            const total = getTotalEntradasForItem(item);
+                            return total ? <span>{total.toLocaleString("pt-BR")}</span> : <span style={{ color: "#94a3b8" }}>-</span>;
+                          })()
+                        )}
                       </td>
                       <td style={{ textAlign: "center" }}>
                         <input
@@ -1067,6 +1213,42 @@ const ConferenciaRoubos: React.FC = () => {
                       />
                     </div>
                   ))}
+                </div>
+              )}
+
+              {informes.length > 0 && (
+                <div style={{ marginTop: "18px", borderTop: "1px solid #e2e8f0", paddingTop: "14px" }}>
+                  <h4 style={{ margin: "0 0 10px 0", fontSize: "1.2rem", color: "#334155", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <Icons.BsClockHistory /> Informes passados
+                  </h4>
+                  <div style={{ maxHeight: "220px", overflowY: "auto", border: "1px solid #e2e8f0", borderRadius: "8px" }}>
+                    <table className="freq-table" style={{ minWidth: "500px" }}>
+                      <thead>
+                        <tr>
+                          <th style={{ textAlign: "left", minWidth: "100px" }}>Data</th>
+                          <th style={{ textAlign: "left", minWidth: "90px" }}>Loja</th>
+                          <th style={{ textAlign: "left" }}>Item</th>
+                          <th style={{ textAlign: "center", minWidth: "90px" }}>Qntd</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {informes.slice(0, 80).map((inf: any) => {
+                          const item = itens.find((it) => it.id === inf.item_id);
+                          return (
+                            <tr key={inf.id}>
+                              <td style={{ padding: "8px 10px", whiteSpace: "nowrap" }}>{inf.data ? new Date(inf.data + "T12:00:00").toLocaleDateString("pt-BR") : "-"}</td>
+                              <td style={{ padding: "8px 10px" }}>{inf.loja}</td>
+                              <td style={{ padding: "8px 10px", fontWeight: 600 }}>{item ? item.nome : inf.item_id}</td>
+                              <td style={{ padding: "8px 10px", textAlign: "center", fontWeight: 700 }}>{inf.qntd}</td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                  {informes.length > 80 && (
+                    <p style={{ color: "#94a3b8", fontSize: "1.05rem", margin: "8px 0 0 0" }}>Mostrando 80 de {informes.length} informes.</p>
+                  )}
                 </div>
               )}
 
