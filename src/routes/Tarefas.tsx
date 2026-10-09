@@ -78,9 +78,9 @@ const Tarefas: React.FC = () => {
                   style={{
                     border: "none",
                     borderRadius: "10px",
-                    padding: "0.75rem 1.6rem",
+                    padding: "0.9rem 1.8rem",
                     fontWeight: 800,
-                    fontSize: "1.05rem",
+                    fontSize: "1.5rem",
                     backgroundColor: activeTab === "abertura" ? "var(--primary-color, #d4a373)" : "transparent",
                     color: activeTab === "abertura" ? "#ffffff" : "#475569",
                     boxShadow: activeTab === "abertura" ? "0 2px 8px rgba(212, 163, 115, 0.35)" : "none",
@@ -89,7 +89,7 @@ const Tarefas: React.FC = () => {
                   }}
                   onClick={() => setActiveTab("abertura")}
                 >
-                  <Icons.BsSun size={18} /> Abertura
+                  <Icons.BsSun size={24} /> Abertura
                 </button>
 
                 <button
@@ -97,9 +97,9 @@ const Tarefas: React.FC = () => {
                   style={{
                     border: "none",
                     borderRadius: "10px",
-                    padding: "0.75rem 1.6rem",
+                    padding: "0.9rem 1.8rem",
                     fontWeight: 800,
-                    fontSize: "1.05rem",
+                    fontSize: "1.5rem",
                     backgroundColor: activeTab === "fechamento" ? "var(--secondary-color, #5a432c)" : "transparent",
                     color: activeTab === "fechamento" ? "#ffffff" : "#475569",
                     boxShadow: activeTab === "fechamento" ? "0 2px 8px rgba(90, 67, 44, 0.35)" : "none",
@@ -108,7 +108,7 @@ const Tarefas: React.FC = () => {
                   }}
                   onClick={() => setActiveTab("fechamento")}
                 >
-                  <Icons.BsMoonStars size={18} /> Fechamento
+                  <Icons.BsMoonStars size={24} /> Fechamento
                 </button>
               </div>
             </div>
@@ -136,14 +136,14 @@ const Tarefas: React.FC = () => {
                         color: activeTab === "abertura" ? "#92400e" : "#334155",
                         padding: "1.1rem 1.4rem",
                         fontWeight: 800,
-                        fontSize: "1.4rem",
+                        fontSize: "2rem",
                         borderBottom: "1px solid #e2e8f0",
                         display: "flex",
                         alignItems: "center",
                         gap: "0.6rem"
                       }}
                     >
-                      <Icons.BsFolder2Open size={22} /> {step.title}
+                      <Icons.BsFolder2Open size={30} /> {step.title}
                     </div>
 
                     <div style={{ padding: "0.6rem 0.85rem" }}>
@@ -161,26 +161,26 @@ const Tarefas: React.FC = () => {
                               borderBottom: "1px solid #f1f5f9"
                             }}
                           >
-                            <Icons.BsDot size={32} color="var(--primary-color, #d4a373)" style={{ flexShrink: 0, marginTop: "0px" }} />
+                            <Icons.BsDot size={40} color="var(--primary-color, #d4a373)" style={{ flexShrink: 0, marginTop: "0px" }} />
 
                             <div style={{ flex: 1 }}>
                               <div
                                 style={{
-                                  fontSize: "1.3rem",
+                                  fontSize: "1.9rem",
                                   fontWeight: 800,
                                   color: "#1e293b",
-                                  lineHeight: 1.3
+                                  lineHeight: 1.35
                                 }}
                               >
                                 {item.title}
                                 {hasBadgeNew && (
                                   <span
                                     style={{
-                                      marginLeft: "10px",
-                                      fontSize: "0.8rem",
+                                      marginLeft: "12px",
+                                      fontSize: "1.15rem",
                                       background: "#22c55e",
                                       color: "#fff",
-                                      padding: "3px 10px",
+                                      padding: "4px 14px",
                                       borderRadius: "12px",
                                       fontWeight: 800,
                                       verticalAlign: "middle"
@@ -192,7 +192,7 @@ const Tarefas: React.FC = () => {
                               </div>
 
                               {(item.subtitle1 || item.subtitle2) && (
-                                <div style={{ fontSize: "1.05rem", color: "#475569", marginTop: "0.35rem", lineHeight: 1.4 }}>
+                                <div style={{ fontSize: "1.5rem", color: "#475569", marginTop: "0.5rem", lineHeight: 1.5 }}>
                                   {item.subtitle1 && <div>• {item.subtitle1}</div>}
                                   {item.subtitle2 && <div>• {item.subtitle2}</div>}
                                 </div>
@@ -206,15 +206,15 @@ const Tarefas: React.FC = () => {
                                   style={{
                                     display: "inline-flex",
                                     alignItems: "center",
-                                    gap: "0.4rem",
-                                    marginTop: "0.6rem",
-                                    fontSize: "0.95rem",
+                                    gap: "0.5rem",
+                                    marginTop: "0.8rem",
+                                    fontSize: "1.35rem",
                                     color: "var(--primary-color)",
                                     fontWeight: 700,
                                     textDecoration: "none"
                                   }}
                                 >
-                                  <Icons.BsBoxArrowUpRight size={14} /> {item.buttonText || "Acessar Link"}
+                                  <Icons.BsBoxArrowUpRight size={18} /> {item.buttonText || "Acessar Link"}
                                 </a>
                               )}
                             </div>

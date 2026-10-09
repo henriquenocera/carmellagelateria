@@ -573,9 +573,9 @@ const ChecklistPage: React.FC = () => {
                   style={{
                     border: "none",
                     borderRadius: "10px",
-                    padding: "0.75rem 1.6rem",
+                    padding: "0.9rem 1.8rem",
                     fontWeight: 800,
-                    fontSize: "1.05rem",
+                    fontSize: "1.5rem",
                     backgroundColor: activeTab === "abertura" ? "var(--primary-color, #d4a373)" : "transparent",
                     color: activeTab === "abertura" ? "#ffffff" : "#475569",
                     boxShadow: activeTab === "abertura" ? "0 2px 8px rgba(212, 163, 115, 0.35)" : "none",
@@ -594,7 +594,7 @@ const ChecklistPage: React.FC = () => {
                     });
                   }}
                 >
-                  <Icons.BsSun size={18} /> Abertura
+                  <Icons.BsSun size={24} /> Abertura
                 </button>
 
                 <button
@@ -602,9 +602,9 @@ const ChecklistPage: React.FC = () => {
                   style={{
                     border: "none",
                     borderRadius: "10px",
-                    padding: "0.75rem 1.6rem",
+                    padding: "0.9rem 1.8rem",
                     fontWeight: 800,
-                    fontSize: "1.05rem",
+                    fontSize: "1.5rem",
                     backgroundColor: activeTab === "fechamento" ? "var(--secondary-color, #5a432c)" : "transparent",
                     color: activeTab === "fechamento" ? "#ffffff" : "#475569",
                     boxShadow: activeTab === "fechamento" ? "0 2px 8px rgba(90, 67, 44, 0.35)" : "none",
@@ -623,7 +623,7 @@ const ChecklistPage: React.FC = () => {
                     });
                   }}
                 >
-                  <Icons.BsMoonStars size={18} /> Fechamento
+                  <Icons.BsMoonStars size={24} /> Fechamento
                 </button>
               </div>
             </div>
@@ -639,10 +639,10 @@ const ChecklistPage: React.FC = () => {
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                <h3 style={{ margin: 0, fontSize: "1.2rem", fontWeight: 800, color: "#1e293b" }}>
+                <h3 style={{ margin: 0, fontSize: "1.7rem", fontWeight: 800, color: "#1e293b" }}>
                   Progresso do Checklist de {activeTab === "abertura" ? "Abertura" : "Fechamento"}
                 </h3>
-                <span style={{ fontSize: "1.05rem", fontWeight: 800, color: progressPercent === 100 ? "#16a34a" : "var(--primary-color)" }}>
+                <span style={{ fontSize: "1.5rem", fontWeight: 800, color: progressPercent === 100 ? "#16a34a" : "var(--primary-color)" }}>
                   {completedCount} de {allCurrentItems.length} marcadas ({progressPercent}%)
                 </span>
               </div>
@@ -673,7 +673,7 @@ const ChecklistPage: React.FC = () => {
                   <Icons.BsInfoCircleFill size={20} color="#1976d2" />
                   <span>Este checklist já foi completado hoje</span>
                 </div>
-                <div style={{ fontWeight: 400, fontSize: "0.95rem", lineHeight: 1.6 }}>
+                <div style={{ fontWeight: 400, fontSize: "1.35rem", lineHeight: 1.6 }}>
                   <div>✅ Realizado por: <strong>{todayChecklist.person}</strong> às <strong>{new Date(todayChecklist.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</strong></div>
                   {todayChecklist.reviewer && todayChecklist.updated_at && (
                     <div>👁️ Revisado por: <strong>{todayChecklist.reviewer}</strong> às <strong>{new Date(todayChecklist.updated_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</strong></div>
@@ -722,14 +722,14 @@ const ChecklistPage: React.FC = () => {
                           color: activeTab === "abertura" ? "#92400e" : "#334155",
                           padding: "1.1rem 1.4rem",
                           fontWeight: 800,
-                          fontSize: "1.3rem",
+                          fontSize: "2rem",
                           borderBottom: "1px solid #e2e8f0",
                           display: "flex",
                           alignItems: "center",
                           gap: "0.6rem"
                         }}
                       >
-                        <Icons.BsFolder2Open size={22} /> {step.title}
+                        <Icons.BsFolder2Open size={30} /> {step.title}
                       </div>
 
                       <div style={{ padding: "0.5rem 0.85rem" }}>
@@ -759,8 +759,8 @@ const ChecklistPage: React.FC = () => {
                                   onChange={() => { }}
                                   disabled={todayChecklist && !isCheckingToday}
                                   style={{
-                                    width: "22px",
-                                    height: "22px",
+                                    width: "30px",
+                                    height: "30px",
                                     marginTop: 0,
                                     accentColor: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)",
                                     cursor: todayChecklist && !isCheckingToday ? "not-allowed" : "pointer",
@@ -771,28 +771,29 @@ const ChecklistPage: React.FC = () => {
                                 <div style={{ flex: 1 }}>
                                   <div
                                     style={{
-                                      fontSize: "1.2rem",
+                                      fontSize: "1.9rem",
                                       fontWeight: 700,
                                       color: isChecked ? "#166534" : "#1e293b",
                                       textDecoration: isChecked ? "line-through" : "none",
                                       display: "flex",
                                       alignItems: "center",
-                                      gap: "0.5rem",
-                                      flexWrap: "wrap"
+                                      gap: "0.6rem",
+                                      flexWrap: "wrap",
+                                      lineHeight: 1.35
                                     }}
                                   >
                                     {item.title}
                                     {isNewItem(item) && (
                                       <span
                                         style={{
-                                          fontSize: "0.75rem",
+                                          fontSize: "1.15rem",
                                           background: "#22c55e",
                                           color: "#fff",
-                                          padding: "2px 8px",
+                                          padding: "4px 12px",
                                           borderRadius: "10px",
                                           fontWeight: 800,
                                           verticalAlign: "middle",
-                                          lineHeight: 1
+                                          lineHeight: 1.2
                                         }}
                                       >
                                         NOVO
@@ -801,7 +802,7 @@ const ChecklistPage: React.FC = () => {
                                   </div>
 
                                   {(item.subtitle1 || item.subtitle2) && (
-                                    <div style={{ fontSize: "1rem", color: "#64748b", marginTop: "0.3rem" }}>
+                                    <div style={{ fontSize: "1.5rem", color: "#64748b", marginTop: "0.4rem", lineHeight: 1.5 }}>
                                       {item.subtitle1 && <div>• {item.subtitle1}</div>}
                                       {item.subtitle2 && <div>• {item.subtitle2}</div>}
                                     </div>
@@ -815,15 +816,15 @@ const ChecklistPage: React.FC = () => {
                                       style={{
                                         display: "inline-flex",
                                         alignItems: "center",
-                                        gap: "0.4rem",
-                                        marginTop: "0.5rem",
-                                        fontSize: "0.9rem",
+                                        gap: "0.5rem",
+                                        marginTop: "0.6rem",
+                                        fontSize: "1.35rem",
                                         color: activeTab === "abertura" ? "var(--primary-color)" : "var(--secondary-color)",
                                         fontWeight: 700,
                                         textDecoration: "none"
                                       }}
                                     >
-                                      <Icons.BsBoxArrowUpRight size={14} /> {item.buttonText || "Acessar Link"}
+                                      <Icons.BsBoxArrowUpRight size={18} /> {item.buttonText || "Acessar Link"}
                                     </a>
                                   )}
                                 </div>
@@ -832,7 +833,7 @@ const ChecklistPage: React.FC = () => {
                               {/* Renderização Especial dos Inputs de Inventário para Waffles, Brownies e Panos */}
                               {item.id === "pf_waffles" && (
                                 <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
-                                  <div style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "0.95rem", color: "#334155" }}>
+                                  <div style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "1.4rem", color: "#334155" }}>
                                     Lotes de Waffles (Quantidade e Validade):
                                   </div>
                                   {waffleBatches.map((batch, bIdx) => (
@@ -860,16 +861,16 @@ const ChecklistPage: React.FC = () => {
                                     </div>
                                   ))}
                                   {!(!isCheckingToday && todayChecklist) && (
-                                    <button type="button" onClick={addWaffleBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.4rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
-                                      + Adicionar Lote de Waffle
-                                    </button>
+                                     <button type="button" onClick={addWaffleBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.6rem 1.2rem", borderRadius: "8px", fontSize: "1.25rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
+                                       + Adicionar Lote de Waffle
+                                     </button>
                                   )}
                                 </div>
                               )}
 
                               {item.id === "pf_brownies" && (
                                 <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
-                                  <div style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "0.95rem", color: "#334155" }}>
+                                  <div style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "1.4rem", color: "#334155" }}>
                                     Lotes de Brownies (Quantidade e Validade):
                                   </div>
                                   {brownieBatches.map((batch, bIdx) => (
@@ -897,16 +898,16 @@ const ChecklistPage: React.FC = () => {
                                     </div>
                                   ))}
                                   {!(!isCheckingToday && todayChecklist) && (
-                                    <button type="button" onClick={addBrownieBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.4rem 0.85rem", borderRadius: "8px", fontSize: "0.85rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
-                                      + Adicionar Lote de Brownie
-                                    </button>
+                                     <button type="button" onClick={addBrownieBatch} style={{ background: "#e2e8f0", border: "none", padding: "0.6rem 1.2rem", borderRadius: "8px", fontSize: "1.25rem", fontWeight: 700, cursor: "pointer", color: "#475569", marginTop: "0.25rem" }}>
+                                       + Adicionar Lote de Brownie
+                                     </button>
                                   )}
                                 </div>
                               )}
 
                               {item.id === "pf_panos" && (
                                 <div style={{ marginLeft: "2.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1 }} onClick={(e) => e.stopPropagation()}>
-                                  <div style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "0.95rem", color: "#334155" }}>
+                                  <div style={{ fontWeight: 700, marginBottom: "0.5rem", fontSize: "1.4rem", color: "#334155" }}>
                                     Quantidade Total de Panos:
                                   </div>
                                   <input
@@ -926,13 +927,13 @@ const ChecklistPage: React.FC = () => {
 
                               {item.id === "p_money" && activeTab === "abertura" && (
                                 <div style={{ marginLeft: "2.2rem", backgroundColor: "#fdfbf3", border: "1px solid #f0e6d8", borderRadius: "12px", padding: "18px 14px 14px", marginTop: "0.5rem", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", boxSizing: "border-box", maxWidth: "420px" }} onClick={(e) => e.stopPropagation()}>
-                                  <h2 style={{ color: "#9c7a4a", textAlign: "center", margin: "0 0 16px 0", fontSize: "16px", fontWeight: 500, letterSpacing: "0.2px", borderBottom: "1.5px solid #b08968", paddingBottom: "10px", lineHeight: 1.2 }}>
+                                  <h2 style={{ color: "#9c7a4a", textAlign: "center", margin: "0 0 16px 0", fontSize: "22px", fontWeight: 600, letterSpacing: "0.2px", borderBottom: "1.5px solid #b08968", paddingBottom: "10px", lineHeight: 1.3 }}>
                                     Contador de Cédulas e Moedas
                                   </h2>
                                   <div style={{ display: "flex", gap: "16px" }}>
                                     {/* Cédulas */}
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                      <h3 style={{ color: "#9c7a4a", margin: "0 0 10px 0", fontSize: "13px", fontWeight: 600 }}>Cédulas</h3>
+                                      <h3 style={{ color: "#9c7a4a", margin: "0 0 10px 0", fontSize: "18px", fontWeight: 700 }}>Cédulas</h3>
                                       {[
                                         { label: "R$ 100,00", key: "100" },
                                         { label: "R$ 50,00", key: "50" },
@@ -942,7 +943,7 @@ const ChecklistPage: React.FC = () => {
                                         { label: "R$ 2,00", key: "2" },
                                       ].map(({ label, key }) => (
                                         <div key={key} style={{ marginBottom: "10px" }}>
-                                          <label style={{ display: "block", marginBottom: "4px", color: "#8a7360", fontSize: "11px", fontWeight: 500 }}>{label}</label>
+                                          <label style={{ display: "block", marginBottom: "4px", color: "#8a7360", fontSize: "15px", fontWeight: 600 }}>{label}</label>
                                           <input
                                             type="text"
                                             inputMode="numeric"
@@ -951,7 +952,7 @@ const ChecklistPage: React.FC = () => {
                                             disabled={todayChecklist && !isCheckingToday}
                                             value={moneyData.notas[key] || ""}
                                             onChange={(e) => handleMoneyChange("notas", key, e.target.value)}
-                                            style={{ width: "100%", height: "32px", padding: "6px 10px", border: "1px solid #e7ddd0", borderRadius: "6px", backgroundColor: "#ffffff", fontSize: "13px", color: "#3e3e3e", outline: "none", boxSizing: "border-box", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, transition: "border-color 0.2s ease" }}
+                                            style={{ width: "100%", height: "44px", padding: "8px 12px", border: "1px solid #e7ddd0", borderRadius: "6px", backgroundColor: "#ffffff", fontSize: "18px", color: "#3e3e3e", outline: "none", boxSizing: "border-box", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, transition: "border-color 0.2s ease" }}
                                             onFocus={(e) => { e.target.style.borderColor = "#a17550"; }}
                                             onBlur={(e) => { e.target.style.borderColor = "#e7ddd0"; }}
                                           />
@@ -960,7 +961,7 @@ const ChecklistPage: React.FC = () => {
                                     </div>
                                     {/* Moedas */}
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                      <h3 style={{ color: "#9c7a4a", margin: "0 0 10px 0", fontSize: "13px", fontWeight: 600 }}>Moedas</h3>
+                                      <h3 style={{ color: "#9c7a4a", margin: "0 0 10px 0", fontSize: "18px", fontWeight: 700 }}>Moedas</h3>
                                       {[
                                         { label: "R$ 1,00", key: "1" },
                                         { label: "R$ 0,50", key: "050" },
@@ -970,7 +971,7 @@ const ChecklistPage: React.FC = () => {
                                         { label: "R$ 0,01", key: "001" },
                                       ].map(({ label, key }) => (
                                         <div key={key} style={{ marginBottom: "10px" }}>
-                                          <label style={{ display: "block", marginBottom: "4px", color: "#8a7360", fontSize: "11px", fontWeight: 500 }}>{label}</label>
+                                          <label style={{ display: "block", marginBottom: "4px", color: "#8a7360", fontSize: "15px", fontWeight: 600 }}>{label}</label>
                                           <input
                                             type="text"
                                             inputMode="numeric"
@@ -979,7 +980,7 @@ const ChecklistPage: React.FC = () => {
                                             disabled={todayChecklist && !isCheckingToday}
                                             value={moneyData.moedas[key] || ""}
                                             onChange={(e) => handleMoneyChange("moedas", key, e.target.value)}
-                                            style={{ width: "100%", height: "32px", padding: "6px 10px", border: "1px solid #e7ddd0", borderRadius: "6px", backgroundColor: "#ffffff", fontSize: "13px", color: "#3e3e3e", outline: "none", boxSizing: "border-box", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, transition: "border-color 0.2s ease" }}
+                                            style={{ width: "100%", height: "44px", padding: "8px 12px", border: "1px solid #e7ddd0", borderRadius: "6px", backgroundColor: "#ffffff", fontSize: "18px", color: "#3e3e3e", outline: "none", boxSizing: "border-box", opacity: todayChecklist && !isCheckingToday ? 0.6 : 1, transition: "border-color 0.2s ease" }}
                                             onFocus={(e) => { e.target.style.borderColor = "#a17550"; }}
                                             onBlur={(e) => { e.target.style.borderColor = "#e7ddd0"; }}
                                           />
