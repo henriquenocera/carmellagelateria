@@ -372,8 +372,9 @@ function Home() {
         <img className="home-logo" src="/logo.svg" alt="Carmella Gelateria" />
 
         <div className="container">
+          {/* TEMPORÁRIO - CALENDÁRIO DE TAREFAS DESATIVADO (não apagar, apenas comentado para reativação futura)
           <div className="home-calendar-card">
-            {/* Cabeçalho do Calendário */}
+            Cabeçalho do Calendário
             <div className="home-calendar-top-bar">
               <div className="home-calendar-title-group">
                 <h2>
@@ -396,7 +397,7 @@ function Home() {
               </div>
             </div>
 
-            {/* Grid do Calendário */}
+            Grid do Calendário
             {loading ? (
               <div style={{ textAlign: "center", padding: "3rem", color: "#64748b" }}>
                 <Icons.BsArrowClockwise className="loading-spinner" size={36} color="var(--primary-color)" />
@@ -404,15 +405,15 @@ function Home() {
               </div>
             ) : (
               <div className="home-calendar-grid">
-                  {/* Dias da semana */}
-                  {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d, i) => (
-                    <div key={i} className="home-calendar-day-header">
-                      {d}
-                    </div>
-                  ))}
+                Dias da semana
+                {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((d, i) => (
+                  <div key={i} className="home-calendar-day-header">
+                    {d}
+                  </div>
+                ))}
 
-                  {/* Células do mês */}
-                  {calendarDays.map((cell, idx) => {
+                Células do mês
+                {calendarDays.map((cell, idx) => {
                   const dayTasks = tarefasLojaAtual.filter((t) => isTaskOnDate(t, cell.date));
 
                   return (
@@ -461,9 +462,23 @@ function Home() {
               </div>
             )}
           </div>
+          FIM DO BLOCO TEMPORARIAMENTE COMENTADO - CALENDÁRIO DE TAREFAS
+          */}
+
+          {/* AVISO TEMPORÁRIO - Exibido no lugar do calendário */}
+          <div className="home-calendar-card" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
+            <h2 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", margin: 0 }}>
+              <Icons.BsCalendarCheck color="var(--primary-color)" />
+              Em breve, calendário de tarefas
+            </h2>
+            <p style={{ marginTop: "0.8rem", color: "#64748b" }}>
+              Estamos preparando novidades por aqui. O calendário de tarefas voltará em breve.
+            </p>
+          </div>
         </div>
 
-        {/* Modal de Detalhes da Tarefa ao clicar no calendário */}
+        {/* TEMPORÁRIO - MODAL DE DETALHES DESATIVADO JUNTO COM O CALENDÁRIO (não apagar, apenas comentado)
+        Modal de Detalhes da Tarefa ao clicar no calendário
         {selectedTaskDetail && (
           <div className="task-detail-modal-overlay" onClick={() => setSelectedTaskDetail(null)}>
             <div className="task-detail-modal-card" onClick={(e) => e.stopPropagation()}>
@@ -542,7 +557,7 @@ function Home() {
                       )}
                     </div>
 
-                    {/* Botões de Ação */}
+                    Botões de Ação
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "0.5rem", flexWrap: "wrap", gap: "0.75rem" }}>
                       {isDone ? (
                         <button
@@ -576,6 +591,8 @@ function Home() {
             </div>
           </div>
         )}
+        FIM DO BLOCO TEMPORARIAMENTE COMENTADO - MODAL
+        */}
       </div>
     </>
   );
