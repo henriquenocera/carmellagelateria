@@ -8,16 +8,16 @@
 }
 
 .sectionTitle p {
-  font-size: 2.4rem;
+  font-size: 3.2rem;
   margin-bottom: 20px;
 }
 
 .checkbox-wrapper p {
-  font-size: 2.4rem;
+  font-size: 3rem;
 }
 
 .label {
-  font-size: 1.8rem;
+  font-size: 2.5rem;
 }
 
 .new {
@@ -27,7 +27,7 @@
 
 .subtitle {
   margin-left: 0;
-  font-size: 1.4rem;
+  font-size: 2rem;
   margin-bottom: 0.5rem;
   margin-top: 0.5rem;
   padding-left: 2rem;
@@ -106,7 +106,7 @@
 
 .checkbox-wrapper .cbx span:last-child {
   margin-left: 0;
-  font-size: 2rem;
+  font-size: 2.7rem;
   position: relative;
 }
 
@@ -165,7 +165,7 @@
 }
 
 .inputNumber {
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   margin-bottom: 1rem;
   border-radius: 4px;
   max-width: 200px;
@@ -178,7 +178,7 @@
 
 .submit {
   padding: 12px 16px;
-  font-size: 2rem;
+  font-size: 2.6rem;
   background: #a17550;
   color: #fff;
 }
@@ -194,7 +194,7 @@
   padding: 7px 14px;
   border: 1px solid #a17550;
 
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   border-radius: 4px;
   text-align: center;
   width: 75px;
@@ -202,7 +202,7 @@
 }
 
 .inventoryLabel {
-  font-size: 16px;
+  font-size: 22px;
   margin-right: 10px;
 }
 
@@ -258,12 +258,12 @@
 }
 
 .modalText {
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   text-align: center;
 }
 
 .user {
-  font-size: 2rem;
+  font-size: 2.6rem;
   text-align: center;
   padding: 4px 8px;
   margin-top: 0px;
@@ -338,7 +338,7 @@
 }
 
 .step-title {
-  font-size: 1.4rem;
+  font-size: 1.9rem;
   text-align: center;
   color: #666;
 }
@@ -369,7 +369,7 @@
   padding: 1rem 2rem;
   border: none;
   border-radius: 4px;
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -396,7 +396,7 @@
   padding: 1rem 2rem;
   border: none;
   border-radius: 4px;
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -408,7 +408,7 @@
 
 .checkbox-subtitle p {
   margin-left: 3.5rem;
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   margin-bottom: 0.5rem;
   margin-top: 0.5rem;
   color: #666;
@@ -471,7 +471,7 @@
   color: white;
   text-decoration: none;
   border-radius: 4px;
-  font-size: 1.4rem;
+  font-size: 1.9rem;
   font-weight: 500;
   transition: opacity 0.2s ease;
 }

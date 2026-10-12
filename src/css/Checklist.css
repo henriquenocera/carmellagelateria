@@ -61,14 +61,14 @@ h2 {
   align-items: flex-start;
 }
 .warningText {
-  font-size: 1.6rem;
+  font-size: 2.2rem;
   border: 1px dashed #a17550;
   padding: 8px 12px;
   margin-top: 10px;
   position: relative;
 }
 .warningIcon {
-  font-size: 2rem;
+  font-size: 2.8rem;
   color: #a17550;
   position: absolute;
   top: -15px;
@@ -76,7 +76,7 @@ h2 {
 }
 
 .timeComplete {
-  font-size: 2rem;
+  font-size: 2.8rem;
   text-align: center;
 }
 .checklistFormContainer {
@@ -105,7 +105,7 @@ h2 {
   padding: 9px;
 }
 .label {
-  font-size: 20px;
+  font-size: 28px;
 }
 
 .inputNumber {
@@ -113,5 +113,5 @@ h2 {
   margin-left: 10px;
 }
 .subtitle {
-  font-size: 18px;
+  font-size: 24px;
 }

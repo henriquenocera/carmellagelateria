@@ -988,7 +988,7 @@ const ChecklistPage: React.FC = () => {
                                       ))}
                                     </div>
                                   </div>
-                                  <div style={{ marginTop: "8px", padding: "12px 14px", backgroundColor: "#a4754a", borderRadius: "8px", color: "white", textAlign: "center", fontSize: "14px", fontWeight: 700, letterSpacing: "0.3px", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
+                                  <div style={{ marginTop: "8px", padding: "14px", backgroundColor: "#a4754a", borderRadius: "8px", color: "white", textAlign: "center", fontSize: "19px", fontWeight: 700, letterSpacing: "0.3px", boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
                                     Total: R$ {parseFloat(moneyData.total || "0").toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </div>
                                 </div>
@@ -1017,7 +1017,7 @@ const ChecklistPage: React.FC = () => {
               >
                 {/* Mensagem de Erro Inline na caixa de confirmação */}
                 {errorMessage && (
-                  <div style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "0.75rem 1.25rem", borderRadius: "12px", width: "100%", maxWidth: "550px", fontWeight: 700, fontSize: "0.95rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                  <div style={{ background: "#fee2e2", border: "1px solid #fca5a5", color: "#991b1b", padding: "0.75rem 1.25rem", borderRadius: "12px", width: "100%", maxWidth: "600px", fontWeight: 700, fontSize: "1.35rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
                     <Icons.BsExclamationTriangleFill size={18} color="#dc2626" /> {errorMessage}
                   </div>
                 )}
@@ -1052,10 +1052,10 @@ const ChecklistPage: React.FC = () => {
                       Realizado por: <strong>{todayChecklist.person}</strong> às <strong>{new Date(todayChecklist.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</strong>
                     </div>
 
-                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.35rem" }}>
+                    <div style={{ fontSize: "1.7rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.4rem" }}>
                       2. ID do Revisor do Checklist
                     </div>
-                    <p style={{ fontSize: "0.95rem", color: "#64748b", marginBottom: "1.25rem" }}>
+                    <p style={{ fontSize: "1.35rem", color: "#64748b", marginBottom: "1.25rem" }}>
                       Digite o ID do supervisor/revisor para validar e concluir o checklist.
                     </p>
 
@@ -1064,14 +1064,14 @@ const ChecklistPage: React.FC = () => {
                         type="password"
                         placeholder="ID do Revisor..."
                         style={{
-                          padding: "0.85rem 1.25rem",
+                          padding: "1rem 1.4rem",
                           borderRadius: "12px",
                           border: "2px solid #cbd5e1",
-                          fontSize: "1.1rem",
+                          fontSize: "1.5rem",
                           fontWeight: 700,
                           textAlign: "center",
                           outline: "none",
-                          width: "200px"
+                          width: "240px"
                         }}
                         value={revisorId}
                         onChange={(e) => setRevisorId(e.target.value)}
@@ -1082,8 +1082,8 @@ const ChecklistPage: React.FC = () => {
                         type="submit"
                         className="btn-concluir"
                         style={{
-                          padding: "0.85rem 1.75rem",
-                          fontSize: "1rem",
+                          padding: "1rem 2rem",
+                          fontSize: "1.4rem",
                           borderRadius: "12px",
                           display: "flex",
                           alignItems: "center",
@@ -1091,17 +1091,17 @@ const ChecklistPage: React.FC = () => {
                         }}
                         disabled={submitting || isCheckingRevisor}
                       >
-                        <Icons.BsCheckCircleFill size={18} />
+                        <Icons.BsCheckCircleFill size={22} />
                         {submitting || isCheckingRevisor ? "Enviando..." : "Finalizar & Enviar"}
                       </button>
                     </div>
                   </form>
                 ) : !executorName ? (
-                  <form onSubmit={handleValidateExecutor} style={{ width: "100%", maxWidth: "550px", textAlign: "center" }}>
-                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.35rem" }}>
+                  <form onSubmit={handleValidateExecutor} style={{ width: "100%", maxWidth: "600px", textAlign: "center" }}>
+                    <div style={{ fontSize: "1.7rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.4rem" }}>
                       1. ID de Quem Realizou o Checklist
                     </div>
-                    <p style={{ fontSize: "0.95rem", color: "#64748b", marginBottom: "1.25rem" }}>
+                    <p style={{ fontSize: "1.35rem", color: "#64748b", marginBottom: "1.25rem" }}>
                       Digite seu ID de funcionário cadastrado no banco de dados para assinar a execução.
                     </p>
 
@@ -1110,14 +1110,14 @@ const ChecklistPage: React.FC = () => {
                         type="password"
                         placeholder="Digite seu ID..."
                         style={{
-                          padding: "0.85rem 1.25rem",
+                          padding: "1rem 1.4rem",
                           borderRadius: "12px",
                           border: "2px solid #cbd5e1",
-                          fontSize: "1.1rem",
+                          fontSize: "1.5rem",
                           fontWeight: 700,
                           textAlign: "center",
                           outline: "none",
-                          width: "200px"
+                          width: "240px"
                         }}
                         value={executorId}
                         onChange={(e) => setExecutorId(e.target.value)}
@@ -1128,8 +1128,8 @@ const ChecklistPage: React.FC = () => {
                         type="submit"
                         className="btn-concluir"
                         style={{
-                          padding: "0.85rem 1.5rem",
-                          fontSize: "1rem",
+                          padding: "1rem 1.8rem",
+                          fontSize: "1.4rem",
                           borderRadius: "12px"
                         }}
                         disabled={isCheckingExecutor}
@@ -1140,29 +1140,30 @@ const ChecklistPage: React.FC = () => {
                   </form>
                 ) : (
                   /* Passo 2: Exibe o Realizador e Solicita ID do Revisor */
-                  <form onSubmit={handleConfirmFinal} style={{ width: "100%", maxWidth: "550px", textAlign: "center" }}>
+                  <form onSubmit={handleConfirmFinal} style={{ width: "100%", maxWidth: "600px", textAlign: "center" }}>
                     <div
                       style={{
                         background: "#dcfce7",
                         border: "1px solid #86efac",
                         color: "#166534",
-                        padding: "0.85rem 1.25rem",
+                        padding: "1rem 1.4rem",
                         borderRadius: "12px",
                         marginBottom: "1.5rem",
                         display: "flex",
                         alignItems: "center",
                         gap: "0.5rem",
-                        fontWeight: 700
+                        fontWeight: 700,
+                        fontSize: "1.4rem"
                       }}
                     >
-                      <Icons.BsCheckCircleFill color="#16a34a" size={18} />
+                      <Icons.BsCheckCircleFill color="#16a34a" size={22} />
                       Realizado por: <strong>{executorName}</strong>
                     </div>
 
-                    <div style={{ fontSize: "1.2rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.35rem" }}>
+                    <div style={{ fontSize: "1.7rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.4rem" }}>
                       2. ID do Revisor do Checklist
                     </div>
-                    <p style={{ fontSize: "0.95rem", color: "#64748b", marginBottom: "1.25rem" }}>
+                    <p style={{ fontSize: "1.35rem", color: "#64748b", marginBottom: "1.25rem" }}>
                       Digite o ID do supervisor/revisor para validar e concluir o checklist.
                     </p>
 
@@ -1171,14 +1172,14 @@ const ChecklistPage: React.FC = () => {
                         type="password"
                         placeholder="ID do Revisor..."
                         style={{
-                          padding: "0.85rem 1.25rem",
+                          padding: "1rem 1.4rem",
                           borderRadius: "12px",
                           border: "2px solid #cbd5e1",
-                          fontSize: "1.1rem",
+                          fontSize: "1.5rem",
                           fontWeight: 700,
                           textAlign: "center",
                           outline: "none",
-                          width: "200px"
+                          width: "240px"
                         }}
                         value={revisorId}
                         onChange={(e) => setRevisorId(e.target.value)}
@@ -1189,8 +1190,8 @@ const ChecklistPage: React.FC = () => {
                         type="submit"
                         className="btn-concluir"
                         style={{
-                          padding: "0.85rem 1.75rem",
-                          fontSize: "1rem",
+                          padding: "1rem 2rem",
+                          fontSize: "1.4rem",
                           borderRadius: "12px",
                           display: "flex",
                           alignItems: "center",
@@ -1198,7 +1199,7 @@ const ChecklistPage: React.FC = () => {
                         }}
                         disabled={submitting || isCheckingRevisor}
                       >
-                        <Icons.BsCheckCircleFill size={18} />
+                        <Icons.BsCheckCircleFill size={22} />
                         {submitting || isCheckingRevisor ? "Enviando..." : "Finalizar & Enviar"}
                       </button>
                     </div>

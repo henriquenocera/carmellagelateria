@@ -246,10 +246,10 @@ const TarefasLojas: React.FC = () => {
             <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1.5fr", gap: "1rem" }}>
                 <div>
-                  <label style={{ fontWeight: 700, fontSize: "0.95rem" }}>Nome da Tarefa *</label>
+                  <label style={{ fontWeight: 700, fontSize: "1.4rem" }}>Nome da Tarefa *</label>
                   <input
                     type="text"
-                    style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
+                    style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1.3rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
                     placeholder="Ex: Limpeza de Máquinas..."
                     value={titulo}
                     onChange={(e) => setTitulo(e.target.value)}
@@ -257,9 +257,9 @@ const TarefasLojas: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <label style={{ fontWeight: 700, fontSize: "0.95rem" }}>Loja *</label>
+                  <label style={{ fontWeight: 700, fontSize: "1.4rem" }}>Loja *</label>
                   <select
-                    style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
+                    style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1.3rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
                     value={loja}
                     onChange={(e) => setLoja(e.target.value)}
                   >
@@ -269,9 +269,9 @@ const TarefasLojas: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label style={{ fontWeight: 700, fontSize: "0.95rem" }}>Repetição *</label>
+                  <label style={{ fontWeight: 700, fontSize: "1.4rem" }}>Repetição *</label>
                   <select
-                    style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
+                    style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1.3rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
                     value={tipoRepeticao}
                     onChange={(e) => setTipoRepeticao(e.target.value)}
                   >
@@ -285,9 +285,9 @@ const TarefasLojas: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ fontWeight: 700, fontSize: "0.95rem" }}>Descrição / Instruções (Opcional)</label>
+                <label style={{ fontWeight: 700, fontSize: "1.4rem" }}>Descrição / Instruções (Opcional)</label>
                 <textarea
-                  style={{ width: "100%", padding: "0.75rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
+                  style={{ width: "100%", padding: "0.9rem 1rem", fontSize: "1.3rem", borderRadius: "8px", border: "1px solid #cbd5e1", marginTop: "0.4rem" }}
                   rows={2}
                   placeholder="Instruções para os funcionários..."
                   value={descricao}
@@ -308,28 +308,28 @@ const TarefasLojas: React.FC = () => {
             </form>
 
             <div style={{ marginTop: "2rem", borderTop: "1px solid #e2e8f0", paddingTop: "1.5rem" }}>
-              <h3>Tarefas Cadastradas ({filteredTarefas.length})</h3>
+              <h3 style={{ fontSize: "1.7rem" }}>Tarefas Cadastradas ({filteredTarefas.length})</h3>
               <div style={{ overflowX: "auto", marginTop: "1rem" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "1.35rem" }}>
                   <thead>
-                    <tr style={{ background: "#f8fafc", textAlign: "left" }}>
-                      <th style={{ padding: "0.75rem" }}>Nome</th>
-                      <th style={{ padding: "0.75rem" }}>Loja</th>
-                      <th style={{ padding: "0.75rem" }}>Repetição</th>
-                      <th style={{ padding: "0.75rem" }}>Descrição</th>
-                      <th style={{ padding: "0.75rem", textAlign: "center" }}>Ações</th>
+                    <tr style={{ background: "#f8fafc", textAlign: "left", fontSize: "1.4rem" }}>
+                      <th style={{ padding: "1rem 0.75rem" }}>Nome</th>
+                      <th style={{ padding: "1rem 0.75rem" }}>Loja</th>
+                      <th style={{ padding: "1rem 0.75rem" }}>Repetição</th>
+                      <th style={{ padding: "1rem 0.75rem" }}>Descrição</th>
+                      <th style={{ padding: "1rem 0.75rem", textAlign: "center" }}>Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredTarefas.map((task) => (
                       <tr key={task.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                        <td style={{ padding: "0.75rem", fontWeight: 700 }}>{task.titulo}</td>
-                        <td style={{ padding: "0.75rem" }}>{task.loja}</td>
-                        <td style={{ padding: "0.75rem" }}>{task.repeticao}</td>
-                        <td style={{ padding: "0.75rem", color: "#64748b" }}>{task.descricao || "-"}</td>
-                        <td style={{ padding: "0.75rem", textAlign: "center" }}>
+                        <td style={{ padding: "1rem 0.75rem", fontWeight: 700, fontSize: "1.35rem" }}>{task.titulo}</td>
+                        <td style={{ padding: "1rem 0.75rem", fontSize: "1.3rem" }}>{task.loja}</td>
+                        <td style={{ padding: "1rem 0.75rem", fontSize: "1.3rem" }}>{task.repeticao}</td>
+                        <td style={{ padding: "1rem 0.75rem", color: "#64748b", fontSize: "1.3rem" }}>{task.descricao || "-"}</td>
+                        <td style={{ padding: "1rem 0.75rem", textAlign: "center" }}>
                           <button
-                            style={{ background: "none", border: "none", cursor: "pointer", marginRight: "0.5rem" }}
+                            style={{ background: "none", border: "none", cursor: "pointer", marginRight: "0.75rem" }}
                             onClick={() => {
                               setEditingId(task.id);
                               setTitulo(task.titulo);
@@ -338,13 +338,13 @@ const TarefasLojas: React.FC = () => {
                               setDescricao(task.descricao || "");
                             }}
                           >
-                            <Icons.BsPencil color="#3b82f6" size={16} />
+                            <Icons.BsPencil color="#3b82f6" size={22} />
                           </button>
                           <button
                             style={{ background: "none", border: "none", cursor: "pointer" }}
                             onClick={() => handleDelete(task.id)}
                           >
-                            <Icons.BsTrash color="#ef4444" size={16} />
+                            <Icons.BsTrash color="#ef4444" size={22} />
                           </button>
                         </td>
                       </tr>
