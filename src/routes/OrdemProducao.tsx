@@ -29,6 +29,7 @@ function OrdemProducao() {
   const [produtos, setProdutos] = useState<any[]>([]);
   const [ordemItems, setOrdemItems] = useState<any[]>([]);
   const [estoqueFabrica, setEstoqueFabrica] = useState<Record<string, number>>({});
+  const [insumosCadastro, setInsumosCadastro] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
   const [isSavingAll, setIsSavingAll] = useState(false);
   const [isAlreadySaved, setIsAlreadySaved] = useState(false);
@@ -58,6 +59,7 @@ function OrdemProducao() {
       await fetchProdutos();
       await fetchDates();
       await fetchEstoqueFabrica();
+      await fetchInsumosCadastro();
     }
     loadData();
   }, []);
@@ -154,6 +156,54 @@ function OrdemProducao() {
       console.error("Erro ao buscar estoque da fábrica:", err);
     }
   }
+
+  const normalizeNomeSimples = (s: any) => String(s || "").trim().toUpperCase();
+
+  async function fetchInsumosCadastro() {
+    try {
+      const { data, error } = await supabase
+        .from("cadastro_insumos")
+        .select("id, nome, nome_simples_unitario, quantidade_conversao, unidade_consumo, unidade_conversao")
+        .eq("ativo", true);
+      if (error) throw error;
+      const map: Record<string, any> = {};
+      (data || []).forEach((ins: any) => {
+        map[String(ins.id)] = ins;
+      });
+      setInsumosCadastro(map);
+    } catch (err) {
+      console.error("Erro ao buscar cadastro de insumos (para soma por nome simples):", err);
+    }
+  }
+
+  // Soma o estoque atual (Fábrica, já convertido p/ unidade de consumo) de TODOS os
+  // insumos que compartilham o mesmo nome simples (ex: "Pasta de Pistache - 1kg" + "Pasta de Pistache - 160gr").
+  const getEstoqueTotalPorNomeSimples = (groupKey: string, componentes?: Record<string, number>) => {
+    let total = 0;
+    let found = false;
+    if (insumosCadastro && Object.keys(insumosCadastro).length > 0) {
+      for (const [id, info] of Object.entries(insumosCadastro)) {
+        const k = normalizeNomeSimples((info as any).nome_simples_unitario || (info as any).nome);
+        if (k === groupKey) {
+          found = true;
+          const raw = estoqueFabrica[id] || 0;
+          const multRaw = Number((info as any).quantidade_conversao);
+          const mult = multRaw && multRaw > 0 ? multRaw : 1;
+          total += raw * mult;
+        }
+      }
+    }
+    if (!found && componentes) {
+      // Fallback: soma apenas os ids referenciados na ficha (comportamento antigo melhorado)
+      for (const [id, mult] of Object.entries(componentes)) {
+        const raw = estoqueFabrica[id] || 0;
+        const m = Number(mult) > 0 ? Number(mult) : 1;
+        total += raw * m;
+        found = true;
+      }
+    }
+    return total;
+  };
 
   async function fetchDates() {
     try {
@@ -585,24 +635,32 @@ function OrdemProducao() {
   };
 
   const calculateRequiredInsumos = () => {
-    const aggregation: Record<string, { id: string; nome: string; unidade: string; quantidade: number; quantidade_conversao?: number }> = {};
+    const aggregation: Record<string, { key: string; id: string; nome: string; unidade: string; quantidade: number; componentes: Record<string, number> }> = {};
 
     const addInsumosFromFicha = (ficha: any[], multiplier: number) => {
       if (!ficha) return;
       ficha.forEach(item => {
         if (item.insumo_id && item.cadastro_insumos) {
-          const key = item.insumo_id;
+          const rawNome = item.cadastro_insumos.nome_simples_unitario || item.cadastro_insumos.nome || "Desconhecido";
+          const key = normalizeNomeSimples(rawNome);
           const qty = parseFloat(item.quantidade) * multiplier;
+          const multRaw = Number(item.cadastro_insumos.quantidade_conversao);
+          const mult = multRaw && multRaw > 0 ? multRaw : 1;
           if (!aggregation[key]) {
             aggregation[key] = {
-              id: item.insumo_id,
-              nome: item.cadastro_insumos.nome_simples_unitario || item.cadastro_insumos.nome || "Desconhecido",
+              key,
+              id: String(item.insumo_id),
+              nome: String(rawNome).trim(),
               unidade: item.cadastro_insumos.unidade_consumo || item.cadastro_insumos.unidade_conversao || "un",
               quantidade: 0,
-              quantidade_conversao: item.cadastro_insumos.quantidade_conversao
+              componentes: {}
             };
           }
           aggregation[key].quantidade += qty;
+          // Guarda a conversão de cada insumo_id que compõe o grupo (p/ fallback de estoque)
+          if (!aggregation[key].componentes[String(item.insumo_id)]) {
+            aggregation[key].componentes[String(item.insumo_id)] = mult;
+          }
         } else if (item.produto_base_id) {
           const baseProd = produtos.find(p => p.id === item.produto_base_id);
           if (baseProd && baseProd.ficha_tecnica) {
@@ -1154,9 +1212,7 @@ function OrdemProducao() {
                         </thead>
                         <tbody>
                           {insumos.map((ins, idx) => {
-                            const rawStock = estoqueFabrica[ins.id] || 0;
-                            const mult = ins.quantidade_conversao && Number(ins.quantidade_conversao) > 0 ? Number(ins.quantidade_conversao) : 1;
-                            const stock = rawStock * mult;
+                            const stock = getEstoqueTotalPorNomeSimples(ins.key, ins.componentes);
                             const saldo = stock - ins.quantidade;
                             return (
                             <tr key={idx} style={{ borderBottom: idx === insumos.length - 1 ? 'none' : '1px solid #e2e8f0', backgroundColor: idx % 2 === 0 ? '#fff' : '#f8fafc' }}>

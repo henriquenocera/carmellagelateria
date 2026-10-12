@@ -41,6 +41,7 @@ const RevisoesAprovacoes: React.FC = () => {
     movimentacoes: [],
     lancamentos: []
   });
+  const [isApprovingAll, setIsApprovingAll] = useState(false);
 
   const fetchRevisoes = async () => {
     try {
@@ -135,6 +136,46 @@ const RevisoesAprovacoes: React.FC = () => {
     } catch (err) {
       console.error("Erro ao aprovar revisão:", err);
       alert("Erro ao aprovar a revisão.");
+    }
+  };
+
+  const handleApproveAll = async (itemsToApprove: ReviewItem[]) => {
+    const approvable = itemsToApprove.filter(item => item.status_revisao !== "pending_delete");
+    if (approvable.length === 0) {
+      alert("Não há edições pendentes para aprovar na visualização atual. Itens de exclusão pendente precisam ser confirmados/excluídos individualmente.");
+      return;
+    }
+    if (!window.confirm(`Deseja aprovar de uma vez ${approvable.length} ${approvable.length === 1 ? "item pendente" : "itens pendentes"}?`)) return;
+    try {
+      setIsApprovingAll(true);
+      // Agrupa por tabela para aprovar em lote (3 queries no máximo)
+      const byTable: Record<string, ReviewItem[]> = {};
+      approvable.forEach(item => {
+        if (!byTable[item.table]) byTable[item.table] = [];
+        byTable[item.table].push(item);
+      });
+
+      for (const [table, items] of Object.entries(byTable)) {
+        const isFinance = table === "lancamentos_financeiros";
+        const ids = items.map(i => i.id);
+        const { error } = await supabase
+          .from(table)
+          .update({ status_revisao: isFinance ? null : "none", revisao_observacao: null })
+          .in("id", ids);
+        if (error) throw error;
+      }
+
+      const approvedIds = new Set(approvable.map(i => i.id));
+      setRevisoes(prev => ({
+        entradas: prev.entradas.filter(item => !approvedIds.has(item.id)),
+        movimentacoes: prev.movimentacoes.filter(item => !approvedIds.has(item.id)),
+        lancamentos: prev.lancamentos.filter(item => !approvedIds.has(item.id)),
+      }));
+    } catch (err) {
+      console.error("Erro ao aprovar todos:", err);
+      alert("Erro ao aprovar todos os itens.");
+    } finally {
+      setIsApprovingAll(false);
     }
   };
 
@@ -364,6 +405,15 @@ const RevisoesAprovacoes: React.FC = () => {
 
   const hasItemsToDisplay = showEntradas || showMovimentacoes || showLancamentos;
 
+  // Itens visíveis (respeitando aba + filtro) e quantos podem ser aprovados em massa
+  // (exclusões pendentes ficam de fora: exigem confirmação individual)
+  const visibleItems: ReviewItem[] = [
+    ...(showEntradas ? filteredEntradas : []),
+    ...(showMovimentacoes ? filteredMovimentacoes : []),
+    ...(showLancamentos ? filteredLancamentos : []),
+  ];
+  const approvableVisible = visibleItems.filter(item => item.status_revisao !== "pending_delete");
+
   if (!isAdmin && !loading) {
     return (
       <div className="frequencia-container" style={{ padding: "40px 40px 40px 115px", maxWidth: "1200px", margin: "0 auto" }}>
@@ -394,6 +444,32 @@ const RevisoesAprovacoes: React.FC = () => {
             </p>
           </div>
 
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+          <button
+            onClick={() => handleApproveAll(visibleItems)}
+            disabled={loading || isApprovingAll || approvableVisible.length === 0}
+            title={approvableVisible.length === 0 ? "Não há edições pendentes para aprovar" : `Aprovar ${approvableVisible.length} itens de uma vez`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 18px",
+              backgroundColor: approvableVisible.length === 0 ? "#f1f5f9" : "#10b981",
+              color: approvableVisible.length === 0 ? "#94a3b8" : "#fff",
+              border: "2px solid #10b981",
+              borderRadius: "8px",
+              fontWeight: "700",
+              cursor: approvableVisible.length === 0 || loading || isApprovingAll ? "not-allowed" : "pointer",
+              fontSize: "1.1rem",
+              boxShadow: "0 2px 4px rgba(16, 185, 129, 0.2)",
+              transition: "all 0.2s",
+              opacity: loading || isApprovingAll ? 0.7 : 1
+            }}
+          >
+            <Icons.BsCheckAll className={isApprovingAll ? "spin" : ""} />
+            {isApprovingAll ? "Aprovando..." : `Aprovar Todos (${approvableVisible.length})`}
+          </button>
+
           <button
             onClick={fetchRevisoes}
             style={{
@@ -414,6 +490,7 @@ const RevisoesAprovacoes: React.FC = () => {
           >
             <Icons.BsArrowClockwise className={loading ? "spin" : ""} /> Atualizar Lista
           </button>
+          </div>
         </div>
 
         {/* Tab Filters & Options */}
