@@ -26,19 +26,64 @@ const getLocalDateString = (date) => {
 const parseChecklistField = (fieldStr) => {
   if (!fieldStr) return { main: "-", subItems: [] };
   const str = String(fieldStr).trim();
+  if (!str) return { main: "-", subItems: [] };
   const bracketIndex = str.indexOf('[');
+  let main;
+  let subItems = [];
   if (bracketIndex !== -1) {
-    const main = str.substring(0, bracketIndex).trim();
+    main = str.substring(0, bracketIndex).trim();
     const subStr = str.substring(bracketIndex).trim();
     if (subStr.startsWith('[') && subStr.endsWith(']')) {
       const content = subStr.slice(1, -1).trim();
       if (content) {
-        const subItems = content.split(',').map(item => item.trim()).filter(Boolean);
-        return { main, subItems };
+        subItems = content.split(',').map(item => item.trim()).filter(Boolean);
       }
     }
+  } else {
+    main = str;
   }
-  return { main: str, subItems: [] };
+  // Normaliza o valor principal para exibir apenas o número total.
+  // Suporta formato antigo ("5", "9", "5 []") e novo (inventory jsonb:
+  // "Waffles: 8 total [...]", "Panos: 2 total", "Brownies: 3 total [...]").
+  if (main) {
+    const numMatch = String(main).match(/(\d+)/);
+    if (numMatch) {
+      main = numMatch[1];
+    }
+  }
+  if (!main) main = "-";
+  return { main, subItems };
+};
+
+// Resolve o valor bruto do campo, com fallback para a nova estrutura inventory (jsonb)
+// usada pelo Alto da XV: { waffles, brownies, panos }.
+// Mantém compatibilidade com o formato antigo (colunas massas/brownies/panos) usado pelo Ahú.
+const resolveChecklistRaw = (data, oldKey, ...inventoryKeys) => {
+  if (!data) return null;
+  const oldVal = data[oldKey];
+  if (oldVal !== null && oldVal !== undefined && String(oldVal).trim() !== "") {
+    return String(oldVal);
+  }
+  let inv = data.inventory;
+  if (!inv) return null;
+  if (typeof inv === "string") {
+    try {
+      inv = JSON.parse(inv);
+    } catch {
+      return null;
+    }
+  }
+  if (typeof inv !== "object" || inv === null) return String(inv);
+  for (const k of inventoryKeys) {
+    if (inv[k] !== null && inv[k] !== undefined && String(inv[k]).trim() !== "") {
+      return String(inv[k]);
+    }
+    const foundKey = Object.keys(inv).find((key) => key.toLowerCase() === k.toLowerCase());
+    if (foundKey && inv[foundKey] !== null && inv[foundKey] !== undefined && String(inv[foundKey]).trim() !== "") {
+      return String(inv[foundKey]);
+    }
+  }
+  return null;
 };
 
 const getFolgaStyle = (status) => {
@@ -397,9 +442,9 @@ function Home() {
       </div>
     );
 
-    const massas = parseChecklistField(data.massas);
-    const brownies = parseChecklistField(data.brownies);
-    const panos = parseChecklistField(data.panos);
+    const massas = parseChecklistField(resolveChecklistRaw(data, "massas", "massas", "waffles"));
+    const brownies = parseChecklistField(resolveChecklistRaw(data, "brownies", "brownies"));
+    const panos = parseChecklistField(resolveChecklistRaw(data, "panos", "panos"));
 
     return (
       <div style={{ background: "#fff", borderTop: "6px solid #5c3a21", borderRadius: "12px", padding: "24px", boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)", border: "1px solid #f1f5f9", display: "flex", flexDirection: "column" }}>
