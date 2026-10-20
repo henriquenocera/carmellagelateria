@@ -5,6 +5,21 @@ import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 import "../css/Frequencia.css";
 
+const IGNORED_SALE_STATUS_KEYWORDS = [
+  "negad",
+  "reprovad",
+  "desfeit",
+  "cancelad",
+  "expirad",
+  "estorn",
+  "recusad"
+];
+
+const isIgnoredSaleStatus = (status: string) => {
+  const normalized = (status || "").toLowerCase().trim();
+  return IGNORED_SALE_STATUS_KEYWORDS.some(keyword => normalized.includes(keyword));
+};
+
 const groupTransactions = (individualTxs: any[]) => {
   const groups: { [key: string]: any } = {};
 
@@ -217,8 +232,8 @@ function ImporteVendasRede() {
       const bandeira = cols[colBandeira !== -1 ? colBandeira : 9]?.trim() || "";
       const nsu = cols[colNsu !== -1 ? colNsu : 17]?.trim() || "";
 
-      // Ignora transações negadas
-      if (statusVenda.toLowerCase() === "negada" || amount <= 0) {
+      // Ignora transações não concretizadas (negada, desfeita, reprovada, cancelada, expirada, estornada, recusada)
+      if (isIgnoredSaleStatus(statusVenda) || amount <= 0) {
         continue;
       }
 
