@@ -443,16 +443,20 @@ function VendasRealizadas() {
     cellColor: string,
     todayBorder: React.CSSProperties,
     hasDiscrepancy?: boolean,
-    isImported?: boolean
+    isImported?: boolean,
+    colorState?: "match" | "positive" | "negative"
   ) => {
     const isEditing = editingCell && editingCell.dateStr === row.dateStr && editingCell.field === fieldName;
 
     const isHandled = value !== 0 || isImported;
     const baseBg = (cellBg === "#ffedd5" && isHandled) ? "#ffffff" : cellBg;
 
-    const actualBg = hasDiscrepancy ? "#fee2e2" : baseBg;
-    const actualColor = hasDiscrepancy ? "#b91c1c" : cellColor;
-    const fontWeight = hasDiscrepancy ? "bold" : "normal";
+    const isRed = hasDiscrepancy || colorState === "negative";
+    const isGreen = colorState === "positive";
+
+    const actualBg = isRed ? "#fee2e2" : (isGreen ? "#dcfce7" : (colorState === "match" ? "#ffffff" : baseBg));
+    const actualColor = isRed ? "#b91c1c" : (isGreen ? "#166534" : cellColor);
+    const fontWeight = (isRed || isGreen) ? "bold" : "normal";
 
     const currentCellStyle = {
       ...cellStyle,
@@ -895,12 +899,12 @@ function VendasRealizadas() {
                       <Icons.BsCashCoin /> Caixa Dinheiro
                     </span>
                   </th>
-                  <th colSpan={3} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#eff6ff", color: "#1e40af", borderBottom: "2px solid #bfdbfe" }}>
+                  <th colSpan={4} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#eff6ff", color: "#1e40af", borderBottom: "2px solid #bfdbfe" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                       <Icons.BsQrCode /> Vendas Pix
                     </span>
                   </th>
-                  <th colSpan={3} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#fff7ed", color: "#c2410c", borderBottom: "2px solid #fed7aa" }}>
+                  <th colSpan={4} style={{ ...headerStyle, textAlign: "center", backgroundColor: "#fff7ed", color: "#c2410c", borderBottom: "2px solid #fed7aa" }}>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
                       <Icons.BsCreditCard2Back /> Vendas Cartão
                     </span>
@@ -927,11 +931,13 @@ function VendasRealizadas() {
                   {/* Pix subheaders */}
                   <th style={subHeaderStyle}>Calculadas<br />Cloudfy</th>
                   <th style={subHeaderStyle}>Realizadas<br />Rede</th>
+                  <th style={subHeaderStyle}>Diferença</th>
                   <th style={{ ...iconHeaderStyle, borderRight: "3px solid #cbd5e1" }}></th>
 
                   {/* Cartão subheaders */}
                   <th style={subHeaderStyle}>Calculadas<br />Cloudfy</th>
                   <th style={subHeaderStyle}>Realizadas<br />Rede</th>
+                  <th style={subHeaderStyle}>Diferença</th>
                   <th style={{ ...iconHeaderStyle, borderRight: "3px solid #cbd5e1" }}></th>
 
                   {/* iFood subheaders */}
@@ -944,10 +950,17 @@ function VendasRealizadas() {
                   const cellBg = "#ffffff";
                   const cellColor = "inherit";
                   
-                  // Discrepancy checks (only when status is Fechado)
-                  const hasCaixaDiscrepancy = row.status === "Fechado" && (row.caixaCalculado !== row.caixaInformado || row.caixaCalculado !== row.caixaReal);
-                  const hasPixDiscrepancy = row.status === "Fechado" && row.pixCalculado !== row.pixRealizado;
-                  const hasCartaoDiscrepancy = row.status === "Fechado" && row.cartaoCalculado !== row.cartaoRealizado;
+                  // Discrepancy checks
+                  const caixaDiff = row.caixaCalculado - row.caixaInformado;
+                  const caixaIsPositive = caixaDiff > 0;
+                  const caixaIsNegative = caixaDiff < 0;
+                  const caixaColorState: "match" | "positive" | "negative" = caixaIsPositive ? "negative" : (caixaIsNegative ? "positive" : "match");
+
+                  const pixDiff = row.pixRealizado - row.pixCalculado;
+                  const pixColorState: "match" | "positive" | "negative" = pixDiff > 0 ? "positive" : (pixDiff < 0 ? "negative" : "match");
+
+                  const cartaoDiff = row.cartaoRealizado - row.cartaoCalculado;
+                  const cartaoColorState: "match" | "positive" | "negative" = cartaoDiff > 0 ? "positive" : (cartaoDiff < 0 ? "negative" : "match");
 
                   // Today borders
                   const todayBorder = isToday ? { borderTop: "2px solid #eab308", borderBottom: "2px solid #eab308" } : {};
@@ -1033,22 +1046,24 @@ function VendasRealizadas() {
                       </td>
                       {renderEditableCell(row, "caixa_vendas", row.caixaVendas, "#ffedd5", cellColor, todayBorder, false, row.caixaCloudfyImportado)}
                       {renderEditableCell(row, "caixa_ajustes", row.caixaAjustes, "#ffedd5", cellColor, todayBorder)}
-                      <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cellColor, ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaCalculado)}</td>
-                      {renderEditableCell(row, "caixa_informado", row.caixaInformado, "#ffedd5", cellColor, todayBorder, hasCaixaDiscrepancy)}
+                      <td style={{ ...numericCellStyle, backgroundColor: caixaIsPositive ? "#fee2e2" : (caixaIsNegative ? "#dcfce7" : cellBg), color: caixaIsPositive ? "#b91c1c" : (caixaIsNegative ? "#166534" : cellColor), fontWeight: (caixaIsNegative || caixaIsPositive) ? "bold" : "normal", ...todayBorder, borderLeft: "3px solid #cbd5e1" }}>{formatCurrency(row.caixaCalculado)}</td>
+                      {renderEditableCell(row, "caixa_informado", row.caixaInformado, "#ffedd5", cellColor, todayBorder, false, row.caixaCloudfyImportado, caixaColorState)}
                       <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
                         {renderClosingMatchIcon(row.caixaCalculado, row.caixaInformado, row.dateStr)}
                       </td>
 
                       {/* Vendas Pix Cells */}
-                      {renderEditableCell(row, "pix_calculado", row.pixCalculado, "#ffedd5", cellColor, todayBorder, false, row.pixCloudfyImportado)}
-                      {renderEditableCell(row, "pix_realizado", row.pixRealizado, "#ffedd5", cellColor, todayBorder, hasPixDiscrepancy, row.pixImportado)}
+                      {renderEditableCell(row, "pix_calculado", row.pixCalculado, "#ffedd5", cellColor, todayBorder, false, row.pixCloudfyImportado, pixColorState)}
+                      {renderEditableCell(row, "pix_realizado", row.pixRealizado, "#ffedd5", cellColor, todayBorder, false, row.pixImportado, pixColorState)}
+                      <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: pixDiff > 0 ? "#166534" : (pixDiff < 0 ? "#dc2626" : cellColor), fontWeight: pixDiff !== 0 ? "bold" : "normal", ...todayBorder }}>{formatCurrency(pixDiff)}</td>
                       <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
                         {renderClosingMatchIcon(row.pixCalculado, row.pixRealizado, row.dateStr)}
                       </td>
 
                       {/* Vendas Cartão Cells */}
-                      {renderEditableCell(row, "cartao_calculado", row.cartaoCalculado, "#ffedd5", cellColor, todayBorder, false, row.cartaoCloudfyImportado)}
-                      {renderEditableCell(row, "cartao_realizado", row.cartaoRealizado, "#ffedd5", cellColor, todayBorder, hasCartaoDiscrepancy, row.cartaoImportado)}
+                      {renderEditableCell(row, "cartao_calculado", row.cartaoCalculado, "#ffedd5", cellColor, todayBorder, false, row.cartaoCloudfyImportado, cartaoColorState)}
+                      {renderEditableCell(row, "cartao_realizado", row.cartaoRealizado, "#ffedd5", cellColor, todayBorder, false, row.cartaoImportado, cartaoColorState)}
+                      <td style={{ ...numericCellStyle, backgroundColor: cellBg, color: cartaoDiff > 0 ? "#166534" : (cartaoDiff < 0 ? "#dc2626" : cellColor), fontWeight: cartaoDiff !== 0 ? "bold" : "normal", ...todayBorder }}>{formatCurrency(cartaoDiff)}</td>
                       <td style={{ ...iconCellStyle, backgroundColor: cellBg, ...todayBorder, borderRight: "3px solid #cbd5e1" }}>
                         {renderClosingMatchIcon(row.cartaoCalculado, row.cartaoRealizado, row.dateStr)}
                       </td>
