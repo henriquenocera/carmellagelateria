@@ -9,6 +9,28 @@ import Select from "react-select";
 import CreatableSelect from "react-select/creatable";
 import "../../css/Frequencia.css";
 
+function categoriaColors(categoria: string) {
+  switch ((categoria || "").toLowerCase()) {
+    case "gelato":
+    case "gelatos":
+      return { bg: "#fce7f3", color: "#be185d" };
+    case "waffles":
+      return { bg: "#fef3c7", color: "#b45309" };
+    case "doces":
+      return { bg: "#ede9fe", color: "#6d28d9" };
+    case "bebidas":
+      return { bg: "#dbeafe", color: "#1d4ed8" };
+    case "café":
+      return { bg: "#e7e5e4", color: "#78350f" };
+    case "salgados":
+      return { bg: "#fef9c3", color: "#854d0e" };
+    case "conveniência":
+      return { bg: "#f1f5f9", color: "#475569" };
+    default:
+      return { bg: "#e2e8f0", color: "#334155" };
+  }
+}
+
 function CadastroProdutos() {
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -868,6 +890,7 @@ function CadastroProdutos() {
                         onClick={() => openModal(produto)}
                         style={{
                           opacity: produto.ativo ? (isDragged ? 0.5 : 1) : 0.6,
+                          height: "28px",
                           borderTop: isDragOver && draggedItemIndex !== null && draggedItemIndex > index ? "2px solid var(--primary-color)" : "",
                           borderBottom: isDragOver && draggedItemIndex !== null && draggedItemIndex < index ? "2px solid var(--primary-color)" : "",
                           cursor: "pointer"
@@ -900,14 +923,14 @@ function CadastroProdutos() {
                             <Icons.BsXCircleFill style={{ color: "#94a3b8", fontSize: "1.5rem" }} />
                           )}
                         </td>
-                        <td style={{ fontWeight: 500 }}>{produto.nome}</td>
+                        <td style={{ fontWeight: 500, maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={produto.nome}>{produto.nome}</td>
                         {activeTab === 'sabores' && (
                           <td style={{ textAlign: "center" }}>
                             {produto.tipo_gelato ? (
                               <span style={{
                                 backgroundColor: produto.tipo_gelato.toLowerCase() === 'nata' ? "#eff6ff" : produto.tipo_gelato.toLowerCase() === 'fruta' ? "#fff7ed" : produto.tipo_gelato.toLowerCase() === 'dog' ? "#fefce8" : "#f1f5f9",
                                 color: produto.tipo_gelato.toLowerCase() === 'nata' ? "#3b82f6" : produto.tipo_gelato.toLowerCase() === 'fruta' ? "#ea580c" : produto.tipo_gelato.toLowerCase() === 'dog' ? "#ca8a04" : "#64748b",
-                                padding: "4px 10px",
+                                padding: "3px 8px",
                                 borderRadius: "20px",
                                 fontSize: "1.2rem",
                                 fontWeight: "bold"
@@ -919,7 +942,28 @@ function CadastroProdutos() {
                             )}
                           </td>
                         )}
-                        <td>{produto.categoria || "-"}</td>
+                        <td style={{ textAlign: "center" }}>
+                          {produto.categoria ? (
+                            <span style={{
+                              backgroundColor: categoriaColors(produto.categoria).bg,
+                              color: categoriaColors(produto.categoria).color,
+                              padding: "3px 8px",
+                              borderRadius: "20px",
+                              fontSize: "1.1rem",
+                              fontWeight: "bold",
+                              whiteSpace: "nowrap",
+                              maxWidth: "140px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              display: "inline-block",
+                              verticalAlign: "middle"
+                            }} title={produto.categoria}>
+                              {produto.categoria}
+                            </span>
+                          ) : (
+                            <span style={{ color: "#94a3b8" }}>-</span>
+                          )}
+                        </td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{produto.unidade_venda || "-"}</td>
                         <td style={{ textAlign: "center", color: "#64748b" }}>{rend}</td>
                         <td style={{ textAlign: "center", color: "#b91c1c", whiteSpace: "nowrap" }}>
@@ -938,7 +982,7 @@ function CadastroProdutos() {
                           <span style={{
                             backgroundColor: margem >= 40 ? "#dcfce7" : margem > 10 ? "#fef9c3" : "#fee2e2",
                             color: margem >= 40 ? "#166534" : margem > 10 ? "#854d0e" : "#991b1b",
-                            padding: "4px 8px",
+                            padding: "3px 8px",
                             borderRadius: "20px",
                             fontSize: "1.3rem",
                             fontWeight: "bold"
@@ -961,7 +1005,7 @@ function CadastroProdutos() {
                             <span style={{
                               backgroundColor: margem_fs >= 40 ? "#e0e7ff" : margem_fs > 10 ? "#fef9c3" : "#fee2e2",
                               color: margem_fs >= 40 ? "#3730a3" : margem_fs > 10 ? "#854d0e" : "#991b1b",
-                              padding: "4px 8px",
+                              padding: "3px 8px",
                               borderRadius: "20px",
                               fontSize: "1.3rem",
                               fontWeight: "bold"
