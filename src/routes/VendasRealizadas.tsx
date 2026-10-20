@@ -1009,6 +1009,7 @@ function VendasRealizadas() {
                             const diffCaixa = row.caixaInformado - row.caixaCalculado;
                             const diffPix = row.pixRealizado - row.pixCalculado;
                             const diffCartao = row.cartaoRealizado - row.cartaoCalculado;
+                            const totalVendasRealizadas = row.caixaVendas + row.pixRealizado + row.cartaoRealizado + row.ifoodRealizado;
 
                             const formatDiff = (diff: number, prefix: string = "") => {
                               if (diff === 0) return "✅ Ok!";
@@ -1022,7 +1023,9 @@ function VendasRealizadas() {
                               ``,
                               `💵 *Caixa Dinheiro:* ${formatDiff(diffCaixa, "Caixa ")}`,
                               `📱 *Pix:* ${formatDiff(diffPix)}`,
-                              `💳 *Cartão:* ${formatDiff(diffCartao)}`
+                              `💳 *Cartão:* ${formatDiff(diffCartao)}`,
+                              ``,
+                              `🛒 *Vendas Realizadas:* ${formatCurrency(totalVendasRealizadas)}`
                             ].join("\n");
                             
                             navigator.clipboard.writeText(message).then(() => {
