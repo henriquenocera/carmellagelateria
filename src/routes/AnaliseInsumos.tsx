@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
+import { fetchTodasEntradasMercadoria } from "../services/entradas-mercadoria";
 import { useAuth } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -37,15 +38,11 @@ function AnaliseInsumos() {
       if (insumosError) throw insumosError;
 
       // Fetch todas as entradas_mercadoria (pra pegar as 2 ultimas compras de cada insumo)
-      const { data: entradasData, error: entradasError } = await supabase
-        .from("entradas_mercadoria")
-        .select("insumo_id, data_compra, quantidade_comprada, valor_unitario, fornecedor, created_at")
-        .order("data_compra", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(10000);
-
-      if (entradasError) {
-         console.warn("Nao foi possivel buscar entradas", entradasError);
+      let entradasData: any[] = [];
+      try {
+        entradasData = await fetchTodasEntradasMercadoria("insumo_id, data_compra, quantidade_comprada, valor_unitario, fornecedor, created_at");
+      } catch (entradasError) {
+        console.warn("Nao foi possivel buscar entradas", entradasError);
       }
 
       // Agrupar entradas por insumo

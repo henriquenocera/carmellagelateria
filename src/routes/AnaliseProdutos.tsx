@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
+import { fetchTodasEntradasMercadoria } from "../services/entradas-mercadoria";
 import { useAuth } from "../AuthProvider";
 import { useNavigate } from "react-router-dom";
 import jsPDF from "jspdf";
@@ -38,12 +39,12 @@ function AnaliseProdutos() {
     try {
       setLoading(true);
 
-      const { data: latestEntradasData } = await supabase
-        .from("entradas_mercadoria")
-        .select("insumo_id, valor_unitario, data_compra, created_at")
-        .order("data_compra", { ascending: false })
-        .order("created_at", { ascending: false })
-        .limit(10000);
+      let latestEntradasData: any[] = [];
+      try {
+        latestEntradasData = await fetchTodasEntradasMercadoria("insumo_id, valor_unitario, data_compra, created_at");
+      } catch (entradasError) {
+        console.error("Erro ao buscar entradas para custo:", entradasError);
+      }
 
       const latestCostMap: Record<string, number> = {};
       if (latestEntradasData) {
