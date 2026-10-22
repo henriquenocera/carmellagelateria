@@ -92,6 +92,37 @@ function hexToRgb(hex: string): [number, number, number] {
   return [(int >> 16) & 255, (int >> 8) & 255, int & 255];
 }
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+async function registerMontserrat(doc: jsPDF) {
+  const base = process.env.PUBLIC_URL || "";
+  const urls = [
+    `${base}/fonts/Montserrat-Regular.ttf`,
+    `${base}/fonts/Montserrat-Bold.ttf`
+  ];
+  const responses = await Promise.all(urls.map(url => fetch(url)));
+
+  if (responses.some(response => !response.ok)) {
+    throw new Error("Não foi possível carregar a fonte Montserrat.");
+  }
+
+  const [regularBuffer, boldBuffer] = await Promise.all(
+    responses.map(response => response.arrayBuffer())
+  );
+
+  doc.addFileToVFS("Montserrat-Regular.ttf", arrayBufferToBase64(regularBuffer));
+  doc.addFont("Montserrat-Regular.ttf", "Montserrat", "normal");
+  doc.addFileToVFS("Montserrat-Bold.ttf", arrayBufferToBase64(boldBuffer));
+  doc.addFont("Montserrat-Bold.ttf", "Montserrat", "bold");
+}
+
 const Etiquetas: React.FC = () => {
   const [activeTab, setActiveTab] = useState<LabelType>("gelato");
   const [itemsByType, setItemsByType] = useState<Record<LabelType, LabelItem[]>>({
@@ -236,17 +267,27 @@ const Etiquetas: React.FC = () => {
     }));
   };
 
-  const generatePDF = () => {
+  const generatePDF = async () => {
     const items = itemsByType[activeTab];
     if (items.length === 0) return;
 
     const doc = new jsPDF({
-      orientation: "landscape", // 80x50 is typically landscape
+      orientation: "landscape",
       unit: "mm",
-      format: [80, 50]
+      format: [60, 40]
     });
 
-    const pageWidth = 80;
+    let labelFont = "helvetica";
+    if (isSimpleLabel) {
+      try {
+        await registerMontserrat(doc);
+        labelFont = "Montserrat";
+      } catch (err) {
+        console.error("Erro ao carregar a fonte Montserrat:", err);
+      }
+    }
+
+    const pageWidth = 60;
     const [primaryR, primaryG, primaryB] = hexToRgb(labelTheme.primary);
     const [accentR, accentG, accentB] = hexToRgb(labelTheme.accent);
 
@@ -262,15 +303,17 @@ const Etiquetas: React.FC = () => {
 
     items.forEach((item, index) => {
       if (index > 0) {
-        doc.addPage([80, 50], "landscape");
+        doc.addPage([60, 40], "landscape");
       }
-
-      doc.setFillColor(primaryR, primaryG, primaryB);
-      doc.rect(0, 0, pageWidth, 2, "F");
 
       const isBrownieItem = item.labelType === "brownie";
       const isWaffleItem = item.labelType === "waffle";
       const isSimpleItem = isBrownieItem || isWaffleItem;
+
+      if (!isSimpleItem) {
+        doc.setFillColor(primaryR, primaryG, primaryB);
+        doc.rect(0, 0, pageWidth, 1.5, "F");
+      }
 
       // Dates
       const prodDate = new Date(item.date + 'T12:00:00');
@@ -308,21 +351,21 @@ const Etiquetas: React.FC = () => {
       }
 
       // 1. Flavor Name (Top, Centered, Bold)
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11); // Slightly smaller for 80mm
+      doc.setFont(labelFont, "bold");
+      doc.setFontSize(isSimpleItem ? 15 : item.flavor.length > 22 ? 8.5 : 10);
       doc.setTextColor(primaryR, primaryG, primaryB);
-      const flavorLines = doc.splitTextToSize(item.flavor.toUpperCase(), pageWidth - 10);
-      doc.text(flavorLines, pageWidth / 2, 8, { align: "center" });
+      const flavorLines = doc.splitTextToSize(item.flavor.toUpperCase(), pageWidth - 8);
+      doc.text(flavorLines, pageWidth / 2, isSimpleItem ? 9 : 7, { align: "center" });
 
       // 2. Datas e demais campos
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
+      doc.setFont(labelFont, "normal");
+      doc.setFontSize(isSimpleItem ? 9.5 : 8);
       doc.setTextColor(0, 0, 0);
       
-      const startY = isSimpleItem ? 22 : 18;
+      const startY = isSimpleItem ? 20 : 15;
       const rowHeight = isSimpleItem ? 8 : 5;
-      const labelColX = 5;
-      const valueColX = pageWidth - 5;
+      const labelColX = 4;
+      const valueColX = pageWidth - 4;
 
       let currentY = startY;
       doc.text("Data de Produção", labelColX, currentY);
@@ -336,30 +379,30 @@ const Etiquetas: React.FC = () => {
       if (!isSimpleItem) {
         doc.text("Código:", labelColX, currentY);
         doc.text(fullCode, valueColX, currentY, { align: "right" });
-        currentY += rowHeight * 1.5;
+        currentY += rowHeight;
 
         // 3. Peso e Tara OU Cliente
         const lineStartY = currentY;
 
         if (item.labelType === "foodService" && item.clientName) {
           doc.setFont("helvetica", "normal");
-          doc.setFontSize(9);
+          doc.setFontSize(8);
           doc.text("Cliente:", labelColX, lineStartY);
 
           doc.setFont("helvetica", "bold");
-          doc.setFontSize(10);
+          doc.setFontSize(9);
           doc.setTextColor(accentR, accentG, accentB);
-          const clientLines = doc.splitTextToSize(item.clientName.toUpperCase(), pageWidth - 10);
-          doc.text(clientLines, labelColX, lineStartY + 5);
+          const clientLines = doc.splitTextToSize(item.clientName.toUpperCase(), pageWidth - 8);
+          doc.text(clientLines, labelColX, lineStartY + 4);
           doc.setTextColor(0, 0, 0);
         } else {
-          const kgPadding = 6;
-          const lineLength = 30;
-          const lineX = pageWidth - 5 - lineLength - kgPadding;
-          const lineEndX = pageWidth - 5 - kgPadding;
-          const kgX = pageWidth - 5;
+          const kgPadding = 4;
+          const lineLength = 20;
+          const lineX = pageWidth - 4 - lineLength - kgPadding;
+          const lineEndX = pageWidth - 4 - kgPadding;
+          const kgX = pageWidth - 4;
 
-          const verticalGap = 10; // Increased spacing between lines
+          const verticalGap = 6;
 
           // Peso Row
           doc.text("Peso:", labelColX, lineStartY);
