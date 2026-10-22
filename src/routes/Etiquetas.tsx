@@ -5,16 +5,119 @@ import supabase from "../services/supabase-client";
 import { GELATO_FLAVORS } from "../Sabores.ts";
 import "../css/Etiquetas.css";
 import { jsPDF } from "jspdf";
-import { BsPrinterFill, BsPlusLg, BsXLg, BsShop } from "react-icons/bs";
+import { BsPrinterFill, BsPlusLg, BsXLg, BsShop, BsSnow, BsSquareFill, BsGrid3X3 } from "react-icons/bs";
+
+type LabelType = "gelato" | "foodService" | "brownie" | "waffle";
+
+type LabelItem = {
+  flavor: string;
+  date: string;
+  id: string;
+  labelType: LabelType;
+  clientName?: string;
+};
+
+type LabelTheme = {
+  primary: string;
+  primaryDark: string;
+  soft: string;
+  softHover: string;
+  border: string;
+  borderStrong: string;
+  muted: string;
+  accent: string;
+  accentSoft: string;
+};
+
+const LABEL_THEMES: Record<LabelType, LabelTheme> = {
+  gelato: {
+    primary: "#c2410c",
+    primaryDark: "#9a3412",
+    soft: "#fff7ed",
+    softHover: "#ffedd5",
+    border: "#fed7aa",
+    borderStrong: "#fdba74",
+    muted: "#9a6b4f",
+    accent: "#f97316",
+    accentSoft: "#ffedd5"
+  },
+  foodService: {
+    primary: "#7e22ce",
+    primaryDark: "#581c87",
+    soft: "#faf5ff",
+    softHover: "#f3e8ff",
+    border: "#e9d5ff",
+    borderStrong: "#d8b4fe",
+    muted: "#8b6f9e",
+    accent: "#9333ea",
+    accentSoft: "#f3e8ff"
+  },
+  brownie: {
+    primary: "#5c3a21",
+    primaryDark: "#3f2614",
+    soft: "#fdf6f0",
+    softHover: "#f7e8dc",
+    border: "#e7d2c3",
+    borderStrong: "#d3b29b",
+    muted: "#8b6f5e",
+    accent: "#8b4513",
+    accentSoft: "#f3e1d3"
+  },
+  waffle: {
+    primary: "#a16207",
+    primaryDark: "#713f12",
+    soft: "#fefce8",
+    softHover: "#fef9c3",
+    border: "#fde68a",
+    borderStrong: "#facc15",
+    muted: "#a17a3f",
+    accent: "#eab308",
+    accentSoft: "#fef9c3"
+  }
+};
+
+const LABEL_TABS: { id: LabelType; label: string; icon: React.ElementType }[] = [
+  { id: "gelato", label: "Gelato", icon: BsSnow },
+  { id: "foodService", label: "Food Service", icon: BsShop },
+  { id: "brownie", label: "Brownie", icon: BsSquareFill },
+  { id: "waffle", label: "Waffle", icon: BsGrid3X3 }
+];
+
+function hexToRgb(hex: string): [number, number, number] {
+  const normalized = hex.replace("#", "");
+  const value = normalized.length === 3
+    ? normalized.split("").map(c => c + c).join("")
+    : normalized;
+  const int = parseInt(value, 16);
+  return [(int >> 16) & 255, (int >> 8) & 255, int & 255];
+}
 
 const Etiquetas: React.FC = () => {
-  const [selectedItems, setSelectedItems] = useState<{
-    flavor: string;
-    date: string;
-    id: string;
-    isFoodService?: boolean;
-    clientName?: string;
-  }[]>([]);
+  const [activeTab, setActiveTab] = useState<LabelType>("gelato");
+  const [itemsByType, setItemsByType] = useState<Record<LabelType, LabelItem[]>>({
+    gelato: [],
+    foodService: [],
+    brownie: [],
+    waffle: []
+  });
+  const selectedItems = itemsByType[activeTab];
+  const isFoodService = activeTab === "foodService";
+  const isBrownie = activeTab === "brownie";
+  const isWaffle = activeTab === "waffle";
+  const isSimpleLabel = isBrownie || isWaffle;
+  const labelTheme = LABEL_THEMES[activeTab];
+  const activeTabLabel = LABEL_TABS.find(tab => tab.id === activeTab)?.label || "Gelato";
+  const themeStyle = {
+    "--label-primary": labelTheme.primary,
+    "--label-primary-dark": labelTheme.primaryDark,
+    "--label-soft": labelTheme.soft,
+    "--label-soft-hover": labelTheme.softHover,
+    "--label-border": labelTheme.border,
+    "--label-border-strong": labelTheme.borderStrong,
+    "--label-muted": labelTheme.muted,
+    "--label-accent": labelTheme.accent,
+    "--label-accent-soft": labelTheme.accentSoft
+  } as React.CSSProperties & Record<string, string>;
   const [currentFlavor, setCurrentFlavor] = useState<{ value: string; label: string } | null>(null);
   const [customName, setCustomName] = useState("");
   const [dataProducao, setDataProducao] = useState(new Date().toISOString().split('T')[0]);
@@ -23,14 +126,10 @@ const Etiquetas: React.FC = () => {
   const [loadingFlavors, setLoadingFlavors] = useState<boolean>(true);
 
   // Food Service states
-  const [isFoodService, setIsFoodService] = useState<boolean>(false);
   const [clientOptions, setClientOptions] = useState<{ value: string; label: string }[]>([]);
   const [selectedClientOption, setSelectedClientOption] = useState<{ value: string; label: string } | null>(null);
   const [customClientName, setCustomClientName] = useState<string>("");
   const [loadingClients, setLoadingClients] = useState<boolean>(false);
-
-  // Impressão da data
-  const [imprimirData, setImprimirData] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchSabores() {
@@ -87,8 +186,20 @@ const Etiquetas: React.FC = () => {
     }
   }, [isFoodService]);
 
+  const handleTabChange = (tab: LabelType) => {
+    if (tab === activeTab) return;
+    setActiveTab(tab);
+    setCurrentFlavor(null);
+    setCustomName("");
+    setSelectedClientOption(null);
+    setCustomClientName("");
+    setQuantidade(1);
+  };
+
   const addItem = () => {
-    const flavorName = customName.trim() || (currentFlavor ? currentFlavor.label : "");
+    const flavorName = isSimpleLabel
+      ? (isBrownie ? "Brownie" : "Waffle")
+      : customName.trim() || (currentFlavor ? currentFlavor.label : "");
     if (!flavorName) return;
 
     const clientName = isFoodService
@@ -101,25 +212,34 @@ const Etiquetas: React.FC = () => {
     }
 
     const count = Math.max(1, quantidade);
-    const newItems = Array.from({ length: count }, () => ({
+    const newItems: LabelItem[] = Array.from({ length: count }, () => ({
       flavor: flavorName,
       date: dataProducao,
       id: Math.random().toString(36).substr(2, 9),
-      isFoodService: isFoodService,
+      labelType: activeTab,
       clientName: clientName
     }));
 
-    setSelectedItems([...selectedItems, ...newItems]);
+    setItemsByType(prev => ({
+      ...prev,
+      [activeTab]: [...prev[activeTab], ...newItems]
+    }));
     setCustomName("");
     setCurrentFlavor(null);
     setQuantidade(1);
   };
 
   const removeItem = (id: string) => {
-    setSelectedItems(selectedItems.filter(item => item.id !== id));
+    setItemsByType(prev => ({
+      ...prev,
+      [activeTab]: prev[activeTab].filter(item => item.id !== id)
+    }));
   };
 
   const generatePDF = () => {
+    const items = itemsByType[activeTab];
+    if (items.length === 0) return;
+
     const doc = new jsPDF({
       orientation: "landscape", // 80x50 is typically landscape
       unit: "mm",
@@ -127,11 +247,12 @@ const Etiquetas: React.FC = () => {
     });
 
     const pageWidth = 80;
-    const pageHeight = 50;
+    const [primaryR, primaryG, primaryB] = hexToRgb(labelTheme.primary);
+    const [accentR, accentG, accentB] = hexToRgb(labelTheme.accent);
 
     // 1. Pre-calculate total counts for each flavor + date combination
     const totalCounts: Record<string, number> = {};
-    selectedItems.forEach(item => {
+    items.forEach(item => {
       const key = `${item.flavor}_${item.date}`;
       totalCounts[key] = (totalCounts[key] || 0) + 1;
     });
@@ -139,15 +260,23 @@ const Etiquetas: React.FC = () => {
     // 2. Track running counts as we generate pages
     const runningCounts: Record<string, number> = {};
 
-    selectedItems.forEach((item, index) => {
+    items.forEach((item, index) => {
       if (index > 0) {
         doc.addPage([80, 50], "landscape");
       }
 
+      doc.setFillColor(primaryR, primaryG, primaryB);
+      doc.rect(0, 0, pageWidth, 2, "F");
+
+      const isBrownieItem = item.labelType === "brownie";
+      const isWaffleItem = item.labelType === "waffle";
+      const isSimpleItem = isBrownieItem || isWaffleItem;
+
       // Dates
       const prodDate = new Date(item.date + 'T12:00:00');
       const valDate = new Date(prodDate);
-      valDate.setDate(valDate.getDate() + 90);
+      const validadeDias = isBrownieItem ? 30 : isWaffleItem ? 7 : 90;
+      valDate.setDate(valDate.getDate() + validadeDias);
 
       const formattedProd = prodDate.toLocaleDateString('pt-BR');
       const formattedVal = valDate.toLocaleDateString('pt-BR');
@@ -181,68 +310,71 @@ const Etiquetas: React.FC = () => {
       // 1. Flavor Name (Top, Centered, Bold)
       doc.setFont("helvetica", "bold");
       doc.setFontSize(11); // Slightly smaller for 80mm
-      doc.setTextColor(0, 0, 0);
+      doc.setTextColor(primaryR, primaryG, primaryB);
       const flavorLines = doc.splitTextToSize(item.flavor.toUpperCase(), pageWidth - 10);
       doc.text(flavorLines, pageWidth / 2, 8, { align: "center" });
 
-      // 2. Data Fields (opcional)
+      // 2. Datas e demais campos
       doc.setFont("helvetica", "normal");
       doc.setFontSize(9);
+      doc.setTextColor(0, 0, 0);
       
-      const startY = 18;
-      const rowHeight = 5;
+      const startY = isSimpleItem ? 22 : 18;
+      const rowHeight = isSimpleItem ? 8 : 5;
       const labelColX = 5;
       const valueColX = pageWidth - 5;
 
       let currentY = startY;
-      if (imprimirData) {
-        doc.text("Data de Produção", labelColX, currentY);
-        doc.text(formattedProd, valueColX, currentY, { align: "right" });
-        currentY += rowHeight;
+      doc.text("Data de Produção", labelColX, currentY);
+      doc.text(formattedProd, valueColX, currentY, { align: "right" });
+      currentY += rowHeight;
 
-        doc.text("Data de Validade", labelColX, currentY);
-        doc.text(formattedVal, valueColX, currentY, { align: "right" });
-        currentY += rowHeight;
-      }
+      doc.text("Data de Validade", labelColX, currentY);
+      doc.text(formattedVal, valueColX, currentY, { align: "right" });
+      currentY += rowHeight;
 
-      doc.text("Código:", labelColX, currentY);
-      doc.text(fullCode, valueColX, currentY, { align: "right" });
-      currentY += rowHeight * 1.5;
+      if (!isSimpleItem) {
+        doc.text("Código:", labelColX, currentY);
+        doc.text(fullCode, valueColX, currentY, { align: "right" });
+        currentY += rowHeight * 1.5;
 
-      // 3. Peso e Tara OU Cliente
-      const lineStartY = currentY;
+        // 3. Peso e Tara OU Cliente
+        const lineStartY = currentY;
 
-      if (item.isFoodService && item.clientName) {
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
-        doc.text("Cliente:", labelColX, lineStartY);
+        if (item.labelType === "foodService" && item.clientName) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(9);
+          doc.text("Cliente:", labelColX, lineStartY);
 
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(10);
-        const clientLines = doc.splitTextToSize(item.clientName.toUpperCase(), pageWidth - 10);
-        doc.text(clientLines, labelColX, lineStartY + 5);
-      } else {
-        const kgPadding = 6;
-        const lineLength = 30;
-        const lineX = pageWidth - 5 - lineLength - kgPadding;
-        const lineEndX = pageWidth - 5 - kgPadding;
-        const kgX = pageWidth - 5;
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(10);
+          doc.setTextColor(accentR, accentG, accentB);
+          const clientLines = doc.splitTextToSize(item.clientName.toUpperCase(), pageWidth - 10);
+          doc.text(clientLines, labelColX, lineStartY + 5);
+          doc.setTextColor(0, 0, 0);
+        } else {
+          const kgPadding = 6;
+          const lineLength = 30;
+          const lineX = pageWidth - 5 - lineLength - kgPadding;
+          const lineEndX = pageWidth - 5 - kgPadding;
+          const kgX = pageWidth - 5;
 
-        const verticalGap = 10; // Increased spacing between lines
+          const verticalGap = 10; // Increased spacing between lines
 
-        // Peso Row
-        doc.text("Peso:", labelColX, lineStartY);
-        doc.line(lineX, lineStartY + 1, lineEndX, lineStartY + 1);
-        doc.text("kg", kgX, lineStartY, { align: "right" });
+          // Peso Row
+          doc.text("Peso:", labelColX, lineStartY);
+          doc.line(lineX, lineStartY + 1, lineEndX, lineStartY + 1);
+          doc.text("kg", kgX, lineStartY, { align: "right" });
 
-        // Tara Row
-        doc.text("Tara:", labelColX, lineStartY + verticalGap);
-        doc.line(lineX, lineStartY + verticalGap + 1, lineEndX, lineStartY + verticalGap + 1);
-        doc.text("kg", kgX, lineStartY + verticalGap, { align: "right" });
+          // Tara Row
+          doc.text("Tara:", labelColX, lineStartY + verticalGap);
+          doc.line(lineX, lineStartY + verticalGap + 1, lineEndX, lineStartY + verticalGap + 1);
+          doc.text("kg", kgX, lineStartY + verticalGap, { align: "right" });
+        }
       }
     });
 
-    doc.save(`etiquetas_carmella_${new Date().toISOString().split('T')[0]}.pdf`);
+    doc.save(`etiquetas_${activeTab}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (
@@ -250,45 +382,35 @@ const Etiquetas: React.FC = () => {
       <Helmet>
         <title>Gerador de Etiquetas</title>
       </Helmet>
-      <div className="etiquetas-container">
+      <div className="etiquetas-container" style={themeStyle}>
         <img className="logo-etiquetas" src="/logo.svg" alt="Carmella Logo" />
         <h1>Gerador de Etiquetas</h1>
-        <p>Selecione os sabores ou digite nomes personalizados para gerar o PDF de impressão.</p>
+        <p>Escolha o tipo de etiqueta e selecione os sabores ou nomes personalizados.</p>
+
+        <div className="label-tabs" role="tablist" aria-label="Tipo de etiqueta">
+          {LABEL_TABS.map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === tab.id}
+                className={`label-tab ${activeTab === tab.id ? "active" : ""}`}
+                onClick={() => handleTabChange(tab.id)}
+              >
+                <Icon className="label-tab-icon" />
+                <span>{tab.label}</span>
+                <span className="label-tab-count">{itemsByType[tab.id].length}</span>
+              </button>
+            );
+          })}
+        </div>
 
         <div className="selection-section">
-          <label
-            className={`food-service-toggle-card ${isFoodService ? "active" : ""}`}
-            htmlFor="foodServiceCheckbox"
-          >
-            <div className="toggle-card-content">
-              <div className="toggle-icon-title">
-                <BsShop className="food-service-icon" />
-                <div>
-                  <span className="food-service-title">Pedido Food Service</span>
-                  <span className="food-service-subtitle">Exibe o nome do cliente na etiqueta (substitui peso e tara)</span>
-                </div>
-              </div>
-              <div className="custom-switch">
-                <input
-                  type="checkbox"
-                  id="foodServiceCheckbox"
-                  checked={isFoodService}
-                  onChange={(e) => {
-                    setIsFoodService(e.target.checked);
-                    if (!e.target.checked) {
-                      setSelectedClientOption(null);
-                      setCustomClientName("");
-                    }
-                  }}
-                />
-                <span className="switch-slider"></span>
-              </div>
-            </div>
-          </label>
-
           {isFoodService && (
-            <div className="client-input-container" style={{ marginBottom: "20px", background: "#fdfaf7", padding: "20px", borderRadius: "15px", border: "1px solid #f0e6dd", textAlign: "left" }}>
-              <label style={{ display: "block", fontWeight: 700, color: "#5a432c", marginBottom: "12px", fontSize: "1.1rem" }}>
+            <div className="client-input-container" style={{ marginBottom: "20px", background: "var(--label-soft)", padding: "20px", borderRadius: "15px", border: "1px solid var(--label-border)", textAlign: "left" }}>
+              <label style={{ display: "block", fontWeight: 700, color: "var(--label-primary)", marginBottom: "12px", fontSize: "1.1rem" }}>
                 Cliente Food Service:
               </label>
               <div style={{ display: "flex", gap: "15px", alignItems: "center", flexWrap: "wrap" }}>
@@ -324,32 +446,34 @@ const Etiquetas: React.FC = () => {
           )}
 
           <div className="input-group-container">
-            <div className="flavor-input-part">
-              <label>Sabor:</label>
-              <Select
-                options={flavorOptions}
-                value={currentFlavor}
-                onChange={(option) => {
-                  setCurrentFlavor(option as { value: string; label: string });
-                  setCustomName("");
-                }}
-                placeholder={loadingFlavors ? "Carregando sabores..." : "Buscar sabor..."}
-                isLoading={loadingFlavors}
-                classNamePrefix="react-select"
-                isClearable
-              />
-              <div className="custom-or">ou</div>
-              <input
-                type="text"
-                className="custom-name-input"
-                value={customName}
-                onChange={(e) => {
-                  setCustomName(e.target.value);
-                  setCurrentFlavor(null);
-                }}
-                placeholder="Nome personalizado..."
-              />
-            </div>
+            {!isSimpleLabel && (
+              <div className="flavor-input-part">
+                <label>Sabor:</label>
+                <Select
+                  options={flavorOptions}
+                  value={currentFlavor}
+                  onChange={(option) => {
+                    setCurrentFlavor(option as { value: string; label: string });
+                    setCustomName("");
+                  }}
+                  placeholder={loadingFlavors ? "Carregando sabores..." : "Buscar sabor..."}
+                  isLoading={loadingFlavors}
+                  classNamePrefix="react-select"
+                  isClearable
+                />
+                <div className="custom-or">ou</div>
+                <input
+                  type="text"
+                  className="custom-name-input"
+                  value={customName}
+                  onChange={(e) => {
+                    setCustomName(e.target.value);
+                    setCurrentFlavor(null);
+                  }}
+                  placeholder="Nome personalizado..."
+                />
+              </div>
+            )}
 
             <div className="date-input-part">
               <label>Data de Produção:</label>
@@ -374,31 +498,6 @@ const Etiquetas: React.FC = () => {
             </div>
           </div>
 
-          <label
-            className={`food-service-toggle-card ${imprimirData ? "active" : ""}`}
-            htmlFor="imprimirDataCheckbox"
-            style={{ marginTop: "14px" }}
-          >
-            <div className="toggle-card-content">
-              <div className="toggle-icon-title">
-                <BsPrinterFill className="food-service-icon" style={{ color: imprimirData ? "#d97706" : "#94a3b8" }} />
-                <div>
-                  <span className="food-service-title">Imprimir data na etiqueta</span>
-                  <span className="food-service-subtitle">{imprimirData ? "Datas de produção e validade serão impressas" : "Datas não serão impressas (apenas sabor/código)"}</span>
-                </div>
-              </div>
-              <div className="custom-switch">
-                <input
-                  type="checkbox"
-                  id="imprimirDataCheckbox"
-                  checked={imprimirData}
-                  onChange={(e) => setImprimirData(e.target.checked)}
-                />
-                <span className="switch-slider"></span>
-              </div>
-            </div>
-          </label>
-
           <button className="add-to-list-btn" onClick={addItem}>
             <BsPlusLg /> Adicionar à Lista
           </button>
@@ -406,15 +505,15 @@ const Etiquetas: React.FC = () => {
 
         {selectedItems.length > 0 && (
           <div className="selected-list">
-            <h3>Itens para Impressão ({selectedItems.length})</h3>
+            <h3>Itens para Impressão — {activeTabLabel} ({selectedItems.length})</h3>
             <div className="selected-tags">
               {selectedItems.map((item) => (
                 <div key={item.id} className="tag-complex">
                   <div className="tag-info">
                     <span className="tag-flavor">{item.flavor}</span>
                     <span className="tag-date">Produção: {item.date.split('-').reverse().join('/')}</span>
-                    {item.isFoodService && item.clientName && (
-                      <span className="tag-client" style={{ fontSize: "0.95rem", color: "#d97706", fontWeight: 700, marginTop: "4px" }}>
+                    {item.labelType === "foodService" && item.clientName && (
+                      <span className="tag-client" style={{ fontSize: "0.95rem", color: "var(--label-accent)", fontWeight: 700, marginTop: "4px" }}>
                         Cliente: {item.clientName}
                       </span>
                     )}
