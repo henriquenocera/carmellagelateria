@@ -83,15 +83,6 @@ const LABEL_TABS: { id: LabelType; label: string; icon: React.ElementType }[] = 
   { id: "waffle", label: "Waffle", icon: BsGrid3X3 }
 ];
 
-function hexToRgb(hex: string): [number, number, number] {
-  const normalized = hex.replace("#", "");
-  const value = normalized.length === 3
-    ? normalized.split("").map(c => c + c).join("")
-    : normalized;
-  const int = parseInt(value, 16);
-  return [(int >> 16) & 255, (int >> 8) & 255, int & 255];
-}
-
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let binary = "";
@@ -278,18 +269,14 @@ const Etiquetas: React.FC = () => {
     });
 
     let labelFont = "helvetica";
-    if (isSimpleLabel) {
-      try {
-        await registerMontserrat(doc);
-        labelFont = "Montserrat";
-      } catch (err) {
-        console.error("Erro ao carregar a fonte Montserrat:", err);
-      }
+    try {
+      await registerMontserrat(doc);
+      labelFont = "Montserrat";
+    } catch (err) {
+      console.error("Erro ao carregar a fonte Montserrat:", err);
     }
 
     const pageWidth = 60;
-    const [primaryR, primaryG, primaryB] = hexToRgb(labelTheme.primary);
-    const [accentR, accentG, accentB] = hexToRgb(labelTheme.accent);
 
     // 1. Pre-calculate total counts for each flavor + date combination
     const totalCounts: Record<string, number> = {};
@@ -309,11 +296,6 @@ const Etiquetas: React.FC = () => {
       const isBrownieItem = item.labelType === "brownie";
       const isWaffleItem = item.labelType === "waffle";
       const isSimpleItem = isBrownieItem || isWaffleItem;
-
-      if (!isSimpleItem) {
-        doc.setFillColor(primaryR, primaryG, primaryB);
-        doc.rect(0, 0, pageWidth, 1.5, "F");
-      }
 
       // Dates
       const prodDate = new Date(item.date + 'T12:00:00');
@@ -353,7 +335,7 @@ const Etiquetas: React.FC = () => {
       // 1. Flavor Name (Top, Centered, Bold)
       doc.setFont(labelFont, "bold");
       doc.setFontSize(isSimpleItem ? 15 : item.flavor.length > 22 ? 8.5 : 10);
-      doc.setTextColor(primaryR, primaryG, primaryB);
+      doc.setTextColor(0, 0, 0);
       const flavorLines = doc.splitTextToSize(item.flavor.toUpperCase(), pageWidth - 8);
       doc.text(flavorLines, pageWidth / 2, isSimpleItem ? 9 : 7, { align: "center" });
 
@@ -385,16 +367,14 @@ const Etiquetas: React.FC = () => {
         const lineStartY = currentY;
 
         if (item.labelType === "foodService" && item.clientName) {
-          doc.setFont("helvetica", "normal");
+          doc.setFont(labelFont, "normal");
           doc.setFontSize(8);
           doc.text("Cliente:", labelColX, lineStartY);
 
-          doc.setFont("helvetica", "bold");
+          doc.setFont(labelFont, "bold");
           doc.setFontSize(9);
-          doc.setTextColor(accentR, accentG, accentB);
           const clientLines = doc.splitTextToSize(item.clientName.toUpperCase(), pageWidth - 8);
           doc.text(clientLines, labelColX, lineStartY + 4);
-          doc.setTextColor(0, 0, 0);
         } else {
           const kgPadding = 4;
           const lineLength = 20;
