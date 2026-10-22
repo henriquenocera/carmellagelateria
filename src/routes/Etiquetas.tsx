@@ -15,6 +15,8 @@ type LabelItem = {
   id: string;
   labelType: LabelType;
   clientName?: string;
+  peso?: string;
+  tara?: string;
 };
 
 type LabelTheme = {
@@ -123,6 +125,7 @@ const Etiquetas: React.FC = () => {
     waffle: []
   });
   const selectedItems = itemsByType[activeTab];
+  const isGelato = activeTab === "gelato";
   const isFoodService = activeTab === "foodService";
   const isBrownie = activeTab === "brownie";
   const isWaffle = activeTab === "waffle";
@@ -144,6 +147,9 @@ const Etiquetas: React.FC = () => {
   const [customName, setCustomName] = useState("");
   const [dataProducao, setDataProducao] = useState(new Date().toISOString().split('T')[0]);
   const [quantidade, setQuantidade] = useState<number>(1);
+  const [informarPeso, setInformarPeso] = useState<boolean>(false);
+  const [peso, setPeso] = useState<string>("");
+  const [tara, setTara] = useState<string>("");
   const [flavorOptions, setFlavorOptions] = useState<{ value: string; label: string }[]>([]);
   const [loadingFlavors, setLoadingFlavors] = useState<boolean>(true);
 
@@ -216,6 +222,9 @@ const Etiquetas: React.FC = () => {
     setSelectedClientOption(null);
     setCustomClientName("");
     setQuantidade(1);
+    setInformarPeso(false);
+    setPeso("");
+    setTara("");
   };
 
   const addItem = () => {
@@ -233,13 +242,18 @@ const Etiquetas: React.FC = () => {
       return;
     }
 
+    const pesoInformado = isGelato && informarPeso ? peso.trim() : undefined;
+    const taraInformada = isGelato && informarPeso ? tara.trim() : undefined;
+
     const count = Math.max(1, quantidade);
     const newItems: LabelItem[] = Array.from({ length: count }, () => ({
       flavor: flavorName,
       date: dataProducao,
       id: Math.random().toString(36).substr(2, 9),
       labelType: activeTab,
-      clientName: clientName
+      clientName: clientName,
+      peso: pesoInformado,
+      tara: taraInformada
     }));
 
     setItemsByType(prev => ({
@@ -249,6 +263,8 @@ const Etiquetas: React.FC = () => {
     setCustomName("");
     setCurrentFlavor(null);
     setQuantidade(1);
+    setPeso("");
+    setTara("");
   };
 
   const removeItem = (id: string) => {
@@ -293,6 +309,7 @@ const Etiquetas: React.FC = () => {
         doc.addPage([60, 40], "landscape");
       }
 
+      const isGelatoItem = item.labelType === "gelato";
       const isBrownieItem = item.labelType === "brownie";
       const isWaffleItem = item.labelType === "waffle";
       const isSimpleItem = isBrownieItem || isWaffleItem;
@@ -334,14 +351,20 @@ const Etiquetas: React.FC = () => {
 
       // 1. Flavor Name (Top, Centered, Bold)
       doc.setFont(labelFont, "bold");
-      doc.setFontSize(isSimpleItem ? 15 : item.flavor.length > 22 ? 8.5 : 10);
+      doc.setFontSize(
+        isSimpleItem
+          ? 15
+          : isGelatoItem
+            ? (item.flavor.length > 22 ? 7.5 : 9)
+            : (item.flavor.length > 22 ? 8.5 : 10)
+      );
       doc.setTextColor(0, 0, 0);
       const flavorLines = doc.splitTextToSize(item.flavor.toUpperCase(), pageWidth - 8);
       doc.text(flavorLines, pageWidth / 2, isSimpleItem ? 9 : 7, { align: "center" });
 
       // 2. Datas e demais campos
       doc.setFont(labelFont, "normal");
-      doc.setFontSize(isSimpleItem ? 9.5 : 8);
+      doc.setFontSize(isSimpleItem ? 9.5 : isGelatoItem ? 7 : 8);
       doc.setTextColor(0, 0, 0);
       
       const startY = isSimpleItem ? 20 : 15;
@@ -376,6 +399,8 @@ const Etiquetas: React.FC = () => {
           const clientLines = doc.splitTextToSize(item.clientName.toUpperCase(), pageWidth - 8);
           doc.text(clientLines, labelColX, lineStartY + 4);
         } else {
+          doc.setFontSize(8);
+
           const kgPadding = 4;
           const lineLength = 20;
           const lineX = pageWidth - 4 - lineLength - kgPadding;
@@ -389,10 +414,20 @@ const Etiquetas: React.FC = () => {
           doc.line(lineX, lineStartY + 1, lineEndX, lineStartY + 1);
           doc.text("kg", kgX, lineStartY, { align: "right" });
 
+          const pesoTexto = (item.peso || "").trim().replace(/\s*kg$/i, "");
+          if (pesoTexto) {
+            doc.text(pesoTexto, lineEndX, lineStartY - 0.5, { align: "right" });
+          }
+
           // Tara Row
           doc.text("Tara:", labelColX, lineStartY + verticalGap);
           doc.line(lineX, lineStartY + verticalGap + 1, lineEndX, lineStartY + verticalGap + 1);
           doc.text("kg", kgX, lineStartY + verticalGap, { align: "right" });
+
+          const taraTexto = (item.tara || "").trim().replace(/\s*kg$/i, "");
+          if (taraTexto) {
+            doc.text(taraTexto, lineEndX, lineStartY + verticalGap - 0.5, { align: "right" });
+          }
         }
       }
     });
@@ -424,7 +459,6 @@ const Etiquetas: React.FC = () => {
               >
                 <Icon className="label-tab-icon" />
                 <span>{tab.label}</span>
-                <span className="label-tab-count">{itemsByType[tab.id].length}</span>
               </button>
             );
           })}
@@ -521,6 +555,71 @@ const Etiquetas: React.FC = () => {
             </div>
           </div>
 
+          {isGelato && (
+            <>
+              <label
+                className={`food-service-toggle-card ${informarPeso ? "active" : ""}`}
+                htmlFor="informarPesoCheckbox"
+                style={{ marginTop: "14px" }}
+              >
+                <div className="toggle-card-content">
+                  <div className="toggle-icon-title">
+                    <div>
+                      <span className="food-service-title">Informar peso</span>
+                      <span className="food-service-subtitle">
+                        {informarPeso
+                          ? "Peso e tara serão impressos na etiqueta"
+                          : "Campos em branco para preencher manualmente"}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="custom-switch">
+                    <input
+                      type="checkbox"
+                      id="informarPesoCheckbox"
+                      checked={informarPeso}
+                      onChange={(e) => {
+                        setInformarPeso(e.target.checked);
+                        if (!e.target.checked) {
+                          setPeso("");
+                          setTara("");
+                        }
+                      }}
+                    />
+                    <span className="switch-slider"></span>
+                  </div>
+                </div>
+              </label>
+
+              {informarPeso && (
+                <div className="input-group-container" style={{ marginTop: "12px", flexWrap: "wrap" }}>
+                  <div className="date-input-part">
+                    <label>Peso (kg):</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      className="date-input"
+                      value={peso}
+                      onChange={(e) => setPeso(e.target.value)}
+                      placeholder="0,000"
+                    />
+                  </div>
+                  <div className="date-input-part">
+                    <label>Tara (kg):</label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      className="date-input"
+                      value={tara}
+                      onChange={(e) => setTara(e.target.value)}
+                      placeholder="0,000"
+                    />
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
           <button className="add-to-list-btn" onClick={addItem}>
             <BsPlusLg /> Adicionar à Lista
           </button>
@@ -535,6 +634,13 @@ const Etiquetas: React.FC = () => {
                   <div className="tag-info">
                     <span className="tag-flavor">{item.flavor}</span>
                     <span className="tag-date">Produção: {item.date.split('-').reverse().join('/')}</span>
+                    {(item.peso || item.tara) && (
+                      <span className="tag-date" style={{ marginTop: "4px", fontWeight: 600 }}>
+                        {item.peso ? `Peso: ${item.peso.replace(/\s*kg$/i, "")} kg` : ""}
+                        {item.peso && item.tara ? " · " : ""}
+                        {item.tara ? `Tara: ${item.tara.replace(/\s*kg$/i, "")} kg` : ""}
+                      </span>
+                    )}
                     {item.labelType === "foodService" && item.clientName && (
                       <span className="tag-client" style={{ fontSize: "0.95rem", color: "var(--label-accent)", fontWeight: 700, marginTop: "4px" }}>
                         Cliente: {item.clientName}

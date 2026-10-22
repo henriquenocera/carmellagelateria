@@ -43,7 +43,7 @@
   background: transparent;
   color: var(--label-muted);
   font-family: inherit;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -62,26 +62,7 @@
 }
 
 .label-tab-icon {
-  font-size: 1.15rem;
-}
-
-.label-tab-count {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  border-radius: 999px;
-  background: var(--label-border);
-  color: var(--label-primary);
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-.label-tab.active .label-tab-count {
-  background: var(--label-accent-soft);
-  color: var(--label-accent);
+  font-size: 1.3rem;
 }
 
 .selection-section {
@@ -301,7 +282,7 @@
 
   .label-tab {
     flex: 1 1 calc(50% - 6px);
-    font-size: 0.95rem;
+    font-size: 1.05rem;
   }
 }
 
