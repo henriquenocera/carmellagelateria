@@ -255,6 +255,9 @@ function Onboarding() {
   
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState("salvo"); // salvo | salvando | erro
+  const [saveError, setSaveError] = useState(null); // { code, message }
+  const [pendingSaves, setPendingSaves] = useState({}); // topicId -> entry que falhou ao salvar
+  const [setupWarning, setSetupWarning] = useState("");
 
   // Load logged-in user profile
   const fetchUserProfile = useCallback(async () => {
@@ -300,56 +303,71 @@ function Onboarding() {
 
     try {
       // 1. Fetch categories
-      let catData = [];
       const { data: dbCats, error: catError } = await supabase
         .from("onboarding_categories")
         .select("*")
         .order("ordem", { ascending: true });
 
-      if (!catError && dbCats && dbCats.length > 0) {
-        catData = dbCats;
-      } else {
-        catData = DEFAULT_CATEGORIES;
-      }
+      const hasDbCategories = !catError && Array.isArray(dbCats) && dbCats.length > 0;
+      const catData = hasDbCategories ? dbCats : DEFAULT_CATEGORIES;
 
       // 2. Fetch topics
-      let topData = [];
       const { data: dbTops, error: topError } = await supabase
         .from("onboarding_topics")
         .select("*")
         .order("ordem", { ascending: true });
 
-      if (!topError && dbTops && dbTops.length > 0) {
-        topData = dbTops;
-      } else {
-        topData = DEFAULT_TOPICS;
-      }
+      const hasDbTopics = !topError && Array.isArray(dbTops) && dbTops.length > 0;
+      const topData = hasDbTopics ? dbTops : DEFAULT_TOPICS;
 
       setCategories(catData);
       setTopics(topData);
 
+      if (!hasDbCategories || !hasDbTopics) {
+        setSetupWarning(
+          "A estrutura do onboarding ainda não foi criada no banco de dados. As tarefas exibidas são apenas um modelo local e não podem ser salvas. Execute o arquivo supabase/onboarding_setup.sql no SQL Editor do Supabase."
+        );
+      } else {
+        setSetupWarning("");
+      }
+
       // 3. Fetch completions for selected user
       let compMap = {};
-      const { data: dbComps, error: compError } = await supabase
+      let compError = null;
+      let { data: dbComps, error } = await supabase
         .from("onboarding_completions")
         .select("topic_id, completed, updated_at, completed_by_name")
         .eq("profile_id", profileId);
+
+      // Compatibilidade com bancos antigos que ainda não têm a coluna completed_by_name
+      if (error && (error.code === "42703" || error.code === "PGRST204")) {
+        const retry = await supabase
+          .from("onboarding_completions")
+          .select("topic_id, completed, updated_at")
+          .eq("profile_id", profileId);
+        dbComps = retry.data;
+        error = retry.error;
+      }
+      compError = error;
 
       if (!compError && dbComps) {
         dbComps.forEach((c) => {
           compMap[c.topic_id] = {
             completed: c.completed,
             updated_at: c.updated_at,
-            completed_by_name: c.completed_by_name,
+            completed_by_name: c.completed_by_name || null,
           };
         });
       } else {
-        // Fallback to localStorage
+        // Sem acesso ao banco: mantém o backup local apenas para leitura
         const stored = localStorage.getItem(`onboarding_completions_${profileId}`);
         if (stored) {
           try {
             compMap = JSON.parse(stored);
           } catch (e) {}
+        }
+        if (compError) {
+          console.warn("Não foi possível carregar as conclusões do banco:", compError);
         }
       }
 
@@ -358,7 +376,10 @@ function Onboarding() {
       console.warn("Usando estrutura local para onboarding:", err);
       setCategories(DEFAULT_CATEGORIES);
       setTopics(DEFAULT_TOPICS);
-      
+      setSetupWarning(
+        "Não foi possível carregar a estrutura do onboarding do banco de dados. As alterações não serão persistidas."
+      );
+
       const stored = localStorage.getItem(`onboarding_completions_${profileId}`);
       if (stored) {
         try {
@@ -478,6 +499,53 @@ function Onboarding() {
     return !!(currentUserProfile.is_admin || currentUserProfile.is_lider);
   }, [currentUserProfile]);
 
+  // Persist a single completion row in Supabase
+  const persistCompletion = useCallback(async (targetUserId, topicId, entry) => {
+    const payload = {
+      profile_id: targetUserId,
+      topic_id: topicId,
+      completed: !!entry.completed,
+      updated_at: entry.updated_at || null,
+      completed_by_name: entry.completed_by_name || null,
+    };
+
+    let { error } = await supabase
+      .from("onboarding_completions")
+      .upsert([payload], { onConflict: "profile_id,topic_id" });
+
+    // Bancos antigos sem a coluna completed_by_name continuam salvando o essencial
+    if (error && (error.code === "PGRST204" || error.code === "42703")) {
+      const { completed_by_name, ...fallbackPayload } = payload;
+      const retry = await supabase
+        .from("onboarding_completions")
+        .upsert([fallbackPayload], { onConflict: "profile_id,topic_id" });
+      error = retry.error;
+    }
+
+    return error || null;
+  }, []);
+
+  const describeSaveError = (error) => {
+    if (!error) return "";
+    const code = error.code || "";
+    if (code === "23503") {
+      return "O banco recusou o registro porque a tarefa não existe em onboarding_topics. Execute o script supabase/onboarding_setup.sql.";
+    }
+    if (code === "42501") {
+      return "Sem permissão para salvar. Verifique as políticas de acesso (RLS) da tabela onboarding_completions.";
+    }
+    if (code === "42P10") {
+      return "Falta a constraint única (profile_id, topic_id) na tabela onboarding_completions. Execute supabase/onboarding_setup.sql.";
+    }
+    if (code === "PGRST204" || code === "42703") {
+      return "A tabela onboarding_completions está com colunas faltando. Execute supabase/onboarding_setup.sql.";
+    }
+    if (code === "22P02") {
+      return "O perfil selecionado não foi carregado corretamente. Recarregue a página e tente novamente.";
+    }
+    return error.message || "Erro desconhecido ao salvar no banco de dados.";
+  };
+
   // Toggle Completion Handler
   const handleToggleCompletion = async (topicId) => {
     if (!canEditChecklist) {
@@ -486,7 +554,14 @@ function Onboarding() {
     }
 
     const targetUserId = selectedUser.id;
-    if (!targetUserId) return;
+    if (!targetUserId || targetUserId === "current-user") {
+      setSaveStatus("erro");
+      setSaveError({
+        code: "PROFILE",
+        message: "Seu perfil ainda não foi carregado. Recarregue a página e tente novamente.",
+      });
+      return;
+    }
 
     const currentCompData = getCompletionData(completions[topicId]);
     const isNowCompleted = !currentCompData.completed;
@@ -494,20 +569,18 @@ function Onboarding() {
     const updaterName = currentUserProfile?.name || user?.email?.split("@")[0] || "Líder";
     const nowIso = new Date().toISOString();
 
-    let newEntry = null;
-    if (isNowCompleted) {
-      newEntry = {
-        completed: true,
-        updated_at: nowIso,
-        completed_by_name: updaterName,
-      };
-    } else {
-      newEntry = {
-        completed: false,
-        updated_at: null,
-        completed_by_name: null,
-      };
-    }
+    const newEntry = isNowCompleted
+      ? {
+          completed: true,
+          updated_at: nowIso,
+          completed_by_name: updaterName,
+        }
+      : {
+          completed: false,
+          // mantém a data da última alteração (evita violar um possível NOT NULL)
+          updated_at: nowIso,
+          completed_by_name: null,
+        };
 
     const newCompletions = {
       ...completions,
@@ -516,34 +589,66 @@ function Onboarding() {
 
     setCompletions(newCompletions);
     setSaveStatus("salvando");
+    setSaveError(null);
 
-    // Local Storage backup
-    localStorage.setItem(
-      `onboarding_completions_${targetUserId}`,
-      JSON.stringify(newCompletions)
-    );
+    // Backup local (não substitui o banco, serve apenas para não perder a tela)
+    try {
+      localStorage.setItem(
+        `onboarding_completions_${targetUserId}`,
+        JSON.stringify(newCompletions)
+      );
+    } catch (e) {}
 
     try {
-      const { error } = await supabase.from("onboarding_completions").upsert(
-        [
-          {
-            profile_id: targetUserId,
-            topic_id: topicId,
-            completed: isNowCompleted,
-            updated_at: isNowCompleted ? nowIso : null,
-            completed_by_name: isNowCompleted ? updaterName : null,
-          },
-        ],
-        { onConflict: "profile_id,topic_id" }
-      );
+      const error = await persistCompletion(targetUserId, topicId, newEntry);
+      if (error) throw error;
 
-      if (error && error.code !== "PGRST205") {
-        console.warn("Aviso ao salvar no Supabase:", error);
-      }
+      setPendingSaves((prev) => {
+        if (!prev[topicId]) return prev;
+        const next = { ...prev };
+        delete next[topicId];
+        return next;
+      });
       setSaveStatus("salvo");
     } catch (err) {
-      console.warn("Salvo localmente (LocalStorage active):", err);
+      console.warn("Erro ao salvar onboarding no Supabase:", err);
+      setSaveStatus("erro");
+      setSaveError({ code: err?.code, message: describeSaveError(err) });
+      setPendingSaves((prev) => ({ ...prev, [topicId]: newEntry }));
+    }
+  };
+
+  // Tenta salvar novamente tudo o que falhou
+  const retryPendingSaves = async () => {
+    const entries = Object.entries(pendingSaves);
+    if (entries.length === 0 || !selectedUser.id || selectedUser.id === "current-user") return;
+
+    setSaveStatus("salvando");
+    setSaveError(null);
+
+    const remaining = {};
+    let lastError = null;
+
+    for (const [topicId, entry] of entries) {
+      const error = await persistCompletion(
+        selectedUser.id,
+        Number(topicId),
+        entry
+      );
+      if (error) {
+        remaining[topicId] = entry;
+        lastError = error;
+      }
+    }
+
+    setPendingSaves(remaining);
+
+    if (lastError) {
+      setSaveStatus("erro");
+      setSaveError({ code: lastError.code, message: describeSaveError(lastError) });
+    } else {
       setSaveStatus("salvo");
+      setSaveError(null);
     }
   };
 
@@ -554,7 +659,7 @@ function Onboarding() {
     const matchesSearch = topic.title.toLowerCase().includes(searchQuery.toLowerCase());
     if (!matchesSearch) return false;
 
-    const isCompleted = !!completions[topic.id];
+    const isCompleted = getCompletionData(completions[topic.id]).completed;
     if (filterStatus === "pendentes" && isCompleted) return false;
     if (filterStatus === "concluidos" && !isCompleted) return false;
 
@@ -593,6 +698,13 @@ function Onboarding() {
             Bem-vindo(a) ao seu onboarding da Carmella Gelateria
           </span>
         </div>
+
+        {setupWarning && (
+          <div className="onboarding-setup-warning" role="alert">
+            <Icons.BsExclamationTriangle className="warning-icon" />
+            <span>{setupWarning}</span>
+          </div>
+        )}
 
         {/* User Card & Progress Overview */}
         <div className="user-overview-card">
@@ -702,7 +814,7 @@ function Onboarding() {
                 (t) => t.category_id === category.id
               );
               const catCompletedCount = catChecklistTopics.filter(
-                (t) => completions[t.id] === true
+                (t) => getCompletionData(completions[t.id]).completed
               ).length;
 
               return (
@@ -750,7 +862,7 @@ function Onboarding() {
                       return (
                         <div
                           key={topic.id}
-                          className={`task-row-item ${isDone ? "completed" : ""} ${!canEditChecklist ? "disabled" : ""}`}
+                          className={`task-row-item ${isDone ? "completed" : ""} ${!canEditChecklist ? "disabled" : ""} ${pendingSaves[topic.id] ? "pending-save" : ""}`}
                           onClick={() => handleToggleCompletion(topic.id)}
                           style={!canEditChecklist ? { cursor: "not-allowed" } : {}}
                           title={!canEditChecklist ? "Apenas líderes e administradores podem alterar o status das tarefas." : ""}
@@ -795,11 +907,24 @@ function Onboarding() {
         )}
 
         {/* Save Status Footer Indicator */}
-        <div className="save-status-footer">
+        <div className={`save-status-footer ${saveStatus === "erro" || Object.keys(pendingSaves).length > 0 ? "erro" : ""}`}>
           {saveStatus === "salvando" ? (
             <>
               <Icons.BsArrowClockwise className="spin-icon" />
               Salvando progresso...
+            </>
+          ) : saveStatus === "erro" || Object.keys(pendingSaves).length > 0 ? (
+            <>
+              <Icons.BsExclamationCircle />
+              <span>
+                {saveError?.message ||
+                  "Algumas alterações ainda não foram salvas no banco de dados."}
+              </span>
+              {Object.keys(pendingSaves).length > 0 && (
+                <button className="save-status-retry-btn" onClick={retryPendingSaves}>
+                  Tentar novamente
+                </button>
+              )}
             </>
           ) : (
             <>

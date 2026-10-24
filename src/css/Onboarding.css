@@ -673,3 +673,55 @@
   color: #666;
   font-weight: 600;
 }
+
+.save-status-footer.erro {
+  justify-content: center;
+  flex-wrap: wrap;
+  color: #b91c1c;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  padding: 12px 16px;
+}
+
+.save-status-retry-btn {
+  border: 1px solid #b91c1c;
+  background: #fff;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.save-status-retry-btn:hover {
+  background: #b91c1c;
+  color: #fff;
+}
+
+.onboarding-setup-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0 0 18px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.onboarding-setup-warning .warning-icon {
+  flex-shrink: 0;
+  font-size: 18px;
+  margin-top: 1px;
+}
+
+.task-row-item.pending-save {
+  border-color: #f59e0b;
+  background-color: #fffbeb;
+}
