@@ -99,7 +99,9 @@ function LancamentosFinanceiros() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'review' | 'deleted'>('all');
   const [pendingReviewCount, setPendingReviewCount] = useState(0);
   const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
-  const [limit, setLimit] = useState(200);
+  const [limit, setLimit] = useState(500);
+  const [loadingLancamentos, setLoadingLancamentos] = useState(false);
+  const lancamentosRequestRef = useRef(0);
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
 
@@ -193,11 +195,23 @@ function LancamentosFinanceiros() {
     }),
     menu: (base: any) => ({
       ...base,
-      fontSize: '1.2rem'
+      width: '380px',
+      maxWidth: 'calc(100vw - 24px)',
+      textAlign: 'left' as const,
+      fontSize: '15px'
     }),
     option: (base: any) => ({
       ...base,
-      fontSize: '1.2rem'
+      fontSize: '15px',
+      lineHeight: 1.5,
+      padding: '10px 12px',
+      whiteSpace: 'normal' as const,
+      overflowWrap: 'anywhere' as const
+    }),
+    groupHeading: (base: any) => ({
+      ...base,
+      fontSize: '13px',
+      fontWeight: 700
     }),
     menuPortal: (base: any) => ({
       ...base,
@@ -365,6 +379,8 @@ function LancamentosFinanceiros() {
     } = options;
 
     fetchLancamentosRef.current = fetchLancamentos;
+    const requestId = ++lancamentosRequestRef.current;
+    setLoadingLancamentos(true);
     try {
       let query = supabase
         .from("lancamentos_financeiros")
@@ -430,24 +446,33 @@ function LancamentosFinanceiros() {
         query = query.or('categoria.is.null,categoria.not.ilike.%Vendas Loja%');
       }
 
-      const { data, error, count } = await query.range(0, currentLimit - 1);
-      if (error) throw error;
+      const rows: any[] = [];
+      let total = 0;
+      let target = currentLimit;
+      do {
+        const end = Math.min(rows.length + 500, target) - 1;
+        const { data, error, count } = await query.range(rows.length, end);
+        if (requestId !== lancamentosRequestRef.current) return;
+        if (error) throw error;
+        if (count !== null) {
+          total = count;
+          target = Math.min(currentLimit, count);
+        }
+        if (!data?.length) break;
+        rows.push(...data);
+      } while (rows.length < target);
 
-      if (data) {
-        setLancamentos(data);
-        setHasMore(data.length >= currentLimit);
-      } else {
-        setLancamentos([]);
-        setHasMore(false);
-      }
-
-      if (count !== null) {
-        setTotalCount(count);
+      if (requestId === lancamentosRequestRef.current) {
+        setLancamentos(rows);
+        setHasMore(rows.length < total);
+        setTotalCount(total);
       }
 
       checkPendingCounts();
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
+    } finally {
+      if (requestId === lancamentosRequestRef.current) setLoadingLancamentos(false);
     }
   }, [isAdmin, filterStatus, filterCreatedToday, limit, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, checkPendingCounts, contasDb]);
 
@@ -461,16 +486,16 @@ function LancamentosFinanceiros() {
     if (user) {
       if (isFirstRender.current) {
         isFirstRender.current = false;
-        fetchLancamentosRef.current?.({ currentLimit: 200, fTab: activeTab });
+        fetchLancamentosRef.current?.({ currentLimit: 500, fTab: activeTab });
         return;
       }
-      setLimit(200);
-      fetchLancamentosRef.current?.({ currentLimit: 200, fTab: activeTab });
+      setLimit(500);
+      fetchLancamentosRef.current?.({ currentLimit: 500, fTab: activeTab });
     }
   }, [filterStatus, filterCreatedToday, filterData, debouncedDescricao, filterFornecedor, filterCategoria, filterConta, filterMes, filterNoCategory, activeTab, user]);
 
   useEffect(() => {
-    if (user && limit !== 200) {
+    if (user && limit !== 500) {
       fetchLancamentosRef.current?.({ currentLimit: limit });
     }
   }, [limit, user]);
@@ -1732,7 +1757,10 @@ function LancamentosFinanceiros() {
               Mostrando <strong style={{ fontWeight: "bold", color: "#334155" }}>{lancamentos.length}</strong> de <strong style={{ fontWeight: "bold", color: "#334155" }}>{totalCount}</strong> totais
             </span>
             {hasMore && (
+              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", justifyContent: "center" }}>
               <button
+                type="button"
+                disabled={loadingLancamentos}
                 onClick={handleLoadMore}
                 style={{
                   padding: "12px 32px",
@@ -1755,8 +1783,17 @@ function LancamentosFinanceiros() {
                   (e.currentTarget as HTMLButtonElement).style.borderColor = "#cbd5e1";
                 }}
               >
-                Carregar mais 100 linhas...
+                {loadingLancamentos ? "Carregando..." : "Carregar +200 linhas"}
               </button>
+              <button
+                type="button"
+                disabled={loadingLancamentos}
+                onClick={() => setLimit(Infinity)}
+                style={{ padding: "12px 24px", backgroundColor: "var(--primary-color)", color: "#fff", border: "none", borderRadius: "12px", cursor: loadingLancamentos ? "wait" : "pointer", fontWeight: "bold", fontSize: "1.4rem", opacity: loadingLancamentos ? 0.6 : 1 }}
+              >
+                Carregar tudo
+              </button>
+              </div>
             )}
           </div>
 

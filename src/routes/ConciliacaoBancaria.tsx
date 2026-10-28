@@ -45,11 +45,20 @@ function ConciliacaoBancaria() {
   const [loadingContas, setLoadingContas] = useState(true);
   const [loadingBalances, setLoadingBalances] = useState(false);
 
-  // Default to today
+  // Data de corte inicial: ontem, no horário local.
   const [dataFiltro, setDataFiltro] = useState(() => {
     const d = new Date();
+    d.setDate(d.getDate() - 1);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   });
+
+  const alterarDia = (dias: number) => {
+    setDataFiltro(atual => {
+      const d = atual ? new Date(`${atual}T12:00:00`) : new Date();
+      d.setDate(d.getDate() + dias);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    });
+  };
 
   // Fetch Contas on mount - ordenado por ordem de cadastro (id)
   useEffect(() => {
@@ -291,11 +300,13 @@ function ConciliacaoBancaria() {
           
           {/* Controls / Filter Area */}
           <div style={{ display: "flex", gap: "16px", marginBottom: "16px", alignItems: "flex-end" }}>
+            <button type="button" onClick={() => alterarDia(-1)} aria-label="Reduzir um dia" title="Dia anterior" style={{ width: "40px", height: "54px", margin: 0, border: "1px solid var(--border-color)", borderRadius: "4px", background: "#fff", color: "var(--primary-color)", fontSize: "2rem", cursor: "pointer" }}>−</button>
             <div style={{ flex: "0 0 200px" }}>
-              <label style={{ display: "block", fontSize: "1.3rem", color: "var(--text-secondary)", marginBottom: "4px", fontWeight: "bold" }}>
+              <label htmlFor="conciliacao-data-corte" style={{ display: "block", fontSize: "1.3rem", color: "var(--text-secondary)", marginBottom: "4px", fontWeight: "bold" }}>
                 Data de Corte
               </label>
               <input
+                id="conciliacao-data-corte"
                 type="date"
                 value={dataFiltro}
                 onChange={(e) => setDataFiltro(e.target.value)}
@@ -310,16 +321,19 @@ function ConciliacaoBancaria() {
                 }}
               />
             </div>
+            <div style={{ display: "flex", gap: "6px" }}>
+              <button type="button" onClick={() => alterarDia(1)} aria-label="Adicionar um dia" title="Próximo dia" style={{ width: "40px", height: "54px", margin: 0, border: "1px solid var(--border-color)", borderRadius: "4px", background: "#fff", color: "var(--primary-color)", fontSize: "2rem", cursor: "pointer" }}>+</button>
+            </div>
           </div>
 
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
             <table className="freq-table" style={{ width: "100%", minWidth: "600px", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
-                  <th style={{ textAlign: "left", padding: "16px" }}>Conta Bancária</th>
-                  <th style={{ textAlign: "center", padding: "16px", width: "180px" }}>Saldo Calculado</th>
-                  <th style={{ textAlign: "center", padding: "16px", width: "200px" }}>Saldo no Banco (R$)</th>
-                  <th style={{ textAlign: "center", padding: "16px", width: "150px" }}>Status</th>
+                  <th style={{ textAlign: "left", padding: "10px 16px" }}>Conta Bancária</th>
+                  <th style={{ textAlign: "center", padding: "10px 16px", width: "180px" }}>Saldo Calculado</th>
+                  <th style={{ textAlign: "center", padding: "10px 16px", width: "200px" }}>Saldo no Banco (R$)</th>
+                  <th style={{ textAlign: "center", padding: "10px 16px", width: "150px" }}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -340,13 +354,13 @@ function ConciliacaoBancaria() {
                     const saldoCalc = saldosCalculados[conta.label] || 0;
                     return (
                       <tr key={index} style={{ borderBottom: "1px solid var(--border-color)" }}>
-                        <td style={{ padding: "16px", fontWeight: "bold", color: "var(--text-primary)", fontSize: "1.3rem" }}>
+                        <td style={{ padding: "6px 16px", fontWeight: "bold", color: "var(--text-primary)", fontSize: "1.3rem" }}>
                           {conta.displayLabel || conta.label}
                         </td>
-                        <td style={{ padding: "16px", textAlign: "center", fontSize: "1.4rem", fontWeight: "bold", color: loadingBalances ? "#94a3b8" : (saldoCalc < 0 ? "#ef4444" : "#10b981") }}>
+                        <td style={{ padding: "6px 16px", textAlign: "center", fontSize: "1.4rem", fontWeight: "bold", color: loadingBalances ? "#94a3b8" : (saldoCalc < 0 ? "#ef4444" : "#10b981") }}>
                           {loadingBalances ? "Calculando..." : `R$ ${saldoCalc.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}
                         </td>
-                        <td style={{ padding: "16px", textAlign: "center" }}>
+                        <td style={{ padding: "6px 16px", textAlign: "center" }}>
                           <input
                             type="text"
                             placeholder="0,00"
@@ -355,22 +369,23 @@ function ConciliacaoBancaria() {
                             onBlur={(e) => handleSaldoBancoBlur(conta, e.target.value)}
                             style={{
                               width: "100%",
-                              padding: "8px",
+                              padding: "4px 8px",
                               borderRadius: "4px",
                               border: "1px solid var(--border-color)",
                               textAlign: "center",
                               fontSize: "1.3rem",
-                              height: "40px",
-                              marginBottom: "4px"
+                              height: "32px",
+                              boxSizing: "border-box",
+                              marginBottom: "2px"
                             }}
                           />
                           {dataSaldosBanco[conta.label] && (
-                            <div style={{ fontSize: "1.0rem", color: "#64748b" }}>
-                              Atualizado:<br/>{new Date(dataSaldosBanco[conta.label]).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
+                            <div style={{ fontSize: "1.0rem", lineHeight: 1.3, color: "#64748b", whiteSpace: "nowrap" }}>
+                              Atualizado: {new Date(dataSaldosBanco[conta.label]).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
                             </div>
                           )}
                         </td>
-                        <td style={{ padding: "16px", textAlign: "center" }}>
+                        <td style={{ padding: "6px 16px", textAlign: "center" }}>
                           {loadingBalances ? <span style={{ color: "var(--text-secondary)" }}>...</span> : renderStatus(conta.label)}
                         </td>
                       </tr>
