@@ -706,6 +706,66 @@
   animation: fadeInOutMessage 2s ease-out forwards;
 }
 
+.financial-add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.financial-new-modal {
+  box-sizing: border-box;
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 24px 80px #0f172a40;
+  overflow: auto;
+}
+
+.financial-new-modal::backdrop { background: #0f172a80; }
+.financial-new-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: end;
+}
+.financial-new-form > div:first-child { grid-column: 1 / -1; }
+.financial-new-form input { box-sizing: border-box; }
+.financial-modal-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+.financial-modal-close, .financial-modal-cancel {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  background: #fff;
+  color: #475569;
+  cursor: pointer;
+  padding: 8px 16px;
+  font-size: 1.4rem;
+}
+.financial-modal-close { display: flex; padding: 6px; font-size: 24px; }
+@media (max-width: 600px) {
+  .financial-new-form { grid-template-columns: minmax(0, 1fr); }
+  .financial-new-modal { padding: 18px; }
+}
+
 /* Cabeçalho fixo e divisórias da tabela de lançamentos financeiros. */
 .freq-table-wrapper.financial-table-scroll {
   max-height: 70vh;

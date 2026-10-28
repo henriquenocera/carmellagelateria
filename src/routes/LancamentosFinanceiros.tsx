@@ -22,6 +22,21 @@ function LancamentosFinanceiros() {
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [profilesMap, setProfilesMap] = useState<{ [key: string]: string }>({});
   const [savingRow, setSavingRow] = useState(false);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newTipo, setNewTipo] = useState<'entrada' | 'saida'>('entrada');
+  const newModalRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (!showNewModal) return;
+    const dialog = newModalRef.current;
+    const previousOverflow = document.body.style.overflow;
+    dialog?.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog?.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showNewModal]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
   const isSavingRef = useRef<boolean>(false);
@@ -127,6 +142,13 @@ function LancamentosFinanceiros() {
       ...base,
       zIndex: 9999
     })
+  };
+
+  // Menus sobrepostos dentro do modal, sem portal nem alteração da grade.
+  const modalSelectStyles = {
+    ...selectStyles,
+    menu: (base: any) => ({ ...base, position: 'absolute' as const, zIndex: 10, fontSize: '15px' }),
+    option: (base: any) => ({ ...base, fontSize: '15px', whiteSpace: 'normal' as const })
   };
 
   const filterSelectStyles = {
@@ -488,7 +510,7 @@ function LancamentosFinanceiros() {
         data: newRow.data,
         descricao: newRow.descricao,
         fornecedor: newRow.fornecedor || null,
-        valor: parseFloat(newRow.valor.replace(",", ".")),
+        valor: Math.abs(parseFloat(newRow.valor.replace(",", "."))) * (newTipo === 'saida' ? -1 : 1),
         categoria: newRow.categoria || null,
         conta: newRow.conta,
         user_id: user?.id,
@@ -499,6 +521,8 @@ function LancamentosFinanceiros() {
       if (error) throw error;
 
       setNewRow({ data: getToday(), descricao: "", valor: "", fornecedor: "", categoria: "", conta: "" });
+      setNewTipo('entrada');
+      setShowNewModal(false);
       fetchLancamentosRef.current?.();
     } catch (err: any) {
       console.error("Erro ao salvar:", err);
@@ -669,34 +693,61 @@ function LancamentosFinanceiros() {
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
 
-          {/* Card de Inserção */}
-          <div style={{
-            backgroundColor: "#fff",
-            padding: "24px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-            marginBottom: "24px",
-            border: "1px solid #e2e8f0"
-          }}>
+          <button type="button" className="financial-add-button" onClick={() => { setEditingId(null); setShowNewModal(true); }}>
+            <Icons.BsPlusCircleFill /> Adicionar
+          </button>
+
+          {showNewModal && <dialog
+            ref={newModalRef}
+            className="financial-new-modal"
+            aria-labelledby="financial-new-modal-title"
+            onCancel={(event) => {
+              event.preventDefault();
+              if (!savingRow) setShowNewModal(false);
+            }}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h3 style={{ margin: 0, color: "#334155", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}>
+              <h3 id="financial-new-modal-title" style={{ margin: 0, color: "#334155", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}>
                 <Icons.BsPlusCircleFill style={{ color: "var(--primary-color)" }} />
                 Novo Lançamento
               </h3>
+              <button type="button" className="financial-modal-close" aria-label="Fechar" disabled={savingRow} onClick={() => setShowNewModal(false)}><Icons.BsX /></button>
             </div>
 
-            <form onSubmit={handleSave} style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
+            <form onSubmit={handleSave} className="financial-new-form">
 
               <div style={{ flex: "2 1 200px" }}>
                 <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Descrição</label>
                 <input
                   type="text"
                   placeholder="Ex: Pagamento Fornecedor X"
+                  autoFocus
                   value={newRow.descricao}
                   onChange={(e) => setNewRow({ ...newRow, descricao: e.target.value })}
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", height: "54px", fontSize: "1.4rem" }}
                   required
                 />
+              </div>
+
+              <div>
+                <label htmlFor="financial-new-type" style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Tipo de lançamento</label>
+                <select
+                  id="financial-new-type"
+                  value={newTipo}
+                  onChange={(e) => {
+                    const tipo = e.target.value as 'entrada' | 'saida';
+                    setNewTipo(tipo);
+                    setNewRow(prev => ({
+                      ...prev,
+                      fornecedor: "",
+                      valor: prev.valor ? (Math.abs(parseFloat(prev.valor.replace(",", "."))) * (tipo === 'saida' ? -1 : 1)).toFixed(2) : ""
+                    }));
+                  }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: `1px solid ${newTipo === 'entrada' ? '#86efac' : '#fca5a5'}`, height: "54px", fontSize: "1.4rem", fontWeight: 600, background: newTipo === 'entrada' ? '#f0fdf4' : '#fef2f2', color: newTipo === 'entrada' ? '#15803d' : '#b91c1c' }}
+                >
+                  <option value="entrada" style={{ color: '#15803d', background: '#f0fdf4' }}>🟢 Entrada (+)</option>
+                  <option value="saida" style={{ color: '#b91c1c', background: '#fef2f2' }}>🔴 Saída (−)</option>
+                </select>
               </div>
 
               <div style={{ flex: "1 1 120px" }}>
@@ -720,7 +771,10 @@ function LancamentosFinanceiros() {
                     className="no-spinner"
                     placeholder="0.00"
                     value={newRow.valor}
-                    onChange={(e) => setNewRow({ ...newRow, valor: e.target.value })}
+                    onChange={(e) => {
+                      const magnitude = e.target.value.replace(/^-/, "");
+                      setNewRow({ ...newRow, valor: magnitude ? `${newTipo === 'saida' ? '-' : ''}${magnitude}` : "" });
+                    }}
                     onBlur={(e) => {
                       if (e.target.value) {
                         setNewRow({ ...newRow, valor: parseFloat(e.target.value).toFixed(2) });
@@ -734,20 +788,22 @@ function LancamentosFinanceiros() {
 
               <div style={{ flex: "2 1 220px" }}>
                 <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>
-                  {parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0 ? "Cliente" : "Fornecedor"}
+                  {newTipo === 'entrada' ? "Cliente" : "Fornecedor"}
                 </label>
                 <Select
-                  options={parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0 ? clienteOptions : fornecedorOptions}
+                  options={newTipo === 'entrada' ? clienteOptions : fornecedorOptions}
                   value={
-                    (parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0
+                    (newTipo === 'entrada'
                       ? clienteOptions.find(o => o.value === newRow.fornecedor)
                       : fornecedorOptions.find(o => o.value === newRow.fornecedor)) || null
                   }
                   onChange={(option: any) => setNewRow({ ...newRow, fornecedor: option ? option.value : null })}
-                  placeholder={parseFloat(String(newRow.valor || "0").replace(",", ".")) >= 0 ? "Buscar Cliente..." : "Buscar Fornecedor..."}
+                  placeholder={newTipo === 'entrada' ? "Buscar Cliente..." : "Buscar Fornecedor..."}
                   isClearable
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
+                  styles={modalSelectStyles}
+                  menuPlacement="auto"
+                  maxMenuHeight={220}
+                  menuShouldScrollIntoView={false}
                 />
               </div>
 
@@ -759,8 +815,10 @@ function LancamentosFinanceiros() {
                   onChange={(option: any) => setNewRow({ ...newRow, categoria: option ? option.value : null })}
                   placeholder="Buscar Categoria..."
                   isClearable
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
+                  styles={modalSelectStyles}
+                  menuPlacement="auto"
+                  maxMenuHeight={220}
+                  menuShouldScrollIntoView={false}
                 />
               </div>
 
@@ -772,12 +830,15 @@ function LancamentosFinanceiros() {
                   onChange={(option: any) => setNewRow({ ...newRow, conta: option ? option.value : "" })}
                   placeholder="Buscar Conta..."
                   isClearable
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
+                  styles={modalSelectStyles}
+                  menuPlacement="auto"
+                  maxMenuHeight={220}
+                  menuShouldScrollIntoView={false}
                 />
               </div>
 
-              <div style={{ flex: "0 0 130px", position: "relative" }}>
+              <div className="financial-modal-actions">
+                <button type="button" className="financial-modal-cancel" disabled={savingRow} onClick={() => setShowNewModal(false)}>Cancelar</button>
                 <button
                   type="submit"
                   disabled={savingRow}
@@ -791,18 +852,18 @@ function LancamentosFinanceiros() {
                     cursor: savingRow ? "not-allowed" : "pointer",
                     fontWeight: "bold",
                     fontSize: "1.4rem",
-                    width: "100%",
+                    width: "180px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px"
                   }}
                 >
-                  <Icons.BsCheckCircleFill /> Adicionar
+                  <Icons.BsCheckCircleFill /> {savingRow ? "Salvando..." : "Salvar lançamento"}
                 </button>
               </div>
             </form>
-          </div>
+          </dialog>}
 
           {/* Barra de Filtros e Ordenação Globais */}
           <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px", alignItems: "center" }}>
