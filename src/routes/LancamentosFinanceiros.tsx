@@ -1257,8 +1257,15 @@ function LancamentosFinanceiros() {
                                    handleSaveInline(l.id, { fornecedor: val });
                                  }}
                                  menuPortalTarget={document.body}
-                                 placeholder={parseFloat(String(editRowData.valor || "0").replace(",", ".")) >= 0 ? "Cliente..." : "Fornecedor..."}
-                                 styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                                  placeholder={parseFloat(String(editRowData.valor || "0").replace(",", ".")) >= 0 ? "Cliente..." : "Fornecedor..."}
+                                  styles={{
+                                    ...selectStyles,
+                                    control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }),
+                                    valueContainer: (b: any) => ({ ...b, padding: '0 8px' }),
+                                    menu: (b: any) => ({ ...b, width: '380px', maxWidth: 'calc(100vw - 24px)', textAlign: 'left', fontSize: '15px' }),
+                                    option: (b: any) => ({ ...b, fontSize: '15px', lineHeight: 1.5, padding: '10px 12px', whiteSpace: 'normal', overflowWrap: 'anywhere' }),
+                                    groupHeading: (b: any) => ({ ...b, fontSize: '13px', fontWeight: 700 })
+                                  }}
                                />
                              </td>
                             <td style={{ textAlign: "center" }}>
@@ -1272,7 +1279,14 @@ function LancamentosFinanceiros() {
                                   handleSaveInline(l.id, { categoria: val });
                                 }}
                                 menuPortalTarget={document.body}
-                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                                styles={{
+                                  ...selectStyles,
+                                  control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }),
+                                  valueContainer: (b: any) => ({ ...b, padding: '0 8px' }),
+                                  menu: (b: any) => ({ ...b, width: '380px', maxWidth: 'calc(100vw - 24px)', textAlign: 'left', fontSize: '15px' }),
+                                  option: (b: any) => ({ ...b, fontSize: '15px', lineHeight: 1.5, padding: '10px 12px', whiteSpace: 'normal', overflowWrap: 'anywhere' }),
+                                  groupHeading: (b: any) => ({ ...b, fontSize: '13px', fontWeight: 700 })
+                                }}
                               />
                             </td>
                             <td style={{ textAlign: "center" }}>
@@ -1285,7 +1299,14 @@ function LancamentosFinanceiros() {
                                   handleSaveInline(l.id, { conta: val });
                                 }}
                                 menuPortalTarget={document.body}
-                                styles={{ ...selectStyles, control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }), valueContainer: (b: any) => ({ ...b, padding: '0 8px' }) }}
+                                styles={{
+                                  ...selectStyles,
+                                  control: (b: any) => ({ ...b, minHeight: '36px', height: '36px', fontSize: '1.3rem' }),
+                                  valueContainer: (b: any) => ({ ...b, padding: '0 8px' }),
+                                  menu: (b: any) => ({ ...b, width: '380px', maxWidth: 'calc(100vw - 24px)', textAlign: 'left', fontSize: '15px' }),
+                                  option: (b: any) => ({ ...b, fontSize: '15px', lineHeight: 1.5, padding: '10px 12px', whiteSpace: 'normal', overflowWrap: 'anywhere' }),
+                                  groupHeading: (b: any) => ({ ...b, fontSize: '13px', fontWeight: 700 })
+                                }}
                               />
                             </td>
                             <td style={{ textAlign: "center" }}>
