@@ -706,6 +706,30 @@
   animation: fadeInOutMessage 2s ease-out forwards;
 }
 
+/* Cabeçalho fixo e divisórias da tabela de lançamentos financeiros. */
+.freq-table-wrapper.financial-table-scroll {
+  max-height: 70vh;
+  overflow: auto;
+}
+
+.financial-table-scroll .freq-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.financial-table-scroll .freq-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: linear-gradient(135deg, #f5ede4 0%, #f0e6d9 100%);
+  box-shadow: 0 2px 0 #e2e8f0;
+}
+
+.financial-table-scroll .freq-table th:not(:last-child),
+.financial-table-scroll .freq-table td:not(:last-child) {
+  border-right: 1px solid #dddfe2;
+}
+
 /* Remove spinners from number inputs */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

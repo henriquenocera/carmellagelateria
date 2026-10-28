@@ -1054,7 +1054,7 @@ function LancamentosFinanceiros() {
             </button>
           </div>
 
-          <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
+          <div className="freq-table-wrapper financial-table-scroll" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
             <table className="freq-table" style={{ minWidth: "1290px" }}>
               <thead>
                 <tr>
