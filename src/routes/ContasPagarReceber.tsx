@@ -31,6 +31,26 @@ function ContasPagarReceber() {
   const [profilesMap, setProfilesMap] = useState<{[key: string]: string}>({});
   const [contasDb, setContasDb] = useState<any[]>([]);
   const [savingRow, setSavingRow] = useState(false);
+  const [showNewModal, setShowNewModal] = useState(false);
+  const [newTipo, setNewTipo] = useState<'entrada' | 'saida'>('entrada');
+  const newModalRef = useRef<HTMLDialogElement>(null);
+  const [limit, setLimit] = useState(500);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loadingLancamentos, setLoadingLancamentos] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const lancamentosRequestRef = useRef(0);
+
+  useEffect(() => {
+    if (!showNewModal) return;
+    const dialog = newModalRef.current;
+    const previousOverflow = document.body.style.overflow;
+    dialog?.showModal();
+    document.body.style.overflow = 'hidden';
+    return () => {
+      dialog?.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showNewModal]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editRowData, setEditRowData] = useState<any>({});
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -80,16 +100,29 @@ function ContasPagarReceber() {
     }),
     menu: (base: any) => ({
       ...base,
-      fontSize: '1.4rem'
+      width: '380px',
+      maxWidth: 'calc(100vw - 24px)',
+      textAlign: 'left' as const,
+      fontSize: '15px'
     }),
     option: (base: any) => ({
       ...base,
-      fontSize: '1.4rem'
+      fontSize: '15px',
+      lineHeight: 1.5,
+      padding: '10px 12px',
+      whiteSpace: 'normal' as const,
+      overflowWrap: 'anywhere' as const
     }),
+    groupHeading: (base: any) => ({ ...base, fontSize: '13px', fontWeight: 700 }),
     menuPortal: (base: any) => ({
       ...base,
       zIndex: 9999
     })
+  };
+
+  const modalSelectStyles = {
+    ...selectStyles,
+    menu: (base: any) => ({ ...base, position: 'absolute' as const, zIndex: 10, fontSize: '15px' })
   };
 
   const filterSelectStyles = {
@@ -134,13 +167,12 @@ function ContasPagarReceber() {
       fontWeight: 'normal'
     }),
     menu: (base: any) => ({
-      ...base,
-      fontSize: '1.2rem'
+      ...selectStyles.menu(base)
     }),
     option: (base: any) => ({
-      ...base,
-      fontSize: '1.2rem'
+      ...selectStyles.option(base)
     }),
+    groupHeading: selectStyles.groupHeading,
     menuPortal: (base: any) => ({
       ...base,
       zIndex: 9999
@@ -242,13 +274,22 @@ function ContasPagarReceber() {
   }, []);
 
   const fetchLancamentosRef = useRef<any>(null);
+  const previousFiltersRef = useRef('');
 
   const fetchLancamentos = useCallback(async () => {
     fetchLancamentosRef.current = fetchLancamentos;
+    const filtersKey = JSON.stringify([filterData, filterDescricao, filterFornecedor, filterCategoria, filterTipo, isAdmin]);
+    const filtersChanged = previousFiltersRef.current !== filtersKey;
+    previousFiltersRef.current = filtersKey;
+    const currentLimit = filtersChanged ? 500 : limit;
+    if (filtersChanged) setLimit(500);
+    const requestId = ++lancamentosRequestRef.current;
+    setLoadingLancamentos(true);
+    setLoadError(false);
     try {
       let query = supabase
         .from("contas_pagar_receber")
-        .select("*")
+        .select("*", { count: 'exact' })
         .order("data", { ascending: true })
         .order("created_at", { ascending: false })
         .order("id", { ascending: true });
@@ -257,13 +298,36 @@ function ContasPagarReceber() {
         query = query.or('status_revisao.is.null,status_revisao.neq.admin_only');
       }
 
-      const { data, error } = await query;
-      if (error) throw error;
-      setLancamentos(data || []);
+      if (filterData) query = query.eq('data', filterData);
+      if (filterDescricao) query = query.ilike('descricao', `%${filterDescricao}%`);
+      if (filterFornecedor) query = query.eq('fornecedor_cliente', filterFornecedor);
+      if (filterCategoria) query = query.eq('categoria', filterCategoria);
+      if (filterTipo === 'pagar') query = query.lt('valor', 0);
+      if (filterTipo === 'receber') query = query.gte('valor', 0);
+
+      const rows: any[] = [];
+      let total = 0;
+      let target = currentLimit;
+      do {
+        const { data, error, count } = await query.range(rows.length, Math.min(rows.length + 500, target) - 1);
+        if (requestId !== lancamentosRequestRef.current) return;
+        if (error) throw error;
+        if (count !== null) {
+          total = count;
+          target = Math.min(currentLimit, count);
+        }
+        if (!data?.length) break;
+        rows.push(...data);
+      } while (rows.length < target);
+      setLancamentos(rows);
+      setTotalCount(total);
     } catch (err) {
       console.error("Erro ao buscar lançamentos:", err);
+      if (requestId === lancamentosRequestRef.current) setLoadError(true);
+    } finally {
+      if (requestId === lancamentosRequestRef.current) setLoadingLancamentos(false);
     }
-  }, [isAdmin]);
+  }, [isAdmin, limit, filterData, filterDescricao, filterFornecedor, filterCategoria, filterTipo]);
 
   useEffect(() => {
     if (user) {
@@ -300,7 +364,7 @@ function ContasPagarReceber() {
 
     try {
       setSavingRow(true);
-      let val = parseFloat(newRow.valor.replace(",", "."));
+      const val = Math.abs(parseFloat(newRow.valor.replace(",", "."))) * (newTipo === 'saida' ? -1 : 1);
 
       let fileUrl = null;
       if (selectedFile) {
@@ -335,7 +399,9 @@ function ContasPagarReceber() {
       const { error } = await supabase.from("contas_pagar_receber").insert([payload]);
       if (error) throw error;
 
-      setNewRow({ data: getToday(), descricao: "", tipo: "pagar", valor: "", fornecedor: "", cliente: "", categoria: "", is_recorrente: false } as any);
+      setNewRow({ data: getToday(), descricao: "", valor: "", fornecedor_cliente: "", categoria: "", is_recorrente: false });
+      setNewTipo('entrada');
+      setShowNewModal(false);
       setSelectedFile(null);
       
       const fileInput = document.getElementById("comprovante-upload-input") as HTMLInputElement;
@@ -662,66 +728,62 @@ function ContasPagarReceber() {
         `}</style>
       </Helmet>
 
-      <div className="frequencia-container">
+      <div className="frequencia-container accounts-payable-page">
         <div className="frequencia-header">
           <div className="frequencia-title-group" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", flexWrap: "wrap", gap: "16px" }}>
             <div>
               <h1>Contas a pagar e receber</h1>
               <p>Registre contas a pagar e receber. Acompanhe os compromissos financeiros.</p>
             </div>
-            {isAdmin && (
-              <button
-                onClick={openImportModal}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "var(--primary-color)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "6px",
-                  fontWeight: "bold",
-                  fontSize: "1.4rem",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px"
-                }}
-              >
-                <Icons.BsCloudDownload /> Importar Contas Fixas
-              </button>
-            )}
           </div>
         </div>
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
 
-          {/* Card de Inserção */}
-          <div style={{
-            backgroundColor: "#fff",
-            padding: "24px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-            marginBottom: "24px",
-            border: "1px solid #e2e8f0"
-          }}>
+          {showNewModal && <dialog
+            ref={newModalRef}
+            className="financial-new-modal"
+            aria-labelledby="accounts-new-title"
+            onCancel={(event) => { event.preventDefault(); if (!savingRow) setShowNewModal(false); }}
+          >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-              <h3 style={{ margin: 0, color: "#334155", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}>
+              <h3 id="accounts-new-title" style={{ margin: 0, color: "#334155", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}>
                 <Icons.BsPlusCircleFill style={{ color: "var(--primary-color)" }} />
                 Novo Lançamento
               </h3>
+              <button type="button" className="financial-modal-close" aria-label="Fechar" disabled={savingRow} onClick={() => setShowNewModal(false)}><Icons.BsX /></button>
             </div>
 
-            <form onSubmit={handleSave} style={{ display: "flex", flexWrap: "wrap", gap: "12px", alignItems: "flex-end" }}>
+            <form onSubmit={handleSave} className="financial-new-form">
 
               <div style={{ flex: "2 1 200px" }}>
                 <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Descrição</label>
                 <input
                   type="text"
                   placeholder="Ex: Pagamento Fornecedor X"
+                  autoFocus
                   value={newRow.descricao}
                   onChange={(e) => setNewRow({ ...newRow, descricao: e.target.value })}
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", height: "54px", fontSize: "1.4rem" }}
                   required
                 />
+              </div>
+
+              <div>
+                <label htmlFor="accounts-new-type" style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Tipo de lançamento</label>
+                <select
+                  id="accounts-new-type"
+                  value={newTipo}
+                  onChange={(e) => {
+                    const tipo = e.target.value as 'entrada' | 'saida';
+                    setNewTipo(tipo);
+                    setNewRow(prev => ({ ...prev, fornecedor_cliente: '', valor: prev.valor ? (Math.abs(parseFloat(prev.valor.replace(',', '.'))) * (tipo === 'saida' ? -1 : 1)).toFixed(2) : '' }));
+                  }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: `1px solid ${newTipo === 'entrada' ? '#86efac' : '#fca5a5'}`, height: "54px", fontSize: "1.4rem", fontWeight: 600, background: newTipo === 'entrada' ? '#f0fdf4' : '#fef2f2', color: newTipo === 'entrada' ? '#15803d' : '#b91c1c' }}
+                >
+                  <option value="entrada" style={{ color: '#15803d', background: '#f0fdf4' }}>🟢 Entrada (+)</option>
+                  <option value="saida" style={{ color: '#b91c1c', background: '#fef2f2' }}>🔴 Saída (−)</option>
+                </select>
               </div>
 
               <div style={{ flex: "1 1 120px" }}>
@@ -745,7 +807,10 @@ function ContasPagarReceber() {
                     className="no-spinner"
                     placeholder="0.00"
                     value={newRow.valor}
-                    onChange={(e) => setNewRow({ ...newRow, valor: e.target.value })}
+                    onChange={(e) => {
+                      const magnitude = e.target.value.replace(/^-/, '');
+                      setNewRow({ ...newRow, valor: magnitude ? `${newTipo === 'saida' ? '-' : ''}${magnitude}` : '' });
+                    }}
                     onBlur={(e) => {
                       if (e.target.value) {
                         setNewRow({ ...newRow, valor: parseFloat(e.target.value).toFixed(2) });
@@ -758,15 +823,17 @@ function ContasPagarReceber() {
               </div>
 
               <div style={{ flex: "2 1 220px" }}>
-                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>{newRow.valor && parseFloat(newRow.valor.replace(",", ".") || "0") < 0 ? "Fornecedor" : newRow.valor && parseFloat(newRow.valor.replace(",", ".") || "0") > 0 ? "Cliente" : "Fornecedor / Cliente"}</label>
+                <label style={{ display: "block", fontSize: "1.3rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>{newTipo === 'entrada' ? 'Cliente' : 'Fornecedor'}</label>
                 <Select
-                  options={getPessoaOptions(newRow.valor)}
-                  value={pessoaOptions.flatMap(g => g.options).find(o => o.value === newRow.fornecedor_cliente) || null}
+                  options={newTipo === 'entrada' ? clienteOptions : fornecedorOptions}
+                  value={(newTipo === 'entrada' ? clienteOptions : fornecedorOptions).find(o => o.value === newRow.fornecedor_cliente) || null}
                   onChange={(option: any) => setNewRow({ ...newRow, fornecedor_cliente: option ? option.value : "" })}
-                  placeholder="Buscar..."
+                  placeholder={newTipo === 'entrada' ? 'Buscar Cliente...' : 'Buscar Fornecedor...'}
                   isClearable
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
+                  styles={modalSelectStyles}
+                  menuPlacement="auto"
+                  maxMenuHeight={220}
+                  menuShouldScrollIntoView={false}
                 />
               </div>
 
@@ -778,8 +845,10 @@ function ContasPagarReceber() {
                   onChange={(option: any) => setNewRow({ ...newRow, categoria: option ? option.value : "" })}
                   placeholder="Buscar Categoria..."
                   isClearable
-                  styles={selectStyles}
-                  menuPortalTarget={document.body}
+                  styles={modalSelectStyles}
+                  menuPlacement="auto"
+                  maxMenuHeight={220}
+                  menuShouldScrollIntoView={false}
                 />
               </div>
 
@@ -817,7 +886,8 @@ function ContasPagarReceber() {
                 </label>
               </div>
 
-              <div style={{ flex: "0 0 130px", position: "relative" }}>
+              <div className="financial-modal-actions">
+                <button type="button" className="financial-modal-cancel" disabled={savingRow} onClick={() => setShowNewModal(false)}>Cancelar</button>
                 <button
                   type="submit"
                   disabled={savingRow}
@@ -831,22 +901,27 @@ function ContasPagarReceber() {
                     cursor: savingRow ? "not-allowed" : "pointer",
                     fontWeight: "bold",
                     fontSize: "1.4rem",
-                    width: "100%",
+                    width: "180px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     gap: "8px"
                   }}
                 >
-                  <Icons.BsCheckCircleFill /> Adicionar
+                  <Icons.BsCheckCircleFill /> {savingRow ? 'Salvando...' : 'Salvar lançamento'}
                 </button>
               </div>
             </form>
-          </div>
+          </dialog>}
 
           {/* Barra de Filtros foi movida para dentro da tabela */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
+            <button type="button" className="financial-add-button" onClick={() => { setEditingId(null); setShowNewModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
+            <span style={{ fontSize: '1.2rem', color: '#64748b' }}>Clique em uma célula para editar</span>
+            {isAdmin && <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={openImportModal}><Icons.BsCloudDownload /> Importar Contas Fixas</button>}
+          </div>
 
-          <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
+          <div className="freq-table-wrapper financial-table-scroll" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginTop: "16px" }}>
             <table className="freq-table" style={{ minWidth: "1000px" }}>
               <thead>
                 <tr>
@@ -883,10 +958,10 @@ function ContasPagarReceber() {
                   <th style={{ padding: "8px" }}>
                     <Select
                       menuPortalTarget={document.body}
-                      options={fornecedorOptions}
+                      options={pessoaOptions}
                       value={filterFornecedor ? { value: filterFornecedor, label: filterFornecedor } : null}
                       onChange={(sel: any) => setFilterFornecedor(sel ? sel.value : null)}
-                      placeholder="Fornecedor..."
+                      placeholder="Fornecedor / Cliente..."
                       isClearable
                       styles={filterSelectStyles}
                     />
@@ -968,15 +1043,7 @@ function ContasPagarReceber() {
               </thead>
               <tbody>
                 {(() => {
-                  const lancamentosFiltrados = lancamentos.filter(l => {
-                    if (filterData && l.data !== filterData) return false;
-                    if (filterDescricao && !l.descricao.toLowerCase().includes(filterDescricao.toLowerCase())) return false;
-                    if (filterFornecedor && l.fornecedor_cliente !== filterFornecedor) return false;
-                    if (filterCategoria && l.categoria !== filterCategoria) return false;
-                    if (filterTipo === "pagar" && l.valor >= 0) return false;
-                    if (filterTipo === "receber" && l.valor < 0) return false;
-                    return true;
-                  });
+                  const lancamentosFiltrados = lancamentos;
 
                   if (lancamentosFiltrados.length === 0) {
                     return (
@@ -1025,7 +1092,11 @@ function ContasPagarReceber() {
                     const statusColor = isAtrasado ? "#b91c1c" : "#a16207";
 
                     return (
-                      <tr key={l.id}>
+                      <tr key={l.id} className={editingId === l.id ? 'accounts-editing-row' : 'accounts-data-row'} onClick={(event) => {
+                        const target = event.target as HTMLElement;
+                        const cell = target.closest('td');
+                        if (editingId !== l.id && cell && cell !== event.currentTarget.lastElementChild && !target.closest('button, a, input, select, label')) handleEdit(l);
+                      }}>
                         {editingId === l.id ? (
                           <>
                             <td>
@@ -1423,6 +1494,15 @@ function ContasPagarReceber() {
                 })()}
               </tbody>
             </table>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', margin: '24px 0' }} aria-busy={loadingLancamentos}>
+            <span style={{ fontSize: '1.3rem', color: '#64748b' }} aria-live="polite">Mostrando <strong>{lancamentos.length}</strong> de <strong>{totalCount}</strong> totais{loadingLancamentos ? ' — Carregando...' : ''}</span>
+            {loadError && <span role="alert" style={{ color: '#b91c1c' }}>Não foi possível carregar os lançamentos. <button type="button" onClick={() => fetchLancamentos()}>Tentar novamente</button></span>}
+            {lancamentos.length < totalCount && <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
+              <button type="button" disabled={loadingLancamentos} onClick={() => setLimit(prev => prev + 200)} style={{ padding: '12px 24px', border: '1px solid #cbd5e1', borderRadius: '12px', background: '#f8fafc', color: '#78593e', fontSize: '1.4rem', fontWeight: 'bold', cursor: loadingLancamentos ? 'wait' : 'pointer' }}>Carregar +200 linhas</button>
+              <button type="button" disabled={loadingLancamentos} onClick={() => setLimit(Infinity)} style={{ padding: '12px 24px', border: 'none', borderRadius: '12px', background: 'var(--primary-color)', color: '#fff', fontSize: '1.4rem', fontWeight: 'bold', cursor: loadingLancamentos ? 'wait' : 'pointer' }}>Carregar tudo</button>
+            </div>}
           </div>
 
         </div>

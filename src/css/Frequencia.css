@@ -770,6 +770,22 @@
 }
 
 /* Cabeçalho fixo e divisórias da tabela de lançamentos financeiros. */
+.accounts-payable-page .freq-table th {
+  padding: 6px !important;
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+.accounts-payable-page .freq-table td {
+  padding: 5px 6px !important;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  height: auto;
+}
+.accounts-payable-page .accounts-data-row > td:not(:last-child) { cursor: pointer; }
+.accounts-payable-page .accounts-data-row > td:not(:last-child):hover { background: #e8edf3; }
+.accounts-payable-page .accounts-data-row > td:nth-child(2),
+.accounts-payable-page .accounts-data-row > td:nth-child(4) { white-space: nowrap; }
+
 .freq-table-wrapper.financial-table-scroll {
   max-height: 70vh;
   overflow: auto;
