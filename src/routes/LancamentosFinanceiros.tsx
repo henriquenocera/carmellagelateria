@@ -693,10 +693,6 @@ function LancamentosFinanceiros() {
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
 
-          <button type="button" className="financial-add-button" onClick={() => { setEditingId(null); setShowNewModal(true); }}>
-            <Icons.BsPlusCircleFill /> Adicionar
-          </button>
-
           {showNewModal && <dialog
             ref={newModalRef}
             className="financial-new-modal"
@@ -867,6 +863,9 @@ function LancamentosFinanceiros() {
 
           {/* Barra de Filtros e Ordenação Globais */}
           <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px", alignItems: "center" }}>
+            <button type="button" className="financial-add-button" onClick={() => { setEditingId(null); setShowNewModal(true); }}>
+              <Icons.BsPlusCircleFill /> Adicionar
+            </button>
 
             {/* Campo de Filtro de Mês */}
             <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", backgroundColor: "#fff", border: "1px solid #e2e8f0", borderRadius: "4px", padding: "4px 10px", height: "32px", boxSizing: "border-box" }}>
