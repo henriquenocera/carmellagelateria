@@ -55,6 +55,7 @@ import AnaliseProdutos from "./routes/AnaliseProdutos.tsx";
 import ProducaoRealizada from "./routes/ProducaoRealizada.tsx";
 import EstoqueFabrica from "./routes/EstoqueFabrica.tsx";
 import OrdemProducao from "./routes/OrdemProducao.tsx";
+import OrdemProducao2 from "./routes/OrdemProducao2.tsx";
 import CadastroFornecedores from "./routes/configuracoes/CadastroFornecedores.tsx";
 import CadastroClientes from "./routes/configuracoes/CadastroClientes.tsx";
 import CadastroContas from "./routes/configuracoes/CadastroContas.tsx";
@@ -174,6 +175,7 @@ const router = createBrowserRouter(
         <Route path="/estoque-fabrica" element={<EstoqueFabrica />} />
         <Route path="/analise-vales" element={<AnaliseVales />} />
         <Route path="/ordem-producao" element={<OrdemProducao />} />
+        <Route path="/ordem-producao-2" element={<OrdemProducao2 />} />
         <Route path="/configuracoes/cadastro-fornecedores" element={<CadastroFornecedores />} />
         <Route path="/configuracoes/cadastro-clientes" element={<CadastroClientes />} />
         <Route path="/configuracoes/cadastro-contas" element={<CadastroContas />} />
