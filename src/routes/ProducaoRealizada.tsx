@@ -15,6 +15,29 @@ function ProducaoRealizada() {
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [showSavedMessage, setShowSavedMessage] = useState(false);
   const selectRef = useRef<any>(null);
+  const newModalRef = useRef<HTMLDialogElement>(null);
+  const [showNewModal, setShowNewModal] = useState(false);
+
+  useEffect(() => {
+    if (!showNewModal) return;
+    const dialog = newModalRef.current;
+    const previousOverflow = document.body.style.overflow;
+    dialog?.showModal();
+    document.body.style.overflow = "hidden";
+    return () => {
+      dialog?.close();
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [showNewModal]);
+
+  useEffect(() => {
+    if (!showNewModal) return;
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !savingRow) setShowNewModal(false);
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [showNewModal, savingRow]);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -300,6 +323,7 @@ function ProducaoRealizada() {
 
       setShowSavedMessage(true);
       setTimeout(() => setShowSavedMessage(false), 2000);
+      setShowNewModal(false);
 
       // Clear specific fields but keep date to speed up input
       setNewRow({
@@ -488,6 +512,24 @@ function ProducaoRealizada() {
     <>
       <Helmet>
         <title>Produção Realizada</title>
+        <style>{`
+          @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+          }
+          .producao-table .freq-table tbody tr:hover td { filter: brightness(0.93); }
+          .producao-table .freq-table th { padding: 6px !important; font-size: 1.1rem !important; line-height: 1.2 !important; }
+          .producao-table .freq-table td { padding: 5px 6px !important; font-size: 1.15rem !important; line-height: 1.25 !important; height: auto !important; }
+          .production-new-modal { position: fixed; left: 50%; top: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); margin: 0; box-sizing: border-box; width: 1124px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: visible; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px 30px; box-shadow: 0 20px 50px rgba(15,23,42,.25); }
+          .production-new-modal::backdrop { background: rgba(15,23,42,.45); }
+          .production-new-fields { display: grid !important; grid-template-columns: minmax(280px, 2fr) minmax(180px, 1.2fr) repeat(2, minmax(120px, .8fr)) 187px; gap: 14px !important; align-items: end; }
+          .production-new-fields > div { min-width: 0; }
+          .production-new-fields input { box-sizing: border-box; height: 58px !important; }
+          .production-new-fields .production-save-button { height: 58px !important; }
+          @media (max-width: 850px) { .production-new-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .production-new-fields > div:first-child { grid-column: 1 / -1; } }
+          @media (max-width: 520px) { .production-new-fields { grid-template-columns: minmax(0, 1fr); } .production-new-fields > div:first-child { grid-column: auto; } }
+        `}</style>
       </Helmet>
 
       <div className="frequencia-container">
@@ -502,20 +544,19 @@ function ProducaoRealizada() {
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
 
-          {/* Card de Inserção */}
+          {showNewModal && <dialog ref={newModalRef} className="production-new-modal" aria-labelledby="production-new-modal-title" onClick={(event) => {
+            // Cliques na área de backdrop têm o próprio dialog como target; opções/selects nunca fecham o modal.
+            if (event.target === newModalRef.current && !savingRow) setShowNewModal(false);
+          }} onCancel={(event) => { event.preventDefault(); if (!savingRow) setShowNewModal(false); }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <h3 id="production-new-modal-title" style={{ margin: 0, color: "#334155", fontSize: "1.8rem", display: "flex", alignItems: "center", gap: "8px" }}><Icons.BsPlusCircleFill style={{ color: "var(--primary-color)" }} /> Registrar Produção</h3>
+            <button type="button" aria-label="Fechar" disabled={savingRow} onClick={() => setShowNewModal(false)} style={{ background: "none", border: "none", color: "#64748b", fontSize: "2rem", cursor: "pointer" }}><Icons.BsX /></button>
+          </div>
           <div style={{
             backgroundColor: "#fff",
-            padding: "24px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
-            marginBottom: "24px",
-            border: "1px solid #e2e8f0"
+            padding: "0",
           }}>
-            <h3 style={{ margin: "0 0 16px 0", color: "#334155", fontSize: "1.5rem", display: "flex", alignItems: "center", gap: "8px" }}>
-              <Icons.BsPlusCircleFill style={{ color: "var(--primary-color)" }} />
-              Registrar Produção
-            </h3>
-            <div style={{
+            <div className="production-new-fields" style={{
               display: "flex",
               flexWrap: "wrap",
               gap: "12px",
@@ -526,18 +567,21 @@ function ProducaoRealizada() {
                 <Select
                   ref={selectRef}
                   autoFocus
-                  menuPortalTarget={document.body}
-                  maxMenuHeight={350}
+                   menuPlacement="bottom"
+                   classNamePrefix="production-select"
+                   maxMenuHeight={350}
                   options={produtos.filter(p => p.ativo !== false).map(p => ({ value: p.id, label: p.nome }))}
                   value={newRow.produto_id ? { value: newRow.produto_id, label: produtos.find(p => p.id === newRow.produto_id)?.nome } : null}
                   onChange={(selectedOption) => setNewRow({ ...newRow, produto_id: selectedOption ? selectedOption.value : "" })}
                   placeholder="Buscar Produto..."
                   isClearable
                   noOptionsMessage={() => "Nenhum produto encontrado"}
-                  styles={{
-                    control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '46px', borderRadius: '4px', fontSize: '1.2rem' }),
-                    menuPortal: (base) => ({ ...base, zIndex: 9999, fontSize: '1.2rem' })
-                  }}
+                   styles={{
+                     control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '58px', height: '58px', borderRadius: '4px', fontSize: '1.2rem' }),
+                     menu: (base) => ({ ...base, width: '380px', maxWidth: 'calc(100vw - 32px)', textAlign: 'left', fontSize: '15px', zIndex: 10000 }),
+                     option: (base) => ({ ...base, fontSize: '15px', lineHeight: 1.5, padding: '10px 12px', whiteSpace: 'normal', overflowWrap: 'anywhere' }),
+                     menuPortal: (base) => ({ ...base, zIndex: 10000 })
+                   }}
                 />
               </div>
               <div style={{ flex: "1 1 150px" }}>
@@ -546,7 +590,7 @@ function ProducaoRealizada() {
                   type="date"
                   value={newRow.data_producao}
                   onChange={(e) => setNewRow({ ...newRow, data_producao: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "58px", fontSize: "1.2rem" }}
                 />
               </div>
               <div style={{ flex: "1 1 100px" }}>
@@ -557,7 +601,7 @@ function ProducaoRealizada() {
                   placeholder="Bruto"
                   value={newRow.peso_bruto}
                   onChange={(e) => setNewRow({ ...newRow, peso_bruto: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "58px", fontSize: "1.2rem" }}
                 />
               </div>
               <div style={{ flex: "1 1 100px" }}>
@@ -568,7 +612,7 @@ function ProducaoRealizada() {
                   placeholder="Tara"
                   value={newRow.tara}
                   onChange={(e) => setNewRow({ ...newRow, tara: e.target.value })}
-                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "46px", fontSize: "1.2rem" }}
+                  style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "58px", fontSize: "1.2rem" }}
                 />
               </div>
 
@@ -592,7 +636,7 @@ function ProducaoRealizada() {
                   onClick={handleAddRow}
                   disabled={savingRow}
                   style={{
-                    height: "46px",
+                    height: "58px",
                     padding: "0",
                     backgroundColor: "var(--primary-color)",
                     color: "white",
@@ -607,14 +651,21 @@ function ProducaoRealizada() {
                     justifyContent: "center",
                     gap: "8px"
                   }}
+                  className="production-save-button"
                 >
                   {savingRow ? <><Icons.BsArrowClockwise className="spin" /> Salvando...</> : <><Icons.BsCheckCircleFill /> Salvar</>}
                 </button>
               </div>
             </div>
           </div>
+          </dialog>}
 
-          <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", flexWrap: "wrap", marginBottom: "12px", alignItems: "center" }}>
+            <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={() => { setEditingRowId(null); setShowNewModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
+            <button onClick={() => { setFilterProdutoId(null); setFilterData(""); setFilterStatus('all'); }} style={{ padding: "6px 12px", backgroundColor: "#cbd5e1", color: "#334155", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsXCircleFill /> Limpar</button>
+            <button onClick={() => fetchData(false, 0)} style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsArrowClockwise /> Atualizar</button>
+          </div>
+          <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
             <table className="freq-table" style={{ minWidth: "1400px" }}>
               <thead>
                 <tr>
@@ -669,8 +720,8 @@ function ProducaoRealizada() {
                       style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
                     />
                   </th>
-                  <th colSpan={8} style={{ padding: "8px", textAlign: "right" }}>
-                    <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
+                      <th colSpan={8} style={{ padding: "8px", textAlign: "right" }}>
+                        <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
                       {isAdmin && (
                         <button
                           onClick={() => {
@@ -700,50 +751,6 @@ function ProducaoRealizada() {
                           <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
                         </button>
                       )}
-                      <button
-                        onClick={() => {
-                          setFilterProdutoId(null);
-                          setFilterData("");
-                          setFilterStatus('all');
-                        }}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#cbd5e1",
-                          color: "#334155",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          transition: "0.2s"
-                        }}
-                        title="Limpar Filtros"
-                      >
-                        <Icons.BsXCircleFill /> Limpar
-                      </button>
-                      <button
-                        onClick={() => fetchData(false, 0)}
-                        style={{
-                          padding: "6px 12px",
-                          backgroundColor: "#f1f5f9",
-                          color: "#334155",
-                          border: "1px solid #cbd5e1",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          fontSize: "0.85rem",
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "4px",
-                          transition: "0.2s"
-                        }}
-                        title="Atualizar Dados"
-                      >
-                        <Icons.BsArrowClockwise /> Atualizar
-                      </button>
                     </div>
                   </th>
                 </tr>
