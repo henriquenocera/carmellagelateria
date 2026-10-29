@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
@@ -34,7 +34,8 @@ function OrdemProducao() {
   const [isSavingAll, setIsSavingAll] = useState(false);
   const [isAlreadySaved, setIsAlreadySaved] = useState(false);
   const [recentlySavedId, setRecentlySavedId] = useState<string | null>(null);
-  const debounceTimers = useRef<Record<string, NodeJS.Timeout>>({});
+  const [showFlavorTable, setShowFlavorTable] = useState(true);
+  const [showInsumosTable, setShowInsumosTable] = useState(true);
   const [editMode, setEditMode] = useState(false);
   
   const [isNewOrderModalOpen, setIsNewOrderModalOpen] = useState(false);
@@ -323,97 +324,6 @@ function OrdemProducao() {
     setQuantidadeInput("");
   };
 
-  const handleRowChange = (id: string, field: string, value: string, renderCode?: string) => {
-    setOrdemItems(prev => {
-      const updated = prev.map(item => item.id === id ? { ...item, [field]: value } : item);
-      
-      if (isAlreadySaved && !editMode) {
-        const itemToUpdate = updated.find(i => i.id === id);
-        if (itemToUpdate && itemToUpdate.db_id) {
-          const timerKey = `${id}-${field}`;
-          if (debounceTimers.current[timerKey]) clearTimeout(debounceTimers.current[timerKey]);
-          
-          const currentCode = renderCode || getGeneratedCodes()[id];
-
-          debounceTimers.current[timerKey] = setTimeout(() => {
-            handleQuickUpdate(itemToUpdate, field, value, currentCode);
-          }, 2500);
-        }
-      }
-      return updated;
-    });
-  };
-
-  const handleQuickUpdate = async (item: any, field: string, value: string, code: string) => {
-    try {
-      const updatedItem = { ...item, [field]: value };
-      const pb = updatedItem.peso_bruto !== "" ? parseFloat(updatedItem.peso_bruto) : null;
-      const t = updatedItem.tara !== "" ? parseFloat(updatedItem.tara) : null;
-      
-      const prod = produtos.find(p => p.id === item.produto_id);
-      const addDays = (date: Date, days: number) => {
-        const result = new Date(date);
-        result.setDate(result.getDate() + days);
-        return result;
-      };
-      
-      const val = updatedItem.data_producao && prod?.validade_dias 
-        ? addDays(new Date(updatedItem.data_producao + "T12:00:00"), prod.validade_dias).toISOString().split('T')[0] 
-        : null;
-
-      const { error } = await supabase
-        .from("ordem_producao")
-        .update({ 
-            [field]: value === "" ? null : (field === 'peso_bruto' || field === 'tara' ? parseFloat(value) : value),
-            codigo: code
-        })
-        .eq("id", item.db_id);
-      
-      if (error) throw error;
-
-      if (updatedItem.data_producao && pb !== null && t !== null) {
-        const pl = parseFloat((pb - t).toFixed(2));
-        
-        const { data: existingProd } = await supabase
-          .from("producao_realizada")
-          .select("id")
-          .eq("codigo", code)
-          .limit(1);
-
-        if (existingProd && existingProd.length > 0) {
-           await supabase.from("producao_realizada").update({
-             data_producao: updatedItem.data_producao,
-             peso_bruto: pb,
-             tara: t,
-             peso_liquido: pl,
-             validade: val,
-             user_id: user?.id
-           }).eq("id", existingProd[0].id);
-           setOrdemItems(prev => prev.map(i => i.id === item.id ? { ...i, saved_as_complete: true, codigo: code } : i));
-           showToast("Atualizado na Produção", "Alteração refletida em Produções Realizadas.");
-        } else {
-           await supabase.from("producao_realizada").insert([{
-             produto_id: item.produto_id,
-             codigo: code,
-             data_producao: updatedItem.data_producao,
-             peso_bruto: pb,
-             tara: t,
-             peso_liquido: pl,
-             validade: val,
-             user_id: user?.id
-           }]);
-           setOrdemItems(prev => prev.map(i => i.id === item.id ? { ...i, saved_as_complete: true, codigo: code } : i));
-           showToast("Lançado com Sucesso!", "Cópia gerada em Produções Realizadas.");
-        }
-      } else {
-        setOrdemItems(prev => prev.map(i => i.id === item.id ? { ...i, saved_as_complete: false } : i));
-      }
-    } catch (err) {
-      console.error("Erro no quick update:", err);
-      showToast("Erro ao Salvar", "Ocorreu um problema ao comunicar com o banco de dados.");
-    }
-  };
-
   const handleRemoveProduto = (id: string) => {
     setOrdemItems(prev => prev.filter(item => item.id !== id));
   };
@@ -427,8 +337,6 @@ function OrdemProducao() {
 
       setIsSavingAll(true);
       const toUpsert: any[] = [];
-      const codes = getGeneratedCodes();
-      
       ordemItems.forEach(item => {
         const floatValue = parseFloat(item.quantidade);
         if (!isNaN(floatValue)) {
@@ -442,7 +350,7 @@ function OrdemProducao() {
             data_producao: item.data_producao || null,
             peso_bruto: item.peso_bruto !== "" && item.peso_bruto != null ? parseFloat(item.peso_bruto) : null,
             tara: item.tara !== "" && item.tara != null ? parseFloat(item.tara) : null,
-            codigo: item.codigo || codes[item.id] || null
+            codigo: item.codigo || null
           };
           toUpsert.push(rowData);
         }
@@ -570,70 +478,6 @@ function OrdemProducao() {
     }).format(date);
   };
 
-  const getGeneratedCodes = () => {
-    const productCodes: Record<string, string> = {};
-    const baseCodeTotals: Record<string, number> = {};
-    const itemBaseCodes: Record<string, string> = {};
-
-    // 1. Calculate base codes for ALL items
-    ordemItems.forEach(item => {
-      const prod = produtos.find(p => p.id === item.produto_id);
-      const prodCodigo = prod?.codigo || "ND";
-      
-      let ddMMyy = "";
-      const dateToUse = selectedDate;
-      if (dateToUse) {
-        const parts = dateToUse.split('-');
-        if (parts.length === 3) {
-          ddMMyy = `${parts[2]}${parts[1]}${parts[0].substring(2)}`;
-        }
-      }
-      
-      const baseCode = `${prodCodigo}${ddMMyy}`;
-      itemBaseCodes[item.id] = baseCode;
-      baseCodeTotals[baseCode] = (baseCodeTotals[baseCode] || 0) + 1;
-    });
-
-    // 2. Find max suffixes from items that ALREADY have a valid DB codigo
-    const maxSuffixes: Record<string, number> = {};
-    ordemItems.forEach(item => {
-      if (item.codigo) {
-        const baseCode = itemBaseCodes[item.id];
-        if (item.codigo.startsWith(baseCode)) {
-          const dashIndex = item.codigo.lastIndexOf('-');
-          if (dashIndex > 0) {
-            const suffix = parseInt(item.codigo.substring(dashIndex + 1), 10);
-            if (!isNaN(suffix)) {
-              maxSuffixes[baseCode] = Math.max(maxSuffixes[baseCode] || 0, suffix);
-            }
-          }
-        }
-      }
-    });
-
-    // 3. Assign codes
-    ordemItems.forEach(item => {
-      const baseCode = itemBaseCodes[item.id];
-
-      // Use DB code if it exists and still matches the date prefix
-      if (item.codigo && item.codigo.startsWith(baseCode)) {
-        productCodes[item.id] = item.codigo;
-        return;
-      }
-
-      // Generate a new code
-      if (baseCodeTotals[baseCode] > 1 || (maxSuffixes[baseCode] && maxSuffixes[baseCode] > 0)) {
-        const nextSuffix = (maxSuffixes[baseCode] || 0) + 1;
-        maxSuffixes[baseCode] = nextSuffix;
-        productCodes[item.id] = `${baseCode}-${nextSuffix}`;
-      } else {
-        productCodes[item.id] = baseCode;
-      }
-    });
-    
-    return productCodes;
-  };
-
   const calculateRequiredInsumos = () => {
     const aggregation: Record<string, { key: string; id: string; nome: string; unidade: string; quantidade: number; componentes: Record<string, number> }> = {};
 
@@ -695,12 +539,10 @@ function OrdemProducao() {
     doc.text(`Impresso em: ${formatDateTimeBR(new Date().toISOString())}`, 14, 27);
 
     const tableData: any[] = [];
-    const generatedCodes = getGeneratedCodes();
     
     ordemItems.forEach((item) => {
       const prod = produtos.find(p => p.id === item.produto_id);
       tableData.push([
-        generatedCodes[item.id] || "-",
         prod?.codigo || "-",
         prod ? prod.nome : "-",
         item.data_producao ? formatDateBR(item.data_producao) : "-",
@@ -711,7 +553,7 @@ function OrdemProducao() {
 
     (doc as any).autoTable({
       startY: 20,
-      head: [["Cód Produção", "Cód Produto", "Sabor", "Data Produção", "Peso Bruto", "Tara"]],
+      head: [["Cód Produto", "Sabor", "Data Produção", "Peso Bruto", "Tara"]],
       body: tableData,
       theme: "grid",
       headStyles: { fillColor: [59, 130, 246] },
@@ -1069,23 +911,22 @@ function OrdemProducao() {
                 </div>
               )}
 
-              <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-                <table className="freq-table" style={{ minWidth: "1100px", margin: "0 auto" }}>
+              <button type="button" aria-expanded={showFlavorTable} onClick={() => setShowFlavorTable(value => !value)} style={{ width: "100%", marginBottom: showFlavorTable ? "8px" : "20px", padding: "14px 18px", display: "flex", alignItems: "center", gap: "10px", textAlign: "left", background: "#fff", border: "1px solid #cbd5e1", borderRadius: "8px", color: "#334155", fontWeight: "bold", fontSize: "1.25rem", cursor: "pointer" }}>
+                {showFlavorTable ? <Icons.BsChevronDown /> : <Icons.BsChevronRight />} Sabores e quantidades ({ordemItems.length})
+              </button>
+              {showFlavorTable && <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
+                <table className="freq-table" style={{ minWidth: "560px", margin: "0 auto" }}>
                   <thead>
                     <tr style={{ fontSize: "1.25rem" }}>
-                      <th style={{ textAlign: "center", width: "15%", padding: "10px" }}>Cód Produção</th>
                       <th style={{ textAlign: "center", width: "10%", padding: "10px" }}>Cód Produto</th>
-                      <th style={{ width: "20%", padding: "10px" }}>Sabor</th>
-                      <th style={{ textAlign: "center", width: "20%", padding: "10px" }}>Data Produção</th>
-                      <th style={{ textAlign: "center", width: "10%", padding: "10px" }}>Peso Bruto</th>
-                      <th style={{ textAlign: "center", width: "10%", padding: "10px" }}>Tara</th>
-                      {!isReadOnly && <th style={{ textAlign: "center", width: "15%", padding: "10px" }}>Ações</th>}
+                      <th style={{ width: "70%", padding: "10px" }}>Sabor</th>
+                      {!isReadOnly && <th style={{ textAlign: "center", width: "20%", padding: "10px" }}>Ações</th>}
                     </tr>
                   </thead>
                   <tbody>
                     {ordemItems.length === 0 ? (
                       <tr>
-                        <td colSpan={isReadOnly ? 6 : 7} style={{ textAlign: "center", padding: "30px", color: "#94a3b8", fontSize: "1.3rem" }}>
+                        <td colSpan={isReadOnly ? 2 : 3} style={{ textAlign: "center", padding: "30px", color: "#94a3b8", fontSize: "1.3rem" }}>
                           Nenhum sabor inserido nesta ordem.
                         </td>
                       </tr>
@@ -1097,60 +938,10 @@ function OrdemProducao() {
                         
                         const renderRow = (item: any) => {
                           const prod = produtos.find(p => p.id === item.produto_id);
-                          const code = getGeneratedCodes()[item.id] || "-";
                           return (
                             <tr key={item.id} style={{ transition: "background 0.2s", fontSize: "1.35rem" }}>
-                              <td style={{ textAlign: "center", fontWeight: "bold", padding: "6px" }}>{code}</td>
                               <td style={{ textAlign: "center", padding: "6px" }}>{prod?.codigo || "-"}</td>
                               <td style={{ fontWeight: 500, padding: "6px" }}>{prod ? prod.nome : "-"}</td>
-                              <td style={{ textAlign: "center", padding: "6px" }}>
-                                  <input 
-                                    type="date"
-                                    value={item.data_producao || ""}
-                                    onChange={(e) => handleRowChange(item.id, 'data_producao', e.target.value, code)}
-                                    disabled={!item.db_id}
-                                    className={isReadOnly && item.data_producao ? "invisible-input" : ""}
-                                    style={{ 
-                                      width: "90%", padding: "4px", borderRadius: "6px", border: "1px solid #cbd5e1", 
-                                      backgroundColor: (!item.db_id || (isReadOnly && !item.data_producao)) ? "#f1f5f9" : "#fff", 
-                                      color: !item.db_id ? "#94a3b8" : "inherit", 
-                                      cursor: !item.db_id ? "not-allowed" : "auto",
-                                      fontWeight: "inherit", fontSize: "1.35rem" 
-                                    }}
-                                  />
-                              </td>
-                              <td style={{ textAlign: "center", padding: "6px" }}>
-                                  <input 
-                                    type="number" step="0.001"
-                                    value={item.peso_bruto || ""}
-                                    onChange={(e) => handleRowChange(item.id, 'peso_bruto', e.target.value, code)}
-                                    disabled={!item.db_id}
-                                    className={`no-spinner ${isReadOnly && item.peso_bruto ? "invisible-input" : ""}`}
-                                    style={{ 
-                                      width: "100px", padding: "4px", borderRadius: "6px", border: "1px solid #cbd5e1", 
-                                      backgroundColor: (!item.db_id || (isReadOnly && !item.peso_bruto)) ? "#f1f5f9" : "#fff", 
-                                      color: !item.db_id ? "#94a3b8" : "inherit", 
-                                      cursor: !item.db_id ? "not-allowed" : "auto",
-                                      fontWeight: "inherit", fontSize: "1.35rem" 
-                                    }}
-                                  />
-                              </td>
-                              <td style={{ textAlign: "center", padding: "6px" }}>
-                                  <input 
-                                    type="number" step="0.001"
-                                    value={item.tara || ""}
-                                    onChange={(e) => handleRowChange(item.id, 'tara', e.target.value, code)}
-                                    disabled={!item.db_id}
-                                    className={`no-spinner ${isReadOnly && item.tara ? "invisible-input" : ""}`}
-                                    style={{ 
-                                      width: "100px", padding: "4px", borderRadius: "6px", border: "1px solid #cbd5e1", 
-                                      backgroundColor: (!item.db_id || (isReadOnly && !item.tara)) ? "#f1f5f9" : "#fff", 
-                                      color: !item.db_id ? "#94a3b8" : "inherit", 
-                                      cursor: !item.db_id ? "not-allowed" : "auto",
-                                      fontWeight: "inherit", fontSize: "1.35rem" 
-                                    }}
-                                  />
-                              </td>
                               {!isReadOnly && (
                                 <td style={{ textAlign: "center", padding: "6px" }}>
                                   <button onClick={() => handleRemoveProduto(item.id)} style={{ background: "none", border: "none", color: "#ef4444", cursor: "pointer", fontSize: "1.1rem" }} title="Remover Sabor">
@@ -1167,7 +958,7 @@ function OrdemProducao() {
                             {itemsFaltando.length > 0 && (
                               <>
                                 <tr style={{ backgroundColor: "#f8fafc" }}>
-                                  <td colSpan={isReadOnly ? 6 : 7} style={{ padding: "12px 24px", fontWeight: "bold", color: "#64748b", fontSize: "1.2rem", textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
+                                  <td colSpan={isReadOnly ? 2 : 3} style={{ padding: "12px 24px", fontWeight: "bold", color: "#64748b", fontSize: "1.2rem", textAlign: "left", borderBottom: "2px solid #e2e8f0" }}>
                                     ⏳ Falta Produzir ({itemsFaltando.length})
                                   </td>
                                 </tr>
@@ -1177,7 +968,7 @@ function OrdemProducao() {
                             {itemsProduzidos.length > 0 && (
                               <>
                                 <tr style={{ backgroundColor: "#f0fdf4" }}>
-                                  <td colSpan={isReadOnly ? 6 : 7} style={{ padding: "12px 24px", fontWeight: "bold", color: "#16a34a", fontSize: "1.2rem", textAlign: "left", borderBottom: "2px solid #bbf7d0", borderTop: itemsFaltando.length > 0 ? "2px solid #e2e8f0" : "none" }}>
+                                  <td colSpan={isReadOnly ? 2 : 3} style={{ padding: "12px 24px", fontWeight: "bold", color: "#16a34a", fontSize: "1.2rem", textAlign: "left", borderBottom: "2px solid #bbf7d0", borderTop: itemsFaltando.length > 0 ? "2px solid #e2e8f0" : "none" }}>
                                     ✅ Já Produzidos ({itemsProduzidos.length})
                                   </td>
                                 </tr>
@@ -1190,17 +981,17 @@ function OrdemProducao() {
                     )}
                   </tbody>
                 </table>
-              </div>
+              </div>}
 
               {(() => {
                 const insumos = calculateRequiredInsumos();
                 if (insumos.length === 0) return null;
                 return (
                   <div style={{ backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #cbd5e1', padding: '24px', marginTop: '24px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                    <h3 style={{ margin: '0 0 16px 0', fontSize: '1.4rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icons.BsBoxSeam style={{ color: "var(--primary-color)" }} /> Lista de Separação (Insumos Necessários)
-                    </h3>
-                    <div style={{ overflowX: "auto" }}>
+                    <button type="button" aria-expanded={showInsumosTable} onClick={() => setShowInsumosTable(value => !value)} style={{ width: "100%", margin: 0, padding: 0, border: 0, background: "transparent", display: "flex", alignItems: "center", gap: "8px", textAlign: "left", color: "#1e293b", fontSize: "1.4rem", fontWeight: "bold", cursor: "pointer" }}>
+                      {showInsumosTable ? <Icons.BsChevronDown /> : <Icons.BsChevronRight />} <Icons.BsBoxSeam style={{ color: "var(--primary-color)" }} /> Lista de Separação (Insumos Necessários)
+                    </button>
+                    {showInsumosTable && <div style={{ overflowX: "auto", marginTop: "16px" }}>
                       <table style={{ width: '100%', minWidth: '600px', borderCollapse: 'collapse' }}>
                         <thead>
                           <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
@@ -1231,7 +1022,7 @@ function OrdemProducao() {
                           })}
                         </tbody>
                       </table>
-                    </div>
+                    </div>}
                   </div>
                 );
               })()}
