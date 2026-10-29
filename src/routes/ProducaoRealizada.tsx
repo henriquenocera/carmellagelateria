@@ -15,6 +15,7 @@ function ProducaoRealizada() {
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const [showSavedMessage, setShowSavedMessage] = useState(false);
   const selectRef = useRef<any>(null);
+  const [productMenuMaxHeight, setProductMenuMaxHeight] = useState(350);
   const newModalRef = useRef<HTMLDialogElement>(null);
   const [showNewModal, setShowNewModal] = useState(false);
 
@@ -565,11 +566,17 @@ function ProducaoRealizada() {
               <div style={{ flex: "2 1 250px" }}>
                 <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Produto *</label>
                 <Select
-                  ref={selectRef}
-                  autoFocus
+                   ref={selectRef}
+                   autoFocus
                    menuPlacement="bottom"
                    classNamePrefix="production-select"
-                   maxMenuHeight={350}
+                   maxMenuHeight={productMenuMaxHeight}
+                   onMenuOpen={() => {
+                     const control = selectRef.current?.controlRef as HTMLElement | undefined;
+                     const controlBottom = control?.getBoundingClientRect().bottom ?? 0;
+                     const viewportHeight = window.visualViewport?.height || window.innerHeight;
+                     setProductMenuMaxHeight(Math.max(120, Math.min(350, viewportHeight - controlBottom - 16)));
+                   }}
                   options={produtos.filter(p => p.ativo !== false).map(p => ({ value: p.id, label: p.nome }))}
                   value={newRow.produto_id ? { value: newRow.produto_id, label: produtos.find(p => p.id === newRow.produto_id)?.nome } : null}
                   onChange={(selectedOption) => setNewRow({ ...newRow, produto_id: selectedOption ? selectedOption.value : "" })}
