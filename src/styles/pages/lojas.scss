@@ -1,0 +1,174 @@
+.pagina-lojas {
+  width: min(1120px, calc(100% - 3rem));
+  margin: 0 auto;
+  padding: clamp(3rem, 7vw, 6rem) 0;
+  color: #49382f;
+}
+
+.lojas-intro {
+  max-width: 680px;
+  margin: 0 auto 3rem;
+  text-align: center;
+
+  h1 {
+    margin: 0 0 1rem;
+    color: #49382f;
+    font-family: inherit;
+    font-size: clamp(2.8rem, 4vw, 4.4rem);
+    line-height: 1.15;
+  }
+
+  > p:last-child {
+    margin: 0;
+    color: #74645c;
+    font-size: 1.6rem;
+    line-height: 1.7;
+  }
+}
+
+.lojas-etiqueta {
+  margin: 0 0 0.65rem;
+  color: #a97864;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.lojas-lista {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-bottom: clamp(4rem, 8vw, 6rem);
+}
+
+.loja-card {
+  position: relative;
+  display: flex;
+  min-height: 29rem;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: clamp(2rem, 4vw, 3.5rem);
+  overflow: hidden;
+  border: 1px solid #f0e2da;
+  border-radius: 1.8rem;
+  background: #fffdfa;
+  box-shadow: 0 1.2rem 3.4rem rgba(91, 61, 44, 0.07);
+
+  h2 {
+    margin: 0 0 0.5rem;
+    color: #9f715e;
+    font-size: 2.5rem;
+  }
+}
+
+.loja-numero {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.5rem;
+  color: #ead8ce;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.loja-endereco {
+  margin: 0;
+  color: #74645c;
+  font-size: 1.6rem;
+}
+
+.loja-horario {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 2rem 0;
+
+  p {
+    margin: 0;
+    color: #74645c;
+    font-size: 1.5rem;
+    line-height: 1.5;
+  }
+
+  strong { color: #49382f; }
+}
+
+.horario-icone {
+  display: grid;
+  width: 3.6rem;
+  height: 3.6rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: #f7eee8;
+  color: #9f715e;
+  font-size: 2.1rem;
+}
+
+.loja-rota {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: auto;
+  padding: 1.1rem 1.5rem;
+  border-radius: 0.7rem;
+  background: #a97864;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s ease;
+
+  &:hover { background: #855944; }
+  &:focus-visible { outline: 3px solid #d4a790; outline-offset: 3px; }
+}
+
+.mapa-cabecalho {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.25rem;
+
+  h2 {
+    margin: 0;
+    color: #49382f;
+    font-size: clamp(2.4rem, 3vw, 3.2rem);
+  }
+
+  > p {
+    max-width: 34rem;
+    margin: 0 0 0.2rem;
+    color: #74645c;
+    font-size: 1.5rem;
+    line-height: 1.6;
+  }
+}
+
+.mapa-container {
+  width: 100%;
+  overflow: hidden;
+  border: 1px solid #f0e2da;
+  border-radius: 1.8rem;
+  box-shadow: 0 1.2rem 3.4rem rgba(91, 61, 44, 0.08);
+
+  iframe {
+    display: block;
+    width: 100%;
+    border: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .pagina-lojas { width: min(calc(100% - 2rem), 54rem); }
+  .lojas-intro { margin-bottom: 2rem; }
+  .lojas-lista { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 3.5rem; }
+  .loja-card { min-height: 27.5rem; }
+  .mapa-cabecalho { align-items: flex-start; flex-direction: column; gap: 0.5rem; }
+  .mapa-cabecalho > p { max-width: none; }
+  .mapa-container iframe { height: 32rem; }
+}
+
+@media (max-width: 420px) {
+  .mapa-container iframe { height: 26rem; }
+}
