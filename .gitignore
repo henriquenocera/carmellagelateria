@@ -1,6 +1,10 @@
 # build output
 dist
+<<<<<<< Updated upstream
 build 
+=======
+build
+>>>>>>> Stashed changes
 
 # dependencies
 node_modules/
