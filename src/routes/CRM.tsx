@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
@@ -36,6 +36,8 @@ function CRM() {
   const [filterStatus, setFilterStatus] = useState("");
   const [filterTipo, setFilterTipo] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isReordering, setIsReordering] = useState(false);
+  const reorderAnimationTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCliente, setEditingCliente] = useState<any>(null);
@@ -50,6 +52,31 @@ function CRM() {
       fetchClientes();
     }
   }, [session, navigate]);
+
+  function sortClientes(clientesParaOrdenar: any[]) {
+    const getStatusOrder = (status: string) => {
+      switch (status) {
+        case "Em Contato": return 1;
+        case "Lead": return 2;
+        case "Negócio Fechado": return 3;
+        case "Perdido": return 4;
+        default: return 5;
+      }
+    };
+    return [...clientesParaOrdenar].sort((a, b) => {
+      const orderA = getStatusOrder(a.status);
+      const orderB = getStatusOrder(b.status);
+      if (orderA !== orderB) return orderA - orderB;
+      if (orderA === 1 || orderA === 2) {
+        const daysA = getDiasRestantes(a.data_proximo_contato);
+        const daysB = getDiasRestantes(b.data_proximo_contato);
+        if (daysA !== null && daysB !== null) return daysA - daysB;
+        if (daysA !== null) return -1;
+        if (daysB !== null) return 1;
+      }
+      return a.nome.localeCompare(b.nome);
+    });
+  }
 
   async function fetchClientes() {
     try {
@@ -88,39 +115,7 @@ function CRM() {
         };
       });
 
-      clientesProcessados.sort((a: any, b: any) => {
-        const getStatusOrder = (status: string) => {
-          switch (status) {
-            case "Em Contato": return 1;
-            case "Lead": return 2;
-            case "Negócio Fechado": return 3;
-            case "Perdido": return 4;
-            default: return 5;
-          }
-        };
-
-        const orderA = getStatusOrder(a.status);
-        const orderB = getStatusOrder(b.status);
-
-        if (orderA !== orderB) {
-          return orderA - orderB;
-        }
-
-        if (orderA === 1 || orderA === 2) {
-          const diasA = getDiasRestantes(a.data_proximo_contato);
-          const diasB = getDiasRestantes(b.data_proximo_contato);
-
-          if (diasA !== null && diasB !== null) {
-            return diasA - diasB;
-          }
-          if (diasA !== null) return -1;
-          if (diasB !== null) return 1;
-        }
-
-        return a.nome.localeCompare(b.nome);
-      });
-
-      setClientes(clientesProcessados);
+      setClientes(sortClientes(clientesProcessados));
     } catch (err) {
       console.error("Erro ao buscar clientes pro CRM:", err);
       alert("Erro ao carregar os clientes.");
@@ -131,9 +126,11 @@ function CRM() {
 
   async function handleStatusChange(id: string, newStatus: string) {
     try {
-      setClientes((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, status: newStatus } : c))
-      );
+      setClientes(prev => sortClientes(prev.map(c => c.id === id ? { ...c, status: newStatus } : c)));
+      setIsReordering(false);
+      window.requestAnimationFrame(() => setIsReordering(true));
+      if (reorderAnimationTimer.current) clearTimeout(reorderAnimationTimer.current);
+      reorderAnimationTimer.current = setTimeout(() => setIsReordering(false), 550);
 
       const { error } = await supabase
         .from("clientes_food_service")
@@ -225,6 +222,21 @@ function CRM() {
     <>
       <Helmet>
         <title>CRM de Vendas</title>
+        <style>{`
+          @keyframes crm-row-reorder {
+            from { opacity: .45; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .crm-table { width: 100%; border-collapse: collapse !important; border-spacing: 0 !important; background: #fff !important; box-shadow: 0 4px 6px rgba(0,0,0,.05) !important; }
+          .crm-table thead th { padding: 6px !important; font-size: 1.1rem !important; line-height: 1.2 !important; white-space: nowrap; }
+          .crm-table tbody tr { background: #fff; box-shadow: none !important; border-radius: 0 !important; transition: background-color .15s ease; }
+          .crm-table tbody tr:hover { transform: none !important; box-shadow: none !important; }
+          .crm-table tbody tr:hover td { filter: brightness(.96); }
+          .crm-table tbody td { height: auto !important; padding: 5px 8px !important; border: 1px solid #e2e8f0 !important; font-size: 1.15rem !important; line-height: 1.25 !important; }
+          .crm-table--reordering tbody tr { animation: crm-row-reorder .42s ease both; }
+          .crm-table tbody tr.crm-lost-client-row { opacity: .58; filter: grayscale(.65); background: #f3f4f6; }
+          .crm-table tbody tr.crm-lost-client-row:hover td { filter: none; }
+        `}</style>
       </Helmet>
 
       <div className="frequencia-container">
@@ -252,12 +264,11 @@ function CRM() {
             </div>
           ) : (
             <div className="freq-table-wrapper" style={{ overflowX: "auto" }}>
-              <table className="freq-table" style={{ minWidth: "1200px", borderCollapse: "separate", borderSpacing: "0 8px", backgroundColor: "transparent", boxShadow: "none" }}>
+              <table className={`freq-table crm-table${isReordering ? " crm-table--reordering" : ""}`} style={{ minWidth: "1200px" }}>
                 <thead>
                   <tr>
                     <th style={{ width: "250px", textAlign: "left", paddingLeft: "20px" }}>Cliente / Endereço</th>
                     <th style={{ width: "180px", textAlign: "center" }}>Status da Negociação</th>
-                    <th style={{ width: "110px", textAlign: "center" }}>1º Contato</th>
                     <th style={{ width: "110px", textAlign: "center" }}>Últ. Contato</th>
                     <th style={{ width: "110px", textAlign: "center" }}>Próx. Contato</th>
                     <th style={{ width: "100px", textAlign: "center" }}>Tipo</th>
@@ -301,7 +312,7 @@ function CRM() {
                         {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </th>
-                    <th colSpan={3}></th>
+                    <th colSpan={2}></th>
                     <th style={{ padding: "8px" }}>
                       <select
                         value={filterTipo}
@@ -319,16 +330,15 @@ function CRM() {
                   {filteredClientes.map((c) => (
                     <tr
                       key={c.id}
+                      className={c.status === "Perdido" ? "crm-lost-client-row" : ""}
                       onClick={() => navigate(`/crm/cliente/${c.id}`)}
-                      style={{ backgroundColor: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.04)", borderRadius: "12px", transition: "transform 0.2s, box-shadow 0.2s", cursor: "pointer" }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 4px 12px rgba(0,0,0,0.08)"; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)"; }}
+                      style={{ cursor: "pointer" }}
                     >
 
-                      <td style={{ padding: "10px 16px", borderRadius: "12px 0 0 12px", border: "none" }}>
-                        <div style={{ fontWeight: 800, fontSize: "1.3rem", color: "var(--secondary-color)", marginBottom: "2px" }}>{c.nome}</div>
+                      <td>
+                        <div style={{ fontWeight: 700, fontSize: "1.15rem", color: "var(--secondary-color)", marginBottom: "2px" }}>{c.nome}</div>
                         {c.endereco && (
-                          <div style={{ fontSize: "1.05rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
+                          <div style={{ fontSize: ".95rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
                             <Icons.BsGeoAlt /> {c.endereco.length > 40 ? c.endereco.substring(0, 40) + "..." : c.endereco}
                           </div>
                         )}
@@ -342,7 +352,7 @@ function CRM() {
                           style={{
                             padding: "6px 12px",
                             borderRadius: "20px",
-                            fontSize: "1.1rem",
+                            fontSize: ".95rem",
                             fontWeight: 700,
                             backgroundColor: `${getStatusColor(c.status || "Lead")}15`,
                             color: getStatusColor(c.status || "Lead"),
@@ -351,7 +361,7 @@ function CRM() {
                             outline: "none",
                             appearance: "none",
                             textAlign: "center",
-                            width: "160px",
+                            width: "148px",
                             margin: "0 auto",
                             display: "block"
                           }}
@@ -362,101 +372,51 @@ function CRM() {
                         </select>
                       </td>
 
-                      <td style={{ textAlign: "center", border: "none", fontSize: "1.25rem", color: "#555" }}>
-                        {(c.status === "Lead" || c.status === "Em Contato") ? (formatDateBr(c.data_primeiro_contato_calc) !== "-" ? formatDateBr(c.data_primeiro_contato_calc) : <span style={{ color: "#bbb", fontSize: "1.4rem" }}>-</span>) : <span style={{ color: "#bbb", fontSize: "1.4rem" }}>-</span>}
+                      <td style={{ textAlign: "center", border: "none", color: "#555" }}>
+                        {formatDateBr(c.data_ultimo_contato_calc || c.data_ultimo_contato) !== "-" ? formatDateBr(c.data_ultimo_contato_calc || c.data_ultimo_contato) : <span style={{ color: "#bbb" }}>—</span>}
                       </td>
 
-                      <td style={{ textAlign: "center", border: "none", fontSize: "1.25rem", color: "#555" }}>
-                        {(c.status === "Lead" || c.status === "Em Contato") ? (formatDateBr(c.data_ultimo_contato_calc) !== "-" ? formatDateBr(c.data_ultimo_contato_calc) : <span style={{ color: "#bbb", fontSize: "1.4rem" }}>-</span>) : <span style={{ color: "#bbb", fontSize: "1.4rem" }}>-</span>}
+                      <td style={{ textAlign: "center", border: "none", color: "#555", fontWeight: c.data_proximo_contato ? 700 : 400 }}>
+                        {(!c.data_proximo_contato || editingProximoContatoId === c.id) ? (
+                          <input
+                            type="date"
+                            autoFocus={editingProximoContatoId === c.id}
+                            value={c.data_proximo_contato || ""}
+                            aria-label={`Próximo contato de ${c.nome}`}
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              handleProximoContatoChange(c.id, e.target.value);
+                              setEditingProximoContatoId(null);
+                            }}
+                            onBlur={() => setEditingProximoContatoId(null)}
+                            style={{ padding: "4px 8px", borderRadius: "6px", border: "1px solid var(--border-color)", fontSize: ".95rem", fontFamily: "inherit", color: "var(--text-dark)", fontWeight: 600, backgroundColor: "#fff", cursor: "pointer", width: "132px" }}
+                          />
+                        ) : (
+                          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
+                            {(() => {
+                              const dias = getDiasRestantes(c.data_proximo_contato);
+                              if (dias === null) return null;
+                              let bg = "#e5e7eb";
+                              let color = "#4b5563";
+                              let text = "";
+                              if (dias < 0) { bg = "rgba(239, 68, 68, 0.15)"; color = "#dc2626"; text = `${Math.abs(dias)} dia(s) atrasado`; }
+                              else if (dias === 0) { bg = "rgba(245, 158, 11, 0.15)"; color = "#d97706"; text = "Hoje"; }
+                              else if (dias <= 3) { bg = "rgba(59, 130, 246, 0.15)"; color = "#2563eb"; text = `Em ${dias} dia(s)`; }
+                              else { bg = "rgba(16, 185, 129, 0.15)"; color = "#059669"; text = `Em ${dias} dia(s)`; }
+                              return <span style={{ backgroundColor: bg, color, fontSize: ".8rem", fontWeight: 800, padding: "3px 8px", borderRadius: "12px", textTransform: "uppercase", letterSpacing: ".3px" }}>{text}</span>;
+                            })()}
+                            <span onClick={(e) => { e.stopPropagation(); setEditingProximoContatoId(c.id); }} style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "var(--border-color)", textDecorationThickness: "2px", padding: "2px" }} title="Clique para editar" onMouseEnter={(e) => e.currentTarget.style.textDecorationColor = "var(--primary-color)"} onMouseLeave={(e) => e.currentTarget.style.textDecorationColor = "var(--border-color)"}>
+                              {formatDateBr(c.data_proximo_contato)}
+                            </span>
+                          </div>
+                        )}
                       </td>
 
-                      <td style={{ textAlign: "center", border: "none", fontSize: "1.25rem", color: "#555", fontWeight: c.data_proximo_contato ? 700 : 400 }}>
-                        {(c.status === "Lead" || c.status === "Em Contato") ? (
-                          c.data_ultimo_contato_calc ? (
-                            (!c.data_proximo_contato || editingProximoContatoId === c.id) ? (
-                              <input
-                                type="date"
-                                autoFocus
-                                value={c.data_proximo_contato || ""}
-                                onClick={(e) => e.stopPropagation()}
-                                onChange={(e) => {
-                                  handleProximoContatoChange(c.id, e.target.value);
-                                  setEditingProximoContatoId(null);
-                                }}
-                                onBlur={() => setEditingProximoContatoId(null)}
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: "8px",
-                                  border: "1px solid var(--border-color)",
-                                  fontSize: "1rem",
-                                  fontFamily: "inherit",
-                                  color: "var(--text-dark)",
-                                  fontWeight: 700,
-                                  backgroundColor: "transparent",
-                                  cursor: "pointer",
-                                  width: "140px"
-                                }}
-                              />
-                            ) : (
-                              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "2px" }}>
-                                {c.data_proximo_contato && (() => {
-                                  const dias = getDiasRestantes(c.data_proximo_contato);
-                                  if (dias === null) return null;
-
-                                  let bg = "#e5e7eb";
-                                  let color = "#4b5563";
-                                  let text = "";
-
-                                  if (dias < 0) {
-                                    bg = "rgba(239, 68, 68, 0.15)";
-                                    color = "#dc2626";
-                                    text = `${Math.abs(dias)} dia(s) atrasado`;
-                                  } else if (dias === 0) {
-                                    bg = "rgba(245, 158, 11, 0.15)";
-                                    color = "#d97706";
-                                    text = "Hoje";
-                                  } else if (dias > 0 && dias <= 3) {
-                                    bg = "rgba(59, 130, 246, 0.15)";
-                                    color = "#2563eb";
-                                    text = `Em ${dias} dia(s)`;
-                                  } else {
-                                    bg = "rgba(16, 185, 129, 0.15)";
-                                    color = "#059669";
-                                    text = `Em ${dias} dia(s)`;
-                                  }
-
-                                  return (
-                                    <span style={{
-                                      backgroundColor: bg, color: color, fontSize: "1rem",
-                                      fontWeight: 800, padding: "4px 10px", borderRadius: "12px",
-                                      textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px"
-                                    }}>
-                                      {text}
-                                    </span>
-                                  );
-                                })()}
-                                <span
-                                  onClick={(e) => { e.stopPropagation(); setEditingProximoContatoId(c.id); }}
-                                  style={{ cursor: "pointer", textDecoration: "underline", textDecorationColor: "var(--border-color)", textDecorationThickness: "2px", padding: "2px" }}
-                                  title="Clique para editar"
-                                  onMouseEnter={(e) => e.currentTarget.style.textDecorationColor = "var(--primary-color)"}
-                                  onMouseLeave={(e) => e.currentTarget.style.textDecorationColor = "var(--border-color)"}
-                                >
-                                  {formatDateBr(c.data_proximo_contato)}
-                                </span>
-                              </div>
-                            )
-                          ) : (
-                            <span style={{ color: "#bbb", fontSize: "1.4rem" }}>-</span>
-                          )
-                        ) : <span style={{ color: "#bbb", fontSize: "1.4rem" }}>-</span>}
-                      </td>
-
-                      <td style={{ textAlign: "center", border: "none", fontSize: "1.4rem" }}>
+                      <td style={{ textAlign: "center", border: "none" }}>
                         <span style={{ fontWeight: 600, color: "#444" }}>{c.tipo || "-"}</span>
                       </td>
 
-                      <td style={{ textAlign: "right", paddingRight: "20px", borderRadius: "0 12px 12px 0", border: "none" }}>
+                      <td style={{ textAlign: "right" }}>
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                           {c.telefone && (
                             <button

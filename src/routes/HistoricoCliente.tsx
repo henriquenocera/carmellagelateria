@@ -18,6 +18,9 @@ interface Cliente {
   endereco: string | null;
   cnpj: string | null;
   observacoes: string | null;
+  data_ultimo_contato?: string | null;
+  data_primeiro_contato?: string | null;
+  data_proximo_contato?: string | null;
 }
 
 const getStatusColor = (statusVal: string | null) => {
@@ -242,20 +245,55 @@ function HistoricoCliente() {
     <>
       <Helmet>
         <title>Histórico do Cliente</title>
+        <style>{`
+          .historico-container .historico-title-group { flex: 1; width: 100%; min-width: 0; }
+          .crm-client-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+          .crm-client-title h1 { min-width: 0; overflow-wrap: anywhere; }
+          .crm-inline-back-btn { flex: 0 0 34px; width: 34px; height: 34px; }
+          .crm-edit-client-btn { flex: 0 0 30px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #d8c7b5; border-radius: 7px; background: #fffaf4; color: #80501f; cursor: pointer; font-size: 1rem; }
+          .crm-edit-client-btn:hover { background: #f5eadc; }
+          .crm-client-contact-info { box-sizing: border-box; width: min(1160px, 100%); min-height: 0; margin-top: 8px !important; padding: 11px 14px !important; gap: 4px !important; }
+          .crm-client-contact-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 18px; }
+          .crm-client-field { display: grid; grid-template-columns: max-content minmax(0, 1fr); align-items: center; gap: 4px; min-height: 22px; font-size: 1rem; }
+          .crm-client-field-label { color: #475569; white-space: nowrap; }
+          .crm-client-field-value { display: inline-flex; align-items: center; gap: 6px; min-width: 0; color: #334155; }
+          .crm-client-field-value svg { flex: 0 0 auto; color: var(--primary-color); }
+          .crm-client-field-address { grid-column: 1 / -1; }
+          .crm-client-field-address .crm-client-field-value { overflow-wrap: anywhere; }
+          .historico-layout.crm-client-layout { display: flex; flex-direction: column; gap: 18px; align-items: stretch; }
+          .crm-client-layout .historico-form-card, .crm-client-layout .historico-timeline-container { box-sizing: border-box; width: 100%; }
+          .crm-client-layout .historico-form-card { max-width: 1160px; padding: 18px 22px; border-radius: 12px; }
+          .crm-client-layout .historico-form-card h2 { margin-bottom: 14px; padding-bottom: 8px; font-size: 1.55rem; }
+          .crm-client-layout .historico-timeline-container { max-height: none; overflow: visible; }
+          .crm-client-form { display: grid; grid-template-columns: minmax(170px, 1fr) minmax(145px, .8fr) minmax(200px, 1.2fr); align-items: end; gap: 10px 12px; }
+          .crm-client-form .form-group { min-width: 0; margin: 0; }
+          .crm-client-form .crm-description-field { grid-column: 1 / -1; }
+          .crm-client-form .form-group label { display: block; margin-bottom: 5px; font-size: 1rem; }
+          .crm-client-form .form-group input, .crm-client-form .form-group select { box-sizing: border-box; width: 100%; min-width: 0; height: 40px; padding: 6px 10px !important; border-radius: 6px !important; font-size: 1rem !important; }
+          .crm-client-form .form-group textarea { box-sizing: border-box; width: 100%; height: 64px; min-height: 64px; padding: 8px 10px !important; border-radius: 6px !important; font-size: .95rem !important; resize: vertical; }
+          .crm-client-form .form-actions { grid-column: 1 / -1; justify-content: flex-end; margin-top: 0 !important; }
+          .crm-client-form .form-actions button { flex: 0 0 auto !important; min-width: 145px; min-height: 38px; padding: 7px 14px !important; font-size: 1rem; }
+          @media (max-width: 900px) { .crm-client-form { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+          @media (max-width: 600px) { .crm-client-form { grid-template-columns: minmax(0, 1fr); } .crm-client-form .form-actions { grid-column: auto; } .crm-client-form .form-actions button { width: 100%; } .crm-client-contact-grid { grid-template-columns: minmax(0, 1fr); } .crm-client-address { grid-column: auto; } }
+        `}</style>
       </Helmet>
 
       <div className="historico-container">
         {/* Header */}
         <div className="historico-header">
-          <button onClick={() => navigate("/crm")} className="back-btn" title="Voltar para o CRM">
-            <Icons.BsChevronLeft />
-          </button>
           <div className="historico-title-group">
             {loadingCliente ? (
-              <h1>Carregando cliente...</h1>
+              <div className="crm-client-title">
+                <button onClick={() => navigate("/crm")} className="back-btn crm-inline-back-btn" title="Voltar para o CRM"><Icons.BsChevronLeft /></button>
+                <h1>Carregando cliente...</h1>
+              </div>
             ) : cliente ? (
               <>
-                <h1>{cliente.nome}</h1>
+                <div className="crm-client-title">
+                  <button onClick={() => navigate("/crm")} className="back-btn crm-inline-back-btn" title="Voltar para o CRM"><Icons.BsChevronLeft /></button>
+                  <button type="button" onClick={() => setIsModalOpen(true)} className="crm-edit-client-btn" aria-label="Editar dados do cliente" title="Editar dados do cliente"><Icons.BsPencil /></button>
+                  <h1>{cliente.nome}</h1>
+                </div>
                 <p style={{ display: "flex", gap: "16px", alignItems: "center", marginTop: "8px", flexWrap: "wrap", fontSize: "1.2rem" }}>
                   {cliente.status && (
                     <span style={{ 
@@ -271,12 +309,15 @@ function HistoricoCliente() {
                   )}
                   {cliente.tipo && <span style={{ color: "var(--text-muted)", display: "flex", alignItems: "center" }}><Icons.BsTag style={{ marginRight: "6px" }}/> {cliente.tipo}</span>}
                 </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "16px", backgroundColor: "#fff", padding: "16px", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                    {cliente.nome_contato && <div style={{ fontSize: "1.1rem" }}><strong style={{ color: "#555" }}>Contato:</strong> <Icons.BsPerson style={{ color: "var(--primary-color)" }} /> {cliente.nome_contato}</div>}
-                    {cliente.telefone && <div style={{ fontSize: "1.1rem" }}><strong style={{ color: "#555" }}>Telefone:</strong> <Icons.BsTelephone style={{ color: "var(--primary-color)" }} /> {cliente.telefone}</div>}
-                    {cliente.email && <div style={{ fontSize: "1.1rem" }}><strong style={{ color: "#555" }}>E-mail:</strong> <Icons.BsEnvelope style={{ color: "var(--primary-color)" }} /> {cliente.email}</div>}
-                    {cliente.cnpj && <div style={{ fontSize: "1.1rem" }}><strong style={{ color: "#555" }}>CNPJ:</strong> <Icons.BsFileEarmarkText style={{ color: "var(--primary-color)" }} /> {cliente.cnpj}</div>}
+                <div className="crm-client-contact-info" style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "16px", backgroundColor: "#fff", padding: "16px", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
+                  <div className="crm-client-contact-grid">
+                    <div className="crm-client-field crm-client-field-address"><strong className="crm-client-field-label">Endereço:</strong><span className="crm-client-field-value"><Icons.BsGeoAlt />{cliente.endereco || ""}</span></div>
+                    <div className="crm-client-field"><strong className="crm-client-field-label">Contato:</strong><span className="crm-client-field-value"><Icons.BsPerson />{cliente.nome_contato || ""}</span></div>
+                    <div className="crm-client-field"><strong className="crm-client-field-label">Telefone:</strong><span className="crm-client-field-value"><Icons.BsTelephone />{cliente.telefone || ""}</span></div>
+                    <div className="crm-client-field"><strong className="crm-client-field-label">Último contato:</strong><span className="crm-client-field-value"><Icons.BsCalendar3 />{formatDisplayDate(records[0]?.date || cliente.data_ultimo_contato || "")}</span></div>
+                    <div className="crm-client-field"><strong className="crm-client-field-label">Próximo contato:</strong><span className="crm-client-field-value"><Icons.BsCalendar3 />{formatDisplayDate(cliente.data_proximo_contato || "")}</span></div>
+                    {cliente.email && <div className="crm-client-field"><strong className="crm-client-field-label">E-mail:</strong><span className="crm-client-field-value"><Icons.BsEnvelope />{cliente.email}</span></div>}
+                    {cliente.cnpj && <div className="crm-client-field"><strong className="crm-client-field-label">CNPJ:</strong><span className="crm-client-field-value"><Icons.BsFileEarmarkText />{cliente.cnpj}</span></div>}
                   </div>
                   {cliente.observacoes && (
                     <div style={{ marginTop: "8px", fontSize: "1.1rem" }}>
@@ -285,12 +326,12 @@ function HistoricoCliente() {
                     </div>
                   )}
                 </div>
-                <button onClick={() => setIsModalOpen(true)} className="primary-btn" style={{ marginTop: '16px', padding: '8px 16px', alignSelf: 'flex-start' }}>
-                  <Icons.BsPencil /> Editar Dados do Cliente
-                </button>
               </>
             ) : (
-              <h1>Cliente não encontrado</h1>
+              <div className="crm-client-title">
+                <button onClick={() => navigate("/crm")} className="back-btn crm-inline-back-btn" title="Voltar para o CRM"><Icons.BsChevronLeft /></button>
+                <h1>Cliente não encontrado</h1>
+              </div>
             )}
           </div>
         </div>
@@ -302,11 +343,11 @@ function HistoricoCliente() {
             <button onClick={() => navigate("/crm")} className="primary-btn" style={{ marginTop: '16px' }}>Voltar para CRM</button>
           </div>
         ) : (
-          <div className="historico-layout">
+          <div className="historico-layout crm-client-layout">
             {/* Form Column */}
             <div className="historico-form-card">
               <h2>{editingId ? "Editar Contato" : "Registrar Novo Contato"}</h2>
-              <form onSubmit={handleSave} className="historico-form">
+              <form onSubmit={handleSave} className="historico-form crm-client-form">
                 <div className="form-group">
                   <label>Tipo de Contato</label>
                   <select
@@ -346,7 +387,7 @@ function HistoricoCliente() {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group crm-description-field">
                   <label>Descrição / Resumo da Conversa</label>
                   <textarea
                     rows={5}
