@@ -1,0 +1,54 @@
+---
+import BaseHead from '../layout/BaseHead.astro'
+import BaseBody from '../layout/BaseBody.astro'
+import '../styles/pages/food-service.scss'
+
+const title = 'Food Service | Carmella Gelateria Artigianale'
+const description = 'Leve o gelato artesanal Carmella para o seu negócio. Fale com nossa equipe sobre Food Service.'
+const url = 'https://www.carmellagelateria.com.br/food-service'
+const whatsapp = 'https://wa.me/554199458468?text=Ol%C3%A1%2C%20tenho%20interesse%20em%20Food%20Service'
+---
+
+<html lang="pt-BR">
+  <BaseHead title={title} description={description} url={url} />
+  <BaseBody>
+    <main class="food-service">
+      <section class="food-hero">
+        <div class="food-hero-content">
+          <p class="food-eyebrow">Carmella para o seu negócio</p>
+          <h1>Food Service de Gelatos Artesanais em Curitiba</h1>
+          <p class="food-lead">Leve a experiência do gelato artesanal Carmella para o seu estabelecimento. Vamos conversar sobre uma parceria para o seu negócio.</p>
+          <a class="food-button" href={whatsapp} target="_blank" rel="noopener noreferrer">Quero saber mais <span aria-hidden="true">↗</span></a>
+        </div>
+        <div class="food-hero-art" aria-hidden="true">
+          <span class="food-art-circle"></span>
+          <img src="/assets/gelato.jpg" alt="Gelato artesanal Carmella" />
+        </div>
+      </section>
+
+      <section class="food-details" aria-labelledby="food-details-title">
+        <p class="food-eyebrow">Food Service Carmella</p>
+        <h2 id="food-details-title">Uma parceria feita para o seu espaço</h2>
+        <p class="food-details-copy">Atendemos negócios em curitiba interessados em oferecer gelato artesanal como parte da sua experiência. Conte um pouco sobre o seu estabelecimento e nossa equipe conversa com você sobre as possibilidades.</p>
+        <div class="food-points">
+          <article>
+            <span aria-hidden="true">01</span>
+            <h3>Conte sobre seu negócio</h3>
+            <p>Restaurante, café, hotel ou outro estabelecimento? Queremos conhecer seu projeto.</p>
+          </article>
+          <article>
+            <span aria-hidden="true">02</span>
+            <h3>Converse com a equipe</h3>
+            <p>Entre em contato para tirar dúvidas e entender as opções de parceria.</p>
+          </article>
+          <article>
+            <span aria-hidden="true">03</span>
+            <h3>Vamos planejar juntos</h3>
+            <p>Compartilhe suas necessidades e avaliaremos a melhor forma de atender seu negócio.</p>
+          </article>
+        </div>
+        <a class="food-button" href="/assets/Carmella%20Gelateria%20Food%20Service%20-%202026.pdf" download="Carmella Gelateria Food Service - 2026.pdf">Baixe nosso catálogo <span aria-hidden="true">↓</span></a>
+      </section>
+    </main>
+  </BaseBody>
+</html>
