@@ -967,7 +967,12 @@ CREATE TABLE IF NOT EXISTS "public"."ordem_producao" (
     "data_producao" "date",
     "peso_bruto" numeric,
     "tara" numeric,
-    "codigo" "text"
+    "codigo" "text",
+    "status" "text" DEFAULT 'Aberto'::"text" NOT NULL,
+    "dia_semana" smallint,
+    "ordem_dia" integer,
+    CONSTRAINT "ordem_producao_dia_semana_check" CHECK ((("dia_semana" IS NULL) OR (("dia_semana" >= 1) AND ("dia_semana" <= 7)))),
+    CONSTRAINT "ordem_producao_status_check" CHECK (("status" = ANY (ARRAY['Aberto'::"text", 'Fechado'::"text"])))
 );
 
 
