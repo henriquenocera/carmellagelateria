@@ -1,375 +1,183 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
+import { useAuth } from "../AuthProvider";
 import supabase from "../services/supabase-client";
 
-function ListaComprasManual() {
-  const [loading, setLoading] = useState(true);
-  const [insumos, setInsumos] = useState<any[]>([]);
-  const [lista, setLista] = useState<any[]>([]);
-  const [entradasByInsumo, setEntradasByInsumo] = useState<Record<string, any[]>>({});
-  
-  const [selectedInsumo, setSelectedInsumo] = useState<any>(null);
-  const [quantidade, setQuantidade] = useState<string>("");
-  const [adding, setAdding] = useState(false);
+type ShoppingItem = {
+  id: number;
+  lista_id: number;
+  insumo_id: string;
+  quantidade: number;
+  comprado: boolean;
+  cadastro_insumos?: { nome?: string; tipo?: string; unidade_conversao?: string } | null;
+};
+type ShoppingList = { id: number; nome: string; created_at: string; user_id?: string | null; status: "Aberta" | "Fechada"; profiles?: { name?: string | null } | null; itens: ShoppingItem[] };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+function ListaComprasManual() {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [insumos, setInsumos] = useState<any[]>([]);
+  const [listas, setListas] = useState<ShoppingList[]>([]);
+  const [expanded, setExpanded] = useState<number[]>([]);
+  const [selectedInsumo, setSelectedInsumo] = useState<Record<number, any>>({});
+  const [quantidades, setQuantidades] = useState<Record<number, string>>({});
+  const [showOpenListWarning, setShowOpenListWarning] = useState(false);
+
+  useEffect(() => { void fetchData(); }, []);
 
   async function fetchData() {
+    setLoading(true);
     try {
-      setLoading(true);
-
-      const entradasPromise = supabase
-        .from("entradas_mercadoria")
-        .select("insumo_id, data_compra, fornecedor, valor_unitario")
-        .order("data_compra", { ascending: false })
-        .order("created_at", { ascending: false })
-        .then(res => {
-          if (res.error && res.error.code === '42P01') return { data: [] };
-          if (res.error) throw res.error;
-          return res;
-        });
-
-      const [resInsumos, resLista, resEntradas] = await Promise.all([
-        supabase.from("cadastro_insumos").select("*").eq("ativo", true).order("nome", { ascending: true }),
-        supabase.from("lista_compras_manual").select("id, quantidade, insumo_id, comprado, cadastro_insumos(nome, tipo, unidade_conversao)").order("created_at", { ascending: true }),
-        entradasPromise
+      const [{ data: materialData, error: materialError }, { data: listData, error: listError }] = await Promise.all([
+        supabase.from("cadastro_insumos").select("id, nome, tipo, unidade_conversao").eq("ativo", true).order("nome", { ascending: true }),
+        supabase.from("lista_compras_manual").select("id, nome, created_at, user_id, status, profiles(name), lista_compras_manual_itens(id, lista_id, insumo_id, quantidade, comprado, cadastro_insumos(nome, tipo, unidade_conversao))").order("created_at", { ascending: false })
       ]);
-
-      if (resInsumos.error) throw resInsumos.error;
-      if (resLista.error) throw resLista.error;
-
-      setInsumos(resInsumos.data || []);
-      setLista(resLista.data || []);
-
-      const allEntradas = resEntradas.data || [];
-      const tempEntradas: Record<string, any[]> = {};
-      allEntradas.forEach(e => {
-         if (!tempEntradas[e.insumo_id]) tempEntradas[e.insumo_id] = [];
-         tempEntradas[e.insumo_id].push(e);
-      });
-      setEntradasByInsumo(tempEntradas);
-
-    } catch (err) {
-      console.error("Erro ao buscar dados:", err);
-      alert("Erro ao buscar dados.");
-    } finally {
-      setLoading(false);
-    }
+      if (materialError) throw materialError;
+      if (listError) throw listError;
+      setInsumos(materialData || []);
+      setListas((listData || []).map((list: any) => ({ ...list, itens: list.lista_compras_manual_itens || [] })));
+    } catch (error) {
+      console.error("Erro ao buscar listas de compras:", error);
+      alert("Erro ao buscar listas de compras. Verifique se a migração do banco de dados foi aplicada.");
+    } finally { setLoading(false); }
   }
 
-  async function handleAdd() {
-    if (!selectedInsumo || !quantidade || Number(quantidade) <= 0) {
+  async function handleCreateList() {
+    if (listas.some(list => list.status === "Aberta")) {
+      setShowOpenListWarning(true);
+      return;
+    }
+    const nome = "Lista de Compras";
+    try {
+      const { data, error } = await supabase.from("lista_compras_manual").insert({ nome, user_id: user?.id || null }).select("id, nome, created_at, user_id, status, profiles(name)").single();
+      if (error) throw error;
+      setListas(current => [ { ...data, itens: [] }, ...current ]);
+      setExpanded(current => [data.id, ...current]);
+    } catch (error) { console.error("Erro ao criar lista:", error); alert("Não foi possível criar a lista."); }
+  }
+
+  async function handleAddItem(listId: number) {
+    const selection = selectedInsumo[listId];
+    const quantidade = Number(quantidades[listId]);
+    if (!selection || !Number.isFinite(quantidade) || quantidade <= 0) {
       alert("Selecione um insumo e informe uma quantidade maior que zero.");
       return;
     }
-
+    setSaving(true);
     try {
-      setAdding(true);
-      const { data, error } = await supabase
-        .from("lista_compras_manual")
-        .insert([{ insumo_id: selectedInsumo.value, quantidade: Number(quantidade) }])
-        .select("id, quantidade, insumo_id, comprado, cadastro_insumos(nome, tipo, unidade_conversao)")
-        .single();
-        
+      const currentList = listas.find(list => list.id === listId);
+      const existingItem = currentList?.itens.find(item => item.insumo_id === selection.value);
+      if (existingItem) {
+        const updatedQuantity = Number(existingItem.quantidade) + quantidade;
+        const { error } = await supabase.from("lista_compras_manual_itens").update({ quantidade: updatedQuantity }).eq("id", existingItem.id);
+        if (error) throw error;
+        setListas(current => current.map(list => list.id === listId
+          ? { ...list, itens: list.itens.map(item => item.id === existingItem.id ? { ...item, quantidade: updatedQuantity } : item) }
+          : list));
+        setSelectedInsumo(current => ({ ...current, [listId]: null }));
+        setQuantidades(current => ({ ...current, [listId]: "" }));
+        return;
+      }
+      const { data, error } = await supabase.from("lista_compras_manual_itens")
+        .insert({ lista_id: listId, insumo_id: selection.value, quantidade })
+        .select("id, lista_id, insumo_id, quantidade, comprado, cadastro_insumos(nome, tipo, unidade_conversao)").single();
       if (error) throw error;
-      
-      setLista([...lista, data]);
-      setSelectedInsumo(null);
-      setQuantidade("");
-    } catch (err) {
-      console.error("Erro ao adicionar:", err);
-      alert("Erro ao adicionar à lista.");
-    } finally {
-      setAdding(false);
+      setListas(current => current.map(list => list.id === listId ? { ...list, itens: [...list.itens, data] } : list));
+      setSelectedInsumo(current => ({ ...current, [listId]: null }));
+      setQuantidades(current => ({ ...current, [listId]: "" }));
+    } catch (error) { console.error("Erro ao adicionar material:", error); alert("Não foi possível adicionar o material."); }
+    finally { setSaving(false); }
+  }
+
+  async function handleToggle(item: ShoppingItem) {
+    const comprado = !item.comprado;
+    setListas(current => current.map(list => ({ ...list, itens: list.itens.map(row => row.id === item.id ? { ...row, comprado } : row) })));
+    const { error } = await supabase.from("lista_compras_manual_itens").update({ comprado }).eq("id", item.id);
+    if (error) {
+      setListas(current => current.map(list => ({ ...list, itens: list.itens.map(row => row.id === item.id ? { ...row, comprado: item.comprado } : row) })));
+      alert("Não foi possível atualizar o status do material.");
     }
   }
 
-  async function handleDelete(id: number) {
-    if (!window.confirm("Remover este item da lista?")) return;
-    try {
-      const { error } = await supabase.from("lista_compras_manual").delete().eq("id", id);
-      if (error) throw error;
-      setLista(lista.filter(item => item.id !== id));
-    } catch (err) {
-      console.error("Erro ao deletar:", err);
-      alert("Erro ao excluir item.");
+  async function handleDeleteItem(item: ShoppingItem) {
+    if (!window.confirm("Remover este material da lista?")) return;
+    const { error } = await supabase.from("lista_compras_manual_itens").delete().eq("id", item.id);
+    if (error) { alert("Não foi possível remover o material."); return; }
+    setListas(current => current.map(list => list.id === item.lista_id ? { ...list, itens: list.itens.filter(row => row.id !== item.id) } : list));
+  }
+
+  async function handleDeleteList(list: ShoppingList) {
+    if (!window.confirm(`Excluir a lista “${list.nome}” e todos os materiais?`)) return;
+    const { error } = await supabase.from("lista_compras_manual").delete().eq("id", list.id);
+    if (error) { alert("Não foi possível excluir a lista."); return; }
+    setListas(current => current.filter(row => row.id !== list.id));
+  }
+
+  async function handleStatusChange(list: ShoppingList, status: "Aberta" | "Fechada") {
+    setListas(current => current.map(row => row.id === list.id ? { ...row, status } : row));
+    const { error } = await supabase.from("lista_compras_manual").update({ status }).eq("id", list.id);
+    if (error) {
+      setListas(current => current.map(row => row.id === list.id ? { ...row, status: list.status } : row));
+      alert("Não foi possível atualizar o status da lista.");
     }
   }
 
-  async function handleToggleComprado(id: number, currentStatus: boolean) {
-    const newStatus = !currentStatus;
-    
-    // Optimistic update
-    setLista(lista.map(item => item.id === id ? { ...item, comprado: newStatus } : item));
+  const formatDate = (date: string) => date ? new Date(date).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  const options = insumos.map(item => ({ value: item.id, label: item.nome }));
 
-    try {
-      const { error } = await supabase.from("lista_compras_manual").update({ comprado: newStatus }).eq("id", id);
-      if (error) throw error;
-    } catch (err) {
-      console.error("Erro ao atualizar status:", err);
-      // Revert on error
-      setLista(lista.map(item => item.id === id ? { ...item, comprado: currentStatus } : item));
-      alert("Erro ao marcar item como comprado.");
-    }
-  }
-
-  async function handleClearList() {
-    if (lista.length === 0) return;
-    if (!window.confirm("Tem certeza que deseja LIMPAR TODA A LISTA? Essa ação não pode ser desfeita.")) return;
-    
-    try {
-      const { error } = await supabase.from("lista_compras_manual").delete().neq("id", 0); // Delete all
-      if (error) throw error;
-      setLista([]);
-    } catch (err) {
-      console.error("Erro ao limpar lista:", err);
-      alert("Erro ao limpar a lista.");
-    }
-  }
-
-  const getStats = (insumoId: string) => {
-    const list = entradasByInsumo[insumoId] || [];
-    if (list.length === 0) return null;
-    const last = list[0];
-    let min = Number(list[0].valor_unitario);
-    let max = Number(list[0].valor_unitario);
-    let sum = 0;
-    list.forEach(item => {
-        const val = Number(item.valor_unitario);
-        if (val < min) min = val;
-        if (val > max) max = val;
-        sum += val;
-    });
-    return {
-        ultimoValor: Number(last.valor_unitario),
-        ultimaData: last.data_compra,
-        ultimoFornecedor: last.fornecedor,
-        media: sum / list.length,
-        menor: min,
-        maior: max
-    };
-  };
-
-  const formatCurrency = (val: number | null | undefined) => (val != null && !isNaN(val)) ? `R$ ${val.toFixed(2).replace('.', ',')}` : "-";
-  const formatDateBR = (isoStr: string) => {
-    if (!isoStr) return "-";
-    const [y, m, d] = isoStr.split("-");
-    return `${d}/${m}/${y}`;
-  };
-
-  const getTagStyles = (tipo: string) => {
-    switch (tipo) {
-      case "Insumos": return { bg: "#e0f2fe", color: "#0284c7", border: "#bae6fd" };
-      case "Matéria Prima": return { bg: "#dcfce7", color: "#16a34a", border: "#bbf7d0" };
-      case "Bebidas": return { bg: "#f3e8ff", color: "#9333ea", border: "#e9d5ff" };
-      case "Material de Limpeza": return { bg: "#ccfbf1", color: "#0d9488", border: "#99f6e4" };
-      case "Salgados": return { bg: "#ffedd5", color: "#ea580c", border: "#fed7aa" };
-      default: return { bg: "#f8fafc", color: "#64748b", border: "#e2e8f0" };
-    }
-  };
-
-  const insumoOptions = insumos.map(i => ({ value: i.id, label: i.nome }));
-
-  const sortedLista = [...lista].sort((a, b) => {
-    if (a.comprado === b.comprado) {
-      return a.id - b.id; // Keep insertion order
-    }
-    return a.comprado ? 1 : -1;
-  });
-
-  return (
-    <>
-      <Helmet>
-        <title>Lista de Compras (Manual)</title>
-      </Helmet>
-
-      <div className="frequencia-container">
-        <div className="frequencia-header">
-          <div className="frequencia-title-group">
-            <h1>Lista de Compras (Manual)</h1>
-            <p>Monte sua lista de compras adicionando insumos manualmente.</p>
-          </div>
-          <button 
-            onClick={handleClearList} 
-            disabled={lista.length === 0}
-            style={{ 
-              backgroundColor: "#ef4444", 
-              color: "white", 
-              padding: "10px 20px", 
-              borderRadius: "8px", 
-              border: "none", 
-              fontWeight: "bold", 
-              cursor: lista.length === 0 ? "not-allowed" : "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              opacity: lista.length === 0 ? 0.5 : 1
-            }}
-          >
-            <Icons.BsTrash /> Limpar Lista
-          </button>
+  return <>
+    <Helmet><title>Lista de Compras (Manual)</title></Helmet>
+    <div className="frequencia-container">
+      <div className="frequencia-header"><div className="frequencia-title-group"><h1>Lista de Compras (Manual)</h1><p>Crie listas e escolha os materiais que deseja comprar.</p></div></div>
+      <div style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+          <button type="button" onClick={handleCreateList} className="financial-add-button" style={{ margin: 0, height: 42, padding: "0 16px", fontSize: "1.2rem" }}><Icons.BsPlusCircleFill /> Nova lista de compras</button>
         </div>
-
-        <div style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
-          {/* Card de Adição */}
-          <div style={{
-            backgroundColor: "#fff", padding: "24px", borderRadius: "12px",
-            boxShadow: "0 4px 6px rgba(0,0,0,0.05)", marginBottom: "24px", border: "1px solid #e2e8f0",
-            display: "flex", gap: "16px", alignItems: "flex-end", flexWrap: "wrap"
-          }}>
-            <div style={{ flex: "1 1 300px" }}>
-              <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#334155" }}>
-                Insumo
-              </label>
-              <Select
-                options={insumoOptions}
-                value={selectedInsumo}
-                onChange={setSelectedInsumo}
-                placeholder="Selecione o insumo..."
-                isSearchable
-                styles={{ container: (base) => ({ ...base, flex: 1 }) }}
-              />
-            </div>
-            <div style={{ flex: "0 0 150px" }}>
-              <label style={{ display: "block", marginBottom: "8px", fontWeight: "bold", color: "#334155" }}>
-                Quantidade
-              </label>
-              <input
-                type="number"
-                value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
-                placeholder="Ex: 10"
-                style={{ width: "100%", padding: "9px 12px", borderRadius: "4px", border: "1px solid #ccc", boxSizing: "border-box" }}
-              />
-            </div>
-            <button 
-              onClick={handleAdd}
-              disabled={adding}
-              style={{
-                backgroundColor: "#16a34a", color: "white", padding: "10px 24px", borderRadius: "6px",
-                border: "none", fontWeight: "bold", cursor: adding ? "not-allowed" : "pointer",
-                height: "38px", display: "flex", alignItems: "center", gap: "8px"
-              }}
-            >
-              {adding ? <Icons.BsArrowClockwise className="spin" /> : <Icons.BsPlusCircle />} 
-              Adicionar
-            </button>
-          </div>
-
-          {loading ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
-              <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
-            </div>
-          ) : lista.length === 0 ? (
-             <div style={{ textAlign: "center", padding: "40px", backgroundColor: "#f8fafc", borderRadius: "8px" }}>
-               <Icons.BsCartX style={{ fontSize: "3rem", color: "#94a3b8", marginBottom: "16px" }} />
-               <p style={{ color: "var(--text-dark)", fontSize: "1.4rem", fontWeight: 600, margin: 0 }}>
-                 Lista Vazia
-               </p>
-               <p style={{ color: "var(--text-muted)", fontSize: "1.1rem", marginTop: "8px" }}>
-                 Sua lista de compras manual está vazia. Adicione insumos acima.
-               </p>
-             </div>
-          ) : (
-            <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-              <table className="freq-table" style={{ minWidth: "1500px" }}>
-                <thead>
-                  <tr style={{ fontSize: "1.1rem" }}>
-                    <th style={{ width: "50px", textAlign: "center" }}>
-                      <Icons.BsCheck2Square />
-                    </th>
-                    <th style={{ width: "200px" }}>Insumo</th>
-                    <th style={{ width: "100px" }}>Tipo</th>
-                    <th style={{ width: "100px", textAlign: "center" }}>Unid. Medida</th>
-                    <th style={{ width: "100px", textAlign: "center", borderRight: "2px solid #e2e8f0" }}>Qtd a Comprar</th>
-                    <th style={{ width: "100px", textAlign: "center", backgroundColor: "#f8fafc" }}>Último Valor</th>
-                    <th style={{ width: "100px", textAlign: "center", backgroundColor: "#f8fafc" }}>Última Data</th>
-                    <th style={{ width: "150px", textAlign: "center", backgroundColor: "#f8fafc", borderRight: "2px solid #e2e8f0" }}>Último Forn.</th>
-                    <th style={{ width: "100px", textAlign: "center", backgroundColor: "#fffbeb" }}>Média</th>
-                    <th style={{ width: "100px", textAlign: "center", backgroundColor: "#fffbeb" }}>Menor</th>
-                    <th style={{ width: "100px", textAlign: "center", backgroundColor: "#fffbeb", borderRight: "2px solid #e2e8f0" }}>Maior</th>
-                    <th style={{ width: "100px", textAlign: "center" }}>Ações</th>
+        <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
+          <table className="freq-table" style={{ minWidth: 1000 }}>
+            <thead><tr>{["Lista de compras", "Criada em", "Criado por", "Materiais", "Progresso", "Status", "Ações"].map(label => <th key={label} style={{ textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>{label}</th>)}</tr></thead>
+            <tbody>
+              {loading ? <tr><td colSpan={7} style={{ textAlign: "center", padding: 32 }}><Icons.BsArrowClockwise className="spin" /></td></tr> : listas.length === 0 ? <tr><td colSpan={7} style={{ textAlign: "center", padding: 36, color: "#94a3b8", fontSize: "1.2rem" }}>Nenhuma lista cadastrada. Crie uma nova lista para começar.</td></tr> : listas.map(list => {
+                const isExpanded = expanded.includes(list.id);
+                const purchased = list.itens.filter(item => item.comprado).length;
+                return <React.Fragment key={list.id}>
+                  <tr onClick={() => setExpanded(current => isExpanded ? current.filter(id => id !== list.id) : [...current, list.id])} style={{ cursor: "pointer", opacity: list.status === "Fechada" ? .58 : 1, backgroundColor: list.status === "Fechada" ? "#f7f8fa" : undefined, transition: "opacity .15s" }}>
+                    <td style={{ fontWeight: 700 }}><Icons.BsChevronRight style={{ marginRight: 10, transform: isExpanded ? "rotate(90deg)" : undefined, transition: "transform .15s" }} />Lista de Compras</td>
+                    <td style={{ textAlign: "center" }}>{formatDate(list.created_at)}</td>
+                    <td style={{ textAlign: "center" }}><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "5px 12px", border: "1px solid #cbd8e6", borderRadius: 16, background: "#eef3f8", color: "#526982", fontWeight: 600 }}><Icons.BsPerson />{list.profiles?.name || "—"}</span></td>
+                    <td style={{ textAlign: "center", fontWeight: 700 }}>{list.itens.length}</td>
+                    <td style={{ textAlign: "center" }}>{list.itens.length ? `${purchased}/${list.itens.length} comprados` : "Sem materiais"}</td>
+                    <td style={{ textAlign: "center" }}><select aria-label={`Status da lista ${list.nome}`} value={list.status || "Aberta"} onClick={event => event.stopPropagation()} onChange={event => void handleStatusChange(list, event.target.value as "Aberta" | "Fechada")} style={{ padding: "6px 12px", border: `1px solid ${list.status === "Fechada" ? "#cbd5e1" : "#cbd8e6"}`, borderRadius: 16, color: list.status === "Fechada" ? "#475569" : "#365b7d", background: list.status === "Fechada" ? "#f1f5f9" : "#eff6fb", fontWeight: 700, cursor: "pointer" }}><option value="Aberta">Aberta</option><option value="Fechada">Fechada</option></select></td>
+                    <td style={{ textAlign: "center" }}><button type="button" className="delete-record-btn" title="Excluir lista" onClick={event => { event.stopPropagation(); void handleDeleteList(list); }}><Icons.BsTrash /></button></td>
                   </tr>
-                </thead>
-                <tbody>
-                  {sortedLista.map((item) => {
-                    const tagStyle = getTagStyles(item.cadastro_insumos?.tipo || "");
-                    const stats = getStats(item.insumo_id) || {};
-                    const isComprado = item.comprado;
-                    
-                    return (
-                      <tr key={item.id} style={{ 
-                        opacity: isComprado ? 0.5 : 1, 
-                        backgroundColor: isComprado ? "#f1f5f9" : "transparent" 
-                      }}>
-                        <td style={{ textAlign: "center" }}>
-                          <input 
-                            type="checkbox" 
-                            checked={isComprado || false}
-                            onChange={() => handleToggleComprado(item.id, isComprado || false)}
-                            style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                          />
-                        </td>
-                        <td style={{ fontWeight: 600, fontSize: "1.2rem", textDecoration: isComprado ? "line-through" : "none" }}>
-                          {item.cadastro_insumos?.nome || "Insumo Excluído"}
-                        </td>
-                        <td>
-                          <span style={{
-                            padding: "4px 8px", backgroundColor: tagStyle.bg, borderRadius: "6px", 
-                            fontSize: "0.9rem", fontWeight: 600, color: tagStyle.color, border: `1px solid ${tagStyle.border}`, whiteSpace: "nowrap"
-                          }}>
-                            {item.cadastro_insumos?.tipo || "-"}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: 600, fontSize: "1.1rem", color: "var(--text-dark)" }}>
-                          {item.cadastro_insumos?.unidade_conversao || "-"}
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.4rem", color: "var(--primary-color)", borderRight: "2px solid #e2e8f0" }}>
-                          {item.quantidade}
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: 600, fontSize: "1.1rem", color: "#475569", backgroundColor: "#f8fafc" }}>
-                          {formatCurrency(stats.ultimoValor)}
-                        </td>
-                        <td style={{ textAlign: "center", fontSize: "1.1rem", color: "#475569", backgroundColor: "#f8fafc" }}>
-                          {formatDateBR(stats.ultimaData)}
-                        </td>
-                        <td style={{ textAlign: "center", fontSize: "1.1rem", color: "#475569", backgroundColor: "#f8fafc", borderRight: "2px solid #e2e8f0" }}>
-                          {stats.ultimoFornecedor || "-"}
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: 600, fontSize: "1.1rem", color: "#92400e", backgroundColor: "#fffbeb" }}>
-                          {formatCurrency(stats.media)}
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: 600, fontSize: "1.1rem", color: "#92400e", backgroundColor: "#fffbeb" }}>
-                          {formatCurrency(stats.menor)}
-                        </td>
-                        <td style={{ textAlign: "center", fontWeight: 600, fontSize: "1.1rem", color: "#92400e", backgroundColor: "#fffbeb", borderRight: "2px solid #e2e8f0" }}>
-                          {formatCurrency(stats.maior)}
-                        </td>
-                        <td style={{ textAlign: "center" }}>
-                          <button
-                            onClick={() => handleDelete(item.id)}
-                            className="delete-record-btn"
-                            title="Remover da lista"
-                            style={{ margin: "0 auto", padding: "6px 10px", fontSize: "1rem" }}
-                          >
-                            <Icons.BsTrash />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  {isExpanded && <tr><td colSpan={7} style={{ padding: 18, background: "#f8fafc", opacity: list.status === "Fechada" ? .68 : 1 }}>
+                    <div style={{ display: "flex", gap: 12, alignItems: "end", flexWrap: "wrap", marginBottom: 14 }}>
+                      <div style={{ flex: "1 1 260px", minWidth: 0 }}><label style={{ display: "block", marginBottom: 6, fontWeight: 700 }}>Insumo</label><Select options={options} value={selectedInsumo[list.id] || null} onChange={value => setSelectedInsumo(current => ({ ...current, [list.id]: value }))} placeholder="Selecione o material..." isSearchable maxMenuHeight={360} menuPosition="fixed" menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }), menu: base => ({ ...base, zIndex: 9999 }), control: base => ({ ...base, minHeight: 44, fontSize: "1.1rem" }), input: base => ({ ...base, fontSize: "1.1rem" }), singleValue: base => ({ ...base, fontSize: "1.1rem" }), placeholder: base => ({ ...base, fontSize: "1.1rem" }), option: base => ({ ...base, fontSize: "1.05rem", padding: "10px 12px" }) }} /></div>
+                      <div style={{ width: 140 }}><label style={{ display: "block", marginBottom: 6, fontWeight: 700 }}>Quantidade</label><input type="number" min="0" step="any" value={quantidades[list.id] || ""} onChange={event => setQuantidades(current => ({ ...current, [list.id]: event.target.value }))} style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: 5, boxSizing: "border-box" }} /></div>
+                      <button type="button" disabled={saving} onClick={() => void handleAddItem(list.id)} style={{ height: 38, display: "inline-flex", alignItems: "center", gap: 7, padding: "0 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "white", fontWeight: 700, cursor: "pointer" }}><Icons.BsPlusCircle /> Adicionar material</button>
+                    </div>
+                    {list.itens.length === 0 ? <div style={{ padding: 18, textAlign: "center", color: "#64748b" }}>Esta lista ainda não possui materiais.</div> : <div style={{ overflowX: "auto" }}><table className="freq-table" style={{ minWidth: 650, background: "white" }}><thead><tr><th style={{ width: 50, textAlign: "center" }}>Status</th><th>Material</th><th>Tipo</th><th style={{ textAlign: "center" }}>Unidade</th><th style={{ textAlign: "center" }}>Quantidade a comprar</th><th style={{ textAlign: "center" }}>Ações</th></tr></thead><tbody>{list.itens.map(item => <tr key={item.id} style={{ opacity: item.comprado ? .55 : 1 }}><td style={{ textAlign: "center" }}><input type="checkbox" checked={item.comprado} onChange={() => void handleToggle(item)} /></td><td style={{ fontWeight: 600, textDecoration: item.comprado ? "line-through" : undefined }}>{item.cadastro_insumos?.nome || "Insumo excluído"}</td><td>{item.cadastro_insumos?.tipo || "—"}</td><td style={{ textAlign: "center" }}>{item.cadastro_insumos?.unidade_conversao || "—"}</td><td style={{ textAlign: "center", fontWeight: 700 }}>{item.quantidade}</td><td style={{ textAlign: "center" }}><button type="button" className="delete-record-btn" title="Remover material" onClick={() => void handleDeleteItem(item)}><Icons.BsTrash /></button></td></tr>)}</tbody></table></div>}
+                  </td></tr>}
+                </React.Fragment>;
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
-    </>
-  );
+    </div>
+    {showOpenListWarning && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setShowOpenListWarning(false); }} style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: "rgba(15, 23, 42, .52)" }}>
+      <section role="alertdialog" aria-modal="true" aria-labelledby="open-list-warning-title" aria-describedby="open-list-warning-message" style={{ width: "min(480px, 100%)", padding: 26, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+          <span style={{ width: 48, height: 48, flex: "0 0 48px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "#fff7ed", color: "#c2410c", fontSize: 25 }}><Icons.BsExclamationTriangle /></span>
+          <div><h2 id="open-list-warning-title" style={{ margin: "2px 0 10px", color: "#334155", fontSize: "1.65rem" }}>Lista aberta</h2><p id="open-list-warning-message" style={{ margin: 0, color: "#475569", lineHeight: 1.55, fontSize: "1.15rem" }}>Já existe uma lista de compras aberta, feche ela antes de criar outra</p></div>
+        </div>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 24 }}><button type="button" autoFocus onClick={() => setShowOpenListWarning(false)} style={{ minWidth: 100, padding: "10px 20px", border: 0, borderRadius: 6, background: "#80501f", color: "white", fontWeight: 700, fontSize: "1.05rem", cursor: "pointer" }}>Entendi</button></div>
+      </section>
+    </div>}
+  </>;
 }
 
 export default ListaComprasManual;
