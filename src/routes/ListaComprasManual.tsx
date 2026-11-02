@@ -13,7 +13,7 @@ type ShoppingItem = {
   comprado: boolean;
   cadastro_insumos?: { nome?: string; tipo?: string; unidade_conversao?: string } | null;
 };
-type ShoppingList = { id: number; nome: string; created_at: string; user_id?: string | null; status: "Aberta" | "Fechada"; profiles?: { name?: string | null } | null; itens: ShoppingItem[] };
+type ShoppingList = { id: number; nome: string; created_at: string; user_id?: string | null; criado_por?: string | null; status: "Aberta" | "Fechada"; profiles?: { name?: string | null } | null; itens: ShoppingItem[] };
 
 function ListaComprasManual() {
   const { user } = useAuth();
@@ -33,7 +33,7 @@ function ListaComprasManual() {
     try {
       const [{ data: materialData, error: materialError }, { data: listData, error: listError }] = await Promise.all([
         supabase.from("cadastro_insumos").select("id, nome, tipo, unidade_conversao").eq("ativo", true).order("nome", { ascending: true }),
-        supabase.from("lista_compras_manual").select("id, nome, created_at, user_id, status, profiles(name), lista_compras_manual_itens(id, lista_id, insumo_id, quantidade, comprado, cadastro_insumos(nome, tipo, unidade_conversao))").order("created_at", { ascending: false })
+        supabase.from("lista_compras_manual").select("id, nome, created_at, user_id, criado_por, status, profiles(name), lista_compras_manual_itens(id, lista_id, insumo_id, quantidade, comprado, cadastro_insumos(nome, tipo, unidade_conversao))").order("created_at", { ascending: false })
       ]);
       if (materialError) throw materialError;
       if (listError) throw listError;
@@ -147,7 +147,7 @@ function ListaComprasManual() {
                   <tr onClick={() => setExpanded(current => isExpanded ? current.filter(id => id !== list.id) : [...current, list.id])} style={{ cursor: "pointer", opacity: list.status === "Fechada" ? .58 : 1, backgroundColor: list.status === "Fechada" ? "#f7f8fa" : undefined, transition: "opacity .15s" }}>
                     <td style={{ fontWeight: 700 }}><Icons.BsChevronRight style={{ marginRight: 10, transform: isExpanded ? "rotate(90deg)" : undefined, transition: "transform .15s" }} />Lista de Compras</td>
                     <td style={{ textAlign: "center" }}>{formatDate(list.created_at)}</td>
-                    <td style={{ textAlign: "center" }}><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "5px 12px", border: "1px solid #cbd8e6", borderRadius: 16, background: "#eef3f8", color: "#526982", fontWeight: 600 }}><Icons.BsPerson />{list.profiles?.name || "—"}</span></td>
+                    <td style={{ textAlign: "center" }}><span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 7, padding: "5px 12px", border: "1px solid #cbd8e6", borderRadius: 16, background: "#eef3f8", color: "#526982", fontWeight: 600 }}><Icons.BsPerson />{list.criado_por || list.profiles?.name || "—"}</span></td>
                     <td style={{ textAlign: "center", fontWeight: 700 }}>{list.itens.length}</td>
                     <td style={{ textAlign: "center" }}>{list.itens.length ? `${purchased}/${list.itens.length} comprados` : "Sem materiais"}</td>
                     <td style={{ textAlign: "center" }}><select aria-label={`Status da lista ${list.nome}`} value={list.status || "Aberta"} onClick={event => event.stopPropagation()} onChange={event => void handleStatusChange(list, event.target.value as "Aberta" | "Fechada")} style={{ padding: "6px 12px", border: `1px solid ${list.status === "Fechada" ? "#cbd5e1" : "#cbd8e6"}`, borderRadius: 16, color: list.status === "Fechada" ? "#475569" : "#365b7d", background: list.status === "Fechada" ? "#f1f5f9" : "#eff6fb", fontWeight: 700, cursor: "pointer" }}><option value="Aberta">Aberta</option><option value="Fechada">Fechada</option></select></td>

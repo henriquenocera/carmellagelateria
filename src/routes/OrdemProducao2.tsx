@@ -41,6 +41,7 @@ type DraftLine = {
 type FlavorUnit = { key: string; line: DraftLine; index: number };
 type FlavorCard = { key: string; line: DraftLine; unitKeys: string[]; position: number };
 type RequiredIngredient = { key: string; name: string; unit: string; quantity: number; components: Record<string, number> };
+type ShoppingIngredientDraft = { key: string; insumo_id: string; quantidade: string };
 const WEEK_DAYS = [
   { id: 1, label: "Segunda-feira" },
   { id: 2, label: "Terça-feira" },
@@ -82,6 +83,12 @@ function OrdemProducao2() {
   const [insumosCadastro, setInsumosCadastro] = useState<Record<string, any>>({});
   const [showInsumosModal, setShowInsumosModal] = useState(false);
   const [showOnlyNegativeIngredients, setShowOnlyNegativeIngredients] = useState(false);
+  const [editingShoppingIngredients, setEditingShoppingIngredients] = useState(false);
+  const [editingShoppingIngredientKey, setEditingShoppingIngredientKey] = useState<string | null>(null);
+  const [editingShoppingIngredientOriginal, setEditingShoppingIngredientOriginal] = useState<ShoppingIngredientDraft | null>(null);
+  const [shoppingIngredientDrafts, setShoppingIngredientDrafts] = useState<ShoppingIngredientDraft[]>([]);
+  const [sendingToShopping, setSendingToShopping] = useState(false);
+  const [showPositiveStockConfirm, setShowPositiveStockConfirm] = useState(false);
   const [visibleOrdersCount, setVisibleOrdersCount] = useState(10);
 
   const getToday = () => {
@@ -565,6 +572,131 @@ function OrdemProducao2() {
 
   const handleExportIngredientsPdf = () => exportIngredientsPdf(requiredIngredients, orderDate, showOnlyNegativeIngredients);
 
+  const openShoppingIngredientEditor = () => {
+    setShoppingIngredientDrafts(requiredIngredients.map(ingredient => ({
+      key: crypto.randomUUID(),
+      insumo_id: Object.keys(ingredient.components)[0] || "",
+      quantidade: String(ingredient.quantity)
+    })));
+    setEditingShoppingIngredientKey(null);
+    setEditingShoppingIngredientOriginal(null);
+    setEditingShoppingIngredients(true);
+  };
+
+  const updateShoppingIngredient = (key: string, field: "insumo_id" | "quantidade", value: string) => {
+    setShoppingIngredientDrafts(rows => rows.map(row => row.key === key ? { ...row, [field]: value } : row));
+  };
+
+  const addShoppingIngredient = () => {
+    if (editingShoppingIngredientKey) return;
+    const row = { key: crypto.randomUUID(), insumo_id: "", quantidade: "1" };
+    setShoppingIngredientDrafts(rows => [...rows, row]);
+    setEditingShoppingIngredientOriginal(null);
+    setEditingShoppingIngredientKey(row.key);
+  };
+
+  const beginShoppingIngredientEdit = (row: ShoppingIngredientDraft) => {
+    setEditingShoppingIngredientOriginal({ ...row });
+    setEditingShoppingIngredientKey(row.key);
+  };
+
+  const cancelShoppingIngredientEdit = () => {
+    const key = editingShoppingIngredientKey;
+    if (!key) return;
+    if (editingShoppingIngredientOriginal) {
+      setShoppingIngredientDrafts(rows => rows.map(row => row.key === key ? editingShoppingIngredientOriginal : row));
+    } else {
+      setShoppingIngredientDrafts(rows => rows.filter(row => row.key !== key));
+    }
+    setEditingShoppingIngredientKey(null);
+    setEditingShoppingIngredientOriginal(null);
+  };
+
+  const confirmShoppingIngredientEdit = (row: ShoppingIngredientDraft) => {
+    if (!row.insumo_id || !Number.isFinite(Number(row.quantidade)) || Number(row.quantidade) <= 0) {
+      alert("Selecione um insumo e informe uma quantidade maior que zero.");
+      return;
+    }
+    setEditingShoppingIngredientKey(null);
+    setEditingShoppingIngredientOriginal(null);
+  };
+
+  const sendIngredientsToShopping = async (confirmedPositiveStock = false) => {
+    if (editingShoppingIngredientKey) {
+      alert("Salve ou cancele a edição do insumo antes de enviar para compras.");
+      return;
+    }
+    const validRows = shoppingIngredientDrafts.filter(row =>
+      row.insumo_id && Number.isFinite(Number(row.quantidade)) && Number(row.quantidade) > 0 &&
+      (!showOnlyNegativeIngredients || getShoppingDraftStock(row) - Number(row.quantidade) < 0)
+    );
+    if (validRows.length === 0) {
+      alert("Adicione ao menos um insumo com quantidade maior que zero.");
+      return;
+    }
+    const includesInStockItems = validRows.some(row => getShoppingDraftStock(row) - Number(row.quantidade) > 0);
+    if (includesInStockItems && !confirmedPositiveStock) {
+      setShowPositiveStockConfirm(true);
+      return;
+    }
+    setShowPositiveStockConfirm(false);
+    setSendingToShopping(true);
+    try {
+      let { data: shoppingList, error: listError } = await supabase
+        .from("lista_compras_manual")
+        .select("id")
+        .eq("status", "Aberta")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (listError) throw listError;
+
+      if (!shoppingList) {
+        const { data, error } = await supabase.from("lista_compras_manual")
+          .insert({ nome: "Lista de Compras", user_id: user?.id || null, criado_por: "Criado a Partir da Produção" })
+          .select("id").single();
+        if (error) throw error;
+        shoppingList = data;
+      }
+
+      const { data: currentItems, error: itemsError } = await supabase
+        .from("lista_compras_manual_itens")
+        .select("id, insumo_id, quantidade")
+        .eq("lista_id", shoppingList.id);
+      if (itemsError) throw itemsError;
+
+      const roundToThreeDecimals = (value: number) => Math.round((value + Number.EPSILON) * 1000) / 1000;
+      const quantitiesByIngredient = new Map<string, number>();
+      validRows.forEach(row => quantitiesByIngredient.set(row.insumo_id, (quantitiesByIngredient.get(row.insumo_id) || 0) + Number(row.quantidade)));
+      const existingByIngredient = new Map((currentItems || []).map((item: any) => [String(item.insumo_id), item]));
+      const updates = Array.from(quantitiesByIngredient.entries()).filter(([id]) => existingByIngredient.has(id)).map(([id, quantity]) => {
+        const existing: any = existingByIngredient.get(id);
+        return supabase.from("lista_compras_manual_itens").update({ quantidade: roundToThreeDecimals(Number(existing.quantidade) + quantity) }).eq("id", existing.id);
+      });
+      const updateResults = await Promise.all(updates);
+      const updateError = updateResults.find(result => result.error)?.error;
+      if (updateError) throw updateError;
+
+      const newItems = Array.from(quantitiesByIngredient.entries()).filter(([id]) => !existingByIngredient.has(id)).map(([insumo_id, quantidade]) => ({
+        lista_id: shoppingList.id,
+        insumo_id,
+        quantidade: roundToThreeDecimals(quantidade)
+      }));
+      if (newItems.length) {
+        const { error } = await supabase.from("lista_compras_manual_itens").insert(newItems);
+        if (error) throw error;
+      }
+      setEditingShoppingIngredients(false);
+      setShowInsumosModal(false);
+      alert("Insumos enviados para a lista de compras.");
+    } catch (error: any) {
+      console.error("Erro ao enviar insumos para compras:", error);
+      alert(`Não foi possível enviar os insumos para compras: ${error.message || "erro inesperado"}`);
+    } finally {
+      setSendingToShopping(false);
+    }
+  };
+
   const handleExportNegativeIngredientsForOrder = (order: { date: string; lines: OrderLine[] }) => {
     const ingredients = calculateRequiredIngredients(order.lines);
     exportIngredientsPdf(ingredients, order.date, true);
@@ -696,6 +828,16 @@ function OrdemProducao2() {
     return total;
   };
 
+  const getShoppingDraftStock = (row: ShoppingIngredientDraft) => {
+    const info = insumosCadastro[row.insumo_id];
+    if (!info) return 0;
+    const ingredientName = normalizeIngredientName(info.nome_simples_unitario || info.nome);
+    const matchingIngredient = requiredIngredients.find(ingredient => ingredient.key === ingredientName);
+    if (matchingIngredient) return getIngredientStock(matchingIngredient);
+    const conversion = Number(info.quantidade_conversao) > 0 ? Number(info.quantidade_conversao) : 1;
+    return (factoryStock[row.insumo_id] || 0) * conversion;
+  };
+
   const formatQuantity = (quantity: number) => quantity.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 4 });
   const groupFlavorUnits = (units: FlavorUnit[]): FlavorCard[] => {
     const grouped = new Map<string, FlavorCard>();
@@ -798,6 +940,9 @@ function OrdemProducao2() {
           .op2-draft-table td { padding: 5px 10px !important; font-size: 1rem !important; }
           .op2-ingredients-table th { padding: 9px 12px !important; font-size: 1.05rem !important; }
           .op2-ingredients-table td { padding: 8px 12px !important; font-size: 1.05rem !important; }
+          .op2-shopping-edit-table th { padding: 7px 10px !important; font-size: 1rem !important; }
+          .op2-shopping-edit-table td { padding: 5px 8px !important; font-size: 1.05rem !important; }
+          .op2-shopping-edit-table select, .op2-shopping-edit-table input { height: 32px !important; font-size: 1rem !important; }
           .op2-week-board { display: grid; gap: 10px; min-width: 900px; align-items: stretch; }
           .op2-week-column { display: flex; flex-direction: column; min-height: 230px; padding: 10px; border: 1px solid #dbe3ec; border-radius: 8px; background: #f8fafc; }
           .op2-week-flavor { display: flex; align-items: center; gap: 6px; min-width: 0; margin-top: 8px; padding: 8px; border: 1px solid #d4dce6; border-radius: 6px; background: #fff; color: #334155; cursor: grab; user-select: none; white-space: nowrap; overflow: hidden; }
@@ -979,7 +1124,7 @@ function OrdemProducao2() {
 
       {showInsumosModal && (
         <div className="op2-modal-backdrop" style={{ zIndex: 1100 }} onMouseDown={event => { if (event.target === event.currentTarget) setShowInsumosModal(false); }}>
-          <section className="op2-modal" role="dialog" aria-modal="true" aria-labelledby="op2-ingredients-title" style={{ width: "min(1000px, 100%)" }}>
+          <section className="op2-modal" role="dialog" aria-modal="true" aria-labelledby="op2-ingredients-title" style={{ width: editingShoppingIngredients ? "min(1200px, calc(100vw - 48px))" : "min(1000px, 100%)", transition: "width .2s ease" }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", marginBottom: "16px" }}>
               <h2 id="op2-ingredients-title" style={{ margin: 0, display: "flex", alignItems: "center", gap: "9px", color: "#1e293b", fontSize: "1.45rem" }}><Icons.BsBoxSeam style={{ color: "var(--primary-color)" }} /> Lista de Separação (Insumos Necessários)</h2>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -989,28 +1134,47 @@ function OrdemProducao2() {
               </div>
             </div>
             <div className="freq-table-wrapper" style={{ maxHeight: "65vh", overflow: "auto", border: "1px solid #e2e8f0", borderRadius: "6px" }}>
-              <table className="freq-table op2-draft-table op2-ingredients-table" style={{ minWidth: "700px" }}>
-                <thead><tr>
-                  <th style={{ textAlign: "left" }}>Insumo</th>
-                  <th style={{ textAlign: "center" }}>Estoque Atual (Fábrica)</th>
-                  <th style={{ textAlign: "center" }}>Quantidade Necessária</th>
-                  <th style={{ textAlign: "right" }}>Saldo Final</th>
-                </tr></thead>
+              <table className={`freq-table op2-draft-table op2-ingredients-table${editingShoppingIngredients ? " op2-shopping-edit-table" : ""}`} style={{ minWidth: editingShoppingIngredients ? "850px" : "700px" }}>
+                <thead><tr><th style={{ textAlign: "left" }}>Insumo</th><th style={{ textAlign: "center" }}>Estoque Atual (Fábrica)</th><th style={{ textAlign: "center" }}>Quantidade Necessária</th><th style={{ textAlign: "right" }}>Saldo Final</th>{editingShoppingIngredients && <th style={{ width: 100, textAlign: "center" }}>Ações</th>}</tr></thead>
                 <tbody>
-                  {visibleIngredients.length === 0 ? (
-                    <tr><td colSpan={4} style={{ padding: "24px", textAlign: "center", color: "#94a3b8" }}>{showOnlyNegativeIngredients ? "Nenhum insumo com saldo final negativo." : "Não há insumos calculados para os sabores desta ordem."}</td></tr>
-                  ) : visibleIngredients.map(ingredient => {
-                    const stock = getIngredientStock(ingredient);
-                    const balance = stock - ingredient.quantity;
-                    return <tr key={ingredient.key}>
-                      <td style={{ fontWeight: 500 }}>{ingredient.name}</td>
-                      <td style={{ textAlign: "center", color: "#64748b", fontWeight: 700 }}>{formatQuantity(stock)} <span style={{ fontWeight: 400 }}>{ingredient.unit}</span></td>
-                      <td style={{ textAlign: "center", color: "#16a34a", fontWeight: 700 }}>{formatQuantity(ingredient.quantity)} <span style={{ fontWeight: 400 }}>{ingredient.unit}</span></td>
-                      <td style={{ textAlign: "right", color: balance < 0 ? "#dc2626" : "#334155", fontWeight: 700 }}>{formatQuantity(balance)} <span style={{ fontWeight: 400 }}>{ingredient.unit}</span></td>
+                  {!editingShoppingIngredients && visibleIngredients.length === 0 ? <tr><td colSpan={4} style={{ padding: "24px", textAlign: "center", color: "#94a3b8" }}>{showOnlyNegativeIngredients ? "Nenhum insumo com saldo final negativo." : "Não há insumos calculados para os sabores desta ordem."}</td></tr> : (editingShoppingIngredients ? shoppingIngredientDrafts.filter(row => !showOnlyNegativeIngredients || row.key === editingShoppingIngredientKey || getShoppingDraftStock(row) - Number(row.quantidade) < 0) : visibleIngredients.map(ingredient => ({ key: ingredient.key, insumo_id: Object.keys(ingredient.components)[0] || "", quantidade: String(ingredient.quantity) }))).map(row => {
+                    const ingredient = visibleIngredients.find(item => item.key === row.key);
+                    const info = insumosCadastro[row.insumo_id];
+                    const isRowEditing = editingShoppingIngredients && editingShoppingIngredientKey === row.key;
+                    const unit = info?.unidade_consumo || info?.unidade_conversao || ingredient?.unit || "un";
+                    const quantity = Number(row.quantidade) || 0;
+                    const stock = editingShoppingIngredients ? getShoppingDraftStock(row) : ingredient ? getIngredientStock(ingredient) : 0;
+                    const displayName = info?.nome_simples_unitario || info?.nome || ingredient?.name || "Insumo";
+                    const sortedIngredients = Object.entries(insumosCadastro).sort(([, a]: any, [, b]: any) => String(a.nome_simples_unitario || a.nome || "").localeCompare(String(b.nome_simples_unitario || b.nome || "")));
+                    return <tr key={row.key}>
+                      <td style={{ fontWeight: 500 }}>{isRowEditing ? <select aria-label="Selecionar insumo" value={row.insumo_id} onChange={event => updateShoppingIngredient(row.key, "insumo_id", event.target.value)} style={{ boxSizing: "border-box", width: "100%", minWidth: 250, height: 30, padding: "0 8px", border: "1px solid #cbd5e1", borderRadius: 5, background: "#fff", color: "#334155", fontSize: ".9rem" }}><option value="">Selecione um insumo...</option>{sortedIngredients.map(([id, optionInfo]: [string, any]) => <option key={id} value={id}>{optionInfo.nome_simples_unitario || optionInfo.nome}</option>)}</select> : displayName}</td>
+                      <td style={{ textAlign: "center", color: "#64748b", fontWeight: 700 }}>{formatQuantity(stock)} <span style={{ fontWeight: 400 }}>{unit}</span></td>
+                      <td style={{ textAlign: "center", color: "#16a34a", fontWeight: 700 }}>{isRowEditing ? <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><input aria-label="Quantidade necessária" type="number" min="0" step="any" value={row.quantidade} onChange={event => updateShoppingIngredient(row.key, "quantidade", event.target.value)} style={{ boxSizing: "border-box", width: 125, height: 30, padding: "0 8px", border: "1px solid #cbd5e1", borderRadius: 5, textAlign: "center" }} /><span style={{ color: "#64748b", fontSize: ".9rem" }}>{unit}</span></div> : <>{formatQuantity(quantity)} <span style={{ fontWeight: 400 }}>{unit}</span></>}</td>
+                      <td style={{ textAlign: "right", color: stock - quantity < 0 ? "#dc2626" : "#334155", fontWeight: 700 }}>{formatQuantity(stock - quantity)} <span style={{ fontWeight: 400 }}>{unit}</span></td>
+                      {editingShoppingIngredients && <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{isRowEditing ? <><button type="button" title="Salvar edição" aria-label="Salvar edição" onClick={() => confirmShoppingIngredientEdit(row)} style={{ width: 28, height: 28, marginRight: 4, border: "1px solid #bbf7d0", borderRadius: 5, background: "#f0fdf4", color: "#15803d", cursor: "pointer" }}><Icons.BsCheck2 /></button><button type="button" title="Cancelar edição" aria-label="Cancelar edição" onClick={cancelShoppingIngredientEdit} style={{ width: 28, height: 28, border: "1px solid #cbd5e1", borderRadius: 5, background: "#fff", color: "#64748b", cursor: "pointer" }}><Icons.BsX /></button></> : <><button type="button" title="Editar insumo" aria-label="Editar insumo" onClick={() => beginShoppingIngredientEdit(row)} disabled={Boolean(editingShoppingIngredientKey)} style={{ width: 28, height: 28, marginRight: 4, border: "1px solid #bfdbfe", borderRadius: 5, background: "#eff6ff", color: "#2563eb", cursor: editingShoppingIngredientKey ? "not-allowed" : "pointer", opacity: editingShoppingIngredientKey ? .5 : 1 }}><Icons.BsPencil /></button><button type="button" title="Excluir insumo" aria-label="Excluir insumo" onClick={() => setShoppingIngredientDrafts(rows => rows.filter(item => item.key !== row.key))} style={{ width: 28, height: 28, border: "1px solid #fecaca", borderRadius: 5, background: "#fff", color: "#dc2626", cursor: "pointer" }}><Icons.BsTrash /></button></>}</td>}
                     </tr>;
                   })}
                 </tbody>
               </table>
+            </div>
+            {editingShoppingIngredients ? <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+              <button type="button" onClick={addShoppingIngredient} disabled={Boolean(editingShoppingIngredientKey)} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "9px 13px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: editingShoppingIngredientKey ? "not-allowed" : "pointer", opacity: editingShoppingIngredientKey ? .55 : 1 }}><Icons.BsPlusCircle /> Adicionar insumo</button>
+              <div style={{ display: "flex", gap: 9 }}><button type="button" onClick={() => { setEditingShoppingIngredients(false); setEditingShoppingIngredientKey(null); setEditingShoppingIngredientOriginal(null); }} disabled={sendingToShopping} style={{ padding: "9px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: "pointer" }}>Cancelar</button><button type="button" onClick={() => void sendIngredientsToShopping()} disabled={sendingToShopping || Boolean(editingShoppingIngredientKey)} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: sendingToShopping || editingShoppingIngredientKey ? "not-allowed" : "pointer", opacity: editingShoppingIngredientKey ? .55 : 1 }}>{sendingToShopping ? <><Icons.BsArrowClockwise className="spin" /> Enviando...</> : <><Icons.BsCartCheck /> Enviar para Compras</>}</button></div>
+            </div> : <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 14 }}><button type="button" onClick={openShoppingIngredientEditor} disabled={requiredIngredients.length === 0} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: requiredIngredients.length === 0 ? "not-allowed" : "pointer", opacity: requiredIngredients.length === 0 ? .55 : 1 }}><Icons.BsCartCheck /> Enviar para Compras</button></div>}
+          </section>
+        </div>
+      )}
+
+      {showPositiveStockConfirm && (
+        <div className="op2-modal-backdrop" style={{ zIndex: 1300 }} onMouseDown={event => { if (event.target === event.currentTarget) setShowPositiveStockConfirm(false); }}>
+          <section className="op2-modal" role="alertdialog" aria-modal="true" aria-labelledby="op2-positive-stock-title" aria-describedby="op2-positive-stock-message" style={{ width: "min(520px, 100%)", padding: 24 }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+              <span style={{ width: 42, height: 42, flex: "0 0 42px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "#fff7ed", color: "#c2410c", fontSize: 22 }}><Icons.BsExclamationTriangle /></span>
+              <div><h2 id="op2-positive-stock-title" style={{ margin: "2px 0 8px", color: "#334155", fontSize: "1.6rem" }}>Confirmar envio para compras</h2><p id="op2-positive-stock-message" style={{ margin: 0, color: "#475569", fontSize: "1.2rem", lineHeight: 1.55 }}>Você vai enviar itens que já estão em estoque para a lista de compras, tem certeza ?</p></div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 24 }}>
+              <button type="button" onClick={() => setShowPositiveStockConfirm(false)} style={{ padding: "10px 17px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, fontSize: "1.05rem", cursor: "pointer" }}>Voltar</button>
+              <button type="button" onClick={() => { setShowPositiveStockConfirm(false); void sendIngredientsToShopping(true); }} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 17px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, fontSize: "1.05rem", cursor: "pointer" }}><Icons.BsCartCheck /> Sim, enviar</button>
             </div>
           </section>
         </div>
