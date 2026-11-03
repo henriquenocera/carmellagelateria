@@ -25,6 +25,8 @@ type OrderLine = {
   peso_bruto?: number | null;
   tara?: number | null;
   status?: "Aberto" | "Fechado" | null;
+  insumos_enviados?: boolean | null;
+  ordem_informada?: boolean | null;
   dia_semana?: number | null;
   ordem_dia?: number | null;
   profiles?: { name?: string | null } | null;
@@ -113,7 +115,7 @@ function OrdemProducao2() {
           .order("nome", { ascending: true }),
         supabase
           .from("ordem_producao")
-          .select("id, data_ordem, produto_id, quantidade, user_id, data_producao, peso_bruto, tara, status, dia_semana, ordem_dia, profiles(name)")
+          .select("id, data_ordem, produto_id, quantidade, user_id, data_producao, peso_bruto, tara, status, insumos_enviados, ordem_informada, dia_semana, ordem_dia, profiles(name)")
           .order("data_ordem", { ascending: false }),
         supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade").eq("unidade", "Fábrica").lte("data_inventario", getToday()).order("data_inventario", { ascending: false }).limit(5000),
         supabase.from("movimentacoes_estoque").select("insumo_id, data_movimentacao, quantidade, origem, destino").or("origem.eq.Fábrica,destino.eq.Fábrica").lte("data_movimentacao", getToday()),
@@ -352,7 +354,7 @@ function OrdemProducao2() {
     setDayFlavorSearch("");
   };
 
-  const handleCreateOrder = async (event?: React.FormEvent, closeAfterSave = true) => {
+  const handleCreateOrder = async (event?: React.FormEvent, closeAfterSave = true, markAsOrdered = false) => {
     event?.preventDefault();
     if (!orderDate) {
       if (closeAfterSave) alert("Informe a data da ordem.");
@@ -423,6 +425,7 @@ function OrdemProducao2() {
         data_producao: null,
         peso_bruto: null,
         tara: null,
+        ...(markAsOrdered ? { ordem_informada: true } : {}),
         codigo: null
       }));
 
@@ -436,6 +439,7 @@ function OrdemProducao2() {
             produto_id: unit.line.produto_id,
             quantidade: 1,
             status: orderStatus,
+            ...(markAsOrdered ? { ordem_informada: true } : {}),
             ...unit.schedule,
             updated_at: timestamp
           }).eq("id", unit.id as string)
@@ -471,6 +475,8 @@ function OrdemProducao2() {
           data_producao: existing?.data_producao || null,
           peso_bruto: existing?.peso_bruto ?? null,
           tara: existing?.tara ?? null
+          , ordem_informada: markAsOrdered ? true : existing?.ordem_informada ?? false,
+          insumos_enviados: existing?.insumos_enviados ?? false
         } as OrderLine;
       });
       const savedIds = new Set(savedRows.map(line => line.id));
@@ -686,6 +692,11 @@ function OrdemProducao2() {
         const { error } = await supabase.from("lista_compras_manual_itens").insert(newItems);
         if (error) throw error;
       }
+      const { error: orderStatusError } = await supabase.from("ordem_producao")
+        .update({ insumos_enviados: true, updated_at: new Date().toISOString() })
+        .eq("data_ordem", orderDate);
+      if (orderStatusError) throw orderStatusError;
+      setOrderLines(lines => lines.map(line => line.data_ordem === orderDate ? { ...line, insumos_enviados: true } : line));
       setEditingShoppingIngredients(false);
       setShowInsumosModal(false);
       alert("Insumos enviados para a lista de compras.");
@@ -950,9 +961,13 @@ function OrdemProducao2() {
           .op2-scheduled-flavor { position: relative; padding-right: 28px; }
           .op2-flavor-remove { position: absolute; top: 50%; right: 5px; transform: translateY(-50%); width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; padding: 0; border: 0; border-radius: 4px; background: #fff1f2; color: #dc2626; cursor: pointer; opacity: 0; transition: opacity .12s; }
           .op2-scheduled-flavor:hover .op2-flavor-remove, .op2-flavor-remove:focus-visible { opacity: 1; }
-          .op2-card-position { flex: 0 0 auto; color: #80501f; font-size: .75rem; font-weight: 700; }
-          .op2-card-name { flex: 1 1 auto; min-width: 0; overflow: hidden; color: #334155; font-size: .8rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
-          .op2-card-count { flex: 0 0 auto; padding: 2px 6px; border-radius: 10px; background: #eef3f8; color: #526982; font-size: .75rem; font-weight: 700; }
+          .op2-card-position { flex: 0 0 auto; color: #80501f; font-size: .95rem; font-weight: 700; }
+          .op2-card-name { flex: 1 1 auto; min-width: 0; overflow: hidden; color: #334155; font-size: 1rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+          .op2-card-count { flex: 0 0 auto; padding: 2px 6px; border-radius: 10px; background: #eef3f8; color: #526982; font-size: .9rem; font-weight: 700; }
+          .op2-week-column h3, .op2-week-pool h3 { font-size: 1.05rem !important; }
+          .op2-add-flavor-card { font-size: .95rem; }
+          .op2-week-column h3 span, .op2-week-pool > h3 { font-size: 1rem !important; }
+          .op2-week-column > div:not(.op2-week-flavor) { font-size: 1rem !important; }
           .op2-week-pool { box-sizing: border-box; min-height: 230px; max-height: 430px; overflow-y: auto; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; background: #f8fafc; }
           .op2-add-flavor-card { width: 100%; min-height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0 0 8px; padding: 7px 6px; border: 1px dashed #aab7c6; border-radius: 6px; background: transparent; color: #64748b; font-size: .78rem; cursor: pointer; }
           .op2-add-flavor-card:hover { border-color: #80501f; background: #fffaf4; color: #80501f; }
@@ -987,15 +1002,16 @@ function OrdemProducao2() {
                   <th style={{ width: "180px", textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>Data da Ordem</th>
                   <th style={{ width: "180px", textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>Qntd Planejada</th>
                   <th style={{ width: "240px", textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>Usuário Responsável</th>
-                  <th style={{ width: "180px", textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>Status</th>
+                  <th style={{ width: "120px", textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>Tipo</th>
+                  <th style={{ width: "240px", textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>Status</th>
                   <th style={{ width: "210px", textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} style={{ textAlign: "center", padding: "32px" }}><Icons.BsArrowClockwise className="spin" style={{ color: "var(--primary-color)", fontSize: "2rem" }} /></td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: "center", padding: "32px" }}><Icons.BsArrowClockwise className="spin" style={{ color: "var(--primary-color)", fontSize: "2rem" }} /></td></tr>
                 ) : orders.length === 0 ? (
-                  <tr><td colSpan={5} style={{ textAlign: "center", padding: "36px", color: "#94a3b8", fontSize: "1.25rem" }}>Nenhuma ordem de produção cadastrada.</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: "center", padding: "36px", color: "#94a3b8", fontSize: "1.25rem" }}>Nenhuma ordem de produção cadastrada.</td></tr>
                 ) : visibleOrders.map(order => {
                   const totalQuantity = order.lines.reduce((total, line) => total + Number(line.quantidade || 0), 0);
                   const status = order.lines[0]?.status === "Fechado" ? "Fechado" : "Aberto";
@@ -1008,8 +1024,9 @@ function OrdemProducao2() {
                   return <tr key={order.date} role="button" tabIndex={0} title="Clique para editar esta ordem" onClick={() => openEditOrderModal(order)} onKeyDown={event => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openEditOrderModal(order); } }} style={{ cursor: "pointer", backgroundColor: status === "Fechado" ? "#f7f8fa" : undefined, opacity: status === "Fechado" ? .72 : 1, transition: "opacity .15s, background-color .15s" }}>
                     <td style={{ textAlign: "center" }}><div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}><strong>{formatDate(order.date)}</strong><span style={{ display: "inline-block", padding: "2px 8px", border: "1px solid #e7d8c6", borderRadius: "10px", background: "#f8f2eb", color: "#80501f", fontSize: ".85rem", fontWeight: 600 }}>{orderNumberByDate[order.date]}ª ordem do mês</span></div></td>
                     <td style={{ textAlign: "center", fontWeight: 700 }}>{totalQuantity}</td>
-                    <td style={{ textAlign: "center" }}><span style={{ display: "inline-flex", minWidth: "92px", alignItems: "center", justifyContent: "center", gap: "7px", padding: "5px 12px", border: "1px solid #cbd8e6", borderRadius: "16px", background: "#eef3f8", color: "#526982", fontWeight: 600 }}><Icons.BsPerson style={{ fontSize: "1rem" }} />{responsible}</span></td>
-                    <td style={{ textAlign: "center" }}><select aria-label={`Status da ordem de ${formatDate(order.date)}`} value={status} onClick={event => event.stopPropagation()} onChange={event => handleStatusChange(order.date, event.target.value as "Aberto" | "Fechado")} style={{ padding: "6px 12px", border: `1px solid ${statusStyle.border}`, borderRadius: "16px", color: statusStyle.color, background: statusStyle.background, fontWeight: 700, cursor: "pointer" }}><option value="Aberto">Aberto</option><option value="Fechado">Fechado</option></select></td>
+                   <td style={{ textAlign: "center" }}><span style={{ display: "inline-flex", minWidth: "92px", alignItems: "center", justifyContent: "center", gap: "7px", padding: "5px 12px", border: "1px solid #cbd8e6", borderRadius: "16px", background: "#eef3f8", color: "#526982", fontWeight: 600 }}><Icons.BsPerson style={{ fontSize: "1rem" }} />{responsible}</span></td>
+                    <td style={{ textAlign: "center" }}><select aria-label={`Tipo da ordem de ${formatDate(order.date)}`} value={status} onClick={event => event.stopPropagation()} onChange={event => handleStatusChange(order.date, event.target.value as "Aberto" | "Fechado")} style={{ padding: "6px 12px", border: `1px solid ${statusStyle.border}`, borderRadius: "16px", color: statusStyle.color, background: statusStyle.background, fontWeight: 700, cursor: "pointer" }}><option value="Aberto">Aberto</option><option value="Fechado">Fechado</option></select></td>
+                    <td style={{ textAlign: "center" }}><div style={{ display: "inline-flex", flexDirection: "column", gap: 4, alignItems: "flex-start" }}>{([ ["Compras", order.lines.every(line => line.insumos_enviados)], ["Produção", order.lines.every(line => line.ordem_informada) && order.lines.every(line => Boolean(line.dia_semana))] ] as Array<[string, boolean]>).map(([label, done]) => <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 5, color: done ? "#15803d" : "#b45309", fontSize: ".9rem", lineHeight: 1.35, fontWeight: 600 }}><Icons.BsCheckCircleFill style={{ fontSize: ".82rem", flex: "0 0 auto" }} /><span>{label}: <strong>{done ? "Feito" : "Incompleto"}</strong></span></span>)}</div></td>
                     <td style={{ textAlign: "center" }}>
                       <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                         <button type="button" title="Editar ordem" aria-label={`Editar ordem de ${formatDate(order.date)}`} onClick={() => openEditOrderModal(order)} style={{ width: "34px", height: "34px", display: "inline-flex", alignItems: "center", justifyContent: "center", border: "1px solid #bfdbfe", borderRadius: "6px", background: "#eff6ff", color: "#2563eb", cursor: "pointer" }}><Icons.BsPencil /></button>
@@ -1022,7 +1039,7 @@ function OrdemProducao2() {
                 })}
                 {!loading && orders.length > visibleOrdersCount && (
                   <tr>
-                    <td colSpan={5} style={{ padding: "14px", textAlign: "center", background: "#fff" }}>
+                    <td colSpan={6} style={{ padding: "14px", textAlign: "center", background: "#fff" }}>
                       <button type="button" onClick={() => setVisibleOrdersCount(count => count + 10)} style={{ display: "inline-flex", alignItems: "center", gap: "8px", padding: "8px 16px", border: "1px solid #cbd5e1", borderRadius: "6px", background: "#fff", color: "var(--primary-color)", fontWeight: 700, cursor: "pointer" }}>
                         <Icons.BsChevronDown /> Carregar mais ordens
                       </button>
@@ -1191,7 +1208,7 @@ function OrdemProducao2() {
                 <button type="button" aria-label="Fechar organização semanal" onClick={() => setShowWeekPlanModal(false)} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "1.7rem", cursor: "pointer" }}><Icons.BsX /></button>
               </div>
             </div>
-            <p style={{ margin: "0 0 16px", color: "#64748b" }}>Arraste cada sabor para o dia desejado. Arraste os cartões dentro do dia para ajustar a sequência. Salve a ordem para registrar a distribuição.</p>
+            <p style={{ margin: "0 0 16px", color: "#64748b", fontSize: "1.05rem" }}>Arraste cada sabor para o dia desejado. Arraste os cartões dentro do dia para ajustar a sequência. Salve a ordem para registrar a distribuição.</p>
 
             <div style={{ overflowX: "auto", paddingBottom: "6px" }}>
               <div className="op2-week-board" style={{ gridTemplateColumns: showWeekendDays ? "minmax(150px, 1.05fr) repeat(7, minmax(135px, 1fr))" : "minmax(150px, 1.05fr) repeat(5, minmax(150px, 1fr))", minWidth: showWeekendDays ? "1190px" : "900px" }}>
@@ -1205,7 +1222,7 @@ function OrdemProducao2() {
                       const dayUnits = (weekPlan[day.id] || []).map(key => allUnits.find(unit => unit.key === key)).filter((unit): unit is FlavorUnit => Boolean(unit));
                       return <>
                         <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "6px", margin: "0 0 8px", paddingBottom: "8px", borderBottom: "1px solid #dbe3ec", color: "#475569", fontSize: ".9rem" }}>
-                          <span>{day.label}</span><span style={{ padding: "2px 6px", borderRadius: "10px", background: "#e9eef4", color: "#526982", fontSize: ".75rem", whiteSpace: "nowrap" }}>{dayUnits.length} un.</span>
+                          <span>{day.label}</span><span style={{ padding: "2px 6px", borderRadius: "10px", background: "#e9eef4", color: "#526982", fontSize: ".9rem", whiteSpace: "nowrap" }}>{dayUnits.length} un.</span>
                         </h3>
                         <button type="button" className="op2-add-flavor-card" onClick={() => { setShowFlavorPickerForDay(showFlavorPickerForDay === day.id ? null : day.id); setDayFlavorSearch(""); }}><Icons.BsPlus /> Incluir novo sabor</button>
                         {showFlavorPickerForDay === day.id && (
@@ -1242,7 +1259,7 @@ function OrdemProducao2() {
                           </div>
                         )}
                         {dayUnits.map((unit, index) => renderDraggableUnit(unit, index + 1))}
-                        {dayUnits.length === 0 && <div style={{ padding: "12px 4px", color: "#94a3b8", fontSize: ".85rem", textAlign: "center" }}>Solte os sabores aqui</div>}
+                        {dayUnits.length === 0 && <div style={{ padding: "12px 4px", color: "#94a3b8", fontSize: "1rem", textAlign: "center" }}>Solte os sabores aqui</div>}
                       </>;
                     })()}
                   </section>
@@ -1251,7 +1268,7 @@ function OrdemProducao2() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px", paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
-              <button type="button" onClick={() => { void handleCreateOrder(undefined, true); }} disabled={saving || draftLines.length === 0} style={{ padding: "10px 24px", border: 0, borderRadius: "6px", background: "var(--primary-color)", color: "#fff", fontWeight: 700, cursor: saving || draftLines.length === 0 ? "not-allowed" : "pointer", opacity: saving || draftLines.length === 0 ? .65 : 1 }}>{saving ? "Salvando..." : "Salvar"}</button>
+              <button type="button" onClick={() => { void handleCreateOrder(undefined, true, true); }} disabled={saving || draftLines.length === 0} style={{ padding: "10px 24px", border: 0, borderRadius: "6px", background: "var(--primary-color)", color: "#fff", fontWeight: 700, cursor: saving || draftLines.length === 0 ? "not-allowed" : "pointer", opacity: saving || draftLines.length === 0 ? .65 : 1 }}>{saving ? "Salvando..." : "Salvar"}</button>
             </div>
           </section>
         </div>
