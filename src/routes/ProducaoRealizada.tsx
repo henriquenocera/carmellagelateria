@@ -4,6 +4,7 @@ import * as Icons from "react-icons/bs";
 import Select from "react-select";
 import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
+import { generateGelatoLabelsPdf } from "../utils/gelatoLabelPdf.ts";
 import "../css/Frequencia.css";
 
 function ProducaoRealizada() {
@@ -52,6 +53,8 @@ function ProducaoRealizada() {
   const [filterData, setFilterData] = useState("");
   const [filterStatus, setFilterStatus] = useState<'all' | 'deleted'>('all');
   const [productionDateSort, setProductionDateSort] = useState<"desc" | "asc">("desc");
+  const [labelSelectionMode, setLabelSelectionMode] = useState(false);
+  const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
   const productionDateSaveTimers = useRef<Record<string, number>>({});
 
   useEffect(() => () => {
@@ -485,52 +488,54 @@ function ProducaoRealizada() {
       }
 
       let calculatedValidade: string | null = prod.validade;
-      let finalCodProducao: string = prod.codigo;
+      let finalCodProducao: string | null = prod.codigo;
+      const newProductionDate: string | null = editRowData.data_producao || null;
 
-      const dateChanged = editRowData.data_producao && editRowData.data_producao !== prod.data_producao;
+      const dateChanged = newProductionDate !== (prod.data_producao || null);
       const productChanged = editRowData.produto_id && editRowData.produto_id !== prod.produto_id;
       const newProdutoId = editRowData.produto_id || prod.produto_id;
 
       if (dateChanged || productChanged) {
-        if (dateChanged) {
-          const dataProdDate = new Date(editRowData.data_producao + "T12:00:00");
+        if (newProductionDate && dateChanged) {
+          const dataProdDate = new Date(newProductionDate + "T12:00:00");
           dataProdDate.setDate(dataProdDate.getDate() + 180);
           calculatedValidade = `${dataProdDate.getFullYear()}-${String(dataProdDate.getMonth() + 1).padStart(2, '0')}-${String(dataProdDate.getDate()).padStart(2, '0')}`;
         }
 
-        const selectedProduct = produtos.find(p => p.id === newProdutoId);
-        const prodCodigo = selectedProduct?.codigo || "ND";
-        const parts = editRowData.data_producao.split('-');
-        let ddMMyy = "";
-        if (parts.length === 3) {
-          ddMMyy = `${parts[2]}${parts[1]}${parts[0].substring(2)}`;
-        }
-        const baseCodProducao = `${prodCodigo}${ddMMyy}`;
-        
-        const { data: existingProds } = await supabase
-          .from("producao_realizada")
-          .select("codigo")
-          .eq("produto_id", newProdutoId)
-          .eq("data_producao", editRowData.data_producao)
-          .neq("id", prod.id);
+        if (newProductionDate) {
+          const selectedProduct = produtos.find(p => p.id === newProdutoId);
+          const prodCodigo = selectedProduct?.codigo || "ND";
+          const parts = newProductionDate.split('-');
+          const ddMMyy = parts.length === 3 ? `${parts[2]}${parts[1]}${parts[0].substring(2)}` : "";
+          const baseCodProducao = `${prodCodigo}${ddMMyy}`;
 
-        finalCodProducao = baseCodProducao;
-        if (existingProds && existingProds.length > 0) {
-          let maxSuffix = -1;
-          for (const p of existingProds) {
-            if (p.codigo === baseCodProducao) {
-              if (maxSuffix < 0) maxSuffix = 0;
-            } else if (p.codigo?.startsWith(baseCodProducao + "-")) {
-              const suffixStr = p.codigo.substring((baseCodProducao + "-").length);
-              const suffixNum = parseInt(suffixStr, 10);
-              if (!isNaN(suffixNum) && suffixNum > maxSuffix) {
-                maxSuffix = suffixNum;
+          const { data: existingProds, error: existingCodesError } = await supabase
+            .from("producao_realizada")
+            .select("codigo")
+            .eq("produto_id", newProdutoId)
+            .eq("data_producao", newProductionDate)
+            .neq("id", prod.id);
+          if (existingCodesError) throw existingCodesError;
+
+          finalCodProducao = baseCodProducao;
+          if (existingProds && existingProds.length > 0) {
+            let maxSuffix = -1;
+            for (const p of existingProds) {
+              if (p.codigo === baseCodProducao) {
+                if (maxSuffix < 0) maxSuffix = 0;
+              } else if (p.codigo?.startsWith(baseCodProducao + "-")) {
+                const suffixStr = p.codigo.substring((baseCodProducao + "-").length);
+                const suffixNum = parseInt(suffixStr, 10);
+                if (!isNaN(suffixNum) && suffixNum > maxSuffix) {
+                  maxSuffix = suffixNum;
+                }
               }
             }
+            if (maxSuffix >= 0) finalCodProducao = `${baseCodProducao}-${maxSuffix + 1}`;
           }
-          if (maxSuffix >= 0) {
-             finalCodProducao = `${baseCodProducao}-${maxSuffix + 1}`;
-          }
+        } else {
+          calculatedValidade = null;
+          finalCodProducao = null;
         }
       }
 
@@ -541,7 +546,7 @@ function ProducaoRealizada() {
           peso_bruto: isNaN(pb) ? null : pb,
           tara: isNaN(t) ? null : t,
           peso_liquido: calculatedPesoLiquido,
-          data_producao: editRowData.data_producao,
+          data_producao: newProductionDate,
           data_entrada: editRowData.data_entrada || null,
           destino: editRowData.destino || null,
           validade: calculatedValidade,
@@ -613,6 +618,30 @@ function ProducaoRealizada() {
     } catch (err) {
       console.error("Erro ao alterar status de revisão:", err);
       alert("Erro ao alterar o status de revisão.");
+    }
+  };
+
+  const toggleLabelSelection = (id: string, selected: boolean) => {
+    setSelectedLabelIds(current => selected
+      ? Array.from(new Set([...current, id]))
+      : current.filter(selectedId => selectedId !== id));
+  };
+
+  const handlePrintSelectedLabels = async () => {
+    const selectedProductions = producoes.filter(production => selectedLabelIds.includes(production.id));
+    if (!selectedProductions.length) return;
+    try {
+      await generateGelatoLabelsPdf(selectedProductions.map(production => ({
+        flavor: production.cadastro_produtos?.nome || "Sabor",
+        date: production.data_producao || "",
+        peso: production.peso_bruto == null ? "" : Number(production.peso_bruto).toFixed(3),
+        tara: production.tara == null ? "" : Number(production.tara).toFixed(3)
+      })));
+      setSelectedLabelIds([]);
+      setLabelSelectionMode(false);
+    } catch (error: any) {
+      console.error("Erro ao gerar etiquetas selecionadas:", error);
+      alert(`Não foi possível gerar as etiquetas: ${error.message || "erro inesperado"}`);
     }
   };
 
@@ -776,14 +805,19 @@ function ProducaoRealizada() {
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", flexWrap: "wrap", marginBottom: "12px", alignItems: "center" }}>
             <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={() => { setEditingRowId(null); setShowNewModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
+            {!labelSelectionMode ? <button type="button" onClick={() => { setSelectedLabelIds([]); setLabelSelectionMode(true); }} style={{ padding: "6px 12px", backgroundColor: "#fff7ed", color: "#9a3412", border: "1px solid #fed7aa", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir Etiquetas</button> : <>
+              <button type="button" onClick={() => { setLabelSelectionMode(false); setSelectedLabelIds([]); }} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem" }}>Cancelar seleção</button>
+              {selectedLabelIds.length > 0 && <button type="button" onClick={() => void handlePrintSelectedLabels()} style={{ padding: "6px 12px", backgroundColor: "#80501f", color: "#fff", border: "1px solid #80501f", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir etiquetas selecionadas ({selectedLabelIds.length})</button>}
+            </>}
             <button onClick={() => setProductionDateSort(current => current === "desc" ? "asc" : "desc")} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsSortDownAlt /> Data da produção: {productionDateSort === "desc" ? "decrescente" : "crescente"}</button>
             <button onClick={() => { setFilterProdutoId(null); setFilterData(""); setFilterStatus('all'); }} style={{ padding: "6px 12px", backgroundColor: "#cbd5e1", color: "#334155", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsXCircleFill /> Limpar</button>
             <button onClick={() => fetchData(false, 0)} style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsArrowClockwise /> Atualizar</button>
           </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-            <table className="freq-table" style={{ minWidth: "1500px" }}>
+            <table className="freq-table" style={{ minWidth: labelSelectionMode ? "1550px" : "1500px" }}>
               <thead>
                 <tr>
+                  {labelSelectionMode && <th style={{ width: 50, textAlign: "center" }}>Selecionar</th>}
                   <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
                   <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
                   <th style={{ width: "250px" }}>Produto</th>
@@ -800,6 +834,7 @@ function ProducaoRealizada() {
                 </tr>
                 {/* Linha de Filtros */}
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
+                  {labelSelectionMode && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}>
@@ -875,13 +910,13 @@ function ProducaoRealizada() {
               <tbody>
                 {loading && producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={13} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
                 ) : producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={13} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhum registro de produção encontrado.
                     </td>
                   </tr>
@@ -899,6 +934,7 @@ function ProducaoRealizada() {
                           transition: "all 0.5s ease"
                         }}
                       >
+                        {labelSelectionMode && <td style={{ textAlign: "center" }}><input type="checkbox" aria-label={`Selecionar etiqueta de ${prod.cadastro_produtos?.nome || "produto"}`} checked={selectedLabelIds.includes(prod.id)} onChange={event => toggleLabelSelection(prod.id, event.target.checked)} /></td>}
                         <td style={{ textAlign: "center", fontWeight: "bold" }}>
                           {prod.codigo || "-"}
                           {prod.status_revisao === 'pending_delete' && (
@@ -1129,7 +1165,7 @@ function ProducaoRealizada() {
                 
                 {hasMore && producoes.length > 0 && (
                   <tr>
-                    <td colSpan={13} style={{ textAlign: "center", padding: "16px" }}>
+                    <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "center", padding: "16px" }}>
                       <button 
                         onClick={() => fetchData(true)}
                         disabled={loadingMore}
@@ -1157,7 +1193,7 @@ function ProducaoRealizada() {
                   </tr>
                 )}
                 <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold" }}>
-                  <td colSpan={13} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
+                  <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
                     Total de registros encontrados: {totalCount}
                   </td>
                 </tr>

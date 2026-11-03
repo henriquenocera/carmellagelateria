@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import Select from "react-select";
 import supabase from "../services/supabase-client";
 import { GELATO_FLAVORS } from "../Sabores.ts";
+import { generateGelatoLabelsPdf } from "../utils/gelatoLabelPdf.ts";
 import "../css/Etiquetas.css";
 import { jsPDF } from "jspdf";
 import { BsPrinterFill, BsPlusLg, BsXLg, BsShop, BsSnow, BsSquareFill, BsGrid3X3 } from "react-icons/bs";
@@ -277,6 +278,10 @@ const Etiquetas: React.FC = () => {
   const generatePDF = async () => {
     const items = itemsByType[activeTab];
     if (items.length === 0) return;
+    if (activeTab === "gelato") {
+      await generateGelatoLabelsPdf(items);
+      return;
+    }
 
     const doc = new jsPDF({
       orientation: "landscape",
