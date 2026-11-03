@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import { Navigate } from "react-router-dom";
+import Select from "react-select";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { useAuth } from "../AuthProvider";
@@ -27,6 +28,7 @@ type OrderLine = {
   status?: "Aberto" | "Fechado" | null;
   insumos_enviados?: boolean | null;
   ordem_informada?: boolean | null;
+  producao_enviada?: boolean | null;
   dia_semana?: number | null;
   ordem_dia?: number | null;
   profiles?: { name?: string | null } | null;
@@ -59,7 +61,9 @@ function OrdemProducao2() {
   const [products, setProducts] = useState<Product[]>([]);
   const [orderLines, setOrderLines] = useState<OrderLine[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
+  const [sendingProduction, setSendingProduction] = useState(false);
   const [autoSaveStatus, setAutoSaveStatus] = useState("");
   const [showNewOrderModal, setShowNewOrderModal] = useState(false);
   const [orderDate, setOrderDate] = useState("");
@@ -90,6 +94,7 @@ function OrdemProducao2() {
   const [editingShoppingIngredientOriginal, setEditingShoppingIngredientOriginal] = useState<ShoppingIngredientDraft | null>(null);
   const [shoppingIngredientDrafts, setShoppingIngredientDrafts] = useState<ShoppingIngredientDraft[]>([]);
   const [sendingToShopping, setSendingToShopping] = useState(false);
+  const [productionFeedback, setProductionFeedback] = useState<{ type: "success" | "error"; title: string; message: string } | null>(null);
   const [showPositiveStockConfirm, setShowPositiveStockConfirm] = useState(false);
   const [visibleOrdersCount, setVisibleOrdersCount] = useState(10);
 
@@ -100,6 +105,7 @@ function OrdemProducao2() {
 
   const loadPageData = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
     try {
       const [
         { data: productData, error: productError },
@@ -115,7 +121,7 @@ function OrdemProducao2() {
           .order("nome", { ascending: true }),
         supabase
           .from("ordem_producao")
-          .select("id, data_ordem, produto_id, quantidade, user_id, data_producao, peso_bruto, tara, status, insumos_enviados, ordem_informada, dia_semana, ordem_dia, profiles(name)")
+          .select("id, data_ordem, produto_id, quantidade, user_id, data_producao, peso_bruto, tara, status, dia_semana, ordem_dia, profiles(name)")
           .order("data_ordem", { ascending: false }),
         supabase.from("inventario_insumos").select("insumo_id, data_inventario, quantidade").eq("unidade", "Fábrica").lte("data_inventario", getToday()).order("data_inventario", { ascending: false }).limit(5000),
         supabase.from("movimentacoes_estoque").select("insumo_id, data_movimentacao, quantidade, origem, destino").or("origem.eq.Fábrica,destino.eq.Fábrica").lte("data_movimentacao", getToday()),
@@ -125,7 +131,37 @@ function OrdemProducao2() {
       if (productError) throw productError;
       if (orderError) throw orderError;
       setProducts(productData || []);
-      setOrderLines(orderData || []);
+      const { data: taskStatusData, error: taskStatusError } = await supabase.from("ordem_producao")
+        .select("id, insumos_enviados, ordem_informada, producao_enviada");
+      if (taskStatusError) console.warn("Colunas de status das tarefas indisponíveis; usando valores incompletos até aplicar a migração:", taskStatusError);
+      const taskStatusById = new Map((taskStatusData || []).map((row: any) => [row.id, row]));
+      const productionSourceIds = (orderData || []).flatMap((line: any) => Array.from(
+        { length: Math.max(0, Math.floor(Number(line.quantidade) || 0)) },
+        (_, index) => `${line.id}:${index + 1}`
+      ));
+      const importedProductionIds = new Set<string>();
+      for (let start = 0; start < productionSourceIds.length; start += 500) {
+        const idBatch = productionSourceIds.slice(start, start + 500);
+        const { data: importedRows, error: importedRowsError } = await supabase.from("producao_realizada")
+          .select("ordem_producao_item_id")
+          .in("ordem_producao_item_id", idBatch);
+        if (importedRowsError) {
+          console.warn("Não foi possível conferir os envios anteriores para Produção Realizada:", importedRowsError);
+          break;
+        }
+        (importedRows || []).forEach((row: any) => { if (row.ordem_producao_item_id) importedProductionIds.add(row.ordem_producao_item_id); });
+      }
+      setOrderLines((orderData || []).map((line: any) => {
+        const lineSourceIds = Array.from({ length: Math.max(0, Math.floor(Number(line.quantidade) || 0)) }, (_, index) => `${line.id}:${index + 1}`);
+        const importedAllUnits = lineSourceIds.length > 0 && lineSourceIds.every(sourceId => importedProductionIds.has(sourceId));
+        const savedStatus = taskStatusById.get(line.id);
+        return {
+          ...line,
+          insumos_enviados: savedStatus?.insumos_enviados ?? false,
+          ordem_informada: savedStatus?.ordem_informada ?? false,
+          producao_enviada: Boolean(savedStatus?.producao_enviada) || importedAllUnits
+        };
+      }));
 
       const latestInventory: Record<string, { date: string; quantity: number }> = {};
       (inventoryData || []).forEach((inventory: any) => {
@@ -148,6 +184,7 @@ function OrdemProducao2() {
       setInsumosCadastro(ingredients);
     } catch (error) {
       console.error("Erro ao carregar ordens de produção:", error);
+      setLoadError((error as any)?.message || "Erro inesperado ao carregar os dados.");
     } finally {
       setLoading(false);
     }
@@ -476,6 +513,7 @@ function OrdemProducao2() {
           peso_bruto: existing?.peso_bruto ?? null,
           tara: existing?.tara ?? null
           , ordem_informada: markAsOrdered ? true : existing?.ordem_informada ?? false,
+          producao_enviada: existing?.producao_enviada ?? false,
           insumos_enviados: existing?.insumos_enviados ?? false
         } as OrderLine;
       });
@@ -589,6 +627,97 @@ function OrdemProducao2() {
     setEditingShoppingIngredients(true);
   };
 
+  const handleMarkProductionSent = async () => {
+    if (!editingDate || activeOrderLines.length === 0) {
+      setProductionFeedback({ type: "error", title: "Ordem não salva", message: "Salve a ordem de produção antes de enviar os sabores." });
+      return;
+    }
+    const flavorUnits = activeOrderLines.flatMap(line => Array.from({ length: Math.max(0, Math.floor(Number(line.quantidade) || 0)) }, (_, index) => ({
+      sourceId: `${line.id}:${index + 1}`,
+      produto_id: line.produto_id
+    })));
+    if (!flavorUnits.length) {
+      setProductionFeedback({ type: "error", title: "Ordem sem sabores", message: "Adicione ao menos um sabor à ordem antes de enviar para Produção Realizada." });
+      return;
+    }
+    if (sendingProduction) return;
+    setSendingProduction(true);
+    try {
+      const sourceIds = flavorUnits.map(unit => unit.sourceId);
+      const { data: alreadyImported, error: lookupError } = await supabase.from("producao_realizada")
+        .select("ordem_producao_item_id")
+        .in("ordem_producao_item_id", sourceIds);
+      if (lookupError) throw lookupError;
+      const existingSourceIds = new Set((alreadyImported || []).map((row: any) => row.ordem_producao_item_id));
+      const unitsToImport = flavorUnits.filter(unit => !existingSourceIds.has(unit.sourceId));
+
+      if (unitsToImport.length) {
+        const productIds = Array.from(new Set(unitsToImport.map(unit => unit.produto_id)));
+        const { data: existingCodes, error: codesError } = await supabase.from("producao_realizada")
+          .select("produto_id, codigo")
+          .in("produto_id", productIds)
+          .eq("data_producao", editingDate);
+        if (codesError) throw codesError;
+
+        const dateParts = editingDate.split("-");
+        const dateSuffix = dateParts.length === 3 ? `${dateParts[2]}${dateParts[1]}${dateParts[0].slice(-2)}` : "";
+        const usedCodesByProduct = new Map<string, Set<string>>();
+        (existingCodes || []).forEach((row: any) => {
+          if (!usedCodesByProduct.has(row.produto_id)) usedCodesByProduct.set(row.produto_id, new Set());
+          if (row.codigo) usedCodesByProduct.get(row.produto_id)?.add(row.codigo);
+        });
+        const rowsToInsert = unitsToImport.map(unit => {
+          const product = products.find(item => item.id === unit.produto_id);
+          const baseCode = `${product?.codigo || "ND"}${dateSuffix}`;
+          const usedCodes = usedCodesByProduct.get(unit.produto_id) || new Set<string>();
+          let code = baseCode;
+          let suffix = 1;
+          while (usedCodes.has(code)) code = `${baseCode}-${suffix++}`;
+          usedCodes.add(code);
+          usedCodesByProduct.set(unit.produto_id, usedCodes);
+          return {
+            produto_id: unit.produto_id,
+            codigo: null,
+            data_producao: null,
+            peso_bruto: null,
+            tara: null,
+            peso_liquido: null,
+            data_entrada: null,
+            destino: null,
+            validade: null,
+            user_id: user?.id || null,
+            importado_automaticamente: true,
+            ordem_producao_item_id: unit.sourceId,
+            data_ordem_producao: editingDate
+          };
+        });
+        const { error: insertError } = await supabase.from("producao_realizada").insert(rowsToInsert);
+        if (insertError) throw insertError;
+      }
+
+      setOrderLines(lines => lines.map(line => line.data_ordem === editingDate ? { ...line, producao_enviada: true } : line));
+      setProductionFeedback({
+        type: "success",
+        title: "Produção enviada",
+        message: unitsToImport.length
+          ? `${unitsToImport.length} sabor(es) foram enviados para Produção Realizada.`
+          : "Todos os sabores desta ordem já haviam sido enviados."
+      });
+    } catch (error: any) {
+      console.error("Erro ao marcar produção como enviada:", error);
+      const errorMessage = error.message || "Erro inesperado ao enviar os sabores.";
+      setProductionFeedback({
+        type: "error",
+        title: "Não foi possível enviar a produção",
+        message: errorMessage.includes("data_producao") && errorMessage.toLowerCase().includes("not-null")
+          ? `${errorMessage}. Aplique a migração supabase/producao_realizada_importacao_automatica.sql para permitir data de produção em branco.`
+          : errorMessage
+      });
+    } finally {
+      setSendingProduction(false);
+    }
+  };
+
   const updateShoppingIngredient = (key: string, field: "insumo_id" | "quantidade", value: string) => {
     setShoppingIngredientDrafts(rows => rows.map(row => row.key === key ? { ...row, [field]: value } : row));
   };
@@ -665,33 +794,17 @@ function OrdemProducao2() {
         shoppingList = data;
       }
 
-      const { data: currentItems, error: itemsError } = await supabase
-        .from("lista_compras_manual_itens")
-        .select("id, insumo_id, quantidade")
-        .eq("lista_id", shoppingList.id);
-      if (itemsError) throw itemsError;
-
       const roundToThreeDecimals = (value: number) => Math.round((value + Number.EPSILON) * 1000) / 1000;
       const quantitiesByIngredient = new Map<string, number>();
       validRows.forEach(row => quantitiesByIngredient.set(row.insumo_id, (quantitiesByIngredient.get(row.insumo_id) || 0) + Number(row.quantidade)));
-      const existingByIngredient = new Map((currentItems || []).map((item: any) => [String(item.insumo_id), item]));
-      const updates = Array.from(quantitiesByIngredient.entries()).filter(([id]) => existingByIngredient.has(id)).map(([id, quantity]) => {
-        const existing: any = existingByIngredient.get(id);
-        return supabase.from("lista_compras_manual_itens").update({ quantidade: roundToThreeDecimals(Number(existing.quantidade) + quantity) }).eq("id", existing.id);
-      });
-      const updateResults = await Promise.all(updates);
-      const updateError = updateResults.find(result => result.error)?.error;
-      if (updateError) throw updateError;
-
-      const newItems = Array.from(quantitiesByIngredient.entries()).filter(([id]) => !existingByIngredient.has(id)).map(([insumo_id, quantidade]) => ({
+      const newItems = Array.from(quantitiesByIngredient.entries()).map(([insumo_id, quantidade]) => ({
         lista_id: shoppingList.id,
         insumo_id,
-        quantidade: roundToThreeDecimals(quantidade)
+        quantidade: roundToThreeDecimals(quantidade),
+        origem: "Produção"
       }));
-      if (newItems.length) {
-        const { error } = await supabase.from("lista_compras_manual_itens").insert(newItems);
-        if (error) throw error;
-      }
+      const { error: insertItemsError } = await supabase.from("lista_compras_manual_itens").insert(newItems);
+      if (insertItemsError) throw insertItemsError;
       const { error: orderStatusError } = await supabase.from("ordem_producao")
         .update({ insumos_enviados: true, updated_at: new Date().toISOString() })
         .eq("data_ordem", orderDate);
@@ -917,6 +1030,7 @@ function OrdemProducao2() {
     ? requiredIngredients.filter(ingredient => getIngredientStock(ingredient) - ingredient.quantity < 0)
     : requiredIngredients;
   const allUnits = getUnitEntries();
+  const totalPlannedFlavors = draftLines.reduce((total, line) => total + Math.max(0, Math.floor(Number(line.quantidade) || 0)), 0);
   const validUnitKeys = new Set(allUnits.map(unit => unit.key));
   const assignedFlavorKeys = new Set(Object.values(weekPlan).flat().filter(key => validUnitKeys.has(key)));
   const unassignedFlavors = allUnits
@@ -925,6 +1039,9 @@ function OrdemProducao2() {
   const unassignedFlavorCards = groupFlavorUnits(unassignedFlavors);
   const availableFlavors = unassignedFlavorCards;
   const visibleWeekDays = WEEK_DAYS.filter(day => showWeekendDays || day.id <= 5);
+  const activeOrderLines = editingDate ? orderLines.filter(line => line.data_ordem === editingDate) : [];
+  const ingredientsTaskComplete = activeOrderLines.length > 0 && activeOrderLines.every(line => line.insumos_enviados === true);
+  const productionTaskComplete = activeOrderLines.length > 0 && activeOrderLines.every(line => line.ordem_informada === true && Boolean(line.dia_semana));
 
   if (authLoading) return null;
   if (!isAdmin) return <Navigate to="/" replace />;
@@ -937,14 +1054,16 @@ function OrdemProducao2() {
           .op2-modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 42, .52); }
           .op2-modal { box-sizing: border-box; width: min(900px, 100%); max-height: calc(100vh - 40px); overflow: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; box-shadow: 0 24px 70px rgba(15,23,42,.25); }
           .op2-meta-top-row { display: flex; align-items: end; justify-content: space-between; gap: 14px; margin-bottom: 14px; }
-          .op2-meta-date-field { width: 250px; max-width: 100%; }
+          .op2-meta-date-field { width: 210px; max-width: 100%; }
           .op2-meta-bottom-row { display: grid; grid-template-columns: minmax(200px, 300px) minmax(150px, 190px); justify-content: start; gap: 14px; margin-bottom: 22px; }
           .op2-meta-label { display: block; margin-bottom: 7px; color: #64748b; font-size: 1.05rem; font-weight: 700; }
           .op2-meta-control { box-sizing: border-box; width: 100%; height: 48px; border: 1px solid #cbd5e1; border-radius: 8px; background: #fff; color: #334155; font-size: 1.05rem; }
           .op2-meta-date, .op2-meta-status { padding: 0 12px; }
           .op2-meta-responsible { display: flex; align-items: center; gap: 9px; padding: 0 14px; border-color: #cbd8e6; background: #f1f6fb; color: #405b78; font-weight: 600; }
           .op2-meta-responsible svg { color: #647f9a; font-size: 1.15rem; }
-          .op2-calculate-button { height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 15px; border: 1px solid #d6c4af; border-radius: 8px; background: #fbf7f2; color: #80501f; font-weight: 700; font-size: 1rem; cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s, transform .15s; }
+          .op2-calculate-button { height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; border: 1px solid #d6c4af; border-radius: 8px; background: #fbf7f2; color: #80501f; font-weight: 700; font-size: .83rem; cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s, transform .15s; }
+          .op2-action-buttons { display: flex; flex: 1 1 auto; min-width: 0; gap: 5px !important; flex-wrap: nowrap !important; justify-content: flex-end; }
+          .op2-action-buttons .op2-calculate-button { flex: 0 1 auto; min-width: 0; }
           .op2-calculate-button:hover { background: #f4eadf; border-color: #c7aa8a; transform: translateY(-1px); }
           .op2-add-grid { display: grid; grid-template-columns: minmax(0, 1fr) 160px auto; gap: 12px; align-items: end; }
           .op2-draft-table th { padding: 6px 10px !important; font-size: 1rem !important; }
@@ -976,7 +1095,8 @@ function OrdemProducao2() {
           .op2-day-flavor-search { box-sizing: border-box; width: 100%; height: 36px; margin-bottom: 2px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 4px; outline-color: #8ba8c5; font-size: .95rem; }
           .op2-day-flavor-option { padding: 9px 10px; border: 0; border-radius: 4px; background: #f8fafc; color: #334155; text-align: left; font-size: 1.05rem; cursor: pointer; }
           .op2-day-flavor-option:hover { background: #eaf1f8; }
-          @media (max-width: 600px) { .op2-modal-backdrop { padding: 10px; } .op2-modal { padding: 18px; } .op2-meta-top-row { align-items: stretch; flex-direction: column; } .op2-meta-date-field { width: 100%; } .op2-calculate-button { width: 100%; } .op2-meta-bottom-row { grid-template-columns: minmax(0, 1fr); gap: 10px; } .op2-add-grid { grid-template-columns: minmax(0, 1fr) 100px; gap: 8px; } .op2-add-grid button { grid-column: 1 / -1; justify-content: center; } }
+          @media (max-width: 760px) { .op2-meta-top-row { align-items: stretch; flex-direction: column; } .op2-meta-date-field { width: 100%; } .op2-action-buttons { flex-wrap: wrap !important; justify-content: flex-start; } .op2-action-buttons .op2-calculate-button { flex: 1 1 auto; } }
+          @media (max-width: 600px) { .op2-modal-backdrop { padding: 10px; } .op2-modal { padding: 18px; } .op2-meta-bottom-row { grid-template-columns: minmax(0, 1fr); gap: 10px; } .op2-add-grid { grid-template-columns: minmax(0, 1fr) 100px; gap: 8px; } .op2-add-grid button { grid-column: 1 / -1; justify-content: center; } }
         `}</style>
       </Helmet>
 
@@ -1011,7 +1131,7 @@ function OrdemProducao2() {
                 {loading ? (
                   <tr><td colSpan={6} style={{ textAlign: "center", padding: "32px" }}><Icons.BsArrowClockwise className="spin" style={{ color: "var(--primary-color)", fontSize: "2rem" }} /></td></tr>
                 ) : orders.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: "center", padding: "36px", color: "#94a3b8", fontSize: "1.25rem" }}>Nenhuma ordem de produção cadastrada.</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: "center", padding: "36px", color: loadError ? "#b91c1c" : "#94a3b8", fontSize: "1.1rem" }}>{loadError ? `Erro ao carregar ordens: ${loadError}` : "Nenhuma ordem de produção cadastrada."}</td></tr>
                 ) : visibleOrders.map(order => {
                   const totalQuantity = order.lines.reduce((total, line) => total + Number(line.quantidade || 0), 0);
                   const status = order.lines[0]?.status === "Fechado" ? "Fechado" : "Aberto";
@@ -1026,7 +1146,7 @@ function OrdemProducao2() {
                     <td style={{ textAlign: "center", fontWeight: 700 }}>{totalQuantity}</td>
                    <td style={{ textAlign: "center" }}><span style={{ display: "inline-flex", minWidth: "92px", alignItems: "center", justifyContent: "center", gap: "7px", padding: "5px 12px", border: "1px solid #cbd8e6", borderRadius: "16px", background: "#eef3f8", color: "#526982", fontWeight: 600 }}><Icons.BsPerson style={{ fontSize: "1rem" }} />{responsible}</span></td>
                     <td style={{ textAlign: "center" }}><select aria-label={`Tipo da ordem de ${formatDate(order.date)}`} value={status} onClick={event => event.stopPropagation()} onChange={event => handleStatusChange(order.date, event.target.value as "Aberto" | "Fechado")} style={{ padding: "6px 12px", border: `1px solid ${statusStyle.border}`, borderRadius: "16px", color: statusStyle.color, background: statusStyle.background, fontWeight: 700, cursor: "pointer" }}><option value="Aberto">Aberto</option><option value="Fechado">Fechado</option></select></td>
-                    <td style={{ textAlign: "center" }}><div style={{ display: "inline-flex", flexDirection: "column", gap: 4, alignItems: "flex-start" }}>{([ ["Compras", order.lines.every(line => line.insumos_enviados)], ["Produção", order.lines.every(line => line.ordem_informada) && order.lines.every(line => Boolean(line.dia_semana))] ] as Array<[string, boolean]>).map(([label, done]) => <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 5, color: done ? "#15803d" : "#b45309", fontSize: ".9rem", lineHeight: 1.35, fontWeight: 600 }}><Icons.BsCheckCircleFill style={{ fontSize: ".82rem", flex: "0 0 auto" }} /><span>{label}: <strong>{done ? "Feito" : "Incompleto"}</strong></span></span>)}</div></td>
+                    <td style={{ textAlign: "center" }}><div style={{ display: "inline-flex", flexDirection: "column", gap: 4, alignItems: "flex-start" }}>{([ ["Insumos Conferência", order.lines.every(line => line.insumos_enviados)], ["Ordem de Sabores", order.lines.every(line => line.ordem_informada) && order.lines.every(line => Boolean(line.dia_semana))], ["Produção Enviada", order.lines.every(line => line.producao_enviada)] ] as Array<[string, boolean]>).map(([label, done]) => <span key={label} style={{ display: "inline-flex", alignItems: "center", gap: 5, color: done ? "#15803d" : "#b45309", fontSize: ".9rem", lineHeight: 1.35, fontWeight: 600 }}><Icons.BsCheckCircleFill style={{ fontSize: ".82rem", flex: "0 0 auto" }} /><span>{label}: <strong>{done ? "Feito" : "Incompleto"}</strong></span></span>)}</div></td>
                     <td style={{ textAlign: "center" }}>
                       <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                         <button type="button" title="Editar ordem" aria-label={`Editar ordem de ${formatDate(order.date)}`} onClick={() => openEditOrderModal(order)} style={{ width: "34px", height: "34px", display: "inline-flex", alignItems: "center", justifyContent: "center", border: "1px solid #bfdbfe", borderRadius: "6px", background: "#eff6ff", color: "#2563eb", cursor: "pointer" }}><Icons.BsPencil /></button>
@@ -1068,9 +1188,10 @@ function OrdemProducao2() {
                   <label className="op2-meta-label" htmlFor="op2-order-date">Data da ordem</label>
                   <input className="op2-meta-control op2-meta-date" id="op2-order-date" type="date" value={orderDate} onChange={event => setOrderDate(event.target.value)} required />
                 </div>
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", justifyContent: "flex-end" }}>
-                  <button className="op2-calculate-button" type="button" onClick={() => setShowInsumosModal(true)}><Icons.BsCalculator /> Calcular Insumos</button>
-                  <button className="op2-calculate-button" type="button" onClick={() => setShowWeekPlanModal(true)}><Icons.BsCalendarWeek /> Informar ordem</button>
+                <div className="op2-action-buttons">
+                  <button className="op2-calculate-button" type="button" onClick={() => setShowInsumosModal(true)}><Icons.BsCalculator /> Insumos Conferência <span style={{ padding: "3px 7px", borderRadius: 10, background: ingredientsTaskComplete ? "#dcfce7" : "#fef3c7", color: ingredientsTaskComplete ? "#15803d" : "#b45309", fontSize: ".78rem", fontWeight: 700 }}>{ingredientsTaskComplete ? "Concluído" : "Incompleto"}</span></button>
+                  <button className="op2-calculate-button" type="button" onClick={() => setShowWeekPlanModal(true)}><Icons.BsCalendarWeek /> Ordem de Sabores <span style={{ padding: "3px 7px", borderRadius: 10, background: productionTaskComplete ? "#dcfce7" : "#fef3c7", color: productionTaskComplete ? "#15803d" : "#b45309", fontSize: ".78rem", fontWeight: 700 }}>{productionTaskComplete ? "Concluído" : "Incompleto"}</span></button>
+                  <button className="op2-calculate-button" type="button" onClick={() => void handleMarkProductionSent()} disabled={sendingProduction || !editingDate || activeOrderLines.length === 0 || activeOrderLines.every(line => line.producao_enviada)} title={!editingDate ? "Salve a ordem antes de enviar" : undefined}>{sendingProduction ? <Icons.BsArrowClockwise className="spin" /> : <Icons.BsBoxArrowUpRight />} Enviar produção <span style={{ padding: "3px 7px", borderRadius: 10, border: 0, background: activeOrderLines.length > 0 && activeOrderLines.every(line => line.producao_enviada) ? "#dcfce7" : "#fef3c7", color: activeOrderLines.length > 0 && activeOrderLines.every(line => line.producao_enviada) ? "#15803d" : "#b45309", fontSize: ".78rem", fontWeight: 700 }}>{sendingProduction ? "Enviando..." : activeOrderLines.length > 0 && activeOrderLines.every(line => line.producao_enviada) ? "Concluído" : "Incompleto"}</span></button>
                 </div>
               </div>
               <div className="op2-meta-bottom-row">
@@ -1095,10 +1216,22 @@ function OrdemProducao2() {
               <div className="op2-add-grid" style={{ marginBottom: "14px" }}>
                 <div>
                   <label htmlFor="op2-add-flavor" style={{ display: "block", marginBottom: "5px", color: "#64748b", fontWeight: 700 }}>Sabor</label>
-                  <select id="op2-add-flavor" value={selectedProductId} onChange={event => setSelectedProductId(event.target.value)} style={{ boxSizing: "border-box", width: "100%", height: "42px", padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: "6px", background: "#fff", fontSize: "1rem" }}>
-                    <option value="">Selecione um sabor...</option>
-                    {products.filter(product => product.is_sabor).map(product => <option key={product.id} value={product.id}>{product.nome}</option>)}
-                  </select>
+                  <Select
+                    inputId="op2-add-flavor"
+                    options={products.filter(product => product.is_sabor).map(product => ({ value: product.id, label: product.nome }))}
+                    value={products.filter(product => product.is_sabor).map(product => ({ value: product.id, label: product.nome })).find(option => option.value === selectedProductId) || null}
+                    onChange={option => setSelectedProductId(option?.value || "")}
+                    placeholder="Selecione ou pesquise um sabor..."
+                    isSearchable
+                    menuPosition="fixed"
+                    menuPortalTarget={document.body}
+                    styles={{
+                      control: base => ({ ...base, minHeight: 42, borderColor: "#cbd5e1", borderRadius: 6, fontSize: "1rem" }),
+                      menuPortal: base => ({ ...base, zIndex: 2000 }),
+                      menu: base => ({ ...base, zIndex: 2000 }),
+                      option: base => ({ ...base, fontSize: "1rem" })
+                    }}
+                  />
                 </div>
                 <div>
                   <label htmlFor="op2-add-quantity" style={{ display: "block", marginBottom: "5px", color: "#64748b", fontWeight: 700 }}>Quantidade</label>
@@ -1107,6 +1240,9 @@ function OrdemProducao2() {
                 <button type="button" onClick={addDraftLine} disabled={!selectedProductId} style={{ height: "42px", display: "inline-flex", alignItems: "center", gap: "6px", border: "1px solid #cbd5e1", borderRadius: "6px", background: "#fff", color: "var(--primary-color)", padding: "0 12px", fontWeight: 700, cursor: selectedProductId ? "pointer" : "not-allowed", opacity: selectedProductId ? 1 : .6, whiteSpace: "nowrap" }}><Icons.BsPlus /> Adicionar sabor</button>
               </div>
 
+              <div role="status" style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 8, marginBottom: 8, padding: "8px 12px", border: "1px solid #e2d4c4", borderRadius: 6, background: "#fbf7f2", color: "#80501f", fontSize: ".95rem" }}>
+                <Icons.BsBoxSeam /> <span>Total de cubas planejadas:</span> <strong style={{ minWidth: 28, textAlign: "center", fontSize: "1.1rem" }}>{totalPlannedFlavors}</strong>
+              </div>
               <div className="freq-table-wrapper" style={{ maxHeight: "min(34vh, 300px)", overflow: "auto", border: "1px solid #e2e8f0", borderRadius: "6px" }}>
                 <table className="freq-table op2-draft-table" style={{ minWidth: "500px" }}>
                   <thead><tr>
@@ -1270,6 +1406,18 @@ function OrdemProducao2() {
             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "16px", paddingTop: "14px", borderTop: "1px solid #e2e8f0" }}>
               <button type="button" onClick={() => { void handleCreateOrder(undefined, true, true); }} disabled={saving || draftLines.length === 0} style={{ padding: "10px 24px", border: 0, borderRadius: "6px", background: "var(--primary-color)", color: "#fff", fontWeight: 700, cursor: saving || draftLines.length === 0 ? "not-allowed" : "pointer", opacity: saving || draftLines.length === 0 ? .65 : 1 }}>{saving ? "Salvando..." : "Salvar"}</button>
             </div>
+          </section>
+        </div>
+      )}
+
+      {productionFeedback && (
+        <div className="op2-modal-backdrop" style={{ zIndex: 1400 }} onMouseDown={event => { if (event.target === event.currentTarget) setProductionFeedback(null); }}>
+          <section role={productionFeedback.type === "error" ? "alertdialog" : "dialog"} aria-modal="true" aria-labelledby="op2-production-feedback-title" style={{ boxSizing: "border-box", width: "min(520px, 100%)", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+              <span style={{ width: 42, height: 42, flex: "0 0 42px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: productionFeedback.type === "success" ? "#dcfce7" : "#fee2e2", color: productionFeedback.type === "success" ? "#15803d" : "#b91c1c", fontSize: 21 }}>{productionFeedback.type === "success" ? <Icons.BsCheckCircleFill /> : <Icons.BsExclamationTriangleFill />}</span>
+              <div><h2 id="op2-production-feedback-title" style={{ margin: "2px 0 8px", color: "#334155", fontSize: "1.35rem" }}>{productionFeedback.title}</h2><p style={{ margin: 0, color: "#475569", fontSize: "1rem", lineHeight: 1.55 }}>{productionFeedback.message}</p></div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 22 }}><button type="button" autoFocus onClick={() => setProductionFeedback(null)} style={{ minWidth: 90, padding: "9px 18px", border: 0, borderRadius: 6, background: "var(--primary-color)", color: "#fff", fontWeight: 700, cursor: "pointer" }}>Entendi</button></div>
           </section>
         </div>
       )}

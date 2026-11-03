@@ -11,6 +11,7 @@ type ShoppingItem = {
   insumo_id: string;
   quantidade: number;
   comprado: boolean;
+  origem?: "Estoque" | "Produção" | "Manual" | string;
   cadastro_insumos?: { nome?: string; tipo?: string; unidade_conversao?: string } | null;
 };
 type ShoppingList = { id: number; nome: string; created_at: string; user_id?: string | null; criado_por?: string | null; status: "Aberta" | "Fechada"; profiles?: { name?: string | null } | null; itens: ShoppingItem[] };
@@ -33,7 +34,7 @@ function ListaComprasManual() {
     try {
       const [{ data: materialData, error: materialError }, { data: listData, error: listError }] = await Promise.all([
         supabase.from("cadastro_insumos").select("id, nome, tipo, unidade_conversao").eq("ativo", true).order("nome", { ascending: true }),
-        supabase.from("lista_compras_manual").select("id, nome, created_at, user_id, criado_por, status, profiles(name), lista_compras_manual_itens(id, lista_id, insumo_id, quantidade, comprado, cadastro_insumos(nome, tipo, unidade_conversao))").order("created_at", { ascending: false })
+        supabase.from("lista_compras_manual").select("id, nome, created_at, user_id, criado_por, status, profiles(name), lista_compras_manual_itens(id, lista_id, insumo_id, quantidade, comprado, origem, cadastro_insumos(nome, tipo, unidade_conversao))").order("created_at", { ascending: false })
       ]);
       if (materialError) throw materialError;
       if (listError) throw listError;
@@ -68,22 +69,9 @@ function ListaComprasManual() {
     }
     setSaving(true);
     try {
-      const currentList = listas.find(list => list.id === listId);
-      const existingItem = currentList?.itens.find(item => item.insumo_id === selection.value);
-      if (existingItem) {
-        const updatedQuantity = Number(existingItem.quantidade) + quantidade;
-        const { error } = await supabase.from("lista_compras_manual_itens").update({ quantidade: updatedQuantity }).eq("id", existingItem.id);
-        if (error) throw error;
-        setListas(current => current.map(list => list.id === listId
-          ? { ...list, itens: list.itens.map(item => item.id === existingItem.id ? { ...item, quantidade: updatedQuantity } : item) }
-          : list));
-        setSelectedInsumo(current => ({ ...current, [listId]: null }));
-        setQuantidades(current => ({ ...current, [listId]: "" }));
-        return;
-      }
       const { data, error } = await supabase.from("lista_compras_manual_itens")
-        .insert({ lista_id: listId, insumo_id: selection.value, quantidade })
-        .select("id, lista_id, insumo_id, quantidade, comprado, cadastro_insumos(nome, tipo, unidade_conversao)").single();
+        .insert({ lista_id: listId, insumo_id: selection.value, quantidade, origem: "Manual" })
+        .select("id, lista_id, insumo_id, quantidade, comprado, origem, cadastro_insumos(nome, tipo, unidade_conversao)").single();
       if (error) throw error;
       setListas(current => current.map(list => list.id === listId ? { ...list, itens: [...list.itens, data] } : list));
       setSelectedInsumo(current => ({ ...current, [listId]: null }));
@@ -159,7 +147,7 @@ function ListaComprasManual() {
                       <div style={{ width: 140 }}><label style={{ display: "block", marginBottom: 6, fontWeight: 700 }}>Quantidade</label><input type="number" min="0" step="any" value={quantidades[list.id] || ""} onChange={event => setQuantidades(current => ({ ...current, [list.id]: event.target.value }))} style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: 5, boxSizing: "border-box" }} /></div>
                       <button type="button" disabled={saving} onClick={() => void handleAddItem(list.id)} style={{ height: 38, display: "inline-flex", alignItems: "center", gap: 7, padding: "0 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "white", fontWeight: 700, cursor: "pointer" }}><Icons.BsPlusCircle /> Adicionar material</button>
                     </div>
-                    {list.itens.length === 0 ? <div style={{ padding: 18, textAlign: "center", color: "#64748b" }}>Esta lista ainda não possui materiais.</div> : <div style={{ overflowX: "auto" }}><table className="freq-table" style={{ minWidth: 650, background: "white" }}><thead><tr><th style={{ width: 50, textAlign: "center" }}>Status</th><th>Material</th><th>Tipo</th><th style={{ textAlign: "center" }}>Unidade</th><th style={{ textAlign: "center" }}>Quantidade a comprar</th><th style={{ textAlign: "center" }}>Ações</th></tr></thead><tbody>{list.itens.map(item => <tr key={item.id} style={{ opacity: item.comprado ? .55 : 1 }}><td style={{ textAlign: "center" }}><input type="checkbox" checked={item.comprado} onChange={() => void handleToggle(item)} /></td><td style={{ fontWeight: 600, textDecoration: item.comprado ? "line-through" : undefined }}>{item.cadastro_insumos?.nome || "Insumo excluído"}</td><td>{item.cadastro_insumos?.tipo || "—"}</td><td style={{ textAlign: "center" }}>{item.cadastro_insumos?.unidade_conversao || "—"}</td><td style={{ textAlign: "center", fontWeight: 700 }}>{item.quantidade}</td><td style={{ textAlign: "center" }}><button type="button" className="delete-record-btn" title="Remover material" onClick={() => void handleDeleteItem(item)}><Icons.BsTrash /></button></td></tr>)}</tbody></table></div>}
+                    {list.itens.length === 0 ? <div style={{ padding: 18, textAlign: "center", color: "#64748b" }}>Esta lista ainda não possui materiais.</div> : <div style={{ overflowX: "auto" }}><table className="freq-table" style={{ minWidth: 760, background: "white" }}><thead><tr><th style={{ width: 50, textAlign: "center" }}>Status</th><th>Material</th><th>Tipo</th><th style={{ textAlign: "center" }}>Unidade</th><th style={{ textAlign: "center" }}>Quantidade a comprar</th><th style={{ textAlign: "center" }}>Origem</th><th style={{ textAlign: "center" }}>Ações</th></tr></thead><tbody>{list.itens.map(item => <tr key={item.id} style={{ opacity: item.comprado ? .55 : 1 }}><td style={{ textAlign: "center" }}><input type="checkbox" checked={item.comprado} onChange={() => void handleToggle(item)} /></td><td style={{ fontWeight: 600, textDecoration: item.comprado ? "line-through" : undefined }}>{item.cadastro_insumos?.nome || "Insumo excluído"}</td><td>{item.cadastro_insumos?.tipo || "—"}</td><td style={{ textAlign: "center" }}>{item.cadastro_insumos?.unidade_conversao || "—"}</td><td style={{ textAlign: "center", fontWeight: 700 }}>{item.quantidade}</td><td style={{ textAlign: "center" }}>{item.origem || "Manual"}</td><td style={{ textAlign: "center" }}><button type="button" className="delete-record-btn" title="Remover material" onClick={() => void handleDeleteItem(item)}><Icons.BsTrash /></button></td></tr>)}</tbody></table></div>}
                   </td></tr>}
                 </React.Fragment>;
               })}

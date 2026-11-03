@@ -51,7 +51,15 @@ function ProducaoRealizada() {
   const [filterProdutoId, setFilterProdutoId] = useState<string | null>(null);
   const [filterData, setFilterData] = useState("");
   const [filterStatus, setFilterStatus] = useState<'all' | 'deleted'>('all');
+  const [productionDateSort, setProductionDateSort] = useState<"desc" | "asc">("desc");
+  const productionDateSaveTimers = useRef<Record<string, number>>({});
+
+  useEffect(() => () => {
+    Object.values(productionDateSaveTimers.current).forEach(timer => window.clearTimeout(timer));
+  }, []);
   const [pendingDeleteCount, setPendingDeleteCount] = useState(0);
+  const [importCountdownNow, setImportCountdownNow] = useState(Date.now());
+  const AUTO_IMPORT_RETENTION_MS = 10 * 24 * 60 * 60 * 1000;
 
   useEffect(() => {
     async function checkPendingCounts() {
@@ -98,7 +106,15 @@ function ProducaoRealizada() {
     }
     setPage(0);
     fetchData(false, 0, filterProdutoId, filterData, filterStatus);
-  }, [filterProdutoId, filterData, filterStatus]);
+  }, [filterProdutoId, filterData, filterStatus, productionDateSort]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setImportCountdownNow(Date.now());
+      if (isAdmin) void cleanupExpiredAutoImports();
+    }, 60_000);
+    return () => window.clearInterval(timer);
+  }, [isAdmin]);
 
   const fetchDataRef = useRef<any>(null);
 
@@ -129,6 +145,7 @@ function ProducaoRealizada() {
   async function fetchData(isLoadMore = false, overridePage: number | null = null, fProdutoId = filterProdutoId, fData = filterData, fStatus = filterStatus, isBackground = false) {
     fetchDataRef.current = fetchData;
     try {
+      if (!isLoadMore && isAdmin) await cleanupExpiredAutoImports();
       if (isLoadMore) {
         setLoadingMore(true);
       } else {
@@ -167,6 +184,9 @@ function ProducaoRealizada() {
           user_id,
           status_revisao,
           revisao_observacao,
+          importado_automaticamente,
+          ordem_producao_item_id,
+          data_ordem_producao,
           cadastro_produtos!inner(nome, codigo),
           profiles(name)
         `, { count: 'exact' });
@@ -183,7 +203,7 @@ function ProducaoRealizada() {
       }
 
       const { data: prodData, count, error: prodError } = await query
-        .order("data_producao", { ascending: false })
+        .order("data_producao", { ascending: productionDateSort === "asc", nullsFirst: false })
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
         .range(from, to);
@@ -194,6 +214,18 @@ function ProducaoRealizada() {
 
       if (isLoadMore) {
         setProducoes(prev => [...prev, ...newProds]);
+      } else if (isBackground) {
+        setProducoes(prev => {
+          const fetchedById = new Map(newProds.map((row: any) => [row.id, row]));
+          const previousIds = new Set(prev.map(row => row.id));
+          const newlyFetched = newProds.filter((row: any) => !previousIds.has(row.id));
+          const keptInPreviousOrder = prev.flatMap((row, index) => {
+            const refreshed = fetchedById.get(row.id);
+            if (refreshed) return [refreshed];
+            return index >= PAGE_SIZE ? [row] : [];
+          });
+          return [...newlyFetched, ...keptInPreviousOrder];
+        });
       } else {
         setProducoes(newProds);
         if (count !== null) setTotalCount(count);
@@ -211,9 +243,34 @@ function ProducaoRealizada() {
     }
   }
 
+  async function cleanupExpiredAutoImports() {
+    const cutoff = new Date(Date.now() - AUTO_IMPORT_RETENTION_MS).toISOString();
+    try {
+      const { data, error } = await supabase.from("producao_realizada")
+        .delete()
+        .eq("importado_automaticamente", true)
+        .is("data_producao", null)
+        .lt("created_at", cutoff)
+        .select("id");
+      if (error) throw error;
+      const expiredIds = new Set((data || []).map((row: any) => row.id));
+      if (expiredIds.size) setProducoes(rows => rows.filter(row => !expiredIds.has(row.id)));
+    } catch (error) {
+      console.error("Erro ao remover importações sem data de produção após 10 dias:", error);
+    }
+  }
+
+  const getImportCountdown = (createdAt?: string | null) => {
+    if (!createdAt) return "Prazo indisponível";
+    const remaining = new Date(createdAt).getTime() + AUTO_IMPORT_RETENTION_MS - importCountdownNow;
+    if (remaining <= 0) return "Expirado";
+    if (remaining < 24 * 60 * 60 * 1000) return `Faltam ${Math.ceil(remaining / (60 * 60 * 1000))}h`;
+    return `Faltam ${Math.ceil(remaining / (24 * 60 * 60 * 1000))} dias`;
+  };
+
   const handleAddRow = async () => {
-    if (!newRow.produto_id || !newRow.data_producao || !newRow.peso_bruto || !newRow.tara) {
-      alert("Por favor, preencha todos os campos obrigatórios (Produto, Data, Peso Bruto e Tara).");
+    if (!newRow.produto_id || !newRow.data_producao) {
+      alert("Por favor, selecione o produto e informe a data de produção.");
       return;
     }
 
@@ -258,8 +315,12 @@ function ProducaoRealizada() {
       }
 
       let calculatedPesoLiquido: number | null = null;
-      const pb = newRow.peso_bruto ? parseFloat(newRow.peso_bruto) : null;
-      const t = newRow.tara ? parseFloat(newRow.tara) : null;
+      const pb = newRow.peso_bruto.trim() !== "" ? parseFloat(newRow.peso_bruto) : null;
+      const t = newRow.tara.trim() !== "" ? parseFloat(newRow.tara) : null;
+      if ((pb !== null && !Number.isFinite(pb)) || (t !== null && !Number.isFinite(t))) {
+        alert("Informe um valor numérico válido para o peso ou a tara.");
+        return;
+      }
       if (pb !== null && t !== null) {
         calculatedPesoLiquido = parseFloat((pb - t).toFixed(2));
       }
@@ -305,17 +366,8 @@ function ProducaoRealizada() {
 
       if (error) throw error;
 
-      // Add to list and force sort
-      setProducoes(prev => {
-        const updated = [data, ...prev];
-        return updated.sort((a, b) => {
-          const dateA = new Date(a.data_producao).getTime();
-          const dateB = new Date(b.data_producao).getTime();
-          if (dateB !== dateA) return dateB - dateA;
-          // Fallback to created_at if dates are the same
-          return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
-        });
-      });
+      // Mostra qualquer novo registro no início, independentemente da data de produção.
+      setProducoes(prev => [data, ...prev]);
 
       setNewlyAddedId(data.id);
       setTimeout(() => {
@@ -351,19 +403,74 @@ function ProducaoRealizada() {
     }
   };
 
-  const handleQuickUpdate = async (id: string, field: "data_entrada" | "destino", value: string) => {
+  const handleQuickUpdate = async (id: string, field: "data_producao" | "data_entrada" | "destino", value: string) => {
     try {
+      const production = producoes.find(row => row.id === id);
+      const updateData: Record<string, any> = { [field]: value || null };
+      if (field === "data_producao") {
+        if (value && production) {
+          const productCode = produtos.find(product => product.id === production.produto_id)?.codigo || production.cadastro_produtos?.codigo || "ND";
+          const [year, month, day] = value.split("-");
+          const baseCode = `${productCode}${day}${month}${year.slice(-2)}`;
+          const { data: existingCodes, error: codeError } = await supabase.from("producao_realizada")
+            .select("codigo")
+            .eq("produto_id", production.produto_id)
+            .eq("data_producao", value)
+            .neq("id", id);
+          if (codeError) throw codeError;
+          const usedCodes = new Set((existingCodes || []).map((row: any) => row.codigo).filter(Boolean));
+          let nextCode = baseCode;
+          let suffix = 1;
+          while (usedCodes.has(nextCode)) nextCode = `${baseCode}-${suffix++}`;
+          updateData.codigo = nextCode;
+        } else if (!value) {
+          updateData.codigo = null;
+        }
+      }
       const { error } = await supabase
         .from("producao_realizada")
-        .update({ [field]: value || null })
+        .update(updateData)
         .eq("id", id);
       
       if (error) throw error;
 
-      setProducoes(prev => prev.map(p => p.id === id ? { ...p, [field]: value || null } : p));
+      setProducoes(prev => prev.map(p => p.id === id ? { ...p, ...updateData } : p));
     } catch (err: any) {
       console.error(`Erro ao atualizar ${field}:`, err);
       alert(`Erro ao atualizar: ${err.message || JSON.stringify(err)}`);
+    }
+  };
+
+  const scheduleProductionDateSave = (id: string, value: string) => {
+    const currentTimer = productionDateSaveTimers.current[id];
+    if (currentTimer) window.clearTimeout(currentTimer);
+    productionDateSaveTimers.current[id] = window.setTimeout(() => {
+      delete productionDateSaveTimers.current[id];
+      void handleQuickUpdate(id, "data_producao", value);
+    }, 1000);
+  };
+
+  const handleQuickWeightUpdate = async (id: string, field: "peso_bruto" | "tara", value: string) => {
+    if (!value.trim()) return;
+    const weight = Number(value);
+    if (!Number.isFinite(weight)) {
+      alert("Informe um peso válido.");
+      return;
+    }
+    const production = producoes.find(row => row.id === id);
+    if (!production) return;
+    const pesoBruto = field === "peso_bruto" ? weight : production.peso_bruto;
+    const tara = field === "tara" ? weight : production.tara;
+    const pesoLiquido = pesoBruto != null && tara != null ? Number((Number(pesoBruto) - Number(tara)).toFixed(3)) : null;
+    try {
+      const { error } = await supabase.from("producao_realizada")
+        .update({ [field]: weight, peso_liquido: pesoLiquido })
+        .eq("id", id);
+      if (error) throw error;
+      setProducoes(rows => rows.map(row => row.id === id ? { ...row, [field]: weight, peso_liquido: pesoLiquido } : row));
+    } catch (error: any) {
+      console.error(`Erro ao atualizar ${field}:`, error);
+      alert(`Não foi possível salvar o peso: ${error.message || "erro inesperado"}`);
     }
   };
 
@@ -601,7 +708,7 @@ function ProducaoRealizada() {
                 />
               </div>
               <div style={{ flex: "1 1 100px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Peso Bruto (kg) *</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Peso Bruto (kg)</label>
                 <input
                   type="number"
                   step="0.001"
@@ -612,7 +719,7 @@ function ProducaoRealizada() {
                 />
               </div>
               <div style={{ flex: "1 1 100px" }}>
-                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Tara (kg) *</label>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Tara (kg)</label>
                 <input
                   type="number"
                   step="0.001"
@@ -669,16 +776,18 @@ function ProducaoRealizada() {
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", flexWrap: "wrap", marginBottom: "12px", alignItems: "center" }}>
             <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={() => { setEditingRowId(null); setShowNewModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
+            <button onClick={() => setProductionDateSort(current => current === "desc" ? "asc" : "desc")} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsSortDownAlt /> Data da produção: {productionDateSort === "desc" ? "decrescente" : "crescente"}</button>
             <button onClick={() => { setFilterProdutoId(null); setFilterData(""); setFilterStatus('all'); }} style={{ padding: "6px 12px", backgroundColor: "#cbd5e1", color: "#334155", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsXCircleFill /> Limpar</button>
             <button onClick={() => fetchData(false, 0)} style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsArrowClockwise /> Atualizar</button>
           </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-            <table className="freq-table" style={{ minWidth: "1400px" }}>
+            <table className="freq-table" style={{ minWidth: "1500px" }}>
               <thead>
                 <tr>
                   <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
                   <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
                   <th style={{ width: "250px" }}>Produto</th>
+                  <th style={{ textAlign: "center", width: "190px" }}>Origem</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Data Produção</th>
                   <th style={{ textAlign: "center", width: "100px" }}>Peso Bruto (kg)</th>
                   <th style={{ textAlign: "center", width: "100px" }}>Tara (kg)</th>
@@ -719,6 +828,7 @@ function ProducaoRealizada() {
                       }}
                     />
                   </th>
+                  <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}>
                     <input
                       type="date"
@@ -765,13 +875,13 @@ function ProducaoRealizada() {
               <tbody>
                 {loading && producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={12} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={13} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
                 ) : producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={12} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={13} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhum registro de produção encontrado.
                     </td>
                   </tr>
@@ -814,6 +924,13 @@ function ProducaoRealizada() {
                           )}
                         </td>
                         <td style={{ textAlign: "center" }}>
+                          {prod.importado_automaticamente ? <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                            <span style={{ display: "inline-block", padding: "3px 8px", borderRadius: 10, background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1d4ed8", fontSize: ".75rem", fontWeight: 700, whiteSpace: "nowrap" }}>Importado</span>
+                            <span style={{ color: "#64748b", fontSize: ".8rem", whiteSpace: "nowrap" }}>Ordem: {prod.data_ordem_producao ? new Date(prod.data_ordem_producao + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</span>
+                            {!prod.data_producao && <span title="Prazo para preencher a data de produção antes da exclusão automática" style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#b45309", fontSize: ".76rem", fontWeight: 700, whiteSpace: "nowrap" }}><Icons.BsHourglassSplit /> {getImportCountdown(prod.created_at)}</span>}
+                          </div> : <span style={{ color: "#64748b" }}>Manual</span>}
+                        </td>
+                        <td style={{ textAlign: "center" }}>
                           {editingRowId === prod.id ? (
                             <input 
                               type="date"
@@ -821,8 +938,15 @@ function ProducaoRealizada() {
                               onChange={e => setEditRowData({ ...editRowData, data_producao: e.target.value })}
                               style={{ width: "100%", padding: "4px", fontSize: "0.9rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
                             />
+                          ) : prod.data_producao ? (
+                            new Date(prod.data_producao + "T12:00:00").toLocaleDateString('pt-BR')
                           ) : (
-                            prod.data_producao ? new Date(prod.data_producao + "T12:00:00").toLocaleDateString('pt-BR') : "-"
+                            <input
+                              type="date"
+                              aria-label={`Data de produção de ${prod.cadastro_produtos?.nome || "produto"}`}
+                              style={{ width: "100%", padding: "6px", fontSize: "1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                              onChange={event => scheduleProductionDateSave(prod.id, event.target.value)}
+                            />
                           )}
                         </td>
                         <td style={{ textAlign: "center" }}>
@@ -834,9 +958,15 @@ function ProducaoRealizada() {
                               style={{ width: "80px", padding: "4px", fontSize: "0.9rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
                             />
                           ) : (
-                            <span style={{ color: prod.peso_bruto < 0 ? "#ef4444" : "inherit" }}>
-                              {prod.peso_bruto != null ? Number(prod.peso_bruto).toFixed(3) : "-"}
-                            </span>
+                            prod.peso_bruto == null ? <input
+                              aria-label={`Peso bruto de ${prod.cadastro_produtos?.nome || "produto"}`}
+                              type="number"
+                              min="0"
+                              step="0.001"
+                              placeholder="0,000"
+                              onBlur={event => void handleQuickWeightUpdate(prod.id, "peso_bruto", event.target.value)}
+                              style={{ boxSizing: "border-box", width: "100%", minWidth: 84, padding: "6px", fontSize: "1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            /> : <span style={{ color: prod.peso_bruto < 0 ? "#ef4444" : "inherit" }}>{Number(prod.peso_bruto).toFixed(3)}</span>
                           )}
                         </td>
                         <td style={{ textAlign: "center" }}>
@@ -848,9 +978,15 @@ function ProducaoRealizada() {
                               style={{ width: "80px", padding: "4px", fontSize: "0.9rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
                             />
                           ) : (
-                            <span style={{ color: prod.tara < 0 ? "#ef4444" : "inherit" }}>
-                              {prod.tara != null ? Number(prod.tara).toFixed(3) : "-"}
-                            </span>
+                            prod.tara == null ? <input
+                              aria-label={`Tara de ${prod.cadastro_produtos?.nome || "produto"}`}
+                              type="number"
+                              min="0"
+                              step="0.001"
+                              placeholder="0,000"
+                              onBlur={event => void handleQuickWeightUpdate(prod.id, "tara", event.target.value)}
+                              style={{ boxSizing: "border-box", width: "100%", minWidth: 84, padding: "6px", fontSize: "1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
+                            /> : <span style={{ color: prod.tara < 0 ? "#ef4444" : "inherit" }}>{Number(prod.tara).toFixed(3)}</span>
                           )}
                         </td>
                         <td style={{ textAlign: "center", fontWeight: "bold", color: prod.peso_liquido < 0 ? "#ef4444" : "inherit" }}>{prod.peso_liquido != null ? Number(prod.peso_liquido).toFixed(3) : "-"}</td>
@@ -993,7 +1129,7 @@ function ProducaoRealizada() {
                 
                 {hasMore && producoes.length > 0 && (
                   <tr>
-                    <td colSpan={12} style={{ textAlign: "center", padding: "16px" }}>
+                    <td colSpan={13} style={{ textAlign: "center", padding: "16px" }}>
                       <button 
                         onClick={() => fetchData(true)}
                         disabled={loadingMore}
@@ -1021,7 +1157,7 @@ function ProducaoRealizada() {
                   </tr>
                 )}
                 <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold" }}>
-                  <td colSpan={12} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
+                  <td colSpan={13} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
                     Total de registros encontrados: {totalCount}
                   </td>
                 </tr>

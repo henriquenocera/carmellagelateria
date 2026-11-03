@@ -180,24 +180,12 @@ function LojaEstoqueInsumos() {
         list = result.data;
       }
 
-      const { data: existingItems, error: itemsError } = await supabase.from("lista_compras_manual_itens")
-        .select("id, insumo_id, quantidade").eq("lista_id", list.id);
-      if (itemsError) throw itemsError;
       const quantityByIngredient = new Map<string, number>();
       validRows.forEach(row => quantityByIngredient.set(row.insumo_id, (quantityByIngredient.get(row.insumo_id) || 0) + Number(row.quantidade)));
-      const existingByIngredient = new Map((existingItems || []).map((item: any) => [String(item.insumo_id), item]));
-      const updates = Array.from(quantityByIngredient.entries()).filter(([id]) => existingByIngredient.has(id)).map(([id, quantity]) => {
-        const item: any = existingByIngredient.get(id);
-        return supabase.from("lista_compras_manual_itens").update({ quantidade: Number(item.quantidade) + quantity }).eq("id", item.id);
-      });
-      const updateResults = await Promise.all(updates);
-      const updateError = updateResults.find(result => result.error)?.error;
-      if (updateError) throw updateError;
-      const inserts = Array.from(quantityByIngredient.entries()).filter(([id]) => !existingByIngredient.has(id)).map(([insumo_id, quantidade]) => ({ lista_id: list!.id, insumo_id, quantidade }));
-      if (inserts.length) {
-        const { error: insertError } = await supabase.from("lista_compras_manual_itens").insert(inserts);
-        if (insertError) throw insertError;
-      }
+      const stockOrigin = STORES.find(store => store.id === activeTab)?.name || "Estoque";
+      const inserts = Array.from(quantityByIngredient.entries()).map(([insumo_id, quantidade]) => ({ lista_id: list!.id, insumo_id, quantidade, origem: stockOrigin }));
+      const { error: insertError } = await supabase.from("lista_compras_manual_itens").insert(inserts);
+      if (insertError) throw insertError;
       setShowShoppingModal(false);
       setEditingShoppingRowKey(null);
       alert("Insumos enviados para a lista de compras.");
@@ -417,6 +405,7 @@ function LojaEstoqueInsumos() {
                 <tbody>
                   {visibleInsumos.map((baseInsumo) => {
                     const row = shoppingDrafts.find(draft => draft.key === baseInsumo.id);
+                    if (showShoppingModal && !row) return null;
                     const isEditing = showShoppingModal && editingShoppingRowKey === baseInsumo.id;
                     const insumo = showShoppingModal ? insumos.find(item => item.id === row?.insumo_id) || baseInsumo : baseInsumo;
                     const config = insumo.config_estoque?.[activeTab] || {};
@@ -489,7 +478,7 @@ function LojaEstoqueInsumos() {
                           fontSize: "1.4rem",
                           color: toOrder != null && toOrder > 0 ? "var(--primary-color)" : "var(--text-muted)" 
                         }}>
-                          {showShoppingModal && row ? (isEditing ? <><input aria-label={`Quantidade para ${insumo.nome}`} type="number" min="0" step="any" value={row.quantidade} onChange={event => setShoppingDrafts(rows => rows.map(item => item.key === baseInsumo.id ? { ...item, quantidade: event.target.value } : item))} style={{ width: 86, height: 32, border: "1px solid #cbd5e1", borderRadius: 5, textAlign: "center" }} /><button type="button" title="Salvar edição" aria-label="Salvar edição" onClick={() => setEditingShoppingRowKey(null)} style={{ marginLeft: 5, border: 0, background: "transparent", color: "#15803d", cursor: "pointer" }}><Icons.BsCheck2 /></button></> : <>{row.quantidade || 0}<button type="button" title="Editar insumo e quantidade" aria-label="Editar insumo e quantidade" disabled={Boolean(editingShoppingRowKey)} onClick={() => setEditingShoppingRowKey(baseInsumo.id)} style={{ marginLeft: 7, border: 0, background: "transparent", color: "#2563eb", cursor: editingShoppingRowKey ? "not-allowed" : "pointer", opacity: editingShoppingRowKey ? .5 : 1 }}><Icons.BsPencil /></button></>) : toOrder != null ? (insumo.inventario_especial ? `${toOrder}%` : toOrder) : "-"}
+                          {showShoppingModal && row ? (isEditing ? <><input aria-label={`Quantidade para ${insumo.nome}`} type="number" min="0" step="any" value={row.quantidade} onChange={event => setShoppingDrafts(rows => rows.map(item => item.key === baseInsumo.id ? { ...item, quantidade: event.target.value } : item))} style={{ width: 86, height: 32, border: "1px solid #cbd5e1", borderRadius: 5, textAlign: "center" }} /><button type="button" title="Salvar edição" aria-label="Salvar edição" onClick={() => setEditingShoppingRowKey(null)} style={{ marginLeft: 5, border: 0, background: "transparent", color: "#15803d", cursor: "pointer" }}><Icons.BsCheck2 /></button><button type="button" title="Remover da lista de compras" aria-label="Remover da lista de compras" onClick={() => { setShoppingDrafts(rows => rows.filter(item => item.key !== baseInsumo.id)); setEditingShoppingRowKey(null); }} style={{ marginLeft: 4, border: 0, background: "transparent", color: "#dc2626", cursor: "pointer" }}><Icons.BsTrash /></button></> : <>{row.quantidade || 0}<button type="button" title="Editar insumo e quantidade" aria-label="Editar insumo e quantidade" disabled={Boolean(editingShoppingRowKey)} onClick={() => setEditingShoppingRowKey(baseInsumo.id)} style={{ marginLeft: 7, border: 0, background: "transparent", color: "#2563eb", cursor: editingShoppingRowKey ? "not-allowed" : "pointer", opacity: editingShoppingRowKey ? .5 : 1 }}><Icons.BsPencil /></button><button type="button" title="Remover da lista de compras" aria-label="Remover da lista de compras" disabled={Boolean(editingShoppingRowKey)} onClick={() => setShoppingDrafts(rows => rows.filter(item => item.key !== baseInsumo.id))} style={{ marginLeft: 4, border: 0, background: "transparent", color: "#dc2626", cursor: editingShoppingRowKey ? "not-allowed" : "pointer", opacity: editingShoppingRowKey ? .5 : 1 }}><Icons.BsTrash /></button></>) : toOrder != null ? (insumo.inventario_especial ? `${toOrder}%` : toOrder) : "-"}
                         </td>
                       </tr>
                     );

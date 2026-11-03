@@ -16,6 +16,7 @@ CREATE TABLE public.lista_compras_manual_itens (
   lista_id BIGINT NOT NULL REFERENCES public.lista_compras_manual(id) ON DELETE CASCADE,
   insumo_id UUID NOT NULL REFERENCES public.cadastro_insumos(id) ON DELETE RESTRICT,
   quantidade NUMERIC NOT NULL CHECK (quantidade > 0),
+  origem TEXT NOT NULL DEFAULT 'Manual' CHECK (origem IN ('Estoque', 'Estoque MH', 'Loja Ahú', 'Loja Alto XV', 'Fábrica', 'Produção', 'Manual')),
   comprado BOOLEAN NOT NULL DEFAULT FALSE,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
