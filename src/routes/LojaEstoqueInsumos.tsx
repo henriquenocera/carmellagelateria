@@ -31,6 +31,10 @@ function LojaEstoqueInsumos() {
   const [loading, setLoading] = useState(true);
   const [showConfigCols, setShowConfigCols] = useState(false);
   const [sortByStatus, setSortByStatus] = useState(false);
+  const [showShoppingModal, setShowShoppingModal] = useState(false);
+  const [shoppingDrafts, setShoppingDrafts] = useState<Array<{ key: string; insumo_id: string; quantidade: string }>>([]);
+  const [sendingToShopping, setSendingToShopping] = useState(false);
+  const [editingShoppingRowKey, setEditingShoppingRowKey] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInsumos();
@@ -60,11 +64,11 @@ function LojaEstoqueInsumos() {
     }
   }
 
-  async function fetchStockForTab() {
+  async function fetchStockForTab(): Promise<Record<string, number>> {
     try {
       setLoading(true);
       const unitName = STORES.find(s => s.id === activeTab)?.name;
-      if (!unitName) return;
+       if (!unitName) return {};
 
       // 1. Fetch latest inventory counts
       const { data: invData, error: invError } = await supabase
@@ -129,11 +133,79 @@ function LojaEstoqueInsumos() {
       });
 
       setStockMap(calculatedStock);
+      return calculatedStock;
     } catch (err) {
       console.error("Erro ao buscar movimentações/inventário:", err);
       alert("Erro ao calcular o estoque.");
     } finally {
       setLoading(false);
+    }
+    return {};
+  }
+
+  async function openShoppingModal() {
+    const currentStock = await fetchStockForTab();
+    const rows = visibleInsumos.map(insumo => {
+      const config = insumo.config_estoque?.[activeTab] || {};
+      const toOrder = Math.max(0, Number(config.desejado || 0) - Number(currentStock[insumo.id] || 0));
+      return { key: insumo.id, insumo_id: insumo.id, quantidade: String(toOrder) };
+    });
+    setShoppingDrafts(rows);
+    setEditingShoppingRowKey(null);
+    setShowShoppingModal(true);
+  }
+
+  function addShoppingDraft() {
+    const key = crypto.randomUUID();
+    setShoppingDrafts(rows => [...rows, { key, insumo_id: "", quantidade: "" }]);
+    setEditingShoppingRowKey(key);
+  }
+
+  async function sendStockShoppingList() {
+    const validRows = shoppingDrafts.filter(row => row.insumo_id && Number.isFinite(Number(row.quantidade)) && Number(row.quantidade) > 0);
+    if (!validRows.length) {
+      alert("Informe ao menos um insumo com quantidade maior que zero.");
+      return;
+    }
+    setSendingToShopping(true);
+    try {
+      let { data: list, error } = await supabase.from("lista_compras_manual")
+        .select("id").eq("status", "Aberta").order("created_at", { ascending: false }).limit(1).maybeSingle();
+      if (error) throw error;
+      if (!list) {
+        const result = await supabase.from("lista_compras_manual")
+          .insert({ nome: "Lista de Compras", user_id: user?.id || null, criado_por: `Criado a Partir do Estoque - ${STORES.find(store => store.id === activeTab)?.name || "Estoque"}` })
+          .select("id").single();
+        if (result.error) throw result.error;
+        list = result.data;
+      }
+
+      const { data: existingItems, error: itemsError } = await supabase.from("lista_compras_manual_itens")
+        .select("id, insumo_id, quantidade").eq("lista_id", list.id);
+      if (itemsError) throw itemsError;
+      const quantityByIngredient = new Map<string, number>();
+      validRows.forEach(row => quantityByIngredient.set(row.insumo_id, (quantityByIngredient.get(row.insumo_id) || 0) + Number(row.quantidade)));
+      const existingByIngredient = new Map((existingItems || []).map((item: any) => [String(item.insumo_id), item]));
+      const updates = Array.from(quantityByIngredient.entries()).filter(([id]) => existingByIngredient.has(id)).map(([id, quantity]) => {
+        const item: any = existingByIngredient.get(id);
+        return supabase.from("lista_compras_manual_itens").update({ quantidade: Number(item.quantidade) + quantity }).eq("id", item.id);
+      });
+      const updateResults = await Promise.all(updates);
+      const updateError = updateResults.find(result => result.error)?.error;
+      if (updateError) throw updateError;
+      const inserts = Array.from(quantityByIngredient.entries()).filter(([id]) => !existingByIngredient.has(id)).map(([insumo_id, quantidade]) => ({ lista_id: list!.id, insumo_id, quantidade }));
+      if (inserts.length) {
+        const { error: insertError } = await supabase.from("lista_compras_manual_itens").insert(inserts);
+        if (insertError) throw insertError;
+      }
+      setShowShoppingModal(false);
+      setEditingShoppingRowKey(null);
+      alert("Insumos enviados para a lista de compras.");
+    } catch (error: any) {
+      console.error("Erro ao enviar insumos do estoque para compras:", error);
+      alert(`Não foi possível enviar os insumos: ${error.message || "erro inesperado"}`);
+    } finally {
+      setSendingToShopping(false);
     }
   }
 
@@ -222,6 +294,13 @@ function LojaEstoqueInsumos() {
             {/* Options & Badges */}
             <div style={{ display: "flex", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
               <button
+                type="button"
+                onClick={() => showShoppingModal ? setShowShoppingModal(false) : void openShoppingModal()}
+                style={{ padding: "10px 16px", border: 0, borderRadius: "8px", background: "#16a34a", color: "#fff", fontWeight: 700, fontSize: "1.1rem", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                {showShoppingModal ? <><Icons.BsX /> Sair do Modo Edição</> : <><Icons.BsCartCheck /> Enviar para Compras</>}
+              </button>
+              <button
                 onClick={() => setSortByStatus(!sortByStatus)}
                 style={{
                   padding: "10px 16px",
@@ -306,7 +385,7 @@ function LojaEstoqueInsumos() {
             <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
               <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
             </div>
-          ) : visibleInsumos.length === 0 ? (
+          ) : visibleInsumos.length === 0 && !showShoppingModal ? (
             <div style={{ textAlign: "center", padding: "40px", backgroundColor: "#f8fafc", borderRadius: "8px" }}>
               <Icons.BsBoxSeam style={{ fontSize: "3rem", color: "#cbd5e1", marginBottom: "16px" }} />
               <p style={{ color: "var(--text-muted)", fontSize: "1.2rem", margin: 0 }}>
@@ -317,6 +396,11 @@ function LojaEstoqueInsumos() {
               </p>
             </div>
           ) : (
+            <>
+            {showShoppingModal && <div style={{ margin: "0 0 12px", padding: "12px 16px", border: "1px solid #e2d4c4", borderRadius: 8, background: "#f8f2eb", color: "#80501f" }}>
+              <h2 style={{ margin: 0, fontSize: "1.25rem" }}>Lista de compras</h2>
+              <p style={{ margin: "4px 0 0", color: "#64748b" }}>Use o ícone de edição na linha para alterar o insumo ou a quantidade.</p>
+            </div>}
             <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
               <table className="freq-table" style={{ minWidth: "900px" }}>
                 <thead>
@@ -331,7 +415,10 @@ function LojaEstoqueInsumos() {
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleInsumos.map((insumo) => {
+                  {visibleInsumos.map((baseInsumo) => {
+                    const row = shoppingDrafts.find(draft => draft.key === baseInsumo.id);
+                    const isEditing = showShoppingModal && editingShoppingRowKey === baseInsumo.id;
+                    const insumo = showShoppingModal ? insumos.find(item => item.id === row?.insumo_id) || baseInsumo : baseInsumo;
                     const config = insumo.config_estoque?.[activeTab] || {};
                     const min = config.minimo;
                     const desired = config.desejado;
@@ -346,13 +433,10 @@ function LojaEstoqueInsumos() {
                     }
 
                     let rowBg = "#f0fdf4"; // light green
-                    let statusIcon = <Icons.BsCheckCircleFill style={{ color: "#16a34a", fontSize: "1.6rem" }} title="Estoque Ideal" />;
                     if (min != null && current < min) {
                       rowBg = "#fef2f2"; // light red
-                      statusIcon = <Icons.BsXCircleFill style={{ color: "#dc2626", fontSize: "1.6rem" }} title="Estoque Crítico (Abaixo do Mínimo)" />;
                     } else if (desired != null && current < desired) {
                       rowBg = "#fefce8"; // light yellow
-                      statusIcon = <Icons.BsExclamationCircleFill style={{ color: "#eab308", fontSize: "1.6rem" }} title="Atenção (Abaixo do Desejado)" />;
                     }
 
                     const getTagStyles = (tipo: string) => {
@@ -368,8 +452,8 @@ function LojaEstoqueInsumos() {
                     const tagStyle = getTagStyles(insumo.tipo);
 
                     return (
-                      <tr key={insumo.id} style={{ backgroundColor: rowBg, transition: "background 0.2s" }}>
-                        <td style={{ fontWeight: 600, fontSize: "1.3rem" }}>{insumo.estoque_nome || insumo.nome}</td>
+                      <tr key={baseInsumo.id} style={{ backgroundColor: rowBg, transition: "background 0.2s" }}>
+                        <td style={{ fontWeight: 600, fontSize: "1.3rem" }}>{isEditing ? <select aria-label="Insumo para compras" value={row?.insumo_id || ""} onChange={event => setShoppingDrafts(rows => rows.map(item => item.key === baseInsumo.id ? { ...item, insumo_id: event.target.value } : item))} style={{ boxSizing: "border-box", width: "100%", minWidth: 220, height: 38, padding: "0 8px", border: "1px solid #cbd5e1", borderRadius: 5, background: "#fff" }}>{insumos.map(item => <option key={item.id} value={item.id}>{item.estoque_nome || item.nome}</option>)}</select> : (insumo.estoque_nome || insumo.nome)}</td>
                         <td>
                             <span style={{
                               padding: "6px 12px", 
@@ -394,10 +478,10 @@ function LojaEstoqueInsumos() {
                           </td>
                         )}
                         <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.5rem" }}>
-                          {insumo.inventario_especial ? `${current}%` : current}
+                          {insumo.inventario_especial ? `${stockMap[insumo.id] || 0}%` : (stockMap[insumo.id] || 0)}
                         </td>
                         <td style={{ textAlign: "center", verticalAlign: "middle" }}>
-                          {statusIcon}
+                          {(() => { const selectedCurrent = stockMap[insumo.id] || 0; const selectedMin = config.minimo; const selectedDesired = config.desejado; return selectedMin != null && selectedCurrent < selectedMin ? <Icons.BsXCircleFill style={{ color: "#dc2626", fontSize: "1.6rem" }} title="Estoque Crítico (Abaixo do Mínimo)" /> : selectedDesired != null && selectedCurrent < selectedDesired ? <Icons.BsExclamationCircleFill style={{ color: "#eab308", fontSize: "1.6rem" }} title="Atenção (Abaixo do Desejado)" /> : <Icons.BsCheckCircleFill style={{ color: "#16a34a", fontSize: "1.6rem" }} title="Estoque Ideal" />; })()}
                         </td>
                         <td style={{ 
                           textAlign: "center", 
@@ -405,17 +489,41 @@ function LojaEstoqueInsumos() {
                           fontSize: "1.4rem",
                           color: toOrder != null && toOrder > 0 ? "var(--primary-color)" : "var(--text-muted)" 
                         }}>
-                          {toOrder != null ? (insumo.inventario_especial ? `${toOrder}%` : toOrder) : "-"}
+                          {showShoppingModal && row ? (isEditing ? <><input aria-label={`Quantidade para ${insumo.nome}`} type="number" min="0" step="any" value={row.quantidade} onChange={event => setShoppingDrafts(rows => rows.map(item => item.key === baseInsumo.id ? { ...item, quantidade: event.target.value } : item))} style={{ width: 86, height: 32, border: "1px solid #cbd5e1", borderRadius: 5, textAlign: "center" }} /><button type="button" title="Salvar edição" aria-label="Salvar edição" onClick={() => setEditingShoppingRowKey(null)} style={{ marginLeft: 5, border: 0, background: "transparent", color: "#15803d", cursor: "pointer" }}><Icons.BsCheck2 /></button></> : <>{row.quantidade || 0}<button type="button" title="Editar insumo e quantidade" aria-label="Editar insumo e quantidade" disabled={Boolean(editingShoppingRowKey)} onClick={() => setEditingShoppingRowKey(baseInsumo.id)} style={{ marginLeft: 7, border: 0, background: "transparent", color: "#2563eb", cursor: editingShoppingRowKey ? "not-allowed" : "pointer", opacity: editingShoppingRowKey ? .5 : 1 }}><Icons.BsPencil /></button></>) : toOrder != null ? (insumo.inventario_especial ? `${toOrder}%` : toOrder) : "-"}
                         </td>
                       </tr>
                     );
                   })}
+                  {showShoppingModal && shoppingDrafts.filter(row => !visibleInsumos.some(insumo => insumo.id === row.key)).map(row => {
+                    const insumo = insumos.find(item => item.id === row.insumo_id);
+                    const config = insumo?.config_estoque?.[activeTab] || {};
+                    const current = stockMap[row.insumo_id] || 0;
+                    const min = config.minimo;
+                    const desired = config.desejado;
+                    const isEditing = editingShoppingRowKey === row.key;
+                    const rowBg = min != null && current < min ? "#fef2f2" : desired != null && current < desired ? "#fefce8" : "#f0fdf4";
+                    return <tr key={row.key} style={{ backgroundColor: rowBg }}>
+                      <td style={{ fontWeight: 600, fontSize: "1.3rem" }}>{isEditing ? <select aria-label="Selecionar insumo" value={row.insumo_id} onChange={event => setShoppingDrafts(rows => rows.map(item => item.key === row.key ? { ...item, insumo_id: event.target.value } : item))} style={{ width: "100%", height: 38, padding: "0 8px", border: "1px solid #cbd5e1", borderRadius: 5, background: "#fff" }}><option value="">Selecione um insumo</option>{insumos.map(item => <option key={item.id} value={item.id}>{item.estoque_nome || item.nome}</option>)}</select> : (insumo?.estoque_nome || insumo?.nome || "—")}</td>
+                      <td><span style={{ padding: "6px 12px", borderRadius: 6, background: "#e0f2fe", color: "#0284c7", fontSize: "1.1rem", fontWeight: 600 }}>{insumo?.tipo || "-"}</span></td>
+                      {showConfigCols && <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.3rem" }}>{min ?? "-"}</td>}
+                      {showConfigCols && <td style={{ textAlign: "center", color: "var(--text-muted)", fontSize: "1.3rem" }}>{desired ?? "-"}</td>}
+                      <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.5rem" }}>{current}</td>
+                      <td style={{ textAlign: "center" }}>{min != null && current < min ? <Icons.BsXCircleFill style={{ color: "#dc2626", fontSize: "1.6rem" }} /> : desired != null && current < desired ? <Icons.BsExclamationCircleFill style={{ color: "#eab308", fontSize: "1.6rem" }} /> : <Icons.BsCheckCircleFill style={{ color: "#16a34a", fontSize: "1.6rem" }} />}</td>
+                      <td style={{ textAlign: "center", fontWeight: 700, fontSize: "1.4rem", color: "var(--primary-color)" }}>{isEditing ? <><input aria-label="Quantidade para pedir" type="number" min="0" step="any" value={row.quantidade} onChange={event => setShoppingDrafts(rows => rows.map(item => item.key === row.key ? { ...item, quantidade: event.target.value } : item))} style={{ width: 86, height: 32, border: "1px solid #cbd5e1", borderRadius: 5, textAlign: "center" }} /><button type="button" title="Salvar edição" onClick={() => { if (!row.insumo_id) { alert("Selecione um insumo."); return; } setEditingShoppingRowKey(null); }} style={{ marginLeft: 5, border: 0, background: "transparent", color: "#15803d", cursor: "pointer" }}><Icons.BsCheck2 /></button></> : <>{row.quantidade}<button type="button" title="Editar" onClick={() => setEditingShoppingRowKey(row.key)} style={{ marginLeft: 7, border: 0, background: "transparent", color: "#2563eb", cursor: "pointer" }}><Icons.BsPencil /></button><button type="button" title="Remover" onClick={() => setShoppingDrafts(rows => rows.filter(item => item.key !== row.key))} style={{ marginLeft: 4, border: 0, background: "transparent", color: "#dc2626", cursor: "pointer" }}><Icons.BsTrash /></button></>}</td>
+                    </tr>;
+                  })}
                 </tbody>
               </table>
             </div>
+            {showShoppingModal && <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 12 }}>
+              <button type="button" onClick={addShoppingDraft} style={{ padding: "9px 14px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: "pointer" }}><Icons.BsPlus /> Adicionar insumo</button>
+              <button type="button" onClick={() => void sendStockShoppingList()} disabled={sendingToShopping} style={{ padding: "9px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: sendingToShopping ? "wait" : "pointer" }}>{sendingToShopping ? "Enviando..." : <><Icons.BsCartCheck /> Enviar para Compras</>}</button>
+            </div>}
+            </>
           )}
         </div>
       </div>
+
     </>
   );
 }
