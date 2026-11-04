@@ -47,6 +47,14 @@ function EstoqueFabrica() {
     validade: ""
   });
 
+  const sortFactoryProductions = (rows: any[]) => [...rows].sort((a, b) => {
+    const dateOrder = String(b.data_producao || "").localeCompare(String(a.data_producao || ""));
+    if (dateOrder !== 0) return dateOrder;
+    const flavorOrder = String(a.cadastro_produtos?.nome || "").localeCompare(String(b.cadastro_produtos?.nome || ""), "pt-BR", { sensitivity: "base", numeric: true });
+    if (flavorOrder !== 0) return flavorOrder;
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
+  });
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
@@ -143,10 +151,10 @@ function EstoqueFabrica() {
 
       if (prodError) throw prodError;
 
-      const newProds = prodData || [];
+      const newProds = sortFactoryProductions(prodData || []);
 
       if (isLoadMore) {
-        setProducoes(prev => [...prev, ...newProds]);
+        setProducoes(prev => sortFactoryProductions([...prev, ...newProds]));
       } else {
         setProducoes(newProds);
         if (count !== null) setTotalCount(count);
