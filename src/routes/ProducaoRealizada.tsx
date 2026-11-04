@@ -7,6 +7,14 @@ import { useAuth } from "../AuthProvider";
 import { generateGelatoLabelsPdf } from "../utils/gelatoLabelPdf.ts";
 import "../css/Frequencia.css";
 
+const addCalendarMonthsToDate = (date: string, months: number) => {
+  const [year, month, day] = date.split("-").map(Number);
+  const targetMonthStart = new Date(year, month - 1 + months, 1, 12);
+  const lastDayOfTargetMonth = new Date(targetMonthStart.getFullYear(), targetMonthStart.getMonth() + 1, 0, 12).getDate();
+  targetMonthStart.setDate(Math.min(day, lastDayOfTargetMonth));
+  return `${targetMonthStart.getFullYear()}-${String(targetMonthStart.getMonth() + 1).padStart(2, "0")}-${String(targetMonthStart.getDate()).padStart(2, "0")}`;
+};
+
 function ProducaoRealizada() {
   const { user, isAdmin } = useAuth();
   const [producoes, setProducoes] = useState<any[]>([]);
@@ -99,6 +107,25 @@ function ProducaoRealizada() {
     tara: "",
     peso_liquido: "",
     validade: ""
+  });
+
+  const sortProductionRows = (rows: any[]) => [...rows].sort((a, b) => {
+    const dateA = a.data_producao || "";
+    const dateB = b.data_producao || "";
+    if (!dateA && !dateB) {
+      const nameA = a.cadastro_produtos?.nome || "";
+      const nameB = b.cadastro_produtos?.nome || "";
+      const nameOrder = nameA.localeCompare(nameB, "pt-BR", { sensitivity: "base", numeric: true });
+      if (nameOrder !== 0) return nameOrder;
+    } else if (!dateA) {
+      return 1;
+    } else if (!dateB) {
+      return -1;
+    } else {
+      const dateOrder = dateA.localeCompare(dateB);
+      if (dateOrder !== 0) return productionDateSort === "desc" ? -dateOrder : dateOrder;
+    }
+    return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
   });
 
   useEffect(() => {
@@ -213,10 +240,20 @@ function ProducaoRealizada() {
 
       if (prodError) throw prodError;
 
-      const newProds = prodData || [];
+      const fetchedProductions = (prodData || []).map((production: any) => {
+        if (production.data_producao && !production.validade) {
+          const validade = addCalendarMonthsToDate(production.data_producao, 3);
+          void supabase.from("producao_realizada").update({ validade }).eq("id", production.id).then(({ error }) => {
+            if (error) console.warn("Não foi possível salvar a validade calculada:", error);
+          });
+          return { ...production, validade };
+        }
+        return production;
+      });
+      const newProds = sortProductionRows(fetchedProductions);
 
       if (isLoadMore) {
-        setProducoes(prev => [...prev, ...newProds]);
+        setProducoes(prev => sortProductionRows([...prev, ...newProds]));
       } else if (isBackground) {
         setProducoes(prev => {
           const fetchedById = new Map(newProds.map((row: any) => [row.id, row]));
@@ -330,9 +367,7 @@ function ProducaoRealizada() {
 
       let calculatedValidade: string | null = null;
       if (newRow.data_producao) {
-        const dataProdDate = new Date(newRow.data_producao + "T12:00:00");
-        dataProdDate.setDate(dataProdDate.getDate() + 180);
-        calculatedValidade = `${dataProdDate.getFullYear()}-${String(dataProdDate.getMonth() + 1).padStart(2, '0')}-${String(dataProdDate.getDate()).padStart(2, '0')}`;
+        calculatedValidade = addCalendarMonthsToDate(newRow.data_producao, 3);
       }
 
       const { data, error } = await supabase
@@ -411,6 +446,7 @@ function ProducaoRealizada() {
       const production = producoes.find(row => row.id === id);
       const updateData: Record<string, any> = { [field]: value || null };
       if (field === "data_producao") {
+        updateData.validade = value ? addCalendarMonthsToDate(value, 3) : null;
         if (value && production) {
           const productCode = produtos.find(product => product.id === production.produto_id)?.codigo || production.cadastro_produtos?.codigo || "ND";
           const [year, month, day] = value.split("-");
@@ -497,9 +533,7 @@ function ProducaoRealizada() {
 
       if (dateChanged || productChanged) {
         if (newProductionDate && dateChanged) {
-          const dataProdDate = new Date(newProductionDate + "T12:00:00");
-          dataProdDate.setDate(dataProdDate.getDate() + 180);
-          calculatedValidade = `${dataProdDate.getFullYear()}-${String(dataProdDate.getMonth() + 1).padStart(2, '0')}-${String(dataProdDate.getDate()).padStart(2, '0')}`;
+          calculatedValidade = addCalendarMonthsToDate(newProductionDate, 3);
         }
 
         if (newProductionDate) {
@@ -814,10 +848,10 @@ function ProducaoRealizada() {
             <button onClick={() => fetchData(false, 0)} style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsArrowClockwise /> Atualizar</button>
           </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-            <table className="freq-table" style={{ minWidth: labelSelectionMode ? "1550px" : "1500px" }}>
+            <table className="freq-table" style={{ minWidth: labelSelectionMode ? "1540px" : "1500px" }}>
               <thead>
                 <tr>
-                  {labelSelectionMode && <th style={{ width: 50, textAlign: "center" }}>Selecionar</th>}
+                  {labelSelectionMode && <th title="Selecionar linha" style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}>✓</th>}
                   <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
                   <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
                   <th style={{ width: "250px" }}>Produto</th>
@@ -924,17 +958,20 @@ function ProducaoRealizada() {
                   producoes.map((prod) => {
                     const isNew = newlyAddedId === prod.id;
                     const isDeleting = false;
+                    const isLabelSelected = selectedLabelIds.includes(prod.id);
                     
                     return (
                       <tr 
                         key={prod.id} 
+                        onClick={labelSelectionMode ? () => toggleLabelSelection(prod.id, !isLabelSelected) : undefined}
                         style={{ 
-                          backgroundColor: isNew ? '#dcfce7' : (prod.status_revisao === 'pending_delete' ? '#fecaca' : 'inherit'),
+                          backgroundColor: isLabelSelected ? "#dbeafe" : isNew ? '#dcfce7' : (prod.status_revisao === 'pending_delete' ? '#fecaca' : 'inherit'),
                           opacity: (isDeleting || prod.status_revisao === 'pending_delete') ? 0.6 : 1,
-                          transition: "all 0.5s ease"
+                          transition: "background-color .15s ease, opacity .5s ease",
+                          cursor: labelSelectionMode ? "pointer" : undefined
                         }}
                       >
-                        {labelSelectionMode && <td style={{ textAlign: "center" }}><input type="checkbox" aria-label={`Selecionar etiqueta de ${prod.cadastro_produtos?.nome || "produto"}`} checked={selectedLabelIds.includes(prod.id)} onChange={event => toggleLabelSelection(prod.id, event.target.checked)} /></td>}
+                        {labelSelectionMode && <td style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}><input type="checkbox" aria-label={`Selecionar etiqueta de ${prod.cadastro_produtos?.nome || "produto"}`} checked={isLabelSelected} onClick={event => event.stopPropagation()} onChange={event => toggleLabelSelection(prod.id, event.target.checked)} /></td>}
                         <td style={{ textAlign: "center", fontWeight: "bold" }}>
                           {prod.codigo || "-"}
                           {prod.status_revisao === 'pending_delete' && (
@@ -961,8 +998,7 @@ function ProducaoRealizada() {
                         </td>
                         <td style={{ textAlign: "center" }}>
                           {prod.importado_automaticamente ? <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
-                            <span style={{ display: "inline-block", padding: "3px 8px", borderRadius: 10, background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1d4ed8", fontSize: ".75rem", fontWeight: 700, whiteSpace: "nowrap" }}>Importado</span>
-                            <span style={{ color: "#64748b", fontSize: ".8rem", whiteSpace: "nowrap" }}>Ordem: {prod.data_ordem_producao ? new Date(prod.data_ordem_producao + "T12:00:00").toLocaleDateString("pt-BR") : "—"}</span>
+                            <span style={{ display: "inline-block", padding: "4px 9px", borderRadius: 10, background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1d4ed8", fontSize: ".85rem", fontWeight: 700, whiteSpace: "nowrap" }}>Importado - OP {prod.data_ordem_producao ? new Date(prod.data_ordem_producao + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : "--/--"}</span>
                             {!prod.data_producao && <span title="Prazo para preencher a data de produção antes da exclusão automática" style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "#b45309", fontSize: ".76rem", fontWeight: 700, whiteSpace: "nowrap" }}><Icons.BsHourglassSplit /> {getImportCountdown(prod.created_at)}</span>}
                           </div> : <span style={{ color: "#64748b" }}>Manual</span>}
                         </td>

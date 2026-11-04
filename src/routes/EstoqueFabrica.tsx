@@ -127,7 +127,10 @@ function EstoqueFabrica() {
           profiles(name)
         `, { count: 'exact' })
         .is('data_entrada', null)
-        .is('destino', null);
+        .is('destino', null)
+        .not('data_producao', 'is', null)
+        .not('peso_bruto', 'is', null)
+        .not('tara', 'is', null);
 
       if (fProdutoId) query = query.eq('produto_id', fProdutoId);
       if (fData) query = query.eq('data_producao', fData);
