@@ -53,7 +53,7 @@ const MENU_CONFIG = [
     id: "producao",
     subItems: [
       { title: "Ordem de Produção", path: "/ordem-producao", adminOnly: true },
-      { title: "Ordem de Produção 2 (Teste)", path: "/ordem-producao-2", adminOnly: true },
+      { title: "Transferências de Cubas", path: "/transferencias-cubas", adminOnly: true },
       { title: "Produção Realizada", path: "/producao-realizada" },
       { title: "Estoque Fábrica", path: "/estoque-fabrica" }
     ]

@@ -341,8 +341,20 @@ function EstoqueFabrica() {
     })).filter(group => group.cubas.length > 0);
     setSavingTransfers(true);
     const insertedStoreCards: Array<{ table: "cardsahu" | "cardsaltoxv"; ids: string[] }> = [];
+    const insertedTransferHeaderIds: number[] = [];
+    const transferHeaderIdByDestination: Record<string, number> = {};
     const updatedProductionIds: string[] = [];
     try {
+      for (const destination of Object.keys(assignments)) {
+        const { data: transferHeader, error: transferHeaderError } = await supabase.from("transferencias_cubas")
+          .insert({ data_transferencia: transferDate, descricao: "Transf. de Cubas", destino: destination, user_id: user?.id || null })
+          .select("id")
+          .single();
+        if (transferHeaderError) throw transferHeaderError;
+        transferHeaderIdByDestination[destination] = transferHeader.id;
+        insertedTransferHeaderIds.push(transferHeader.id);
+      }
+
       for (const [destination, ids] of Object.entries(assignments)) {
         const table = destination === "Loja Ahu" ? "cardsahu" : "cardsaltoxv";
         const cards = ids.map(id => {
@@ -354,7 +366,8 @@ function EstoqueFabrica() {
             production_date: cuba?.data_producao,
             entry_date: null,
             created_by: user?.email || "Estoque Fábrica",
-            last_edited_by: user?.email || "Estoque Fábrica"
+            last_edited_by: user?.email || "Estoque Fábrica",
+            transferencia_cubas_id: transferHeaderIdByDestination[destination]
           };
         });
         const { data: insertedCards, error: cardInsertError } = await supabase.from(table).insert(cards).select("id");
@@ -364,7 +377,7 @@ function EstoqueFabrica() {
 
       for (const [destination, ids] of Object.entries(assignments)) {
         const { error } = await supabase.from("producao_realizada")
-          .update({ data_entrada: null, destino: destination })
+          .update({ data_entrada: null, destino: destination, transferencia_cubas_id: transferHeaderIdByDestination[destination] })
           .in("id", ids);
         if (error) throw error;
         updatedProductionIds.push(...ids);
@@ -380,9 +393,10 @@ function EstoqueFabrica() {
     } catch (error: any) {
       console.error("Erro ao salvar transferências:", error);
       if (updatedProductionIds.length) {
-        await supabase.from("producao_realizada").update({ data_entrada: null, destino: null }).in("id", updatedProductionIds);
+        await supabase.from("producao_realizada").update({ data_entrada: null, destino: null, transferencia_cubas_id: null }).in("id", updatedProductionIds);
       }
       await Promise.all(insertedStoreCards.map(({ table, ids }) => ids.length ? supabase.from(table).delete().in("id", ids) : Promise.resolve({ error: null })));
+      if (insertedTransferHeaderIds.length) await supabase.from("transferencias_cubas").delete().in("id", insertedTransferHeaderIds);
       alert(`Não foi possível salvar as transferências: ${error.message || "erro inesperado"}`);
     } finally {
       setSavingTransfers(false);

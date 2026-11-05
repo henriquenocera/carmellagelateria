@@ -1049,7 +1049,7 @@ function OrdemProducao2() {
   return (
     <>
       <Helmet>
-        <title>Ordem de Produção 2</title>
+        <title>Ordem de Produção</title>
         <style>{`
           .op2-modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 42, .52); }
           .op2-modal { box-sizing: border-box; width: min(900px, 100%); max-height: calc(100vh - 40px); overflow: auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 14px; background: #fff; box-shadow: 0 24px 70px rgba(15,23,42,.25); }
@@ -1103,7 +1103,7 @@ function OrdemProducao2() {
       <div className="frequencia-container">
         <div className="frequencia-header">
           <div className="frequencia-title-group">
-            <h1>Ordem de Produção 2</h1>
+            <h1>Ordem de Produção</h1>
             <p>Planeje os sabores e as quantidades que deseja produzir.</p>
           </div>
         </div>
