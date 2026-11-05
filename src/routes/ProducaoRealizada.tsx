@@ -1091,7 +1091,7 @@ function ProducaoRealizada() {
                               style={{ width: "100%", padding: "6px", fontSize: "1.1rem", border: "1px solid #cbd5e1", borderRadius: "4px" }}
                               onChange={(e) => setEditRowData({ ...editRowData, destino: e.target.value })}
                             >
-                              <option value="" disabled>Selecionar...</option>
+                              <option value="">Selecionar...</option>
                               <option value="Loja Ahu">Loja Ahu</option>
                               <option value="Loja Alto XV">Loja Alto XV</option>
                               <option value="Venda">Venda</option>
@@ -1111,7 +1111,7 @@ function ProducaoRealizada() {
                                 }
                               }}
                             >
-                              <option value="" disabled>Selecionar...</option>
+                              <option value="">Selecionar...</option>
                               <option value="Loja Ahu">Loja Ahu</option>
                               <option value="Loja Alto XV">Loja Alto XV</option>
                               <option value="Venda">Venda</option>

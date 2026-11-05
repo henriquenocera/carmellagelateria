@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 import "../css/Frequencia.css";
@@ -24,6 +26,8 @@ function EstoqueFabrica() {
   const [totalLiquidWeight, setTotalLiquidWeight] = useState<number | null>(null);
   const liquidWeightRequest = useRef(0);
   const [transferMode, setTransferMode] = useState(false);
+  const [transferConfirmOpen, setTransferConfirmOpen] = useState(false);
+  const [completedTransfer, setCompletedTransfer] = useState<{ date: string; groups: Array<{ store: string; cubas: any[] }> } | null>(null);
   const [transferLoading, setTransferLoading] = useState(false);
   const [savingTransfers, setSavingTransfers] = useState(false);
   const [transferCubas, setTransferCubas] = useState<any[]>([]);
@@ -33,6 +37,7 @@ function EstoqueFabrica() {
   const [draggedCubaId, setDraggedCubaId] = useState<string | null>(null);
   const [transferPickerDestination, setTransferPickerDestination] = useState<"Loja Ahu" | "Loja Alto XV" | null>(null);
   const [transferSearch, setTransferSearch] = useState("");
+  const [transferSearchActiveIndex, setTransferSearchActiveIndex] = useState(0);
   const [hoveredCubaId, setHoveredCubaId] = useState<string | null>(null);
   const transferPickerContainerRef = useRef<HTMLDivElement | null>(null);
   const PAGE_SIZE = 100;
@@ -67,12 +72,14 @@ function EstoqueFabrica() {
       if (!transferPickerContainerRef.current?.contains(event.target as Node)) {
         setTransferPickerDestination(null);
         setTransferSearch("");
+        setTransferSearchActiveIndex(0);
       }
     };
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setTransferPickerDestination(null);
         setTransferSearch("");
+        setTransferSearchActiveIndex(0);
       }
     };
     document.addEventListener("mousedown", closeOnOutsideClick);
@@ -297,6 +304,13 @@ function EstoqueFabrica() {
     setDraggedCubaId(null);
   }
 
+  function addAvailableCubaToStore(cubaId: string, destination: "Loja Ahu" | "Loja Alto XV") {
+    setTransferDestinations(current => ({ ...current, [cubaId]: destination }));
+    setTransferPickerDestination(null);
+    setTransferSearch("");
+    setTransferSearchActiveIndex(0);
+  }
+
   function handleRemoveCuba(cuba: any) {
     setTransferDestinations(current => {
       const next = { ...current };
@@ -305,7 +319,7 @@ function EstoqueFabrica() {
     });
   }
 
-  async function saveCubaTransfers() {
+  async function saveCubaTransfers(confirmTransfer = false) {
     const assignments = Object.entries(transferDestinations).reduce<Record<string, string[]>>((groups, [id, destination]) => {
       if (!groups[destination]) groups[destination] = [];
       groups[destination].push(id);
@@ -316,6 +330,15 @@ function EstoqueFabrica() {
       alert("Arraste ao menos uma cuba para Loja Ahu ou Loja Alto XV.");
       return;
     }
+    if (!confirmTransfer) {
+      setTransferConfirmOpen(true);
+      return;
+    }
+    const transferDate = getToday();
+    const transferGroups = ["Loja Ahu", "Loja Alto XV"].map(store => ({
+      store,
+      cubas: transferCubas.filter(cuba => transferDestinations[cuba.id] === store)
+    })).filter(group => group.cubas.length > 0);
     setSavingTransfers(true);
     const insertedStoreCards: Array<{ table: "cardsahu" | "cardsaltoxv"; ids: string[] }> = [];
     const updatedProductionIds: string[] = [];
@@ -323,12 +346,13 @@ function EstoqueFabrica() {
       for (const [destination, ids] of Object.entries(assignments)) {
         const table = destination === "Loja Ahu" ? "cardsahu" : "cardsaltoxv";
         const cards = ids.map(id => {
-          const cuba = transferCubas.find(item => item.id === id);
+          const cuba = transferCubas.find(item => String(item.id) === String(id));
+          if (!cuba?.data_producao) throw new Error("Uma das cubas selecionadas está sem data de produção. Atualize a data antes de transferir.");
           return {
             title: cuba?.cadastro_produtos?.nome || "Sabor não encontrado",
             status: "freezer-estoque",
             production_date: cuba?.data_producao,
-            entry_date: getToday(),
+            entry_date: null,
             created_by: user?.email || "Estoque Fábrica",
             last_edited_by: user?.email || "Estoque Fábrica"
           };
@@ -340,18 +364,19 @@ function EstoqueFabrica() {
 
       for (const [destination, ids] of Object.entries(assignments)) {
         const { error } = await supabase.from("producao_realizada")
-          .update({ data_entrada: getToday(), destino: destination })
+          .update({ data_entrada: null, destino: destination })
           .in("id", ids);
         if (error) throw error;
         updatedProductionIds.push(...ids);
       }
       setProducoes(current => current.filter(cuba => !assignedIds.includes(cuba.id)));
       setTransferMode(false);
+      setTransferConfirmOpen(false);
       setTransferCubas([]);
       setTransferDestinations({});
       setTransferPickerDestination(null);
       await fetchData(false, 0);
-      alert(`${assignedIds.length} cuba(s) transferidas para as lojas.`);
+      setCompletedTransfer({ date: transferDate, groups: transferGroups });
     } catch (error: any) {
       console.error("Erro ao salvar transferências:", error);
       if (updatedProductionIds.length) {
@@ -372,6 +397,13 @@ function EstoqueFabrica() {
     const search = transferSearch.trim().toLocaleLowerCase("pt-BR");
     return !search || `${cuba.cadastro_produtos?.nome || ""} ${cuba.codigo || ""}`.toLocaleLowerCase("pt-BR").includes(search);
   });
+
+  useEffect(() => {
+    if (!transferPickerDestination || filteredAvailableTransferCubas.length === 0) return;
+    const activeCuba = filteredAvailableTransferCubas[Math.min(transferSearchActiveIndex, filteredAvailableTransferCubas.length - 1)];
+    const storeKey = transferPickerDestination === "Loja Ahu" ? "ahu" : "altoxv";
+    document.getElementById(`transfer-cuba-option-${storeKey}-${activeCuba.id}`)?.scrollIntoView({ block: "nearest" });
+  }, [transferPickerDestination, transferSearchActiveIndex, transferSearch, transferCubas.length]);
   const renderCubaCard = (cuba: any) => (
     <div
       key={cuba.id}
@@ -399,10 +431,22 @@ function EstoqueFabrica() {
         <span>{title}</span>{destination ? <span style={{ display: "inline-flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 4 }}><span style={{ padding: "3px 8px", borderRadius: 12, background: "#e9eef4", color: "#526982", fontSize: ".78rem" }}>{destination === "Loja Ahu" ? currentStoreStockCounts.ahu : currentStoreStockCounts.altoxv} em estoque</span><span style={{ padding: "3px 8px", borderRadius: 12, background: "#fff7ed", color: "#9a3412", fontSize: ".78rem" }}>{cubas.length} novas</span></span> : <span style={{ padding: "3px 8px", borderRadius: 12, background: "#e9eef4", color: "#526982", fontSize: ".8rem" }}>{cubas.length} cubas</span>}
       </h3>
       {destination && <div ref={transferPickerDestination === destination ? transferPickerContainerRef : null} style={{ position: "relative", marginTop: 10 }}>
-        <button type="button" onClick={() => { setTransferPickerDestination(current => current === destination ? null : destination); setTransferSearch(""); }} style={{ width: "100%", minHeight: 42, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, border: "1px dashed #aab7c6", borderRadius: 7, background: "transparent", color: "#64748b", fontSize: ".9rem", cursor: "pointer" }}><Icons.BsPlus /> Incluir nova cuba</button>
+        <button type="button" onClick={() => { setTransferPickerDestination(current => current === destination ? null : destination); setTransferSearch(""); setTransferSearchActiveIndex(0); }} style={{ width: "100%", minHeight: 42, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, border: "1px dashed #aab7c6", borderRadius: 7, background: "transparent", color: "#64748b", fontSize: ".9rem", cursor: "pointer" }}><Icons.BsPlus /> Incluir nova cuba</button>
         {transferPickerDestination === destination && <div style={{ position: "absolute", top: 48, left: 0, right: 0, zIndex: 20, maxHeight: 250, overflowY: "auto", padding: 8, border: "1px solid #dbe3ec", borderRadius: 7, background: "#fff", boxShadow: "0 10px 24px rgba(15,23,42,.16)" }}>
-          <input autoFocus aria-label="Pesquisar cuba disponível" placeholder="Pesquisar sabor..." value={transferSearch} onChange={event => setTransferSearch(event.target.value)} style={{ boxSizing: "border-box", width: "100%", height: 38, marginBottom: 7, padding: "6px 9px", border: "1px solid #cbd5e1", borderRadius: 5, fontSize: ".9rem" }} />
-          {filteredAvailableTransferCubas.map(cuba => <button key={cuba.id} type="button" onClick={() => { setTransferDestinations(current => ({ ...current, [cuba.id]: destination })); setTransferPickerDestination(null); setTransferSearch(""); }} style={{ width: "100%", display: "block", marginBottom: 5, padding: "9px 10px", border: 0, borderRadius: 5, background: "#f8fafc", color: "#334155", textAlign: "left", cursor: "pointer", fontSize: ".9rem" }}><strong>{cuba.cadastro_produtos?.nome || "Sabor não encontrado"}</strong><span style={{ display: "block", marginTop: 3, color: "#7b8ba0", fontSize: ".8rem" }}>{cuba.codigo || "Sem código"} · {formatTransferDate(cuba.data_producao)}</span><span style={{ display: "block", marginTop: 2, color: "#64748b", fontSize: ".8rem" }}>Peso líquido: {cuba.peso_liquido != null ? `${Number(cuba.peso_liquido).toFixed(3)} kg` : "—"}</span></button>)}
+          <input autoFocus aria-label="Pesquisar cuba disponível" placeholder="Pesquisar sabor..." value={transferSearch} onChange={event => { setTransferSearch(event.target.value); setTransferSearchActiveIndex(0); }} onKeyDown={event => {
+            if (event.key === "ArrowDown") {
+              event.preventDefault();
+              setTransferSearchActiveIndex(index => Math.min(index + 1, filteredAvailableTransferCubas.length - 1));
+            } else if (event.key === "ArrowUp") {
+              event.preventDefault();
+              setTransferSearchActiveIndex(index => Math.max(index - 1, 0));
+            } else if (event.key === "Enter" && filteredAvailableTransferCubas.length) {
+              event.preventDefault();
+              const activeCuba = filteredAvailableTransferCubas[Math.min(transferSearchActiveIndex, filteredAvailableTransferCubas.length - 1)];
+              addAvailableCubaToStore(activeCuba.id, destination);
+            }
+          }} style={{ boxSizing: "border-box", width: "100%", height: 38, marginBottom: 7, padding: "6px 9px", border: "1px solid #cbd5e1", borderRadius: 5, fontSize: ".9rem" }} />
+          {filteredAvailableTransferCubas.map((cuba, index) => <button id={`transfer-cuba-option-${destination === "Loja Ahu" ? "ahu" : "altoxv"}-${cuba.id}`} key={cuba.id} type="button" onMouseEnter={() => setTransferSearchActiveIndex(index)} onClick={() => addAvailableCubaToStore(cuba.id, destination)} style={{ width: "100%", display: "block", marginBottom: 5, padding: "9px 10px", border: 0, borderRadius: 5, background: index === transferSearchActiveIndex ? "#eaf1f8" : "#f8fafc", color: "#334155", textAlign: "left", cursor: "pointer", fontSize: ".9rem" }}><strong>{cuba.cadastro_produtos?.nome || "Sabor não encontrado"}</strong><span style={{ display: "block", marginTop: 3, color: "#7b8ba0", fontSize: ".8rem" }}>{cuba.codigo || "Sem código"} · {formatTransferDate(cuba.data_producao)}</span><span style={{ display: "block", marginTop: 2, color: "#64748b", fontSize: ".8rem" }}>Peso líquido: {cuba.peso_liquido != null ? `${Number(cuba.peso_liquido).toFixed(3)} kg` : "—"}</span></button>)}
           {filteredAvailableTransferCubas.length === 0 && <div style={{ padding: 10, color: "#94a3b8", textAlign: "center", fontSize: ".85rem" }}>{availableTransferCubas.length ? "Nenhuma cuba encontrada." : "Não há cubas disponíveis."}</div>}
         </div>}
       </div>}
@@ -423,6 +467,56 @@ function EstoqueFabrica() {
       })()}
     </section>
   );
+
+  function printTransferReport(group: { store: string; cubas: any[] }) {
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const totalNetWeight = group.cubas.reduce((sum, cuba) => sum + (Number(cuba.peso_liquido) || 0), 0);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(17);
+    doc.setTextColor(51, 65, 85);
+    doc.text("ROMANEIO DE TRANSFERÊNCIA DE CUBAS", 14, 17);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.text(`Destino: ${group.store}    Data de envio: ${formatTransferDate(completedTransfer?.date || getToday())}`, 14, 25);
+    doc.text(`Quantidade: ${group.cubas.length} cuba(s)    Peso líquido total: ${totalNetWeight.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg`, 14, 32);
+    autoTable(doc, {
+      startY: 38,
+      head: [["Nº", "Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"]],
+      body: group.cubas.map((cuba, index) => [
+        index + 1,
+        cuba.cadastro_produtos?.nome || "Sabor não encontrado",
+        cuba.codigo || "—",
+        formatTransferDate(cuba.data_producao),
+        cuba.peso_bruto != null ? Number(cuba.peso_bruto).toFixed(3) : "—",
+        cuba.tara != null ? Number(cuba.tara).toFixed(3) : "—",
+        cuba.peso_liquido != null ? Number(cuba.peso_liquido).toFixed(3) : "—"
+      ]),
+      theme: "grid",
+      headStyles: { fillColor: [241, 231, 218], textColor: [128, 80, 31], fontStyle: "bold" },
+      styles: { font: "helvetica", fontSize: 9, cellPadding: 2.5, textColor: [51, 65, 85] },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      margin: { left: 14, right: 14 }
+    });
+    let signatureY = Number((doc as any).lastAutoTable?.finalY || 38) + 22;
+    if (signatureY + 16 > pageHeight - 12) {
+      doc.addPage();
+      signatureY = 35;
+    }
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setDrawColor(100, 116, 139);
+    doc.line(24, signatureY, pageWidth / 2 - 12, signatureY);
+    doc.line(pageWidth / 2 + 12, signatureY, pageWidth - 24, signatureY);
+    doc.text("Assinatura — responsável pelo envio", 24, signatureY + 6);
+    doc.text("Assinatura — responsável pelo recebimento", pageWidth / 2 + 12, signatureY + 6);
+    doc.setFontSize(9);
+    doc.setTextColor(100, 116, 139);
+    doc.text("Este romaneio deve acompanhar as cubas durante todo o transporte.", 14, pageHeight - 10);
+    const fileStore = group.store.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "-");
+    doc.save(`romaneio-cubas-${fileStore}-${completedTransfer?.date || getToday()}.pdf`);
+  }
 
 
 
@@ -627,6 +721,38 @@ function EstoqueFabrica() {
             </>}
           </div>
         </div>
+        {transferConfirmOpen && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !savingTransfers) setTransferConfirmOpen(false); }} style={{ position: "fixed", inset: 0, zIndex: 1500, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.5)" }}>
+          <section role="alertdialog" aria-modal="true" aria-labelledby="factory-transfer-confirm-title" style={{ boxSizing: "border-box", width: "min(650px, 100%)", maxHeight: "85vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
+            <h2 id="factory-transfer-confirm-title" style={{ margin: "0 0 7px", color: "#334155", fontSize: "1.4rem" }}>Confirmar transferência de cubas</h2>
+            <p style={{ margin: "0 0 16px", color: "#64748b", lineHeight: 1.5 }}>Confira as cubas e os destinos. A data de entrada ficará em branco para ser preenchida posteriormente.</p>
+            {[{ store: "Loja Ahu", cubas: lojaAhuCubas }, { store: "Loja Alto XV", cubas: lojaAltoXvCubas }].filter(group => group.cubas.length > 0).map(group => <div key={group.store} style={{ marginTop: 12, padding: 13, border: "1px solid #dbe3ec", borderRadius: 8, background: "#f8fafc" }}>
+              <h3 style={{ margin: "0 0 8px", color: "#475569", fontSize: "1rem" }}>{group.store} — {group.cubas.length} cuba(s)</h3>
+              <ul style={{ display: "grid", gap: 5, margin: 0, paddingLeft: 20, color: "#334155", fontSize: ".9rem" }}>{group.cubas.map(cuba => <li key={cuba.id}>{cuba.cadastro_produtos?.nome || "Sabor"} · {cuba.codigo || "Sem código"} · {cuba.peso_liquido != null ? `${Number(cuba.peso_liquido).toFixed(3)} kg` : "Peso líquido —"}</li>)}</ul>
+            </div>)}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
+              <button type="button" onClick={() => setTransferConfirmOpen(false)} disabled={savingTransfers} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: "pointer" }}>Voltar</button>
+              <button type="button" onClick={() => void saveCubaTransfers(true)} disabled={savingTransfers} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: savingTransfers ? "wait" : "pointer" }}>{savingTransfers ? <><Icons.BsArrowClockwise className="spin" /> Transferindo...</> : <><Icons.BsCheckCircleFill /> Confirmar transferência</>}</button>
+            </div>
+          </section>
+        </div>}
+        {completedTransfer && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setCompletedTransfer(null); }} style={{ position: "fixed", inset: 0, zIndex: 1600, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.5)" }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="factory-transfer-complete-title" style={{ boxSizing: "border-box", width: "min(720px, 100%)", maxHeight: "88vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
+              <span style={{ width: 42, height: 42, flex: "0 0 42px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "#dcfce7", color: "#15803d", fontSize: 21 }}><Icons.BsCheckCircleFill /></span>
+              <div><h2 id="factory-transfer-complete-title" style={{ margin: "2px 0 5px", color: "#334155", fontSize: "1.4rem" }}>Transferência concluída</h2><p style={{ margin: 0, color: "#64748b" }}>As cubas foram registradas no estoque das lojas em {formatTransferDate(completedTransfer.date)} e a data de entrada foi deixada em branco. Imprima um romaneio para acompanhar cada envio.</p></div>
+            </div>
+            <div style={{ display: "grid", gap: 11 }}>
+              {completedTransfer.groups.map(group => <section key={group.store} style={{ padding: 13, border: "1px solid #dbe3ec", borderRadius: 8, background: "#f8fafc" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+                  <h3 style={{ margin: 0, color: "#475569", fontSize: "1rem" }}>{group.store} — {group.cubas.length} cuba(s)</h3>
+                  <button type="button" onClick={() => printTransferReport(group)} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 12px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: "pointer" }}><Icons.BsPrinterFill /> Imprimir romaneio</button>
+                </div>
+                <ul style={{ display: "grid", gap: 4, maxHeight: 160, overflowY: "auto", margin: 0, paddingLeft: 20, color: "#334155", fontSize: ".9rem" }}>{group.cubas.map(cuba => <li key={cuba.id}>{cuba.cadastro_produtos?.nome || "Sabor"} · {cuba.codigo || "Sem código"} · {cuba.peso_liquido != null ? `${Number(cuba.peso_liquido).toFixed(3)} kg` : "Peso líquido —"}</li>)}</ul>
+              </section>)}
+            </div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 18 }}><button type="button" autoFocus onClick={() => setCompletedTransfer(null)} style={{ minWidth: 96, padding: "9px 16px", border: 0, borderRadius: 6, background: "var(--primary-color)", color: "#fff", fontWeight: 700, cursor: "pointer" }}>Concluir</button></div>
+          </section>
+        </div>}
       </div>
     </>
   );
