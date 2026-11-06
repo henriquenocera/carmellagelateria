@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
 import { generateGelatoLabelsPdf } from "../utils/gelatoLabelPdf.ts";
@@ -15,10 +16,22 @@ const addCalendarMonthsToDate = (date: string, months: number) => {
   return `${targetMonthStart.getFullYear()}-${String(targetMonthStart.getMonth() + 1).padStart(2, "0")}-${String(targetMonthStart.getDate()).padStart(2, "0")}`;
 };
 
+const addDaysToDate = (date: string, days: number) => {
+  const [year, month, day] = date.split("-").map(Number);
+  const result = new Date(year, month - 1, day + days, 12);
+  return `${result.getFullYear()}-${String(result.getMonth() + 1).padStart(2, "0")}-${String(result.getDate()).padStart(2, "0")}`;
+};
+
+const calculateProductionValidity = (date: string, category?: string | null, productName?: string | null) => {
+  if (category === "Doces") return addDaysToDate(date, (productName || "").toLowerCase().startsWith("waffle") ? 7 : 30);
+  return addCalendarMonthsToDate(date, 3);
+};
+
 function ProducaoRealizada() {
   const { user, isAdmin } = useAuth();
   const [producoes, setProducoes] = useState<any[]>([]);
   const [produtos, setProdutos] = useState<any[]>([]);
+  const [clientesFoodService, setClientesFoodService] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingRow, setSavingRow] = useState(false);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
@@ -27,6 +40,23 @@ function ProducaoRealizada() {
   const [productMenuMaxHeight, setProductMenuMaxHeight] = useState(350);
   const newModalRef = useRef<HTMLDialogElement>(null);
   const [showNewModal, setShowNewModal] = useState(false);
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("Gelato");
+  const [newRowCategory, setNewRowCategory] = useState("Gelato");
+  const [newQuantity, setNewQuantity] = useState("");
+  const [newClient, setNewClient] = useState("");
+  const [packagingRows, setPackagingRows] = useState([{ embalagem: "", quantidade: "1" }]);
+  const productionCategories = ["Gelato", "Food Service", "Doces"];
+  const isDessertsTab = activeCategory === "Doces";
+  const isSweetProduct = (product: any) => {
+    const name = (product.nome || "").trim().toLowerCase();
+    return name === "brownie" || name === "waffle" || name.startsWith("waffle ");
+  };
+  const getFormProductLabel = (product: any) => newRowCategory === "Doces" && isSweetProduct(product)
+    ? product.nome.trim().toLowerCase().startsWith("waffle") ? "Waffle" : "Brownie"
+    : product.nome;
+  const categoryProducts = produtos.filter(product => activeCategory === "Food Service" ? product.is_sabor : activeCategory === "Doces" ? isSweetProduct(product) : (product.categoria || "").toLowerCase() === "gelato");
+  const formCategoryProducts = produtos.filter(product => newRowCategory === "Food Service" ? product.is_sabor : newRowCategory === "Doces" ? isSweetProduct(product) : (product.categoria || "").toLowerCase() === "gelato");
 
   useEffect(() => {
     if (!showNewModal) return;
@@ -62,6 +92,8 @@ function ProducaoRealizada() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'deleted'>('all');
   const [productionDateSort, setProductionDateSort] = useState<"desc" | "asc">("desc");
   const [labelSelectionMode, setLabelSelectionMode] = useState(false);
+  const showEntryAndDestination = activeCategory === "Gelato";
+  const tableColumnCount = (labelSelectionMode ? 14 : 13) - (isDessertsTab ? 4 : 0);
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
   const productionDateSaveTimers = useRef<Record<string, number>>({});
 
@@ -112,19 +144,20 @@ function ProducaoRealizada() {
   const sortProductionRows = (rows: any[]) => [...rows].sort((a, b) => {
     const dateA = a.data_producao || "";
     const dateB = b.data_producao || "";
-    if (!dateA && !dateB) {
-      const nameA = a.cadastro_produtos?.nome || "";
-      const nameB = b.cadastro_produtos?.nome || "";
-      const nameOrder = nameA.localeCompare(nameB, "pt-BR", { sensitivity: "base", numeric: true });
-      if (nameOrder !== 0) return nameOrder;
-    } else if (!dateA) {
+    if (!dateA && dateB) {
       return 1;
-    } else if (!dateB) {
+    }
+    if (dateA && !dateB) {
       return -1;
-    } else {
+    }
+    if (dateA && dateB) {
       const dateOrder = dateA.localeCompare(dateB);
       if (dateOrder !== 0) return productionDateSort === "desc" ? -dateOrder : dateOrder;
     }
+    const nameA = a.cadastro_produtos?.nome || "";
+    const nameB = b.cadastro_produtos?.nome || "";
+    const nameOrder = nameA.localeCompare(nameB, "pt-BR", { sensitivity: "base", numeric: true });
+    if (nameOrder !== 0) return nameOrder;
     return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
   });
 
@@ -136,7 +169,7 @@ function ProducaoRealizada() {
     }
     setPage(0);
     fetchData(false, 0, filterProdutoId, filterData, filterStatus);
-  }, [filterProdutoId, filterData, filterStatus, productionDateSort]);
+  }, [filterProdutoId, filterData, filterStatus, productionDateSort, activeCategory]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -184,12 +217,20 @@ function ProducaoRealizada() {
           // Fetch produtos only on initial load
           const { data: produtosData, error: produtosError } = await supabase
             .from("cadastro_produtos")
-            .select("id, nome, ativo, codigo")
-            .eq("is_sabor", true)
+            .select("id, nome, ativo, codigo, categoria, is_sabor")
             .order("nome", { ascending: true });
 
           if (produtosError) throw produtosError;
           setProdutos(produtosData || []);
+        }
+        if (clientesFoodService.length === 0) {
+          const { data: clients, error: clientsError } = await supabase.from("clientes_food_service")
+            .select("id, nome, ativo, status")
+            .eq("ativo", true)
+            .eq("status", "Negócio Fechado")
+            .order("nome", { ascending: true });
+          if (clientsError) throw clientsError;
+          setClientesFoodService(clients || []);
         }
       }
 
@@ -214,13 +255,19 @@ function ProducaoRealizada() {
           user_id,
           status_revisao,
           revisao_observacao,
+          categoria_producao,
+          quantidade,
+          cliente,
+          embalagem,
+          quantidade_embalagem,
           importado_automaticamente,
           ordem_producao_item_id,
           data_ordem_producao,
-          cadastro_produtos!inner(nome, codigo),
+          cadastro_produtos!inner(nome, codigo, categoria),
           profiles(name)
         `, { count: 'exact' });
 
+      query = query.eq('categoria_producao', activeCategory);
       if (fProdutoId) query = query.eq('produto_id', fProdutoId);
       if (fData) query = query.eq('data_producao', fData);
       
@@ -234,6 +281,7 @@ function ProducaoRealizada() {
 
       const { data: prodData, count, error: prodError } = await query
         .order("data_producao", { ascending: productionDateSort === "asc", nullsFirst: false })
+        .order("nome", { referencedTable: "cadastro_produtos", ascending: true })
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
         .range(from, to);
@@ -242,7 +290,7 @@ function ProducaoRealizada() {
 
       const fetchedProductions = (prodData || []).map((production: any) => {
         if (production.data_producao && !production.validade) {
-          const validade = addCalendarMonthsToDate(production.data_producao, 3);
+          const validade = calculateProductionValidity(production.data_producao, production.categoria_producao, production.cadastro_produtos?.nome);
           void supabase.from("producao_realizada").update({ validade }).eq("id", production.id).then(({ error }) => {
             if (error) console.warn("Não foi possível salvar a validade calculada:", error);
           });
@@ -317,6 +365,23 @@ function ProducaoRealizada() {
     setSavingRow(true);
 
     try {
+      if (newRowCategory === "Doces" && (!newQuantity || Number(newQuantity) <= 0)) {
+        alert("Informe uma quantidade válida.");
+        return;
+      }
+      if (newRowCategory === "Food Service" && !newClient) {
+        alert("Selecione o cliente.");
+        return;
+      }
+      const selectedPackagingRows = newRowCategory === "Food Service"
+        ? packagingRows.filter(row => row.embalagem.trim() || row.quantidade !== "1")
+        : [];
+      for (const packagingRow of selectedPackagingRows) {
+        if (!packagingRow.embalagem.trim() || !Number.isInteger(Number(packagingRow.quantidade)) || Number(packagingRow.quantidade) < 1) {
+          alert("Informe uma embalagem e uma quantidade válida para cada tipo.");
+          return;
+        }
+      }
       const selectedProduct = produtos.find(p => p.id === newRow.produto_id);
       const prodCodigo = selectedProduct?.codigo || "ND";
       
@@ -329,34 +394,27 @@ function ProducaoRealizada() {
       }
       const baseCodProducao = `${prodCodigo}${ddMMyy}`;
       
-      const { data: existingProds } = await supabase
+      const { data: existingProds, error: existingProdsError } = await supabase
         .from("producao_realizada")
         .select("codigo")
         .eq("produto_id", newRow.produto_id)
         .eq("data_producao", newRow.data_producao);
-
-      let finalCodProducao = baseCodProducao;
-      if (existingProds && existingProds.length > 0) {
-        let maxSuffix = -1;
-        for (const p of existingProds) {
-          if (p.codigo === baseCodProducao) {
-            if (maxSuffix < 0) maxSuffix = 0;
-          } else if (p.codigo?.startsWith(baseCodProducao + "-")) {
-            const suffixStr = p.codigo.substring((baseCodProducao + "-").length);
-            const suffixNum = parseInt(suffixStr, 10);
-            if (!isNaN(suffixNum) && suffixNum > maxSuffix) {
-              maxSuffix = suffixNum;
-            }
-          }
-        }
-        if (maxSuffix >= 0) {
-           finalCodProducao = `${baseCodProducao}-${maxSuffix + 1}`;
-        }
+      if (existingProdsError) throw existingProdsError;
+      const packagingUnits = selectedPackagingRows.flatMap(row => Array.from({ length: Number(row.quantidade) }, () => row.embalagem.trim()));
+      const packagingCount = packagingUnits.length || 1;
+      const usedCodes = new Set((existingProds || []).map((production: any) => production.codigo).filter(Boolean));
+      const productionCodes: string[] = [];
+      for (let index = 0; index < packagingCount; index += 1) {
+        let candidate = baseCodProducao;
+        let suffix = 1;
+        while (usedCodes.has(candidate)) candidate = `${baseCodProducao}-${suffix++}`;
+        usedCodes.add(candidate);
+        productionCodes.push(candidate);
       }
 
       let calculatedPesoLiquido: number | null = null;
-      const pb = newRow.peso_bruto.trim() !== "" ? parseFloat(newRow.peso_bruto) : null;
-      const t = newRow.tara.trim() !== "" ? parseFloat(newRow.tara) : null;
+      const pb = newRowCategory === "Gelato" && newRow.peso_bruto.trim() !== "" ? parseFloat(newRow.peso_bruto) : null;
+      const t = newRowCategory === "Gelato" && newRow.tara.trim() !== "" ? parseFloat(newRow.tara) : null;
       if ((pb !== null && !Number.isFinite(pb)) || (t !== null && !Number.isFinite(t))) {
         alert("Informe um valor numérico válido para o peso ou a tara.");
         return;
@@ -367,23 +425,30 @@ function ProducaoRealizada() {
 
       let calculatedValidade: string | null = null;
       if (newRow.data_producao) {
-        calculatedValidade = addCalendarMonthsToDate(newRow.data_producao, 3);
+        calculatedValidade = calculateProductionValidity(newRow.data_producao, newRowCategory, selectedProduct?.nome);
       }
 
-      const { data, error } = await supabase
-        .from("producao_realizada")
-        .insert([{
+      const productionRows = productionCodes.map((codigo, index) => ({
           produto_id: newRow.produto_id,
-          codigo: finalCodProducao,
+          codigo,
           data_producao: newRow.data_producao,
           peso_bruto: pb,
           tara: t,
           peso_liquido: calculatedPesoLiquido,
+          categoria_producao: newRowCategory,
+          quantidade: newRowCategory === "Doces" ? Number(newQuantity) : null,
+          cliente: newRowCategory === "Food Service" ? newClient : null,
+          embalagem: newRowCategory === "Food Service" ? (packagingUnits[index] || null) : null,
+          quantidade_embalagem: packagingUnits[index] ? 1 : null,
           data_entrada: null,
           destino: null,
           validade: calculatedValidade,
           user_id: user?.id
-        }])
+        }));
+
+      const { data, error } = await supabase
+        .from("producao_realizada")
+        .insert(productionRows)
         .select(`
           id,
           codigo,
@@ -394,22 +459,28 @@ function ProducaoRealizada() {
           data_entrada,
           destino,
           validade,
+          categoria_producao,
+          quantidade,
+          cliente,
+          embalagem,
+          quantidade_embalagem,
           produto_id,
           created_at,
           user_id,
-          cadastro_produtos(nome, codigo),
+          cadastro_produtos(nome, codigo, categoria),
           profiles(name)
-        `)
-        .single();
+        `);
 
       if (error) throw error;
 
       // Mostra qualquer novo registro no início, independentemente da data de produção.
-      setProducoes(prev => [data, ...prev]);
+      setProducoes(prev => [...(data || []).reverse(), ...prev]);
+      setActiveCategory(newRowCategory);
 
-      setNewlyAddedId(data.id);
+      const firstInsertedId = data?.[0]?.id;
+      setNewlyAddedId(firstInsertedId || null);
       setTimeout(() => {
-        setNewlyAddedId(current => current === data.id ? null : current);
+        setNewlyAddedId(current => current === firstInsertedId ? null : current);
       }, 5500);
 
       setShowSavedMessage(true);
@@ -425,6 +496,9 @@ function ProducaoRealizada() {
         peso_liquido: "",
         validade: ""
       });
+      setNewQuantity("");
+      setNewClient("");
+      setPackagingRows([{ embalagem: "", quantidade: "1" }]);
 
       // Retornar o foco para o select de produtos após salvar
       setTimeout(() => {
@@ -446,7 +520,7 @@ function ProducaoRealizada() {
       const production = producoes.find(row => row.id === id);
       const updateData: Record<string, any> = { [field]: value || null };
       if (field === "data_producao") {
-        updateData.validade = value ? addCalendarMonthsToDate(value, 3) : null;
+        updateData.validade = value ? calculateProductionValidity(value, production?.categoria_producao, production?.cadastro_produtos?.nome) : null;
         if (value && production) {
           const productCode = produtos.find(product => product.id === production.produto_id)?.codigo || production.cadastro_produtos?.codigo || "ND";
           const [year, month, day] = value.split("-");
@@ -532,8 +606,9 @@ function ProducaoRealizada() {
       const newProdutoId = editRowData.produto_id || prod.produto_id;
 
       if (dateChanged || productChanged) {
-        if (newProductionDate && dateChanged) {
-          calculatedValidade = addCalendarMonthsToDate(newProductionDate, 3);
+        if (newProductionDate && (dateChanged || productChanged)) {
+          const editProductName = produtos.find(product => product.id === (editRowData.produto_id || prod.produto_id))?.nome || prod.cadastro_produtos?.nome;
+          calculatedValidade = calculateProductionValidity(newProductionDate, prod.categoria_producao, editProductName);
         }
 
         if (newProductionDate) {
@@ -590,7 +665,7 @@ function ProducaoRealizada() {
         .select(`
           id, codigo, data_producao, peso_bruto, tara, peso_liquido, 
           data_entrada, destino, validade, produto_id, created_at, user_id, 
-          cadastro_produtos(nome, codigo), profiles(name)
+          cadastro_produtos(nome, codigo, categoria), profiles(name)
         `)
         .single();
       
@@ -695,11 +770,18 @@ function ProducaoRealizada() {
           .production-new-modal { position: fixed; left: 50%; top: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); margin: 0; box-sizing: border-box; width: 1124px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: visible; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px 30px; box-shadow: 0 20px 50px rgba(15,23,42,.25); }
           .production-new-modal::backdrop { background: rgba(15,23,42,.45); }
           .production-new-fields { display: grid !important; grid-template-columns: minmax(280px, 2fr) minmax(180px, 1.2fr) repeat(2, minmax(120px, .8fr)) 187px; gap: 14px !important; align-items: end; }
-          .production-new-fields > div { min-width: 0; }
+           .production-new-fields > div { min-width: 0; }
+           .production-new-fields-food-service { grid-template-columns: minmax(280px, 2fr) minmax(180px, 1.2fr) minmax(150px, 1fr) minmax(150px, 1fr) !important; }
+           .production-new-fields-food-service .production-field-product { grid-column: 1; grid-row: 1; }
+           .production-new-fields-food-service .production-field-date { grid-column: 2; grid-row: 1; }
+           .production-new-fields-food-service .production-field-client { grid-column: 3; grid-row: 1; }
+           .production-new-fields-food-service .production-field-packaging-list { grid-column: 1 / 4; grid-row: 2; }
+           .production-packaging-row { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(130px, .7fr) 36px; gap: 12px; align-items: end; margin-bottom: 10px; }
+           .production-new-fields-food-service .production-field-save { grid-column: 4; grid-row: 2; align-self: end; }
           .production-new-fields input { box-sizing: border-box; height: 58px !important; }
           .production-new-fields .production-save-button { height: 58px !important; }
-          @media (max-width: 850px) { .production-new-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .production-new-fields > div:first-child { grid-column: 1 / -1; } }
-          @media (max-width: 520px) { .production-new-fields { grid-template-columns: minmax(0, 1fr); } .production-new-fields > div:first-child { grid-column: auto; } }
+           @media (max-width: 850px) { .production-new-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } .production-new-fields > div:first-child { grid-column: 1 / -1; } .production-new-fields-food-service > div { grid-column: auto; grid-row: auto; } }
+           @media (max-width: 520px) { .production-new-fields { grid-template-columns: minmax(0, 1fr); } .production-new-fields > div:first-child { grid-column: auto; } }
         `}</style>
       </Helmet>
 
@@ -715,6 +797,15 @@ function ProducaoRealizada() {
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
 
+          {showCategoryModal && <div role="dialog" aria-modal="true" aria-labelledby="production-category-title" style={{ position: "fixed", inset: 0, zIndex: 10001, background: "rgba(15,23,42,.45)", display: "grid", placeItems: "center", padding: 16 }}>
+            <div style={{ background: "white", borderRadius: 14, padding: 28, width: "min(480px, 100%)", boxShadow: "0 20px 50px rgba(15,23,42,.25)" }}>
+              <h3 id="production-category-title" style={{ margin: "0 0 18px", color: "#334155" }}>O que você vai lançar na produção?</h3>
+              <div style={{ display: "grid", gap: 10 }}>
+                {productionCategories.map(category => <button key={category} type="button" onClick={() => { setNewRowCategory(category); setShowCategoryModal(false); setShowNewModal(true); }} style={{ padding: "14px 18px", border: "1px solid #cbd5e1", borderRadius: 8, background: category === "Gelato" ? "#f8fafc" : "white", color: "#334155", fontSize: "1.1rem", fontWeight: 700, cursor: "pointer", textAlign: "left" }}>{category}</button>)}
+              </div>
+              <button type="button" onClick={() => setShowCategoryModal(false)} style={{ marginTop: 16, background: "none", border: 0, color: "#64748b", cursor: "pointer" }}>Cancelar</button>
+            </div>
+          </div>}
           {showNewModal && <dialog ref={newModalRef} className="production-new-modal" aria-labelledby="production-new-modal-title" onClick={(event) => {
             // Cliques na área de backdrop têm o próprio dialog como target; opções/selects nunca fecham o modal.
             if (event.target === newModalRef.current && !savingRow) setShowNewModal(false);
@@ -727,13 +818,13 @@ function ProducaoRealizada() {
             backgroundColor: "#fff",
             padding: "0",
           }}>
-            <div className="production-new-fields" style={{
+            <div className={`production-new-fields${newRowCategory === "Food Service" ? " production-new-fields-food-service" : ""}`} style={{
               display: "flex",
               flexWrap: "wrap",
               gap: "12px",
               alignItems: "flex-end"
             }}>
-              <div style={{ flex: "2 1 250px" }}>
+              <div className={newRowCategory === "Food Service" ? "production-field-product" : undefined} style={{ flex: "2 1 250px" }}>
                 <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Produto *</label>
                 <Select
                    ref={selectRef}
@@ -747,21 +838,24 @@ function ProducaoRealizada() {
                      const viewportHeight = window.visualViewport?.height || window.innerHeight;
                      setProductMenuMaxHeight(Math.max(120, Math.min(350, viewportHeight - controlBottom - 16)));
                    }}
-                  options={produtos.filter(p => p.ativo !== false).map(p => ({ value: p.id, label: p.nome }))}
-                  value={newRow.produto_id ? { value: newRow.produto_id, label: produtos.find(p => p.id === newRow.produto_id)?.nome } : null}
+                    options={formCategoryProducts.filter(p => p.ativo !== false).map(p => ({ value: p.id, label: getFormProductLabel(p) }))}
+                    value={newRow.produto_id ? { value: newRow.produto_id, label: (() => { const selected = formCategoryProducts.find(p => p.id === newRow.produto_id); return selected ? getFormProductLabel(selected) : ""; })() } : null}
                   onChange={(selectedOption) => setNewRow({ ...newRow, produto_id: selectedOption ? selectedOption.value : "" })}
                   placeholder="Buscar Produto..."
                   isClearable
                   noOptionsMessage={() => "Nenhum produto encontrado"}
                    styles={{
-                     control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '58px', height: '58px', borderRadius: '4px', fontSize: '1.2rem' }),
+                      control: (base) => ({ ...base, borderColor: '#cbd5e1', minHeight: '58px', height: '58px', borderRadius: '4px', fontSize: '1.2rem', textAlign: 'center' }),
+                      input: (base) => ({ ...base, textAlign: 'center' }),
+                      placeholder: (base) => ({ ...base, width: '100%', textAlign: 'center' }),
+                      singleValue: (base) => ({ ...base, width: '100%', textAlign: 'center' }),
                      menu: (base) => ({ ...base, width: '380px', maxWidth: 'calc(100vw - 32px)', textAlign: 'left', fontSize: '15px', zIndex: 10000 }),
                      option: (base) => ({ ...base, fontSize: '15px', lineHeight: 1.5, padding: '10px 12px', whiteSpace: 'normal', overflowWrap: 'anywhere' }),
                      menuPortal: (base) => ({ ...base, zIndex: 10000 })
                    }}
                 />
               </div>
-              <div style={{ flex: "1 1 150px" }}>
+              <div className={newRowCategory === "Food Service" ? "production-field-date" : undefined} style={{ flex: "1 1 150px" }}>
                 <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Data Produção *</label>
                 <input
                   type="date"
@@ -770,7 +864,7 @@ function ProducaoRealizada() {
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "58px", fontSize: "1.2rem" }}
                 />
               </div>
-              <div style={{ flex: "1 1 100px" }}>
+              {newRowCategory === "Gelato" && <><div style={{ flex: "1 1 100px" }}>
                 <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Peso Bruto (kg)</label>
                 <input
                   type="number"
@@ -792,8 +886,51 @@ function ProducaoRealizada() {
                   style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "58px", fontSize: "1.2rem" }}
                 />
               </div>
+              </>}
+              {newRowCategory === "Doces" && <div style={{ flex: "1 1 120px" }}>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Quantidade *</label>
+                <input type="number" min="1" step="1" value={newQuantity} onChange={event => setNewQuantity(event.target.value)} placeholder="Quantidade" style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "58px", fontSize: "1.2rem" }} />
+              </div>}
+              {newRowCategory === "Food Service" && <div className="production-field-client" style={{ flex: "1 1 180px" }}>
+                <label style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Cliente *</label>
+                <select value={newClient} onChange={event => setNewClient(event.target.value)} style={{ width: "100%", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", height: "58px", fontSize: "1.1rem" }}>
+                  <option value="">Selecionar cliente...</option>
+                  {clientesFoodService.map(client => <option key={client.id} value={client.nome}>{client.nome}</option>)}
+                </select>
+              </div>}
+              {newRowCategory === "Food Service" && <div className="production-field-packaging-list">
+                {packagingRows.map((row, index) => <div className="production-packaging-row" key={index}>
+                  <div>
+                    <label htmlFor={`food-service-packaging-${index}`} style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Embalagem</label>
+                    <CreatableSelect
+                      inputId={`food-service-packaging-${index}`}
+                      classNamePrefix="production-select"
+                      options={["1 Litro", "2,2 Litros", "3,6 Litros"].map(packaging => ({ value: packaging, label: packaging }))}
+                      value={row.embalagem ? { value: row.embalagem, label: row.embalagem } : null}
+                      onChange={option => setPackagingRows(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, embalagem: option?.value || "" } : item))}
+                      placeholder="Escolher ou digitar..."
+                      formatCreateLabel={value => `Usar "${value}"`}
+                      isClearable
+                      noOptionsMessage={() => "Digite para informar outra embalagem"}
+                      styles={{
+                        control: base => ({ ...base, borderColor: "#cbd5e1", minHeight: 58, height: 58, borderRadius: 4, fontSize: "1.1rem" }),
+                        valueContainer: base => ({ ...base, padding: "0 8px" }),
+                        menu: base => ({ ...base, zIndex: 10000, fontSize: "1.1rem" }),
+                        option: base => ({ ...base, padding: "10px 12px" }),
+                        menuPortal: base => ({ ...base, zIndex: 10000 })
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor={`food-service-packaging-quantity-${index}`} style={{ display: "block", fontSize: "1.1rem", color: "#64748b", marginBottom: "4px", fontWeight: "bold" }}>Quantidade</label>
+                    <input id={`food-service-packaging-quantity-${index}`} type="number" min="1" step="1" value={row.quantidade} onChange={event => setPackagingRows(current => current.map((item, itemIndex) => itemIndex === index ? { ...item, quantidade: event.target.value } : item))} placeholder="Quantidade" style={{ width: "100%", boxSizing: "border-box", padding: "8px", borderRadius: "4px", border: "1px solid #cbd5e1", textAlign: "center", height: "58px", fontSize: "1.2rem" }} />
+                  </div>
+                  {packagingRows.length > 1 ? <button type="button" aria-label="Remover embalagem" onClick={() => setPackagingRows(current => current.filter((_, itemIndex) => itemIndex !== index))} style={{ height: 38, border: "1px solid #fecaca", borderRadius: 5, background: "#fff1f2", color: "#b91c1c", cursor: "pointer" }}><Icons.BsTrash /></button> : <span />}
+                </div>)}
+                <button type="button" onClick={() => setPackagingRows(current => [...current, { embalagem: "", quantidade: "1" }])} style={{ padding: "7px 10px", border: "1px solid #cbd5e1", borderRadius: 5, color: "var(--primary-color)", background: "#fff", cursor: "pointer", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: 6 }}><Icons.BsPlusCircleFill /> Adicionar outra embalagem</button>
+              </div>}
 
-              <div style={{ flex: "0 0 150px", position: "relative" }}>
+              <div className={newRowCategory === "Food Service" ? "production-field-save" : undefined} style={{ flex: "0 0 150px", position: "relative" }}>
                 {showSavedMessage && (
                   <span className="saved-message-anim" style={{
                     position: "absolute",
@@ -838,7 +975,7 @@ function ProducaoRealizada() {
           </dialog>}
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", flexWrap: "wrap", marginBottom: "12px", alignItems: "center" }}>
-            <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={() => { setEditingRowId(null); setShowNewModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
+            <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={() => { setEditingRowId(null); setNewRowCategory("Gelato"); setShowCategoryModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
             {!labelSelectionMode ? <button type="button" onClick={() => { setSelectedLabelIds([]); setLabelSelectionMode(true); }} style={{ padding: "6px 12px", backgroundColor: "#fff7ed", color: "#9a3412", border: "1px solid #fed7aa", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir Etiquetas</button> : <>
               <button type="button" onClick={() => { setLabelSelectionMode(false); setSelectedLabelIds([]); }} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem" }}>Cancelar seleção</button>
               {selectedLabelIds.length > 0 && <button type="button" onClick={() => void handlePrintSelectedLabels()} style={{ padding: "6px 12px", backgroundColor: "#80501f", color: "#fff", border: "1px solid #80501f", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir etiquetas selecionadas ({selectedLabelIds.length})</button>}
@@ -847,21 +984,32 @@ function ProducaoRealizada() {
             <button onClick={() => { setFilterProdutoId(null); setFilterData(""); setFilterStatus('all'); }} style={{ padding: "6px 12px", backgroundColor: "#cbd5e1", color: "#334155", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsXCircleFill /> Limpar</button>
             <button onClick={() => fetchData(false, 0)} style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsArrowClockwise /> Atualizar</button>
           </div>
+          <div role="tablist" aria-label="Categoria da produção" style={{ display: "flex", gap: 8, marginBottom: 12, borderBottom: "1px solid #e2e8f0", paddingBottom: 8 }}>
+            {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { setActiveCategory(category); setFilterProdutoId(null); }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer" }}>{category}</button>)}
+          </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-            <table className="freq-table" style={{ minWidth: labelSelectionMode ? "1540px" : "1500px" }}>
+            <table className="freq-table" style={{ minWidth: isDessertsTab ? (labelSelectionMode ? "980px" : "940px") : (labelSelectionMode ? "1540px" : "1500px") }}>
               <thead>
                 <tr>
                   {labelSelectionMode && <th title="Selecionar linha" style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}>✓</th>}
                   <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
                   <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
                   <th style={{ width: "250px" }}>Produto</th>
+                  {activeCategory === "Food Service" && <>
+                    <th style={{ textAlign: "center", width: "130px" }}>Embalagem</th>
+                    <th style={{ textAlign: "center", width: "180px" }}>Cliente</th>
+                  </>}
                   <th style={{ textAlign: "center", width: "190px" }}>Origem</th>
                   <th style={{ textAlign: "center", width: "120px" }}>Data Produção</th>
-                  <th style={{ textAlign: "center", width: "100px" }}>Peso Bruto (kg)</th>
-                  <th style={{ textAlign: "center", width: "100px" }}>Tara (kg)</th>
-                  <th style={{ textAlign: "center", width: "120px" }}>Peso Líquido (kg)</th>
-                  <th style={{ textAlign: "center", width: "120px" }}>Data Entrada</th>
-                  <th style={{ textAlign: "center", width: "150px" }}>Destino</th>
+                  {isDessertsTab ? <th style={{ textAlign: "center", width: "100px" }}>Quantidade</th> : <>
+                    <th style={{ textAlign: "center", width: "100px" }}>Peso Bruto (kg)</th>
+                    <th style={{ textAlign: "center", width: "100px" }}>Tara (kg)</th>
+                    <th style={{ textAlign: "center", width: "120px" }}>Peso Líquido (kg)</th>
+                  </>}
+                  {showEntryAndDestination && <>
+                    <th style={{ textAlign: "center", width: "120px" }}>Data Entrada</th>
+                    <th style={{ textAlign: "center", width: "150px" }}>Destino</th>
+                  </>}
                   <th style={{ textAlign: "center", width: "120px" }}>Validade</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>
                   <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
@@ -875,7 +1023,7 @@ function ProducaoRealizada() {
                     <Select
                       menuPortalTarget={document.body}
                       maxMenuHeight={350}
-                      options={produtos.map(p => ({ value: p.id, label: p.nome }))}
+                       options={categoryProducts.map(p => ({ value: p.id, label: p.nome }))}
                       value={filterProdutoId ? { value: filterProdutoId, label: produtos.find(p => p.id === filterProdutoId)?.nome } : null}
                       onChange={(selectedOption) => setFilterProdutoId(selectedOption ? selectedOption.value : null)}
                       placeholder="Filtrar Produto..."
@@ -897,6 +1045,8 @@ function ProducaoRealizada() {
                       }}
                     />
                   </th>
+                  {activeCategory === "Food Service" && <th style={{ padding: "8px" }}></th>}
+                  {activeCategory === "Food Service" && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}>
                     <input
@@ -906,7 +1056,8 @@ function ProducaoRealizada() {
                       style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
                     />
                   </th>
-                      <th colSpan={8} style={{ padding: "8px", textAlign: "right" }}>
+                  {isDessertsTab && <th style={{ padding: "8px" }}></th>}
+                  <th colSpan={isDessertsTab ? 3 : activeCategory === "Food Service" ? 6 : 8} style={{ padding: "8px", textAlign: "right" }}>
                         <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
                       {isAdmin && (
                         <button
@@ -944,18 +1095,18 @@ function ProducaoRealizada() {
               <tbody>
                 {loading && producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={tableColumnCount} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
-                ) : producoes.length === 0 ? (
+                ) : producoes.filter(prod => (prod.categoria_producao || prod.cadastro_produtos?.categoria || "Gelato").toLowerCase() === activeCategory.toLowerCase()).length === 0 ? (
                   <tr>
-                    <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={tableColumnCount} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhum registro de produção encontrado.
                     </td>
                   </tr>
                 ) : (
-                  producoes.map((prod) => {
+                  producoes.filter(prod => (prod.categoria_producao || prod.cadastro_produtos?.categoria || "Gelato").toLowerCase() === activeCategory.toLowerCase()).map((prod) => {
                     const isNew = newlyAddedId === prod.id;
                     const isDeleting = false;
                     const isLabelSelected = selectedLabelIds.includes(prod.id);
@@ -996,6 +1147,10 @@ function ProducaoRealizada() {
                             prod.cadastro_produtos?.nome || "-"
                           )}
                         </td>
+                        {activeCategory === "Food Service" && <>
+                          <td style={{ textAlign: "center" }}>{prod.embalagem || "-"}</td>
+                          <td style={{ textAlign: "center" }}>{prod.cliente || "-"}</td>
+                        </>}
                         <td style={{ textAlign: "center" }}>
                           {prod.importado_automaticamente ? <div style={{ display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                             <span style={{ display: "inline-block", padding: "4px 9px", borderRadius: 10, background: "#eff6ff", border: "1px solid #bfdbfe", color: "#1d4ed8", fontSize: ".85rem", fontWeight: 700, whiteSpace: "nowrap" }}>Importado - OP {prod.data_ordem_producao ? new Date(prod.data_ordem_producao + "T12:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : "--/--"}</span>
@@ -1021,7 +1176,7 @@ function ProducaoRealizada() {
                             />
                           )}
                         </td>
-                        <td style={{ textAlign: "center" }}>
+                        {isDessertsTab ? <td style={{ textAlign: "center", fontWeight: 600 }}>{prod.quantidade ?? "-"}</td> : <><td style={{ textAlign: "center" }}>
                           {editingRowId === prod.id ? (
                             <input 
                               type="number" step="0.001"
@@ -1062,7 +1217,8 @@ function ProducaoRealizada() {
                           )}
                         </td>
                         <td style={{ textAlign: "center", fontWeight: "bold", color: prod.peso_liquido < 0 ? "#ef4444" : "inherit" }}>{prod.peso_liquido != null ? Number(prod.peso_liquido).toFixed(3) : "-"}</td>
-                        <td style={{ textAlign: "center" }}>
+                        </>}
+                        {showEntryAndDestination && <><td style={{ textAlign: "center" }}>
                           {editingRowId === prod.id ? (
                             <input 
                               type="date"
@@ -1120,7 +1276,7 @@ function ProducaoRealizada() {
                               <option value="Outro">Outro</option>
                             </select>
                           )}
-                        </td>
+                        </td></>}
                         <td style={{ textAlign: "center" }}>
                           {prod.validade ? new Date(prod.validade + "T12:00:00").toLocaleDateString('pt-BR') : "-"}
                         </td>
@@ -1201,7 +1357,7 @@ function ProducaoRealizada() {
                 
                 {hasMore && producoes.length > 0 && (
                   <tr>
-                    <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "center", padding: "16px" }}>
+                      <td colSpan={tableColumnCount} style={{ textAlign: "center", padding: "16px" }}>
                       <button 
                         onClick={() => fetchData(true)}
                         disabled={loadingMore}
@@ -1229,7 +1385,7 @@ function ProducaoRealizada() {
                   </tr>
                 )}
                 <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold" }}>
-                  <td colSpan={labelSelectionMode ? 14 : 13} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
+                  <td colSpan={tableColumnCount} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
                     Total de registros encontrados: {totalCount}
                   </td>
                 </tr>

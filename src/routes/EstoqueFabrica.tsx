@@ -340,63 +340,24 @@ function EstoqueFabrica() {
       cubas: transferCubas.filter(cuba => transferDestinations[cuba.id] === store)
     })).filter(group => group.cubas.length > 0);
     setSavingTransfers(true);
-    const insertedStoreCards: Array<{ table: "cardsahu" | "cardsaltoxv"; ids: string[] }> = [];
-    const insertedTransferHeaderIds: number[] = [];
-    const transferHeaderIdByDestination: Record<string, number> = {};
-    const updatedProductionIds: string[] = [];
     try {
-      for (const destination of Object.keys(assignments)) {
-        const { data: transferHeader, error: transferHeaderError } = await supabase.from("transferencias_cubas")
-          .insert({ data_transferencia: transferDate, descricao: "Transf. de Cubas", destino: destination, user_id: user?.id || null })
-          .select("id")
-          .single();
-        if (transferHeaderError) throw transferHeaderError;
-        transferHeaderIdByDestination[destination] = transferHeader.id;
-        insertedTransferHeaderIds.push(transferHeader.id);
-      }
-
-      for (const [destination, ids] of Object.entries(assignments)) {
-        const table = destination === "Loja Ahu" ? "cardsahu" : "cardsaltoxv";
-        const cards = ids.map(id => {
-          const cuba = transferCubas.find(item => String(item.id) === String(id));
-          if (!cuba?.data_producao) throw new Error("Uma das cubas selecionadas está sem data de produção. Atualize a data antes de transferir.");
-          return {
-            title: cuba?.cadastro_produtos?.nome || "Sabor não encontrado",
-            status: "freezer-estoque",
-            production_date: cuba?.data_producao,
-            entry_date: null,
-            created_by: user?.email || "Estoque Fábrica",
-            last_edited_by: user?.email || "Estoque Fábrica",
-            transferencia_cubas_id: transferHeaderIdByDestination[destination]
-          };
-        });
-        const { data: insertedCards, error: cardInsertError } = await supabase.from(table).insert(cards).select("id");
-        if (cardInsertError) throw cardInsertError;
-        insertedStoreCards.push({ table, ids: (insertedCards || []).map((card: any) => card.id) });
-      }
-
-      for (const [destination, ids] of Object.entries(assignments)) {
-        const { error } = await supabase.from("producao_realizada")
-          .update({ data_entrada: null, destino: destination, transferencia_cubas_id: transferHeaderIdByDestination[destination] })
-          .in("id", ids);
-        if (error) throw error;
-        updatedProductionIds.push(...ids);
-      }
-      setProducoes(current => current.filter(cuba => !assignedIds.includes(cuba.id)));
+      const records = Object.entries(assignments).map(([destination, ids]) => ({
+        data_transferencia: transferDate,
+        descricao: "Transf. de Cubas",
+        destino,
+        cubas_ids: ids.map(id => Number(id)),
+        user_id: user?.id || null
+      }));
+      const { error } = await supabase.from("transferencias_cubas").insert(records);
+      if (error) throw error;
       setTransferMode(false);
       setTransferConfirmOpen(false);
       setTransferCubas([]);
       setTransferDestinations({});
       setTransferPickerDestination(null);
-      await fetchData(false, 0);
       setCompletedTransfer({ date: transferDate, groups: transferGroups });
     } catch (error: any) {
       console.error("Erro ao salvar transferências:", error);
-      if (updatedProductionIds.length) {
-        await supabase.from("producao_realizada").update({ data_entrada: null, destino: null, transferencia_cubas_id: null }).in("id", updatedProductionIds);
-      }
-      await Promise.all(insertedStoreCards.map(({ table, ids }) => ids.length ? supabase.from(table).delete().in("id", ids) : Promise.resolve({ error: null })));
-      if (insertedTransferHeaderIds.length) await supabase.from("transferencias_cubas").delete().in("id", insertedTransferHeaderIds);
       alert(`Não foi possível salvar as transferências: ${error.message || "erro inesperado"}`);
     } finally {
       setSavingTransfers(false);
@@ -570,7 +531,7 @@ function EstoqueFabrica() {
               </div>}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginTop: 14, paddingTop: 14, borderTop: "1px solid #e2e8f0" }}>
                 <span style={{ color: "#64748b", fontWeight: 600 }}>{Object.keys(transferDestinations).length} cuba(s) selecionadas para transferência</span>
-                <button type="button" onClick={() => void saveCubaTransfers()} disabled={savingTransfers || Object.keys(transferDestinations).length === 0} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: savingTransfers || Object.keys(transferDestinations).length === 0 ? "not-allowed" : "pointer", opacity: savingTransfers || Object.keys(transferDestinations).length === 0 ? .65 : 1 }}>{savingTransfers ? <><Icons.BsArrowClockwise className="spin" /> Salvando...</> : <><Icons.BsCheckCircleFill /> Salvar transferências</>}</button>
+                <button type="button" onClick={() => void saveCubaTransfers()} disabled={savingTransfers || Object.keys(transferDestinations).length === 0} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: savingTransfers || Object.keys(transferDestinations).length === 0 ? "not-allowed" : "pointer", opacity: savingTransfers || Object.keys(transferDestinations).length === 0 ? .65 : 1 }}>{savingTransfers ? <><Icons.BsArrowClockwise className="spin" /> Registrando...</> : <><Icons.BsCheckCircleFill /> Registrar Transferência</>}</button>
               </div>
             </section> : <>
             <div style={{ boxSizing: "border-box", display: "grid", gridTemplateColumns: "150px 100px 250px 120px 100px 100px 120px 120px", alignItems: "center", minWidth: "1100px", padding: "9px 6px", borderBottom: "1px solid #e2d8cc", background: "#fbf7f2", color: "#80501f", fontWeight: 700, fontSize: ".95rem" }}>
@@ -737,15 +698,15 @@ function EstoqueFabrica() {
         </div>
         {transferConfirmOpen && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !savingTransfers) setTransferConfirmOpen(false); }} style={{ position: "fixed", inset: 0, zIndex: 1500, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.5)" }}>
           <section role="alertdialog" aria-modal="true" aria-labelledby="factory-transfer-confirm-title" style={{ boxSizing: "border-box", width: "min(650px, 100%)", maxHeight: "85vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
-            <h2 id="factory-transfer-confirm-title" style={{ margin: "0 0 7px", color: "#334155", fontSize: "1.4rem" }}>Confirmar transferência de cubas</h2>
-            <p style={{ margin: "0 0 16px", color: "#64748b", lineHeight: 1.5 }}>Confira as cubas e os destinos. A data de entrada ficará em branco para ser preenchida posteriormente.</p>
+            <h2 id="factory-transfer-confirm-title" style={{ margin: "0 0 7px", color: "#334155", fontSize: "1.4rem" }}>Confirmar registro de transferência</h2>
+            <p style={{ margin: "0 0 16px", color: "#64748b", lineHeight: 1.5 }}>Confira as cubas e os destinos. Será criado apenas o registro de transferência; nenhuma cuba será movimentada ainda.</p>
             {[{ store: "Loja Ahu", cubas: lojaAhuCubas }, { store: "Loja Alto XV", cubas: lojaAltoXvCubas }].filter(group => group.cubas.length > 0).map(group => <div key={group.store} style={{ marginTop: 12, padding: 13, border: "1px solid #dbe3ec", borderRadius: 8, background: "#f8fafc" }}>
               <h3 style={{ margin: "0 0 8px", color: "#475569", fontSize: "1rem" }}>{group.store} — {group.cubas.length} cuba(s)</h3>
               <ul style={{ display: "grid", gap: 5, margin: 0, paddingLeft: 20, color: "#334155", fontSize: ".9rem" }}>{group.cubas.map(cuba => <li key={cuba.id}>{cuba.cadastro_produtos?.nome || "Sabor"} · {cuba.codigo || "Sem código"} · {cuba.peso_liquido != null ? `${Number(cuba.peso_liquido).toFixed(3)} kg` : "Peso líquido —"}</li>)}</ul>
             </div>)}
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
               <button type="button" onClick={() => setTransferConfirmOpen(false)} disabled={savingTransfers} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: "pointer" }}>Voltar</button>
-              <button type="button" onClick={() => void saveCubaTransfers(true)} disabled={savingTransfers} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: savingTransfers ? "wait" : "pointer" }}>{savingTransfers ? <><Icons.BsArrowClockwise className="spin" /> Transferindo...</> : <><Icons.BsCheckCircleFill /> Confirmar transferência</>}</button>
+              <button type="button" onClick={() => void saveCubaTransfers(true)} disabled={savingTransfers} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: savingTransfers ? "wait" : "pointer" }}>{savingTransfers ? <><Icons.BsArrowClockwise className="spin" /> Registrando...</> : <><Icons.BsCheckCircleFill /> Registrar Transferência</>}</button>
             </div>
           </section>
         </div>}
@@ -753,7 +714,7 @@ function EstoqueFabrica() {
           <section role="dialog" aria-modal="true" aria-labelledby="factory-transfer-complete-title" style={{ boxSizing: "border-box", width: "min(720px, 100%)", maxHeight: "88vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
             <div style={{ display: "flex", alignItems: "flex-start", gap: 13, marginBottom: 16 }}>
               <span style={{ width: 42, height: 42, flex: "0 0 42px", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "50%", background: "#dcfce7", color: "#15803d", fontSize: 21 }}><Icons.BsCheckCircleFill /></span>
-              <div><h2 id="factory-transfer-complete-title" style={{ margin: "2px 0 5px", color: "#334155", fontSize: "1.4rem" }}>Transferência concluída</h2><p style={{ margin: 0, color: "#64748b" }}>As cubas foram registradas no estoque das lojas em {formatTransferDate(completedTransfer.date)} e a data de entrada foi deixada em branco. Imprima um romaneio para acompanhar cada envio.</p></div>
+              <div><h2 id="factory-transfer-complete-title" style={{ margin: "2px 0 5px", color: "#334155", fontSize: "1.4rem" }}>Transferência registrada</h2><p style={{ margin: 0, color: "#64748b" }}>O registro foi criado em {formatTransferDate(completedTransfer.date)}. Nenhuma cuba foi movimentada; elas continuam disponíveis no Estoque Fábrica. Imprima um romaneio para acompanhar cada envio.</p></div>
             </div>
             <div style={{ display: "grid", gap: 11 }}>
               {completedTransfer.groups.map(group => <section key={group.store} style={{ padding: 13, border: "1px solid #dbe3ec", borderRadius: 8, background: "#f8fafc" }}>
