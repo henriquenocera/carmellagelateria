@@ -25,6 +25,9 @@ function EstoqueFabrica() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalLiquidWeight, setTotalLiquidWeight] = useState<number | null>(null);
   const liquidWeightRequest = useRef(0);
+  const [activeCategory, setActiveCategory] = useState<"Gelato" | "Food Service" | "Doces">("Gelato");
+  const productionCategories = ["Gelato", "Food Service", "Doces"] as const;
+  const tableColumnCount = activeCategory === "Doces" ? 6 : activeCategory === "Food Service" ? 10 : 8;
   const [transferMode, setTransferMode] = useState(false);
   const [transferConfirmOpen, setTransferConfirmOpen] = useState(false);
   const [completedTransfer, setCompletedTransfer] = useState<{ date: string; groups: Array<{ store: string; cubas: any[] }> } | null>(null);
@@ -45,6 +48,7 @@ function EstoqueFabrica() {
   // Filters state
   const [filterProdutoId, setFilterProdutoId] = useState<string | null>(null);
   const [filterData, setFilterData] = useState("");
+  const categoryProducts = produtos.filter(product => activeCategory === "Food Service" ? product.is_sabor : activeCategory === "Doces" ? /^(brownie|waffle)(\s|$)/i.test((product.nome || "").trim()) : (product.categoria || "").toLowerCase() === "gelato");
 
   const isFirstRender = useRef(true);
 
@@ -106,7 +110,7 @@ function EstoqueFabrica() {
     }
     setPage(0);
     fetchData(false, 0, filterProdutoId, filterData);
-  }, [filterProdutoId, filterData]);
+  }, [filterProdutoId, filterData, activeCategory]);
 
   const fetchDataRef = useRef<any>(null);
 
@@ -145,8 +149,7 @@ function EstoqueFabrica() {
           // Fetch produtos only on initial load
           const { data: produtosData, error: produtosError } = await supabase
             .from("cadastro_produtos")
-            .select("id, nome, ativo, codigo")
-            .eq("is_sabor", true)
+            .select("id, nome, ativo, codigo, categoria, is_sabor")
             .order("nome", { ascending: true });
 
           if (produtosError) throw produtosError;
@@ -169,16 +172,20 @@ function EstoqueFabrica() {
           tara,
           peso_liquido,
           validade,
+          quantidade,
+          embalagem,
+          cliente,
           produto_id,
           created_at,
           cadastro_produtos!inner(nome, codigo)
         `, { count: 'exact' })
         .is('data_entrada', null)
         .is('destino', null)
+        .eq('categoria_producao', activeCategory)
         .not('data_producao', 'is', null)
-        .not('peso_bruto', 'is', null)
-        .not('tara', 'is', null)
         .or('status_revisao.is.null,status_revisao.neq.pending_delete');
+
+      if (activeCategory === "Gelato") query = query.not('peso_bruto', 'is', null).not('tara', 'is', null);
 
       if (fProdutoId) query = query.eq('produto_id', fProdutoId);
       if (fData) query = query.eq('data_producao', fData);
@@ -195,7 +202,7 @@ function EstoqueFabrica() {
       if (!isLoadMore) {
         setTotalLiquidWeight(null);
         const requestId = ++liquidWeightRequest.current;
-        void fetchTotalLiquidWeight(fProdutoId, fData).then(total => {
+        if (activeCategory !== "Doces") void fetchTotalLiquidWeight(fProdutoId, fData).then(total => {
           if (liquidWeightRequest.current === requestId) setTotalLiquidWeight(total);
         }).catch(error => {
           console.error("Erro ao calcular o peso líquido total em estoque:", error);
@@ -231,10 +238,10 @@ function EstoqueFabrica() {
         .select("peso_liquido")
         .is("data_entrada", null)
         .is("destino", null)
+        .eq("categoria_producao", activeCategory)
         .not("data_producao", "is", null)
-        .not("peso_bruto", "is", null)
-        .not("tara", "is", null)
         .or("status_revisao.is.null,status_revisao.neq.pending_delete");
+      if (activeCategory === "Gelato") query = query.not("peso_bruto", "is", null).not("tara", "is", null);
       if (fProdutoId) query = query.eq("produto_id", fProdutoId);
       if (fData) query = query.eq("data_producao", fData);
       const { data, error } = await query.range(from, from + batchSize - 1);
@@ -513,10 +520,8 @@ function EstoqueFabrica() {
 
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: 12 }}>
-            <button type="button" onClick={() => transferMode ? setTransferMode(false) : void openTransferMode()} disabled={transferLoading || savingTransfers} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 16px", border: 0, borderRadius: 7, background: "#80501f", color: "#fff", fontWeight: 700, fontSize: "1rem", cursor: transferLoading || savingTransfers ? "wait" : "pointer", opacity: transferLoading || savingTransfers ? .7 : 1 }}>
-              {transferLoading ? <><Icons.BsArrowClockwise className="spin" /> Carregando cubas...</> : transferMode ? <><Icons.BsX /> Voltar à tabela</> : <><Icons.BsArrowLeftRight /> Transferir cubas para Lojas</>}
-            </button>
+          <div role="tablist" aria-label="Categoria da produção" style={{ display: "flex", gap: 8, marginBottom: 12, borderBottom: "1px solid #e2e8f0", paddingBottom: 8 }}>
+            {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { if (activeCategory !== category) { setProducoes([]); setTotalCount(0); setFilterProdutoId(null); setActiveCategory(category); } }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer" }}>{category}</button>)}
           </div>
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
             {transferMode ? <section style={{ minWidth: 900, padding: 20, background: "#fff" }}>
@@ -534,21 +539,23 @@ function EstoqueFabrica() {
                 <button type="button" onClick={() => void saveCubaTransfers()} disabled={savingTransfers || Object.keys(transferDestinations).length === 0} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: savingTransfers || Object.keys(transferDestinations).length === 0 ? "not-allowed" : "pointer", opacity: savingTransfers || Object.keys(transferDestinations).length === 0 ? .65 : 1 }}>{savingTransfers ? <><Icons.BsArrowClockwise className="spin" /> Registrando...</> : <><Icons.BsCheckCircleFill /> Registrar Transferência</>}</button>
               </div>
             </section> : <>
-            <div style={{ boxSizing: "border-box", display: "grid", gridTemplateColumns: "150px 100px 250px 120px 100px 100px 120px 120px", alignItems: "center", minWidth: "1100px", padding: "9px 6px", borderBottom: "1px solid #e2d8cc", background: "#fbf7f2", color: "#80501f", fontWeight: 700, fontSize: ".95rem" }}>
-              <div style={{ gridColumn: "1 / 7", paddingLeft: 8 }}>Total de cubas: {totalCount}</div>
-              <div style={{ gridColumn: "7 / 8", textAlign: "center" }}>Peso líquido: {totalLiquidWeight == null ? "—" : `${totalLiquidWeight.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg`}</div>
-              <div style={{ gridColumn: "8 / 9" }} />
+            <div style={{ boxSizing: "border-box", display: "flex", justifyContent: "space-between", alignItems: "center", minWidth: activeCategory === "Doces" ? "850px" : "1100px", padding: "9px 14px", borderBottom: "1px solid #e2d8cc", background: "#fbf7f2", color: "#80501f", fontWeight: 700, fontSize: ".95rem" }}>
+              <div>Total de {activeCategory === "Gelato" ? "cubas" : "registros"}: {totalCount}</div>
+              {activeCategory !== "Doces" && <div>Peso líquido: {totalLiquidWeight == null ? "—" : `${totalLiquidWeight.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg`}</div>}
             </div>
-            <table className="freq-table" style={{ minWidth: "1100px" }}>
+            <table className="freq-table" style={{ minWidth: activeCategory === "Doces" ? "850px" : activeCategory === "Food Service" ? "1350px" : "1100px" }}>
               <thead>
                 <tr>
                   <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
                   <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
                   <th style={{ width: "250px" }}>Produto</th>
+                  {activeCategory === "Food Service" && <><th style={{ textAlign: "center", width: "130px" }}>Embalagem</th><th style={{ textAlign: "center", width: "180px" }}>Cliente</th></>}
                   <th style={{ textAlign: "center", width: "120px" }}>Data Produção</th>
-                  <th style={{ textAlign: "center", width: "100px" }}>Peso Bruto (kg)</th>
-                  <th style={{ textAlign: "center", width: "100px" }}>Tara (kg)</th>
-                  <th style={{ textAlign: "center", width: "120px" }}>Peso Líquido (kg)</th>
+                  {activeCategory === "Doces" ? <th style={{ textAlign: "center", width: "100px" }}>Quantidade</th> : <>
+                    <th style={{ textAlign: "center", width: "100px" }}>Peso Bruto (kg)</th>
+                    <th style={{ textAlign: "center", width: "100px" }}>Tara (kg)</th>
+                    <th style={{ textAlign: "center", width: "120px" }}>Peso Líquido (kg)</th>
+                  </>}
                   <th style={{ textAlign: "center", width: "120px" }}>Validade</th>
 
                 </tr>
@@ -560,7 +567,7 @@ function EstoqueFabrica() {
                     <Select
                       menuPortalTarget={document.body}
                       maxMenuHeight={350}
-                      options={produtos.map(p => ({ value: p.id, label: p.nome }))}
+                      options={categoryProducts.map(p => ({ value: p.id, label: p.nome }))}
                       value={filterProdutoId ? { value: filterProdutoId, label: produtos.find(p => p.id === filterProdutoId)?.nome } : null}
                       onChange={(selectedOption) => setFilterProdutoId(selectedOption ? selectedOption.value : null)}
                       placeholder="Filtrar Produto..."
@@ -582,6 +589,7 @@ function EstoqueFabrica() {
                       }}
                     />
                   </th>
+                  {activeCategory === "Food Service" && <><th style={{ padding: "8px" }}></th><th style={{ padding: "8px" }}></th></>}
                   <th style={{ padding: "8px" }}>
                     <input
                       type="date"
@@ -590,7 +598,7 @@ function EstoqueFabrica() {
                       style={{ width: "100%", padding: "6px", borderRadius: "4px", border: "1px solid #cbd5e1", outline: "none", fontSize: "1.1rem" }}
                     />
                   </th>
-                  <th colSpan={4} style={{ padding: "8px", textAlign: "right" }}>
+                  <th colSpan={activeCategory === "Doces" ? 2 : 4} style={{ padding: "8px", textAlign: "right" }}>
                     <button
                       onClick={() => {
                         setFilterProdutoId(null);
@@ -608,13 +616,13 @@ function EstoqueFabrica() {
               <tbody>
                 {loading && producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: "center", padding: "40px" }}>
+                    <td colSpan={tableColumnCount} style={{ textAlign: "center", padding: "40px" }}>
                       <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} />
                     </td>
                   </tr>
                 ) : producoes.length === 0 ? (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
+                    <td colSpan={tableColumnCount} style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
                       Nenhum registro de produção encontrado.
                     </td>
                   </tr>
@@ -635,9 +643,11 @@ function EstoqueFabrica() {
                         <td style={{ textAlign: "center", fontWeight: "bold" }}>{prod.codigo || "-"}</td>
                         <td style={{ textAlign: "center" }}>{prod.cadastro_produtos?.codigo || "-"}</td>
                         <td style={{ fontWeight: "500" }}>{prod.cadastro_produtos?.nome || "-"}</td>
+                        {activeCategory === "Food Service" && <><td style={{ textAlign: "center" }}>{prod.embalagem || "-"}</td><td style={{ textAlign: "center" }}>{prod.cliente || "-"}</td></>}
                         <td style={{ textAlign: "center" }}>
                           {prod.data_producao ? new Date(prod.data_producao + "T12:00:00").toLocaleDateString('pt-BR') : "-"}
                         </td>
+                        {activeCategory === "Doces" ? <td style={{ textAlign: "center", fontWeight: 600 }}>{prod.quantidade ?? "-"}</td> : <>
                         <td style={{ textAlign: "center" }}>
                           <span style={{ color: prod.peso_bruto < 0 ? "#ef4444" : "inherit" }}>
                             {prod.peso_bruto != null ? Number(prod.peso_bruto).toFixed(3) : "-"}
@@ -649,6 +659,7 @@ function EstoqueFabrica() {
                           </span>
                         </td>
                         <td style={{ textAlign: "center", fontWeight: "bold", color: prod.peso_liquido < 0 ? "#ef4444" : "inherit" }}>{prod.peso_liquido != null ? Number(prod.peso_liquido).toFixed(3) : "-"}</td>
+                        </>}
                         <td style={{ textAlign: "center" }}>
                           {prod.validade ? new Date(prod.validade + "T12:00:00").toLocaleDateString('pt-BR') : "-"}
                         </td>
@@ -659,7 +670,7 @@ function EstoqueFabrica() {
                 
                 {hasMore && producoes.length > 0 && (
                   <tr>
-                    <td colSpan={8} style={{ textAlign: "center", padding: "16px" }}>
+                    <td colSpan={tableColumnCount} style={{ textAlign: "center", padding: "16px" }}>
                       <button 
                         onClick={() => fetchData(true)}
                         disabled={loadingMore}
@@ -687,7 +698,7 @@ function EstoqueFabrica() {
                   </tr>
                 )}
                 <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold" }}>
-                  <td colSpan={8} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
+                  <td colSpan={tableColumnCount} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
                     Total de registros encontrados: {totalCount}
                   </td>
                 </tr>

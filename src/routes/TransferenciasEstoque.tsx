@@ -22,13 +22,20 @@ type TransferRecord = {
   cubas: any[];
 };
 
-function ProducaoTransferencia() {
+function TransferenciasEstoque() {
   const { user } = useAuth();
   const [transferencias, setTransferencias] = useState<TransferRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [savingFieldId, setSavingFieldId] = useState<number | null>(null);
+  const [transferToDelete, setTransferToDelete] = useState<TransferRecord | null>(null);
+  const [deletingTransfer, setDeletingTransfer] = useState(false);
   const [selectedTransferDetail, setSelectedTransferDetail] = useState<TransferRecord | null>(null);
+  const [selectedCubeIds, setSelectedCubeIds] = useState<number[]>([]);
+  const [confirmingTransfer, setConfirmingTransfer] = useState(false);
+  const [copiedTransferId, setCopiedTransferId] = useState<number | null>(null);
+  const [showCompleteConfirmation, setShowCompleteConfirmation] = useState(false);
+  const [showTransferCreated, setShowTransferCreated] = useState(false);
   const [editingTransferDateId, setEditingTransferDateId] = useState<number | null>(null);
   const [editingTransferDestinationId, setEditingTransferDestinationId] = useState<number | null>(null);
   const [destinationSelectionValue, setDestinationSelectionValue] = useState("");
@@ -36,6 +43,8 @@ function ProducaoTransferencia() {
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const [showNewTransfer, setShowNewTransfer] = useState(false);
+  const [showCategorySelection, setShowCategorySelection] = useState(false);
+  const [unavailableCategory, setUnavailableCategory] = useState<string | null>(null);
   const [transferLoading, setTransferLoading] = useState(false);
   const [transferSaving, setTransferSaving] = useState(false);
   const [showTransferConfirmation, setShowTransferConfirmation] = useState(false);
@@ -204,6 +213,7 @@ function ProducaoTransferencia() {
       setStoreCards({ ahu: ahuCards, altoxv: altoXvCards });
       setStoreCounts({ ahu: ahuCards.length, altoxv: altoXvCards.length });
       setDestinationByCuba({});
+      setShowCategorySelection(false);
       setShowNewTransfer(true);
     } catch (error: any) {
       console.error("Erro ao buscar estoque para nova transferência:", error);
@@ -269,7 +279,7 @@ function ProducaoTransferencia() {
     try {
       const transferRows = groups.map(group => ({
         data_transferencia: transferDate,
-        descricao: "Transf. de Cubas",
+        descricao: "Transferência de Cubas - Lojas",
         destino: group.destination,
         cubas_ids: group.cubas.map(cuba => Number(cuba.id)),
         user_id: user?.id || null
@@ -279,12 +289,49 @@ function ProducaoTransferencia() {
       setShowTransferConfirmation(false);
       setShowNewTransfer(false);
       await fetchTransfers();
-      alert("Registro de transferência criado. As cubas continuam disponíveis no Estoque Fábrica.");
+      setShowTransferCreated(true);
     } catch (error: any) {
       console.error("Erro ao salvar nova transferência:", error);
       alert(`Não foi possível salvar a transferência: ${error.message || "erro inesperado"}`);
     } finally {
       setTransferSaving(false);
+    }
+  }
+
+  async function deleteTransfer() {
+    if (!transferToDelete || deletingTransfer) return;
+    setDeletingTransfer(true);
+    try {
+      const { error } = await supabase.from("transferencias_cubas").delete().eq("id", transferToDelete.id);
+      if (error) throw error;
+      setTransferToDelete(null);
+      await fetchTransfers();
+    } catch (error: any) {
+      console.error("Erro ao excluir transferência:", error);
+      alert(`Não foi possível excluir a transferência: ${error.message || "erro inesperado"}`);
+    } finally {
+      setDeletingTransfer(false);
+    }
+  }
+
+  async function confirmTransfer() {
+    if (!selectedTransferDetail || confirmingTransfer || !selectedCubeIds.length) return;
+    setConfirmingTransfer(true);
+    try {
+      const { error } = await supabase.rpc("concluir_transferencia_cubas", {
+        p_transferencia_id: selectedTransferDetail.id,
+        p_cubas_ids: selectedCubeIds
+      });
+      if (error) throw error;
+      setShowCompleteConfirmation(false);
+      setSelectedTransferDetail(null);
+      setSelectedCubeIds([]);
+      await fetchTransfers();
+    } catch (error: any) {
+      console.error("Erro ao confirmar transferência:", error);
+      alert(`Não foi possível concluir a transferência: ${error.message || "erro inesperado"}`);
+    } finally {
+      setConfirmingTransfer(false);
     }
   }
 
@@ -350,11 +397,11 @@ function ProducaoTransferencia() {
     </section>;
   }
 
-  function changeDraft(id: number, field: "data_transferencia" | "descricao" | "destino" | "status", value: string) {
+  function changeDraft(id: number, field: "data_transferencia" | "descricao" | "destino", value: string) {
     setTransferencias(current => current.map(row => row.id === id ? { ...row, [field]: value } : row));
   }
 
-  async function persistField(id: number, field: "data_transferencia" | "descricao" | "destino" | "status", value: string) {
+  async function persistField(id: number, field: "data_transferencia" | "descricao" | "destino", value: string) {
     if (field === "data_transferencia" && !value) {
       alert("Informe uma data de transferência válida.");
       return;
@@ -428,6 +475,21 @@ function ProducaoTransferencia() {
     doc.save(`romaneio-cubas-${slug}-${transfer.data_transferencia}.pdf`);
   }
 
+  async function copyTransferMessage(transfer: TransferRecord) {
+    const cubeList = transfer.cubas.map((cube, index) =>
+      `${index + 1}. ${cube.cadastro_produtos?.nome || "Sabor não encontrado"} — ${cube.codigo || "sem código"} (${formatWeight(cube.peso_liquido)} kg)`
+    ).join("\n");
+    const storeName = transfer.destino === "Loja Ahu" ? "Ahu" : transfer.destino === "Loja Alto XV" ? "Alto XV" : transfer.destino || "Loja";
+    const message = `Nova Entrada de Estoque - Cubas ${storeName}\n\nTransferência de cubas concluída em ${formatDate(transfer.data_transferencia)}. As seguintes cubas foram enviadas para o estoque da loja:\n\n${cubeList}\n\nTotal: ${transfer.cubas.length} cuba(s).`;
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopiedTransferId(transfer.id);
+    } catch (error) {
+      console.error("Erro ao copiar mensagem da transferência:", error);
+      alert("Não foi possível copiar a mensagem. Verifique a permissão da área de transferência do navegador.");
+    }
+  }
+
   const formatDate = (date?: string | null) => {
     if (!date) return "—";
     const parsedDate = new Date(`${date.slice(0, 10)}T12:00:00`);
@@ -437,7 +499,7 @@ function ProducaoTransferencia() {
   const formatWeight = (weight?: number | null) => weight == null ? "—" : Number(weight).toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 
   const renderAvailableCuba = (cuba: any) => <div key={cuba.id} draggable onDragStart={event => { event.dataTransfer.setData("text/plain", String(cuba.id)); event.dataTransfer.effectAllowed = "move"; }} style={{ display: "grid", gap: 4, marginTop: 8, padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 7, background: "#fff", color: "#334155", cursor: "grab" }}>
-    <strong>{cuba.cadastro_produtos?.nome || "Sabor"}</strong><span style={{ display: "flex", justifyContent: "space-between", gap: 8, color: "#64748b", fontSize: ".82rem" }}><span>{cuba.codigo || "Sem código"}</span><span>{formatDate(cuba.data_producao)}</span></span><span style={{ color: "#526982", fontSize: ".82rem" }}>Peso líquido: {formatWeight(cuba.peso_liquido)} kg</span>
+    <strong>{cuba.cadastro_produtos?.nome || "Sabor"}</strong><span style={{ display: "flex", justifyContent: "space-between", gap: 8, color: "#64748b", fontSize: "14px" }}><span>{cuba.codigo || "Sem código"}</span><span>{formatDate(cuba.data_producao)}</span></span><span style={{ color: "#526982", fontSize: "14px" }}>Peso líquido: {formatWeight(cuba.peso_liquido)} kg</span>
   </div>;
 
   const renderNewTransferStoreColumn = (store: "Loja Ahu" | "Loja Alto XV") => {
@@ -447,37 +509,37 @@ function ProducaoTransferencia() {
     const currentVitrine = currentCards.filter(card => card.status === "vitrine-atual");
     const pickerOpen = pickerStore === store;
     return <section key={store} onDragOver={event => event.preventDefault()} onDrop={event => dropCube(event, store)} style={{ boxSizing: "border-box", position: "relative", zIndex: pickerOpen ? 3 : 1, minHeight: 520, maxHeight: "72vh", minWidth: 300, overflowY: "auto", padding: 15, border: "1px solid #cbd5e1", borderRadius: 9, background: "#f8fafc" }}>
-      <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, margin: 0, paddingBottom: 10, borderBottom: "1px solid #dbe3ec", color: "#475569", fontSize: "1rem" }}><span>{store}</span><span style={{ display: "flex", gap: 5 }}><span style={{ padding: "3px 8px", borderRadius: 12, background: "#e9eef4", color: "#526982", fontSize: ".78rem" }}>{currentCards.length} em estoque</span><span style={{ padding: "3px 8px", borderRadius: 12, background: "#fff7ed", color: "#9a3412", fontSize: ".78rem" }}>{assigned.length} novas</span></span></h3>
+      <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, margin: 0, paddingBottom: 10, borderBottom: "1px solid #dbe3ec", color: "#475569", fontSize: "16px" }}><span>{store}</span><span style={{ display: "flex", gap: 5 }}><span style={{ padding: "3px 8px", borderRadius: 12, background: "#e9eef4", color: "#526982", fontSize: "13px" }}>{currentCards.length} em estoque</span><span style={{ padding: "3px 8px", borderRadius: 12, background: "#fff7ed", color: "#9a3412", fontSize: "13px" }}>{assigned.length} novas</span></span></h3>
       <div ref={pickerOpen ? pickerRef : null} style={{ position: "relative", marginTop: 10 }}>
-        <button type="button" onClick={() => { setPickerStore(current => current === store ? null : store); setPickerSearch(""); setPickerActiveIndex(0); }} style={{ width: "100%", minHeight: 43, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, border: "1px dashed #aab7c6", borderRadius: 7, background: "transparent", color: "#64748b", cursor: "pointer" }}><Icons.BsPlus /> Incluir nova cuba</button>
+        <button type="button" onClick={() => { setPickerStore(current => current === store ? null : store); setPickerSearch(""); setPickerActiveIndex(0); }} style={{ width: "100%", minHeight: 43, display: "flex", alignItems: "center", justifyContent: "center", gap: 7, border: "1px dashed #aab7c6", borderRadius: 7, background: "transparent", color: "#64748b", cursor: "pointer", fontSize: "16px" }}><Icons.BsPlus /> Incluir nova cuba</button>
         {pickerOpen && <div style={{ position: "absolute", top: 49, left: 0, right: 0, zIndex: 20, maxHeight: 300, overflowY: "auto", padding: 8, border: "1px solid #dbe3ec", borderRadius: 7, background: "#fff", boxShadow: "0 10px 24px rgba(15,23,42,.16)" }}>
           <input autoFocus aria-label="Pesquisar cuba" placeholder="Pesquisar sabor..." value={pickerSearch} onChange={event => { setPickerSearch(event.target.value); setPickerActiveIndex(0); }} onKeyDown={event => {
             if (event.key === "ArrowDown") { event.preventDefault(); setPickerActiveIndex(index => Math.min(index + 1, filteredUnassignedCubas.length - 1)); }
             else if (event.key === "ArrowUp") { event.preventDefault(); setPickerActiveIndex(index => Math.max(index - 1, 0)); }
             else if (event.key === "Enter" && filteredUnassignedCubas.length) { event.preventDefault(); assignCube(String(filteredUnassignedCubas[Math.min(pickerActiveIndex, filteredUnassignedCubas.length - 1)].id), store); }
-          }} style={{ boxSizing: "border-box", width: "100%", height: 39, marginBottom: 7, padding: "6px 9px", border: "1px solid #cbd5e1", borderRadius: 5 }} />
-          {filteredUnassignedCubas.map((cube, index) => <button key={cube.id} type="button" onMouseEnter={() => setPickerActiveIndex(index)} onClick={() => assignCube(String(cube.id), store)} style={{ width: "100%", display: "block", marginBottom: 5, padding: "9px 10px", border: 0, borderRadius: 5, background: index === pickerActiveIndex ? "#eaf1f8" : "#f8fafc", color: "#334155", textAlign: "left", cursor: "pointer" }}><strong>{cube.cadastro_produtos?.nome || "Sabor"}</strong><span style={{ display: "block", marginTop: 3, color: "#7b8ba0", fontSize: ".8rem" }}>{cube.codigo || "Sem código"} · {formatDate(cube.data_producao)}</span><span style={{ display: "block", marginTop: 2, color: "#64748b", fontSize: ".8rem" }}>Peso líquido: {formatWeight(cube.peso_liquido)} kg</span></button>)}
-          {!filteredUnassignedCubas.length && <p style={{ color: "#94a3b8", textAlign: "center", fontSize: ".85rem" }}>{unassignedCubas.length ? "Nenhuma cuba encontrada." : "Não há cubas disponíveis."}</p>}
+          }} style={{ boxSizing: "border-box", width: "100%", height: 39, marginBottom: 7, padding: "6px 9px", border: "1px solid #cbd5e1", borderRadius: 5, fontSize: "16px" }} />
+          {filteredUnassignedCubas.map((cube, index) => <button key={cube.id} type="button" onMouseEnter={() => setPickerActiveIndex(index)} onClick={() => assignCube(String(cube.id), store)} style={{ width: "100%", display: "block", marginBottom: 5, padding: "9px 10px", border: 0, borderRadius: 5, background: index === pickerActiveIndex ? "#eaf1f8" : "#f8fafc", color: "#334155", textAlign: "left", cursor: "pointer", fontSize: "16px" }}><strong>{cube.cadastro_produtos?.nome || "Sabor"}</strong><span style={{ display: "block", marginTop: 3, color: "#7b8ba0", fontSize: "14px" }}>{cube.codigo || "Sem código"} · {formatDate(cube.data_producao)}</span><span style={{ display: "block", marginTop: 2, color: "#64748b", fontSize: "14px" }}>Peso líquido: {formatWeight(cube.peso_liquido)} kg</span></button>)}
+          {!filteredUnassignedCubas.length && <p style={{ color: "#94a3b8", textAlign: "center", fontSize: "14px" }}>{unassignedCubas.length ? "Nenhuma cuba encontrada." : "Não há cubas disponíveis."}</p>}
         </div>}
       </div>
-      {assigned.length ? assigned.map(cube => <div key={cube.id} draggable onDragStart={event => { event.dataTransfer.setData("text/plain", String(cube.id)); event.dataTransfer.effectAllowed = "move"; }} style={{ marginTop: 8, padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 7, background: "#fff", cursor: "grab" }}><strong>{cube.cadastro_produtos?.nome || "Sabor"}</strong><span style={{ display: "block", marginTop: 3, color: "#64748b", fontSize: ".82rem" }}>{cube.codigo || "Sem código"} · {formatDate(cube.data_producao)}</span><span style={{ display: "block", color: "#526982", fontSize: ".82rem" }}>Peso líquido: {formatWeight(cube.peso_liquido)} kg</span></div>) : <p onDragOver={event => event.preventDefault()} style={{ padding: "22px 8px", color: "#94a3b8", textAlign: "center" }}>Arraste cubas para cá</p>}
+      {assigned.length ? assigned.map(cube => <div key={cube.id} draggable onDragStart={event => { event.dataTransfer.setData("text/plain", String(cube.id)); event.dataTransfer.effectAllowed = "move"; }} style={{ marginTop: 8, padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: 7, background: "#fff", cursor: "grab" }}><strong>{cube.cadastro_produtos?.nome || "Sabor"}</strong><span style={{ display: "block", marginTop: 3, color: "#64748b", fontSize: "14px" }}>{cube.codigo || "Sem código"} · {formatDate(cube.data_producao)}</span><span style={{ display: "block", color: "#526982", fontSize: "14px" }}>Peso líquido: {formatWeight(cube.peso_liquido)} kg</span></div>) : <p onDragOver={event => event.preventDefault()} style={{ padding: "22px 8px", color: "#94a3b8", textAlign: "center" }}>Arraste cubas para cá</p>}
       <div style={{ marginTop: 18, paddingTop: 13, borderTop: "2px solid #cbd5e1" }}>
-        <h4 style={{ margin: "0 0 10px", color: "#526982", fontSize: ".92rem" }}>Estoque atual da loja</h4>
-        <h5 style={{ margin: "0 0 5px", color: "#64748b", fontSize: ".82rem" }}>No estoque ({currentFreezer.length})</h5>{currentFreezer.map(card => <div key={card.id} style={{ marginBottom: 6, padding: "9px 10px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff" }}><strong>{card.title}</strong><small style={{ display: "block", color: "#748298" }}>Produção: {formatDate(card.production_date)}</small></div>)}
-        <h5 style={{ margin: "10px 0 5px", color: "#64748b", fontSize: ".82rem" }}>Na vitrine ({currentVitrine.length})</h5>{currentVitrine.map(card => <div key={card.id} style={{ marginBottom: 6, padding: "9px 10px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff" }}><strong>{card.title}</strong><small style={{ display: "block", color: "#748298" }}>Produção: {formatDate(card.production_date)} · Entrada: {formatDate(card.entry_date)}</small></div>)}
+        <h4 style={{ margin: "0 0 10px", color: "#526982", fontSize: "16px" }}>Estoque atual da loja</h4>
+        <h5 style={{ margin: "0 0 5px", color: "#64748b", fontSize: "14px" }}>No estoque ({currentFreezer.length})</h5>{currentFreezer.map(card => <div key={card.id} style={{ marginBottom: 6, padding: "9px 10px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff" }}><strong>{card.title}</strong><small style={{ display: "block", color: "#748298", fontSize: "14px" }}>Produção: {formatDate(card.production_date)}</small></div>)}
+        <h5 style={{ margin: "10px 0 5px", color: "#64748b", fontSize: "14px" }}>Na vitrine ({currentVitrine.length})</h5>{currentVitrine.map(card => <div key={card.id} style={{ marginBottom: 6, padding: "9px 10px", border: "1px solid #e2e8f0", borderRadius: 6, background: "#fff" }}><strong>{card.title}</strong><small style={{ display: "block", color: "#748298", fontSize: "14px" }}>Produção: {formatDate(card.production_date)} · Entrada: {formatDate(card.entry_date)}</small></div>)}
       </div>
     </section>;
   };
 
   return <>
     <Helmet>
-      <title>Produção Transferência</title>
+      <title>Transferências de Estoque</title>
       <style>{`.transfer-editable-field:hover { background: #eff6ff !important; border-color: #93c5fd !important; color: #1d4ed8 !important; }`}</style>
     </Helmet>
     <div className="frequencia-container">
       <div className="frequencia-header">
         <div className="frequencia-title-group">
-          <h1>Produção Transferência</h1>
+          <h1>Transferências de Estoque</h1>
           <p>Registros dos romaneios de envio para as lojas.</p>
         </div>
       </div>
@@ -485,68 +547,117 @@ function ProducaoTransferencia() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap", marginBottom: 12 }}>
           <span style={{ color: "#64748b", fontWeight: 600 }}>Total de transferências: {totalCount}</span>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            <button type="button" onClick={() => void openNewTransfer()} disabled={transferLoading} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 13px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontWeight: 700, cursor: transferLoading ? "wait" : "pointer" }}>{transferLoading ? <><Icons.BsArrowClockwise className="spin" /> Carregando...</> : <><Icons.BsPlusCircleFill /> Nova transferência</>}</button>
+             <button type="button" onClick={() => { setUnavailableCategory(null); setShowCategorySelection(true); }} disabled={transferLoading} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "8px 13px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontWeight: 700, cursor: transferLoading ? "wait" : "pointer" }}>{transferLoading ? <><Icons.BsArrowClockwise className="spin" /> Carregando...</> : <><Icons.BsPlusCircleFill /> Nova transferência</>}</button>
             <button type="button" onClick={() => void fetchTransfers()} disabled={loading} style={{ padding: "7px 12px", border: "1px solid #cbd5e1", borderRadius: 5, background: "#f1f5f9", color: "#475569", fontWeight: 700, cursor: loading ? "wait" : "pointer" }}><Icons.BsArrowClockwise /> Atualizar</button>
           </div>
         </div>
         <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
           <table className="freq-table" style={{ minWidth: 1150 }}>
             <thead><tr>
-              {["Data", "Data de Transferência", "Descrição", "Quantidade de Cubas", "Destino", "Status", "Download", "Registrado Por"].map(label => <th key={label} style={{ textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>{label}</th>)}
+              {["Data", "Data de Transferência", "Descrição", "Quantidade de Cubas", "Destino", "Status", "Download", "Registrado Por", "Ações"].map(label => <th key={label} style={{ textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>{label}</th>)}
             </tr></thead>
             <tbody>
-              {loading && transferencias.length === 0 ? <tr><td colSpan={8} style={{ textAlign: "center", padding: 36 }}><Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} /></td></tr>
-                : transferencias.length === 0 ? <tr><td colSpan={8} style={{ textAlign: "center", padding: 36, color: "#94a3b8", fontSize: "1.1rem" }}>Nenhuma transferência de cuba registrada.</td></tr>
-                  : transferencias.map(transfer => <tr key={transfer.id} onClick={() => setSelectedTransferDetail(transfer)} title="Clique para ver as cubas desta transferência" style={{ cursor: "pointer" }}>
+              {loading && transferencias.length === 0 ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 36 }}><Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} /></td></tr>
+                : transferencias.length === 0 ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 36, color: "#94a3b8", fontSize: "1.1rem" }}>Nenhuma transferência de cuba registrada.</td></tr>
+                  : transferencias.map(transfer => <tr key={transfer.id} onClick={() => { setSelectedCubeIds([]); setSelectedTransferDetail(transfer); }} title="Clique para ver as cubas desta transferência" style={{ cursor: "pointer" }}>
                     <td style={{ textAlign: "center" }}>{formatDate(transfer.created_at)}</td>
                     <td style={{ textAlign: "center" }}>{editingTransferDateId === transfer.id ? <input aria-label="Data de transferência" type="date" autoFocus value={transfer.data_transferencia || ""} onClick={event => event.stopPropagation()} onChange={event => changeDraft(transfer.id, "data_transferencia", event.target.value)} onBlur={event => { void persistField(transfer.id, "data_transferencia", event.target.value); setEditingTransferDateId(null); }} onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") setEditingTransferDateId(null); }} style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 5 }} /> : <button type="button" className="transfer-editable-field" title="Clique para editar a data de transferência" onClick={event => { event.stopPropagation(); setEditingTransferDateId(transfer.id); }} style={{ padding: "6px 8px", border: "1px solid transparent", borderRadius: 5, background: "transparent", color: "#334155", cursor: "pointer" }}>{formatDate(transfer.data_transferencia)}</button>}</td>
                     <td style={{ minWidth: 160, fontWeight: 600 }}>{transfer.descricao || "Transf. de Cubas"}</td>
                     <td style={{ textAlign: "center", fontWeight: 700 }}>{transfer.cubas.length}</td>
                     <td style={{ textAlign: "center" }} onClick={event => event.stopPropagation()}>{editingTransferDestinationId === transfer.id ? <select aria-label="Destino da transferência" autoFocus value={destinationSelectionValue} onChange={event => { const value = event.target.value; changeDraft(transfer.id, "destino", value); void persistField(transfer.id, "destino", value); setEditingTransferDestinationId(null); }} onBlur={() => setEditingTransferDestinationId(null)} onKeyDown={event => { if (event.key === "Escape") setEditingTransferDestinationId(null); }} style={{ padding: "6px 8px", border: "1px solid #cbd5e1", borderRadius: 5, background: "#fff", color: "#94a3b8" }}><option value="" disabled>Selecionar destino...</option>{DESTINATIONS.map(destination => <option key={destination} value={destination}>{destination === "Loja Alto XV" ? "Loja XV" : destination}</option>)}</select> : <button type="button" className="transfer-editable-field" title="Clique para editar o destino" onClick={event => { event.stopPropagation(); setDestinationSelectionValue(""); setEditingTransferDestinationId(transfer.id); }} style={{ padding: "6px 8px", border: "1px solid transparent", borderRadius: 5, background: "transparent", color: transfer.destino ? "#334155" : "#94a3b8", cursor: "pointer" }}>{transfer.destino ? (transfer.destino === "Loja Alto XV" ? "Loja XV" : transfer.destino) : "Selecionar destino..."}</button>}{savingFieldId === transfer.id && <span style={{ display: "block", color: "#64748b", fontSize: ".75rem" }}>Salvando…</span>}</td>
-                    <td style={{ textAlign: "center" }} onClick={event => event.stopPropagation()}><select aria-label="Status da transferência" value={transfer.status || "Pendente"} onChange={event => { const status = event.target.value as TransferRecord["status"]; changeDraft(transfer.id, "status", status); void persistField(transfer.id, "status", status); }} style={{ padding: "6px 8px", border: "1px solid #cbd5e1", borderRadius: 5, background: transfer.status === "Concluída" ? "#f0fdf4" : transfer.status === "Cancelada" ? "#fef2f2" : "#fffbeb", color: transfer.status === "Concluída" ? "#15803d" : transfer.status === "Cancelada" ? "#b91c1c" : "#a16207", fontWeight: 700 }}><option value="Pendente">Pendente</option><option value="Concluída">Concluída</option><option value="Cancelada">Cancelada</option></select></td>
-                    <td style={{ textAlign: "center" }}><button type="button" title="Baixar romaneio de envio" aria-label={`Baixar romaneio de ${transfer.destino || "destino não selecionado"}`} onClick={event => { event.stopPropagation(); printTransferReport(transfer); }} disabled={transfer.cubas.length === 0} style={{ width: 34, height: 34, border: "1px solid #bfdbfe", borderRadius: 6, background: "#eff6ff", color: "#2563eb", cursor: transfer.cubas.length ? "pointer" : "not-allowed", opacity: transfer.cubas.length ? 1 : .5 }}><Icons.BsDownload /></button></td>
+                    <td style={{ textAlign: "center" }}><span style={{ display: "inline-block", padding: "6px 10px", borderRadius: 5, background: transfer.status === "Concluída" ? "#f0fdf4" : transfer.status === "Cancelada" ? "#fef2f2" : "#fffbeb", color: transfer.status === "Concluída" ? "#15803d" : transfer.status === "Cancelada" ? "#b91c1c" : "#a16207", fontWeight: 700 }}>{transfer.status || "Pendente"}</span></td>
+                    <td style={{ textAlign: "center" }}>{transfer.status === "Concluída" && transfer.cubas.length > 0 && <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}><button type="button" title="Baixar romaneio de envio" aria-label={`Baixar romaneio de ${transfer.destino || "destino não selecionado"}`} onClick={event => { event.stopPropagation(); printTransferReport(transfer); }} style={{ width: 34, height: 34, border: "1px solid #bfdbfe", borderRadius: 6, background: "#eff6ff", color: "#2563eb", cursor: "pointer" }}><Icons.BsDownload /></button><button type="button" title={copiedTransferId === transfer.id ? "Mensagem copiada!" : "Copiar mensagem para WhatsApp"} aria-label={copiedTransferId === transfer.id ? "Mensagem copiada para a área de transferência" : `Copiar mensagem para avisar ${transfer.destino || "a loja"} pelo WhatsApp`} onClick={event => { event.stopPropagation(); void copyTransferMessage(transfer); }} style={{ width: 34, height: 34, border: "1px solid #bbf7d0", borderRadius: 6, background: "#f0fdf4", color: "#16a34a", cursor: "pointer" }}>{copiedTransferId === transfer.id ? <Icons.BsCheck /> : <Icons.BsWhatsapp />}</button></div>}</td>
                     <td style={{ textAlign: "center", color: "#64748b" }}><strong style={{ display: "block", color: "#475569" }}>{transfer.profiles?.name || "—"}</strong><span style={{ fontSize: ".82rem" }}>{formatDateTime(transfer.created_at)}</span></td>
+                    <td style={{ textAlign: "center" }}><button type="button" title="Excluir transferência" aria-label={`Excluir transferência ${transfer.id}`} onClick={event => { event.stopPropagation(); setTransferToDelete(transfer); }} style={{ width: 34, height: 34, border: "1px solid #fecaca", borderRadius: 6, background: "#fff1f2", color: "#dc2626", cursor: "pointer" }}><Icons.BsTrash /></button></td>
                   </tr>)}
-              {hasMore && <tr><td colSpan={8} style={{ padding: 14, textAlign: "center" }}><button type="button" onClick={() => void fetchTransfers(true)} disabled={loadingMore} style={{ display: "inline-flex", alignItems: "center", gap: 7, border: 0, background: "transparent", color: "var(--primary-color)", fontWeight: 700, fontSize: "1rem", cursor: loadingMore ? "wait" : "pointer" }}>{loadingMore ? <><Icons.BsArrowClockwise className="spin" /> Carregando...</> : <><Icons.BsChevronDown /> Carregar mais transferências</>}</button></td></tr>}
+              {hasMore && <tr><td colSpan={9} style={{ padding: 14, textAlign: "center" }}><button type="button" onClick={() => void fetchTransfers(true)} disabled={loadingMore} style={{ display: "inline-flex", alignItems: "center", gap: 7, border: 0, background: "transparent", color: "var(--primary-color)", fontWeight: 700, fontSize: "1rem", cursor: loadingMore ? "wait" : "pointer" }}>{loadingMore ? <><Icons.BsArrowClockwise className="spin" /> Carregando...</> : <><Icons.BsChevronDown /> Carregar mais transferências</>}</button></td></tr>}
             </tbody>
           </table>
         </div>
       </div>
     </div>
+    {transferToDelete && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !deletingTransfer) setTransferToDelete(null); }} style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
+      <section role="alertdialog" aria-modal="true" aria-labelledby="delete-transfer-title" aria-describedby="delete-transfer-description" style={{ boxSizing: "border-box", width: "min(480px, 100%)", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)", fontSize: "16px" }}>
+        <h2 id="delete-transfer-title" style={{ margin: "0 0 10px", color: "#334155", fontSize: "22px" }}>Excluir transferência?</h2>
+        <p id="delete-transfer-description" style={{ margin: "0 0 20px", color: "#64748b", lineHeight: 1.5, fontSize: "16px" }}>O registro de {transferToDelete.destino || "destino não definido"} de {formatDate(transferToDelete.data_transferencia)} será excluído permanentemente. As cubas não serão removidas dos estoques.</p>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 9 }}>
+          <button type="button" onClick={() => setTransferToDelete(null)} disabled={deletingTransfer} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, fontSize: "16px", cursor: deletingTransfer ? "wait" : "pointer" }}>Cancelar</button>
+          <button type="button" onClick={() => void deleteTransfer()} disabled={deletingTransfer} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 15px", border: 0, borderRadius: 6, background: "#dc2626", color: "#fff", fontWeight: 700, fontSize: "16px", cursor: deletingTransfer ? "wait" : "pointer" }}>{deletingTransfer ? <><Icons.BsArrowClockwise className="spin" /> Excluindo...</> : <><Icons.BsTrash /> Excluir transferência</>}</button>
+        </div>
+      </section>
+    </div>}
     {selectedTransferDetail && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSelectedTransferDetail(null); }} style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
       <section role="dialog" aria-modal="true" aria-labelledby="transfer-detail-title" style={{ boxSizing: "border-box", width: "min(1100px, 100%)", maxHeight: "88vh", overflowY: "auto", padding: 28, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
           <div><h2 id="transfer-detail-title" style={{ margin: "0 0 11px", color: "#334155", fontSize: "1.8rem" }}>Cubas da transferência</h2><div style={{ display: "grid", gap: 6, color: "#64748b", fontSize: "1.25rem", lineHeight: 1.4 }}><span><strong>Destino:</strong> {selectedTransferDetail.destino || "A definir"}</span><span><strong>Status:</strong> {selectedTransferDetail.status || "Pendente"}</span><span><strong>Data de transferência:</strong> {formatDate(selectedTransferDetail.data_transferencia)}</span><span><strong>Descrição:</strong> {selectedTransferDetail.descricao || "Transf. de Cubas"}</span><span><strong>Quantidade:</strong> {selectedTransferDetail.cubas.length} cuba(s)</span></div></div>
           <button type="button" aria-label="Fechar detalhes da transferência" onClick={() => setSelectedTransferDetail(null)} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "2rem", cursor: "pointer" }}><Icons.BsX /></button>
         </div>
+        {selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <p style={{ margin: "12px 0", color: "#475569", fontSize: "15px" }}>Selecione as cubas que realmente chegaram à loja. As demais permanecerão disponíveis no Estoque Fábrica.</p>}
         {selectedTransferDetail.cubas.length ? <div className="freq-table-wrapper" style={{ marginTop: 18, overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 7 }}>
-          <table className="freq-table" style={{ minWidth: 840, background: "#fff" }}>
-            <thead><tr>{["Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"].map(label => <th key={label} style={{ textAlign: "center", padding: "12px 10px", fontSize: "1.1rem" }}>{label}</th>)}</tr></thead>
-            <tbody>{selectedTransferDetail.cubas.map(cube => <tr key={cube.id}>
-              <td style={{ padding: "11px 10px", fontWeight: 700, fontSize: "1.2rem" }}>{cube.cadastro_produtos?.nome || "Sabor não encontrado"}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "1.1rem" }}>{cube.codigo || "—"}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "1.1rem" }}>{formatDate(cube.data_producao)}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "1.1rem" }}>{formatWeight(cube.peso_bruto)}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "1.1rem" }}>{formatWeight(cube.tara)}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontWeight: 700, fontSize: "1.1rem" }}>{formatWeight(cube.peso_liquido)}</td>
-            </tr>)}</tbody>
+          <table className="freq-table" style={{ minWidth: 840, background: "#fff", fontSize: "14px" }}>
+            <thead><tr>{selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <th style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>TRANSFERIR</th>}{["Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"].map(label => <th key={label} style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>{label}</th>)}</tr></thead>
+            <tbody>{selectedTransferDetail.cubas.map(cube => {
+              const selectable = selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV");
+              const selected = selectedCubeIds.includes(Number(cube.id));
+              const toggleCube = () => { if (!confirmingTransfer) setSelectedCubeIds(current => current.includes(Number(cube.id)) ? current.filter(id => id !== Number(cube.id)) : [...current, Number(cube.id)]); };
+              return <tr key={cube.id} onClick={selectable ? toggleCube : undefined} onKeyDown={selectable ? event => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); toggleCube(); } } : undefined} tabIndex={selectable ? 0 : undefined} aria-selected={selectable ? selected : undefined} style={{ background: selected && selectable ? "#e8f5ed" : "#fff", cursor: selectable ? "pointer" : "default" }}>
+              {selectable && <td style={{ textAlign: "center" }}><input type="checkbox" aria-label={`Transferir cuba ${cube.codigo || cube.cadastro_produtos?.nome || cube.id}`} checked={selected} disabled={confirmingTransfer} onClick={event => event.stopPropagation()} onChange={toggleCube} style={{ width: 18, height: 18, cursor: "pointer" }} /></td>}
+              <td style={{ padding: "11px 10px", fontWeight: 700, fontSize: "15px" }}>{cube.cadastro_produtos?.nome || "Sabor não encontrado"}</td>
+              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{cube.codigo || "—"}</td>
+              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatDate(cube.data_producao)}</td>
+              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatWeight(cube.peso_bruto)}</td>
+              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatWeight(cube.tara)}</td>
+              <td style={{ padding: "11px 10px", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>{formatWeight(cube.peso_liquido)}</td>
+            </tr>; })}</tbody>
           </table>
         </div> : <p style={{ marginTop: 18, color: "#94a3b8", textAlign: "center", fontSize: "1.2rem" }}>Nenhuma cuba vinculada a este registro.</p>}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
+          {selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <button type="button" onClick={() => setShowCompleteConfirmation(true)} disabled={!selectedCubeIds.length || confirmingTransfer} style={{ padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: selectedCubeIds.length ? "pointer" : "not-allowed", opacity: selectedCubeIds.length ? 1 : .6 }}>Confirmar {selectedCubeIds.length} cuba(s)</button>}
           <button type="button" onClick={() => setSelectedTransferDetail(null)} style={{ padding: "10px 18px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}>Fechar</button>
-          <button type="button" onClick={() => printTransferReport(selectedTransferDetail)} disabled={!selectedTransferDetail.cubas.length} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: selectedTransferDetail.cubas.length ? "pointer" : "not-allowed", opacity: selectedTransferDetail.cubas.length ? 1 : .6 }}><Icons.BsPrinterFill /> Imprimir romaneio</button>
+          {selectedTransferDetail.status === "Concluída" && selectedTransferDetail.cubas.length > 0 && <button type="button" onClick={() => printTransferReport(selectedTransferDetail)} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}><Icons.BsPrinterFill /> Imprimir romaneio</button>}
         </div>
       </section>
     </div>}
+    {showCompleteConfirmation && selectedTransferDetail && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !confirmingTransfer) setShowCompleteConfirmation(false); }} style={{ position: "fixed", inset: 0, zIndex: 1400, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
+      <section role="alertdialog" aria-modal="true" aria-labelledby="complete-transfer-title" style={{ width: "min(500px, 100%)", padding: 24, borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)", fontSize: "16px" }}>
+        <h2 id="complete-transfer-title" style={{ margin: "0 0 12px", color: "#334155", fontSize: "26px" }}>Confirmar entrada na loja?</h2>
+        <p style={{ color: "#475569", lineHeight: 1.5, fontSize: "16px" }}>{selectedCubeIds.length} cuba(s) serão enviadas ao estoque de {selectedTransferDetail.destino}. As cubas não selecionadas continuarão no Estoque Fábrica. A transferência será marcada como concluída.</p>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
+          <button type="button" onClick={() => setShowCompleteConfirmation(false)} disabled={confirmingTransfer} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "16px", cursor: "pointer" }}>Voltar</button>
+          <button type="button" onClick={() => void confirmTransfer()} disabled={confirmingTransfer} style={{ padding: "10px 15px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, fontSize: "16px", cursor: confirmingTransfer ? "wait" : "pointer" }}>{confirmingTransfer ? "Transferindo..." : "Confirmar transferência"}</button>
+        </div>
+      </section>
+    </div>}
+    {showTransferCreated && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setShowTransferCreated(false); }} style={{ position: "fixed", inset: 0, zIndex: 1400, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="transfer-created-title" style={{ width: "min(480px, 100%)", padding: 26, borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)", textAlign: "center", fontSize: "16px" }}>
+        <Icons.BsCheckCircleFill style={{ color: "#16a34a", fontSize: 36 }} />
+        <h2 id="transfer-created-title" style={{ margin: "12px 0", color: "#334155", fontSize: "26px" }}>Transferência registrada</h2>
+        <p style={{ color: "#475569", lineHeight: 1.5, fontSize: "16px" }}>O registro foi criado. As cubas continuam disponíveis no Estoque Fábrica até você confirmar quais foram transferidas.</p>
+        <button type="button" autoFocus onClick={() => setShowTransferCreated(false)} style={{ marginTop: 14, padding: "10px 24px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontWeight: 700, fontSize: "16px", cursor: "pointer" }}>Entendi</button>
+      </section>
+    </div>}
+    {showCategorySelection && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !transferLoading) setShowCategorySelection(false); }} style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="transfer-category-title" style={{ boxSizing: "border-box", width: "min(480px, 100%)", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12 }}>
+          <div><h2 id="transfer-category-title" style={{ margin: "0 0 7px", color: "#334155", fontSize: "1.4rem" }}>Nova transferência</h2><p style={{ margin: "0 0 18px", color: "#64748b" }}>Qual categoria você quer transferir?</p></div>
+          <button type="button" aria-label="Fechar seleção de categoria" onClick={() => setShowCategorySelection(false)} disabled={transferLoading} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "1.6rem", cursor: "pointer" }}><Icons.BsX /></button>
+        </div>
+        <div style={{ display: "grid", gap: 10 }}>
+          {["Gelato", "Food Service", "Doces"].map(category => <button key={category} type="button" onClick={() => { if (category === "Gelato") void openNewTransfer(); else setUnavailableCategory(category); }} disabled={transferLoading} style={{ padding: "14px 16px", border: "1px solid #dbe3ec", borderRadius: 8, background: category === unavailableCategory ? "#f5ede5" : "#fff", color: "#80501f", fontWeight: 700, textAlign: "left", cursor: transferLoading ? "wait" : "pointer" }}>{category}</button>)}
+        </div>
+        {transferLoading && <p role="status" style={{ margin: "16px 0 0", color: "#64748b" }}>Carregando cubas disponíveis...</p>}
+        {unavailableCategory && <p role="status" style={{ margin: "16px 0 0", color: "#64748b" }}>Transferências de {unavailableCategory} ainda não estão disponíveis.</p>}
+      </section>
+    </div>}
     {showNewTransfer && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !transferSaving) { setShowNewTransfer(false); setPickerStore(null); } }} style={{ position: "fixed", inset: 0, zIndex: 1200, display: "flex", alignItems: "center", justifyContent: "center", padding: 12, background: "rgba(15,23,42,.52)" }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="new-transfer-title" style={{ boxSizing: "border-box", width: "min(1600px, calc(100vw - 24px))", maxHeight: "96vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 14, background: "#fff", boxShadow: "0 24px 70px rgba(15,23,42,.25)" }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="new-transfer-title" style={{ boxSizing: "border-box", width: "min(1600px, calc(100vw - 24px))", maxHeight: "96vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 14, background: "#fff", boxShadow: "0 24px 70px rgba(15,23,42,.25)", fontSize: "16px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 16, marginBottom: 8 }}>
-          <div><h2 id="new-transfer-title" style={{ margin: "0 0 6px", color: "#334155", fontSize: "1.45rem" }}>Transferir cubas para Lojas</h2><p style={{ margin: 0, color: "#64748b" }}>Arraste cada cuba de <strong>Cubas Disponíveis</strong> para a Loja Ahú ou Loja Alto XV. As alterações só serão gravadas ao salvar.</p></div>
-          <button type="button" aria-label="Fechar nova transferência" onClick={() => { if (!transferSaving) { setShowNewTransfer(false); setPickerStore(null); } }} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "1.6rem", cursor: transferSaving ? "wait" : "pointer" }}><Icons.BsX /></button>
+          <div><h2 id="new-transfer-title" style={{ margin: "0 0 6px", color: "#334155", fontSize: "24px" }}>Transferir cubas para Lojas</h2><p style={{ margin: 0, color: "#64748b" }}>Arraste cada cuba de <strong>Cubas Disponíveis</strong> para a Loja Ahú ou Loja Alto XV. As alterações só serão gravadas ao salvar.</p></div>
+          <button type="button" aria-label="Fechar nova transferência" onClick={() => { if (!transferSaving) { setShowNewTransfer(false); setPickerStore(null); } }} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "26px", cursor: transferSaving ? "wait" : "pointer" }}><Icons.BsX /></button>
         </div>
         {transferLoading ? <div style={{ display: "flex", justifyContent: "center", padding: 40 }}><Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} /></div> : <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(280px, 1fr))", gap: 12, minWidth: 940, overflowX: "auto", padding: "12px 2px 8px" }}>
           <section onDragOver={event => event.preventDefault()} onDrop={event => dropCube(event, null)} style={{ boxSizing: "border-box", minHeight: 520, maxHeight: "72vh", minWidth: 300, overflowY: "auto", padding: 15, border: "1px dashed #cbd5e1", borderRadius: 9, background: "#fbfcfe" }}>
-            <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, margin: 0, paddingBottom: 10, borderBottom: "1px solid #dbe3ec", color: "#475569", fontSize: "1rem" }}><span>Cubas Disponíveis</span><span style={{ padding: "3px 8px", borderRadius: 12, background: "#e9eef4", color: "#526982", fontSize: ".8rem" }}>{unassignedCubas.length} cubas</span></h3>
+            <h3 style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, margin: 0, paddingBottom: 10, borderBottom: "1px solid #dbe3ec", color: "#475569", fontSize: "16px" }}><span>Cubas Disponíveis</span><span style={{ padding: "3px 8px", borderRadius: 12, background: "#e9eef4", color: "#526982", fontSize: "13px" }}>{unassignedCubas.length} cubas</span></h3>
             {unassignedCubas.length ? unassignedCubas.map(renderAvailableCuba) : <div style={{ padding: "22px 8px", color: "#94a3b8", textAlign: "center" }}>Todas as cubas foram destinadas</div>}
           </section>
           {renderNewTransferStoreColumn("Loja Ahu")}
@@ -555,8 +666,8 @@ function ProducaoTransferencia() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginTop: 12, paddingTop: 14, borderTop: "1px solid #e2e8f0" }}>
           <span style={{ color: "#64748b", fontWeight: 600 }}>{Object.keys(destinationByCuba).length} cuba(s) selecionadas para transferência</span>
           <div style={{ display: "flex", gap: 9 }}>
-            <button type="button" onClick={() => { setShowNewTransfer(false); setPickerStore(null); }} disabled={transferSaving} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: "pointer" }}>Cancelar</button>
-            <button type="button" onClick={() => void saveNewTransfer(false)} disabled={transferSaving || !Object.keys(destinationByCuba).length} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: transferSaving || !Object.keys(destinationByCuba).length ? "not-allowed" : "pointer", opacity: transferSaving || !Object.keys(destinationByCuba).length ? .65 : 1 }}><Icons.BsCheckCircleFill /> Registrar transferência</button>
+            <button type="button" onClick={() => { setShowNewTransfer(false); setPickerStore(null); }} disabled={transferSaving} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, fontSize: "16px", cursor: "pointer" }}>Cancelar</button>
+            <button type="button" onClick={() => void saveNewTransfer(false)} disabled={transferSaving || !Object.keys(destinationByCuba).length} style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, fontSize: "16px", cursor: transferSaving || !Object.keys(destinationByCuba).length ? "not-allowed" : "pointer", opacity: transferSaving || !Object.keys(destinationByCuba).length ? .65 : 1 }}><Icons.BsCheckCircleFill /> Registrar transferência</button>
           </div>
         </div>
       </section>
@@ -578,4 +689,4 @@ function ProducaoTransferencia() {
   </>;
 }
 
-export default ProducaoTransferencia;
+export default TransferenciasEstoque;
