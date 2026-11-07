@@ -1057,7 +1057,12 @@ CREATE TABLE IF NOT EXISTS "public"."producao_realizada" (
     "importado_automaticamente" boolean DEFAULT false NOT NULL,
     "ordem_producao_item_id" "text",
     "data_ordem_producao" "date",
-    "transferencia_cubas_id" bigint
+    "transferencia_cubas_id" bigint,
+    "categoria_producao" "text" DEFAULT 'Gelato'::"text" NOT NULL,
+    "quantidade" integer,
+    "cliente" "text",
+    "embalagem" "text",
+    "quantidade_embalagem" integer
 );
 
 
@@ -1201,10 +1206,13 @@ CREATE TABLE IF NOT EXISTS "public"."transferencias_cubas" (
     "id" bigint NOT NULL,
     "data_transferencia" "date" DEFAULT CURRENT_DATE NOT NULL,
     "descricao" "text" DEFAULT 'Transf. de Cubas'::"text" NOT NULL,
-    "destino" "text" NOT NULL,
+    "destino" "text",
     "user_id" "uuid",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    CONSTRAINT "transferencias_cubas_destino_check" CHECK (("destino" = ANY (ARRAY['Loja Ahu'::"text", 'Loja Alto XV'::"text", 'Food Service'::"text", 'Descartado'::"text", 'Outro'::"text"])))
+    "cubas_ids" bigint[] DEFAULT '{}'::bigint[] NOT NULL,
+    "status" "text" DEFAULT 'Pendente'::"text" NOT NULL,
+    CONSTRAINT "transferencias_cubas_destino_check" CHECK (("destino" = ANY (ARRAY['Loja Ahu'::"text", 'Loja Alto XV'::"text", 'Food Service'::"text", 'Descartado'::"text", 'Outro'::"text"]))),
+    CONSTRAINT "transferencias_cubas_status_check" CHECK (("status" = ANY (ARRAY['Pendente'::"text", 'Concluída'::"text", 'Cancelada'::"text"])))
 );
 
 
@@ -1520,6 +1528,10 @@ CREATE INDEX "idx_tarefas_concluidas_loja_data" ON "public"."tarefas_lojas_concl
 
 
 CREATE INDEX "lista_compras_manual_itens_lista_id_idx" ON "public"."lista_compras_manual_itens" USING "btree" ("lista_id");
+
+
+
+CREATE INDEX "producao_realizada_categoria_producao_idx" ON "public"."producao_realizada" USING "btree" ("categoria_producao");
 
 
 
