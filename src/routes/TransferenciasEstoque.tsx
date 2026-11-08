@@ -535,7 +535,24 @@ function TransferenciasEstoque() {
   return <>
     <Helmet>
       <title>Transferências de Estoque</title>
-      <style>{`.transfer-editable-field:hover { background: #eff6ff !important; border-color: #93c5fd !important; color: #1d4ed8 !important; }`}</style>
+      <style>{`
+        .transfer-editable-field:hover { background: #eff6ff !important; border-color: #93c5fd !important; color: #1d4ed8 !important; }
+        @media (max-width: 700px) {
+          .transfer-detail-overlay { padding: 8px !important; }
+          .transfer-detail-dialog { width: 100% !important; max-height: calc(100dvh - 16px) !important; padding: 18px !important; }
+          .transfer-detail-table-wrapper { overflow: visible !important; border: 0 !important; }
+          .transfer-detail-table { min-width: 0 !important; display: block; background: transparent !important; }
+          .transfer-detail-table thead { display: none; }
+          .transfer-detail-table tbody { display: grid; gap: 10px; }
+          .transfer-detail-table tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 14px; border: 1px solid #dbe3ec; border-radius: 9px; }
+          .transfer-detail-table tbody td { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 0 !important; border: 0 !important; text-align: left !important; font-size: 14px !important; overflow-wrap: anywhere; }
+          .transfer-detail-table tbody td::before { content: attr(data-label); color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+          .transfer-detail-table tbody td[data-label="Transferir"] { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 10px; }
+          .transfer-detail-table tbody td[data-label="Sabor"] { grid-column: 1 / -1; font-size: 16px !important; }
+          .transfer-detail-actions { flex-wrap: wrap; }
+          .transfer-detail-actions button { flex: 1 1 auto; min-height: 42px; font-size: 14px !important; }
+        }
+      `}</style>
     </Helmet>
     <div className="frequencia-container">
       <div className="frequencia-header">
@@ -587,32 +604,32 @@ function TransferenciasEstoque() {
         </div>
       </section>
     </div>}
-    {selectedTransferDetail && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSelectedTransferDetail(null); }} style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="transfer-detail-title" style={{ boxSizing: "border-box", width: "min(1100px, 100%)", maxHeight: "88vh", overflowY: "auto", padding: 28, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
+    {selectedTransferDetail && <div className="transfer-detail-overlay" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) setSelectedTransferDetail(null); }} style={{ position: "fixed", inset: 0, zIndex: 1100, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
+      <section className="transfer-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="transfer-detail-title" style={{ boxSizing: "border-box", width: "min(1100px, 100%)", maxHeight: "88vh", overflowY: "auto", padding: 28, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 14 }}>
           <div><h2 id="transfer-detail-title" style={{ margin: "0 0 11px", color: "#334155", fontSize: "1.8rem" }}>Cubas da transferência</h2><div style={{ display: "grid", gap: 6, color: "#64748b", fontSize: "1.25rem", lineHeight: 1.4 }}><span><strong>Destino:</strong> {selectedTransferDetail.destino || "A definir"}</span><span><strong>Status:</strong> {selectedTransferDetail.status || "Pendente"}</span><span><strong>Data de transferência:</strong> {formatDate(selectedTransferDetail.data_transferencia)}</span><span><strong>Descrição:</strong> {selectedTransferDetail.descricao || "Transf. de Cubas"}</span><span><strong>Quantidade:</strong> {selectedTransferDetail.cubas.length} cuba(s)</span></div></div>
           <button type="button" aria-label="Fechar detalhes da transferência" onClick={() => setSelectedTransferDetail(null)} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "2rem", cursor: "pointer" }}><Icons.BsX /></button>
         </div>
         {selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <p style={{ margin: "12px 0", color: "#475569", fontSize: "15px" }}>Selecione as cubas que realmente chegaram à loja. As demais permanecerão disponíveis no Estoque Fábrica.</p>}
-        {selectedTransferDetail.cubas.length ? <div className="freq-table-wrapper" style={{ marginTop: 18, overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 7 }}>
-          <table className="freq-table" style={{ minWidth: 840, background: "#fff", fontSize: "14px" }}>
+        {selectedTransferDetail.cubas.length ? <div className="freq-table-wrapper transfer-detail-table-wrapper" style={{ marginTop: 18, overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 7 }}>
+          <table className="freq-table transfer-detail-table" style={{ minWidth: 840, background: "#fff", fontSize: "14px" }}>
             <thead><tr>{selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <th style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>TRANSFERIR</th>}{["Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"].map(label => <th key={label} style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>{label}</th>)}</tr></thead>
             <tbody>{selectedTransferDetail.cubas.map(cube => {
               const selectable = selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV");
               const selected = selectedCubeIds.includes(Number(cube.id));
               const toggleCube = () => { if (!confirmingTransfer) setSelectedCubeIds(current => current.includes(Number(cube.id)) ? current.filter(id => id !== Number(cube.id)) : [...current, Number(cube.id)]); };
               return <tr key={cube.id} onClick={selectable ? toggleCube : undefined} onKeyDown={selectable ? event => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); toggleCube(); } } : undefined} tabIndex={selectable ? 0 : undefined} aria-selected={selectable ? selected : undefined} style={{ background: selected && selectable ? "#e8f5ed" : "#fff", cursor: selectable ? "pointer" : "default" }}>
-              {selectable && <td style={{ textAlign: "center" }}><input type="checkbox" aria-label={`Transferir cuba ${cube.codigo || cube.cadastro_produtos?.nome || cube.id}`} checked={selected} disabled={confirmingTransfer} onClick={event => event.stopPropagation()} onChange={toggleCube} style={{ width: 18, height: 18, cursor: "pointer" }} /></td>}
-              <td style={{ padding: "11px 10px", fontWeight: 700, fontSize: "15px" }}>{cube.cadastro_produtos?.nome || "Sabor não encontrado"}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{cube.codigo || "—"}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatDate(cube.data_producao)}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatWeight(cube.peso_bruto)}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatWeight(cube.tara)}</td>
-              <td style={{ padding: "11px 10px", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>{formatWeight(cube.peso_liquido)}</td>
+              {selectable && <td data-label="Transferir" style={{ textAlign: "center" }}><input type="checkbox" aria-label={`Transferir cuba ${cube.codigo || cube.cadastro_produtos?.nome || cube.id}`} checked={selected} disabled={confirmingTransfer} onClick={event => event.stopPropagation()} onChange={toggleCube} style={{ width: 18, height: 18, cursor: "pointer" }} /></td>}
+              <td data-label="Sabor" style={{ padding: "11px 10px", fontWeight: 700, fontSize: "15px" }}>{cube.cadastro_produtos?.nome || "Sabor não encontrado"}</td>
+              <td data-label="Código" style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{cube.codigo || "—"}</td>
+              <td data-label="Produção" style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatDate(cube.data_producao)}</td>
+              <td data-label="Peso bruto (kg)" style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatWeight(cube.peso_bruto)}</td>
+              <td data-label="Tara (kg)" style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatWeight(cube.tara)}</td>
+              <td data-label="Peso líquido (kg)" style={{ padding: "11px 10px", textAlign: "center", fontWeight: 700, fontSize: "14px" }}>{formatWeight(cube.peso_liquido)}</td>
             </tr>; })}</tbody>
           </table>
         </div> : <p style={{ marginTop: 18, color: "#94a3b8", textAlign: "center", fontSize: "1.2rem" }}>Nenhuma cuba vinculada a este registro.</p>}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
+        <div className="transfer-detail-actions" style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
           {selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <button type="button" onClick={() => setShowCompleteConfirmation(true)} disabled={!selectedCubeIds.length || confirmingTransfer} style={{ padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: selectedCubeIds.length ? "pointer" : "not-allowed", opacity: selectedCubeIds.length ? 1 : .6 }}>Confirmar {selectedCubeIds.length} cuba(s)</button>}
           <button type="button" onClick={() => setSelectedTransferDetail(null)} style={{ padding: "10px 18px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}>Fechar</button>
           {selectedTransferDetail.status === "Concluída" && selectedTransferDetail.cubas.length > 0 && <button type="button" onClick={() => printTransferReport(selectedTransferDetail)} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}><Icons.BsPrinterFill /> Imprimir romaneio</button>}
