@@ -25,6 +25,7 @@ function EstoqueFabrica() {
   const [totalCount, setTotalCount] = useState(0);
   const [totalLiquidWeight, setTotalLiquidWeight] = useState<number | null>(null);
   const liquidWeightRequest = useRef(0);
+  const dataRequest = useRef(0);
   const [activeCategory, setActiveCategory] = useState<"Gelato" | "Food Service" | "Doces">("Gelato");
   const productionCategories = ["Gelato", "Food Service", "Doces"] as const;
   const tableColumnCount = activeCategory === "Doces" ? 6 : activeCategory === "Food Service" ? 10 : 8;
@@ -140,6 +141,7 @@ function EstoqueFabrica() {
 
   async function fetchData(isLoadMore = false, overridePage: number | null = null, fProdutoId = filterProdutoId, fData = filterData, isBackground = false) {
     fetchDataRef.current = fetchData;
+    const requestId = isLoadMore ? dataRequest.current : ++dataRequest.current;
     try {
       if (isLoadMore) {
         setLoadingMore(true);
@@ -197,6 +199,7 @@ function EstoqueFabrica() {
         .range(from, to);
 
       if (prodError) throw prodError;
+      if (requestId !== dataRequest.current) return;
 
       const newProds = sortFactoryProductions(prodData || []);
       if (!isLoadMore) {
@@ -224,8 +227,10 @@ function EstoqueFabrica() {
       console.error("Erro ao buscar dados:", err);
       alert("Erro ao carregar a produção: " + (err.message || JSON.stringify(err)));
     } finally {
-      setLoading(false);
-      setLoadingMore(false);
+      if (requestId === dataRequest.current) {
+        setLoading(false);
+        setLoadingMore(false);
+      }
     }
   }
 
@@ -521,7 +526,7 @@ function EstoqueFabrica() {
         <div className="freq-annual-summary-wrapper" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
 
           <div role="tablist" aria-label="Categoria da produção" style={{ display: "flex", gap: 8, marginBottom: 12, borderBottom: "1px solid #e2e8f0", paddingBottom: 8 }}>
-            {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { if (activeCategory !== category) { setProducoes([]); setTotalCount(0); setFilterProdutoId(null); setActiveCategory(category); } }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer" }}>{category}</button>)}
+            {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { if (activeCategory !== category) { dataRequest.current++; liquidWeightRequest.current++; setProducoes([]); setTotalCount(0); setTotalLiquidWeight(null); setHasMore(false); setLoading(true); setFilterProdutoId(null); setActiveCategory(category); } }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer" }}>{category}</button>)}
           </div>
           <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
             {transferMode ? <section style={{ minWidth: 900, padding: 20, background: "#fff" }}>
