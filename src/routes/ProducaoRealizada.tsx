@@ -27,10 +27,70 @@ const calculateProductionValidity = (date: string, category?: string | null, pro
   return addCalendarMonthsToDate(date, 3);
 };
 
+const historyFieldLabels: Record<string, string> = {
+  codigo: "Código de produção", produto_id: "Produto", categoria_producao: "Categoria",
+  data_producao: "Data de produção", peso_bruto: "Peso bruto", tara: "Tara",
+  peso_liquido: "Peso líquido", data_entrada: "Data de entrada", destino: "Destino",
+  validade: "Validade", quantidade: "Quantidade", cliente: "Cliente",
+  embalagem: "Embalagem", quantidade_embalagem: "Quantidade de embalagens",
+  status_revisao: "Status da revisão", revisao_observacao: "Observação da revisão",
+  importado_automaticamente: "Importado automaticamente", data_ordem_producao: "Data da ordem de produção",
+  ordem_producao_item_id: "Item da ordem de produção", user_id: "Usuário do registro",
+  transferencia_cubas_id: "Transferência", created_at: "Data de criação"
+};
+
+type ProductionHistoryEvent = {
+  id: number;
+  acao: "criado" | "editado" | "excluido";
+  alteracoes: Record<string, any>;
+  responsavel_nome: string | null;
+  ocorrido_em: string;
+};
+
 function ProducaoRealizada() {
   const { user, isAdmin } = useAuth();
   const [producoes, setProducoes] = useState<any[]>([]);
   const [produtos, setProdutos] = useState<any[]>([]);
+  const [historyProduction, setHistoryProduction] = useState<any | null>(null);
+  const [historyEvents, setHistoryEvents] = useState<ProductionHistoryEvent[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState("");
+  const historyRequest = useRef(0);
+  const formatHistoryValue = (field: string, value: any) => {
+    if (value === null || value === undefined || value === "") return "—";
+    if (field === "produto_id") return produtos.find(product => String(product.id) === String(value))?.nome || String(value);
+    if (typeof value === "boolean") return value ? "Sim" : "Não";
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date(`${value}T12:00:00`).toLocaleDateString("pt-BR");
+    if (typeof value === "object") return JSON.stringify(value);
+    return String(value);
+  };
+
+  async function openProductionHistory(production: any) {
+    const requestId = ++historyRequest.current;
+    setHistoryProduction(production);
+    setHistoryEvents([]);
+    setHistoryError("");
+    setHistoryLoading(true);
+    try {
+      const { data, error } = await supabase.from("producao_realizada_historico")
+        .select("id, acao, alteracoes, responsavel_nome, ocorrido_em")
+        .eq("producao_id", production.id)
+        .order("ocorrido_em", { ascending: true })
+        .order("id", { ascending: true });
+      if (error) throw error;
+      if (requestId === historyRequest.current) setHistoryEvents((data || []) as ProductionHistoryEvent[]);
+    } catch (error: any) {
+      if (requestId === historyRequest.current) setHistoryError("Não foi possível carregar o histórico desta produção.");
+      console.error("Erro ao carregar histórico da produção:", error);
+    } finally {
+      if (requestId === historyRequest.current) setHistoryLoading(false);
+    }
+  }
+
+  function closeProductionHistory() {
+    historyRequest.current++;
+    setHistoryProduction(null);
+  }
   const [clientesFoodService, setClientesFoodService] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingRow, setSavingRow] = useState(false);
@@ -988,7 +1048,7 @@ function ProducaoRealizada() {
             {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { setActiveCategory(category); setFilterProdutoId(null); }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer" }}>{category}</button>)}
           </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-            <table className="freq-table" style={{ minWidth: isDessertsTab ? (labelSelectionMode ? "980px" : "940px") : (labelSelectionMode ? "1540px" : "1500px") }}>
+             <table className="freq-table" style={{ minWidth: isDessertsTab ? (labelSelectionMode ? "1090px" : "1050px") : (labelSelectionMode ? "1650px" : "1610px") }}>
               <thead>
                 <tr>
                   {labelSelectionMode && <th title="Selecionar linha" style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}>✓</th>}
@@ -1012,7 +1072,7 @@ function ProducaoRealizada() {
                   </>}
                   <th style={{ textAlign: "center", width: "120px" }}>Validade</th>
                   <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>
-                  <th style={{ textAlign: "center", width: "80px" }}>Ações</th>
+                  <th style={{ textAlign: "center", width: "220px", minWidth: "220px", whiteSpace: "nowrap" }}>Ações</th>
                 </tr>
                 {/* Linha de Filtros */}
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
@@ -1301,9 +1361,11 @@ function ProducaoRealizada() {
                             {prod.profiles?.name || "-"}
                           </div>
                         </td>
-                        <td style={{ textAlign: "center", padding: "4px" }}>
+                        <td style={{ textAlign: "center", padding: "4px", minWidth: "220px", whiteSpace: "nowrap" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "nowrap" }}>
+                          <button type="button" onClick={event => { event.stopPropagation(); void openProductionHistory(prod); }} title="Ver histórico desta produção" aria-label={`Ver histórico de ${prod.cadastro_produtos?.nome || "produção"} ${prod.codigo || prod.id}`} style={{ background: "none", border: "none", color: "#2563eb", cursor: "pointer", fontSize: "1.2rem", flexShrink: 0 }}><Icons.BsInfoCircle /></button>
                           {editingRowId === prod.id ? (
-                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                            <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "nowrap" }}>
                               <button onClick={() => saveEdit(prod)} title="Salvar" disabled={savingRow} style={{ background: "none", border: "none", color: "#16a34a", cursor: "pointer", fontSize: "1.2rem" }}>
                                 {savingRow ? <Icons.BsArrowClockwise className="spin" /> : <Icons.BsCheckLg />}
                               </button>
@@ -1312,7 +1374,7 @@ function ProducaoRealizada() {
                               </button>
                             </div>
                           ) : (
-                            <div style={{ display: "flex", gap: "8px", justifyContent: "center" }}>
+                            <div style={{ display: "flex", gap: "8px", justifyContent: "center", flexWrap: "nowrap" }}>
                               {prod.status_revisao === 'pending_delete' && (
                                 isAdmin ? (
                                   <div style={{ display: "flex", gap: "4px" }}>
@@ -1349,6 +1411,7 @@ function ProducaoRealizada() {
                               )}
                             </div>
                           )}
+                          </div>
                         </td>
                       </tr>
                     );
@@ -1394,6 +1457,27 @@ function ProducaoRealizada() {
           </div>
         </div>
       </div>
+      {historyProduction && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) closeProductionHistory(); }} style={{ position: "fixed", inset: 0, zIndex: 1600, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, background: "rgba(15,23,42,.55)" }}>
+        <section role="dialog" aria-modal="true" aria-labelledby="production-history-title" style={{ boxSizing: "border-box", width: "min(720px, 100%)", maxHeight: "88vh", overflowY: "auto", padding: 26, borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)", fontSize: "15px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 20 }}>
+            <div><h2 id="production-history-title" style={{ margin: "0 0 6px", fontSize: "24px", color: "#334155" }}>Histórico da produção</h2><span style={{ color: "#64748b" }}>{historyProduction.cadastro_produtos?.nome || "Produto"} · {historyProduction.codigo || `Registro #${historyProduction.id}`}</span></div>
+            <button type="button" aria-label="Fechar histórico" onClick={closeProductionHistory} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "26px", cursor: "pointer" }}><Icons.BsX /></button>
+          </div>
+          {historyLoading ? <p role="status" style={{ color: "#64748b" }}>Carregando histórico...</p> : historyError ? <p role="alert" style={{ color: "#b91c1c" }}>{historyError}</p> : historyEvents.length ? <ol style={{ listStyle: "none", margin: 0, padding: "0 0 0 18px", borderLeft: "2px solid #e2e8f0" }}>
+            {historyEvents.map(entry => <li key={entry.id} style={{ position: "relative", marginBottom: 20, padding: "2px 0 0 20px" }}>
+              <span aria-hidden="true" style={{ position: "absolute", left: -25, top: 5, width: 12, height: 12, borderRadius: "50%", background: entry.acao === "criado" ? "#16a34a" : entry.acao === "excluido" ? "#dc2626" : "#80501f", border: "2px solid #fff" }} />
+              <div style={{ padding: 14, border: "1px solid #e2e8f0", borderRadius: 8, background: "#f8fafc" }}>
+                <strong style={{ display: "block", color: "#334155", fontSize: "16px" }}>{entry.acao === "criado" ? "Registro criado" : entry.acao === "excluido" ? "Registro excluído" : "Registro editado"}</strong>
+                <span style={{ display: "block", marginTop: 4, color: "#64748b", fontSize: "14px" }}>{entry.responsavel_nome || "Não identificado"} · {new Date(entry.ocorrido_em).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" })}</span>
+                {entry.acao === "editado" && <ul style={{ margin: "12px 0 0", paddingLeft: 20, color: "#475569", lineHeight: 1.6 }}>
+                  {Object.entries(entry.alteracoes || {}).map(([field, change]: [string, any]) => <li key={field}><strong>{historyFieldLabels[field] || field.replace(/_/g, " ")}:</strong> {formatHistoryValue(field, change?.antes)} → {formatHistoryValue(field, change?.depois)}</li>)}
+                </ul>}
+              </div>
+            </li>)}
+          </ol> : <p style={{ color: "#64748b" }}>Nenhum evento registrado para esta produção.</p>}
+          <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}><button type="button" onClick={closeProductionHistory} style={{ padding: "10px 18px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontSize: "15px", fontWeight: 700, cursor: "pointer" }}>Fechar</button></div>
+        </section>
+      </div>}
     </>
   );
 }
