@@ -246,9 +246,10 @@ function TransferenciasEstoque() {
 
   function assignCube(cubeId: string, destination: "Loja Ahu" | "Loja Alto XV") {
     setDestinationByCuba(current => ({ ...current, [cubeId]: destination }));
-    setPickerStore(null);
+    setPickerStore(destination);
     setPickerSearch("");
     setPickerActiveIndex(0);
+    pickerRef.current?.querySelector("input")?.focus();
   }
 
   function removeCubeFromAssignment(cubeId: string) {
@@ -673,16 +674,16 @@ function TransferenciasEstoque() {
       </section>
     </div>}
     {showTransferConfirmation && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !transferSaving) setShowTransferConfirmation(false); }} style={{ position: "fixed", inset: 0, zIndex: 1300, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
-      <section role="alertdialog" aria-modal="true" aria-labelledby="transfer-cubes-confirm-title" style={{ boxSizing: "border-box", width: "min(650px, 100%)", maxHeight: "85vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)" }}>
-        <h2 id="transfer-cubes-confirm-title" style={{ margin: "0 0 7px", color: "#334155", fontSize: "1.4rem" }}>Confirmar registro de transferência</h2>
+      <section role="alertdialog" aria-modal="true" aria-labelledby="transfer-cubes-confirm-title" style={{ boxSizing: "border-box", width: "min(650px, 100%)", maxHeight: "85vh", overflowY: "auto", padding: 24, border: "1px solid #e2e8f0", borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)", fontSize: "16px" }}>
+        <h2 id="transfer-cubes-confirm-title" style={{ margin: "0 0 7px", color: "#334155", fontSize: "24px" }}>Confirmar registro de transferência</h2>
         <p style={{ margin: "0 0 16px", color: "#64748b", lineHeight: 1.5 }}>Confira as cubas e os destinos. Será criado apenas o registro; nenhuma cuba será movimentada ainda.</p>
         {[{ store: "Loja Ahu", cubas: assignedAhuCubas }, { store: "Loja Alto XV", cubas: assignedAltoXvCubas }].filter(group => group.cubas.length > 0).map(group => <div key={group.store} style={{ marginTop: 12, padding: 13, border: "1px solid #dbe3ec", borderRadius: 8, background: "#f8fafc" }}>
-          <h3 style={{ margin: "0 0 8px", color: "#475569", fontSize: "1rem" }}>{group.store} — {group.cubas.length} cuba(s)</h3>
-          <ul style={{ display: "grid", gap: 5, margin: 0, paddingLeft: 20, color: "#334155", fontSize: ".9rem" }}>{group.cubas.map(cube => <li key={cube.id}>{cube.cadastro_produtos?.nome || "Sabor"} · {cube.codigo || "Sem código"} · {cube.peso_liquido != null ? `${Number(cube.peso_liquido).toFixed(3)} kg` : "Peso líquido —"}</li>)}</ul>
+          <h3 style={{ margin: "0 0 8px", color: "#475569", fontSize: "17px" }}>{group.store} — {group.cubas.length} cuba(s)</h3>
+          <ul style={{ display: "grid", gap: 5, margin: 0, paddingLeft: 20, color: "#334155", fontSize: "15px" }}>{group.cubas.map(cube => <li key={cube.id}>{cube.cadastro_produtos?.nome || "Sabor"} · {cube.codigo || "Sem código"} · {cube.peso_liquido != null ? `${Number(cube.peso_liquido).toFixed(3)} kg` : "Peso líquido —"}</li>)}</ul>
         </div>)}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
-          <button type="button" onClick={() => setShowTransferConfirmation(false)} disabled={transferSaving} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, cursor: "pointer" }}>Voltar</button>
-          <button type="button" onClick={() => void saveNewTransfer(true)} disabled={transferSaving} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, cursor: transferSaving ? "wait" : "pointer" }}>{transferSaving ? <><Icons.BsArrowClockwise className="spin" /> Registrando...</> : <><Icons.BsCheckCircleFill /> Registrar transferência</>}</button>
+          <button type="button" onClick={() => setShowTransferConfirmation(false)} disabled={transferSaving} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontWeight: 700, fontSize: "16px", cursor: "pointer" }}>Voltar</button>
+          <button type="button" onClick={() => void saveNewTransfer(true)} disabled={transferSaving} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, fontSize: "16px", cursor: transferSaving ? "wait" : "pointer" }}>{transferSaving ? <><Icons.BsArrowClockwise className="spin" /> Registrando...</> : <><Icons.BsCheckCircleFill /> Registrar transferência</>}</button>
         </div>
       </section>
     </div>}

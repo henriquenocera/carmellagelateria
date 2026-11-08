@@ -1036,7 +1036,11 @@ function ProducaoRealizada() {
           </div>
           </dialog>}
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", flexWrap: "wrap", marginBottom: "12px", alignItems: "center" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16, marginBottom: 12, paddingBottom: 8, borderBottom: "1px solid #e2e8f0", overflowX: "auto" }}>
+            <div role="tablist" aria-label="Categoria da produção" style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+              {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { setActiveCategory(category); setFilterProdutoId(null); }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>{category}</button>)}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, flexShrink: 0, whiteSpace: "nowrap" }}>
             <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={() => { setEditingRowId(null); setNewRowCategory("Gelato"); setShowCategoryModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
             {!labelSelectionMode ? <button type="button" onClick={() => { setSelectedLabelIds([]); setLabelSelectionMode(true); }} style={{ padding: "6px 12px", backgroundColor: "#fff7ed", color: "#9a3412", border: "1px solid #fed7aa", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir Etiquetas</button> : <>
               <button type="button" onClick={() => { setLabelSelectionMode(false); setSelectedLabelIds([]); }} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem" }}>Cancelar seleção</button>
@@ -1058,9 +1062,7 @@ function ProducaoRealizada() {
               style={{ padding: "6px 12px", backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"), color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"), border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`, borderRadius: "4px", cursor: "pointer", fontWeight: filterStatus === 'deleted' ? "bold" : "normal", display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", whiteSpace: "nowrap", animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none" }}
               title={filterStatus === 'deleted' ? "Ver Todas as Produções" : "Ver Itens Aguardando Exclusão"}
             ><Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}</button>}
-          </div>
-          <div role="tablist" aria-label="Categoria da produção" style={{ display: "flex", gap: 8, marginBottom: 12, borderBottom: "1px solid #e2e8f0", paddingBottom: 8 }}>
-            {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { setActiveCategory(category); setFilterProdutoId(null); }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer" }}>{category}</button>)}
+            </div>
           </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
               <table className="freq-table" style={{ minWidth: isDessertsTab ? (labelSelectionMode ? "1080px" : "1040px") : (labelSelectionMode ? "1640px" : "1600px") }}>
