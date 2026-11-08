@@ -824,7 +824,9 @@ function ProducaoRealizada() {
             70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
           }
-          .producao-table .freq-table tbody tr:hover td { filter: brightness(0.93); }
+          .producao-table .freq-table tbody tr.production-data-row > td { border-bottom: 1px solid #cbd5e1 !important; transition: background-color .15s ease; }
+          .producao-table .freq-table tbody tr.production-data-row:hover > td { background-color: #f1f6fb !important; }
+          .producao-table .freq-table tbody tr.production-data-row[aria-selected="true"]:hover > td { background-color: #e5efff !important; }
           .producao-table .freq-table th { padding: 6px !important; font-size: 1.1rem !important; line-height: 1.2 !important; }
           .producao-table .freq-table td { padding: 5px 6px !important; font-size: 1.15rem !important; line-height: 1.25 !important; height: auto !important; }
           .production-new-modal { position: fixed; left: 50%; top: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); margin: 0; box-sizing: border-box; width: 1124px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: visible; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px 30px; box-shadow: 0 20px 50px rgba(15,23,42,.25); }
@@ -1043,18 +1045,31 @@ function ProducaoRealizada() {
             <button onClick={() => setProductionDateSort(current => current === "desc" ? "asc" : "desc")} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsSortDownAlt /> Data da produção: {productionDateSort === "desc" ? "decrescente" : "crescente"}</button>
             <button onClick={() => { setFilterProdutoId(null); setFilterData(""); setFilterStatus('all'); }} style={{ padding: "6px 12px", backgroundColor: "#cbd5e1", color: "#334155", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsXCircleFill /> Limpar</button>
             <button onClick={() => fetchData(false, 0)} style={{ padding: "6px 12px", backgroundColor: "#f1f5f9", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsArrowClockwise /> Atualizar</button>
+            {isAdmin && <button
+              type="button"
+              onClick={() => {
+                const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
+                setFilterStatus(newStatus);
+                if (newStatus === 'deleted') {
+                  setFilterProdutoId(null);
+                  setFilterData("");
+                }
+              }}
+              style={{ padding: "6px 12px", backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"), color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"), border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`, borderRadius: "4px", cursor: "pointer", fontWeight: filterStatus === 'deleted' ? "bold" : "normal", display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "0.85rem", whiteSpace: "nowrap", animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none" }}
+              title={filterStatus === 'deleted' ? "Ver Todas as Produções" : "Ver Itens Aguardando Exclusão"}
+            ><Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}</button>}
           </div>
           <div role="tablist" aria-label="Categoria da produção" style={{ display: "flex", gap: 8, marginBottom: 12, borderBottom: "1px solid #e2e8f0", paddingBottom: 8 }}>
             {productionCategories.map(category => <button key={category} type="button" role="tab" aria-selected={activeCategory === category} onClick={() => { setActiveCategory(category); setFilterProdutoId(null); }} style={{ padding: "9px 18px", border: "1px solid", borderColor: activeCategory === category ? "var(--primary-color)" : "#cbd5e1", borderRadius: 6, background: activeCategory === category ? "var(--primary-color)" : "white", color: activeCategory === category ? "white" : "#475569", fontWeight: 700, cursor: "pointer" }}>{category}</button>)}
           </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-             <table className="freq-table" style={{ minWidth: isDessertsTab ? (labelSelectionMode ? "1090px" : "1050px") : (labelSelectionMode ? "1650px" : "1610px") }}>
+              <table className="freq-table" style={{ minWidth: isDessertsTab ? (labelSelectionMode ? "1080px" : "1040px") : (labelSelectionMode ? "1640px" : "1600px") }}>
               <thead>
                 <tr>
                   {labelSelectionMode && <th title="Selecionar linha" style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}>✓</th>}
                   <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
                   <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
-                  <th style={{ width: "250px" }}>Produto</th>
+                  <th style={{ width: "240px", minWidth: "240px" }}>Produto</th>
                   {activeCategory === "Food Service" && <>
                     <th style={{ textAlign: "center", width: "130px" }}>Embalagem</th>
                     <th style={{ textAlign: "center", width: "180px" }}>Cliente</th>
@@ -1079,7 +1094,7 @@ function ProducaoRealizada() {
                   {labelSelectionMode && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}></th>
-                  <th style={{ padding: "8px" }}>
+                  <th style={{ padding: "8px", minWidth: "240px" }}>
                     <Select
                       menuPortalTarget={document.body}
                       maxMenuHeight={350}
@@ -1095,11 +1110,15 @@ function ProducaoRealizada() {
                           borderColor: '#cbd5e1',
                           minHeight: '38px',
                           borderRadius: '4px',
+                          minWidth: '210px',
                           fontSize: '1.1rem'
                         }),
+                        menu: (base) => ({ ...base, minWidth: '240px' }),
+                        option: (base) => ({ ...base, whiteSpace: 'nowrap' }),
                         menuPortal: (base) => ({
                           ...base,
                           zIndex: 9999,
+                          minWidth: '240px',
                           fontSize: '1.1rem'
                         })
                       }}
@@ -1117,39 +1136,7 @@ function ProducaoRealizada() {
                     />
                   </th>
                   {isDessertsTab && <th style={{ padding: "8px" }}></th>}
-                  <th colSpan={isDessertsTab ? 3 : activeCategory === "Food Service" ? 6 : 8} style={{ padding: "8px", textAlign: "right" }}>
-                        <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "nowrap" }}>
-                      {isAdmin && (
-                        <button
-                          onClick={() => {
-                            const newStatus = filterStatus === 'deleted' ? 'all' : 'deleted';
-                            setFilterStatus(newStatus);
-                            if (newStatus === 'deleted') {
-                              setFilterProdutoId(null);
-                              setFilterData("");
-                            }
-                          }}
-                          style={{
-                            padding: "6px 12px",
-                            backgroundColor: filterStatus === 'deleted' ? "#fca5a5" : (pendingDeleteCount > 0 ? "#fee2e2" : "#fff"),
-                            color: filterStatus === 'deleted' ? "#7f1d1d" : (pendingDeleteCount > 0 ? "#b91c1c" : "#64748b"),
-                            border: `1px solid ${filterStatus === 'deleted' ? "#f87171" : (pendingDeleteCount > 0 ? "#fca5a5" : "#e2e8f0")}`,
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                            fontWeight: filterStatus === 'deleted' ? "bold" : "normal",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            fontSize: "0.85rem",
-                            animation: pendingDeleteCount > 0 && filterStatus !== 'deleted' ? "pulse-red 2s infinite" : "none"
-                          }}
-                          title={filterStatus === 'deleted' ? "Ver Todas as Produções" : "Ver Itens Aguardando Exclusão"}
-                        >
-                          <Icons.BsTrashFill /> Deletados {pendingDeleteCount > 0 ? `(${pendingDeleteCount})` : ""}
-                        </button>
-                      )}
-                    </div>
-                  </th>
+                  <th colSpan={isDessertsTab ? 3 : activeCategory === "Food Service" ? 6 : 8} style={{ padding: "8px" }} />
                 </tr>
               </thead>
               <tbody>
@@ -1172,7 +1159,9 @@ function ProducaoRealizada() {
                     const isLabelSelected = selectedLabelIds.includes(prod.id);
                     
                     return (
-                      <tr 
+                      <tr
+                        className="production-data-row"
+                        aria-selected={labelSelectionMode ? isLabelSelected : undefined}
                         key={prod.id} 
                         onClick={labelSelectionMode ? () => toggleLabelSelection(prod.id, !isLabelSelected) : undefined}
                         style={{ 
