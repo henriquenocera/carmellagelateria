@@ -15,6 +15,15 @@ type ShoppingItem = {
   cadastro_insumos?: { nome?: string; tipo?: string; unidade_conversao?: string } | null;
 };
 type ShoppingList = { id: number; nome: string; created_at: string; user_id?: string | null; criado_por?: string | null; status: "Aberta" | "Fechada"; profiles?: { name?: string | null } | null; itens: ShoppingItem[] };
+type PurchaseStats = {
+  lastDate: string;
+  lastCost: number | null;
+  lastSupplier: string | null;
+  sum: number;
+  count: number;
+  min: number | null;
+  max: number | null;
+};
 
 function ListaCompras() {
   const { user } = useAuth();
@@ -26,24 +35,65 @@ function ListaCompras() {
   const [selectedInsumo, setSelectedInsumo] = useState<Record<number, any>>({});
   const [quantidades, setQuantidades] = useState<Record<number, string>>({});
   const [showOpenListWarning, setShowOpenListWarning] = useState(false);
+  const [purchaseStats, setPurchaseStats] = useState<Record<string, PurchaseStats>>({});
+  const [editingQuantity, setEditingQuantity] = useState<{ id: number; value: string } | null>(null);
 
   useEffect(() => { void fetchData(); }, []);
 
   async function fetchData() {
     setLoading(true);
     try {
-      const [{ data: materialData, error: materialError }, { data: listData, error: listError }] = await Promise.all([
+      const [{ data: materialData, error: materialError }, { data: listData, error: listError }, stats] = await Promise.all([
         supabase.from("cadastro_insumos").select("id, nome, tipo, unidade_conversao").eq("ativo", true).order("nome", { ascending: true }),
-        supabase.from("lista_compras_manual").select("id, nome, created_at, user_id, criado_por, status, profiles(name), lista_compras_manual_itens(id, lista_id, insumo_id, quantidade, comprado, origem, cadastro_insumos(nome, tipo, unidade_conversao))").order("created_at", { ascending: false })
+        supabase.from("lista_compras_manual").select("id, nome, created_at, user_id, criado_por, status, profiles(name), lista_compras_manual_itens(id, lista_id, insumo_id, quantidade, comprado, origem, cadastro_insumos(nome, tipo, unidade_conversao))").order("created_at", { ascending: false }),
+        fetchPurchaseStats()
       ]);
       if (materialError) throw materialError;
       if (listError) throw listError;
       setInsumos(materialData || []);
+      setPurchaseStats(stats);
       setListas((listData || []).map((list: any) => ({ ...list, itens: list.lista_compras_manual_itens || [] })));
     } catch (error) {
       console.error("Erro ao buscar listas de compras:", error);
       alert("Erro ao buscar listas de compras. Verifique se a migração do banco de dados foi aplicada.");
     } finally { setLoading(false); }
+  }
+
+  async function fetchPurchaseStats() {
+    const toDateKey = (date: Date) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const today = new Date();
+    const start = new Date(today.getFullYear() - 1, today.getMonth(), 1);
+    const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0).getDate();
+    start.setDate(Math.min(today.getDate(), lastDay));
+    const startDate = toDateKey(start);
+    const stats: Record<string, PurchaseStats> = {};
+    const pageSize = 1000;
+    for (let offset = 0; ; offset += pageSize) {
+      const { data, error } = await supabase.from("entradas_mercadoria")
+        .select("insumo_id, data_compra, valor_unitario, fornecedor")
+        .lte("data_compra", toDateKey(today))
+        .order("data_compra", { ascending: false })
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(offset, offset + pageSize - 1);
+      if (error) throw error;
+      for (const purchase of data || []) {
+        const cost = purchase.valor_unitario == null ? null : Number(purchase.valor_unitario);
+        const validCost = cost !== null && Number.isFinite(cost) ? cost : null;
+        const entry = stats[purchase.insumo_id] ?? (stats[purchase.insumo_id] = {
+          lastDate: purchase.data_compra, lastCost: validCost, lastSupplier: purchase.fornecedor,
+          sum: 0, count: 0, min: null, max: null
+        });
+        if (purchase.data_compra >= startDate && validCost !== null) {
+          entry.sum += validCost;
+          entry.count += 1;
+          entry.min = entry.min === null ? validCost : Math.min(entry.min, validCost);
+          entry.max = entry.max === null ? validCost : Math.max(entry.max, validCost);
+        }
+      }
+      if (!data || data.length < pageSize) break;
+    }
+    return stats;
   }
 
   async function handleCreateList() {
@@ -97,9 +147,13 @@ function ListaCompras() {
     setListas(current => current.map(list => list.id === item.lista_id ? { ...list, itens: list.itens.filter(row => row.id !== item.id) } : list));
   }
 
-  async function handleEditQuantity(item: ShoppingItem) {
-    const value = window.prompt(`Quantidade a comprar de ${item.cadastro_insumos?.nome || "material"}:`, String(item.quantidade));
-    if (value === null) return;
+  function handleEditQuantity(item: ShoppingItem) {
+    setEditingQuantity({ id: item.id, value: String(item.quantidade) });
+  }
+
+  async function handleSaveQuantity(item: ShoppingItem) {
+    if (!editingQuantity || editingQuantity.id !== item.id || saving) return;
+    const value = editingQuantity.value;
     const quantidade = Number(value.trim().replace(",", "."));
     if (!value.trim() || !Number.isFinite(quantidade) || quantidade <= 0) {
       alert("Informe uma quantidade maior que zero.");
@@ -113,6 +167,7 @@ function ListaCompras() {
       setListas(current => current.map(list => list.id === item.lista_id
         ? { ...list, itens: list.itens.map(row => row.id === item.id ? { ...row, quantidade: data.quantidade } : row) }
         : list));
+      setEditingQuantity(null);
     } catch (error) {
       console.error("Erro ao editar quantidade:", error);
       alert("Não foi possível atualizar a quantidade do material.");
@@ -136,6 +191,27 @@ function ListaCompras() {
   }
 
   const formatDate = (date: string) => date ? new Date(date).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }) : "—";
+  const formatPurchaseDate = (date?: string) => date ? date.split("-").reverse().join("/") : "—";
+  const formatTimeSincePurchase = (date?: string) => {
+    if (!date) return "";
+    const [year, month, day] = date.split("-").map(Number);
+    const today = new Date();
+    const days = Math.floor((Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()) - Date.UTC(year, month - 1, day)) / 86400000);
+    if (days <= 0) return "hoje";
+    let months = (today.getFullYear() - year) * 12 + today.getMonth() - (month - 1);
+    if (today.getDate() < day) months -= 1;
+    if (months >= 12) {
+      const years = Math.floor(months / 12);
+      return `${years} ${years === 1 ? "ano" : "anos"}`;
+    }
+    if (months >= 1) return `${months} ${months === 1 ? "mês" : "meses"}`;
+    if (days >= 7) {
+      const weeks = Math.floor(days / 7);
+      return `${weeks} ${weeks === 1 ? "semana" : "semanas"}`;
+    }
+    return `${days} ${days === 1 ? "dia" : "dias"}`;
+  };
+  const formatCurrency = (value?: number | null) => value == null ? "—" : value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   const options = insumos.map(item => ({ value: item.id, label: item.nome }));
 
   return <>
@@ -150,6 +226,14 @@ function ListaCompras() {
         .shopping-item-actions { display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: nowrap; }
         .shopping-item-actions button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin: 0; padding: 4px; background: none; border: none; cursor: pointer; font-size: 1.1rem; }
         .shopping-item-actions button:disabled { cursor: wait; opacity: .5; }
+        .shopping-lists-page .shopping-items-table th,
+        .shopping-lists-page .shopping-items-table td { white-space: normal !important; overflow-wrap: anywhere; text-align: left !important; }
+        .shopping-lists-page .shopping-items-table .shopping-item-actions { justify-content: flex-start; }
+        .shopping-quantity-edit { display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px; margin: -3px -6px; border: none; border-radius: 4px; background: transparent; color: inherit; font: inherit; font-weight: 700; cursor: pointer; }
+        .shopping-quantity-edit svg { opacity: 0; color: #3b82f6; }
+        .shopping-quantity-edit:hover, .shopping-quantity-edit:focus-visible { background: #e5efff; color: #2563eb; }
+        .shopping-quantity-edit:hover svg, .shopping-quantity-edit:focus-visible svg { opacity: 1; }
+        .shopping-quantity-edit:disabled { cursor: wait; opacity: .5; }
       `}</style>
     </Helmet>
     <div className="frequencia-container shopping-lists-page">
@@ -181,11 +265,76 @@ function ListaCompras() {
                       <div style={{ width: 140 }}><label style={{ display: "block", marginBottom: 6, fontWeight: 700 }}>Quantidade</label><input type="number" min="0" step="any" value={quantidades[list.id] || ""} onChange={event => setQuantidades(current => ({ ...current, [list.id]: event.target.value }))} style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: 5, boxSizing: "border-box" }} /></div>
                       <button type="button" disabled={saving} onClick={() => void handleAddItem(list.id)} style={{ height: 38, display: "inline-flex", alignItems: "center", gap: 7, padding: "0 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "white", fontWeight: 700, cursor: "pointer" }}><Icons.BsPlusCircle /> Adicionar material</button>
                     </div>
-                    {list.itens.length === 0 ? <div style={{ padding: 18, textAlign: "center", color: "#64748b" }}>Esta lista ainda não possui materiais.</div> : <div style={{ overflowX: "auto" }}><table className="freq-table" style={{ minWidth: 760, background: "white" }}><thead><tr><th style={{ width: 50, textAlign: "center" }}>Status</th><th>Material</th><th>Tipo</th><th style={{ textAlign: "center" }}>Unidade</th><th style={{ textAlign: "center" }}>Quantidade a comprar</th><th style={{ textAlign: "center" }}>Origem</th><th style={{ textAlign: "center" }}>Ações</th></tr></thead><tbody>{list.itens.map(item => <tr key={item.id} style={{ opacity: item.comprado ? .55 : 1 }}><td style={{ textAlign: "center" }}><input type="checkbox" checked={item.comprado} onChange={() => void handleToggle(item)} /></td><td style={{ fontWeight: 600, textDecoration: item.comprado ? "line-through" : undefined }}>{item.cadastro_insumos?.nome || "Insumo excluído"}</td><td>{item.cadastro_insumos?.tipo || "—"}</td><td style={{ textAlign: "center" }}>{item.cadastro_insumos?.unidade_conversao || "—"}</td><td style={{ textAlign: "center", fontWeight: 700 }}>{item.quantidade}</td><td style={{ textAlign: "center" }}>{item.origem || "Manual"}</td><td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
+                    {list.itens.length === 0 ? <div style={{ padding: 18, textAlign: "center", color: "#64748b" }}>Esta lista ainda não possui materiais.</div> : <div style={{ overflowX: "auto" }}>
+                      <table className="freq-table shopping-items-table" style={{ minWidth: 1840, width: "100%", tableLayout: "fixed", background: "white" }}>
+                        <colgroup>
+                          <col style={{ width: 60 }} />
+                          <col style={{ width: 240 }} />
+                          <col style={{ width: 100 }} />
+                          <col style={{ width: 100 }} />
+                          <col style={{ width: 120 }} />
+                          {Array.from({ length: 6 }, (_, index) => <col key={index} style={{ width: 190 }} />)}
+                          <col style={{ width: 80 }} />
+                        </colgroup>
+                        <thead><tr>
+                          <th style={{ width: 50, textAlign: "center" }}>Status</th>
+                          <th style={{ minWidth: 240 }}>Material</th>
+                          <th style={{ textAlign: "center" }}>Qntd a comprar</th>
+                          <th style={{ textAlign: "center" }}>Unidade</th>
+                          <th style={{ textAlign: "center" }}>Origem</th>
+                          <th style={{ textAlign: "center" }}>Data da última compra</th>
+                          <th style={{ textAlign: "center" }}>Último custo unitário</th>
+                          <th style={{ textAlign: "center" }}>Último fornecedor</th>
+                          <th style={{ textAlign: "center" }}>Média de valor 12 meses</th>
+                          <th style={{ textAlign: "center" }}>Histórico menor valor 12 meses</th>
+                          <th style={{ textAlign: "center" }}>Histórico maior valor 12 meses</th>
+                          <th style={{ textAlign: "center" }}>Ações</th>
+                        </tr></thead>
+                        <tbody>{list.itens.map(item => {
+                          const stats = purchaseStats[item.insumo_id];
+                          return <tr key={item.id} style={{ opacity: item.comprado ? .55 : 1 }}>
+                            <td style={{ textAlign: "center" }}><input type="checkbox" checked={item.comprado} onChange={() => void handleToggle(item)} /></td>
+                            <td style={{ fontWeight: 600, textDecoration: item.comprado ? "line-through" : undefined }}>{item.cadastro_insumos?.nome || "Insumo excluído"}</td>
+                            <td style={{ textAlign: "center", fontWeight: 700 }}>
+                              {editingQuantity?.id === item.id ? (
+                                <form onSubmit={event => { event.preventDefault(); void handleSaveQuantity(item); }} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                  <input
+                                    autoFocus
+                                    type="number"
+                                    min="0"
+                                    step="any"
+                                    required
+                                    aria-label={`Quantidade de ${item.cadastro_insumos?.nome || "material"}`}
+                                    value={editingQuantity.value}
+                                    disabled={saving}
+                                    onFocus={event => event.target.select()}
+                                    onChange={event => setEditingQuantity({ id: item.id, value: event.target.value })}
+                                    onKeyDown={event => { if (event.key === "Escape" && !saving) setEditingQuantity(null); }}
+                                    style={{ width: 40, flex: 1, minWidth: 0, padding: "4px", border: "1px solid #93c5fd", borderRadius: 4, font: "inherit" }}
+                                  />
+                                  <button type="submit" disabled={saving} title="Salvar quantidade" aria-label="Salvar quantidade" style={{ display: "inline-flex", padding: 2, border: 0, background: "none", color: "#16a34a", cursor: "pointer" }}><Icons.BsCheckLg /></button>
+                                  <button type="button" disabled={saving} title="Cancelar edição" aria-label="Cancelar edição" onClick={() => setEditingQuantity(null)} style={{ display: "inline-flex", padding: 2, border: 0, background: "none", color: "#ef4444", cursor: "pointer" }}><Icons.BsXLg /></button>
+                                </form>
+                              ) : (
+                              <button type="button" className="shopping-quantity-edit" disabled={saving} title="Clique para editar a quantidade" aria-label={`Editar quantidade de ${item.cadastro_insumos?.nome || "material"}: ${item.quantidade}`} onClick={() => void handleEditQuantity(item)}>
+                                {item.quantidade}<Icons.BsPencil aria-hidden="true" />
+                              </button>
+                              )}
+                            </td>
+                            <td style={{ textAlign: "center" }}>{item.cadastro_insumos?.unidade_conversao || "—"}</td>
+                            <td style={{ textAlign: "center" }}>{item.origem || "Manual"}</td>
+                            <td style={{ textAlign: "center" }}>{formatPurchaseDate(stats?.lastDate)}{stats?.lastDate && <span style={{ marginLeft: 6, color: "#64748b" }}>({formatTimeSincePurchase(stats.lastDate)})</span>}</td>
+                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.lastCost)}</td>
+                            <td style={{ textAlign: "center" }}>{stats?.lastSupplier || "—"}</td>
+                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.count ? stats.sum / stats.count : null)}</td>
+                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.min)}</td>
+                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.max)}</td>
+                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
                       <div className="shopping-item-actions">
                         <button type="button" disabled={saving} title="Editar quantidade a comprar" aria-label={`Editar quantidade de ${item.cadastro_insumos?.nome || "material"}`} onClick={() => void handleEditQuantity(item)} style={{ color: "#3b82f6" }}><Icons.BsPencil /></button>
                         <button type="button" className="delete-record-btn" title="Remover material" aria-label={`Remover ${item.cadastro_insumos?.nome || "material"}`} onClick={() => void handleDeleteItem(item)} style={{ color: "#ef4444" }}><Icons.BsTrash /></button>
-                      </div></td></tr>)}</tbody></table></div>}
+                      </div></td></tr>;
+                        })}</tbody></table></div>}
                   </td></tr>}
                 </React.Fragment>;
               })}
