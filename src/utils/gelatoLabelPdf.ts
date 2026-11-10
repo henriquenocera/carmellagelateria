@@ -3,6 +3,7 @@ import { jsPDF } from "jspdf";
 export type GelatoLabelPdfItem = {
   flavor: string;
   date: string;
+  code?: string | null;
   peso?: string;
   tara?: string;
 };
@@ -62,6 +63,7 @@ export async function generateGelatoLabelsPdf(items: GelatoLabelPdfItem[]) {
     runningCounts[countKey] = (runningCounts[countKey] || 0) + 1;
     let fullCode = datePart ? `${prefix}-${datePart}` : prefix;
     if (totalCounts[countKey] > 1) fullCode += `-${String(runningCounts[countKey]).padStart(2, "0")}`;
+    if (item.code !== undefined) fullCode = item.code || "—";
 
     doc.setFont(labelFont, "bold");
     doc.setFontSize(item.flavor.length > 22 ? 7.5 : 9);

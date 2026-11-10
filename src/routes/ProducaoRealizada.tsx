@@ -152,9 +152,17 @@ function ProducaoRealizada() {
   const [filterStatus, setFilterStatus] = useState<'all' | 'deleted'>('all');
   const [productionDateSort, setProductionDateSort] = useState<"desc" | "asc">("desc");
   const [labelSelectionMode, setLabelSelectionMode] = useState(false);
+  const [deleteSelectionMode, setDeleteSelectionMode] = useState(false);
+  const [selectedDeleteIds, setSelectedDeleteIds] = useState<string[]>([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const selectionMode = labelSelectionMode || deleteSelectionMode;
   const showEntryAndDestination = activeCategory === "Gelato";
-  const tableColumnCount = (labelSelectionMode ? 14 : 13) - (isDessertsTab ? 4 : 0);
+  const tableColumnCount = (selectionMode ? 14 : 13) - (isDessertsTab ? 4 : 0);
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
+  useEffect(() => {
+    setSelectedDeleteIds([]);
+    setSelectedLabelIds([]);
+  }, [activeCategory, filterProdutoId, filterData, filterStatus]);
   const productionDateSaveTimers = useRef<Record<string, number>>({});
 
   useEffect(() => () => {
@@ -465,8 +473,8 @@ function ProducaoRealizada() {
       const usedCodes = new Set((existingProds || []).map((production: any) => production.codigo).filter(Boolean));
       const productionCodes: string[] = [];
       for (let index = 0; index < packagingCount; index += 1) {
-        let candidate = baseCodProducao;
         let suffix = 1;
+        let candidate = `${baseCodProducao}-${suffix++}`;
         while (usedCodes.has(candidate)) candidate = `${baseCodProducao}-${suffix++}`;
         usedCodes.add(candidate);
         productionCodes.push(candidate);
@@ -592,8 +600,8 @@ function ProducaoRealizada() {
             .neq("id", id);
           if (codeError) throw codeError;
           const usedCodes = new Set((existingCodes || []).map((row: any) => row.codigo).filter(Boolean));
-          let nextCode = baseCode;
           let suffix = 1;
+          let nextCode = `${baseCode}-${suffix++}`;
           while (usedCodes.has(nextCode)) nextCode = `${baseCode}-${suffix++}`;
           updateData.codigo = nextCode;
         } else if (!value) {
@@ -686,7 +694,7 @@ function ProducaoRealizada() {
             .neq("id", prod.id);
           if (existingCodesError) throw existingCodesError;
 
-          finalCodProducao = baseCodProducao;
+          finalCodProducao = `${baseCodProducao}-1`;
           if (existingProds && existingProds.length > 0) {
             let maxSuffix = -1;
             for (const p of existingProds) {
@@ -796,11 +804,43 @@ function ProducaoRealizada() {
       : current.filter(selectedId => selectedId !== id));
   };
 
+  const toggleDeleteSelection = (id: string, selected: boolean) => {
+    if (bulkDeleting) return;
+    setSelectedDeleteIds(current => selected ? Array.from(new Set([...current, id])) : current.filter(value => value !== id));
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = producoes.filter(row => selectedDeleteIds.includes(row.id) && (isAdmin || row.status_revisao !== "pending_delete")).map(row => row.id);
+    if (!ids.length || bulkDeleting) return;
+    if (!window.confirm(isAdmin
+      ? `Excluir definitivamente ${ids.length} registros de produção selecionados?`
+      : `Solicitar a exclusão de ${ids.length} registros de produção selecionados?`)) return;
+    setBulkDeleting(true);
+    try {
+      const query = supabase.from("producao_realizada");
+      const { data, error } = await (isAdmin ? query.delete() : query.update({ status_revisao: "pending_delete" })).in("id", ids).select("id");
+      if (error) throw error;
+      const affectedIds = new Set((data || []).map(row => row.id));
+      if (affectedIds.size !== ids.length) throw new Error("Nem todos os registros puderam ser alterados. Confira os registros restantes.");
+      setProducoes(current => current.filter(row => !affectedIds.has(row.id)));
+      setSelectedLabelIds(current => current.filter(id => !affectedIds.has(id)));
+      setTotalCount(current => Math.max(0, current - affectedIds.size));
+      setSelectedDeleteIds([]);
+      setDeleteSelectionMode(false);
+    } catch (error: any) {
+      console.error("Erro na exclusão em massa:", error);
+      alert(`Não foi possível concluir a exclusão em massa: ${error.message || "erro inesperado"}`);
+      await fetchData(false, 0);
+      setSelectedDeleteIds([]);
+    } finally { setBulkDeleting(false); }
+  };
+
   const handlePrintSelectedLabels = async () => {
     const selectedProductions = producoes.filter(production => selectedLabelIds.includes(production.id));
     if (!selectedProductions.length) return;
     try {
       await generateGelatoLabelsPdf(selectedProductions.map(production => ({
+        code: production.codigo ?? null,
         flavor: production.cadastro_produtos?.nome || "Sabor",
         date: production.data_producao || "",
         peso: production.peso_bruto == null ? "" : Number(production.peso_bruto).toFixed(3),
@@ -827,6 +867,8 @@ function ProducaoRealizada() {
           .producao-table .freq-table tbody tr.production-data-row > td { border-bottom: 1px solid #cbd5e1 !important; transition: background-color .15s ease; }
           .producao-table .freq-table tbody tr.production-data-row:hover > td { background-color: #f1f6fb !important; }
           .producao-table .freq-table tbody tr.production-data-row[aria-selected="true"]:hover > td { background-color: #e5efff !important; }
+          .producao-table .freq-table tbody tr.production-data-row[data-delete-selected="true"] > td { background-color: #fee2e2 !important; }
+          .producao-table .freq-table tbody tr.production-data-row[data-delete-selected="true"]:hover > td { background-color: #fecaca !important; }
           .producao-table .freq-table th { padding: 6px !important; font-size: 1.1rem !important; line-height: 1.2 !important; }
           .producao-table .freq-table td { padding: 5px 6px !important; font-size: 1.15rem !important; line-height: 1.25 !important; height: auto !important; }
           .production-new-modal { position: fixed; left: 50%; top: 50%; right: auto; bottom: auto; transform: translate(-50%, -50%); margin: 0; box-sizing: border-box; width: 1124px; max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); overflow: visible; border: 1px solid #e2e8f0; border-radius: 14px; padding: 28px 30px; box-shadow: 0 20px 50px rgba(15,23,42,.25); }
@@ -1042,9 +1084,13 @@ function ProducaoRealizada() {
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: 8, flexShrink: 0, whiteSpace: "nowrap" }}>
             <button type="button" className="financial-add-button" style={{ margin: 0 }} onClick={() => { setEditingRowId(null); setNewRowCategory("Gelato"); setShowCategoryModal(true); }}><Icons.BsPlusCircleFill /> Adicionar</button>
-            {!labelSelectionMode ? <button type="button" onClick={() => { setSelectedLabelIds([]); setLabelSelectionMode(true); }} style={{ padding: "6px 12px", backgroundColor: "#fff7ed", color: "#9a3412", border: "1px solid #fed7aa", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir Etiquetas</button> : <>
+            {!labelSelectionMode ? <button type="button" disabled={bulkDeleting} onClick={() => { setDeleteSelectionMode(false); setSelectedDeleteIds([]); setSelectedLabelIds([]); setEditingRowId(null); setLabelSelectionMode(true); }} style={{ padding: "6px 12px", backgroundColor: "#fff7ed", color: "#9a3412", border: "1px solid #fed7aa", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir Etiquetas</button> : <>
               <button type="button" onClick={() => { setLabelSelectionMode(false); setSelectedLabelIds([]); }} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem" }}>Cancelar seleção</button>
               {selectedLabelIds.length > 0 && <button type="button" onClick={() => void handlePrintSelectedLabels()} style={{ padding: "6px 12px", backgroundColor: "#80501f", color: "#fff", border: "1px solid #80501f", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsPrinterFill /> Imprimir etiquetas selecionadas ({selectedLabelIds.length})</button>}
+            </>}
+            {!deleteSelectionMode ? <button type="button" onClick={() => { setLabelSelectionMode(false); setSelectedLabelIds([]); setEditingRowId(null); setSelectedDeleteIds([]); setDeleteSelectionMode(true); }} style={{ padding: "6px 12px", background: "#fff1f2", color: "#b91c1c", border: "1px solid #fecaca", borderRadius: 4, cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: 5 }}><Icons.BsTrash /> Deletar em Massa</button> : <>
+              <button type="button" disabled={bulkDeleting} onClick={() => { setDeleteSelectionMode(false); setSelectedDeleteIds([]); }} style={{ padding: "6px 12px", background: "white", color: "#475569", border: "1px solid #cbd5e1", borderRadius: 4, cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem" }}>Cancelar exclusão</button>
+              <button type="button" disabled={bulkDeleting || selectedDeleteIds.length === 0} onClick={() => void handleBulkDelete()} style={{ padding: "6px 12px", background: "#b91c1c", color: "white", border: "1px solid #b91c1c", borderRadius: 4, cursor: bulkDeleting ? "wait" : "pointer", opacity: selectedDeleteIds.length ? 1 : .5, fontWeight: "bold", fontSize: "0.85rem" }}>{bulkDeleting ? "Excluindo..." : `Confirmar exclusão (${selectedDeleteIds.length})`}</button>
             </>}
             <button onClick={() => setProductionDateSort(current => current === "desc" ? "asc" : "desc")} style={{ padding: "6px 12px", backgroundColor: "#fff", color: "#475569", border: "1px solid #cbd5e1", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "5px" }}><Icons.BsSortDownAlt /> Data da produção: {productionDateSort === "desc" ? "decrescente" : "crescente"}</button>
             <button onClick={() => { setFilterProdutoId(null); setFilterData(""); setFilterStatus('all'); }} style={{ padding: "6px 12px", backgroundColor: "#cbd5e1", color: "#334155", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold", fontSize: "0.85rem", display: "inline-flex", alignItems: "center", gap: "4px" }}><Icons.BsXCircleFill /> Limpar</button>
@@ -1065,10 +1111,10 @@ function ProducaoRealizada() {
             </div>
           </div>
           <div className="freq-table-wrapper producao-table" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-              <table className="freq-table" style={{ minWidth: isDessertsTab ? (labelSelectionMode ? "1080px" : "1040px") : (labelSelectionMode ? "1640px" : "1600px") }}>
+              <table className="freq-table" style={{ minWidth: isDessertsTab ? (selectionMode ? "1080px" : "1040px") : (selectionMode ? "1640px" : "1600px") }}>
               <thead>
                 <tr>
-                  {labelSelectionMode && <th title="Selecionar linha" style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}>✓</th>}
+                  {selectionMode && <th title="Selecionar linha" style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}>✓</th>}
                   <th style={{ width: "150px", textAlign: "center" }}>Cód de Produção</th>
                   <th style={{ width: "100px", textAlign: "center" }}>Cód Produto</th>
                   <th style={{ width: "240px", minWidth: "240px" }}>Produto</th>
@@ -1093,7 +1139,7 @@ function ProducaoRealizada() {
                 </tr>
                 {/* Linha de Filtros */}
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
-                  {labelSelectionMode && <th style={{ padding: "8px" }}></th>}
+                  {selectionMode && <th style={{ padding: "8px" }}></th>}
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px" }}></th>
                   <th style={{ padding: "8px", minWidth: "240px" }}>
@@ -1159,21 +1205,30 @@ function ProducaoRealizada() {
                     const isNew = newlyAddedId === prod.id;
                     const isDeleting = false;
                     const isLabelSelected = selectedLabelIds.includes(prod.id);
+                    const isDeleteSelected = deleteSelectionMode && selectedDeleteIds.includes(prod.id);
+                    const canSelectDelete = isAdmin || prod.status_revisao !== "pending_delete";
                     
                     return (
                       <tr
                         className="production-data-row"
-                        aria-selected={labelSelectionMode ? isLabelSelected : undefined}
+                        aria-selected={selectionMode ? (deleteSelectionMode ? isDeleteSelected : isLabelSelected) : undefined}
+                        data-delete-selected={isDeleteSelected}
                         key={prod.id} 
-                        onClick={labelSelectionMode ? () => toggleLabelSelection(prod.id, !isLabelSelected) : undefined}
+                        onClick={selectionMode ? event => {
+                          if ((event.target as HTMLElement).closest("button, input, select, a, [role='combobox']")) return;
+                          if (deleteSelectionMode) {
+                            if (canSelectDelete) toggleDeleteSelection(prod.id, !isDeleteSelected);
+                          } else toggleLabelSelection(prod.id, !isLabelSelected);
+                        } : undefined}
                         style={{ 
-                          backgroundColor: isLabelSelected ? "#dbeafe" : isNew ? '#dcfce7' : (prod.status_revisao === 'pending_delete' ? '#fecaca' : 'inherit'),
+                          backgroundColor: isDeleteSelected ? "#fee2e2" : isLabelSelected ? "#dbeafe" : isNew ? '#dcfce7' : (prod.status_revisao === 'pending_delete' ? '#fecaca' : 'inherit'),
                           opacity: (isDeleting || prod.status_revisao === 'pending_delete') ? 0.6 : 1,
                           transition: "background-color .15s ease, opacity .5s ease",
-                          cursor: labelSelectionMode ? "pointer" : undefined
+                          cursor: selectionMode ? "pointer" : undefined
                         }}
                       >
                         {labelSelectionMode && <td style={{ width: 38, minWidth: 38, padding: "4px 2px", textAlign: "center" }}><input type="checkbox" aria-label={`Selecionar etiqueta de ${prod.cadastro_produtos?.nome || "produto"}`} checked={isLabelSelected} onClick={event => event.stopPropagation()} onChange={event => toggleLabelSelection(prod.id, event.target.checked)} /></td>}
+                        {deleteSelectionMode && <td style={{ width: 38, minWidth: 38, textAlign: "center" }}><input type="checkbox" style={{ accentColor: "#b91c1c" }} disabled={bulkDeleting || !canSelectDelete} aria-label={`Selecionar produção ${prod.codigo || prod.cadastro_produtos?.nome || "produto"} para exclusão`} checked={isDeleteSelected} onClick={event => event.stopPropagation()} onChange={event => toggleDeleteSelection(prod.id, event.target.checked)} /></td>}
                         <td style={{ textAlign: "center", fontWeight: "bold" }}>
                           {prod.codigo || "-"}
                           {prod.status_revisao === 'pending_delete' && (
