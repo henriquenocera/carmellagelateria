@@ -187,6 +187,10 @@ function CadastroInsumos() {
     setIsModalOpen(true);
   };
 
+  const duplicateInsumo = (insumo: any) => {
+    openModal({ ...insumo, id: undefined, nome: `(Cópia) - ${insumo.nome}` });
+  };
+
   async function handleToggleAtivo(id: string, currentAtivo: boolean) {
     try {
       setLoading(true);
@@ -608,6 +612,14 @@ function CadastroInsumos() {
                               style={{ margin: 0 }}
                             >
                               <Icons.BsPencil />
+                            </button>
+                            <button
+                              onClick={() => duplicateInsumo(insumo)}
+                              className="delete-record-btn"
+                              title="Criar cópia do insumo"
+                              style={{ margin: 0 }}
+                            >
+                              <Icons.BsFiles />
                             </button>
                             <button
                               onClick={() => handleDeleteInsumo(insumo.id)}

@@ -15,6 +15,22 @@ function ListaCompras() {
   const [byUnit, setByUnit] = useState<Record<string, any[]>>({});
   const [aggregated, setAggregated] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("all");
+  const [quantityOverrides, setQuantityOverrides] = useState<Record<string, number>>({});
+
+  const getItemKey = (storeName: string, insumoId: string) => `${storeName}:${insumoId}`;
+  const getQuantity = (storeName: string, insumoId: string, defaultQuantity: number) =>
+    quantityOverrides[getItemKey(storeName, insumoId)] ?? defaultQuantity;
+
+  const editQuantity = (storeName: string, insumoId: string, currentQuantity: number) => {
+    const value = window.prompt("Informe a quantidade a comprar:", String(currentQuantity));
+    if (value === null) return;
+    const quantity = Number(value.replace(",", "."));
+    if (!Number.isFinite(quantity) || quantity < 0) {
+      window.alert("Informe uma quantidade válida (zero ou maior).");
+      return;
+    }
+    setQuantityOverrides(current => ({ ...current, [getItemKey(storeName, insumoId)]: quantity }));
+  };
 
   const getToday = () => {
     const d = new Date();
@@ -294,7 +310,7 @@ function ListaCompras() {
                             {item.insumo.unidade_conversao || "-"}
                           </td>
                           <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.4rem", color: "var(--primary-color)", borderRight: "2px solid #e2e8f0" }}>
-                            {item.totalToOrder}
+                            {item.details.reduce((total: number, detail: any) => total + getQuantity(detail.storeName, item.insumo.id, detail.toOrder), 0)}
                           </td>
                           <td style={{ textAlign: "center", fontWeight: 600, fontSize: "1.1rem", color: "#475569", backgroundColor: "#f8fafc" }}>
                             {formatCurrency(stats.ultimoValor)}
@@ -323,7 +339,16 @@ function ListaCompras() {
                                   display: "inline-flex", alignItems: "center", gap: "6px", color: "#475569"
                                 }}>
                                   <Icons.BsShop style={{ color: "#94a3b8" }} />
-                                  {det.storeName}: <span style={{ color: "var(--primary-color)" }}>{det.toOrder}</span>
+                                  {det.storeName}: <span style={{ color: "var(--primary-color)" }}>{getQuantity(det.storeName, item.insumo.id, det.toOrder)}</span>
+                                  <button
+                                    type="button"
+                                    aria-label={`Editar quantidade para ${det.storeName}`}
+                                    title={`Editar quantidade para ${det.storeName}`}
+                                    onClick={() => editQuantity(det.storeName, item.insumo.id, getQuantity(det.storeName, item.insumo.id, det.toOrder))}
+                                    style={{ border: "none", background: "transparent", color: "var(--primary-color)", cursor: "pointer", padding: 0 }}
+                                  >
+                                    <Icons.BsPencil />
+                                  </button>
                                 </span>
                               ))}
                             </div>
@@ -382,7 +407,16 @@ function ListaCompras() {
                             {item.desejado}
                           </td>
                           <td style={{ textAlign: "center", fontWeight: "bold", fontSize: "1.4rem", color: "var(--primary-color)", borderRight: "2px solid #e2e8f0" }}>
-                            {item.toOrder}
+                            {getQuantity(activeTab, item.insumo.id, item.toOrder)}
+                            <button
+                              type="button"
+                              aria-label={`Editar quantidade a comprar de ${item.insumo.nome}`}
+                              title="Editar quantidade a comprar"
+                              onClick={() => editQuantity(activeTab, item.insumo.id, getQuantity(activeTab, item.insumo.id, item.toOrder))}
+                              style={{ marginLeft: "8px", border: "none", background: "transparent", color: "var(--primary-color)", cursor: "pointer" }}
+                            >
+                              <Icons.BsPencil />
+                            </button>
                           </td>
                           <td style={{ textAlign: "center", fontWeight: 600, fontSize: "1.1rem", color: "#475569", backgroundColor: "#f8fafc" }}>
                             {formatCurrency(stats.ultimoValor)}
