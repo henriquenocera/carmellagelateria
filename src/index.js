@@ -47,7 +47,6 @@ import Funcionarios from "./routes/Funcionarios.tsx";
 import HistoricoVT_VR from "./routes/HistoricoVT_VR.tsx";
 
 import ListaCompras from "./routes/ListaCompras.tsx";
-import ListaComprasManual from "./routes/ListaComprasManual.tsx";
 import EntradaMercadoria from "./routes/EntradaMercadoria.tsx";
 import CadastroProdutos from "./routes/configuracoes/CadastroProdutos.tsx";
 import AnaliseInsumos from "./routes/AnaliseInsumos.tsx";
@@ -166,7 +165,7 @@ const router = createBrowserRouter(
         <Route path="/movimentacoes-estoque" element={<MovimentacoesEstoque />} />
 
         <Route path="/lista-compras" element={<ListaCompras />} />
-        <Route path="/lista-compras-manual" element={<ListaComprasManual />} />
+        <Route path="/lista-compras-manual" element={<Navigate to="/lista-compras" replace />} />
         <Route path="/entrada-mercadoria" element={<EntradaMercadoria />} />
         <Route path="/configuracoes/cadastro-produtos" element={<CadastroProdutos />} />
         <Route path="/analise-insumos" element={<AnaliseInsumos />} />

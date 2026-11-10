@@ -76,8 +76,7 @@ const MENU_CONFIG = [
     icon: <Icons.BsCart3 />,
     id: "compras",
     subItems: [
-      { title: "Lista de Compras", subtitle: "Automático", subtitleColor: "#3b82f6", path: "/lista-compras" },
-      { title: "Lista de Compras", subtitle: "Manual", subtitleColor: "#f59e0b", path: "/lista-compras-manual" },
+      { title: "Lista de Compras", path: "/lista-compras" },
       { title: "Entrada de Mercadoria", path: "/entrada-mercadoria" },
     ]
   },
