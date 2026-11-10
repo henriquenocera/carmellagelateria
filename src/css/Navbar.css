@@ -307,9 +307,9 @@ body {
   opacity: 1;
 }
 
-/* Topbar User Info (keeping the same as requested) */
+/* Identificação do usuário no topo da página, acompanhando a rolagem. */
 .topbar-user-info {
-  position: fixed;
+  position: absolute;
   top: 1.6rem;
   right: 2rem;
   z-index: 120;
