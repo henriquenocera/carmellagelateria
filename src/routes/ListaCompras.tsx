@@ -234,16 +234,59 @@ function ListaCompras() {
         .shopping-quantity-edit:hover, .shopping-quantity-edit:focus-visible { background: #e5efff; color: #2563eb; }
         .shopping-quantity-edit:hover svg, .shopping-quantity-edit:focus-visible svg { opacity: 1; }
         .shopping-quantity-edit:disabled { cursor: wait; opacity: .5; }
+        .shopping-purchased-label span { display: none; }
+        @media (max-width: 767px) {
+          .shopping-lists-page { min-width: 0; }
+          .shopping-lists-page .shopping-content { padding: 0 8px !important; }
+          .shopping-lists-page .freq-table-wrapper { overflow: visible !important; background: transparent; box-shadow: none !important; }
+          .shopping-lists-page .freq-table { display: block; min-width: 0 !important; width: 100% !important; table-layout: auto !important; }
+          .shopping-lists-page .freq-table > thead,
+          .shopping-lists-page .freq-table > colgroup { display: none; }
+          .shopping-lists-page .freq-table > tbody { display: block; }
+          .shopping-lists-page .freq-table > tbody > tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; margin-bottom: 12px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; background: white; }
+          .shopping-lists-page .freq-table > tbody > tr > td { display: block; min-width: 0; width: auto !important; padding: 4px !important; border-bottom: none !important; text-align: left !important; font-size: 16px !important; overflow-wrap: anywhere; }
+          .shopping-lists-page .shopping-lists-table > tbody > tr:not(.shopping-list-details) > td:nth-child(-n+3) { grid-column: 1 / -1; }
+          .shopping-lists-page .shopping-lists-table > tbody > tr > td:nth-child(3) span { justify-content: flex-start !important; font-size: 14px; }
+          .shopping-lists-page .shopping-lists-table > tbody > tr > td:nth-child(4)::before { content: 'Materiais: '; color: #64748b; font-weight: normal; }
+          .shopping-lists-page .shopping-lists-table > tbody > tr:not(.shopping-list-details) > td:last-child { display: flex; align-items: center; }
+          .shopping-lists-page .freq-table > tbody > tr.shopping-list-details { display: block; padding: 0; border: 0; }
+          .shopping-lists-page .freq-table tbody tr.shopping-list-details > td { display: block; width: 100% !important; box-sizing: border-box; padding: 0 !important; background: transparent !important; opacity: 1 !important; }
+          .shopping-lists-page .shopping-list-details > td > div { width: 100%; min-width: 0; box-sizing: border-box; }
+          .shopping-lists-page .shopping-items-table > tbody > tr { width: 100%; box-sizing: border-box; }
+          .shopping-lists-page .shopping-add-item { padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: #f8fafc; }
+          .shopping-lists-page .shopping-add-item > div { flex: 1 1 100% !important; width: 100% !important; }
+          .shopping-lists-page .shopping-add-item > button { width: 100%; justify-content: center; min-height: 44px; }
+          .shopping-lists-page input, .shopping-lists-page select { font-size: 16px !important; }
+          .shopping-lists-page select, .shopping-lists-page button { min-height: 44px; }
+          .shopping-lists-page .shopping-items-table > tbody > tr { gap: 10px; }
+          .shopping-lists-page .shopping-items-table > tbody > tr > td::before { content: attr(data-label); display: block; margin-bottom: 4px; color: #64748b; font-size: 12px; font-weight: 600; }
+          .shopping-lists-page .shopping-items-table > tbody > tr > td:nth-child(1),
+          .shopping-lists-page .shopping-items-table > tbody > tr > td:nth-child(2),
+          .shopping-lists-page .shopping-items-table > tbody > tr > td:nth-child(8),
+          .shopping-lists-page .shopping-items-table > tbody > tr > td:last-child { grid-column: 1 / -1; }
+          .shopping-lists-page .shopping-items-table > tbody > tr > td:nth-child(2) { grid-row: 1; font-size: 18px !important; }
+          .shopping-lists-page .shopping-items-table > tbody > tr > td:nth-child(1)::before,
+          .shopping-lists-page .shopping-items-table > tbody > tr > td:nth-child(2)::before { display: none; }
+          .shopping-lists-page .shopping-items-table > tbody > tr[data-purchased='true'] { background: #f0fdf4; opacity: 1 !important; border-color: #86efac; }
+          .shopping-purchased-label { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; }
+          .shopping-purchased-label input { width: 24px; height: 24px; margin: 0; accent-color: #16a34a; flex-shrink: 0; }
+          .shopping-purchased-label span { display: inline; font-weight: 600; }
+          .shopping-quantity-edit { min-width: 64px; margin: 0; padding: 6px; background: #eff6ff; }
+          .shopping-quantity-edit svg { opacity: 1; }
+          .shopping-lists-page .shopping-item-actions button { min-width: 44px; }
+          .shopping-lists-page .shopping-items-table form input { min-height: 44px; box-sizing: border-box; }
+          .shopping-lists-page .shopping-items-table form button { min-width: 36px; }
+        }
       `}</style>
     </Helmet>
     <div className="frequencia-container shopping-lists-page">
       <div className="frequencia-header"><div className="frequencia-title-group"><h1>Lista de Compras</h1><p>Crie listas e escolha os materiais que deseja comprar.</p></div></div>
-      <div style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
+      <div className="shopping-content" style={{ margin: "20px auto", maxWidth: "100%", padding: "0 20px" }}>
         <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
           <button type="button" onClick={handleCreateList} className="financial-add-button" style={{ margin: 0, height: 42, padding: "0 16px", fontSize: "1.2rem" }}><Icons.BsPlusCircleFill /> Nova lista de compras</button>
         </div>
         <div className="freq-table-wrapper" style={{ overflowX: "auto", boxShadow: "0 4px 6px rgba(0,0,0,0.05)" }}>
-          <table className="freq-table" style={{ minWidth: 1000 }}>
+          <table className="freq-table shopping-lists-table" style={{ minWidth: 1000 }}>
             <thead><tr>{["Lista de compras", "Criada em", "Criado por", "Materiais", "Progresso", "Status", "Ações"].map(label => <th key={label} style={{ textAlign: "center", background: "#f1e7da", color: "#80501f", textTransform: "uppercase" }}>{label}</th>)}</tr></thead>
             <tbody>
               {loading ? <tr><td colSpan={7} style={{ textAlign: "center", padding: 32 }}><Icons.BsArrowClockwise className="spin" /></td></tr> : listas.length === 0 ? <tr><td colSpan={7} style={{ textAlign: "center", padding: 36, color: "#94a3b8", fontSize: "1.2rem" }}>Nenhuma lista cadastrada. Crie uma nova lista para começar.</td></tr> : listas.map(list => {
@@ -260,7 +303,7 @@ function ListaCompras() {
                     <td style={{ textAlign: "center" }}><button type="button" className="delete-record-btn" title="Excluir lista" onClick={event => { event.stopPropagation(); void handleDeleteList(list); }}><Icons.BsTrash /></button></td>
                   </tr>
                   {isExpanded && <tr className="shopping-list-details"><td colSpan={7} style={{ padding: 18, background: "#f8fafc", opacity: list.status === "Fechada" ? .68 : 1 }}>
-                    <div style={{ display: "flex", gap: 12, alignItems: "end", flexWrap: "wrap", marginBottom: 14 }}>
+                    <div className="shopping-add-item" style={{ display: "flex", gap: 12, alignItems: "end", flexWrap: "wrap", marginBottom: 14 }}>
                       <div style={{ flex: "1 1 260px", minWidth: 0 }}><label style={{ display: "block", marginBottom: 6, fontWeight: 700 }}>Insumo</label><Select options={options} value={selectedInsumo[list.id] || null} onChange={value => setSelectedInsumo(current => ({ ...current, [list.id]: value }))} placeholder="Selecione o material..." isSearchable maxMenuHeight={360} menuPosition="fixed" menuPortalTarget={document.body} styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }), menu: base => ({ ...base, zIndex: 9999 }), control: base => ({ ...base, minHeight: 44, fontSize: "1.1rem" }), input: base => ({ ...base, fontSize: "1.1rem" }), singleValue: base => ({ ...base, fontSize: "1.1rem" }), placeholder: base => ({ ...base, fontSize: "1.1rem" }), option: base => ({ ...base, fontSize: "1.05rem", padding: "10px 12px" }) }} /></div>
                       <div style={{ width: 140 }}><label style={{ display: "block", marginBottom: 6, fontWeight: 700 }}>Quantidade</label><input type="number" min="0" step="any" value={quantidades[list.id] || ""} onChange={event => setQuantidades(current => ({ ...current, [list.id]: event.target.value }))} style={{ width: "100%", padding: "9px 12px", border: "1px solid #cbd5e1", borderRadius: 5, boxSizing: "border-box" }} /></div>
                       <button type="button" disabled={saving} onClick={() => void handleAddItem(list.id)} style={{ height: 38, display: "inline-flex", alignItems: "center", gap: 7, padding: "0 16px", border: 0, borderRadius: 6, background: "#16a34a", color: "white", fontWeight: 700, cursor: "pointer" }}><Icons.BsPlusCircle /> Adicionar material</button>
@@ -292,10 +335,10 @@ function ListaCompras() {
                         </tr></thead>
                         <tbody>{list.itens.map(item => {
                           const stats = purchaseStats[item.insumo_id];
-                          return <tr key={item.id} style={{ opacity: item.comprado ? .55 : 1 }}>
-                            <td style={{ textAlign: "center" }}><input type="checkbox" checked={item.comprado} onChange={() => void handleToggle(item)} /></td>
+                          return <tr key={item.id} data-purchased={item.comprado} style={{ opacity: item.comprado ? .55 : 1 }}>
+                            <td style={{ textAlign: "center" }}><label className="shopping-purchased-label"><input type="checkbox" aria-label={`Marcar ${item.cadastro_insumos?.nome || "material"} como ${item.comprado ? "não comprado" : "comprado"}`} checked={item.comprado} onChange={() => void handleToggle(item)} /><span>{item.comprado ? "Comprado" : "Marcar como comprado"}</span></label></td>
                             <td style={{ fontWeight: 600, textDecoration: item.comprado ? "line-through" : undefined }}>{item.cadastro_insumos?.nome || "Insumo excluído"}</td>
-                            <td style={{ textAlign: "center", fontWeight: 700 }}>
+                            <td data-label="Quantidade a comprar" style={{ textAlign: "center", fontWeight: 700 }}>
                               {editingQuantity?.id === item.id ? (
                                 <form onSubmit={event => { event.preventDefault(); void handleSaveQuantity(item); }} style={{ display: "flex", alignItems: "center", gap: 4 }}>
                                   <input
@@ -321,15 +364,15 @@ function ListaCompras() {
                               </button>
                               )}
                             </td>
-                            <td style={{ textAlign: "center" }}>{item.cadastro_insumos?.unidade_conversao || "—"}</td>
-                            <td style={{ textAlign: "center" }}>{item.origem || "Manual"}</td>
-                            <td style={{ textAlign: "center" }}>{formatPurchaseDate(stats?.lastDate)}{stats?.lastDate && <span style={{ marginLeft: 6, color: "#64748b" }}>({formatTimeSincePurchase(stats.lastDate)})</span>}</td>
-                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.lastCost)}</td>
-                            <td style={{ textAlign: "center" }}>{stats?.lastSupplier || "—"}</td>
-                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.count ? stats.sum / stats.count : null)}</td>
-                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.min)}</td>
-                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.max)}</td>
-                            <td style={{ textAlign: "center", whiteSpace: "nowrap" }}>
+                            <td data-label="Unidade" style={{ textAlign: "center" }}>{item.cadastro_insumos?.unidade_conversao || "—"}</td>
+                            <td data-label="Origem" style={{ textAlign: "center" }}>{item.origem || "Manual"}</td>
+                            <td data-label="Última compra" style={{ textAlign: "center" }}>{formatPurchaseDate(stats?.lastDate)}{stats?.lastDate && <span style={{ marginLeft: 6, color: "#64748b" }}>({formatTimeSincePurchase(stats.lastDate)})</span>}</td>
+                            <td data-label="Último custo unitário" style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.lastCost)}</td>
+                            <td data-label="Último fornecedor" style={{ textAlign: "center" }}>{stats?.lastSupplier || "—"}</td>
+                            <td data-label="Média — 12 meses" style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.count ? stats.sum / stats.count : null)}</td>
+                            <td data-label="Menor valor — 12 meses" style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.min)}</td>
+                            <td data-label="Maior valor — 12 meses" style={{ textAlign: "center", whiteSpace: "nowrap" }}>{formatCurrency(stats?.max)}</td>
+                            <td data-label="Ações" style={{ textAlign: "center", whiteSpace: "nowrap" }}>
                       <div className="shopping-item-actions">
                         <button type="button" disabled={saving} title="Editar quantidade a comprar" aria-label={`Editar quantidade de ${item.cadastro_insumos?.nome || "material"}`} onClick={() => void handleEditQuantity(item)} style={{ color: "#3b82f6" }}><Icons.BsPencil /></button>
                         <button type="button" className="delete-record-btn" title="Remover material" aria-label={`Remover ${item.cadastro_insumos?.nome || "material"}`} onClick={() => void handleDeleteItem(item)} style={{ color: "#ef4444" }}><Icons.BsTrash /></button>
