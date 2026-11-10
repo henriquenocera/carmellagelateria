@@ -865,8 +865,8 @@ function ProducaoRealizada() {
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
           }
           .producao-table .freq-table tbody tr.production-data-row > td { border-bottom: 1px solid #cbd5e1 !important; transition: background-color .15s ease; }
-          .producao-table .freq-table tbody tr.production-data-row:hover > td { background-color: #f1f6fb !important; }
-          .producao-table .freq-table tbody tr.production-data-row[aria-selected="true"]:hover > td { background-color: #e5efff !important; }
+          .producao-table .freq-table tbody tr.production-data-row:hover > td { background-color: #dbeafe !important; }
+          .producao-table .freq-table tbody tr.production-data-row[aria-selected="true"]:hover > td { background-color: #bfdbfe !important; }
           .producao-table .freq-table tbody tr.production-data-row[data-delete-selected="true"] > td { background-color: #fee2e2 !important; }
           .producao-table .freq-table tbody tr.production-data-row[data-delete-selected="true"]:hover > td { background-color: #fecaca !important; }
           .producao-table .freq-table th { padding: 6px !important; font-size: 1.1rem !important; line-height: 1.2 !important; }
@@ -1134,8 +1134,8 @@ function ProducaoRealizada() {
                     <th style={{ textAlign: "center", width: "150px" }}>Destino</th>
                   </>}
                   <th style={{ textAlign: "center", width: "120px" }}>Validade</th>
-                  <th style={{ textAlign: "center", width: "150px" }}>Usuário</th>
-                  <th style={{ textAlign: "center", width: "220px", minWidth: "220px", whiteSpace: "nowrap" }}>Ações</th>
+                  <th style={{ textAlign: "center", width: "80px" }}>Usuário</th>
+                  <th style={{ textAlign: "center", width: "110px", minWidth: "110px", whiteSpace: "nowrap" }}>Ações</th>
                 </tr>
                 {/* Linha de Filtros */}
                 <tr style={{ backgroundColor: "#f8fafc", borderBottom: "2px solid #e2e8f0" }}>
@@ -1388,7 +1388,9 @@ function ProducaoRealizada() {
                         </td>
                         <td style={{ textAlign: "center" }}>
                           <div 
-                            title={prod.created_at ? `Registrado em: ${new Date(prod.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}
+                            title={`${prod.profiles?.name || "Usuário não informado"}\n${prod.created_at ? `Registrado em: ${new Date(prod.created_at).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }).replace(',', ' às')}` : "Data de registro não disponível"}`}
+                            aria-label={prod.profiles?.name || "Usuário não informado"}
+                            tabIndex={0}
                             style={{ 
                               color: "#334155", 
                               fontWeight: 600, 
@@ -1404,10 +1406,10 @@ function ProducaoRealizada() {
                             }}
                           >
                             <Icons.BsPersonFill style={{ color: "#94a3b8", fontSize: "1.1rem" }} />
-                            {prod.profiles?.name || "-"}
+                            {prod.profiles?.name?.trim().charAt(0).toUpperCase() || "-"}
                           </div>
                         </td>
-                        <td style={{ textAlign: "center", padding: "4px", minWidth: "220px", whiteSpace: "nowrap" }}>
+                        <td style={{ textAlign: "center", padding: "4px", minWidth: "110px", whiteSpace: "nowrap" }}>
                           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, flexWrap: "nowrap" }}>
                           <button type="button" onClick={event => { event.stopPropagation(); void openProductionHistory(prod); }} title="Ver histórico desta produção" aria-label={`Ver histórico de ${prod.cadastro_produtos?.nome || "produção"} ${prod.codigo || prod.id}`} style={{ background: "none", border: "none", color: "#2563eb", cursor: "pointer", fontSize: "1.2rem", flexShrink: 0 }}><Icons.BsInfoCircle /></button>
                           {editingRowId === prod.id ? (
@@ -1494,7 +1496,7 @@ function ProducaoRealizada() {
                   </tr>
                 )}
                 <tr style={{ backgroundColor: "#f8fafc", fontWeight: "bold" }}>
-                  <td colSpan={tableColumnCount} style={{ textAlign: "right", padding: "12px 16px", color: "#64748b" }}>
+                  <td colSpan={tableColumnCount} style={{ textAlign: "left", padding: "12px 16px", color: "#64748b" }}>
                     Total de registros encontrados: {totalCount}
                   </td>
                 </tr>
