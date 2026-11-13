@@ -20,7 +20,7 @@ const groupTransactions = (individualTxs: any[]) => {
         taxAmount: 0,
         netAmount: 0,
         modalidades: new Set(),
-        memo: `Vendas Cloudfy - ${tx.category}`,
+        memo: tx.category === "Quantidade" ? "Cloudfy - Quantidade total de vendas à vista" : `Vendas Cloudfy - ${tx.category}`,
         status: "Analisando..."
       };
     }
@@ -100,7 +100,10 @@ function ImporteVendasCloudfy() {
         if (!updatesByDate[key]) {
           updatesByDate[key] = { date: t.date, store: t.store };
         }
-        if (t.category === "Pix") {
+        if (t.category === "Quantidade") {
+          updatesByDate[key].qntd_total_vendas = t.amount;
+          updatesByDate[key].qntd_total_vendas_importado = true;
+        } else if (t.category === "Pix") {
           updatesByDate[key].pix_calculado = t.amount;
           updatesByDate[key].pix_cloudfy_importado = true;
         } else if (t.category === "Cartão") {
@@ -129,11 +132,12 @@ function ImporteVendasCloudfy() {
 
       const payloads = updatesList.map(update => {
         const existing = (existingData || []).find(e => e.date === update.date && e.store === update.store);
-        const base = existing ? { ...existing } : { 
+        const base = {
           status: "Aberto",
           caixa_abertura: 0,
           caixa_vendas: 0,
           caixa_ajustes: 0,
+          caixa_calculado: 0,
           caixa_informado: 0,
           caixa_real: 0,
           pix_calculado: 0,
@@ -141,20 +145,25 @@ function ImporteVendasCloudfy() {
           cartao_calculado: 0,
           cartao_realizado: 0,
           ifood_calculado: 0,
-          ifood_realizado: 0
+          ifood_realizado: 0,
+          ...existing
         };
         delete base.id;
         delete base.created_at;
 
-        return {
+        const payload = {
            ...base,
            ...update
         };
+        if (!existing || update.caixa_vendas !== undefined) {
+          payload.caixa_calculado = Number(payload.caixa_abertura) + Number(payload.caixa_vendas) + Number(payload.caixa_ajustes);
+        }
+        return payload;
       });
 
       const { error } = await supabase
         .from("conciliacao_vendas")
-        .upsert(payloads, { onConflict: "store,date" });
+        .upsert(payloads, { onConflict: "store,date", defaultToNull: false });
 
       if (error) throw error;
 
@@ -180,6 +189,12 @@ function ImporteVendasCloudfy() {
     if (lines.length < 2) return [];
 
     const parsed: any[] = [];
+    const headers = lines[0].replace(/^\uFEFF/, "").split('\t').map(c =>
+      c.replace(/^"|"$/g, '').trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+    );
+    const salesHeaderIndex = headers.indexOf("vendas a vista");
+    // Este relatório da Cloudfy pode juntar os títulos Filial e Data no cabeçalho.
+    const salesColumnIndex = salesHeaderIndex + (headers[0] === "filialdata" ? 1 : 0);
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -197,6 +212,16 @@ function ImporteVendasCloudfy() {
       const parts = dateRaw.split('/');
       if (parts.length !== 3) continue;
       const date = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+
+      if (salesHeaderIndex >= 0) {
+        if (!filialRaw.includes("ALTO") && !filialRaw.includes("AHU") && !filialRaw.includes("AHÚ")) continue;
+        const quantity = Number((cols[salesColumnIndex] || "").replace(/\./g, "").replace(",", "."));
+        if (!cols[salesColumnIndex] || !Number.isInteger(quantity) || quantity < 0) {
+          throw new Error(`Quantidade de vendas à vista inválida na linha ${i + 1}.`);
+        }
+        parsed.push({ store, date, amount: quantity, category: "Quantidade" });
+        continue;
+      }
 
       const formaPagamento = cols[2].toUpperCase();
       const valorRaw = cols[3] || "0";
@@ -312,12 +337,13 @@ function ImporteVendasCloudfy() {
           
           if (matched) {
             let dbValue = 0;
-            if (group.category === "Pix") dbValue = matched.pix_calculado || 0;
+            if (group.category === "Quantidade") dbValue = matched.qntd_total_vendas;
+            else if (group.category === "Pix") dbValue = matched.pix_calculado || 0;
             else if (group.category === "Cartão") dbValue = matched.cartao_calculado || 0;
             else if (group.category === "Dinheiro") dbValue = matched.caixa_vendas || 0;
             else if (group.category === "iFood") dbValue = matched.ifood_calculado || 0;
             
-            if (Math.abs(dbValue - group.amount) <= 0.05) {
+            if (group.category === "Quantidade" ? dbValue === group.amount : Math.abs(dbValue - group.amount) <= 0.05) {
                group.status = "Já Conciliado";
             } else {
                group.status = "Não Encontrado";
@@ -362,7 +388,7 @@ function ImporteVendasCloudfy() {
           
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
             <p style={{ color: "#64748b", fontSize: "1.4rem", margin: 0, flex: 1, minWidth: "300px" }}>
-              Selecione o arquivo CSV de vendas da Cloudfy para visualizar e conciliar os lançamentos.
+              Selecione o CSV da Cloudfy por forma de pagamento ou por produto e dia (vendas-data) para visualizar e importar os lançamentos ou a quantidade de vendas à vista.
             </p>
             <button 
               onClick={() => setShowTutorial(!showTutorial)}
@@ -382,6 +408,7 @@ function ImporteVendasCloudfy() {
                 <li>Deixe a opção "Consolidar filiais?" marcada como <strong>Não</strong>.</li>
                 <li>No final da página (2), clique no botão azul <strong>CSV</strong> para baixar o arquivo correto.</li>
               </ol>
+              <p style={{ color: "#334155", fontSize: "1.3rem" }}>Para preencher <strong>Qntd Total de Vendas</strong>, importe o relatório por produto e dia (como o vendas-data.csv), com a coluna <strong>Vendas à vista</strong>. Os valores serão somados por loja e data.</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", marginTop: "16px", alignItems: "flex-start" }}>
                 <div style={{ flex: "1 1 250px", textAlign: "center" }}>
                   <img src="/cloudfy_tutorial_1.png" alt="Passo 1" style={{ maxWidth: "100%", maxHeight: "400px", border: "1px solid #cbd5e1", borderRadius: "6px", objectFit: "contain" }} />
@@ -494,7 +521,7 @@ function ImporteVendasCloudfy() {
                     <th style={{ textAlign: "left", paddingLeft: "12px" }}>Descrição do Lançamento</th>
                     <th style={{ width: "120px" }}>Modalidade</th>
                     <th style={{ width: "130px" }}>Status</th>
-                    <th style={{ width: "120px", textAlign: "center" }}>Valor Bruto</th>
+                    <th style={{ width: "120px", textAlign: "center" }}>Valor Bruto / Quantidade</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -537,7 +564,7 @@ function ImporteVendasCloudfy() {
                           fontWeight: "bold",
                           color: "#334155" 
                         }}>
-                          {formatCurrency(t.amount)}
+                          {t.category === "Quantidade" ? t.amount.toLocaleString("pt-BR") : formatCurrency(t.amount)}
                         </td>
                       </tr>
                     );

@@ -24,6 +24,8 @@ interface DbConciliacaoRow {
   ifood_realizado: number;
   pix_importado?: boolean;
   cartao_importado?: boolean;
+  qntd_total_vendas?: number | null;
+  qntd_total_vendas_importado?: boolean;
 }
 
 // Function to generate all days in a month YYYY-MM
@@ -120,6 +122,10 @@ function VendasRealizadas() {
   };
 
   async function handleSaveField(dateStr: string, fieldName: string, value: number) {
+    if (fieldName === "qntd_total_vendas" && (!Number.isInteger(value) || value < 0)) {
+      alert("Informe uma quantidade de vendas inteira e maior ou igual a zero.");
+      return;
+    }
     // 1. Optimistically update local state instantly
     setDbData(prevData => {
       const existingIdx = prevData.findIndex(item => item.date === dateStr);
@@ -148,6 +154,7 @@ function VendasRealizadas() {
           ifood_realizado: 0
         }),
         [fieldName]: value,
+        ...(fieldName === "qntd_total_vendas" ? { qntd_total_vendas_importado: false } : {}),
         caixa_calculado: newCalculado
       };
 
@@ -169,6 +176,9 @@ function VendasRealizadas() {
 
     if (fieldName === "pix_realizado") {
       payload.pix_importado = false;
+    }
+    if (fieldName === "qntd_total_vendas") {
+      payload.qntd_total_vendas_importado = false;
     }
     if (fieldName === "cartao_realizado") {
       payload.cartao_importado = false;
@@ -438,7 +448,7 @@ function VendasRealizadas() {
   const renderEditableCell = (
     row: any,
     fieldName: string,
-    value: number,
+    value: number | null,
     cellBg: string,
     cellColor: string,
     todayBorder: React.CSSProperties,
@@ -447,6 +457,7 @@ function VendasRealizadas() {
     colorState?: "match" | "positive" | "negative"
   ) => {
     const isEditing = editingCell && editingCell.dateStr === row.dateStr && editingCell.field === fieldName;
+    const isQuantity = fieldName === "qntd_total_vendas";
 
     const isHandled = value !== 0 || isImported;
     const baseBg = (cellBg === "#ffedd5" && isHandled) ? "#ffffff" : cellBg;
@@ -470,13 +481,14 @@ function VendasRealizadas() {
         <td style={{ ...currentCellStyle, backgroundColor: actualBg, ...todayBorder, padding: "4px 8px" }}>
           <input
             type="text"
-            defaultValue={value === 0 ? "" : value.toString().replace(".", ",")}
-            placeholder="0,00"
+            defaultValue={value == null || value === 0 ? "" : value.toString().replace(".", ",")}
+            placeholder={isQuantity ? "0" : "0,00"}
+            inputMode={isQuantity ? "numeric" : "decimal"}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 const rawVal = e.currentTarget.value.replace(",", ".");
-                const parsedVal = parseFloat(rawVal);
-                const finalVal = isNaN(parsedVal) ? 0 : parsedVal;
+                const parsedVal = isQuantity ? Number(rawVal) : parseFloat(rawVal);
+                const finalVal = isQuantity ? parsedVal : (isNaN(parsedVal) ? 0 : parsedVal);
                 if (finalVal !== value) {
                   handleSaveField(row.dateStr, fieldName, finalVal);
                 }
@@ -487,8 +499,8 @@ function VendasRealizadas() {
             }}
             onBlur={(e) => {
               const rawVal = e.currentTarget.value.replace(",", ".");
-              const parsedVal = parseFloat(rawVal);
-              const finalVal = isNaN(parsedVal) ? 0 : parsedVal;
+              const parsedVal = isQuantity ? Number(rawVal) : parseFloat(rawVal);
+              const finalVal = isQuantity ? parsedVal : (isNaN(parsedVal) ? 0 : parsedVal);
               if (finalVal !== value) {
                 handleSaveField(row.dateStr, fieldName, finalVal);
               }
@@ -533,7 +545,7 @@ function VendasRealizadas() {
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyItems: "center", justifyContent: "center", gap: "6px" }}>
-          {formatCurrency(value)}
+          {isQuantity ? (value == null ? "-" : value.toLocaleString("pt-BR")) : formatCurrency(value ?? 0)}
           {isImported && (
             <Icons.BsCloudCheckFill style={{ color: "#10b981", fontSize: "1.1rem" }} title="Importado via CSV" />
           )}
@@ -667,6 +679,8 @@ function VendasRealizadas() {
         data: day.formattedDate,
         dateStr: day.dateStr,
         status: matched.status || "Aberto",
+        qntdTotalVendas: matched.qntd_total_vendas ?? null,
+        qntdTotalVendasImportado: matched.qntd_total_vendas_importado || false,
         caixaAberturaChecklist: chAbertura,
         caixaAberturaCloudfy: matched.caixa_abertura || 0,
         caixaVendas: matched.caixa_vendas || 0,
@@ -694,6 +708,8 @@ function VendasRealizadas() {
         data: day.formattedDate,
         dateStr: day.dateStr,
         status: "Aberto",
+        qntdTotalVendas: null,
+        qntdTotalVendasImportado: false,
         caixaAberturaChecklist: chAbertura,
         caixaAberturaCloudfy: 0,
         caixaVendas: 0,
@@ -914,6 +930,9 @@ function VendasRealizadas() {
                       <Icons.BsBicycle /> Vendas iFood
                     </span>
                   </th>
+                  <th rowSpan={2} style={{ ...headerStyle, minWidth: "130px", textAlign: "center" }}>Qntd Total de Vendas</th>
+                  <th rowSpan={2} style={{ ...headerStyle, minWidth: "130px", textAlign: "center" }}>Valor Total de Vendas</th>
+                  <th rowSpan={2} style={{ ...headerStyle, minWidth: "125px", textAlign: "center" }}>Ticket Médio</th>
                 </tr>
 
                 {/* Sub Columns */}
@@ -949,6 +968,10 @@ function VendasRealizadas() {
                   const isToday = row.dateStr === todayStr;
                   const cellBg = "#ffffff";
                   const cellColor = "inherit";
+                  const totalVendasRealizadas = row.caixaVendas + row.pixRealizado + row.cartaoRealizado + row.ifoodRealizado;
+                  const ticketMedio = row.qntdTotalVendas != null && row.qntdTotalVendas > 0
+                    ? totalVendasRealizadas / row.qntdTotalVendas
+                    : null;
                   
                   // Discrepancy checks
                   const caixaDiff = row.caixaCalculado - row.caixaInformado;
@@ -1009,7 +1032,6 @@ function VendasRealizadas() {
                             const diffCaixa = row.caixaInformado - row.caixaCalculado;
                             const diffPix = row.pixRealizado - row.pixCalculado;
                             const diffCartao = row.cartaoRealizado - row.cartaoCalculado;
-                            const totalVendasRealizadas = row.caixaVendas + row.pixRealizado + row.cartaoRealizado + row.ifoodRealizado;
 
                             const formatDiff = (diff: number, prefix: string = "") => {
                               if (diff === 0) return "✅ Ok!";
@@ -1073,6 +1095,13 @@ function VendasRealizadas() {
 
                       {/* Vendas iFood Cells */}
                       {renderEditableCell(row, "ifood_realizado", row.ifoodRealizado, "#ffedd5", cellColor, todayBorder, false, row.ifoodCloudfyImportado)}
+                      {renderEditableCell(row, "qntd_total_vendas", row.qntdTotalVendas, cellBg, cellColor, todayBorder, false, row.qntdTotalVendasImportado)}
+                      <td style={{ ...numericCellStyle, backgroundColor: cellBg, ...todayBorder }}>
+                        {formatCurrency(totalVendasRealizadas)}
+                      </td>
+                      <td style={{ ...numericCellStyle, backgroundColor: cellBg, ...todayBorder }}>
+                        {ticketMedio == null ? "-" : formatCurrency(ticketMedio)}
+                      </td>
                     </tr>
                   );
                 })}
