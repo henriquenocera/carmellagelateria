@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import { STORE_CONFIG } from "../config/store.js";
 import { useAuth } from "../components/AuthProvider.tsx";
+import HomeDailySales from "../components/HomeDailySales";
 
 const INITIAL_DEMO_TASKS = [
   {
@@ -465,16 +466,7 @@ function Home() {
           FIM DO BLOCO TEMPORARIAMENTE COMENTADO - CALENDÁRIO DE TAREFAS
           */}
 
-          {/* AVISO TEMPORÁRIO - Exibido no lugar do calendário */}
-          <div className="home-calendar-card" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
-            <h2 style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.6rem", margin: 0 }}>
-              <Icons.BsCalendarCheck color="var(--primary-color)" />
-              Em breve, calendário de tarefas
-            </h2>
-            <p style={{ marginTop: "0.8rem", color: "#64748b" }}>
-              Estamos preparando novidades por aqui. O calendário de tarefas voltará em breve.
-            </p>
-          </div>
+          <HomeDailySales />
         </div>
 
         {/* TEMPORÁRIO - MODAL DE DETALHES DESATIVADO JUNTO COM O CALENDÁRIO (não apagar, apenas comentado)
