@@ -4,7 +4,7 @@ SET session_replication_role = replica;
 -- PostgreSQL database dump
 --
 
--- \restrict Uend0kPChbuLcA5FonliNAqzUuNnmOiPEttnAAfH9ZWARHivwPE0cDO9eljI8ee
+-- \restrict TbHU6dRYgH7UTjX2wOZrMoANKsxv3gPcgGQqxKOwABRUueTnXCjfweOseQcrdcd
 
 -- Dumped from database version 15.14
 -- Dumped by pg_dump version 17.11
@@ -59486,7 +59486,7 @@ COPY "public"."producao_realizada" ("id", "produto_id", "data_producao", "user_i
 368	23d5fd4f-655b-4ab9-91cc-fac417df2c32	2026-11-05	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	PAÇC051126	3.848	0.494	3.354	2026-11-12	Loja Ahu	2027-02-05	none	\N	t	2fb99880-a4cf-4ebf-919d-5e5703db6c32:1	2026-11-03	14	Gelato	\N	\N	\N	\N
 342	55c3333f-0945-4fb3-8dc1-30596ba0a663	2026-11-05	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	MIL051126	3.71	0.506	3.204	2026-11-13	Loja Ahu	2027-02-05	none	\N	t	b976f42d-78e5-44be-969c-20cbab27a7ef:1	2026-11-03	18	Gelato	\N	\N	\N	\N
 402	43546358-e684-4611-82b9-9cecbe1447f6	2026-11-02	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-10 16:52:04.135439+00	MOR021126-2	3.808	0.469	3.34	2026-11-13	Loja Ahu	2027-02-02	none	\N	f	\N	\N	18	Gelato	\N	\N	\N	\N
-424	d31106eb-bcb0-4c28-8410-1fcbd999cb99	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	BAU131126-2	\N	\N	\N	\N	\N	2027-02-13	none	\N	t	7a39e056-fc53-46d1-b502-098358ff0bc0:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
+424	d31106eb-bcb0-4c28-8410-1fcbd999cb99	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	BAU131126-2	3.734	0.493	3.241	\N	\N	2027-02-13	none	\N	t	7a39e056-fc53-46d1-b502-098358ff0bc0:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 322	686708d2-7464-4b4d-8f54-b5fa52120915	2026-11-05	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	CBM051126	4.032	0.478	3.554	\N	\N	2027-02-05	none	\N	t	c81d9b00-4029-4657-9263-742295bea7ed:1	2026-11-03	\N	Gelato	\N	\N	\N	\N
 359	9ea53d4b-9ce8-44d0-a2fc-24b936151d56	2026-11-05	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	CAS051126	3.91	0.495	3.415	\N	\N	2027-02-05	none	\N	t	6919276c-fade-4897-bcf4-10e0b14fa884:1	2026-11-03	\N	Gelato	\N	\N	\N	\N
 317	55c3333f-0945-4fb3-8dc1-30596ba0a663	2026-11-05	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	MIL051126-1	3.662	0.49	3.172	\N	\N	2027-02-05	none	\N	t	5f0df1ee-21f0-42fa-b4d0-deae81bdd5cb:1	2026-11-03	\N	Gelato	\N	\N	\N	\N
@@ -59545,10 +59545,8 @@ COPY "public"."producao_realizada" ("id", "produto_id", "data_producao", "user_i
 381	e9ea6697-24f3-44a9-991d-12632f49107c	2026-11-05	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	DCL051126	3.546	0.497	3.049	2026-11-12	Loja Alto XV	2027-02-05	none	\N	t	c873f857-1894-4d80-b7d2-5b16cabaa580:1	2026-11-03	15	Gelato	\N	\N	\N	\N
 388	0ea8dcb6-c29f-4062-9ca2-577d73b943d0	2026-11-06	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-05 20:31:10.619946+00	MAR061126-1	3.446	0.371	3.075	2026-11-12	Loja Alto XV	2027-02-06	none	\N	f	\N	\N	15	Gelato	\N	\N	\N	\N
 407	9ea53d4b-9ce8-44d0-a2fc-24b936151d56	2026-10-29	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-10 17:22:32.407187+00	CAS291026	3.98	0.501	3.48	2026-11-13	Loja Ahu	2027-01-29	none	\N	f	\N	\N	18	Gelato	\N	\N	\N	\N
-429	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-1	\N	\N	\N	\N	\N	2027-02-13	none	\N	t	222acaa0-21aa-458d-9a77-e99dd36fc4f8:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
-428	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-2	\N	\N	\N	\N	\N	2027-02-13	none	\N	t	babd3027-f830-4c2b-b0fd-ab0027a29781:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
-427	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-3	\N	\N	\N	\N	\N	2027-02-13	none	\N	t	e44e2929-164e-4edc-b5a3-b16a35a3fa27:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
-426	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-4	\N	\N	\N	\N	\N	2027-02-13	none	\N	t	1e812d7e-4fab-4b56-b2c7-00626671f3cc:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
+428	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-2	3.628	0.356	3.272	\N	\N	2027-02-13	none	\N	t	babd3027-f830-4c2b-b0fd-ab0027a29781:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
+429	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-1	3.548	0.48	3.068	\N	\N	2027-02-13	none	\N	t	222acaa0-21aa-458d-9a77-e99dd36fc4f8:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 438	e9ea6697-24f3-44a9-991d-12632f49107c	\N	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	\N	\N	\N	\N	\N	\N	\N	none	\N	t	eb6a9cf9-e681-4536-aebb-20f329cbaa94:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 439	d3b7d2f2-c6e7-4411-9737-5e5301eaa51e	\N	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	\N	\N	\N	\N	\N	\N	\N	none	\N	t	39866025-6737-4969-a585-2e3e3b9415ca:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 443	d3b7d2f2-c6e7-4411-9737-5e5301eaa51e	\N	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	\N	\N	\N	\N	\N	\N	\N	none	\N	t	223ec6b5-5ed7-442f-aa23-ae7f95581674:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
@@ -59561,12 +59559,14 @@ COPY "public"."producao_realizada" ("id", "produto_id", "data_producao", "user_i
 458	912a4a01-ab23-48bd-8fe8-7c5e8b2e675f	\N	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	\N	\N	\N	\N	\N	\N	\N	none	\N	t	44c84b79-35ff-40e0-8758-0219629808f5:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 460	225c6eac-6aa5-4a16-8d1e-b4e04bf229d6	\N	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	\N	\N	\N	\N	\N	\N	\N	none	\N	t	79387abf-1b68-41d8-91f6-ba4e716b8ef1:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 441	a4fd504a-9b82-41e0-8ad3-a206db49460f	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	LNN121126-1	3.82	0.498	3.322	\N	\N	2027-02-12	none	\N	t	fa6cd152-8f20-4c5d-8d25-2da2c67988a3:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
+427	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-3	3.8	0.49	3.31	\N	\N	2027-02-13	none	\N	t	e44e2929-164e-4edc-b5a3-b16a35a3fa27:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 442	9c0cb3c8-c49a-444b-82a9-73ef07dd613e	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DAN121126-1	3.938	0.499	3.439	2026-11-13	Loja Ahu	2027-02-12	none	\N	t	d89bb4c3-6b16-4646-902a-873035b395a7:1	2026-11-09	18	Gelato	\N	\N	\N	\N
 437	9c0cb3c8-c49a-444b-82a9-73ef07dd613e	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DAN121126-2	3.496	0.471	3.025	\N	\N	2027-02-12	none	\N	t	d7eb19f5-ea30-4dc2-bad5-ca4c1fd3e5fc:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 468	e9ea6697-24f3-44a9-991d-12632f49107c	2026-11-11	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:16:46.361146+00	DCL111126-2	3.904	0.487	3.417	\N	\N	2027-02-11	none	\N	f	\N	\N	\N	Gelato	\N	\N	\N	\N
 457	ba4187c8-f1aa-4adf-a41d-a05197c72413	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	IOA121126-1	3.932	0.491	3.441	2026-11-13	Loja Ahu	2027-02-12	none	\N	t	14c893be-e89f-40ec-9b3a-7a18a08f4c58:1	2026-11-09	18	Gelato	\N	\N	\N	\N
 440	e9ea6697-24f3-44a9-991d-12632f49107c	2026-11-11	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DCL111126-1	3.176	0.441	2.735	\N	\N	2027-02-11	none	\N	t	17380ba3-cf07-4dd3-8d0c-bac2baff64d6:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 466	23d5fd4f-655b-4ab9-91cc-fac417df2c32	2026-11-11	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	PAÇC111126-1	3.824	0.503	3.321	\N	\N	2027-02-11	none	\N	t	f0c51bc2-3ff2-4b0c-bdfd-b03c0544767e:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
+426	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO131126-4	3.666	0.478	3.188	\N	\N	2027-02-13	none	\N	t	1e812d7e-4fab-4b56-b2c7-00626671f3cc:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 465	23d5fd4f-655b-4ab9-91cc-fac417df2c32	2026-11-11	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	PAÇC111126-2	3.63	0.473	3.157	\N	\N	2027-02-11	none	\N	t	95112f07-fb27-4306-beed-4fa2f8af893a:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 360	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-07	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	CHO071126-1	3.582	0.493	3.089	2026-11-12	Loja Alto XV	2027-02-07	none	\N	t	73391ae9-3b26-4903-8d90-df0d4258eb12:1	2026-11-03	15	Gelato	\N	\N	\N	\N
 384	24dc433d-576e-41bb-95cc-1bc974502185	2026-11-05	35cae5eb-f980-4be0-9998-ac8173ed2afc	2026-11-04 16:45:50.181651+00	STR051126	3.64	0.498	3.142	2026-11-12	Loja Ahu	2027-02-05	none	\N	t	b26430d2-0336-4a56-a0b1-a4c08dc87f1b:1	2026-11-03	14	Gelato	\N	\N	\N	\N
@@ -59576,12 +59576,12 @@ COPY "public"."producao_realizada" ("id", "produto_id", "data_producao", "user_i
 449	d31106eb-bcb0-4c28-8410-1fcbd999cb99	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	BAU121126-1	3.682	0.44	3.242	\N	\N	2027-02-12	none	\N	t	53768e2d-6265-477a-b07d-9e23606b07f1:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 461	225c6eac-6aa5-4a16-8d1e-b4e04bf229d6	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	LCM121126-2	3.578	0.468	3.11	\N	\N	2027-02-12	none	\N	t	5290569a-7e94-4c0d-833b-d4daf3c58cfb:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 448	d31106eb-bcb0-4c28-8410-1fcbd999cb99	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	BAU121126-2	3.724	0.485	3.239	\N	\N	2027-02-12	none	\N	t	2f5ccb36-753d-434c-a0b2-1473f3c9059f:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
+467	af62f461-3264-46dc-83c4-ec414c9917da	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DMC131126-1	3.886	0.476	3.41	\N	\N	2027-02-13	none	\N	t	3a0ef683-8abd-4a15-8e66-155d3949fd9e:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 451	72ac28da-e68e-4d23-b8a0-482289ac834e	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	CHO121126-2	3.7	0.44	3.26	\N	\N	2027-02-12	none	\N	t	6547caa3-ccb9-4af9-934d-abcb886a276c:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 463	912a4a01-ab23-48bd-8fe8-7c5e8b2e675f	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	TB131126-1	3.516	0.44	3.076	\N	\N	2027-02-13	none	\N	t	7f1a9022-7822-449e-b6d8-47e1edbca7d9:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 408	23b0da1f-363a-4655-bf0a-43192d1d1f3c	2026-10-30	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-10 17:22:59.508091+00	ND301026	3.004	0.486	2.518	2026-11-13	Loja Ahu	2027-01-30	none	\N	f	\N	\N	18	Gelato	\N	\N	\N	\N
 455	ba4187c8-f1aa-4adf-a41d-a05197c72413	2026-11-12	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	IOA121126-2	3.414	0.44	2.974	\N	\N	2027-02-12	none	\N	t	e8613be3-a865-4ef2-8d6f-1a1b39f58747:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
-467	af62f461-3264-46dc-83c4-ec414c9917da	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DMC131126-1	\N	\N	\N	\N	\N	2027-02-13	none	\N	t	3a0ef683-8abd-4a15-8e66-155d3949fd9e:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
-462	af62f461-3264-46dc-83c4-ec414c9917da	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DMC131126-2	\N	\N	\N	\N	\N	2027-02-13	none	\N	t	ea53fa6b-87ea-41ce-a619-931a1df49cee:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
+462	af62f461-3264-46dc-83c4-ec414c9917da	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DMC131126-2	3.478	\N	\N	\N	\N	2027-02-13	none	\N	t	ea53fa6b-87ea-41ce-a619-931a1df49cee:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 459	912a4a01-ab23-48bd-8fe8-7c5e8b2e675f	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	TB131126-2	3.422	0.439	2.983	\N	\N	2027-02-13	none	\N	t	9828aad4-a27b-47f9-954d-9bdec630ad3e:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 450	b77ab6d5-503e-4d00-b013-029a90d632f7	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DONV131126-1	3.548	0.492	3.056	\N	\N	2027-02-13	none	\N	t	3060efd7-cfe5-454a-a3bb-12b052095617:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
 447	b77ab6d5-503e-4d00-b013-029a90d632f7	2026-11-13	d956fdab-0d1c-463c-9cfc-63f42d3645a5	2026-11-11 18:15:48.210734+00	DONV131126-2	3.278	0.35	2.928	\N	\N	2027-02-13	none	\N	t	7bb232a9-6c82-4c23-b848-a8bca429e07b:1	2026-11-09	\N	Gelato	\N	\N	\N	\N
@@ -59875,6 +59875,7 @@ COPY "public"."producao_realizada_historico" ("id", "producao_id", "acao", "alte
 277	388	editado	{"destino": {"antes": null, "depois": "Loja Alto XV"}, "data_entrada": {"antes": null, "depois": "2026-11-12"}, "transferencia_cubas_id": {"antes": null, "depois": 15}}	1d621888-613a-4a15-b796-3c4120f51af2	Talita	2026-11-12 16:28:35.345034+00
 278	336	editado	{"destino": {"antes": null, "depois": "Loja Ahu"}, "data_entrada": {"antes": null, "depois": "2026-11-12"}, "transferencia_cubas_id": {"antes": null, "depois": 14}}	1d621888-613a-4a15-b796-3c4120f51af2	Talita	2026-11-12 16:28:45.156713+00
 279	339	editado	{"destino": {"antes": null, "depois": "Loja Ahu"}, "data_entrada": {"antes": null, "depois": "2026-11-12"}, "transferencia_cubas_id": {"antes": null, "depois": 14}}	1d621888-613a-4a15-b796-3c4120f51af2	Talita	2026-11-12 16:28:45.156713+00
+354	428	editado	{"peso_bruto": {"antes": null, "depois": 3.628}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:36.872101+00
 283	403	editado	{"destino": {"antes": null, "depois": "Loja Ahu"}, "data_entrada": {"antes": null, "depois": "2026-11-12"}, "transferencia_cubas_id": {"antes": null, "depois": 14}}	1d621888-613a-4a15-b796-3c4120f51af2	Talita	2026-11-12 16:28:45.156713+00
 284	449	editado	{"codigo": {"antes": null, "depois": "BAU121126-1"}, "validade": {"antes": null, "depois": "2027-02-12"}, "data_producao": {"antes": null, "depois": "2026-11-12"}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-12 17:43:23.483792+00
 285	448	editado	{"codigo": {"antes": null, "depois": "BAU121126-2"}, "validade": {"antes": null, "depois": "2027-02-12"}, "data_producao": {"antes": null, "depois": "2026-11-12"}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-12 17:43:25.952995+00
@@ -59912,6 +59913,7 @@ COPY "public"."producao_realizada_historico" ("id", "producao_id", "acao", "alte
 317	452	editado	{"tara": {"antes": null, "depois": 0.484}, "peso_liquido": {"antes": null, "depois": 3.308}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-12 19:53:52.04654+00
 318	451	editado	{"peso_bruto": {"antes": null, "depois": 3.7}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-12 19:53:54.211997+00
 319	451	editado	{"tara": {"antes": null, "depois": 0.44}, "peso_liquido": {"antes": null, "depois": 3.26}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-12 19:53:57.103751+00
+355	428	editado	{"tara": {"antes": null, "depois": 356}, "peso_liquido": {"antes": null, "depois": -352.372}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:48.760722+00
 320	332	editado	{"destino": {"antes": null, "depois": "Loja Ahu"}, "data_entrada": {"antes": null, "depois": "2026-11-13"}, "transferencia_cubas_id": {"antes": null, "depois": 18}}	1d621888-613a-4a15-b796-3c4120f51af2	Talita	2026-11-13 16:10:34.244605+00
 321	342	editado	{"destino": {"antes": null, "depois": "Loja Ahu"}, "data_entrada": {"antes": null, "depois": "2026-11-13"}, "transferencia_cubas_id": {"antes": null, "depois": 18}}	1d621888-613a-4a15-b796-3c4120f51af2	Talita	2026-11-13 16:10:34.244605+00
 322	372	editado	{"destino": {"antes": null, "depois": "Loja Ahu"}, "data_entrada": {"antes": null, "depois": "2026-11-13"}, "transferencia_cubas_id": {"antes": null, "depois": 18}}	1d621888-613a-4a15-b796-3c4120f51af2	Talita	2026-11-13 16:10:34.244605+00
@@ -59942,6 +59944,19 @@ COPY "public"."producao_realizada_historico" ("id", "producao_id", "acao", "alte
 347	447	editado	{"tara": {"antes": null, "depois": 0.35}, "peso_liquido": {"antes": null, "depois": 2.928}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:01.744747+00
 348	425	editado	{"peso_bruto": {"antes": null, "depois": 3.644}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:08.603474+00
 349	425	editado	{"tara": {"antes": null, "depois": 0.5}, "peso_liquido": {"antes": null, "depois": 3.144}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:11.516179+00
+350	424	editado	{"peso_bruto": {"antes": null, "depois": 3.8}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:17.833524+00
+351	424	editado	{"tara": {"antes": null, "depois": 0.49}, "peso_liquido": {"antes": null, "depois": 3.31}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:19.611027+00
+352	429	editado	{"peso_bruto": {"antes": null, "depois": 3.548}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:30.560042+00
+353	429	editado	{"tara": {"antes": null, "depois": 0.48}, "peso_liquido": {"antes": null, "depois": 3.068}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:20:33.067826+00
+356	424	editado	{"tara": {"antes": 0.49, "depois": 0.493}, "peso_bruto": {"antes": 3.8, "depois": 3.734}, "peso_liquido": {"antes": 3.31, "depois": 3.241}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:22:46.120382+00
+357	428	editado	{"tara": {"antes": 356, "depois": 0.356}, "peso_liquido": {"antes": -352.372, "depois": 3.272}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:02.637031+00
+358	427	editado	{"peso_bruto": {"antes": null, "depois": 3.8}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:07.124151+00
+359	427	editado	{"tara": {"antes": null, "depois": 0.49}, "peso_liquido": {"antes": null, "depois": 3.31}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:10.85588+00
+360	426	editado	{"peso_bruto": {"antes": null, "depois": 3.666}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:14.089677+00
+361	426	editado	{"tara": {"antes": null, "depois": 0.478}, "peso_liquido": {"antes": null, "depois": 3.188}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:16.487888+00
+362	467	editado	{"peso_bruto": {"antes": null, "depois": 3.886}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:22.168829+00
+363	467	editado	{"tara": {"antes": null, "depois": 0.476}, "peso_liquido": {"antes": null, "depois": 3.41}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:24.95558+00
+364	462	editado	{"peso_bruto": {"antes": null, "depois": 3.478}}	d956fdab-0d1c-463c-9cfc-63f42d3645a5	Marina	2026-11-13 20:23:27.381816+00
 \.
 
 
@@ -60276,7 +60291,7 @@ SELECT pg_catalog.setval('"public"."pedidos_food_service_id_seq"', 93, true);
 -- Name: producao_realizada_historico_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('"public"."producao_realizada_historico_id_seq"', 351, true);
+SELECT pg_catalog.setval('"public"."producao_realizada_historico_id_seq"', 365, true);
 
 
 --
@@ -60311,6 +60326,6 @@ SELECT pg_catalog.setval('"public"."transferencias_cubas_id_seq"', 18, true);
 -- PostgreSQL database dump complete
 --
 
--- \unrestrict Uend0kPChbuLcA5FonliNAqzUuNnmOiPEttnAAfH9ZWARHivwPE0cDO9eljI8ee
+-- \unrestrict TbHU6dRYgH7UTjX2wOZrMoANKsxv3gPcgGQqxKOwABRUueTnXCjfweOseQcrdcd
 
 RESET ALL;
