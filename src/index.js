@@ -8,6 +8,7 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 import Home from "./routes/Home";
+import UltimosVales from "./routes/UltimosVales";
 import ChecklistAbertura from "./routes/ChecklistAbertura.tsx";
 import ChecklistFechamento from "./routes/ChecklistFechamento.tsx";
 import NavBar from "./components/Navbar";
@@ -40,6 +41,7 @@ const router = createBrowserRouter(
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/ultimos-vales" element={<UltimosVales />} />
           <Route path="/vales" element={<Vales />} />
           <Route path="/afericao" element={<Afericao />} /> 
           <Route path="/salgados" element={<Salgados />} /> 

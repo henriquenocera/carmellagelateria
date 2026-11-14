@@ -1,0 +1,172 @@
+.home-sales-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 16px 40px 90px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.home-sales-logo {
+  max-width: 190px;
+  height: auto;
+  margin-bottom: 1.5rem;
+}
+
+.home-sales-card {
+  width: 100%;
+  max-width: 1320px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.07);
+}
+
+.home-sales-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.home-sales-header h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--secondary-color, #5a432c);
+  font-size: 2rem;
+}
+
+.home-sales-header p {
+  color: #64748b;
+  font-size: 1.2rem;
+  line-height: 1.5;
+}
+
+.home-sales-table-wrapper {
+  margin-top: 20px;
+  overflow: auto;
+  max-height: 60vh;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.home-sales-table {
+  width: 100%;
+  min-width: 420px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 1.4rem;
+  color: #334155;
+}
+
+.home-sales-table th,
+.home-sales-table td {
+  padding: 14px 18px;
+  text-align: right;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.home-sales-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.home-sales-table th {
+  background: #334155;
+  color: #fff;
+  font-weight: 700;
+}
+
+.home-sales-table .home-sales-monthly-row > * {
+  font-weight: 700;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.home-sales-table .home-sales-target-row > * {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.home-sales-table .home-sales-target-reached > * {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.home-sales-table .home-sales-target-pending > * {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.home-sales-progress-row td {
+  background: #f8fafc;
+  text-align: left;
+  border-bottom: 2px solid #cbd5e1;
+}
+
+.home-sales-progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #475569;
+}
+
+.home-sales-progress-track {
+  height: 12px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+
+.home-sales-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #b45309;
+}
+
+.home-sales-progress-row.is-reached .home-sales-progress-fill {
+  background: #15803d;
+}
+
+.home-sales-table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+.home-sales-table th:first-child,
+.home-sales-table td:first-child {
+  text-align: left;
+}
+
+.home-sales-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.home-sales-table tbody tr:hover {
+  background: #fdfbf7;
+}
+
+.home-sales-message {
+  text-align: center;
+  padding: 28px 12px;
+  color: #64748b;
+  font-size: 1.4rem;
+}
+
+.home-sales-error {
+  color: #b91c1c;
+}
+
+@media (max-width: 992px) {
+  .home-sales-page {
+    padding: 30px 15px 40px 85px;
+  }
+}

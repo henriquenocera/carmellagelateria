@@ -30,7 +30,7 @@ function NavBar() {
               <span className="text">Início</span>
             </NavLink>
           </li>
-{/*           <li className={activeMenu ? "list active" : "list"}>
+ {/*           <li className={activeMenu ? "list active" : "list"}>
             <NavLink to="/afericao">
               <span className="icon">
                 <Icons.BsEject />
@@ -52,6 +52,14 @@ function NavBar() {
                 <Icons.BsEmojiSmile />
               </span>
               <span className="text">Vales</span>
+            </NavLink>
+          </li>
+          <li className={activeMenu ? "list active" : "list"}>
+            <NavLink to="/ultimos-vales">
+              <span className="icon">
+                <Icons.BsClockHistory />
+              </span>
+              <span className="text">Últimos Vales</span>
             </NavLink>
           </li>
 
