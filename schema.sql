@@ -613,7 +613,10 @@ CREATE TABLE IF NOT EXISTS "public"."conciliacao_vendas" (
     "pix_cloudfy_importado" boolean DEFAULT false,
     "cartao_cloudfy_importado" boolean DEFAULT false,
     "caixa_cloudfy_importado" boolean DEFAULT false,
-    "ifood_cloudfy_importado" boolean DEFAULT false
+    "ifood_cloudfy_importado" boolean DEFAULT false,
+    "qntd_total_vendas" integer,
+    "qntd_total_vendas_importado" boolean DEFAULT false NOT NULL,
+    CONSTRAINT "conciliacao_vendas_qntd_total_vendas_check" CHECK (("qntd_total_vendas" >= 0))
 );
 
 
