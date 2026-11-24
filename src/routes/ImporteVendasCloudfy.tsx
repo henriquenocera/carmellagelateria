@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
-import { useAuth } from "../AuthProvider";
 import "../css/Frequencia.css";
 
 const groupTransactions = (individualTxs: any[]) => {
@@ -38,8 +37,6 @@ const groupTransactions = (individualTxs: any[]) => {
 };
 
 function ImporteVendasCloudfy() {
-  const { user } = useAuth();
-
   const [file, setFile] = useState<File | null>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -92,6 +89,16 @@ function ImporteVendasCloudfy() {
       return;
     }
 
+    try {
+      await importTransactions(selectedTxs);
+      alert("Lançamentos importados com sucesso!");
+    } catch (err: any) {
+      alert("Erro ao importar lançamentos: " + err.message);
+    }
+  };
+
+  const importTransactions = async (selectedTxs: any[]) => {
+    if (selectedTxs.length === 0) return;
     setSyncing(true);
     try {
       const updatesByDate: Record<string, any> = {};
@@ -168,17 +175,17 @@ function ImporteVendasCloudfy() {
       if (error) throw error;
 
       setTransactions(prev => prev.map(t => {
-        if (selectedTxIds.has(t.id) && t.status === "Não Encontrado") {
+        if (selectedTxs.some(selected => selected.id === t.id) && t.status === "Não Encontrado") {
           return { ...t, status: "Importado" };
         }
         return t;
       }));
 
       setSelectedTxIds(new Set());
-      alert(`Lançamentos importados com sucesso!`);
+      return selectedTxs.length;
     } catch (err: any) {
       console.error("Erro ao importar lançamentos:", err);
-      alert("Erro ao importar lançamentos: " + (err.message || "Erro desconhecido."));
+      throw err;
     } finally {
       setSyncing(false);
     }
@@ -295,73 +302,74 @@ function ImporteVendasCloudfy() {
     }
   };
 
-  const processFile = () => {
-    if (!file) return;
+  const analyzeFile = async (selectedFile: File) => {
     setLoading(true);
+    try {
+      const bytes = await selectedFile.arrayBuffer();
+      let content = new TextDecoder("utf-8").decode(bytes);
+      if (content.includes("\uFFFD")) content = new TextDecoder("windows-1252").decode(bytes);
+      const parsed = parseCSV(content);
+      const grouped = groupTransactions(parsed);
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const content = e.target?.result as string;
-        const parsed = parseCSV(content);
-        const grouped = groupTransactions(parsed);
+      grouped.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-        grouped.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-
-        if (grouped.length === 0) {
-          setTransactions([]);
-          alert("Nenhuma transação elegível encontrada no arquivo CSV.");
-          setLoading(false);
-          return;
-        }
-
-        const dates = grouped.map(t => new Date(t.date + "T00:00:00").getTime());
-        const minTime = Math.min(...dates);
-        const maxTime = Math.max(...dates);
-
-        const boundsMin = new Date(minTime).toLocaleDateString("en-CA");
-        const boundsMax = new Date(maxTime).toLocaleDateString("en-CA");
-
-        const { data: dbData, error } = await supabase
-          .from("conciliacao_vendas")
-          .select("*")
-          .gte("date", boundsMin)
-          .lte("date", boundsMax);
-
-        if (error) throw error;
-
-        const availableDb = dbData || [];
-
-        grouped.forEach(group => {
-          const matched = availableDb.find(d => d.date === group.date && d.store === group.store);
-          
-          if (matched) {
-            let dbValue = 0;
-            if (group.category === "Quantidade") dbValue = matched.qntd_total_vendas;
-            else if (group.category === "Pix") dbValue = matched.pix_calculado || 0;
-            else if (group.category === "Cartão") dbValue = matched.cartao_calculado || 0;
-            else if (group.category === "Dinheiro") dbValue = matched.caixa_vendas || 0;
-            else if (group.category === "iFood") dbValue = matched.ifood_calculado || 0;
-            
-            if (group.category === "Quantidade" ? dbValue === group.amount : Math.abs(dbValue - group.amount) <= 0.05) {
-               group.status = "Já Conciliado";
-            } else {
-               group.status = "Não Encontrado";
-            }
-          } else {
-             group.status = "Não Encontrado";
-          }
-        });
-
-        setTransactions(grouped);
-      } catch (err: any) {
-        console.error("Erro ao analisar arquivo CSV:", err);
-        alert("Ocorreu um erro ao tentar ler/sincronizar este arquivo. Detalhes: " + (err.message || "Erro desconhecido."));
-      } finally {
-        setLoading(false);
+      if (grouped.length === 0) {
+        setTransactions([]);
+          throw new Error("Nenhuma transação elegível encontrada no arquivo CSV. Confira o tipo de relatório exportado.");
       }
-    };
-    reader.readAsText(file);
+
+      const dates = grouped.map(t => new Date(t.date + "T00:00:00").getTime());
+      const minTime = Math.min(...dates);
+      const maxTime = Math.max(...dates);
+
+      const boundsMin = new Date(minTime).toLocaleDateString("en-CA");
+      const boundsMax = new Date(maxTime).toLocaleDateString("en-CA");
+
+      const { data: dbData, error } = await supabase
+        .from("conciliacao_vendas")
+        .select("*")
+        .gte("date", boundsMin)
+        .lte("date", boundsMax);
+
+      if (error) throw error;
+
+      const availableDb = dbData || [];
+
+      grouped.forEach(group => {
+        const matched = availableDb.find(d => d.date === group.date && d.store === group.store);
+
+        if (matched) {
+          let dbValue = 0;
+          if (group.category === "Quantidade") dbValue = matched.qntd_total_vendas;
+          else if (group.category === "Pix") dbValue = matched.pix_calculado || 0;
+          else if (group.category === "Cartão") dbValue = matched.cartao_calculado || 0;
+          else if (group.category === "Dinheiro") dbValue = matched.caixa_vendas || 0;
+          else if (group.category === "iFood") dbValue = matched.ifood_realizado || 0;
+
+          if (group.category === "Quantidade" ? dbValue === group.amount : Math.abs(dbValue - group.amount) <= 0.05) {
+            group.status = "Já Conciliado";
+          } else {
+            group.status = "Não Encontrado";
+          }
+        } else {
+          group.status = "Não Encontrado";
+        }
+      });
+
+      setTransactions(grouped);
+      return grouped;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const processFile = async () => {
+    if (!file) return;
+    try {
+      await analyzeFile(file);
+    } catch (err: any) {
+      alert("Erro ao analisar arquivo: " + err.message);
+    }
   };
 
   const formatCurrency = (val: number) => {
@@ -442,6 +450,7 @@ function ImporteVendasCloudfy() {
               </div>
               <input 
                 type="file" 
+                aria-label="Arquivo CSV Cloudfy"
                 accept=".csv" 
                 ref={fileInputRef}
                 onChange={handleFileChange}
@@ -452,7 +461,7 @@ function ImporteVendasCloudfy() {
             <button 
               className="primary-btn"
               onClick={processFile}
-              disabled={!file || loading}
+              disabled={!file || loading || syncing}
               style={{
                 width: "100%",
                 padding: "12px",
@@ -482,7 +491,7 @@ function ImporteVendasCloudfy() {
                 {selectedTxIds.size > 0 && (
                   <button 
                     onClick={handleImportSelected}
-                    disabled={syncing}
+                    disabled={syncing || loading}
                     style={{
                       backgroundColor: "#10b981",
                       color: "#fff",

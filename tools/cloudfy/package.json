@@ -1,0 +1,12 @@
+{
+  "name": "carmella-cloudfy-local",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "setup": "playwright install chromium"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "playwright": "^1.58.0"
+  }
+}

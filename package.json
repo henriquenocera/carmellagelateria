@@ -26,6 +26,10 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "cloudfy:install": "npm --prefix tools/cloudfy install && npm --prefix tools/cloudfy run setup",
+    "cloudfy:start": "node tools/cloudfy/server.cjs",
+    "cloudfy:run": "node tools/cloudfy/run.cjs",
+    "cloudfy:test": "node --test tools/cloudfy/*.test.cjs",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
