@@ -1,4 +1,12 @@
 -- Execute no banco antes de usar a confirmação de transferências no aplicativo.
+-- Requer a coluna producao_realizada_id criada em supabase/retificar_transferencia_cubas.sql.
+
+-- Quando e por quem a transferência foi concluída (usado no romaneio).
+ALTER TABLE public.transferencias_cubas
+  ADD COLUMN IF NOT EXISTS concluida_em TIMESTAMPTZ;
+
+ALTER TABLE public.transferencias_cubas
+  ADD COLUMN IF NOT EXISTS concluida_por UUID REFERENCES public.profiles(id) ON DELETE SET NULL;
 CREATE OR REPLACE FUNCTION public.concluir_transferencia_cubas(p_transferencia_id bigint, p_cubas_ids bigint[])
 RETURNS void
 LANGUAGE plpgsql
@@ -48,13 +56,13 @@ BEGIN
       RAISE EXCEPTION 'Uma das cubas já foi transferida ou não está disponível.';
     END IF;
     IF v_transfer.destino = 'Loja Ahu' THEN
-      INSERT INTO public.cardsahu (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, history)
-      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id,
+      INSERT INTO public.cardsahu (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, producao_realizada_id, history)
+      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id, v_cuba.id,
         jsonb_build_array(jsonb_build_object('user', v_email, 'action', 'Criado no Estoque', 'timestamp', now()))
       FROM public.cadastro_produtos WHERE id = v_cuba.produto_id;
     ELSE
-      INSERT INTO public.cardsaltoxv (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, history)
-      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id,
+      INSERT INTO public.cardsaltoxv (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, producao_realizada_id, history)
+      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id, v_cuba.id,
         jsonb_build_array(jsonb_build_object('user', v_email, 'action', 'Criado no Estoque', 'timestamp', now()))
       FROM public.cadastro_produtos WHERE id = v_cuba.produto_id;
     END IF;
@@ -72,7 +80,8 @@ BEGIN
 
   UPDATE public.producao_realizada SET transferencia_cubas_id = NULL
   WHERE transferencia_cubas_id = p_transferencia_id AND id <> ALL(p_cubas_ids);
-  UPDATE public.transferencias_cubas SET cubas_ids = p_cubas_ids, status = 'Concluída'
+  UPDATE public.transferencias_cubas SET cubas_ids = p_cubas_ids, status = 'Concluída',
+    concluida_em = now(), concluida_por = auth.uid()
   WHERE id = p_transferencia_id;
 END;
 $$;

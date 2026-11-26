@@ -8,6 +8,10 @@ import { useAuth } from "../AuthProvider";
 import "../css/Frequencia.css";
 
 const PAGE_SIZE = 100;
+const STORE_CNPJ: Record<string, string> = {
+  "Loja Ahu": "46.812.928/0001-71",
+  "Loja Alto XV": "46.812.928/0002-52"
+};
 const DESTINATIONS = ["Loja Ahu", "Loja Alto XV", "Food Service", "Descartado", "Outro"];
 
 type TransferRecord = {
@@ -19,6 +23,8 @@ type TransferRecord = {
   cubas_ids?: number[] | null;
   created_at: string;
   profiles?: { name?: string | null } | null;
+  concluida_em?: string | null;
+  concluidor?: { name?: string | null } | null;
   cubas: any[];
 };
 
@@ -35,6 +41,9 @@ function TransferenciasEstoque() {
   const [confirmingTransfer, setConfirmingTransfer] = useState(false);
   const [copiedTransferId, setCopiedTransferId] = useState<number | null>(null);
   const [showCompleteConfirmation, setShowCompleteConfirmation] = useState(false);
+  const [rectifyMode, setRectifyMode] = useState(false);
+  const [showRectifyConfirmation, setShowRectifyConfirmation] = useState(false);
+  const [rectifying, setRectifying] = useState(false);
   const [showTransferCreated, setShowTransferCreated] = useState(false);
   const [editingTransferDateId, setEditingTransferDateId] = useState<number | null>(null);
   const [editingTransferDestinationId, setEditingTransferDestinationId] = useState<number | null>(null);
@@ -126,7 +135,7 @@ function TransferenciasEstoque() {
       const from = currentPage * PAGE_SIZE;
       const to = from + PAGE_SIZE - 1;
       const { data: headerData, count, error: headerError } = await supabase.from("transferencias_cubas")
-        .select("id, data_transferencia, descricao, destino, cubas_ids, status, user_id, created_at, profiles(name)", { count: "exact" })
+        .select("id, data_transferencia, descricao, destino, cubas_ids, status, user_id, created_at, concluida_em, profiles!user_id(name), concluidor:profiles!concluida_por(name)", { count: "exact" })
         .order("created_at", { ascending: false })
         .order("id", { ascending: false })
         .range(from, to);
@@ -336,6 +345,28 @@ function TransferenciasEstoque() {
     }
   }
 
+  async function rectifyTransfer() {
+    if (!selectedTransferDetail || rectifying || !selectedCubeIds.length) return;
+    setRectifying(true);
+    try {
+      const { error } = await supabase.rpc("retificar_transferencia_cubas", {
+        p_transferencia_id: selectedTransferDetail.id,
+        p_cubas_ids: selectedCubeIds
+      });
+      if (error) throw error;
+      setShowRectifyConfirmation(false);
+      setRectifyMode(false);
+      setSelectedTransferDetail(null);
+      setSelectedCubeIds([]);
+      await fetchTransfers();
+    } catch (error: any) {
+      console.error("Erro ao retificar transferência:", error);
+      alert(`Não foi possível retificar a transferência: ${error.message || "erro inesperado"}`);
+    } finally {
+      setRectifying(false);
+    }
+  }
+
   const formatCubeDate = (date?: string | null) => date ? new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR") : "—";
   const formatCubeWeight = (weight?: number | null) => weight == null ? "—" : `${Number(weight).toFixed(3)} kg`;
 
@@ -428,8 +459,16 @@ function TransferenciasEstoque() {
     const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
     const width = doc.internal.pageSize.getWidth();
     const height = doc.internal.pageSize.getHeight();
-    const totalWeight = transfer.cubas.reduce((sum, cube) => sum + (Number(cube.peso_liquido) || 0), 0);
+    const formatKg = (value: number) => value.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+    const totalNetWeight = transfer.cubas.reduce((sum, cube) => sum + (Number(cube.peso_liquido) || 0), 0);
+    const totalGrossWeight = transfer.cubas.reduce((sum, cube) => sum + (Number(cube.peso_bruto) || 0), 0);
     const formatDate = (date?: string | null) => date ? new Date(`${date}T12:00:00`).toLocaleDateString("pt-BR") : "—";
+    // Conclusão; transferências concluídas antes do registro dessa informação usam os dados de criação.
+    const completedAt = transfer.concluida_em || transfer.created_at;
+    const transferTime = completedAt ? new Date(completedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : null;
+    const authorizedBy = (transfer.concluida_em ? transfer.concluidor?.name : transfer.profiles?.name) || "—";
+    const cnpj = STORE_CNPJ[transfer.destino || ""];
+    const destinationLabel = `${transfer.destino || "A definir"}${cnpj ? ` — CNPJ ${cnpj}` : ""}`;
 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(17);
@@ -437,10 +476,12 @@ function TransferenciasEstoque() {
     doc.text("ROMANEIO DE TRANSFERÊNCIA DE CUBAS", 14, 17);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
-    doc.text(`Destino: ${transfer.destino || "A definir"}    Data de transferência: ${formatDate(transfer.data_transferencia)}`, 14, 25);
-    doc.text(`Descrição: ${transfer.descricao}    Quantidade: ${transfer.cubas.length} cuba(s)    Peso líquido total: ${totalWeight.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg`, 14, 32);
+    doc.text(`Destino: ${destinationLabel}`, 14, 25);
+    doc.text(`Data de transferência: ${formatDate(transfer.data_transferencia)}${transferTime ? ` às ${transferTime}` : ""}    Autorizada por: ${authorizedBy}`, 14, 32);
+    doc.text(`Descrição: ${transfer.descricao}    Quantidade: ${transfer.cubas.length} cuba(s)`, 14, 39);
+    doc.text(`Peso bruto total: ${formatKg(totalGrossWeight)} kg    Peso líquido total: ${formatKg(totalNetWeight)} kg`, 14, 46);
     autoTable(doc, {
-      startY: 38,
+      startY: 52,
       head: [["Nº", "Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"]],
       body: transfer.cubas.map((cube, index) => [
         index + 1,
@@ -457,7 +498,7 @@ function TransferenciasEstoque() {
       alternateRowStyles: { fillColor: [248, 250, 252] },
       margin: { left: 14, right: 14 }
     });
-    let signatureY = Number((doc as any).lastAutoTable?.finalY || 38) + 22;
+    let signatureY = Number((doc as any).lastAutoTable?.finalY || 52) + 22;
     if (signatureY + 16 > height - 12) {
       doc.addPage();
       signatureY = 35;
@@ -547,7 +588,7 @@ function TransferenciasEstoque() {
           .transfer-detail-table tbody tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 14px; border: 1px solid #dbe3ec; border-radius: 9px; }
           .transfer-detail-table tbody td { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 0 !important; border: 0 !important; text-align: left !important; font-size: 14px !important; overflow-wrap: anywhere; }
           .transfer-detail-table tbody td::before { content: attr(data-label); color: #64748b; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-          .transfer-detail-table tbody td[data-label="Transferir"] { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 10px; }
+          .transfer-detail-table tbody td[data-label="Transferir"], .transfer-detail-table tbody td[data-label="Retificar"] { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 10px; }
           .transfer-detail-table tbody td[data-label="Sabor"] { grid-column: 1 / -1; font-size: 16px !important; }
           .transfer-detail-actions { flex-wrap: wrap; }
           .transfer-detail-actions button { flex: 1 1 auto; min-height: 42px; font-size: 14px !important; }
@@ -577,7 +618,7 @@ function TransferenciasEstoque() {
             <tbody>
               {loading && transferencias.length === 0 ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 36 }}><Icons.BsArrowClockwise className="spin" style={{ fontSize: "2rem", color: "var(--primary-color)" }} /></td></tr>
                 : transferencias.length === 0 ? <tr><td colSpan={9} style={{ textAlign: "center", padding: 36, color: "#94a3b8", fontSize: "1.1rem" }}>Nenhuma transferência de cuba registrada.</td></tr>
-                  : transferencias.map(transfer => <tr key={transfer.id} onClick={() => { setSelectedCubeIds([]); setSelectedTransferDetail(transfer); }} title="Clique para ver as cubas desta transferência" style={{ cursor: "pointer" }}>
+                  : transferencias.map(transfer => <tr key={transfer.id} onClick={() => { setSelectedCubeIds([]); setRectifyMode(false); setSelectedTransferDetail(transfer); }} title="Clique para ver as cubas desta transferência" style={{ cursor: "pointer" }}>
                     <td style={{ textAlign: "center" }}>{formatDate(transfer.created_at)}</td>
                     <td style={{ textAlign: "center" }}>{editingTransferDateId === transfer.id ? <input aria-label="Data de transferência" type="date" autoFocus value={transfer.data_transferencia || ""} onClick={event => event.stopPropagation()} onChange={event => changeDraft(transfer.id, "data_transferencia", event.target.value)} onBlur={event => { void persistField(transfer.id, "data_transferencia", event.target.value); setEditingTransferDateId(null); }} onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") setEditingTransferDateId(null); }} style={{ padding: "6px", border: "1px solid #cbd5e1", borderRadius: 5 }} /> : <button type="button" className="transfer-editable-field" title="Clique para editar a data de transferência" onClick={event => { event.stopPropagation(); setEditingTransferDateId(transfer.id); }} style={{ padding: "6px 8px", border: "1px solid transparent", borderRadius: 5, background: "transparent", color: "#334155", cursor: "pointer" }}>{formatDate(transfer.data_transferencia)}</button>}</td>
                     <td style={{ minWidth: 160, fontWeight: 600 }}>{transfer.descricao || "Transf. de Cubas"}</td>
@@ -610,16 +651,24 @@ function TransferenciasEstoque() {
           <div><h2 id="transfer-detail-title" style={{ margin: "0 0 11px", color: "#334155", fontSize: "1.8rem" }}>Cubas da transferência</h2><div style={{ display: "grid", gap: 6, color: "#64748b", fontSize: "1.25rem", lineHeight: 1.4 }}><span><strong>Destino:</strong> {selectedTransferDetail.destino || "A definir"}</span><span><strong>Status:</strong> {selectedTransferDetail.status || "Pendente"}</span><span><strong>Data de transferência:</strong> {formatDate(selectedTransferDetail.data_transferencia)}</span><span><strong>Descrição:</strong> {selectedTransferDetail.descricao || "Transf. de Cubas"}</span><span><strong>Quantidade:</strong> {selectedTransferDetail.cubas.length} cuba(s)</span></div></div>
           <button type="button" aria-label="Fechar detalhes da transferência" onClick={() => setSelectedTransferDetail(null)} style={{ border: 0, background: "transparent", color: "#64748b", fontSize: "2rem", cursor: "pointer" }}><Icons.BsX /></button>
         </div>
-        {selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <p style={{ margin: "12px 0", color: "#475569", fontSize: "15px" }}>Selecione as cubas que realmente chegaram à loja. As demais permanecerão disponíveis no Estoque Fábrica.</p>}
-        {selectedTransferDetail.cubas.length ? <div className="freq-table-wrapper transfer-detail-table-wrapper" style={{ marginTop: 18, overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 7 }}>
+        {(() => {
+          const isStoreDestination = selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV";
+          const pendingSelectable = selectedTransferDetail.status === "Pendente" && isStoreDestination;
+          const rectifySelectable = rectifyMode && selectedTransferDetail.status === "Concluída" && isStoreDestination;
+          const selectable = pendingSelectable || rectifySelectable;
+          const busy = confirmingTransfer || rectifying;
+          return <>
+            {pendingSelectable && <p style={{ margin: "12px 0", color: "#475569", fontSize: "15px" }}>Selecione as cubas que realmente chegaram à loja. As demais permanecerão disponíveis no Estoque Fábrica.</p>}
+            {rectifySelectable && <p role="status" style={{ margin: "12px 0", padding: "10px 12px", border: "1px solid #fed7aa", borderRadius: 7, background: "#fff7ed", color: "#9a3412", fontSize: "15px" }}>Marque as cubas que <strong>não</strong> deveriam fazer parte desta transferência. Elas serão apagadas do estoque de {selectedTransferDetail.destino} e voltarão a ficar disponíveis no Estoque Fábrica.</p>}
+            {selectedTransferDetail.cubas.length ? <div className="freq-table-wrapper transfer-detail-table-wrapper" style={{ marginTop: 18, overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: 7 }}>
           <table className="freq-table transfer-detail-table" style={{ minWidth: 840, background: "#fff", fontSize: "14px" }}>
-            <thead><tr>{selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <th style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>TRANSFERIR</th>}{["Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"].map(label => <th key={label} style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>{label}</th>)}</tr></thead>
+            <thead><tr>{selectable && <th style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>{rectifySelectable ? "RETIFICAR" : "TRANSFERIR"}</th>}{["Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"].map(label => <th key={label} style={{ textAlign: "center", padding: "12px 10px", fontSize: "14px" }}>{label}</th>)}</tr></thead>
             <tbody>{selectedTransferDetail.cubas.map(cube => {
-              const selectable = selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV");
               const selected = selectedCubeIds.includes(Number(cube.id));
-              const toggleCube = () => { if (!confirmingTransfer) setSelectedCubeIds(current => current.includes(Number(cube.id)) ? current.filter(id => id !== Number(cube.id)) : [...current, Number(cube.id)]); };
-              return <tr key={cube.id} onClick={selectable ? toggleCube : undefined} onKeyDown={selectable ? event => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); toggleCube(); } } : undefined} tabIndex={selectable ? 0 : undefined} aria-selected={selectable ? selected : undefined} style={{ background: selected && selectable ? "#e8f5ed" : "#fff", cursor: selectable ? "pointer" : "default" }}>
-              {selectable && <td data-label="Transferir" style={{ textAlign: "center" }}><input type="checkbox" aria-label={`Transferir cuba ${cube.codigo || cube.cadastro_produtos?.nome || cube.id}`} checked={selected} disabled={confirmingTransfer} onClick={event => event.stopPropagation()} onChange={toggleCube} style={{ width: 18, height: 18, cursor: "pointer" }} /></td>}
+              const toggleCube = () => { if (!busy) setSelectedCubeIds(current => current.includes(Number(cube.id)) ? current.filter(id => id !== Number(cube.id)) : [...current, Number(cube.id)]); };
+              const cubeLabel = cube.codigo || cube.cadastro_produtos?.nome || cube.id;
+              return <tr key={cube.id} onClick={selectable ? toggleCube : undefined} onKeyDown={selectable ? event => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); toggleCube(); } } : undefined} tabIndex={selectable ? 0 : undefined} aria-selected={selectable ? selected : undefined} style={{ background: selected && selectable ? (rectifySelectable ? "#fef2f2" : "#e8f5ed") : "#fff", textDecoration: selected && rectifySelectable ? "line-through" : undefined, cursor: selectable ? "pointer" : "default" }}>
+              {selectable && <td data-label={rectifySelectable ? "Retificar" : "Transferir"} style={{ textAlign: "center" }}><input type="checkbox" aria-label={rectifySelectable ? `Retirar cuba ${cubeLabel} da transferência` : `Transferir cuba ${cubeLabel}`} checked={selected} disabled={busy} onClick={event => event.stopPropagation()} onChange={toggleCube} style={{ width: 18, height: 18, cursor: "pointer", accentColor: rectifySelectable ? "#dc2626" : undefined }} /></td>}
               <td data-label="Sabor" style={{ padding: "11px 10px", fontWeight: 700, fontSize: "15px" }}>{cube.cadastro_produtos?.nome || "Sabor não encontrado"}</td>
               <td data-label="Código" style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{cube.codigo || "—"}</td>
               <td data-label="Produção" style={{ padding: "11px 10px", textAlign: "center", fontSize: "14px" }}>{formatDate(cube.data_producao)}</td>
@@ -629,11 +678,23 @@ function TransferenciasEstoque() {
             </tr>; })}</tbody>
           </table>
         </div> : <p style={{ marginTop: 18, color: "#94a3b8", textAlign: "center", fontSize: "1.2rem" }}>Nenhuma cuba vinculada a este registro.</p>}
-        <div className="transfer-detail-actions" style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
-          {selectedTransferDetail.status === "Pendente" && (selectedTransferDetail.destino === "Loja Ahu" || selectedTransferDetail.destino === "Loja Alto XV") && <button type="button" onClick={() => setShowCompleteConfirmation(true)} disabled={!selectedCubeIds.length || confirmingTransfer} style={{ padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: selectedCubeIds.length ? "pointer" : "not-allowed", opacity: selectedCubeIds.length ? 1 : .6 }}>Confirmar {selectedCubeIds.length} cuba(s)</button>}
-          <button type="button" onClick={() => setSelectedTransferDetail(null)} style={{ padding: "10px 18px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}>Fechar</button>
-          {selectedTransferDetail.status === "Concluída" && selectedTransferDetail.cubas.length > 0 && <button type="button" onClick={() => printTransferReport(selectedTransferDetail)} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}><Icons.BsPrinterFill /> Imprimir romaneio</button>}
-        </div>
+            <div className="transfer-detail-actions" style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
+              {selectable && selectedTransferDetail.cubas.length > 0 && (() => {
+                const allIds = selectedTransferDetail.cubas.map(cube => Number(cube.id));
+                const allSelected = allIds.every(id => selectedCubeIds.includes(id));
+                return <button type="button" onClick={() => setSelectedCubeIds(allSelected ? [] : allIds)} disabled={busy} style={{ display: "inline-flex", alignItems: "center", gap: 7, marginRight: "auto", padding: "10px 18px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#f8fafc", color: "#475569", fontSize: "1.05rem", fontWeight: 700, cursor: busy ? "wait" : "pointer" }}>{allSelected ? <><Icons.BsSquare /> Desmarcar todas</> : <><Icons.BsCheckSquare /> Selecionar todas</>}</button>;
+              })()}
+              {pendingSelectable &&<button type="button" onClick={() => setShowCompleteConfirmation(true)} disabled={!selectedCubeIds.length || confirmingTransfer} style={{ padding: "10px 18px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: selectedCubeIds.length ? "pointer" : "not-allowed", opacity: selectedCubeIds.length ? 1 : .6 }}>Confirmar {selectedCubeIds.length} cuba(s)</button>}
+              {rectifySelectable && <>
+                <button type="button" onClick={() => { setRectifyMode(false); setSelectedCubeIds([]); }} disabled={rectifying} style={{ padding: "10px 18px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}>Cancelar retificação</button>
+                <button type="button" onClick={() => setShowRectifyConfirmation(true)} disabled={!selectedCubeIds.length || rectifying} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", border: 0, borderRadius: 6, background: "#dc2626", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: selectedCubeIds.length ? "pointer" : "not-allowed", opacity: selectedCubeIds.length ? 1 : .6 }}><Icons.BsArrowCounterclockwise /> Retirar {selectedCubeIds.length} cuba(s)</button>
+              </>}
+              {!rectifySelectable && <button type="button" onClick={() => setSelectedTransferDetail(null)} style={{ padding: "10px 18px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}>Fechar</button>}
+              {!rectifySelectable && selectedTransferDetail.status === "Concluída" && isStoreDestination && selectedTransferDetail.cubas.length > 0 && <button type="button" onClick={() => { setSelectedCubeIds([]); setRectifyMode(true); }} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", border: "1px solid #fdba74", borderRadius: 6, background: "#fff7ed", color: "#9a3412", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}><Icons.BsPencilSquare /> Retificar</button>}
+              {!rectifySelectable && selectedTransferDetail.status === "Concluída" && selectedTransferDetail.cubas.length > 0 && <button type="button" onClick={() => printTransferReport(selectedTransferDetail)} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 18px", border: 0, borderRadius: 6, background: "#80501f", color: "#fff", fontSize: "1.05rem", fontWeight: 700, cursor: "pointer" }}><Icons.BsPrinterFill /> Imprimir romaneio</button>}
+            </div>
+          </>;
+        })()}
       </section>
     </div>}
     {showCompleteConfirmation && selectedTransferDetail && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !confirmingTransfer) setShowCompleteConfirmation(false); }} style={{ position: "fixed", inset: 0, zIndex: 1400, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
@@ -643,6 +704,17 @@ function TransferenciasEstoque() {
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
           <button type="button" onClick={() => setShowCompleteConfirmation(false)} disabled={confirmingTransfer} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "16px", cursor: "pointer" }}>Voltar</button>
           <button type="button" onClick={() => void confirmTransfer()} disabled={confirmingTransfer} style={{ padding: "10px 15px", border: 0, borderRadius: 6, background: "#16a34a", color: "#fff", fontWeight: 700, fontSize: "16px", cursor: confirmingTransfer ? "wait" : "pointer" }}>{confirmingTransfer ? "Transferindo..." : "Confirmar transferência"}</button>
+        </div>
+      </section>
+    </div>}
+    {showRectifyConfirmation && selectedTransferDetail && <div role="presentation" onMouseDown={event => { if (event.target === event.currentTarget && !rectifying) setShowRectifyConfirmation(false); }} style={{ position: "fixed", inset: 0, zIndex: 1400, display: "flex", alignItems: "center", justifyContent: "center", padding: 18, background: "rgba(15,23,42,.52)" }}>
+      <section role="alertdialog" aria-modal="true" aria-labelledby="rectify-transfer-title" style={{ boxSizing: "border-box", width: "min(540px, 100%)", maxHeight: "85vh", overflowY: "auto", padding: 24, borderRadius: 12, background: "#fff", boxShadow: "0 20px 60px rgba(15,23,42,.25)", fontSize: "16px" }}>
+        <h2 id="rectify-transfer-title" style={{ margin: "0 0 12px", color: "#334155", fontSize: "24px" }}>Retificar transferência?</h2>
+        <p style={{ margin: "0 0 12px", color: "#475569", lineHeight: 1.5 }}>{selectedCubeIds.length} cuba(s) serão retiradas desta transferência e <strong>apagadas do estoque de {selectedTransferDetail.destino}</strong>. Na produção, elas voltarão a ficar disponíveis no Estoque Fábrica.{selectedCubeIds.length === selectedTransferDetail.cubas.length ? " Como nenhuma cuba restará, a transferência será marcada como cancelada." : ""}</p>
+        <ul style={{ display: "grid", gap: 5, margin: 0, paddingLeft: 20, color: "#334155", fontSize: "15px" }}>{selectedTransferDetail.cubas.filter(cube => selectedCubeIds.includes(Number(cube.id))).map(cube => <li key={cube.id}>{cube.cadastro_produtos?.nome || "Sabor"} · {cube.codigo || "Sem código"} · {formatDate(cube.data_producao)}</li>)}</ul>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: 9, marginTop: 20 }}>
+          <button type="button" onClick={() => setShowRectifyConfirmation(false)} disabled={rectifying} style={{ padding: "10px 15px", border: "1px solid #cbd5e1", borderRadius: 6, background: "#fff", color: "#475569", fontSize: "16px", cursor: "pointer" }}>Voltar</button>
+          <button type="button" onClick={() => void rectifyTransfer()} disabled={rectifying} style={{ display: "inline-flex", alignItems: "center", gap: 7, padding: "10px 15px", border: 0, borderRadius: 6, background: "#dc2626", color: "#fff", fontWeight: 700, fontSize: "16px", cursor: rectifying ? "wait" : "pointer" }}>{rectifying ? <><Icons.BsArrowClockwise className="spin" /> Retificando...</> : "Confirmar retificação"}</button>
         </div>
       </section>
     </div>}
