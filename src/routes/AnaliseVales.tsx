@@ -38,6 +38,13 @@ const AnaliseVales = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportAllPeriod, setExportAllPeriod] = useState<boolean>(false);
 
+  // Vales mensais (crédito no 1º dia do próximo mês)
+  const [isMonthlyModalOpen, setIsMonthlyModalOpen] = useState(false);
+  const [monthlySelected, setMonthlySelected] = useState<string[]>([]);
+  const [monthlyAlreadyLaunched, setMonthlyAlreadyLaunched] = useState<string[]>([]);
+  const [monthlyLoading, setMonthlyLoading] = useState(false);
+  const [monthlySubmitting, setMonthlySubmitting] = useState(false);
+
   // Form State
   const [formDate, setFormDate] = useState('');
   const [formNome, setFormNome] = useState('');
@@ -340,6 +347,102 @@ const AnaliseVales = () => {
 
   const totalValue = filteredVales.reduce((acc, curr) => acc + (Number(curr.valor) || 0), 0);
 
+  // --- VALES MENSAIS ---
+  const MONTHLY_VALUE_DEFAULT = 300;
+  const MONTHLY_VALUE_LEADER = 450;
+  // Sempre no 1º dia do próximo mês, às 11:20 (horário local).
+  const monthlyDate = new Date(today.getFullYear(), today.getMonth() + 1, 1, 11, 20, 0);
+  const monthlyDateLabel = `01/${String(monthlyDate.getMonth() + 1).padStart(2, '0')}/${monthlyDate.getFullYear()} às 11:20`;
+  const monthlyMonthLabel = `${monthsList[monthlyDate.getMonth()].label}/${monthlyDate.getFullYear()}`;
+  const monthlyItem = `Crédito Mensal - ${monthlyMonthLabel}`;
+  // Usuários que nunca recebem o vale mensal (comparação sem maiúsculas/acentos).
+  const MONTHLY_EXCLUDED_NAMES = ["Henrique", "Marina", "Loja Ahu", "Loja Alto XV"];
+  const normalizeName = (name: string) => name.normalize("NFD").replace(/[̀-ͯ]/g, "").trim().toLowerCase();
+  const monthlyExcluded = new Set(MONTHLY_EXCLUDED_NAMES.map(normalizeName));
+  const monthlyEmployees = Array.from(
+    profiles
+      .filter(p => p.ativo !== false && p.name && p.name.trim() && !monthlyExcluded.has(normalizeName(p.name)))
+      .reduce((map, p) => {
+        const name = p.name.trim();
+        // Se houver nomes repetidos, basta um deles ser líder.
+        const current = map.get(name);
+        map.set(name, {
+          name,
+          isLeader: Boolean(current?.isLeader || p.is_lider),
+          unidade: current?.unidade || (p.unidade_registrada ? String(p.unidade_registrada).trim() : "") || "Fábrica"
+        });
+        return map;
+      }, new Map<string, { name: string; isLeader: boolean; unidade: string }>())
+      .values()
+  ).sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+  const monthlyValueFor = (emp: { isLeader: boolean }) => emp.isLeader ? MONTHLY_VALUE_LEADER : MONTHLY_VALUE_DEFAULT;
+  const monthlySelectableEmployees = monthlyEmployees.filter(emp => !monthlyAlreadyLaunched.includes(emp.name));
+  const monthlyTotal = monthlyEmployees
+    .filter(emp => monthlySelected.includes(emp.name))
+    .reduce((acc, emp) => acc + monthlyValueFor(emp), 0);
+  const formatBRL = (value: number) => value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const openMonthlyModal = async () => {
+    setIsMonthlyModalOpen(true);
+    setMonthlyLoading(true);
+    setMonthlyAlreadyLaunched([]);
+    setMonthlySelected([]);
+    try {
+      // Verifica o dia inteiro, para também achar lançamentos feitos em outro horário.
+      const dayStart = new Date(monthlyDate.getFullYear(), monthlyDate.getMonth(), 1, 0, 0, 0);
+      const dayAfter = new Date(monthlyDate.getFullYear(), monthlyDate.getMonth(), 2, 0, 0, 0);
+      const { data, error } = await supabase.from('Vales').select('Nome')
+        .eq('Item', monthlyItem)
+        .gte('created_at', dayStart.toISOString())
+        .lt('created_at', dayAfter.toISOString());
+      if (error) throw error;
+      const launched = Array.from(new Set((data || []).map((v: any) => String(v.Nome || '').trim()))).filter(Boolean);
+      setMonthlyAlreadyLaunched(launched);
+      setMonthlySelected(monthlyEmployees.filter(emp => !launched.includes(emp.name)).map(emp => emp.name));
+    } catch (err) {
+      console.error('Erro ao verificar vales mensais já lançados:', err);
+      alert('Não foi possível verificar os vales mensais já lançados.');
+      setIsMonthlyModalOpen(false);
+    } finally {
+      setMonthlyLoading(false);
+    }
+  };
+
+  const handleLaunchMonthly = async () => {
+    const targets = monthlyEmployees.filter(emp => monthlySelected.includes(emp.name) && !monthlyAlreadyLaunched.includes(emp.name));
+    if (!targets.length) {
+      alert('Selecione pelo menos um funcionário.');
+      return;
+    }
+    setMonthlySubmitting(true);
+    try {
+      const payload = targets.map(emp => ({
+        Nome: emp.name,
+        Unidade: emp.unidade,
+        Item: monthlyItem,
+        valor: monthlyValueFor(emp),
+        created_at: monthlyDate.toISOString()
+      }));
+      const { error } = await supabase.from('Vales').insert(payload);
+      if (error) throw error;
+      setIsMonthlyModalOpen(false);
+      setShowAll(false);
+      const targetMonth = monthlyDate.getMonth() + 1;
+      const targetYear = monthlyDate.getFullYear();
+      if (month !== targetMonth || year !== targetYear) {
+        setMonth(targetMonth);
+        setYear(targetYear);
+      } else {
+        fetchVales();
+      }
+    } catch (err: any) {
+      console.error('Erro ao lançar vales mensais:', err);
+      alert(err.message || 'Erro ao lançar vales mensais.');
+    } finally {
+      setMonthlySubmitting(false);
+    }
+  };
+
   const handleExportPDF = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedExportEmployees.length === 0) {
@@ -537,6 +640,16 @@ const AnaliseVales = () => {
             >
               <Icons.BsFileEarmarkPdf style={{ marginRight: '8px' }} />
               Exportar PDF
+            </button>
+
+            <button
+              className="primary-btn"
+              onClick={() => void openMonthlyModal()}
+              title={`Credita R$ ${MONTHLY_VALUE_DEFAULT} para cada funcionário e R$ ${MONTHLY_VALUE_LEADER} para líderes em ${monthlyDateLabel}`}
+              style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem", backgroundColor: "#16a34a", display: "flex", alignItems: "center" }}
+            >
+              <Icons.BsCalendarPlus style={{ marginRight: '8px' }} />
+              Lançar Vales Mensais
             </button>
 
             <button className="primary-btn" onClick={() => openModal()} style={{ height: "fit-content", padding: "16px 24px", fontSize: "1.5rem", display: "flex", alignItems: "center" }}>
@@ -892,6 +1005,120 @@ const AnaliseVales = () => {
         onCancel={() => setConfirmModal({ isOpen: false, message: '', onConfirm: () => { } })}
         confirmText="Excluir"
       />
+
+      {/* Modal de Vales Mensais */}
+      {isMonthlyModalOpen && (
+        <div className="modal-overlay" onMouseDown={(e) => { if (e.target === e.currentTarget && !monthlySubmitting) setIsMonthlyModalOpen(false); }}>
+          <style>{`
+            .monthly-modal { text-align: left; }
+            .monthly-modal label { text-align: left; }
+            .monthly-row { transition: background .15s, border-color .15s; }
+            .monthly-row:hover:not(.is-launched) { background: #fcfaf7 !important; border-color: #d9c8b6 !important; }
+            .monthly-modal input[type="checkbox"] { width: 17px; height: 17px; margin: 0; accent-color: var(--primary-color); cursor: pointer; flex-shrink: 0; }
+            .monthly-modal input[type="checkbox"]:disabled { cursor: default; }
+          `}</style>
+          <div className="modal-content monthly-modal" role="dialog" aria-modal="true" aria-labelledby="monthly-modal-title" style={{ maxWidth: "580px", maxHeight: "90vh", overflowY: "auto", padding: "28px", gap: "20px" }}>
+
+            {/* Cabeçalho */}
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}>
+              <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "#f5ede5", color: "var(--primary-color)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "2rem", flexShrink: 0 }}>
+                <Icons.BsCalendarPlus />
+              </div>
+              <div style={{ flex: 1 }}>
+                <h2 id="monthly-modal-title" style={{ margin: 0, color: "var(--secondary-color)", fontSize: "2rem" }}>Lançar Vales Mensais</h2>
+                <p style={{ margin: "4px 0 0", color: "var(--text-muted)", fontSize: "1.35rem" }}>Crédito mensal de {monthlyMonthLabel.toLowerCase()}</p>
+              </div>
+              <button type="button" aria-label="Fechar" onClick={() => setIsMonthlyModalOpen(false)} disabled={monthlySubmitting} style={{ background: "none", border: "none", fontSize: "2.2rem", lineHeight: 1, cursor: "pointer", color: "var(--text-muted)", padding: 0 }}>
+                <Icons.BsX />
+              </button>
+            </div>
+
+            {/* Resumo das regras */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}>
+              {[
+                { label: "Data do lançamento", value: monthlyDateLabel },
+                { label: "Funcionário", value: `R$ ${formatBRL(MONTHLY_VALUE_DEFAULT)}` },
+                { label: "Líder", value: `R$ ${formatBRL(MONTHLY_VALUE_LEADER)}` }
+              ].map(info => (
+                <div key={info.label} style={{ padding: "11px 13px", borderRadius: "10px", background: "#fcfaf7", border: "1px solid var(--border-color, #e6dfd9)" }}>
+                  <span style={{ display: "block", fontSize: "1.05rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: ".4px" }}>{info.label}</span>
+                  <strong style={{ display: "block", marginTop: "3px", fontSize: "1.6rem", color: "var(--secondary-color)" }}>{info.value}</strong>
+                </div>
+              ))}
+            </div>
+
+            {monthlyLoading ? (
+              <div style={{ display: "flex", justifyContent: "center", padding: "36px" }}>
+                <Icons.BsArrowClockwise className="spin" style={{ fontSize: "2.4rem", color: "var(--primary-color)" }} />
+              </div>
+            ) : (
+              <div>
+                {monthlyAlreadyLaunched.length > 0 && (
+                  <p role="status" style={{ display: "flex", alignItems: "center", gap: "8px", margin: "0 0 12px", padding: "10px 12px", borderRadius: "8px", background: "#fdf6ec", border: "1px solid #eedcc3", color: "#80501f", fontSize: "1.3rem" }}>
+                    <Icons.BsInfoCircle style={{ flexShrink: 0 }} />
+                    {monthlyAlreadyLaunched.length} funcionário(s) já receberam o crédito de {monthlyMonthLabel} e não serão lançados novamente.
+                  </p>
+                )}
+
+                {/* Lista de funcionários */}
+                <div style={{ border: "1px solid var(--border-color, #e6dfd9)", borderRadius: "12px", overflow: "hidden" }}>
+                  <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", padding: "11px 14px", background: "#f1e7da", color: "#80501f", cursor: monthlySelectableEmployees.length ? "pointer" : "default", fontSize: "1.25rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: ".4px" }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <input
+                        type="checkbox"
+                        checked={monthlySelectableEmployees.length > 0 && monthlySelectableEmployees.every(emp => monthlySelected.includes(emp.name))}
+                        onChange={(e) => setMonthlySelected(e.target.checked ? monthlySelectableEmployees.map(emp => emp.name) : [])}
+                        disabled={monthlySubmitting || monthlySelectableEmployees.length === 0}
+                      />
+                      Selecionar todos
+                    </span>
+                    <span>{monthlySelected.length} de {monthlySelectableEmployees.length}</span>
+                  </label>
+                  <div style={{ maxHeight: "300px", overflowY: "auto", padding: "8px", display: "grid", gap: "6px", background: "#fff" }}>
+                    {monthlyEmployees.map(emp => {
+                      const launched = monthlyAlreadyLaunched.includes(emp.name);
+                      const checked = !launched && monthlySelected.includes(emp.name);
+                      return (
+                        <label key={emp.name} className={`monthly-row${launched ? " is-launched" : ""}`} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 12px", borderRadius: "8px", border: "1px solid transparent", background: checked ? "#fff" : "#faf8f6", cursor: launched ? "default" : "pointer", opacity: launched ? 0.55 : checked ? 1 : 0.75 }}>
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            disabled={launched || monthlySubmitting}
+                            onChange={(e) => setMonthlySelected(current => e.target.checked ? [...current, emp.name] : current.filter(name => name !== emp.name))}
+                          />
+                          <span style={{ flex: 1, display: "flex", alignItems: "center", gap: "8px", minWidth: 0, color: "var(--text-dark, #2d241e)", fontSize: "1.45rem", fontWeight: 600 }}>
+                            <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{emp.name}</span>
+                            {emp.isLeader && <span style={{ background: "#f5ede5", color: "var(--primary-color)", border: "1px solid #e4d3c1", fontSize: "1.05rem", padding: "2px 8px", borderRadius: "10px", fontWeight: 700 }}>Líder</span>}
+                            {launched && <span style={{ color: "var(--text-muted)", fontSize: "1.15rem", fontWeight: 500 }}>já lançado</span>}
+                          </span>
+                          <span style={{ color: checked ? "#15803d" : "var(--text-muted)", fontWeight: 700, fontSize: "1.4rem", whiteSpace: "nowrap" }}>+ R$ {formatBRL(monthlyValueFor(emp))}</span>
+                        </label>
+                      );
+                    })}
+                    {monthlyEmployees.length === 0 && <p style={{ margin: "16px 0", color: "var(--text-muted)", textAlign: "center", fontSize: "1.3rem" }}>Nenhum funcionário ativo encontrado.</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Rodapé com total e ações */}
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "16px", flexWrap: "wrap", paddingTop: "18px", borderTop: "1px solid var(--border-color, #e6dfd9)" }}>
+              <div>
+                <span style={{ display: "block", fontSize: "1.1rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: ".4px" }}>Total a creditar · {monthlySelected.length} funcionário(s)</span>
+                <strong style={{ display: "block", marginTop: "2px", fontSize: "2.2rem", color: "var(--secondary-color)" }}>R$ {formatBRL(monthlyTotal)}</strong>
+              </div>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <button type="button" className="cancel-btn" onClick={() => setIsMonthlyModalOpen(false)} disabled={monthlySubmitting} style={{ margin: 0, padding: "11px 18px", fontSize: "1.4rem" }}>
+                  Cancelar
+                </button>
+                <button type="button" className="primary-btn" onClick={() => void handleLaunchMonthly()} disabled={monthlyLoading || monthlySubmitting || monthlySelected.length === 0} style={{ margin: 0, padding: "11px 18px", fontSize: "1.4rem", display: "inline-flex", alignItems: "center", gap: "8px", opacity: monthlyLoading || monthlySelected.length === 0 ? 0.6 : 1, cursor: monthlySubmitting ? "wait" : monthlySelected.length === 0 ? "not-allowed" : "pointer" }}>
+                  {monthlySubmitting ? <><Icons.BsArrowClockwise className="spin" /> Lançando...</> : <><Icons.BsCheckCircleFill /> Lançar {monthlySelected.length} vale(s)</>}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Modal de Exportação */}
       {isExportModalOpen && (

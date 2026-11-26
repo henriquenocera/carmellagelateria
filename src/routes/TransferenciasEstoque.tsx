@@ -468,20 +468,64 @@ function TransferenciasEstoque() {
     const transferTime = completedAt ? new Date(completedAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) : null;
     const authorizedBy = (transfer.concluida_em ? transfer.concluidor?.name : transfer.profiles?.name) || "—";
     const cnpj = STORE_CNPJ[transfer.destino || ""];
-    const destinationLabel = `${transfer.destino || "A definir"}${cnpj ? ` — CNPJ ${cnpj}` : ""}`;
+    const left = 14;
+    const contentWidth = width - left * 2;
 
+    // Título com faixa de destaque e número da transferência à direita.
+    doc.setFillColor(128, 80, 31);
+    doc.rect(left, 11, 1.6, 9, "F");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(17);
     doc.setTextColor(51, 65, 85);
-    doc.text("ROMANEIO DE TRANSFERÊNCIA DE CUBAS", 14, 17);
+    doc.text("ROMANEIO DE TRANSFERÊNCIA DE CUBAS", left + 5, 18);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
-    doc.text(`Destino: ${destinationLabel}`, 14, 25);
-    doc.text(`Data de transferência: ${formatDate(transfer.data_transferencia)}${transferTime ? ` às ${transferTime}` : ""}    Autorizada por: ${authorizedBy}`, 14, 32);
-    doc.text(`Descrição: ${transfer.descricao}    Quantidade: ${transfer.cubas.length} cuba(s)`, 14, 39);
-    doc.text(`Peso bruto total: ${formatKg(totalGrossWeight)} kg    Peso líquido total: ${formatKg(totalNetWeight)} kg`, 14, 46);
+    doc.setFontSize(10);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`Transferência nº ${transfer.id}`, width - left, 18, { align: "right" });
+
+    // Quadro de informações: 2 linhas × 4 colunas, rótulo pequeno em cima e valor embaixo.
+    const cells = [
+      { label: "Destino", value: transfer.destino || "A definir" },
+      { label: "CNPJ do destino", value: cnpj || "—" },
+      { label: "Data e hora da transferência", value: `${formatDate(transfer.data_transferencia)}${transferTime ? ` às ${transferTime}` : ""}` },
+      { label: "Autorizada por", value: authorizedBy },
+      { label: "Descrição", value: transfer.descricao || "Transf. de Cubas" },
+      { label: "Quantidade", value: `${transfer.cubas.length} cuba(s)` },
+      { label: "Peso bruto total", value: `${formatKg(totalGrossWeight)} kg` },
+      { label: "Peso líquido total", value: `${formatKg(totalNetWeight)} kg` }
+    ];
+    const columns = 4;
+    const colWidth = contentWidth / columns;
+    const rowHeight = 13;
+    const boxTop = 24;
+    const rows = Math.ceil(cells.length / columns);
+    doc.setFillColor(250, 247, 243);
+    doc.setDrawColor(226, 216, 203);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(left, boxTop, contentWidth, rowHeight * rows, 2, 2, "FD");
+    for (let row = 1; row < rows; row++) doc.line(left, boxTop + rowHeight * row, left + contentWidth, boxTop + rowHeight * row);
+    for (let col = 1; col < columns; col++) doc.line(left + colWidth * col, boxTop, left + colWidth * col, boxTop + rowHeight * rows);
+    const fitText = (text: string, maxWidth: number) => {
+      if (doc.getTextWidth(text) <= maxWidth) return text;
+      let trimmed = text;
+      while (trimmed.length > 1 && doc.getTextWidth(`${trimmed}…`) > maxWidth) trimmed = trimmed.slice(0, -1);
+      return `${trimmed.trimEnd()}…`;
+    };
+    cells.forEach((cell, index) => {
+      const x = left + (index % columns) * colWidth + 5;
+      const y = boxTop + Math.floor(index / columns) * rowHeight;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(7.5);
+      doc.setTextColor(128, 80, 31);
+      doc.text(cell.label.toUpperCase(), x, y + 5);
+      doc.setFontSize(11);
+      doc.setTextColor(30, 41, 59);
+      doc.text(fitText(cell.value, colWidth - 10), x, y + 10.3);
+    });
+    // Layout compacto: até 16 cubas cabem com as assinaturas em uma única página A4.
+    const tableStartY = boxTop + rowHeight * rows + 5;
     autoTable(doc, {
-      startY: 52,
+      startY: tableStartY,
       head: [["Nº", "Sabor", "Código de Produção", "Data de Produção", "Peso Bruto (kg)", "Tara (kg)", "Peso Líquido (kg)"]],
       body: transfer.cubas.map((cube, index) => [
         index + 1,
@@ -494,12 +538,12 @@ function TransferenciasEstoque() {
       ]),
       theme: "grid",
       headStyles: { fillColor: [241, 231, 218], textColor: [128, 80, 31], fontStyle: "bold" },
-      styles: { font: "helvetica", fontSize: 9, cellPadding: 2.5, textColor: [51, 65, 85] },
+      styles: { font: "helvetica", fontSize: 9, cellPadding: { top: 1.6, bottom: 1.6, left: 2.5, right: 2.5 }, textColor: [51, 65, 85] },
       alternateRowStyles: { fillColor: [248, 250, 252] },
-      margin: { left: 14, right: 14 }
+      margin: { left: 14, right: 14, top: 14, bottom: 16 }
     });
-    let signatureY = Number((doc as any).lastAutoTable?.finalY || 52) + 22;
-    if (signatureY + 16 > height - 12) {
+    let signatureY = Number((doc as any).lastAutoTable?.finalY || tableStartY) + 16;
+    if (signatureY + 6 > height - 16) {
       doc.addPage();
       signatureY = 35;
     }
@@ -512,7 +556,7 @@ function TransferenciasEstoque() {
     doc.text("Assinatura — responsável pelo recebimento", width / 2 + 12, signatureY + 6);
     doc.setFontSize(9);
     doc.setTextColor(100, 116, 139);
-    doc.text("Este romaneio deve acompanhar as cubas durante todo o transporte.", 14, height - 10);
+    doc.text("Este romaneio deve acompanhar as cubas durante todo o transporte.", 14, height - 8);
     const slug = (transfer.destino || "destino-a-definir").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "-");
     doc.save(`romaneio-cubas-${slug}-${transfer.data_transferencia}.pdf`);
   }
