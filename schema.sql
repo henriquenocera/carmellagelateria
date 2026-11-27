@@ -150,13 +150,13 @@ BEGIN
       RAISE EXCEPTION 'Uma das cubas já foi transferida ou não está disponível.';
     END IF;
     IF v_transfer.destino = 'Loja Ahu' THEN
-      INSERT INTO public.cardsahu (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, history)
-      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id,
+      INSERT INTO public.cardsahu (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, producao_realizada_id, history)
+      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id, v_cuba.id,
         jsonb_build_array(jsonb_build_object('user', v_email, 'action', 'Criado no Estoque', 'timestamp', now()))
       FROM public.cadastro_produtos WHERE id = v_cuba.produto_id;
     ELSE
-      INSERT INTO public.cardsaltoxv (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, history)
-      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id,
+      INSERT INTO public.cardsaltoxv (title, status, production_date, entry_date, created_by, last_edited_by, transferencia_cubas_id, producao_realizada_id, history)
+      SELECT nome, 'freezer-estoque', v_cuba.data_producao, NULL, v_email, v_email, p_transferencia_id, v_cuba.id,
         jsonb_build_array(jsonb_build_object('user', v_email, 'action', 'Criado no Estoque', 'timestamp', now()))
       FROM public.cadastro_produtos WHERE id = v_cuba.produto_id;
     END IF;
@@ -174,7 +174,8 @@ BEGIN
 
   UPDATE public.producao_realizada SET transferencia_cubas_id = NULL
   WHERE transferencia_cubas_id = p_transferencia_id AND id <> ALL(p_cubas_ids);
-  UPDATE public.transferencias_cubas SET cubas_ids = p_cubas_ids, status = 'Concluída'
+  UPDATE public.transferencias_cubas SET cubas_ids = p_cubas_ids, status = 'Concluída',
+    concluida_em = now(), concluida_por = auth.uid()
   WHERE id = p_transferencia_id;
 END;
 $$;
@@ -259,6 +260,107 @@ $$;
 
 
 ALTER FUNCTION "public"."registrar_historico_producao_realizada"() OWNER TO "postgres";
+
+
+CREATE OR REPLACE FUNCTION "public"."retificar_transferencia_cubas"("p_transferencia_id" bigint, "p_cubas_ids" bigint[]) RETURNS "void"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO 'public'
+    AS $$
+DECLARE
+  v_transfer public.transferencias_cubas%ROWTYPE;
+  v_cuba public.producao_realizada%ROWTYPE;
+  v_product_name text;
+  v_card_id uuid;
+  v_remaining bigint[];
+  v_count integer := 0;
+BEGIN
+  IF auth.uid() IS NULL THEN
+    RAISE EXCEPTION 'É necessário estar autenticado.';
+  END IF;
+
+  SELECT * INTO v_transfer FROM public.transferencias_cubas
+  WHERE id = p_transferencia_id FOR UPDATE;
+  IF NOT FOUND OR v_transfer.status <> 'Concluída' THEN
+    RAISE EXCEPTION 'Só é possível retificar transferências concluídas.';
+  END IF;
+  IF v_transfer.destino NOT IN ('Loja Ahu', 'Loja Alto XV') THEN
+    RAISE EXCEPTION 'O destino desta transferência não é uma loja válida.';
+  END IF;
+  IF p_cubas_ids IS NULL OR cardinality(p_cubas_ids) = 0
+     OR array_position(p_cubas_ids, NULL) IS NOT NULL
+     OR (SELECT count(DISTINCT cuba_id) FROM unnest(p_cubas_ids) AS ids(cuba_id)) <> cardinality(p_cubas_ids) THEN
+    RAISE EXCEPTION 'Selecione ao menos uma cuba, sem repetições.';
+  END IF;
+  IF NOT p_cubas_ids <@ coalesce(v_transfer.cubas_ids, '{}'::bigint[]) THEN
+    RAISE EXCEPTION 'Há cubas que não pertencem a esta transferência.';
+  END IF;
+
+  FOR v_cuba IN SELECT * FROM public.producao_realizada
+    WHERE id = ANY(p_cubas_ids) ORDER BY id FOR UPDATE
+  LOOP
+    IF v_cuba.transferencia_cubas_id IS DISTINCT FROM p_transferencia_id THEN
+      RAISE EXCEPTION 'A cuba % não está vinculada a esta transferência.', coalesce(v_cuba.codigo, v_cuba.id::text);
+    END IF;
+
+    SELECT nome INTO v_product_name FROM public.cadastro_produtos WHERE id = v_cuba.produto_id;
+
+    -- Procura o card desta cuba: primeiro pelo vínculo direto; depois, para
+    -- transferências antigas, pelo mesmo sabor e data de produção nesta transferência.
+    v_card_id := NULL;
+    IF v_transfer.destino = 'Loja Ahu' THEN
+      SELECT id INTO v_card_id FROM public.cardsahu
+      WHERE transferencia_cubas_id = p_transferencia_id AND producao_realizada_id = v_cuba.id
+      LIMIT 1 FOR UPDATE;
+      IF v_card_id IS NULL THEN
+        SELECT id INTO v_card_id FROM public.cardsahu
+        WHERE transferencia_cubas_id = p_transferencia_id AND producao_realizada_id IS NULL
+          AND title = v_product_name AND production_date IS NOT DISTINCT FROM v_cuba.data_producao
+        ORDER BY (status = 'freezer-estoque') DESC, id
+        LIMIT 1 FOR UPDATE;
+      END IF;
+      IF v_card_id IS NULL THEN
+        RAISE EXCEPTION 'A cuba % não foi encontrada no estoque da Loja Ahu (pode já ter sido removida).', coalesce(v_cuba.codigo, v_product_name);
+      END IF;
+      DELETE FROM public.cardsahu WHERE id = v_card_id;
+    ELSE
+      SELECT id INTO v_card_id FROM public.cardsaltoxv
+      WHERE transferencia_cubas_id = p_transferencia_id AND producao_realizada_id = v_cuba.id
+      LIMIT 1 FOR UPDATE;
+      IF v_card_id IS NULL THEN
+        SELECT id INTO v_card_id FROM public.cardsaltoxv
+        WHERE transferencia_cubas_id = p_transferencia_id AND producao_realizada_id IS NULL
+          AND title = v_product_name AND production_date IS NOT DISTINCT FROM v_cuba.data_producao
+        ORDER BY (status = 'freezer-estoque') DESC, id
+        LIMIT 1 FOR UPDATE;
+      END IF;
+      IF v_card_id IS NULL THEN
+        RAISE EXCEPTION 'A cuba % não foi encontrada no estoque da Loja Alto XV (pode já ter sido removida).', coalesce(v_cuba.codigo, v_product_name);
+      END IF;
+      DELETE FROM public.cardsaltoxv WHERE id = v_card_id;
+    END IF;
+
+    UPDATE public.producao_realizada
+    SET data_entrada = NULL, destino = NULL, transferencia_cubas_id = NULL
+    WHERE id = v_cuba.id;
+    v_count := v_count + 1;
+  END LOOP;
+  IF v_count <> cardinality(p_cubas_ids) THEN
+    RAISE EXCEPTION 'Uma ou mais cubas não foram encontradas.';
+  END IF;
+
+  SELECT coalesce(array_agg(cuba_id ORDER BY ord), '{}'::bigint[]) INTO v_remaining
+  FROM unnest(v_transfer.cubas_ids) WITH ORDINALITY AS ids(cuba_id, ord)
+  WHERE cuba_id <> ALL(p_cubas_ids);
+
+  UPDATE public.transferencias_cubas
+  SET cubas_ids = v_remaining,
+      status = CASE WHEN cardinality(v_remaining) = 0 THEN 'Cancelada' ELSE status END
+  WHERE id = p_transferencia_id;
+END;
+$$;
+
+
+ALTER FUNCTION "public"."retificar_transferencia_cubas"("p_transferencia_id" bigint, "p_cubas_ids" bigint[]) OWNER TO "postgres";
 
 
 CREATE OR REPLACE FUNCTION "public"."update_total_vales"() RETURNS "trigger"
@@ -521,6 +623,7 @@ CREATE TABLE IF NOT EXISTS "public"."cardsahu" (
     "updated_at" timestamp with time zone DEFAULT "now"(),
     "history" "jsonb" DEFAULT '[]'::"jsonb",
     "transferencia_cubas_id" bigint,
+    "producao_realizada_id" bigint,
     CONSTRAINT "cards_status_check" CHECK (("status" = ANY (ARRAY['quebras'::"text", 'freezer-estoque'::"text", 'vitrine-atual'::"text", 'cubas-saidas-vitrine'::"text", 'excluidos'::"text"])))
 );
 
@@ -546,6 +649,7 @@ CREATE TABLE IF NOT EXISTS "public"."cardsaltoxv" (
     "updated_at" timestamp with time zone DEFAULT "now"(),
     "history" "jsonb" DEFAULT '[]'::"jsonb",
     "transferencia_cubas_id" bigint,
+    "producao_realizada_id" bigint,
     CONSTRAINT "cards_status_check" CHECK (("status" = ANY (ARRAY['quebras'::"text", 'freezer-estoque'::"text", 'vitrine-atual'::"text", 'cubas-saidas-vitrine'::"text", 'excluidos'::"text"])))
 );
 
@@ -1366,6 +1470,8 @@ CREATE TABLE IF NOT EXISTS "public"."transferencias_cubas" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "cubas_ids" bigint[] DEFAULT '{}'::bigint[] NOT NULL,
     "status" "text" DEFAULT 'Pendente'::"text" NOT NULL,
+    "concluida_em" timestamp with time zone,
+    "concluida_por" "uuid",
     CONSTRAINT "transferencias_cubas_destino_check" CHECK (("destino" = ANY (ARRAY['Loja Ahu'::"text", 'Loja Alto XV'::"text", 'Food Service'::"text", 'Descartado'::"text", 'Outro'::"text"]))),
     CONSTRAINT "transferencias_cubas_status_check" CHECK (("status" = ANY (ARRAY['Pendente'::"text", 'Concluída'::"text", 'Cancelada'::"text"])))
 );
@@ -1663,7 +1769,15 @@ ALTER TABLE ONLY "public"."conciliacao_vendas"
 
 
 
+CREATE INDEX "cardsahu_producao_realizada_id_idx" ON "public"."cardsahu" USING "btree" ("producao_realizada_id");
+
+
+
 CREATE INDEX "cardsahu_transferencia_cubas_id_idx" ON "public"."cardsahu" USING "btree" ("transferencia_cubas_id");
+
+
+
+CREATE INDEX "cardsaltoxv_producao_realizada_id_idx" ON "public"."cardsaltoxv" USING "btree" ("producao_realizada_id");
 
 
 
@@ -1758,7 +1872,17 @@ ALTER TABLE ONLY "public"."caixa_dinheiro_lancamentos"
 
 
 ALTER TABLE ONLY "public"."cardsahu"
+    ADD CONSTRAINT "cardsahu_producao_realizada_id_fkey" FOREIGN KEY ("producao_realizada_id") REFERENCES "public"."producao_realizada"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."cardsahu"
     ADD CONSTRAINT "cardsahu_transferencia_cubas_id_fkey" FOREIGN KEY ("transferencia_cubas_id") REFERENCES "public"."transferencias_cubas"("id") ON DELETE SET NULL;
+
+
+
+ALTER TABLE ONLY "public"."cardsaltoxv"
+    ADD CONSTRAINT "cardsaltoxv_producao_realizada_id_fkey" FOREIGN KEY ("producao_realizada_id") REFERENCES "public"."producao_realizada"("id") ON DELETE SET NULL;
 
 
 
@@ -1954,6 +2078,11 @@ ALTER TABLE ONLY "public"."profiles"
 
 ALTER TABLE ONLY "public"."tarefas_lojas_concluidas"
     ADD CONSTRAINT "tarefas_lojas_concluidas_tarefa_id_fkey" FOREIGN KEY ("tarefa_id") REFERENCES "public"."tarefas_lojas"("id") ON DELETE CASCADE;
+
+
+
+ALTER TABLE ONLY "public"."transferencias_cubas"
+    ADD CONSTRAINT "transferencias_cubas_concluida_por_fkey" FOREIGN KEY ("concluida_por") REFERENCES "public"."profiles"("id") ON DELETE SET NULL;
 
 
 
@@ -2908,6 +3037,13 @@ GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."registrar_historico_producao_realizada"() TO "anon";
 GRANT ALL ON FUNCTION "public"."registrar_historico_producao_realizada"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."registrar_historico_producao_realizada"() TO "service_role";
+
+
+
+REVOKE ALL ON FUNCTION "public"."retificar_transferencia_cubas"("p_transferencia_id" bigint, "p_cubas_ids" bigint[]) FROM PUBLIC;
+GRANT ALL ON FUNCTION "public"."retificar_transferencia_cubas"("p_transferencia_id" bigint, "p_cubas_ids" bigint[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."retificar_transferencia_cubas"("p_transferencia_id" bigint, "p_cubas_ids" bigint[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."retificar_transferencia_cubas"("p_transferencia_id" bigint, "p_cubas_ids" bigint[]) TO "service_role";
 
 
 
