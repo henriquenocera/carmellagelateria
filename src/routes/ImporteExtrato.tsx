@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import supabase from "../services/supabase-client";
 import { useAuth } from "../AuthProvider";
+import PluggyConectarConta, { chamarPluggy } from "../components/PluggyConectarConta.tsx";
 function parseBRNumber(val: any): number {
   if (val === null || val === undefined || val === "") return 0;
   if (typeof val === "number") return isNaN(val) ? 0 : val;
@@ -39,11 +40,68 @@ function ImporteExtrato() {
   const [selectedBankMode, setSelectedBankMode] = useState<"Inter" | "Itau" | null>(null);
   const [accountWarning, setAccountWarning] = useState<boolean>(false);
 
+  // Extrato pelo Open Finance (Pluggy): período a buscar e transações cruas devolvidas pela Edge Function.
+  const hojeSP = () => new Date().toLocaleDateString("en-CA", { timeZone: "America/Sao_Paulo" });
+  const [apiInicio, setApiInicio] = useState<string>(() => {
+    const d = new Date(hojeSP() + "T12:00:00");
+    d.setDate(d.getDate() - 7);
+    return d.toISOString().slice(0, 10);
+  });
+  const [apiFim, setApiFim] = useState<string>(hojeSP);
+  const [apiRaw, setApiRaw] = useState<any[] | null>(null);
+
+  // Aberto a partir de Lançamentos Financeiros ("Buscar extrato Inter"): já entra no modo Inter.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("fonte") === "pluggy") setSelectedBankMode("Inter");
+  }, []);
+
   useEffect(() => {
     if (file && selectedConta) {
       processFile();
     }
   }, [file, selectedConta]);
+
+  useEffect(() => {
+    if (apiRaw && apiRaw.length > 0) {
+      analyzeTransactions(apiRaw.map(t => ({ ...t, dbId: null, status: "Analisando..." })), "pluggy");
+    }
+  }, [apiRaw, selectedConta]);
+
+  // Conexões Open Finance (Pluggy): qual conta da Pluggy corresponde a cada conta do escritório.
+  const [conexoesPluggy, setConexoesPluggy] = useState<any[]>([]);
+  const carregarConexoesPluggy = async () => {
+    const { data, error } = await supabase.from("pluggy_conexoes").select("item_id, account_id, conta, descricao");
+    if (error) {
+      console.warn("Não foi possível ler pluggy_conexoes (o script SQL já foi rodado?):", error);
+      return;
+    }
+    setConexoesPluggy(data || []);
+  };
+  useEffect(() => { carregarConexoesPluggy(); }, []);
+  const conexaoAtual = conexoesPluggy.find(c => c.conta === selectedConta) || null;
+
+  // Grava quais transações do extrato já viraram lançamento, para não duplicar numa próxima busca.
+  const registrarTransacoesInter = async (vinculos: { tx: any; lancamentoId: any }[]) => {
+    const rows = vinculos
+      .filter(v => v.tx?.source === "pluggy" && v.lancamentoId != null && !String(v.lancamentoId).startsWith("group-"))
+      .map(v => ({
+        origem: "pluggy",
+        id_transacao: String(v.tx.id),
+        lancamento_id: v.lancamentoId,
+        conta: selectedConta,
+        data: v.tx.date,
+        valor: v.tx.amount,
+        user_id: user?.id
+      }));
+    if (rows.length === 0) return;
+    const { error } = await supabase
+      .from("extrato_transacoes_importadas")
+      .upsert(rows, { onConflict: "origem,id_transacao", ignoreDuplicates: true });
+    if (error) {
+      console.warn("Lançamentos criados, mas não foi possível registrar o id da transação:", error);
+    }
+  };
 
   useEffect(() => {
     if (selectedBankMode) {
@@ -193,17 +251,23 @@ function ImporteExtrato() {
           };
         });
 
-        const { error } = await supabase
+        const { data: inseridos, error } = await supabase
           .from("lancamentos_financeiros")
-          .insert(payloads);
+          .insert(payloads)
+          .select("id");
 
         if (error) throw error;
+
+        await registrarTransacoesInter(
+          txsToInsert.map((t, i) => ({ tx: t, lancamentoId: inseridos?.[i]?.id }))
+        );
       }
 
       // 2. Concilia os lançamentos existentes no banco de dados
       if (txsToReconcile.length > 0) {
         for (const t of txsToReconcile) {
-          await reconcileSingleTransaction(t, selectedConta, user?.id);
+          const result = await reconcileSingleTransaction(t, selectedConta, user?.id);
+          await registrarTransacoesInter([{ tx: t, lancamentoId: result?.lancamentoId }]);
         }
       }
 
@@ -245,6 +309,7 @@ function ImporteExtrato() {
 
     if (matched.isGroup && matched.dbRecords) {
       // Concilia múltiplos lançamentos do sistema que compõem essa transação do extrato
+      let primeiroLancamentoId: any = null;
       for (const subRec of matched.dbRecords) {
         if (subRec.sourceTable === "contas_pagar_receber") {
           const orig = subRec.originalData || subRec;
@@ -260,11 +325,13 @@ function ImporteExtrato() {
             conciliado: true
           };
 
-          const { error: insertErr } = await supabase
+          const { data: insertedSub, error: insertErr } = await supabase
             .from("lancamentos_financeiros")
-            .insert([payload]);
+            .insert([payload])
+            .select("id");
 
           if (insertErr) throw insertErr;
+          if (primeiroLancamentoId == null) primeiroLancamentoId = insertedSub?.[0]?.id ?? null;
 
           await supabase
             .from("contas_pagar_receber")
@@ -277,9 +344,11 @@ function ImporteExtrato() {
             .eq("id", subRec.id);
 
           if (error) throw error;
+          if (primeiroLancamentoId == null) primeiroLancamentoId = subRec.id;
         }
       }
       return {
+        lancamentoId: primeiroLancamentoId,
         dbId: tx.dbId || matched.id,
         matchedDbRecord: {
           ...matched,
@@ -319,6 +388,7 @@ function ImporteExtrato() {
 
       const newDbId = insertedData && insertedData.length > 0 ? insertedData[0].id : (tx.dbId || matched.id);
       return {
+        lancamentoId: insertedData?.[0]?.id ?? null,
         dbId: newDbId,
         matchedDbRecord: {
           id: newDbId,
@@ -340,6 +410,7 @@ function ImporteExtrato() {
 
       if (error) throw error;
       return {
+        lancamentoId: targetId,
         dbId: targetId,
         matchedDbRecord: {
           ...matched,
@@ -358,6 +429,7 @@ function ImporteExtrato() {
 
     try {
       const result = await reconcileSingleTransaction(tx, selectedConta, user?.id);
+      await registrarTransacoesInter([{ tx, lancamentoId: result?.lancamentoId }]);
 
       setTransactions(prev => prev.map(item => {
         if (item.id === tx.id) {
@@ -417,6 +489,7 @@ function ImporteExtrato() {
       if (error) throw error;
 
       const createdRecord = data && data.length > 0 ? data[0] : null;
+      await registrarTransacoesInter([{ tx, lancamentoId: createdRecord?.id }]);
 
       setTransactions(prev => prev.map(item => {
         if (item.id === tx.id) {
@@ -565,6 +638,51 @@ function ImporteExtrato() {
 
   const processFile = () => {
     if (!file) return;
+    setApiRaw(null);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const parsed = parseOFX((e.target?.result as string) || "");
+      analyzeTransactions(parsed, "ofx");
+    };
+    reader.readAsText(file);
+  };
+
+  // Busca o extrato pelo Open Finance (Edge Function "pluggy-extrato", que guarda o Client Secret).
+  const fetchInterApi = async () => {
+    if (!apiInicio || !apiFim) {
+      alert("Informe as datas inicial e final.");
+      return;
+    }
+    if (!conexaoAtual) {
+      alert("Conecte esta conta pelo Open Finance antes de buscar o extrato.");
+      return;
+    }
+    setFile(null);
+    setTransactions([]);
+    setSelectedTxIds(new Set());
+    setApiRaw(null);
+    setLoading(true);
+    try {
+      const data = await chamarPluggy({
+        acao: "extrato",
+        accountId: conexaoAtual.account_id,
+        dataInicio: apiInicio,
+        dataFim: apiFim
+      });
+      const raw = (data.transacoes || []) as any[];
+      setApiRaw(raw);
+      if (raw.length === 0) {
+        alert("Nenhuma transação encontrada para esse período.");
+      }
+    } catch (err: any) {
+      console.error("Erro ao buscar extrato pela Pluggy:", err);
+      alert("Não foi possível buscar o extrato: " + (err.message || "Erro desconhecido."));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const analyzeTransactions = async (parsed: any[], source: "ofx" | "pluggy") => {
     if (!selectedConta) {
       setAccountWarning(true);
     } else {
@@ -572,157 +690,209 @@ function ImporteExtrato() {
     }
     setLoading(true);
 
-    const reader = new FileReader();
-    reader.onload = async (e) => {
-      try {
-        const content = e.target?.result as string;
-        const parsed = parseOFX(content);
+    try {
+      parsed.forEach(t => { t.source = source; });
+      parsed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+      if (parsed.length === 0) {
+        setTransactions([]);
+        if (source === "ofx") alert("Nenhuma transação encontrada no arquivo OFX.");
+        return;
+      }
+
+      // Determine min and max dates
+      const dates = parsed.map(t => new Date(t.date + "T00:00:00").getTime());
+      const minTime = Math.min(...dates);
+      const maxTime = Math.max(...dates);
+
+      // Margin of 3 days
+      const boundsMin = new Date(minTime - 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+      const boundsMax = new Date(maxTime + 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+
+      // 1. Fetch DB Lancamentos filtrados por todas as variações da conta bancária (label e displayLabel)
+      const matchingConta = contas.find(c => c.label === selectedConta || c.displayLabel === selectedConta);
+      const contaPossibleValues = matchingConta 
+        ? Array.from(new Set([matchingConta.label, matchingConta.displayLabel].filter(Boolean)))
+        : [selectedConta];
+
+      let queryLf = supabase
+        .from("lancamentos_financeiros")
+        .select("id, data, valor, descricao, conciliado, conta, categoria, fornecedor")
+        .gte("data", boundsMin)
+        .lte("data", boundsMax);
         
-        parsed.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-        
-        if (parsed.length === 0) {
-          setTransactions([]);
-          alert("Nenhuma transação encontrada no arquivo OFX.");
-          setLoading(false);
-          return;
-        }
+      if (selectedConta) {
+        queryLf = queryLf.in("conta", contaPossibleValues);
+      }
 
-        // Determine min and max dates
-        const dates = parsed.map(t => new Date(t.date + "T00:00:00").getTime());
-        const minTime = Math.min(...dates);
-        const maxTime = Math.max(...dates);
+      // 2. Fetch Contas a Pagar / Receber (contas_pagar_receber) para incluir na pesquisa de conciliação
+      let queryCpr = supabase
+        .from("contas_pagar_receber")
+        .select("id, data, valor, descricao, fornecedor_cliente, categoria, is_recorrente, status_revisao")
+        .gte("data", boundsMin)
+        .lte("data", boundsMax);
 
-        // Margin of 3 days
-        const boundsMin = new Date(minTime - 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
-        const boundsMax = new Date(maxTime + 4 * 24 * 60 * 60 * 1000).toLocaleDateString("en-CA");
+      const [{ data: dbLfData, error: errorLf }, { data: dbCprData, error: errorCpr }] = await Promise.all([
+        queryLf,
+        queryCpr
+      ]);
 
-        // 1. Fetch DB Lancamentos filtrados por todas as variações da conta bancária (label e displayLabel)
-        const matchingConta = contas.find(c => c.label === selectedConta || c.displayLabel === selectedConta);
-        const contaPossibleValues = matchingConta 
-          ? Array.from(new Set([matchingConta.label, matchingConta.displayLabel].filter(Boolean)))
-          : [selectedConta];
+      if (errorLf) throw errorLf;
+      if (errorCpr) throw errorCpr;
 
-        let queryLf = supabase
-          .from("lancamentos_financeiros")
-          .select("id, data, valor, descricao, conciliado, conta, categoria, fornecedor")
+      // Formata os lançamentos financeiros da conta selecionada
+      const formattedLf = (dbLfData || []).map((db: any) => ({
+        ...db,
+        sourceTable: "lancamentos_financeiros",
+        sourceLabel: "Lançamento Financeiro",
+        originalData: db
+      }));
+
+      // Formata as contas a pagar / receber
+      const formattedCpr = (dbCprData || []).map((db: any) => ({
+        id: db.id,
+        data: db.data,
+        valor: db.valor,
+        descricao: [db.descricao, db.fornecedor_cliente].filter(Boolean).join(" - "),
+        conciliado: false,
+        sourceTable: "contas_pagar_receber",
+        sourceLabel: "Contas a Pagar",
+        originalData: db
+      }));
+
+      const availableDb = [...formattedLf, ...formattedCpr];
+
+      // Inicializa todos como "Não Encontrado"
+      parsed.forEach(ofx => {
+        ofx.status = "Não Encontrado";
+        ofx.matchedDbRecord = null;
+      });
+
+      // Extrato pelo Open Finance: transações já lançadas antes (pelo id da Pluggy) não entram de novo.
+      if (source === "pluggy") {
+        const { data: jaImportadas, error: errImp } = await supabase
+          .from("extrato_transacoes_importadas")
+          .select("id_transacao, lancamento_id")
+          .eq("origem", "pluggy")
           .gte("data", boundsMin)
           .lte("data", boundsMax);
-          
-        if (selectedConta) {
-          queryLf = queryLf.in("conta", contaPossibleValues);
+        if (errImp) {
+          console.warn("Não foi possível ler extrato_transacoes_importadas (o script SQL já foi rodado?):", errImp);
         }
-
-        // 2. Fetch Contas a Pagar / Receber (contas_pagar_receber) para incluir na pesquisa de conciliação
-        let queryCpr = supabase
-          .from("contas_pagar_receber")
-          .select("id, data, valor, descricao, fornecedor_cliente, categoria, is_recorrente, status_revisao")
-          .gte("data", boundsMin)
-          .lte("data", boundsMax);
-
-        const [{ data: dbLfData, error: errorLf }, { data: dbCprData, error: errorCpr }] = await Promise.all([
-          queryLf,
-          queryCpr
-        ]);
-
-        if (errorLf) throw errorLf;
-        if (errorCpr) throw errorCpr;
-
-        // Formata os lançamentos financeiros da conta selecionada
-        const formattedLf = (dbLfData || []).map((db: any) => ({
-          ...db,
-          sourceTable: "lancamentos_financeiros",
-          sourceLabel: "Lançamento Financeiro",
-          originalData: db
-        }));
-
-        // Formata as contas a pagar / receber
-        const formattedCpr = (dbCprData || []).map((db: any) => ({
-          id: db.id,
-          data: db.data,
-          valor: db.valor,
-          descricao: [db.descricao, db.fornecedor_cliente].filter(Boolean).join(" - "),
-          conciliado: false,
-          sourceTable: "contas_pagar_receber",
-          sourceLabel: "Contas a Pagar",
-          originalData: db
-        }));
-
-        const availableDb = [...formattedLf, ...formattedCpr];
-
-        // Inicializa todos como "Não Encontrado"
-        parsed.forEach(ofx => {
-          ofx.status = "Não Encontrado";
-          ofx.matchedDbRecord = null;
+        const lancamentoPorTransacao = new Map<string, any>(
+          (jaImportadas || []).map((r: any) => [String(r.id_transacao), r.lancamento_id])
+        );
+        parsed.forEach(tx => {
+          if (!lancamentoPorTransacao.has(String(tx.id))) return;
+          const lancamentoId = lancamentoPorTransacao.get(String(tx.id));
+          const idx = availableDb.findIndex(db => db.sourceTable === "lancamentos_financeiros" && String(db.id) === String(lancamentoId));
+          tx.status = "Já Conciliado";
+          tx.dbId = lancamentoId;
+          if (idx !== -1) {
+            tx.matchedDbRecord = availableDb[idx];
+            availableDb.splice(idx, 1);
+          } else {
+            tx.matchedDbRecord = {
+              id: lancamentoId,
+              data: tx.date,
+              valor: tx.amount,
+              descricao: "Já lançado pelo Open Finance",
+              conciliado: true,
+              sourceTable: "lancamentos_financeiros",
+              sourceLabel: "Lançamento Financeiro"
+            };
+          }
         });
+      }
 
-        const matchIndividual = (maxDiffDays: number) => {
-          parsed.forEach(ofx => {
-            if (ofx.status !== "Não Encontrado") return;
-            const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
-            const ofxAmount = Math.abs(ofx.amount);
+      const matchIndividual = (maxDiffDays: number) => {
+        parsed.forEach(ofx => {
+          if (ofx.status !== "Não Encontrado") return;
+          const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
+          const ofxAmount = Math.abs(ofx.amount);
 
-            let matchIdx = availableDb.findIndex(db => {
+          let matchIdx = availableDb.findIndex(db => {
+            const dbAmount = Math.abs(parseBRNumber(db.valor));
+            if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
+            
+            const dbDate = new Date(db.data + "T00:00:00").getTime();
+            const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
+            return diffDays <= maxDiffDays && !db.conciliado;
+          });
+
+          if (matchIdx !== -1) {
+            const matched = availableDb[matchIdx];
+            ofx.dbId = matched.id;
+            ofx.status = "Encontrado";
+            ofx.matchedDbRecord = matched;
+            availableDb.splice(matchIdx, 1);
+          } else {
+            // Verifica nos já conciliados apenas para marcar o status visual
+            const alreadyIdx = availableDb.findIndex(db => {
               const dbAmount = Math.abs(parseBRNumber(db.valor));
               if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
               
               const dbDate = new Date(db.data + "T00:00:00").getTime();
               const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-              return diffDays <= maxDiffDays && !db.conciliado;
+              return diffDays <= maxDiffDays && db.conciliado;
             });
-
-            if (matchIdx !== -1) {
-              const matched = availableDb[matchIdx];
+            if (alreadyIdx !== -1) {
+              const matched = availableDb[alreadyIdx];
               ofx.dbId = matched.id;
-              ofx.status = "Encontrado";
+              ofx.status = "Já Conciliado";
               ofx.matchedDbRecord = matched;
-              availableDb.splice(matchIdx, 1);
+              availableDb.splice(alreadyIdx, 1);
+            }
+          }
+        });
+      };
+
+      const matchGrouped = (maxDiffDays: number) => {
+        const groupsToTest: any[][] = [];
+        const unmatchedPositivesByDate: { [dateStr: string]: any[] } = {};
+        const unmatchedNegativesByDate: { [dateStr: string]: any[] } = {};
+        
+        parsed.forEach(ofx => {
+          if (ofx.status === "Não Encontrado") {
+            if (ofx.amount >= 0) {
+              if (!unmatchedPositivesByDate[ofx.date]) unmatchedPositivesByDate[ofx.date] = [];
+              unmatchedPositivesByDate[ofx.date].push(ofx);
             } else {
-              // Verifica nos já conciliados apenas para marcar o status visual
-              const alreadyIdx = availableDb.findIndex(db => {
-                const dbAmount = Math.abs(parseBRNumber(db.valor));
-                if (Math.abs(dbAmount - ofxAmount) > 0.01) return false;
-                
-                const dbDate = new Date(db.data + "T00:00:00").getTime();
-                const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-                return diffDays <= maxDiffDays && db.conciliado;
-              });
-              if (alreadyIdx !== -1) {
-                const matched = availableDb[alreadyIdx];
-                ofx.dbId = matched.id;
-                ofx.status = "Já Conciliado";
-                ofx.matchedDbRecord = matched;
-                availableDb.splice(alreadyIdx, 1);
-              }
+              if (!unmatchedNegativesByDate[ofx.date]) unmatchedNegativesByDate[ofx.date] = [];
+              unmatchedNegativesByDate[ofx.date].push(ofx);
             }
-          });
-        };
+          }
+        });
 
-        const matchGrouped = (maxDiffDays: number) => {
-          const groupsToTest: any[][] = [];
-          const unmatchedPositivesByDate: { [dateStr: string]: any[] } = {};
-          const unmatchedNegativesByDate: { [dateStr: string]: any[] } = {};
+        Object.values(unmatchedPositivesByDate).forEach(g => { if (g.length > 1) groupsToTest.push(g); });
+        Object.values(unmatchedNegativesByDate).forEach(g => { if (g.length > 1) groupsToTest.push(g); });
+
+        groupsToTest.forEach(groupTxs => {
+          const groupSum = groupTxs.reduce((sum, tx) => sum + tx.amount, 0);
+          const dateStr = groupTxs[0].date;
           
-          parsed.forEach(ofx => {
-            if (ofx.status === "Não Encontrado") {
-              if (ofx.amount >= 0) {
-                if (!unmatchedPositivesByDate[ofx.date]) unmatchedPositivesByDate[ofx.date] = [];
-                unmatchedPositivesByDate[ofx.date].push(ofx);
-              } else {
-                if (!unmatchedNegativesByDate[ofx.date]) unmatchedNegativesByDate[ofx.date] = [];
-                unmatchedNegativesByDate[ofx.date].push(ofx);
-              }
-            }
+          let matchIdx = availableDb.findIndex(db => {
+            if (db.conciliado) return false;
+            const dbAmount = parseBRNumber(db.valor);
+            if (Math.abs(dbAmount - groupSum) > 0.01) return false;
+            
+            const dbDate = new Date(db.data + "T00:00:00").getTime();
+            const ofxDate = new Date(dateStr + "T00:00:00").getTime();
+            const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
+            return diffDays <= maxDiffDays;
           });
 
-          Object.values(unmatchedPositivesByDate).forEach(g => { if (g.length > 1) groupsToTest.push(g); });
-          Object.values(unmatchedNegativesByDate).forEach(g => { if (g.length > 1) groupsToTest.push(g); });
-
-          groupsToTest.forEach(groupTxs => {
-            const groupSum = groupTxs.reduce((sum, tx) => sum + tx.amount, 0);
-            const dateStr = groupTxs[0].date;
-            
-            let matchIdx = availableDb.findIndex(db => {
-              if (db.conciliado) return false;
+          if (matchIdx !== -1) {
+            const matchedDb = availableDb[matchIdx];
+            groupTxs.forEach(ofx => {
+              ofx.dbId = matchedDb.id;
+              ofx.status = "Encontrado (Agrupado)";
+              ofx.matchedDbRecord = matchedDb;
+            });
+            availableDb.splice(matchIdx, 1);
+          } else {
+            let alreadyIdx = availableDb.findIndex(db => {
+              if (!db.conciliado) return false;
               const dbAmount = parseBRNumber(db.valor);
               if (Math.abs(dbAmount - groupSum) > 0.01) return false;
               
@@ -732,106 +902,84 @@ function ImporteExtrato() {
               return diffDays <= maxDiffDays;
             });
 
-            if (matchIdx !== -1) {
-              const matchedDb = availableDb[matchIdx];
+            if (alreadyIdx !== -1) {
+              const matchedDb = availableDb[alreadyIdx];
               groupTxs.forEach(ofx => {
                 ofx.dbId = matchedDb.id;
-                ofx.status = "Encontrado (Agrupado)";
+                ofx.status = "Já Conciliado (Agrupado)";
                 ofx.matchedDbRecord = matchedDb;
               });
-              availableDb.splice(matchIdx, 1);
-            } else {
-              let alreadyIdx = availableDb.findIndex(db => {
-                if (!db.conciliado) return false;
-                const dbAmount = parseBRNumber(db.valor);
-                if (Math.abs(dbAmount - groupSum) > 0.01) return false;
-                
-                const dbDate = new Date(db.data + "T00:00:00").getTime();
-                const ofxDate = new Date(dateStr + "T00:00:00").getTime();
-                const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-                return diffDays <= maxDiffDays;
-              });
+              availableDb.splice(alreadyIdx, 1);
+            }
+          }
+        });
+      };
 
-              if (alreadyIdx !== -1) {
-                const matchedDb = availableDb[alreadyIdx];
-                groupTxs.forEach(ofx => {
-                  ofx.dbId = matchedDb.id;
-                  ofx.status = "Já Conciliado (Agrupado)";
-                  ofx.matchedDbRecord = matchedDb;
-                });
-                availableDb.splice(alreadyIdx, 1);
+      const matchDbSubsetGroup = (maxDiffDays: number) => {
+        parsed.forEach(ofx => {
+          if (ofx.status !== "Não Encontrado") return;
+
+          const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
+          const ofxAmount = ofx.amount;
+          const isExpense = ofxAmount < 0;
+
+          const candidateDbs = availableDb.filter(db => {
+            if (db.conciliado) return false;
+            const dbVal = parseBRNumber(db.valor);
+            if ((isExpense && dbVal >= 0) || (!isExpense && dbVal < 0)) return false;
+
+            const dbDate = new Date(db.data + "T00:00:00").getTime();
+            const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
+            return diffDays <= maxDiffDays;
+          });
+
+          if (candidateDbs.length < 2) return;
+
+          const subset = findDbSubsetForAmount(candidateDbs, ofxAmount);
+
+          if (subset && subset.length > 1) {
+            ofx.status = "Encontrado (Agrupado)";
+            ofx.matchedDbRecords = subset;
+
+            const hasCpr = subset.some((s: any) => s.sourceTable === "contas_pagar_receber");
+
+            ofx.matchedDbRecord = {
+              id: "group-" + subset.map((s: any) => s.id).join("-"),
+              data: subset[0].data,
+              valor: ofxAmount,
+              descricao: `Soma de ${subset.length} lançamentos`,
+              sourceTable: hasCpr ? "contas_pagar_receber" : "lancamentos_financeiros",
+              sourceLabel: hasCpr ? `Contas a Pagar (${subset.length} itens)` : `Soma de Lançamentos (${subset.length} itens)`,
+              isGroup: true,
+              dbRecords: subset
+            };
+            ofx.dbId = ofx.matchedDbRecord.id;
+
+            subset.forEach((subItem: any) => {
+              const idx = availableDb.findIndex(d => d.id === subItem.id && d.sourceTable === subItem.sourceTable);
+              if (idx !== -1) {
+                availableDb.splice(idx, 1);
               }
-            }
-          });
-        };
-
-        const matchDbSubsetGroup = (maxDiffDays: number) => {
-          parsed.forEach(ofx => {
-            if (ofx.status !== "Não Encontrado") return;
-
-            const ofxDate = new Date(ofx.date + "T00:00:00").getTime();
-            const ofxAmount = ofx.amount;
-            const isExpense = ofxAmount < 0;
-
-            const candidateDbs = availableDb.filter(db => {
-              if (db.conciliado) return false;
-              const dbVal = parseBRNumber(db.valor);
-              if ((isExpense && dbVal >= 0) || (!isExpense && dbVal < 0)) return false;
-
-              const dbDate = new Date(db.data + "T00:00:00").getTime();
-              const diffDays = Math.abs(ofxDate - dbDate) / (1000 * 60 * 60 * 24);
-              return diffDays <= maxDiffDays;
             });
+          }
+        });
+      };
 
-            if (candidateDbs.length < 2) return;
+      // Executa os passos em ordem de prioridade (soma de lançamentos da mesma data tem prioridade máxima)
+      matchDbSubsetGroup(0);
+      matchIndividual(0);
+      matchGrouped(0);
+      matchDbSubsetGroup(3);
+      matchIndividual(3);
+      matchGrouped(3);
 
-            const subset = findDbSubsetForAmount(candidateDbs, ofxAmount);
-
-            if (subset && subset.length > 1) {
-              ofx.status = "Encontrado (Agrupado)";
-              ofx.matchedDbRecords = subset;
-
-              const hasCpr = subset.some((s: any) => s.sourceTable === "contas_pagar_receber");
-
-              ofx.matchedDbRecord = {
-                id: "group-" + subset.map((s: any) => s.id).join("-"),
-                data: subset[0].data,
-                valor: ofxAmount,
-                descricao: `Soma de ${subset.length} lançamentos`,
-                sourceTable: hasCpr ? "contas_pagar_receber" : "lancamentos_financeiros",
-                sourceLabel: hasCpr ? `Contas a Pagar (${subset.length} itens)` : `Soma de Lançamentos (${subset.length} itens)`,
-                isGroup: true,
-                dbRecords: subset
-              };
-              ofx.dbId = ofx.matchedDbRecord.id;
-
-              subset.forEach((subItem: any) => {
-                const idx = availableDb.findIndex(d => d.id === subItem.id && d.sourceTable === subItem.sourceTable);
-                if (idx !== -1) {
-                  availableDb.splice(idx, 1);
-                }
-              });
-            }
-          });
-        };
-
-        // Executa os passos em ordem de prioridade (soma de lançamentos da mesma data tem prioridade máxima)
-        matchDbSubsetGroup(0);
-        matchIndividual(0);
-        matchGrouped(0);
-        matchDbSubsetGroup(3);
-        matchIndividual(3);
-        matchGrouped(3);
-
-        setTransactions(parsed);
-      } catch (err: any) {
-        console.error("Erro ao analisar arquivo OFX:", err);
-        alert("Ocorreu um erro ao tentar ler/sincronizar este arquivo. Detalhes: " + (err.message || "Erro desconhecido."));
-      } finally {
-        setLoading(false);
-      }
-    };
-    reader.readAsText(file);
+      setTransactions(parsed);
+    } catch (err: any) {
+      console.error("Erro ao analisar extrato:", err);
+      alert("Ocorreu um erro ao tentar ler/sincronizar este extrato. Detalhes: " + (err.message || "Erro desconhecido."));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatCurrency = (val: number) => {
@@ -928,6 +1076,7 @@ function ImporteExtrato() {
                   onClick={() => {
                     setSelectedBankMode(null);
                     setFile(null);
+                    setApiRaw(null);
                     setTransactions([]);
                     setSelectedTxIds(new Set());
                   }}
@@ -956,9 +1105,78 @@ function ImporteExtrato() {
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "500px", margin: "0 auto" }}>
-              <div 
-                style={{ 
-                  border: `2px dashed ${isDragging ? "#3b82f6" : "#cbd5e1"}`, 
+              <div style={{ border: "1px solid #fed7aa", backgroundColor: "#fff7ed", borderRadius: "8px", padding: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div style={{ fontSize: "1.4rem", color: "#9a3412", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Icons.BsCloudArrowDown /> Buscar direto do banco (Open Finance, sem arquivo)
+                </div>
+
+                {filteredContas.length > 1 && (
+                  <select
+                    value={selectedConta}
+                    onChange={(e) => { setSelectedConta(e.target.value); if (e.target.value) setAccountWarning(false); }}
+                    style={{ padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }}
+                  >
+                    <option value="">Selecione a conta bancária...</option>
+                    {filteredContas.map(c => (
+                      <option key={c.id} value={c.label}>{c.displayLabel || c.label}</option>
+                    ))}
+                  </select>
+                )}
+
+                {!selectedConta ? (
+                  <div style={{ fontSize: "1.2rem", color: "#9a3412" }}>
+                    {filteredContas.length === 0 ? "Nenhuma conta deste banco cadastrada em Contas." : "Escolha a conta acima para continuar."}
+                  </div>
+                ) : !conexaoAtual ? (
+                  <>
+                    <div style={{ fontSize: "1.2rem", color: "#475569" }}>
+                      Esta conta ainda não está conectada. Conecte uma vez: você entra no banco e autoriza o compartilhamento do extrato pelo Open Finance.
+                    </div>
+                    <PluggyConectarConta conta={selectedConta} userId={user?.id} onConectado={carregarConexoesPluggy} />
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: "flex", gap: "12px", alignItems: "flex-end", flexWrap: "wrap" }}>
+                      <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "1.2rem", color: "#475569", fontWeight: "bold" }}>
+                        De
+                        <input type="date" value={apiInicio} max={apiFim} onChange={(e) => setApiInicio(e.target.value)} style={{ padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
+                      </label>
+                      <label style={{ display: "flex", flexDirection: "column", gap: "4px", fontSize: "1.2rem", color: "#475569", fontWeight: "bold" }}>
+                        Até
+                        <input type="date" value={apiFim} min={apiInicio} max={hojeSP()} onChange={(e) => setApiFim(e.target.value)} style={{ padding: "8px", borderRadius: "6px", border: "1px solid #cbd5e1", fontSize: "1.3rem" }} />
+                      </label>
+                      <button
+                        className="primary-btn"
+                        onClick={fetchInterApi}
+                        disabled={loading}
+                        style={{ flex: 1, minWidth: "160px", padding: "10px", fontSize: "1.3rem", display: "flex", justifyContent: "center", alignItems: "center", gap: "8px", backgroundColor: "#FF7A00", opacity: loading ? 0.6 : 1, cursor: loading ? "not-allowed" : "pointer" }}
+                      >
+                        {loading ? <Icons.BsHourglassSplit /> : <Icons.BsArrowRepeat />}
+                        {loading ? "Buscando..." : "Buscar extrato"}
+                      </button>
+                    </div>
+                    <div style={{ fontSize: "1.1rem", color: "#9a3412" }}>
+                      Conectada: {conexaoAtual.descricao || "conta do banco"}. Nada é lançado sem a sua confirmação.
+                    </div>
+                    <details style={{ fontSize: "1.1rem", color: "#64748b" }}>
+                      <summary style={{ cursor: "pointer" }}>A busca deu erro de autorização? Reconectar</summary>
+                      <div style={{ marginTop: "8px" }}>
+                        <PluggyConectarConta
+                          conta={selectedConta}
+                          userId={user?.id}
+                          itemIdParaAtualizar={conexaoAtual.item_id}
+                          textoBotao="Renovar autorização"
+                          onConectado={carregarConexoesPluggy}
+                        />
+                      </div>
+                    </details>
+                  </>
+                )}
+              </div>
+              <div style={{ textAlign: "center", fontSize: "1.2rem", color: "#94a3b8" }}>ou importe um arquivo .OFX</div>
+              <div
+                style={{
+                  border: `2px dashed ${isDragging ? "#3b82f6" : "#cbd5e1"}`,
                   borderRadius: "8px", 
                   padding: "32px", 
                   textAlign: "center",
@@ -1082,7 +1300,7 @@ function ImporteExtrato() {
           <div style={{ background: "#fff", padding: "24px", borderRadius: "16px", boxShadow: "0 10px 25px -5px rgba(0,0,0,0.05)", width: "100%" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "16px" }}>
               <h2 style={{ fontSize: "1.8rem", color: "#334155", margin: 0, display: "flex", alignItems: "center", gap: "8px" }}>
-                <Icons.BsListCheck /> Comparativo de Extrato OFX ({transactions.length} Lançamentos)
+                <Icons.BsListCheck /> Comparativo de Extrato {apiRaw ? "Open Finance" : "OFX"} ({transactions.length} Lançamentos)
               </h2>
 
               {/* Seletor de Conta Bancária */}

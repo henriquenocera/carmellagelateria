@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Helmet } from "react-helmet";
 import * as Icons from "react-icons/bs";
 import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthProvider";
 import supabase from "../services/supabase-client";
 import "../css/Frequencia.css";
@@ -14,6 +15,7 @@ const cleanCategoryName = (name: string | null | undefined): string => {
 
 function LancamentosFinanceiros() {
   const { isAdmin, user } = useAuth();
+  const navigate = useNavigate();
 
   const [contasDb, setContasDb] = useState<any[]>([]);
   const [categoriasDb, setCategoriasDb] = useState<any[]>([]);
@@ -890,6 +892,15 @@ function LancamentosFinanceiros() {
           <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", flexWrap: "wrap", marginBottom: "12px", padding: "0 20px", alignItems: "center" }}>
             <button type="button" className="financial-add-button" onClick={() => { setEditingId(null); setShowNewModal(true); }}>
               <Icons.BsPlusCircleFill /> Adicionar
+            </button>
+            <button
+              type="button"
+              className="financial-add-button"
+              style={{ backgroundColor: "#FF7A00" }}
+              title="Busca o extrato do Banco Inter pela API para revisar e lançar"
+              onClick={() => navigate("/importe-extrato?fonte=pluggy")}
+            >
+              <Icons.BsCloudArrowDown /> Buscar extrato Inter
             </button>
 
             {/* Campo de Filtro de Mês */}
